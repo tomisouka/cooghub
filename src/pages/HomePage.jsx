@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { DEPARTMENTS } from "../data/subjects";
-import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult } from "../search";
+import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult, buildReferenceIndex, searchReferenceIndex, searchKnowledgeIndex, buildRefTextIndex, searchRefTextIndex } from "../search";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
@@ -22,19 +23,26 @@ function HighlightSnippet({ text, query }) {
 }
 
 export default function HomePage({ goTo, openUpload }) {
-  const [query, setQuery]       = useState("");
-  const [results, setResults]   = useState([]);
-  const [index, setIndex]       = useState(null);
-  const [pdfIdx, setPdfIdx]     = useState(null);
-  const [loading, setLoading]   = useState(false);
-  const debounce                = useRef(null);
-  const inputRef                = useRef(null);
-  const dropdownRef             = useRef(null);
+  const [query, setQuery]         = useState("");
+  const [results, setResults]     = useState([]);
+  const [index, setIndex]         = useState(null);
+  const [pdfIdx, setPdfIdx]       = useState(null);
+  const [refIdx, setRefIdx]       = useState(null);
+  const [refTextIdx, setRefTextIdx] = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const debounce                  = useRef(null);
+  const inputRef                  = useRef(null);
+  const dropdownRef               = useRef(null);
+  const isMobile                  = useIsMobile();
 
   // Build indexes on mount
   useEffect(() => {
     buildSearchIndex().then(setIndex);
     loadPdfIndex().then(setPdfIdx);
+    const ri = buildReferenceIndex();
+    setRefIdx(ri);
+    // Full-text reference index — lazy, loads in background after mount
+    buildRefTextIndex(ri).then(setRefTextIdx);
   }, []);
 
   // Close dropdown on outside click
@@ -53,11 +61,18 @@ export default function HomePage({ goTo, openUpload }) {
     setQuery(q);
     clearTimeout(debounce.current);
     if (q.trim().length < 2) { setResults([]); return; }
-    debounce.current = setTimeout(() => {
+    debounce.current = setTimeout(async () => {
       setLoading(true);
-      const text = index ? searchTextIndex(index, q) : [];
-      const pdfs = pdfIdx ? searchPdfIndex(pdfIdx, q) : [];
-      setResults([...text, ...pdfs].slice(0, 20));
+      const text  = index      ? searchTextIndex(index, q)           : [];
+      const pdfs  = pdfIdx     ? searchPdfIndex(pdfIdx, q)           : [];
+      // Full-text reference search if index is ready, otherwise fall back to label search
+      const refs  = refTextIdx ? searchRefTextIndex(refTextIdx, q)
+                               : refIdx ? searchReferenceIndex(refIdx, q) : [];
+      const know  = await searchKnowledgeIndex(q);
+      // Deduplicate refs by file (full-text may overlap with label results)
+      const seen  = new Set();
+      const deduped = refs.filter(r => { if (seen.has(r.file)) return false; seen.add(r.file); return true; });
+      setResults([...text, ...deduped, ...know, ...pdfs].slice(0, 30));
       setLoading(false);
     }, 200);
   }
@@ -69,36 +84,39 @@ export default function HomePage({ goTo, openUpload }) {
     setQuery("");
     setResults([]);
     if (dest.page === "talk2me") { goTo("talk2me"); return; }
-    goTo(dest.page, dest.courseId, { ...dest, query: q });
+    // Spread into a new object with a unique ts so App.setState always fires
+    // even when navigating to the same course+file twice in a row
+    goTo(dest.page, dest.courseId, { ...dest, query: q, _ts: Date.now() });
   }
 
-  const typeColor = { note: "#4ecdc4", code: "#e8c547", pdf: "#e85454", talk2me: "#a78bfa" };
+  const typeColor = { note: "#4ecdc4", code: "#e8c547", pdf: "#e85454", talk2me: "#a78bfa", reference: "#fb923c", knowledge: "#a78bfa" };
 
   return (
     <div style={{
-      height: "100vh", display: "flex", flexDirection: "column",
+      height: "100%", display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
-      padding: "0 48px", fontFamily: FONT,
+      padding: isMobile ? "0 20px" : "0 48px", fontFamily: FONT,
+      overflowY: "auto",
     }}>
       <div style={{ width: "100%", maxWidth: 680 }}>
 
         {/* Title */}
         <h1 style={{
-          fontSize: 48, fontWeight: 700, color: "#f0f0f0",
+          fontSize: isMobile ? 36 : 48, fontWeight: 700, color: "#f0f0f0",
           marginBottom: 8, letterSpacing: "-0.5px",
         }}>
           Coogs <span style={{ color: "#e8c547" }}>Hub</span>
         </h1>
-        <p style={{ color: "#7a8090", fontSize: 14, fontWeight: 500, marginBottom: 40 }}>
+        <p style={{ color: "#7a8090", fontSize: isMobile ? 12 : 14, fontWeight: 500, marginBottom: isMobile ? 28 : 40 }}>
           Spring 2026 — search notes, code, and PDFs
         </p>
 
         {/* Search */}
-        <div style={{ position: "relative", marginBottom: 48 }}>
+        <div style={{ position: "relative", marginBottom: isMobile ? 24 : 48 }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
             background: "#1a1d24", border: "1px solid #2a2e38",
-            borderRadius: 12, padding: "14px 18px",
+            borderRadius: 12, padding: isMobile ? "12px 14px" : "14px 18px",
             transition: "border-color 0.15s",
           }}
             onFocus={() => {}}
@@ -111,9 +129,11 @@ export default function HomePage({ goTo, openUpload }) {
               placeholder="Search notes, code, PDFs…"
               style={{
                 flex: 1, background: "none", border: "none", outline: "none",
-                color: "#d4d8e0", fontSize: 15, fontFamily: FONT, fontWeight: 500,
+                color: "#d4d8e0", fontSize: isMobile ? 14 : 15, fontFamily: FONT, fontWeight: 500,
+                minWidth: 0,
               }}
             />
+            {!isMobile && (
             <button
               onClick={() => openUpload?.()}
               style={{
@@ -129,6 +149,7 @@ export default function HomePage({ goTo, openUpload }) {
             >
               ⊕ Add Files
             </button>
+            )}
           </div>
 
           {/* Results dropdown */}
@@ -138,7 +159,7 @@ export default function HomePage({ goTo, openUpload }) {
               background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 12,
               zIndex: 50, boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
               display: "flex", flexDirection: "column",
-              maxHeight: "min(520px, 65vh)",
+              maxHeight: isMobile ? "55vh" : "min(520px, 65vh)",
             }}>
               {/* Header: result count */}
               <div style={{
@@ -194,29 +215,45 @@ export default function HomePage({ goTo, openUpload }) {
         </div>
 
         {/* COSC / MATH buttons */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobile ? 12 : 16 }}>
           {DEPARTMENTS.map(dept => (
             <button
               key={dept.id}
               onClick={() => goTo(dept.id)}
               style={{
                 background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 12,
-                padding: "28px 32px", cursor: "pointer", textAlign: "left",
+                padding: isMobile ? "20px 16px" : "28px 32px", cursor: "pointer", textAlign: "left",
                 transition: "all 0.15s", fontFamily: FONT,
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = dept.color; e.currentTarget.style.background = "#21252e"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.background = "#1a1d24"; }}
             >
-              <div style={{ fontSize: 28, marginBottom: 10 }}>{dept.icon}</div>
-              <div style={{ color: dept.color, fontSize: 20, fontWeight: 700, marginBottom: 4 }}>
+              <div style={{ fontSize: isMobile ? 24 : 28, marginBottom: 10 }}>{dept.icon}</div>
+              <div style={{ color: dept.color, fontSize: isMobile ? 18 : 20, fontWeight: 700, marginBottom: 4 }}>
                 {dept.label}
               </div>
-              <div style={{ color: "#7a8090", fontSize: 13, fontWeight: 500 }}>
+              <div style={{ color: "#7a8090", fontSize: isMobile ? 11 : 13, fontWeight: 500 }}>
                 {dept.courses.length} courses
               </div>
             </button>
           ))}
         </div>
+
+        {/* Mobile: Add Files below dept cards */}
+        {isMobile && (
+          <button
+            onClick={() => openUpload?.()}
+            style={{
+              marginTop: 20, width: "100%",
+              background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 10,
+              color: "#7a8090", fontSize: 13, fontFamily: FONT, fontWeight: 600,
+              padding: "14px 0", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}
+          >
+            ⊕ Add Files
+          </button>
+        )}
 
       </div>
     </div>

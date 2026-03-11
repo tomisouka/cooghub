@@ -523,3 +523,400 @@ Biggest UX win. On mobile:
 - `src/App.jsx` — bottom nav, conditional sidebar
 - `src/pages/CoursePage.jsx` — single pane mode, scrollable tabs
 - `src/pages/DeptPage.jsx` — 2-col grid, responsive padding
+---
+
+## Session 18 — Mobile Polish Pass + Bash Reference
+
+### Goal
+Three targeted fixes: remaining pages not mobile-friendly, PDF viewer unusable on touch (no scroll, no pinch-zoom), status bar covering the app top bar on Android. Plus Bash language reference added to Lang+.
+
+---
+
+### Mobile Pass v2 — Remaining Pages (Session 18a)
+
+**HomePage.jsx**
+- Container: `height: "100vh"` → `height: "100%"` + `overflowY: auto` so it respects the bottom nav offset
+- Title: 48 → 36px on mobile; subtitle margin tightened
+- Search bar padding reduced on mobile; input font 15 → 14px
+- "Add Files" button hidden from inside search bar on mobile — moved to a full-width button below the dept cards
+- Results dropdown `maxHeight` capped at `55vh` on mobile
+- Dept cards: padding reduced, font sizes tightened
+
+**Talk2MePage.jsx**
+- Same single-pane pattern as CoursePage: tapping a file hides the sidebar and goes fullscreen content
+- Mobile back arrow `←` in a sticky mini-header above content returns to the list
+- `switchSection` resets `showList = true` so switching sections always lands back on the file list
+- Root container `height: "100vh"` → `height: "100%"`
+
+**DeptPage.jsx (Lang+ and MATH)**
+- **Lang+ panel**: on mobile, tapping a language hides the sidebar and shows iframe fullscreen. Back arrow in header toggles back. Active language name shown in header while viewing.
+- **MATH layout**: same single-pane treatment. Tapping a reference goes fullscreen. Back arrow in header returns to the list. Header font sizes tightened for mobile.
+
+---
+
+### Bash Reference — bash_reference.html (Session 18b)
+
+Built `public/references/languages/bash_reference.html` matching the existing cpp/git/etc reference style (Fraunces + DM Mono + Inter fonts, sticky header with inline search, dark theme, green accent).
+
+**16 sections, ~1,480 lines:**
+1. Syntax & Structure — special chars, exit codes, shebang
+2. Variables & Parameters — assignment, all 20+ special params, all parameter expansions
+3. String Operations — quoting rules, here strings, here docs
+4. Arrays & Associative Arrays — indexed + assoc, safe expansion patterns
+5. Arithmetic — `$(( ))`, `(( ))`, operator table, bc/awk for floats
+6. Conditionals — if/elif/else, all file tests, string tests, int tests, case, select
+7. Loops — for-in, C-style, array loop, `while IFS= read -r` pattern, break/continue
+8. Functions — local scope, return, stdout-as-value, namerefs (Bash 4.3+)
+9. I/O & Redirection — full redirection table, read options, printf
+10. Processes & Jobs — job control, subshells, parallel, PIPESTATUS
+11. Builtins — all major builtins, set options, shopt
+12. Globbing & Expansion — glob, extglob, brace expansion, tilde
+13. Regex & Pattern Matching — `=~`, `$BASH_REMATCH`, ERE quick ref
+14. Scripting Best Practices — full script template, getopts, mktemp/trap cleanup
+15. Traps & Signals — trap syntax table, common signals table, re-raise pattern
+16. Tips & Gotchas — common mistakes table, useful idioms, debug techniques, ShellCheck callout
+
+Wired into `src/data/subjects.js` LANG_REFS as `{ file: "languages/bash_reference.html", label: "Bash", color: "#a8e6a3" }` in the OS group alongside ARM, Linux, and Git.
+
+---
+
+### Status Bar / Safe Area Fix (Session 18c)
+
+**Problem:** On Android (Capacitor APK), the system status bar was overlapping the app's top bar, making the header unreadable.
+
+**Root cause:** `viewport-fit` was not set to `cover`, so the browser was not exposing `env(safe-area-inset-*)` variables. Without these, the app had no way to know the status bar height.
+
+**Fix — two parts:**
+
+`index.html` — added `viewport-fit=cover` to the viewport meta tag:
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+```
+
+`src/App.jsx` — added CSS custom properties and applied them:
+```css
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+```
+- `<main>` on mobile: `paddingTop: "var(--sat)"` pushes content below status bar
+- Bottom nav `height: calc(60px + var(--sab))` extends into home bar zone on notched phones
+- Nav buttons locked to `height: 60px` so the tap targets stay correct size despite nav growing taller
+
+On desktop the CSS vars fall back to `0px` — no impact.
+
+---
+
+### PDF Touch Fix (Session 18c)
+
+**Problem:** On mobile, the PDF viewer canvas was not scrollable and had no pinch-to-zoom.
+
+**Fix — two parts:**
+
+1. **Scroll**: added `touchAction: "pan-x pan-y pinch-zoom"` to the scroll container — tells the browser not to suppress two-finger pan on this element.
+
+2. **Pinch-to-zoom**: native touch event listeners (non-passive, so `preventDefault()` works) track two-finger pinch distance. On `touchstart` the starting distance and scale are recorded; on `touchmove` the ratio of new distance to start distance scales `pinchRef.current.startScale` and calls `setScale()`. The useEffect re-binds listeners whenever `scale` changes so `startScale` is always current.
+
+**Why non-passive?** React synthetic `onTouchMove` is passive by default — `e.preventDefault()` inside it silently fails, which allows the page to scroll while pinching. Registering via `addEventListener(..., { passive: false })` gives us actual control.
+
+---
+
+### Files Changed
+- `index.html` — `viewport-fit=cover` added
+- `src/App.jsx` — safe area CSS vars, main paddingTop, nav height/padding fix
+- `src/components/PDFViewer.jsx` — pinch-to-zoom via non-passive touch listeners, `touchAction` on scroll container
+- `src/pages/HomePage.jsx` — mobile padding, font sizes, Add Files repositioned
+- `src/pages/Talk2MePage.jsx` — single-pane mode, mobile back arrow
+- `src/pages/DeptPage.jsx` — Lang+ and MATH single-pane on mobile
+- `public/references/languages/bash_reference.html` — new file
+- `src/data/subjects.js` — Bash added to LANG_REFS
+
+---
+
+## Session 19 — PDF Viewer Horizontal Scroll Fix
+
+### Goal
+Diagnose and fix horizontal scrolling in the PDF viewer. Vertical scroll worked, left/right did not.
+
+---
+
+### Bug: PDF horizontal scroll broken
+
+**Symptom:** Scrolling up/down in the PDF viewer worked fine. Scrolling left/right did nothing — the canvas was unreachable past the right edge regardless of zoom level.
+
+**Initial hypothesis (wrong):** `textAlign: "center"` on the scroll container was centering the canvas and clipping overflow symmetrically. Removing it and switching to `margin: 0 auto` on the inner wrapper didn't fix it.
+
+**Actual root cause — two-level flex constraint failure:**
+
+The scroll container inside `PDFViewer` had `overflow: auto` — correct. But `overflow` only creates a scrollable region when the element has a *bounded width*. The element's width is bounded by its parent, whose width is bounded by its parent, all the way up the tree. The chain was broken in two places:
+
+1. **`CoursePage` body div** — `flex: 1, display: flex` with no `minWidth: 0` and no `overflow: hidden`. CSS flexbox items have `min-width: auto` by default, meaning "be as wide as your content." So when the PDF canvas was wide, it expanded the body div instead of overflowing inside the scroll container.
+
+2. **`PDFViewer` outer div** — had `height: 100%` but no `flex: 1` / `minWidth: 0`, so it wasn't taking a properly bounded horizontal slot from its flex parent.
+
+**Fix:**
+
+`CoursePage.jsx` — body div:
+```jsx
+// Before
+<div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+// After
+<div style={{ flex: 1, display: "flex", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+```
+
+`PDFViewer.jsx` — outer div:
+```jsx
+// Before
+<div style={{ display:"flex", flexDirection:"column", height:"100%", background:"#111318" }}>
+// After
+<div style={{ display:"flex", flexDirection:"column", flex:1, minWidth:0, height:"100%", background:"#111318" }}>
+```
+
+**Key lesson:** `minWidth: 0` is the essential flexbox fix for overflow. Flex items default to `min-width: auto` which means they grow to fit their content and never allow their children to overflow. Adding `minWidth: 0` overrides this and lets the browser treat the element as a true bounded container. Without it, `overflow: auto` on a child is meaningless — there's nothing to overflow against.
+
+**Also cleaned up in this session:**
+- Removed the diagnostic overlay div and its `setInterval`/scroll listener `useEffect` from `PDFViewer.jsx` (was left in from troubleshooting)
+- Added `pinch-zoom` to `touchAction` on the scroll container — was `"pan-x pan-y"` but `pinch-zoom` was missing (Session 18 intent never landed in the file)
+- Changed `transformOrigin` on the canvas wrapper from `"center top"` to `"top left"` for more predictable pinch-zoom behavior
+
+### Files Changed
+- `src/components/PDFViewer.jsx` — `flex:1, minWidth:0` on outer div; removed diagnostic overlay + interval; `touchAction` now includes `pinch-zoom`; `transformOrigin` → `top left`
+- `src/pages/CoursePage.jsx` — `minWidth: 0, overflow: "hidden"` on body div
+
+---
+
+## Session 19 (cont.) — Search Navigation Fix + PDF Highlight Ticket
+
+### Search Navigation — Three Bugs Fixed
+
+**Symptom:** Clicking a search result would land on the course page but show the file list instead of the content, requiring a manual file tap to get to the highlighted document.
+
+**Bug 1 — Mobile `showList` never false on search nav (`CoursePage.jsx`)**
+`showList` was hardcoded to `useState(true)`. On mobile, arriving from a search result with a specific file should skip the list entirely.
+Fix: `useState(!(isMobile && dest?.file))` — if there's an incoming file from search, start in content view.
+
+**Bug 2 — `dest` change detection used object reference equality (`CoursePage.jsx`)**
+`prevDestRef` was initialized to the current `dest` on mount, and the guard was `dest !== prevDestRef.current`. React batching can reuse object references, causing the `useEffect` to silently skip the sync even when the destination changed.
+Fix: replaced with a string key `"tab::file::pdfPage"` — detects any real change in destination regardless of reference.
+
+**Bug 3 — Same-course repeat search doesn't re-trigger (`HomePage.jsx`)**
+When already on a course and searching for something else in the same course, `App.jsx`'s `setDest` may bail if the value appears equal. Fix: added `_ts: Date.now()` to the dest object — every search click is guaranteed to be a fresh state value.
+
+**Files changed:**
+- `src/pages/CoursePage.jsx` — `showList` init, string key for dest change detection, `setShowList(false)` in useEffect on mobile
+- `src/pages/HomePage.jsx` — `_ts: Date.now()` in `handleResult`
+
+---
+
+### PDF Highlight Drift — Documented as Ticket #007
+
+Confirmed the highlight misalignment seen in the comp org textbook is a cosmetic rendering artifact, not a false match. The word "pipe" in "pipelining" was a real hit — the amber box just drifted visually due to `scaleX` transform inheritance on the `<mark>` element. No functional impact. Logged as #007 with a proposed fix approach.
+---
+
+## Session 19 (cont.) — Reference & Knowledge Base Search
+
+### Goal
+Make HTML references and knowledge base entries searchable from the global search bar.
+
+### What's now searchable
+
+**Before this session:**
+- Markdown notes (36 files)
+- Talk2Me txt files (44 files)
+- C++ code files (26 files)
+- PDFs (~14 files, via pdf-index.json)
+
+**Added this session:**
+- **Reference pages by label** — all 90 iframe entries across every course (references + gopal tabs) plus 14 Lang+ entries. Searching "Merge Sort", "AVL Tree", "Gopal FFT", "Dijkstra" now returns the right reference page directly.
+- **Knowledge base entries** — 4,459 structured entries across 21 JS modules. Searches `symbol`, `plain`, `name`, `meaning` fields. Covers: C++, C, Python, Java, C#, TypeScript, Rust, Go, SQL, HTML/CSS, ARM, Linux, Git, Math/Science, Sets/Automata, Algorithms, Automata, Data Structures, Discrete Math, Linear Algebra, Math Notation.
+
+### What's still NOT searchable
+- **Bash reference** — `bash_reference.html` in `public/` has no companion `bash.js`. Fix: extract a `bash.js` from the HTML the same way the other language files were extracted.
+- **Visual HTML content** — the 60+ algo/gopal/ds visual pages are searchable by *label* now but not by their *internal text*. They live in `public/` and can't be glob-imported. Fix: build-time extractor (like `scripts/index-pdfs.js`) that strips HTML and emits a JSON index.
+- **Assignment HTML files** — 15 files in `src/content/assignments/`. Are glob-importable via `htmlFiles` but not yet wired into search. Low-effort addition.
+
+### Architecture
+- `buildReferenceIndex()` — flat array from `ALL_COURSES` references/gopal + `LANG_REFS`. Synchronous.
+- `searchReferenceIndex()` — label-level search, up to 15 results.
+- `searchKnowledgeIndex()` — searches `ALL_KNOWLEDGE` (~4,459 entries, 21 JS arrays). `DOMAIN_NAV` maps domain → courseId + tab + file.
+- `resolveResult()` — extended for `reference` and `knowledge` types. Lang+ refs (no courseId) navigate to COSC dept page.
+
+### Files changed
+- `src/search.js` — new functions, DOMAIN_NAV, ALL_KNOWLEDGE, extended resolveResult
+- `src/pages/HomePage.jsx` — refIdx state, updated handleQuery, updated typeColor
+---
+
+## Session 20 — Checkpoint: Reference Viewer & Search Audit
+
+### What was observed
+Two screenshots from a live session surfaced two distinct failure modes:
+
+**1. Loading spinner never resolves (Image 1)**
+Clicking "Doubly Linked List" in the Data Structures references tab shows the `IframeWithLoader` spinner indefinitely. The iframe fires `onLoad` reliably in a browser but not in the Capacitor APK WebView — the embedded system browser either blocks the Google Fonts `<link>` request or stalls the load event when the network is unavailable. Since every `public/references/*.html` file contains:
+```html
+<link href="https://fonts.googleapis.com/css2?..." rel="stylesheet">
+```
+…the iframe never reaches a fully-loaded state in an offline/restricted environment, so `setLoaded(true)` never fires.
+
+**2. Knowledge search result opens course page but reference doesn't display (Image 2)**
+Searching "certificate" correctly finds the knowledge entry (Complexity Theory › P vs NP & Verifiers) and navigates to the Automata course, shows the yellow search-result card at the top — but the reference iframe behind it shows blank or still-loading. The knowledge card says "↓ Scroll to Complexity Theory in the reference below" but there is nothing rendered below it.
+
+Root cause: the HTML references are plain `<iframe src="/references/...">` elements. The app has no way to:
+- Search inside their text content
+- Scroll-to or highlight a section
+- Render them without a network dependency (Google Fonts)
+- Know when they've truly finished loading in WebView
+
+### Decision: Build a `ReferenceViewer.jsx`
+
+Instead of iframes, reference files should be parsed and rendered natively as React components. This gives us:
+- Full in-app text search with highlight + scroll (same as MarkdownViewer)
+- No external network dependency (fonts loaded by the app, not the HTML file)
+- Reliable load state (no `onLoad` event race)
+- Section-level navigation from knowledge search results
+
+### Proposed architecture
+`src/components/ReferenceViewer.jsx`
+- Accepts: `file` (path relative to `/references/`), `highlight` (search query), `sectionId` (optional — jump to section on load)
+- `fetch("/references/{file}")` → parse HTML string → extract structured sections
+- Render each section as React JSX with the app's own typography and color tokens
+- On `highlight`: same TreeWalker + double-rAF scroll approach as MarkdownViewer
+- On `sectionId`: scroll to matching `<h2>` or `<h3>` on mount
+
+### What still needs to happen
+- Extract a data schema from the reference HTML files (they vary: `<div class="category">`, `<div class="section">`, `<table>`, etc.)
+- Decide: parse-at-runtime via DOMParser vs. pre-compile to JSON at build time
+- Wire into CoursePage: replace `<IframeWithLoader>` with `<ReferenceViewer>` for known-structured files
+- Keep iframe fallback for files that aren't yet migrated
+
+### Files NOT changed this session
+This session was a diagnostic + planning checkpoint only. No code was modified.
+
+### Next session entry point
+- File: `src/components/ReferenceViewer.jsx` (create new)
+- Start with one reference file (`data-structures.html`) as the proof of concept
+- Goal: render it natively, confirm highlight works, then generalize to other files
+
+---
+
+## Session 20 (cont.) — ReferenceViewer.jsx Built & Wired
+
+### Diagnostics run
+Audited all 39 HTML reference files (`public/references/*.html` + `languages/*.html`) by class name frequency. Found **4 structural templates** across the entire file set:
+
+| Template | Pattern | Files |
+|----------|---------|-------|
+| `plain-def` | `section-header` + `<table>` rows with `.plain-def` cells | 15 (all language refs + math/linux/automata) |
+| `cat-list` | `.cat-header` + `<ul><li>` with `.sym/.plain/.desc` spans | 3 (git, data-structures, algorithms taxonomy) |
+| `card-grid` | `.card-bar` + `.card-label/.card-title/.card-desc` | 70+ (algorithms_reference, gopal pages, ds visuals, calc guides) |
+| `concept` | `.concept-term` + `.concept-def` pairs | 2 (discrete-math-guide, linear-algebra-guide) |
+
+Visual/canvas pages in `/ds/`, `/algos/`, `/llms/`, `/side/` subdirs kept as iframes (interactive diagrams, not parseable).
+
+### What was built
+
+**`src/components/ReferenceViewer.jsx`** — new native React renderer:
+- `fetch("/references/{file}")` → `DOMParser` → auto-detects template → renders as React JSX
+- 4 sub-renderers: `PlainDefRenderer`, `CatListRenderer`, `CardGridRenderer`, `ConceptRenderer`
+- `GenericRenderer` fallback — injects sanitized `innerHTML` with app CSS override (hides original nav/fonts/bg)
+- `highlight` + `highlightKey` props — TreeWalker marks + double-rAF scroll (same approach as MarkdownViewer)
+- No Google Fonts dependency — uses app's Inter font, inherits `#111318` background
+- Loading state is a simple spinner (fast — fetch + parse, not a full page load)
+
+**`src/pages/CoursePage.jsx`** — wired in:
+- `iframeItems` split into `nativeItems` (→ `ReferenceViewer`) and `iframeItems` (→ `IframeWithLoader`, visual pages only)
+- Visual dir check: `VISUAL_DIRS = ["/ds/", "/algos/", "/llms/", "/side/"]`
+- Passes `color={course.color}`, `highlight={dest?.query}`, `highlightKey={dest?._ts}` to ReferenceViewer
+
+**`src/pages/DeptPage.jsx`** — wired in:
+- Lang+ panel iframe → `ReferenceViewer` (passes per-language color from `LANG_REFS`)
+- MATH dept sidebar iframe → `ReferenceViewer` (passes `dept.color`)
+- Both pass `dest?.query` and `dest?._ts` for search highlight support
+
+### Tickets resolved
+- **#008 closed** — Google Fonts spinner-never-resolves bug eliminated. ReferenceViewer has no external font dependency.
+- **#009 closed** — ReferenceViewer built and wired in for all structured reference pages.
+
+### Files changed
+- `src/components/ReferenceViewer.jsx` — new file
+- `src/pages/CoursePage.jsx` — import + VISUAL_DIRS split + ReferenceViewer wired
+- `src/pages/DeptPage.jsx` — import + both iframes replaced
+
+---
+
+## Session 21 — ReferenceViewer Rewrite + Full-Text Reference Search
+
+### What broke first
+After Session 20's ReferenceViewer (template-based parser), three regressions surfaced:
+
+1. **Spinner still present** on `ds/` and `algos/` pages — `VISUAL_PREFIXES` exemption was keeping them as iframes, which still had Google Fonts blocking `onLoad`
+2. **Search too limited** — reference index only had file *labels* ("Singly Linked List", "Merge Sort"). Searching actual content words like "recursion", "cache", "pointer" returned nothing
+3. **Template renderer broke ds/ card pages** — `CardGridRenderer` expected `.card-bar`+`.card-desc` but `ds/` files use `.card-title`+`.card-body` — a different card structure. Cards rendered with titles only, body text invisible due to CSS regex mangling `.card-body` → `.card-.rv-generic-body`
+
+### Root cause analysis
+Spent significant time diagnosing the card-body invisibility. The `body` selector scoping regex used `\bbody\b` which matched `.card-body` → `.card-.rv-generic-body`, breaking the selector entirely. Intermediate fix used a lookahead regex to only replace standalone `body` selectors, but the deeper problem was the entire template-parsing approach was fragile.
+
+### The actual fix — complete ReferenceViewer rewrite
+Threw out all template detection, all sub-renderers (PlainDefRenderer, CatListRenderer, CardGridRenderer, ConceptRenderer, GenericRenderer). Replaced with ~170 lines:
+
+1. `fetch("/references/{file}")` — get raw HTML
+2. Strip `<link>` tags pointing to `fonts.googleapis.com` — the only actual problem
+3. Extract `<style>` blocks, scope them to a unique `#rv-{id}` container (replacing `:root {}` and bare `body` selectors)
+4. Extract `<body>` innerHTML
+5. Inject scoped `<style>` + body HTML into a `<div id="rv-{id}">`
+
+Every file now renders exactly as its author designed it — colors, layout, diagrams, tables, everything intact. No parsing, no re-rendering, no template detection needed.
+
+**Key scoping regex fix:**
+```js
+// WRONG — broke .card-body, .node-body, etc.
+.replace(/\bbody\b/g, `#${id}`)
+
+// CORRECT — only replaces standalone `body` CSS selector
+.replace(/(^|[\s,{})>+~])body(\s*[{,>+~:\[])/gm, `$1#${id}$2`)
+```
+
+### Full-text reference search
+Added `buildRefTextIndex()` and `searchRefTextIndex()` to `search.js`. On mount, HomePage fetches all 90 reference HTML files in parallel, strips tags, and stores plain text per entry. Search now finds words inside reference content, not just file labels. Loads in background — falls back to label search while loading, upgrades automatically.
+
+### VISUAL_PREFIXES removed
+`ds/`, `algos/`, `llms/`, `side/` files were being kept as iframes due to a false assumption they were interactive. Audited all files — zero canvas/JS/animation in any of them. All are static card/diagram HTML. Removed the exemption. Everything goes through ReferenceViewer now.
+
+### Files changed
+- `src/components/ReferenceViewer.jsx` — complete rewrite (170 lines vs ~620)
+- `src/search.js` — added `buildRefTextIndex`, `searchRefTextIndex`
+- `src/pages/HomePage.jsx` — wired `buildRefTextIndex` + `searchRefTextIndex`, added `refTextIdx` state
+- `src/pages/CoursePage.jsx` — removed `VISUAL_PREFIXES` + `isVisualFile`, all items → `nativeItems`, fixed duplicate `htmlItems` declaration
+
+### Tickets
+- **#008** — confirmed fully closed (no more spinners anywhere, Google Fonts stripped from all files)
+- **#009** — confirmed fully closed (ReferenceViewer working correctly on all 90+ files)
+- **New: full-text reference search** — not ticketed, shipped in this session
+
+---
+
+## Session 21 (cont.) — Search Fix, PrevNext everywhere, v1.0
+
+### #011 — Full-text search block-aware extraction
+Replaced `div.textContent` with a recursive `extractText()` DOM walker that inserts spaces at block element boundaries (`TD`, `TH`, `DIV`, `H1`–`H6`, `LI`, `TR`, `CAPTION`, etc.). Previously, table cells concatenated directly — "PatternFactored FormExpanded Forma²−b²..." — making table content unsearchable. Now every block boundary gets a space, so phrases like "factoring patterns", "contiguous memory", "merge sort" etc. resolve correctly even when split across cells.
+
+### PrevNextBar in DeptPage
+Added `PrevNextBar` component to `DeptPage.jsx` (both Lang+ and MATH reference panels). Users can now navigate between references directly from the viewer without going back to the sidebar.
+
+### Files changed
+- `src/search.js` — `buildRefTextIndex` rewritten with block-aware `extractText()`
+- `src/pages/DeptPage.jsx` — `PrevNextBar` added for Lang+ and MATH panels
+- `dev-log/Tickets.md` — #011 closed
+
+### Tickets resolved
+- **#011 closed** — full-text search now finds content inside tables and nested structures
+
+### 🎉 v1.0
+All originally scoped features are working:
+- Unified search across notes, code, PDFs, knowledge base, and all 90+ reference HTMLs (full-text)
+- Search navigates to the right course, tab, file, and scrolls to the matched term
+- All reference pages render natively (no iframe spinners, no Google Fonts blocking)
+- Interactive reference pages (DFA simulator, DP visualizer) render via srcdoc iframe with scripts executing
+- Prev/next navigation on every viewer — references, notes, code, PDFs, Lang+, MATH
+- APK-ready (Capacitor compatible, no external font deps blocking load)

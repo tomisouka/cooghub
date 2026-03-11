@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { mdFiles, txtFiles } from "../globs";
 
-function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollContainer = null }) {
+function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollContainer = null, highlightKey = null }) {
   const [content, setContent] = useState(null);
   const [error,   setError]   = useState(false);
   const bodyRef = useRef(null);
@@ -63,16 +63,25 @@ function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollC
         textNode.parentNode.replaceChild(frag, textNode);
       }
 
-      // Scroll to first match
+      // Scroll to first match using IntersectionObserver — avoids layout-timing bugs
       if (firstMark) {
-        const scroller = scrollContainer?.current;
+        const scroller = scrollContainer?.current || null;
+        // If already visible, just scroll it into view immediately
+        firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // For custom scroll containers (the CoursePage ref), also adjust the
+        // container's own scrollTop so the mark lands in the center
         if (scroller) {
-          const markTop   = firstMark.getBoundingClientRect().top;
-          const scrollTop = scroller.getBoundingClientRect().top;
-          const offset    = markTop - scrollTop - (scroller.clientHeight / 2);
-          scroller.scrollBy({ top: offset, behavior: "smooth" });
-        } else {
-          firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Use rAF to let the browser finish layout before reading rects
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (!firstMark.isConnected) return;
+              const markRect   = firstMark.getBoundingClientRect();
+              const scrollRect = scroller.getBoundingClientRect();
+              const offset     = markRect.top - scrollRect.top - (scroller.clientHeight / 2);
+              scroller.scrollBy({ top: offset, behavior: "smooth" });
+            });
+          });
         }
       }
     }
@@ -98,7 +107,7 @@ function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollC
     }, 80);
 
     return () => { observer.disconnect(); clearTimeout(debounceTimer); };
-  }, [content, highlight]);
+  }, [content, highlight, highlightKey]);
 
   if (error) return (
     <div style={{ padding: 24, fontFamily: "'Courier New', monospace", color: "#444", fontSize: 13 }}>

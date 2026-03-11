@@ -2,35 +2,37 @@
 
 const TICKETS = {
   bugs: [
+
+    {
+      id: "007",
+      status: "OPEN",
+      title: "PDF search highlight visually misaligned",
+      filed: "2026-03-11",
+      area: ["src/components/PDFViewer.jsx → buildTextLayer()"],
+      description: "Search highlights land at the correct DOM position but appear visually offset — the amber box floats over the wrong word due to scaleX() transform drift on <mark> elements inside transformed spans.",
+      next: "Compute inverse scaleX on each <mark> and apply compensating translateX. Or render highlights as absolutely-positioned overlay divs using raw transform matrix coordinates.",
+    },
+    {
+      id: "010",
+      status: "OPEN",
+      priority: "LOW",
+      title: "Sticky nav bars visible inside srcdoc iframes",
+      filed: "2026-03-11",
+      area: ["src/components/ReferenceViewer.jsx"],
+      description: "Scripted reference files (automata, jflap-demo, etc.) render via srcdoc iframe. Files with position:sticky nav bars (e.g. automata-sisper-reference.html) show the nav pinned inside the iframe viewport, which looks odd when embedded in the app. Not a regression — old iframes had the same behavior.",
+      next: "Inject a <style> block into the srcdoc overriding position:sticky/fixed to position:relative so the nav scrolls naturally with content.",
+    },
     {
       id: "001",
       status: "OPEN",
-      title: "Search scroll-to-match not working correctly",
+      title: "Search scroll-to-match unreliable in MarkdownViewer",
       filed: "2026-03-09",
       area: ["MarkdownViewer.jsx", "CoursePage.jsx", "search.js"],
-      description: "Clicking a search result navigates to the correct course + tab + file, but does not scroll to the matched text. MutationObserver + debounce fires but scroll lands at the top or wrong position.",
-      next: "Try requestAnimationFrame after observer to ensure layout is done. Or IntersectionObserver on the first <mark> instead of manual offset math.",
-    },
-    {
-      id: "002",
-      status: "OPEN",
-      title: "PDF page jump unreliable",
-      filed: "2026-03-09",
-      area: ["CoursePage.jsx"],
-      description: "#page=N fragment on iframe forces remount via key prop, but Chrome's PDF viewer doesn't always honor the fragment on large PDFs.",
-      next: "Replace native iframe with pdfjs-dist canvas renderer (see #003) for full programmatic page control.",
+      description: "Clicking a search result navigates to the correct course + tab + file, but scroll to first match is unreliable. Double-rAF approach improved it but it still misfires on large documents.",
+      next: "Try IntersectionObserver on the first <mark> instead of manual getBoundingClientRect() offset math.",
     },
   ],
   features: [
-    {
-      id: "003",
-      status: "OPEN",
-      title: "In-app PDF viewer with page control",
-      filed: "2026-03-09",
-      area: ["new PDFViewer.jsx"],
-      description: "Replace <iframe> with a pdfjs-dist canvas-based viewer. Page nav, jump-to input, initialPage prop for search result deep-linking. Future: highlight matched text on rendered page.",
-      next: null,
-    },
     {
       id: "004",
       status: "OPEN",
@@ -46,7 +48,7 @@ const TICKETS = {
       title: "Talk2Me search navigation",
       filed: "2026-03-09",
       area: ["Talk2MePage.jsx", "search.js"],
-      description: "resolveResult returns { page: 'talk2me', sectionId, file } but Talk2MePage doesn't accept these props to jump to the matched section on arrival.",
+      description: "resolveResult returns { page: 'talk2me', sectionId, file } but Talk2MePage doesn't consume these props to jump to the matched section on arrival.",
       next: null,
     },
     {
@@ -54,22 +56,27 @@ const TICKETS = {
       status: "OPEN",
       title: "Empty courses need content",
       filed: "2026-03-09",
-      area: ["subjects.js"],
+      area: ["subjects.js", "public/notes/"],
       description: "Courses with no notes/code yet: comporg, python, algebra, precalc, calc1, calc2, stats.",
       next: null,
     },
   ],
   done: [
-    { id: "D001", title: "PDF full-text indexing",              filed: "2026-03-09", description: "scripts/index-pdfs.js indexes 14 PDFs into public/pdf-index.json (~15MB). Skips re-index if PDFs unchanged." },
-    { id: "D002", title: "Unified search with PDF results",     filed: "2026-03-09", description: "Notes + code + Talk2Me + PDFs in one query. PDF index lazy-loaded. Results grouped by type with snippets and page badges." },
-    { id: "D003", title: "Search result term highlighting",     filed: "2026-03-09", description: "HighlightText component wraps matches in amber inside result card labels and snippets." },
-    { id: "D004", title: "Search navigation to course/tab/file",filed: "2026-03-09", description: "Result click carries { tab, file, pdfPage, query } through App state into CoursePage." },
-    { id: "D005", title: "Department/course hierarchy rebuild", filed: "2026-03-09", description: "Full rebuild: DEPARTMENTS → courses → typed buckets. DeptPage, CoursePage, updated subjects.js." },
-    { id: "D006", title: "git.js knowledge file",              filed: "2026-03-09", description: "115-entry Git reference. Sections: Setup, Clone, Staging, Branches, Merge/Rebase, Remote, Log, Undo, Stash, Tags, Worktree, Inspection, .gitignore, Concepts, GitHub, Flags." },
-    { id: "D007", title: "Talk2MePage readability overhaul",   filed: "2026-03-10", description: "Rebuilt Talk2MePage. Section tabs now show icon + label + file count badge. Filter input redesigned with search icon and clear button. Each file row shows a txt/md type badge. Empty state upgraded with icon, color-tinted card, and quick-pick buttons for first 5 files. Footer shows filtered result count." },
-    { id: "D008", title: ".txt file rendering overhaul",       filed: "2026-03-10", description: "Replaced raw pre monospace dump in MarkdownViewer with a line-by-line React renderer. ALL-CAPS and colon-ending lines become styled section headers with accent underline. Indented lines de-emphasized. Blank lines become spacers, --- becomes hr. Font upgraded to Inter 16px at 1.9 line height." },
-    { id: "D009", title: "Markdown body font size bump",       filed: "2026-03-10", description: "Bumped all .md-body sizes: paragraphs/lists 14px to 16px, inline code 12px to 14px, code blocks 13px to 15px, table text 13px to 15px, headings proportionally increased. Line height and spacing adjusted throughout." },
-    { id: "D010", title: "CodeViewer astigmatism-friendly redesign", filed: "2026-03-10", description: "Full readability pass for astigmatism. JetBrains Mono loaded via Google Fonts (guaranteed monospace). Font weight 700, size 18px, line height 2.0. All token colors desaturated to cut halo/vibration on dark bg: dusty blue keywords, sage green strings, steel blue functions, warm sand types, muted teal operators. Comments italic weight 500. Background warmed to #13151c." },
+        { id: "011", title: "Full-text reference search — sessionStorage cache + block-aware extraction", filed: "2026-03-11", description: "Replaced div.textContent with a block-aware extractText() walker (spaces at TD/TH/DIV/H1-H6 boundaries). Added sessionStorage persistence keyed by version stamp — survives HMR, auto-invalidates on code change." },
+    { id: "D001", title: "PDF full-text indexing",               filed: "2026-03-09", description: "scripts/index-pdfs.js indexes 14 PDFs into public/pdf-index.json (~15MB). Skips re-index if PDFs unchanged. Runs on pnpm dev / pnpm build." },
+    { id: "D002", title: "Unified search with PDF results",      filed: "2026-03-09", description: "Notes + code + Talk2Me + PDFs in one query. PDF index lazy-loaded. Results grouped by type with snippets and page badges." },
+    { id: "D003", title: "Search result term highlighting",      filed: "2026-03-09", description: "HighlightText component wraps matches in amber inside result card labels and snippets." },
+    { id: "D004", title: "Search navigation to course/tab/file", filed: "2026-03-09", description: "Result click carries { tab, file, pdfPage, query } through App state into CoursePage." },
+    { id: "D005", title: "Department/course hierarchy rebuild",  filed: "2026-03-09", description: "Full rebuild: DEPARTMENTS → courses → typed buckets. DeptPage, CoursePage, updated subjects.js." },
+    { id: "D006", title: "git.js knowledge file",               filed: "2026-03-09", description: "115-entry Git reference. Sections: Setup, Clone, Staging, Branches, Merge/Rebase, Remote, Log, Undo, Stash, Tags, Worktree, Inspection, .gitignore, Concepts, GitHub, Flags." },
+    { id: "D007", title: "Talk2MePage readability overhaul",    filed: "2026-03-10", description: "Rebuilt Talk2MePage. Section tabs with icon + label + file count badge. Filter input redesigned. Each file row shows a txt/md type badge. Empty state upgraded. Footer shows filtered result count." },
+    { id: "D008", title: ".txt file rendering overhaul",        filed: "2026-03-10", description: "Replaced raw pre monospace dump with a line-by-line React renderer. ALL-CAPS and colon-ending lines become styled headers. Blank lines become spacers, --- becomes hr. Font upgraded to Inter 16px at 1.9 line height." },
+    { id: "D009", title: "Markdown body font size bump",        filed: "2026-03-10", description: "Bumped all .md-body sizes: paragraphs/lists 14→16px, inline code 12→14px, code blocks 13→15px, table text 13→15px, headings proportionally increased." },
+    { id: "D010", title: "CodeViewer astigmatism-friendly redesign", filed: "2026-03-10", description: "JetBrains Mono 700 18px, line height 2.0. All token colors desaturated. Background warmed to #13151c." },
+    { id: "008",  title: "IframeWithLoader spinner never resolves in APK", filed: "2026-03-11", description: "Google Fonts <link> in all reference HTMLs blocked onLoad in Capacitor WebView. Fixed by ReferenceViewer which strips the Fonts link and renders natively." },
+    { id: "009",  title: "ReferenceViewer.jsx built and wired in", filed: "2026-03-11", description: "Native React renderer for all 90+ reference HTMLs. Fetches file, strips Google Fonts link, scopes original <style> blocks to a unique container ID, injects body HTML as-is. Scripted files (DFA simulator, DP visualizer) render via srcdoc iframe so JS executes." },
+    { id: "002",  title: "PDF page jump unreliable",            filed: "2026-03-09", description: "Fixed by replacing native iframe with pdfjs-dist canvas renderer (PDFViewer.jsx). Full programmatic page control, initialPage prop, search result deep-linking." },
+    { id: "003",  title: "In-app PDF viewer with page control", filed: "2026-03-09", description: "PDFViewer.jsx built with pdfjs-dist. Page number display, prev/next, jump-to input, initialPage prop for search result deep-linking." },
   ],
 };
 
@@ -116,6 +123,12 @@ function TicketCard({ ticket, type }) {
           #{ticket.id}
         </span>
         <Badge label={ticket.status || "DONE"} color={statusColor} />
+        {ticket.priority === "HIGH" && (
+          <Badge label="⚠ HIGH PRIORITY" color="#ff6b35" />
+        )}
+        {ticket.priority === "LOW" && (
+          <Badge label="low" color="#4a5060" />
+        )}
         <span style={{ color: "#3e4452", fontSize: 10, fontFamily: "'Courier New', monospace", marginLeft: "auto" }}>
           {ticket.filed}
         </span>
@@ -182,7 +195,7 @@ export default function TicketsPage() {
           Issues & Backlog
         </h1>
         <div style={{ color: "#3e4452", fontSize: 12, fontFamily: "'Courier New', monospace" }}>
-          {TICKETS.bugs.length + TICKETS.features.length} open · {TICKETS.done.length} done
+          {TICKETS.bugs.length} bugs · {TICKETS.features.length} features · {TICKETS.done.length} done
         </div>
       </div>
 

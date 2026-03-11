@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { getCourse } from "../data/subjects";
 import { FLASHCARD_SETS } from "../data/flashcards";
-import MarkdownViewer from "../components/MarkdownViewer";
-import CodeViewer     from "../components/CodeViewer";
-import HtmlViewer     from "../components/HtmlViewer";
-import PDFViewer      from "../components/PDFViewer";
+import MarkdownViewer  from "../components/MarkdownViewer";
+import CodeViewer      from "../components/CodeViewer";
+import HtmlViewer      from "../components/HtmlViewer";
+import PDFViewer       from "../components/PDFViewer";
+import ReferenceViewer from "../components/ReferenceViewer";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const BASE = "/references";
@@ -22,6 +23,75 @@ const TABS = [
 
 function flattenItems(items) {
   return items?.flatMap(item => item.type === "group" ? item.children : [item]) ?? [];
+}
+
+// ── PrevNextBar ───────────────────────────────────────────────────────────────
+function PrevNextBar({ flat, activeFile, onPrev, onNext, isMobile }) {
+  if (!flat || flat.length <= 1) return null;
+  const flatIdx = flat.findIndex(r => r.file === activeFile);
+  if (flatIdx === -1) return null;
+  const hasPrev = flatIdx > 0;
+  const hasNext = flatIdx < flat.length - 1;
+  const btn = (enabled, onClick, label) => (
+    <button onClick={() => enabled && onClick()} disabled={!enabled}
+      style={{ background: "none", border: "none", cursor: enabled ? "pointer" : "default",
+        color: enabled ? "#7a8090" : "#2a2e38", fontSize: 13, fontFamily: FONT, padding: "0 4px" }}
+      onMouseEnter={e => { if (enabled) e.currentTarget.style.color = "#d4d8e0"; }}
+      onMouseLeave={e => { if (enabled) e.currentTarget.style.color = "#7a8090"; }}
+    >{label}</button>
+  );
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8,
+      padding: "5px 14px", background: "#161920",
+      borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
+      {btn(hasPrev, onPrev, "← prev")}
+      <span style={{ color: "#4a5060", fontSize: 11, fontFamily: FONT, fontWeight: 500 }}>
+        {flatIdx + 1} / {flat.length}
+      </span>
+      <span style={{ color: "#7a8090", fontSize: 11, fontFamily: FONT, fontWeight: 500,
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        maxWidth: isMobile ? "120px" : "300px" }}>
+        {flat[flatIdx]?.label}
+      </span>
+      {btn(hasNext, onNext, "next →")}
+    </div>
+  );
+}
+
+// ── IframeWithLoader ──────────────────────────────────────────────────────────
+// Proper component (has hooks) — shows a spinner while the iframe page loads,
+// then fades it out. Stays mounted (display toggled) so scroll is preserved.
+function IframeWithLoader({ src, title, visible }) {
+  const [loaded, setLoaded] = useState(false);
+
+  // Reset loaded state when src changes (new page selected)
+  useEffect(() => { setLoaded(false); }, [src]);
+
+  return (
+    <div style={{ position: "absolute", inset: 0, display: visible ? "block" : "none" }}>
+      {/* Spinner overlay — shown until iframe fires onLoad */}
+      {!loaded && src && (
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 2,
+          background: "#111318", display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", gap: 14,
+        }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "50%",
+            border: "3px solid #2a2e38", borderTopColor: "#e8c547",
+            animation: "spin 0.8s linear infinite",
+          }} />
+          <span style={{ color: "#4a5060", fontSize: 12, fontFamily: FONT }}>{title}</span>
+        </div>
+      )}
+      <iframe
+        src={src}
+        title={title}
+        onLoad={() => setLoaded(true)}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", background: "#fff" }}
+      />
+    </div>
+  );
 }
 
 export default function CoursePage({ courseId, dest, onBack }) {
@@ -46,24 +116,32 @@ export default function CoursePage({ courseId, dest, onBack }) {
   const [collapsed,    setCollapsed]    = useState({});
   const [flipped,      setFlipped]      = useState(false);
   const [cardIdx,      setCardIdx]      = useState(0);
+  const [knowledgeEntry, setKnowledgeEntry] = useState(dest?.knowledgeEntry || null);
   const isMobile                        = useIsMobile();
-  const [showList,     setShowList]     = useState(true);
+  // If arriving from search with a specific file, go straight to content on mobile
+  const [showList,     setShowList]     = useState(!(isMobile && dest?.file));
   const scrollContainerRef              = useRef(null);
+  const visitedFiles                    = useRef(new Set(initialFile ? [initialFile] : []));
 
   // Re-sync when dest changes (e.g. clicking a second search result for the same course)
-  const prevDestRef  = useRef(dest);
+  const prevDestRef  = useRef(null);
   const destPdfPage  = useRef(dest?.pdfPage || null);
   const destPdfFile  = useRef(dest?.file    || null);
   useEffect(() => {
-    if (dest && dest !== prevDestRef.current) {
-      prevDestRef.current = dest;
-      if (dest.tab)     setTab(dest.tab);
-      if (dest.file)    setActiveFile(dest.file);
-      if (dest.tab === "code") setCodeHighlight(dest.query || null);
-      else setCodeHighlight(null);
-      destPdfFile.current = dest.file    || null;
-      destPdfPage.current = dest.pdfPage || null;
-    }
+    if (!dest) return;
+    // Use a string key so we detect any change in target, not just object reference
+    const key = `${dest.tab}::${dest.file}::${dest.pdfPage}`;
+    if (key === prevDestRef.current) return;
+    prevDestRef.current = key;
+    if (dest.tab)     setTab(dest.tab);
+    if (dest.file)  { setActiveFile(dest.file); visitedFiles.current.add(dest.file); }
+    if (dest.tab === "code") setCodeHighlight(dest.query || null);
+    else setCodeHighlight(null);
+    setKnowledgeEntry(dest.knowledgeEntry || null);
+    destPdfFile.current = dest.file    || null;
+    destPdfPage.current = dest.pdfPage || null;
+    // On mobile, jump straight to content when navigating from search
+    if (isMobile && dest.file) setShowList(false);
   }, [dest]);
 
   const flashSet = course.flashcards
@@ -150,7 +228,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
                   const key = child[pathKey] || child.path || child.file;
                   const isActive = activeFile === key;
                   return (
-                    <button key={j} onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
+                    <button key={j} onClick={() => { setActiveFile(key); setCodeHighlight(null); setKnowledgeEntry(null); if (isMobile) setShowList(false); }} style={{
                       width: "100%", padding: "9px 16px 9px 24px",
                       background: isActive ? "#21252e" : "transparent",
                       border: "none",
@@ -174,7 +252,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
           const key = item[pathKey] || item.path || item.file;
           const isActive = activeFile === key;
           return (
-            <button key={i} onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
+            <button key={i} onClick={() => { setActiveFile(key); setCodeHighlight(null); setKnowledgeEntry(null); if (isMobile) setShowList(false); }} style={{
               width: "100%", padding: "10px 16px",
               background: isActive ? "#21252e" : "transparent",
               border: "none",
@@ -201,25 +279,165 @@ export default function CoursePage({ courseId, dest, onBack }) {
         select a file
       </div>
     );
+
     if (tab === "references" || tab === "gopal" || tab === "assignments") {
-      const items = tab === "assignments" ? course.assignments : course[tab];
-      const flat  = flattenItems(items);
-      const item  = flat.find(r => r.file === activeFile);
-      if (!item) return null;
-      if (item.type === "iframe") return <iframe src={`${BASE}/${item.file}`} style={{ flex: 1, border: "none", background: "#fff" }} title={item.label} />;
-      return <HtmlViewer ref_={{ ...item, color: course.color }} BASE="/references" />;
+      const items    = tab === "assignments" ? course.assignments : course[tab];
+      const flat     = flattenItems(items);
+      const flatIdx  = flat.findIndex(r => r.file === activeFile);
+      const hasPrev  = flatIdx > 0;
+      const hasNext  = flatIdx < flat.length - 1;
+
+      // All reference pages render natively via ReferenceViewer — no iframes.
+      // This eliminates the Google Fonts spinner and enables full-text search highlight.
+      const nativeItems = flat.filter(r => r.type === "iframe");
+      const iframeItems = []; // kept for future use, currently empty
+      const htmlItems   = flat.filter(r => r.type !== "iframe");
+
+      const e = knowledgeEntry;
+
+      return (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+
+          {/* Knowledge entry card — shown when navigating from a knowledge search result */}
+          {e && (
+            <div style={{
+              background: "#1a1d24",
+              borderBottom: `2px solid #e8c547`,
+              padding: "12px 16px", flexShrink: 0,
+            }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Header row: symbol + pill tags */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                    <span style={{ fontSize: 10, color: "#e8c547", fontFamily: FONT, fontWeight: 700,
+                      letterSpacing: "0.8px", textTransform: "uppercase" }}>Search result</span>
+                    <span style={{ color: "#2a2e38" }}>·</span>
+                    {e.section && (
+                      <span style={{ fontSize: 10, color: "#7a8090", fontFamily: FONT, fontWeight: 600,
+                        background: "#21252e", borderRadius: 4, padding: "2px 7px", border: "1px solid #2a2e38" }}>
+                        {e.section}{e.subsection ? ` › ${e.subsection}` : ""}
+                      </span>
+                    )}
+                  </div>
+                  {/* Symbol + plain */}
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: "#e8c547" }}>
+                      {e.symbol || e.name}
+                    </span>
+                    {e.plain && e.plain !== (e.symbol || e.name) && (
+                      <span style={{ fontSize: 13, color: "#a0a8b8", fontFamily: FONT }}>— {e.plain}</span>
+                    )}
+                  </div>
+                  {/* Full name / description */}
+                  {e.name && e.name !== e.plain && (
+                    <div style={{ fontSize: 12, color: "#7a8090", fontFamily: FONT, marginTop: 3 }}>{e.name}</div>
+                  )}
+                  {/* Hint to find it */}
+                  <div style={{ fontSize: 11, color: "#4a5060", fontFamily: FONT, marginTop: 6 }}>
+                    ↓ Scroll to <strong style={{ color: "#5a6070" }}>{e.section}</strong> in the reference below
+                  </div>
+                </div>
+                <button onClick={() => setKnowledgeEntry(null)}
+                  style={{ background: "none", border: "none", color: "#4a5060", fontSize: 14,
+                    cursor: "pointer", padding: "2px 4px", lineHeight: 1, flexShrink: 0 }}
+                  onMouseEnter={ev => ev.currentTarget.style.color = "#7a8090"}
+                  onMouseLeave={ev => ev.currentTarget.style.color = "#4a5060"}
+                >✕</button>
+              </div>
+            </div>
+          )}
+
+          {/* Prev / Next bar */}
+          <PrevNextBar
+            flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onPrev={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file); setKnowledgeEntry(null); }}
+            onNext={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file); setKnowledgeEntry(null); }}
+          />
+          {/* Lazy-load iframes — only for visual/canvas pages in /ds/, /algos/ etc.
+              src is only set when a file is first visited so scroll is preserved. */}
+          <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
+            {/* Native ReferenceViewer — structured reference pages */}
+            {nativeItems.map(item => (
+              <div key={item.file} style={{
+                display: item.file === activeFile ? "flex" : "none",
+                position: "absolute", inset: 0, flexDirection: "column",
+              }}>
+                {item.file === activeFile && (
+                  <ReferenceViewer
+                    file={item.file}
+                    color={course.color}
+                    highlight={dest?.query || null}
+                    highlightKey={dest?._ts || null}
+                  />
+                )}
+              </div>
+            ))}
+            {/* Iframe fallback — visual/canvas pages only */}
+            {iframeItems.map(item => {
+              const isActive = item.file === activeFile;
+              if (isActive && !visitedFiles.current.has(item.file)) {
+                visitedFiles.current.add(item.file);
+              }
+              const hasBeenVisited = visitedFiles.current.has(item.file);
+              return (
+                <IframeWithLoader
+                  key={item.file}
+                  src={hasBeenVisited ? `${BASE}/${item.file}` : undefined}
+                  title={item.label}
+                  visible={isActive}
+                />
+              );
+            })}
+            {htmlItems.map(item => (
+              <div key={item.file} style={{ display: item.file === activeFile ? "flex" : "none", position: "absolute", inset: 0 }}>
+                <HtmlViewer ref_={{ ...item, color: course.color }} BASE="/references" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
-    if (tab === "code") return <div style={{ flex: 1, overflowY: "auto" }}><CodeViewer filePath={activeFile} highlight={codeHighlight} /></div>;
+
+    if (tab === "code") {
+      const flat = flattenItems(course.code).map(i => ({ ...i, file: i.path }));
+      return (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
+            onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
+          />
+          <div style={{ flex: 1, overflowY: "auto" }}><CodeViewer filePath={activeFile} highlight={codeHighlight} /></div>
+        </div>
+      );
+    }
     if (tab === "pdfs") {
-      const page = destPdfFile.current === activeFile && destPdfPage.current
-        ? destPdfPage.current : 1;
-      return <PDFViewer file={activeFile} initialPage={page} highlight={dest?.query} />;
+      const flat = flattenItems(course.pdfs);
+      const page = destPdfFile.current === activeFile && destPdfPage.current ? destPdfPage.current : 1;
+      return (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
+            onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
+          />
+          <PDFViewer file={activeFile} initialPage={page} highlight={dest?.query} />
+        </div>
+      );
     }
-    return (
-      <div ref={scrollContainerRef} style={{ flex: 1, overflowY: "auto" }}>
-        <MarkdownViewer filePath={activeFile} color={course.color} highlight={dest?.query} scrollContainer={scrollContainerRef} />
-      </div>
-    );
+    // notes (markdown)
+    {
+      const flat = flattenItems(course.notes);
+      return (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
+            onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
+          />
+          <div ref={scrollContainerRef} style={{ flex: 1, overflowY: "auto" }}>
+            <MarkdownViewer filePath={activeFile} color={course.color} highlight={dest?.query} highlightKey={dest?._ts} scrollContainer={scrollContainerRef} />
+          </div>
+        </div>
+      );
+    }
   }
 
   function Flashcards() {
@@ -290,16 +508,17 @@ export default function CoursePage({ courseId, dest, onBack }) {
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      {/* Body — Viewer() called as plain function (not <Viewer />) so React never
+           unmounts/remounts it on re-render, keeping iframes alive across file switches.
+           FileList and Flashcards are normal JSX — they have their own hooks and can't
+           be called as plain functions without violating Rules of Hooks. */}
+      <div style={{ flex: 1, display: "flex", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
         {tab === "flashcards" ? <Flashcards /> : (
           <>
-            {/* FileList — hidden on mobile when content is showing */}
             {(!isMobile || showList) && (
               <FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} />
             )}
-            {/* Viewer — hidden on mobile when list is showing */}
-            {(!isMobile || !showList) && <Viewer />}
+            {(!isMobile || !showList) && Viewer()}
           </>
         )}
       </div>

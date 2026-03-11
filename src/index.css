@@ -18,3 +18,6 @@
 .textLayer ::selection {
   background: rgba(0, 0, 255, 0.3);
 }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TALK2ME } from "../data/talk2me";
 import MarkdownViewer from "../components/MarkdownViewer";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
@@ -14,15 +15,18 @@ export default function Talk2MePage() {
   const visibleFiles = q
     ? sec.files.filter(f => f.label.toLowerCase().includes(q))
     : sec.files;
+  const isMobile = useIsMobile();
+  const [showList, setShowList] = useState(true);
 
   function switchSection(id) {
     setSection(id);
     setActiveFile(null);
     setFilter("");
+    setShowList(true);
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", fontFamily: FONT }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
 
       {/* Top bar */}
       <div style={{
@@ -75,10 +79,11 @@ export default function Talk2MePage() {
       {/* Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
-        {/* File sidebar */}
+        {/* File sidebar — hidden on mobile when viewing content */}
+        {(!isMobile || showList) && (
         <div style={{
-          width: 248, flexShrink: 0,
-          borderRight: "1px solid #23262f",
+          width: isMobile ? "100%" : 248, flexShrink: 0,
+          borderRight: isMobile ? "none" : "1px solid #23262f",
           display: "flex", flexDirection: "column",
           background: "#15181f",
         }}>
@@ -128,7 +133,7 @@ export default function Talk2MePage() {
               const isActive = activeFile === f.file;
               const isTxt = f.file?.endsWith(".txt");
               return (
-                <button key={i} onClick={() => setActiveFile(f.file)} style={{
+                <button key={i} onClick={() => { setActiveFile(f.file); if (isMobile) setShowList(false); }} style={{
                   width: "100%", padding: "9px 16px",
                   background: isActive ? "#1e2230" : "transparent",
                   border: "none",
@@ -166,9 +171,25 @@ export default function Talk2MePage() {
             </div>
           )}
         </div>
+        )} {/* end sidebar */}
 
-        {/* Content area */}
-        <div style={{ flex: 1, overflowY: "auto", background: "#111318" }}>
+        {/* Content area — full screen on mobile when file selected */}
+        {(!isMobile || !showList) && (
+        <div style={{ flex: 1, overflowY: "auto", background: "#111318", display: "flex", flexDirection: "column" }}>
+          {/* Mobile back button */}
+          {isMobile && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
+              borderBottom: "1px solid #23262f", background: "#15181f", flexShrink: 0,
+            }}>
+              <button
+                onClick={() => setShowList(true)}
+                style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px" }}
+              >←</button>
+              <span style={{ color: sec.color, fontSize: 13, fontWeight: 600 }}>{sec.label}</span>
+            </div>
+          )}
+          <div style={{ flex: 1, overflowY: "auto" }}>
           {activeFile ? (
             <MarkdownViewer filePath={activeFile} color={sec.color} />
           ) : (
@@ -199,7 +220,7 @@ export default function Talk2MePage() {
                   justifyContent: "center", maxWidth: 400, marginTop: 4,
                 }}>
                   {sec.files.slice(0, 5).map((f, i) => (
-                    <button key={i} onClick={() => setActiveFile(f.file)} style={{
+                    <button key={i} onClick={() => { setActiveFile(f.file); if (isMobile) setShowList(false); }} style={{
                       padding: "5px 12px", borderRadius: 6,
                       background: "#1a1d24", border: "1px solid #2a2e38",
                       color: "#6a7080", fontSize: 11, fontFamily: FONT, fontWeight: 500,
@@ -220,7 +241,9 @@ export default function Talk2MePage() {
               )}
             </div>
           )}
+          </div> {/* inner scroll */}
         </div>
+        )} {/* end content area */}
       </div>
     </div>
   );

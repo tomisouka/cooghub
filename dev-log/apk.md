@@ -23,6 +23,20 @@ thunar /home/kaneki/rabbit/root/projects/onit/coogs-hub/android/app/build/output
 
 ---
 
+## APK v2 — Session 19 (March 2026)
+**Status:** ✅ Ready to build
+
+### What changed since v1
+- Full mobile responsive pass (Sessions 17–18): bottom nav, single-pane CoursePage/Talk2Me/DeptPage, safe area fix, touch targets
+- PDF viewer pinch-to-zoom (Session 18)
+- Bash reference added to Lang+ (Session 18)
+- **PDF horizontal scroll fixed (Session 19)** — `minWidth: 0` on CoursePage body + PDFViewer outer div
+
+### Known remaining issues
+- None blocking — horizontal + vertical scroll both confirmed working
+
+---
+
 ## APK v1 — Session 17 (March 2026)
 **Status:** ✅ Installed and running on Samsung
 

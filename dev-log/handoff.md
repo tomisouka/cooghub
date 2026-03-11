@@ -1,6 +1,6 @@
 # Coogs Hub — Session Handoff Doc
 > Paste this into a new chat to resume exactly where we left off.
-> Last updated: Session 17 — March 2026
+> Last updated: Session 19 — March 2026
 
 ---
 
@@ -19,32 +19,37 @@ Built by Jesiah Agudelo (kaneki), Spring 2026.
 
 ```
 src/
-├── App.jsx                  — routing: home/cosc/math/talk2me/tickets + course drill-in
+├── App.jsx                  — routing + safe area CSS vars + bottom nav
 ├── globs.js                 — all import.meta.glob calls
 ├── search.js                — unified search: notes + code + talk2me + PDFs
 ├── components/
-│   ├── Sidebar.jsx          — 3 items: Home, Talk2Me, Tickets
+│   ├── Sidebar.jsx          — 3 items: Home, Talk2Me, Tickets (desktop only)
 │   ├── MarkdownViewer.jsx
 │   ├── CodeViewer.jsx
 │   ├── HtmlViewer.jsx
-│   └── DropZone.jsx         — always mounted, window drag listener
+│   ├── PDFViewer.jsx        — pdfjs canvas viewer with pinch-to-zoom
+│   └── DropZone.jsx
 ├── pages/
-│   ├── HomePage.jsx         — search bar + COSC/MATH dept cards
-│   ├── DeptPage.jsx         — COSC: course grid + Lang+ card; MATH: shared refs + course list
-│   ├── CoursePage.jsx       — tabs: Notes, References, Assignments, Code, PDFs, Flashcards
-│   ├── Talk2MePage.jsx
+│   ├── HomePage.jsx         — mobile-responsive, search bar + dept cards
+│   ├── DeptPage.jsx         — COSC: course grid + Lang+; MATH: single-pane on mobile
+│   ├── CoursePage.jsx       — single-pane on mobile, tabs
+│   ├── Talk2MePage.jsx      — single-pane on mobile
 │   └── TicketsPage.jsx
+├── hooks/
+│   └── useIsMobile.js       — breakpoint 768px
 └── data/
-    ├── subjects.js          — DEPARTMENTS, ALL_COURSES, getCourse, getDept, LANG_REFS
-    ├── nav.js               — 3 items: home, talk2me, tickets
+    ├── subjects.js          — DEPARTMENTS, ALL_COURSES, LANG_REFS (now includes Bash)
+    ├── nav.js
     ├── flashcards.js
     ├── talk2me.js
     ├── references.js
-    ├── languages/           — cpp, c, python, java, csharp, ts, rust, go, sql, htmlcss, comp_org, git, linux
-    └── knowledge/           — 10 academic JS modules, ~2,012 entries
+    ├── languages/           — cpp, c, python, java, csharp, ts, rust, go, sql, htmlcss,
+    │                          comp_org, git, linux, bash (14 total)
+    └── knowledge/           — 10 academic JS modules
+
 public/
 └── references/
-    └── languages/           — cpp_reference.html, git_reference.html, etc. (served as iframes)
+    └── languages/           — all *_reference.html files including bash_reference.html
 ```
 
 ---
@@ -55,56 +60,51 @@ public/
 // goTo(navId, courseId, destination)
 // course set → CoursePage
 // no course → switch(nav): home/cosc/math/talk2me/tickets
-
-// Sidebar setActive clears course + dest, sets nav
-// DropZone always mounted at bottom
+// Mobile: bottom nav bar; Desktop: left sidebar (72px)
 ```
 
 ---
 
-## Key Data Shapes
+## Mobile Layout Pattern
 
-### subjects.js
-```js
-export const DEPARTMENTS = [
-  { id: "cosc", label: "COSC", color: "#4ecdc4", courses: [...] },
-  { id: "math", label: "MATH", color: "#f472b6", courses: [...] },
-];
+All pages use `useIsMobile()` (breakpoint 768px).
 
-export const LANG_REFS = [
-  { file: "languages/cpp_reference.html",  label: "C++",        color: "#fb923c" },
-  { file: "languages/c_reference.html",    label: "C",          color: "#60a5fa" },
-  { file: "languages/python_reference.html", label: "Python",   color: "#facc15" },
-  { file: "languages/java_reference.html", label: "Java",       color: "#f87171" },
-  { file: "languages/csharp_reference.html", label: "C#",       color: "#a78bfa" },
-  { file: "languages/ts_reference.html",   label: "TypeScript", color: "#38bdf8" },
-  { file: "languages/rust_reference.html", label: "Rust",       color: "#fb923c" },
-  { file: "languages/go_reference.html",   label: "Go",         color: "#34d399" },
-  { file: "languages/sql_reference.html",  label: "SQL",        color: "#e8c547" },
-  { file: "languages/htmlcss_reference.html", label: "HTML/CSS", color: "#f472b6" },
-  { file: "languages/comp_org_reference.html", label: "ARM",    color: "#a78bfa" },
-  { file: "languages/linux_reference.html", label: "Linux",     color: "#4ecdc4" },
-  { file: "languages/git_reference.html",  label: "Git",        color: "#fb923c" },
-];
-```
+**Pattern used everywhere (CoursePage, Talk2MePage, DeptPage MATH/Lang+):**
+- `showList` state — `true` = show file/nav list, `false` = show content fullscreen
+- Tapping a file → `setShowList(false)` → content fills screen
+- Back arrow `←` in a mini header → `setShowList(true)` → returns to list
+- Desktop: unchanged 2-pane or 3-pane layout
 
-### Course object shape
-```js
-{
-  id: "datastruct",
-  label: "Data Structures",
-  courseCode: "COSC 2436",
-  icon: "⬡",
-  color: "#e8c547",
-  langRefs: true,         // shows Lang+ card on DeptPage
-  notes: [{ label, file }],
-  references: [{ label, file, type }],
-  assignments: [{ label, file, type }],
-  code: [{ label, path }],
-  pdfs: [{ label, file }],
-  flashcards: "datastruct-set-id",  // or null
+**Safe area (Capacitor APK):**
+```css
+:root {
+  --sat: env(safe-area-inset-top, 0px);    /* below status bar */
+  --sab: env(safe-area-inset-bottom, 0px); /* above home bar */
 }
 ```
+- `<main>` on mobile: `paddingTop: "var(--sat)"`
+- Bottom nav: `height: calc(60px + var(--sab))`
+- Requires `viewport-fit=cover` in `index.html`
+
+---
+
+## PDF Viewer (PDFViewer.jsx)
+
+- pdfjs-dist 3.11.174 from CDN (no install)
+- Canvas rendering + manual text layer for selectable text + highlights
+- **Pinch-to-zoom**: non-passive `touchstart`/`touchmove` listeners on scroll container
+- **Scroll**: `touchAction: "pan-x pan-y pinch-zoom"` on container
+- Props: `file`, `initialPage`, `highlight`
+
+---
+
+## Lang+ Panel
+
+14 language references in `LANG_REFS` (subjects.js):
+C, Java, C#, TypeScript, Rust, Go, SQL, HTML/CSS | ARM, Linux, Git, **Bash** | C++, Python
+
+Bash reference: `public/references/languages/bash_reference.html`
+Color: `#a8e6a3` (green, matches Bash's terminal vibe)
 
 ---
 
@@ -118,7 +118,6 @@ export const LANG_REFS = [
 | accent | `#e8c547` |
 | textPri | `#d4d8e0` |
 | textMid | `#7a8090` |
-| textDim (readable) | `#8a90a0` |
 
 ---
 
@@ -128,24 +127,27 @@ export const LANG_REFS = [
 - **#005** Talk2Me search navigation (dest props not wired)
 - **#006** Empty courses need content
 
-## Recent Changes (Session 17)
-- `src/data/subjects.js` — COSC course order: Comp Org → Databases → OS → C++ → Python → Lang+. LANG_REFS reordered to match (OS group, then C++/Python pinned last). OS textbook PDF wired.
-- `src/data/languages/index.js` — export order updated to match LANG_REFS
-- `src/pages/CoursePage.jsx` — fixed section collapse bug (collapsed state lifted to parent). Mobile single-pane mode added.
-- `src/App.jsx` — bottom nav bar on mobile, left sidebar on desktop
-- `src/pages/DeptPage.jsx` — 2-col grid on mobile, responsive padding
-- `src/hooks/useIsMobile.js` — new hook, breakpoint 768px
-- `dev-log/apk.md` — new file, APK build log
-- Git repo initialized and pushed to `git@github.com:tomisouka/cooguh.git`
-- APK v1 built and installed on Samsung (debug build)
-- APK v2 built with mobile responsive pass
+## Recent Changes (Session 19)
+- `src/components/PDFViewer.jsx` — `flex:1, minWidth:0` on outer div; removed diagnostic overlay; `touchAction` now includes `pinch-zoom`; `transformOrigin` → `top left`
+- `src/pages/CoursePage.jsx` — `minWidth: 0, overflow: "hidden"` on body div; search nav fixes: `showList` init, string-key dest detection, mobile auto-jump to content
+- `src/pages/HomePage.jsx` — `_ts: Date.now()` on dest object to force re-render on same-course repeat search
+- `dev-log/Tickets.md` — #007 filed: PDF search highlight visual drift (cosmetic, scaleX transform artifact)
+
+## Recent Changes (Session 18)
+- `index.html` — `viewport-fit=cover`
+- `src/App.jsx` — safe area CSS vars + paddingTop on main + bottom nav height fix
+- `src/components/PDFViewer.jsx` — pinch-to-zoom + touchAction scroll fix
+- `src/pages/HomePage.jsx` — mobile padding, font sizes, Add Files moved
+- `src/pages/Talk2MePage.jsx` — single-pane mode with back arrow
+- `src/pages/DeptPage.jsx` — Lang+ and MATH single-pane on mobile
+- `public/references/languages/bash_reference.html` — new, 16 sections
+- `src/data/subjects.js` — Bash added to LANG_REFS
 
 ---
 
 ## Key Commands
 ```bash
 cd ~/rabbit/root/projects/onit/coogs-hub && pnpm dev
-grep "LANG_REFS" src/data/subjects.js
-grep "Lang+" src/pages/CoursePage.jsx
-find public/references/languages -name "*.html"
+pnpm build && npx cap copy android && cd android && ./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```

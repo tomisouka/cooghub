@@ -21,6 +21,7 @@ function CodeViewer({ filePath, highlight = null }) {
     loader().then(setContent).catch(() => setError(true));
   }, [filePath]);
 
+  // Build match line list whenever content or query changes
   useEffect(() => {
     if (!content || !highlight) { setMatchLines([]); return; }
     const q = highlight.toLowerCase();
@@ -33,18 +34,61 @@ function CodeViewer({ filePath, highlight = null }) {
     setMatchIdx(0);
   }, [content, highlight]);
 
+  // Scroll to current match + inject inline word highlights
   useEffect(() => {
-    if (!matchLines.length || !containerRef.current) return;
+    if (!matchLines.length || !containerRef.current || !highlight) return;
     const lineNum = matchLines[matchIdx];
-    const rows = containerRef.current.querySelectorAll(".linenumber, [class*='line-number']");
-    const codeLines = containerRef.current.querySelectorAll("span.token-line, .token-line");
-    const target = codeLines[lineNum - 1];
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.style.background = "#e8c54730";
-      setTimeout(() => { if (target) target.style.background = ""; }, 1200);
+    const q = highlight.toLowerCase();
+
+    // react-syntax-highlighter with wrapLines renders each line as a direct
+    // child span of the <code> element — grab them that way
+    const codeEl = containerRef.current.querySelector("code");
+    if (!codeEl) return;
+
+    // Get all line spans (direct children of <code>)
+    const lineSpans = Array.from(codeEl.children);
+    const target = lineSpans[lineNum - 1];
+    if (!target) return;
+
+    // Scroll to line
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Inject inline word highlights into this line's text nodes
+    // Clear any previous injected marks first
+    codeEl.querySelectorAll(".code-hl").forEach(m => {
+      const parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+
+    // Walk text nodes in the target line span and wrap matches
+    function wrapMatches(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent;
+        const low  = text.toLowerCase();
+        const idx  = low.indexOf(q);
+        if (idx === -1) return;
+
+        const before = document.createTextNode(text.slice(0, idx));
+        const mark   = document.createElement("mark");
+        mark.className = "code-hl";
+        mark.textContent = text.slice(idx, idx + q.length);
+        const after  = document.createTextNode(text.slice(idx + q.length));
+
+        const frag = document.createDocumentFragment();
+        frag.appendChild(before);
+        frag.appendChild(mark);
+        frag.appendChild(after);
+        node.parentNode.replaceChild(frag, node);
+        // recurse on the after node in case of multiple matches
+        wrapMatches(after);
+      } else if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains("code-hl")) {
+        Array.from(node.childNodes).forEach(wrapMatches);
+      }
     }
-  }, [matchIdx, matchLines]);
+    wrapMatches(target);
+
+  }, [matchIdx, matchLines, highlight]);
 
   if (error) return (
     <div style={{ padding: 24, fontFamily: "'Courier New', monospace", color: "#444", fontSize: 13 }}>
@@ -141,6 +185,15 @@ function CodeViewer({ filePath, highlight = null }) {
           .code-viewer-wrap .token.macro,
           .code-viewer-wrap .token.directive-hash,
           .code-viewer-wrap .token.directive { color: #a882b8 !important; }
+
+          /* Inline search highlight */
+          .code-hl {
+            background: #e8c547bb;
+            color: #111 !important;
+            border-radius: 3px;
+            padding: 0 2px;
+            font-weight: 700 !important;
+          }
         ` }} />
         <div className="code-viewer-wrap" style={{ height: "100%" }}>
           <SyntaxHighlighter
@@ -169,8 +222,8 @@ function CodeViewer({ filePath, highlight = null }) {
             }}
             wrapLines={true}
             lineProps={lineNum => ({
-              style: matchLines.includes(lineNum)
-                ? { display: "block", background: "#e8c54718" }
+              style: lineNum === matchLines[matchIdx]
+                ? { display: "block", background: "#e8c54720" }
                 : { display: "block" }
             })}
           >

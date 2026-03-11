@@ -12,6 +12,7 @@ export const LANG_REFS = [
   { file: "languages/comp_org_arm_reference.html", label: "ARM",     color: "#34d399" },
   { file: "linux_reference.html",               label: "Linux",      color: "#a78bfa" },
   { file: "git_reference.html",                 label: "Git",        color: "#fb923c" },
+  { file: "languages/bash_reference.html",      label: "Bash",       color: "#a8e6a3" },
   // ── Primary languages (pinned last) ────────────────────────────
   { file: "languages/cpp_reference.html",       label: "C++",        color: "#fb923c" },
   { file: "languages/python_reference.html",    label: "Python",     color: "#4ecdc4" },
@@ -488,6 +489,21 @@ export const ALL_COURSES = DEPARTMENTS.flatMap(dept =>
 
 export const getCourse  = (courseId) => ALL_COURSES.find(c => c.id === courseId) || null;
 export const getDept    = (deptId)   => DEPARTMENTS.find(d => d.id === deptId)   || null;
+
+// Shared reference files shown in the MATH dept sidebar.
+// Exported here so search.js can index their full text.
+export const MATH_SHARED_REFS = [
+  { label: "Math & Science Ref",   file: "math_science_ref.html",          color: "#f472b6" },
+  { label: "Math Notation",        file: "mathnotation_enhanced.html",      color: "#f472b6" },
+  { label: "Discrete Math",        file: "discrete-math-guide.html",        color: "#f472b6" },
+  { label: "Discrete Math (alt)",  file: "discrete-math-guide (1).html",    color: "#f472b6" },
+  { label: "Precalculus",          file: "precalculus-guide.html",          color: "#fb923c" },
+  { label: "Calculus I",           file: "calculus1-guide.html",            color: "#4ecdc4" },
+  { label: "Calculus II",          file: "calculus2-guide.html",            color: "#4ecdc4" },
+  { label: "Linear Algebra",       file: "linear-algebra-guide.html",       color: "#a78bfa" },
+  { label: "Linear Algebra (alt)", file: "linear-algebra-guide (1).html",   color: "#a78bfa" },
+  { label: "Statistics",           file: "statistics-guide.html",           color: "#a78bfa" },
+];
 
 export const courseContentCount = (course) =>
   course.notes.length +

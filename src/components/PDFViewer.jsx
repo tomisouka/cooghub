@@ -35,41 +35,60 @@ async function buildTextLayer(page, viewport, container, hlQuery) {
     const fontHeight = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]);
     const style = textContent.styles?.[item.fontName];
     const ascent = style?.ascent ? style.ascent * fontHeight : fontHeight * 0.8;
-    const scaleX = item.width > 0
-      ? (item.width * viewport.scale) / (item.str.length * fontHeight * 0.55)
+    const clampedScaleX = item.width > 0
+      ? Math.min(Math.max(
+          (item.width * viewport.scale) / (item.str.length * fontHeight * 0.55),
+          0.1), 4)
       : 1;
 
+    // Span — selectable text, transparent, scaleX-stretched to match canvas glyphs
     const span = document.createElement("span");
+    span.textContent = item.str;
     span.style.cssText = [
       `position:absolute`,
       `left:${tx[4]}px`,
       `top:${tx[5] - ascent}px`,
       `font-size:${fontHeight}px`,
-      `transform:scaleX(${Math.min(Math.max(scaleX, 0.1), 4)})`,
+      `transform:scaleX(${clampedScaleX})`,
       `transform-origin:0% 0%`,
       `white-space:pre`,
       `color:transparent`,
       `cursor:text`,
     ].join(";");
+    container.appendChild(span);
 
+    // Highlights — separate overlay divs using raw canvas coordinates,
+    // completely independent of the span's scaleX transform
     if (q && item.str.toLowerCase().includes(q)) {
-      const text = item.str;
-      const low  = text.toLowerCase();
+      const text    = item.str;
+      const low     = text.toLowerCase();
+      const itemW   = item.width * viewport.scale; // total canvas width of this item
+      const charW   = itemW / text.length;          // per-character canvas width
+      const top     = tx[5] - ascent;
+
       let last = 0;
       while (true) {
         const idx = low.indexOf(q, last);
-        if (idx === -1) { span.appendChild(document.createTextNode(text.slice(last))); break; }
-        if (idx > last) span.appendChild(document.createTextNode(text.slice(last, idx)));
-        const mark = document.createElement("mark");
+        if (idx === -1) break;
+
+        const hlLeft  = tx[4] + idx * charW;
+        const hlWidth = q.length * charW;
+
+        const mark = document.createElement("div");
         mark.className = "pdf-hl";
-        mark.textContent = text.slice(idx, idx + q.length);
-        span.appendChild(mark);
+        mark.style.cssText = [
+          `position:absolute`,
+          `left:${hlLeft}px`,
+          `top:${top}px`,
+          `width:${hlWidth}px`,
+          `height:${fontHeight}px`,
+          `pointer-events:none`,
+        ].join(";");
+        container.appendChild(mark);
+
         last = idx + q.length;
       }
-    } else {
-      span.textContent = item.str;
     }
-    container.appendChild(span);
   });
 }
 
@@ -92,6 +111,7 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [inputPage,   setInputPage]   = useState(String(initialPage));
   const [scale,       setScale]       = useState(1.4);
+  const [renderScale, setRenderScale] = useState(1.4); // only changes when pinch ends
   const [rendering,   setRendering]   = useState(false);
   const [loadErr,     setLoadErr]     = useState(null);
   const [searchQuery, setSearchQuery] = useState(highlight || "");
@@ -105,6 +125,56 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
   const renderTask      = useRef(null);
   const pdfRef          = useRef(null);
   const activeQueryRef  = useRef(highlight || "");
+  const scaleRef        = useRef(scale);
+  const pinchRef        = useRef(null);
+  const scrollRef       = useRef(null);
+
+  // Keep scaleRef in sync so touch handlers never read stale closure
+  useEffect(() => { scaleRef.current = scale; }, [scale]);
+
+  // Ref callback — fires the moment the scroll div is mounted, guaranteed non-null
+  const attachScrollRef = (el) => {
+    if (!el || scrollRef.current === el) return;  // already attached
+    scrollRef.current = el;
+
+    function getPinchDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function onTouchStart(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        pinchRef.current = { startDist: getPinchDist(e.touches), startScale: scaleRef.current };
+      }
+    }
+
+    function onTouchMove(e) {
+      if (e.touches.length === 2 && pinchRef.current) {
+        e.preventDefault();
+        const dist  = getPinchDist(e.touches);
+        const ratio = dist / pinchRef.current.startDist;
+        const next  = Math.max(0.6, Math.min(3, +(pinchRef.current.startScale * ratio).toFixed(2)));
+        scaleRef.current = next;
+        setScale(next);
+      }
+    }
+
+    function onTouchEnd(e) {
+      if (e.touches.length < 2) {
+        if (pinchRef.current) {
+          // Pinch just ended — commit the scale for re-render
+          setRenderScale(scaleRef.current);
+        }
+        pinchRef.current = null;
+      }
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove",  onTouchMove,  { passive: false });
+    el.addEventListener("touchend",   onTouchEnd,   { passive: true  });
+  };
 
   useEffect(() => {
     if (!file) return;
@@ -126,8 +196,8 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
 
   useEffect(() => {
     if (!pdf) return;
-    doRender(pdf, currentPage, scale, activeQueryRef.current);
-  }, [pdf, currentPage, scale]);
+    doRender(pdf, currentPage, renderScale, activeQueryRef.current);
+  }, [pdf, currentPage, renderScale]);
 
   async function doRender(pdfDoc, pageNum, sc, hlQuery) {
     renderTask.current?.cancel();
@@ -160,7 +230,7 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
     const target = found.length > 0 ? found[0] : currentPage;
     goToPage(target);
     setSearching(false);
-    doRender(doc, target, scale, q);
+    doRender(doc, target, renderScale, q);
   }
 
   function goToPage(n) {
@@ -184,7 +254,7 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
   if (!pdf)    return <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#4a5060", fontFamily:FONT }}>loading pdf…</div>;
 
   return (
-    <div style={{ display:"flex", flexDirection:"column", height:"100%", background:"#111318" }}>
+    <div style={{ display:"flex", flexDirection:"column", flex:1, minWidth:0, height:"100%", background:"#111318" }}>
 
       <div style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 14px", background:"#161920", borderBottom:"1px solid #2a2e38", flexShrink:0, flexWrap:"wrap" }}>
 
@@ -202,11 +272,11 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
 
         <div style={{width:1,height:16,background:"#2a2e38",margin:"0 2px"}}/>
 
-        <button style={btn(scale<=0.6)} onClick={()=>setScale(s=>Math.max(0.6,+(s-0.2).toFixed(1)))}
+        <button style={btn(scale<=0.6)} onClick={()=>{ const n=Math.max(0.6,+(scale-0.2).toFixed(1)); setScale(n); setRenderScale(n); scaleRef.current=n; }}
           onMouseEnter={e=>{if(scale>0.6)e.currentTarget.style.color="#d4d8e0"}}
           onMouseLeave={e=>e.currentTarget.style.color=dim(scale<=0.6)}>−</button>
         <span style={{color:"#4a5060",fontSize:11,fontFamily:FONT,minWidth:34,textAlign:"center"}}>{Math.round(scale*100)}%</span>
-        <button style={btn(scale>=3)} onClick={()=>setScale(s=>Math.min(3,+(s+0.2).toFixed(1)))}
+        <button style={btn(scale>=3)} onClick={()=>{ const n=Math.min(3,+(scale+0.2).toFixed(1)); setScale(n); setRenderScale(n); scaleRef.current=n; }}
           onMouseEnter={e=>{if(scale<3)e.currentTarget.style.color="#d4d8e0"}}
           onMouseLeave={e=>e.currentTarget.style.color=dim(scale>=3)}>+</button>
 
@@ -242,8 +312,16 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
         )}
       </div>
 
-      <div style={{flex:1,overflow:"auto",background:"#1a1a1a",display:"flex",justifyContent:"center",padding:"24px 0"}}>
-        <div style={{position:"relative",display:"inline-block",boxShadow:"0 4px 32px rgba(0,0,0,0.6)"}}>
+      <div
+        ref={attachScrollRef}
+        style={{flex:1, overflow:"auto", background:"#1a1a1a", padding:"24px", touchAction:"pan-x pan-y pinch-zoom"}}>
+
+        <div style={{
+          position:"relative", display:"inline-block", boxShadow:"0 4px 32px rgba(0,0,0,0.6)",
+          margin:"0 auto",
+          transformOrigin:"top left",
+          transform: scale !== renderScale ? `scale(${scale / renderScale})` : "none",
+        }}>
           {rendering && (
             <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",background:"#11131888",zIndex:10,color:"#4a5060",fontFamily:FONT,fontSize:13}}>
               rendering…
@@ -254,7 +332,16 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
         </div>
       </div>
 
-      <style>{`.pdf-hl { background: #e8c547bb !important; color: #111 !important; border-radius: 2px; padding: 0 1px; }`}</style>
+      <style>{`
+        .pdf-hl {
+          background: #e8c54799;
+          border-radius: 2px;
+          z-index: 1;
+        }
+        .textLayer span {
+          z-index: 2;
+        }
+      `}</style>
     </div>
   );
 }

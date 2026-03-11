@@ -1,32 +1,66 @@
-import { useState } from "react";
-import { getDept, courseContentCount, LANG_REFS } from "../data/subjects";
+import { useState, useEffect, useRef } from "react";
+import { getDept, courseContentCount, LANG_REFS, MATH_SHARED_REFS } from "../data/subjects";
 import { useIsMobile } from "../hooks/useIsMobile";
+import ReferenceViewer from "../components/ReferenceViewer";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
+
+function PrevNextBar({ items, activeFile, onSelect }) {
+  if (!items || items.length <= 1) return null;
+  const idx = items.findIndex(r => r.file === activeFile);
+  if (idx === -1) return null;
+  const hasPrev = idx > 0;
+  const hasNext = idx < items.length - 1;
+  const btn = (enabled, onClick, label) => (
+    <button onClick={() => enabled && onClick()} disabled={!enabled}
+      style={{ background: "none", border: "none", cursor: enabled ? "pointer" : "default",
+        color: enabled ? "#7a8090" : "#2a2e38", fontSize: 13, fontFamily: FONT, padding: "0 4px" }}
+      onMouseEnter={e => { if (enabled) e.currentTarget.style.color = "#d4d8e0"; }}
+      onMouseLeave={e => { if (enabled) e.currentTarget.style.color = "#7a8090"; }}
+    >{label}</button>
+  );
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8,
+      padding: "5px 14px", background: "#161920",
+      borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
+      {btn(hasPrev, () => onSelect(items[idx - 1].file), "← prev")}
+      <span style={{ color: "#4a5060", fontSize: 11, fontFamily: FONT, fontWeight: 500 }}>
+        {idx + 1} / {items.length}
+      </span>
+      <span style={{ color: "#7a8090", fontSize: 11, fontFamily: FONT, fontWeight: 500,
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 200 }}>
+        {items[idx]?.label}
+      </span>
+      {btn(hasNext, () => onSelect(items[idx + 1].file), "next →")}
+    </div>
+  );
+}
 
 const BUCKET_ICONS = {
   notes: "≡", references: "⊞", assignments: "✎", code: "⌥", pdfs: "⎘", flashcards: "⟁",
 };
 
-const MATH_SHARED_REFS = [
-  { label: "Math & Science Ref",     file: "math_science_ref.html" },
-  { label: "Math Notation",          file: "mathnotation_enhanced.html" },
-  { label: "Discrete Math",          file: "discrete-math-guide.html" },
-  { label: "Discrete Math (alt)",    file: "discrete-math-guide (1).html" },
-  { label: "Precalculus",            file: "precalculus-guide.html" },
-  { label: "Calculus I",             file: "calculus1-guide.html" },
-  { label: "Calculus II",            file: "calculus2-guide.html" },
-  { label: "Linear Algebra",         file: "linear-algebra-guide.html" },
-  { label: "Linear Algebra (alt)",   file: "linear-algebra-guide (1).html" },
-  { label: "Statistics",             file: "statistics-guide.html" },
-];
 
-export default function DeptPage({ deptId, goTo }) {
+export default function DeptPage({ deptId, goTo, dest }) {
   const dept = getDept(deptId);
   if (!dept) return null;
 
   const [view, setView]           = useState("courses");
   const [activeRef, setActiveRef] = useState(null);
+  const [showRefContent, setShowRefContent] = useState(false);
+  const prevDestRef = useRef(null);
+
+  // Auto-open ref panel when navigating from a search result
+  useEffect(() => {
+    if (!dest || !dest.file) return;
+    if (dest.tab !== "langref" && dest.tab !== "mathref") return;
+    const key = `${dest.tab}::${dest.file}::${dest._ts}`;
+    if (key === prevDestRef.current) return;
+    prevDestRef.current = key;
+    if (dest.tab === "langref") setView("langs");
+    setActiveRef(dest.file);
+    setShowRefContent(true);
+  }, [dest]);
   const isMobile = useIsMobile();
   const isMath = deptId === "math";
 
@@ -34,20 +68,26 @@ export default function DeptPage({ deptId, goTo }) {
   if (view === "langs") {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 24px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
-          <button onClick={() => { setView("courses"); setActiveRef(null); }}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
+          <button onClick={() => { if (isMobile && showRefContent) { setShowRefContent(false); } else { setView("courses"); setActiveRef(null); setShowRefContent(false); } }}
             style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", transition: "color 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
             onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}>←</button>
           <span style={{ fontSize: 15, fontWeight: 700, color: "#e8c547" }}>❰❱ Lang+</span>
-          <span style={{ color: "#4a5060", fontSize: 12 }}>language references</span>
+          {(!isMobile || !showRefContent) && <span style={{ color: "#4a5060", fontSize: 12 }}>language references</span>}
+          {isMobile && showRefContent && activeRef && (
+            <span style={{ color: "#7a8090", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {LANG_REFS.find(l => l.file === activeRef)?.label}
+            </span>
+          )}
         </div>
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <div style={{ width: 200, flexShrink: 0, borderRight: "1px solid #2a2e38", overflowY: "auto", padding: "10px 0", background: "#161920" }}>
+          {(!isMobile || !showRefContent) && (
+          <div style={{ width: isMobile ? "100%" : 200, flexShrink: 0, borderRight: isMobile ? "none" : "1px solid #2a2e38", overflowY: "auto", padding: "10px 0", background: "#161920" }}>
             {LANG_REFS.map((lang, i) => {
               const isActive = activeRef === lang.file;
               return (
-                <button key={i} onClick={() => setActiveRef(lang.file)} style={{
+                <button key={i} onClick={() => { setActiveRef(lang.file); if (isMobile) setShowRefContent(true); }} style={{
                   width: "100%", padding: "10px 16px", background: isActive ? "#21252e" : "transparent",
                   border: "none", borderLeft: `2px solid ${isActive ? lang.color : "transparent"}`,
                   color: isActive ? "#d4d8e0" : "#8a90a0",
@@ -64,12 +104,24 @@ export default function DeptPage({ deptId, goTo }) {
               );
             })}
           </div>
-          {activeRef ? (
-            <iframe key={activeRef} src={`/references/${activeRef}`} style={{ flex: 1, border: "none", background: "#fff" }} title={activeRef} />
-          ) : (
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
-              select a language
-            </div>
+          )}
+          {(!isMobile || showRefContent) && (
+            activeRef ? (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <PrevNextBar items={LANG_REFS} activeFile={activeRef} onSelect={f => { setActiveRef(f); }} />
+                <ReferenceViewer
+                  key={activeRef}
+                  file={activeRef}
+                  color={LANG_REFS.find(l => l.file === activeRef)?.color || "#e8c547"}
+                  highlight={dest?.query || null}
+                  highlightKey={dest?._ts || null}
+                />
+              </div>
+            ) : (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
+                select a language
+              </div>
+            )
           )}
         </div>
       </div>
@@ -80,17 +132,25 @@ export default function DeptPage({ deptId, goTo }) {
   if (isMath) {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-        <div style={{ padding: "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>department</div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
+        <div style={{ padding: isMobile ? "14px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0,
+          display: "flex", alignItems: "center", gap: isMobile && showRefContent ? 12 : 0 }}>
+          {isMobile && showRefContent && (
+            <button onClick={() => setShowRefContent(false)}
+              style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", flexShrink: 0 }}>←</button>
+          )}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4 }}>department</div>
+            <h1 style={{ fontSize: isMobile ? 20 : 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
+          </div>
         </div>
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <div style={{ width: 260, flexShrink: 0, borderRight: "1px solid #2a2e38", overflowY: "auto", background: "#161920" }}>
+          {(!isMobile || !showRefContent) && (
+          <div style={{ width: isMobile ? "100%" : 260, flexShrink: 0, borderRight: isMobile ? "none" : "1px solid #2a2e38", overflowY: "auto", background: "#161920" }}>
             <div style={{ padding: "14px 16px 6px", fontSize: 10, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>References</div>
             {MATH_SHARED_REFS.map((r, i) => {
               const isActive = activeRef === r.file;
               return (
-                <button key={i} onClick={() => setActiveRef(r.file)} style={{
+                <button key={i} onClick={() => { setActiveRef(r.file); if (isMobile) setShowRefContent(true); }} style={{
                   width: "100%", padding: "9px 16px", background: isActive ? "#21252e" : "transparent",
                   border: "none", borderLeft: `2px solid ${isActive ? dept.color : "transparent"}`,
                   color: isActive ? "#d4d8e0" : "#8a90a0",
@@ -126,12 +186,24 @@ export default function DeptPage({ deptId, goTo }) {
               );
             })}
           </div>
-          {activeRef ? (
-            <iframe src={`/references/${activeRef}`} style={{ flex: 1, border: "none", background: "#fff" }} title={activeRef} />
-          ) : (
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
-              select a reference or course
-            </div>
+          )}
+          {(!isMobile || showRefContent) && (
+            activeRef ? (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <PrevNextBar items={MATH_SHARED_REFS} activeFile={activeRef} onSelect={f => { setActiveRef(f); }} />
+                <ReferenceViewer
+                  key={activeRef}
+                  file={activeRef}
+                  color={dept.color}
+                  highlight={dest?.query || null}
+                  highlightKey={dest?._ts || null}
+                />
+              </div>
+            ) : (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
+                select a reference or course
+              </div>
+            )
           )}
         </div>
       </div>

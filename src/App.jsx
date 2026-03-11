@@ -35,8 +35,8 @@ export default function App() {
     }
     switch (nav) {
       case "home":    return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} />;
-      case "cosc":    return <DeptPage deptId="cosc" goTo={goTo} />;
-      case "math":    return <DeptPage deptId="math" goTo={goTo} />;
+      case "cosc":    return <DeptPage deptId="cosc" goTo={goTo} dest={dest} />;
+      case "math":    return <DeptPage deptId="math" goTo={goTo} dest={dest} />;
       case "talk2me": return <Talk2MePage />;
       case "tickets": return <TicketsPage />;
       default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} />;
@@ -69,6 +69,14 @@ export default function App() {
         button:focus { outline: none; }
 
         h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+
+        /* Capacitor / notch safe areas */
+        :root {
+          --sat: env(safe-area-inset-top, 0px);
+          --sab: env(safe-area-inset-bottom, 0px);
+          --sal: env(safe-area-inset-left, 0px);
+          --sar: env(safe-area-inset-right, 0px);
+        }
       `}</style>
 
       {/* Desktop: left sidebar */}
@@ -79,7 +87,8 @@ export default function App() {
       {/* Main content */}
       <main style={{
         marginLeft: isMobile ? 0 : 72,
-        height: isMobile ? "calc(100vh - 60px)" : "100vh",
+        paddingTop: isMobile ? "var(--sat)" : 0,
+        height: isMobile ? "calc(100vh - 60px - var(--sab))" : "100vh",
         overflow: "hidden",
       }}>
         {renderPage()}
@@ -88,9 +97,11 @@ export default function App() {
       {/* Mobile: bottom nav bar */}
       {isMobile && (
         <nav style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, height: 60,
+          position: "fixed", bottom: 0, left: 0, right: 0,
+          height: "calc(60px + var(--sab))",
           background: "#1a1d24", borderTop: "1px solid #2a2e38",
-          display: "flex", alignItems: "center", justifyContent: "space-around",
+          display: "flex", alignItems: "flex-start", justifyContent: "space-around",
+          paddingTop: 0,
           zIndex: 100,
         }}>
           {NAV.map(item => (
@@ -98,7 +109,7 @@ export default function App() {
               key={item.id}
               onClick={() => { setCourse(null); setDest(null); setNav(item.id); }}
               style={{
-                flex: 1, height: "100%", border: "none",
+                flex: 1, height: 60, border: "none",
                 background: "transparent",
                 color: nav === item.id ? "#e8c547" : "#7a8090",
                 display: "flex", flexDirection: "column",
