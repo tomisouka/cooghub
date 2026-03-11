@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimal Caching / LFD — Gopal Ch.6</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;--accent:#f5a623;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--orange:#fb923c;--text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;--mono:"JetBrains Mono",monospace;--sans:"Space Grotesk",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(0,0,0,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}.sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}.kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}.kv-v.g{color:var(--green)}.kv-v.y{color:var(--yellow)}.kv-v.r{color:var(--red)}.kv-v.p{color:var(--purple)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  .kw{color:var(--purple)}.fn{color:var(--accent)}.cm{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  .box{background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem}
+  .box-title{font-family:var(--mono);font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+  .warn{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:6px;padding:.75rem 1rem;font-size: .95rem;color:var(--red);margin-top:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Gopal Ch. 6 · Section 6.2</div>
+  <h1>Caching &amp; Demand Paging</h1>
+  <div class="sub">Given a cache of size k and a sequence of page requests, minimize cache misses. LFD (Furthest-in-Future) is optimal — proved by exchange argument.</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Problem Setup</div>
+      <div class="kv"><span class="kv-k">Cache size</span><span class="kv-v y">k slots</span></div>
+      <div class="kv"><span class="kv-k">Cache hit</span><span class="kv-v g">Page already in cache — free</span></div>
+      <div class="kv"><span class="kv-k">Cache miss</span><span class="kv-v r">Fetch page + evict one — costs 1</span></div>
+      <div class="kv"><span class="kv-k">Goal</span><span class="kv-v">Minimize total cache misses</span></div>
+      <div class="kv"><span class="kv-k">Demand paging</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">Pages fetched only when requested</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Eviction Strategies</div>
+      <div class="kv"><span class="kv-k" style="color:var(--green);">LFD ✓ OPTIMAL</span><span class="kv-v g">Evict page used furthest in future</span></div>
+      <div class="kv"><span class="kv-k">LRU (practical)</span><span class="kv-v y">Evict least recently used</span></div>
+      <div class="kv"><span class="kv-k">FIFO</span><span class="kv-v" style="color:var(--sub);">Evict first-in, first-out</span></div>
+      <div class="kv"><span class="kv-k">LFU</span><span class="kv-v" style="color:var(--sub);">Evict least frequently used</span></div>
+      <div style="margin-top:.5rem;font-size: 1rem;color:var(--sub);">LFD is offline (needs future knowledge). LRU approximates it online.</div>
+    </div>
+    <div class="card full">
+      <div class="card-title">Proof of LFD Optimality (Gopal Theorem 6.2) — Exchange Argument</div>
+      <div style="font-size: .95rem;color:var(--sub);line-height:1.8;">
+        <strong style="color:var(--text);">Technique:</strong> Take any optimal algorithm OPT. Show it can be modified step-by-step to behave like LFD without increasing cost.<br><br>
+        1. Let pᵢ be the first request where OPT and LFD differ. OPT evicts page u, LFD evicts page v (where v is requested further in future than u).<br>
+        2. Create OPT* = OPT but evict v instead (like LFD). Show OPT* is also optimal:<br>
+        &nbsp;&nbsp;&nbsp;<strong>Phase 1:</strong> Before u is requested — OPT* mimics OPT. When u is requested, OPT incurs a fault, OPT* does not (saved one fault).<br>
+        &nbsp;&nbsp;&nbsp;<strong>Phase 2:</strong> When v is requested — OPT* incurs a fault, OPT does not (one extra fault).<br>
+        &nbsp;&nbsp;&nbsp;<strong>Phase 3:</strong> Caches re-synchronized, continue.<br><br>
+        Net: OPT* has the same total faults as OPT. Repeat until OPT* = LFD. ∎
+      </div>
+    </div>
+    <div class="card full">
+      <div class="card-title">Example Trace — Cache size k=2, requests: 1,2,3,1,2</div>
+      <table>
+        <tr><th>Request</th><th>Cache (LFD)</th><th>Fault?</th><th>Evict</th></tr>
+        <tr><td>1</td><td>{1}</td><td style="color:var(--red);">MISS</td><td>—</td></tr>
+        <tr><td>2</td><td>{1,2}</td><td style="color:var(--red);">MISS</td><td>—</td></tr>
+        <tr><td>3</td><td>{2,3}</td><td style="color:var(--red);">MISS</td><td>Evict 1 (next use furthest)</td></tr>
+        <tr><td>1</td><td>{1,3}</td><td style="color:var(--red);">MISS</td><td>Evict 2... wait, 2 used next</td></tr>
+        <tr><td>2</td><td>{1,2}</td><td style="color:var(--red);">MISS</td><td>Evict 3 (never used again)</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

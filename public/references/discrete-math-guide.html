@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discrete Math — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0f;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --border: #252535;
+    --accent: #a8e87a;       /* green — discrete math color */
+    --accent2: #e8c97a;      /* gold */
+    --accent3: #7ab8e8;      /* blue */
+    --accent4: #f07ab8;      /* pink */
+    --accent5: #c87af0;      /* purple */
+    --text: #e4e4f0;
+    --muted: #60608a;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── PROGRESS ── */
+  #progress-bar {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    height: 2px;
+    background: var(--accent);
+    width: 0%;
+    z-index: 300;
+    transition: width 0.08s;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: rgba(12,12,15,0.95);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2rem;
+    height: 52px;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .header-nav {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+  }
+  .header-nav::-webkit-scrollbar { display: none; }
+  .header-nav a {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.28rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .header-nav a:hover,
+  .header-nav a.active { color: var(--accent); background: rgba(168,232,122,0.1); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2.5rem 3rem;
+    max-width: 860px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  h1 em { color: var(--accent); font-style: italic; }
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── PAGE ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 0 2.5rem 6rem; }
+
+  /* ── SECTION WRAPPERS ── */
+  .section {
+    padding: 3.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 2rem;
+    line-height: 1.2;
+  }
+  h3 {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin: 2rem 0 0.8rem;
+  }
+
+  /* ── TOPIC OVERVIEW CARDS ── */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .topic-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .topic-num { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
+  .topic-name { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+  .topic-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 0.4rem; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    background: rgba(168,232,122,0.1);
+    color: var(--accent);
+    border-radius: 100px;
+    padding: 2px 8px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── SYMBOL TABLES ── */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+  }
+  .sym-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .sym-table thead tr { background: var(--surface2); }
+  .sym-table th {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    font-weight: 400;
+  }
+  .sym-table td {
+    padding: 0.55rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .sym-table tr:hover td { background: rgba(168,232,122,0.03); }
+  .sym-table td:first-child {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    width: 130px;
+  }
+  .sym-table td.say { font-style: italic; color: var(--muted); font-size: 0.82rem; }
+
+  /* ── TOPIC DETAIL ── */
+  .topic-section {
+    padding: 3rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .topic-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+  .topic-badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    background: rgba(168,232,122,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(168,232,122,0.25);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .topic-title {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  /* ── CONCEPT ROWS ── */
+  .concept-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 1.5rem; }
+  .concept {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .concept-term { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+  .concept-def { font-size: 0.88rem; color: var(--text); line-height: 1.65; }
+  .concept-def code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: rgba(168,232,122,0.08);
+    color: #c8f0a0;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  .concept-def .note {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  /* ── PROOF METHOD CARDS ── */
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .proof-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.3rem;
+  }
+  .proof-card-name {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .proof-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .proof-card-body { font-size: 0.84rem; color: #a0a0c0; line-height: 1.6; }
+  .proof-card-body code {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    background: rgba(168,232,122,0.08);
+    color: #c8f0a0;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+  .proof-card-body .assume { color: var(--accent2); font-style: italic; }
+  .proof-card-body .conclude { color: var(--accent); font-style: italic; }
+  .proof-card-steps {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .step {
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .step-num { color: var(--accent); flex-shrink: 0; }
+
+  /* ── FORMULA DISPLAY ── */
+  .formula-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    color: #c8f0a0;
+    line-height: 1.9;
+  }
+  .formula-block .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  /* ── ASYMPTOTIC CLASSES ── */
+  .asym-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .asym-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .asym-sym {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    color: var(--accent3);
+  }
+  .asym-name { font-size: 0.8rem; color: var(--muted); font-family: var(--mono); }
+  .asym-meaning { font-size: 0.84rem; color: var(--text); margin-top: 0.2rem; }
+  .asym-formal { font-family: var(--mono); font-size: 0.73rem; color: #8888c0; margin-top: 0.3rem; }
+
+  /* ── GROWTH TABLE ── */
+  .growth-bar-wrap { margin-bottom: 1.5rem; }
+  .growth-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .growth-row:last-child { border-bottom: none; }
+  .growth-label { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); min-width: 90px; }
+  .growth-name { color: var(--muted); min-width: 140px; font-size: 0.8rem; }
+  .growth-bar-bg {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .growth-bar { height: 100%; border-radius: 100px; background: var(--accent3); }
+  .growth-ex { font-family: var(--mono); font-size: 0.72rem; color: #6868a0; min-width: 70px; text-align: right; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 1.2rem 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .callout.tip { background: rgba(168,232,122,0.07); border: 1px solid rgba(168,232,122,0.2); }
+  .callout.warn { background: rgba(240,208,122,0.07); border: 1px solid rgba(240,208,122,0.2); }
+  .callout.info { background: rgba(122,184,232,0.07); border: 1px solid rgba(122,184,232,0.2); }
+  .callout.purple { background: rgba(200,122,240,0.07); border: 1px solid rgba(200,122,240,0.2); }
+  .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .callout p { color: var(--text); }
+  .callout p code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: rgba(168,232,122,0.1);
+    color: #c8f0a0;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+  .callout strong { color: var(--accent2); }
+
+  /* ── BACK TO TOP ── */
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 2rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .page { padding: 0 1rem 4rem; }
+    .hero { padding: 2.5rem 1rem 2rem; }
+    header { padding: 0 1rem; }
+    .concept { grid-template-columns: 1fr; gap: 0.25rem; }
+    .topic-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="top">
+  <span class="logo">Discrete Math</span>
+  <nav class="header-nav">
+    <a href="#overview">Overview</a>
+    <a href="#symbols">Symbols</a>
+    <a href="#proofs">Proofs</a>
+    <a href="#combos">Combos</a>
+    <a href="#perms">Permutations</a>
+    <a href="#pigeonhole">Pigeonhole</a>
+    <a href="#asymptotic">Asymptotic</a>
+    <a href="#algorithms">Algorithms</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Discrete Mathematics — Spring 2026</span>
+  <h1>Discrete <em>Math</em></h1>
+  <p class="hero-sub">Proofs · Combinatorics · Permutations · Pigeonhole · Algorithms &amp; Asymptotic Analysis</p>
+</div>
+
+<div class="page">
+
+  <!-- ── OVERVIEW ── -->
+  <div class="section" id="overview">
+    <div class="section-label">Course Map</div>
+    <h2>5 Topics at a Glance</h2>
+    <div class="topic-grid">
+      <a class="topic-card" href="#proofs">
+        <span class="topic-num">Topic 1</span>
+        <span class="topic-name">Proof Techniques</span>
+        <div class="topic-pills">
+          <span class="pill">direct</span><span class="pill">contradiction</span><span class="pill">induction</span><span class="pill">contrapositive</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#combos">
+        <span class="topic-num">Topic 2</span>
+        <span class="topic-name">Combinations</span>
+        <div class="topic-pills">
+          <span class="pill">C(n,k)</span><span class="pill">binomial thm</span><span class="pill">Pascal</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#perms">
+        <span class="topic-num">Topic 3</span>
+        <span class="topic-name">Permutations</span>
+        <div class="topic-pills">
+          <span class="pill">P(n,k)</span><span class="pill">n!</span><span class="pill">ordered</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#pigeonhole">
+        <span class="topic-num">Topic 4</span>
+        <span class="topic-name">Pigeonhole Principle</span>
+        <div class="topic-pills">
+          <span class="pill">⌈n/k⌉</span><span class="pill">generalized</span><span class="pill">existence</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#asymptotic">
+        <span class="topic-num">Topic 5</span>
+        <span class="topic-name">Algorithms &amp; Asymptotic Analysis</span>
+        <div class="topic-pills">
+          <span class="pill">O(f)</span><span class="pill">Ω(f)</span><span class="pill">Θ(f)</span><span class="pill">growth</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── SYMBOLS ── -->
+  <div class="section" id="symbols">
+    <div class="section-label">Reference</div>
+    <h2>Core Symbols</h2>
+
+    <h3>Logic &amp; Proof Symbols</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead><tr><th>Symbol</th><th>Name</th><th>Read as</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>∧</td><td>AND</td><td class="say">"and"</td><td>Both p and q must be true</td></tr>
+          <tr><td>∨</td><td>OR</td><td class="say">"or"</td><td>At least one of p, q is true</td></tr>
+          <tr><td>¬ or ~</td><td>NOT</td><td class="say">"not"</td><td>Negation; flips truth value</td></tr>
+          <tr><td>→ or ⇒</td><td>Implication</td><td class="say">"implies" / "if…then"</td><td>p → q: false only when p true, q false</td></tr>
+          <tr><td>↔ or ⇔</td><td>Biconditional</td><td class="say">"if and only if" / "iff"</td><td>True when both sides same truth value</td></tr>
+          <tr><td>∀</td><td>For all</td><td class="say">"for all x"</td><td>Universal quantifier — applies to every element</td></tr>
+          <tr><td>∃</td><td>There exists</td><td class="say">"there exists x such that"</td><td>Existential quantifier — at least one element</td></tr>
+          <tr><td>∃!</td><td>Exists unique</td><td class="say">"there exists exactly one x"</td><td>Exactly one element satisfies the predicate</td></tr>
+          <tr><td>∴</td><td>Therefore</td><td class="say">"therefore"</td><td>Conclusion follows from above</td></tr>
+          <tr><td>∵</td><td>Because</td><td class="say">"because"</td><td>Justification / reason</td></tr>
+          <tr><td>□ or ∎</td><td>Q.E.D.</td><td class="say">"end of proof" / "Q.E.D."</td><td>Marks end of a proof</td></tr>
+          <tr><td>⊢</td><td>Proves / entails</td><td class="say">"proves"</td><td>Syntactic consequence</td></tr>
+          <tr><td>≡</td><td>Logically equivalent</td><td class="say">"is equivalent to"</td><td>Same truth table</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Counting &amp; Combinatorics Symbols</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead><tr><th>Symbol</th><th>Name</th><th>Read as</th><th>Formula / Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>n!</td><td>Factorial</td><td class="say">"n factorial"</td><td>n × (n−1) × ⋯ × 2 × 1; count of all arrangements of n items</td></tr>
+          <tr><td>P(n, k)</td><td>Permutations</td><td class="say">"P of n, k" / "n permute k"</td><td>n! / (n−k)! — ordered selections of k from n</td></tr>
+          <tr><td>C(n, k)</td><td>Combinations</td><td class="say">"C of n, k" / "n choose k"</td><td>n! / (k!(n−k)!) — unordered selections of k from n</td></tr>
+          <tr><td>(n choose k)</td><td>Binomial coefficient</td><td class="say">"n choose k"</td><td>Same as C(n,k); written as fraction with n on top, k on bottom in parentheses</td></tr>
+          <tr><td>⌊x⌋</td><td>Floor</td><td class="say">"floor of x"</td><td>Greatest integer ≤ x; ⌊3.9⌋ = 3</td></tr>
+          <tr><td>⌈x⌉</td><td>Ceiling</td><td class="say">"ceiling of x"</td><td>Least integer ≥ x; ⌈3.1⌉ = 4</td></tr>
+          <tr><td>Σ (sum)</td><td>Summation</td><td class="say">"sum from i equals a to b of f(i)"</td><td>Add f(i) for each i from a to b</td></tr>
+          <tr><td>Π (product)</td><td>Product</td><td class="say">"product from i equals a to b of f(i)"</td><td>Multiply f(i) for each i</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Asymptotic Notation</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead><tr><th>Symbol</th><th>Name</th><th>Read as</th><th>Intuition</th></tr></thead>
+        <tbody>
+          <tr><td>O(f(n))</td><td>Big-O</td><td class="say">"big O of f of n"</td><td>Upper bound — grows no faster than f</td></tr>
+          <tr><td>Ω(f(n))</td><td>Big-Omega</td><td class="say">"big Omega of f of n"</td><td>Lower bound — grows at least as fast as f</td></tr>
+          <tr><td>Θ(f(n))</td><td>Big-Theta</td><td class="say">"big Theta of f of n"</td><td>Tight bound — grows exactly like f (both O and Ω)</td></tr>
+          <tr><td>o(f(n))</td><td>Little-o</td><td class="say">"little o of f of n"</td><td>Strict upper bound — grows strictly slower than f</td></tr>
+          <tr><td>ω(f(n))</td><td>Little-omega</td><td class="say">"little omega of f of n"</td><td>Strict lower bound — grows strictly faster than f</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── PROOFS ── -->
+  <div class="topic-section" id="proofs">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 1</span>
+      <span class="topic-title">Proof Techniques</span>
+    </div>
+
+    <h3>The 5 Core Methods</h3>
+    <div class="proof-grid">
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 1</div>
+        <div class="proof-card-title">Direct Proof</div>
+        <div class="proof-card-body">
+          <span class="assume">Assume p is true.</span> Show, step by step using definitions, algebra, and known facts, that <span class="conclude">q must be true.</span>
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">1.</span>State what you're given (assume p)</div>
+            <div class="step"><span class="step-num">2.</span>Apply definitions and algebra</div>
+            <div class="step"><span class="step-num">3.</span>Arrive at q — conclude □</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 2</div>
+        <div class="proof-card-title">Proof by Contrapositive</div>
+        <div class="proof-card-body">
+          To prove <code>p → q</code>, instead prove <code>¬q → ¬p</code> (logically equivalent).
+          <span class="assume">Assume ¬q</span> and show <span class="conclude">¬p follows.</span>
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">1.</span>Write: "We prove the contrapositive: assume ¬q"</div>
+            <div class="step"><span class="step-num">2.</span>Derive ¬p from ¬q</div>
+            <div class="step"><span class="step-num">3.</span>Conclude p → q □</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 3</div>
+        <div class="proof-card-title">Proof by Contradiction</div>
+        <div class="proof-card-body">
+          <span class="assume">Assume ¬p</span> (the opposite of what you want to prove) and derive a <span class="conclude">logical contradiction</span> — something that is always false.
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">1.</span>Write: "Suppose for contradiction that ¬p"</div>
+            <div class="step"><span class="step-num">2.</span>Derive consequences until you reach a⊥</div>
+            <div class="step"><span class="step-num">3.</span>Conclude p must be true □</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 4</div>
+        <div class="proof-card-title">Mathematical Induction</div>
+        <div class="proof-card-body">
+          Prove a statement P(n) holds for all n ≥ n₀.
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">B.</span><strong>Base case</strong> — verify P(n₀) directly</div>
+            <div class="step"><span class="step-num">H.</span><strong>Inductive hypothesis</strong> — assume P(k) for some k ≥ n₀</div>
+            <div class="step"><span class="step-num">S.</span><strong>Inductive step</strong> — prove P(k+1) using P(k)</div>
+            <div class="step"><span class="step-num">∴</span>P(n) holds for all n ≥ n₀ □</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 5</div>
+        <div class="proof-card-title">Strong Induction</div>
+        <div class="proof-card-body">
+          Like induction but the hypothesis is stronger: assume P(k) for <em>all</em> values n₀ ≤ k &lt; n.
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">B.</span>Verify base case(s) P(n₀), …, P(n₁)</div>
+            <div class="step"><span class="step-num">H.</span>Assume P(k) for all n₀ ≤ k &lt; n</div>
+            <div class="step"><span class="step-num">S.</span>Prove P(n) using any/all prior cases</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-card">
+        <div class="proof-card-name">Method 6</div>
+        <div class="proof-card-title">Proof by Cases</div>
+        <div class="proof-card-body">
+          When the domain splits into exhaustive, mutually exclusive cases. Prove the statement for each case separately.
+          <div class="proof-card-steps">
+            <div class="step"><span class="step-num">1.</span>Identify all cases (e.g. even/odd, positive/negative)</div>
+            <div class="step"><span class="step-num">2.</span>Prove the result holds in each case</div>
+            <div class="step"><span class="step-num">3.</span>"In all cases, the statement holds" □</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h3>Logic Review: Contrapositive vs Converse</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">p → q</div>
+        <div class="concept-def">The original statement: "if p then q." This is what you're trying to prove.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">¬q → ¬p</div>
+        <div class="concept-def">Contrapositive — logically <em>equivalent</em> to p → q. Always valid to prove this instead.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">q → p</div>
+        <div class="concept-def">Converse — <em>NOT</em> equivalent to p → q. Proving the converse does NOT prove the original.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">¬p → ¬q</div>
+        <div class="concept-def">Inverse — also NOT equivalent. Proving the inverse proves nothing about p → q.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">p ↔ q</div>
+        <div class="concept-def">Biconditional — requires proving BOTH p → q AND q → p. Read "p if and only if q."</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Induction structure to memorize:</strong> Base case → IH → Step. In the step, you're not proving P(k) — you're assuming it (the IH) and using it to derive P(k+1). Don't try to prove the IH; that's circular.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Contradiction vs Contrapositive:</strong> They're different. Contrapositive flips and negates both sides of an implication. Contradiction assumes the whole conclusion is false and finds any logical impossibility.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── COMBINATIONS ── -->
+  <div class="topic-section" id="combos">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 2</span>
+      <span class="topic-title">Combinations</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Combination C(n,k)</div>
+        <div class="concept-def">Number of ways to choose k items from n when <strong>order does not matter</strong>. Also written <code>ⁿCₖ</code> or "n choose k."
+          <span class="note">Formula: C(n,k) = n! / (k!(n−k)!)</span>
+        </div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Binomial coefficient</div>
+        <div class="concept-def"><code>(n choose k)</code> — same as C(n,k). Appears as coefficients in (a+b)ⁿ expansion. Always an integer. Symmetric: C(n,k) = C(n, n−k).
+          <span class="note">e.g. C(5,2) = 10; also C(5,3) = 10 — symmetry!</span>
+        </div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Binomial Theorem</div>
+        <div class="concept-def"><code>(a + b)ⁿ = Σₖ₌₀ⁿ C(n,k) · aⁿ⁻ᵏ · bᵏ</code>. Each term uses a binomial coefficient. Read: "sum over k from 0 to n of n-choose-k times a to the n-minus-k times b to the k."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Pascal's Identity</div>
+        <div class="concept-def"><code>C(n,k) = C(n−1, k−1) + C(n−1, k)</code>. Each entry in Pascal's triangle is the sum of the two above it. Useful in proofs and recurrences.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Counting subsets</div>
+        <div class="concept-def">A set of n elements has <code>2ⁿ</code> total subsets (including ∅ and the set itself). This equals the sum of all C(n,k) for k from 0 to n.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Multiset / Stars &amp; Bars</div>
+        <div class="concept-def">Choosing k items from n <em>with repetition allowed</em> (unordered): <code>C(n+k−1, k)</code>. Visualize as placing k stars among n−1 dividers.</div>
+      </div>
+    </div>
+
+    <div class="formula-block">
+      <span class="label">Core Formulas</span>
+      C(n,k) = n! / (k!(n−k)!)    ← "n choose k"
+      C(n,0) = C(n,n) = 1
+      C(n,1) = n
+      C(n,k) = C(n, n−k)          ← symmetry
+      Σₖ C(n,k) = 2ⁿ              ← all subsets
+      (a+b)ⁿ = Σₖ C(n,k) aⁿ⁻ᵏbᵏ  ← binomial theorem
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <p><strong>Combos vs Perms in one sentence:</strong> Combinations count <em>what you pick</em>; permutations count <em>what you pick and the order you pick it.</em> P(n,k) = C(n,k) × k! — perms are just combos times all the orderings of the selection.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── PERMUTATIONS ── -->
+  <div class="topic-section" id="perms">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 3</span>
+      <span class="topic-title">Permutations</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Permutation P(n,k)</div>
+        <div class="concept-def">Number of ways to arrange k items selected from n where <strong>order matters</strong>. Read "P of n, k" or "n permute k."
+          <span class="note">Formula: P(n,k) = n! / (n−k)! = n × (n−1) × ⋯ × (n−k+1)</span>
+        </div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Full permutation</div>
+        <div class="concept-def">P(n,n) = n! — the number of ways to arrange all n items. e.g. 3 items → 3! = 6 arrangements: ABC, ACB, BAC, BCA, CAB, CBA.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Multiplication principle</div>
+        <div class="concept-def">If step 1 has m choices and step 2 has n choices (independently), there are <code>m × n</code> total outcomes. The engine behind permutation counting.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Permutations with repetition</div>
+        <div class="concept-def">Arranging n items where item type i repeats nᵢ times: <code>n! / (n₁! n₂! ⋯ nₖ!)</code>. Called a multinomial coefficient. e.g. MISSISSIPPI = 11!/(1!4!4!2!).</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Circular permutations</div>
+        <div class="concept-def">Arranging n items in a circle (rotations considered identical): <code>(n−1)!</code>. One item is fixed to remove rotational symmetry.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Relationship to C(n,k)</div>
+        <div class="concept-def"><code>P(n,k) = C(n,k) × k!</code>. First choose which k items (unordered, C(n,k) ways), then arrange them (k! ways).</div>
+      </div>
+    </div>
+
+    <div class="formula-block">
+      <span class="label">Core Formulas</span>
+      P(n,k) = n! / (n−k)!         ← ordered selection
+      P(n,n) = n!                   ← all arrangements
+      P(n,k) = C(n,k) × k!         ← combo × orderings
+      Multinomial = n! / (n₁!⋯nₖ!) ← repeated items
+      Circular = (n−1)!             ← circle arrangements
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Order matters?</strong> Ask: does swapping two selected items give a different outcome? If yes → permutation. If no → combination. "Choose a team of 3" = combo. "Award gold/silver/bronze to 3 people" = permutation.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── PIGEONHOLE ── -->
+  <div class="topic-section" id="pigeonhole">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 4</span>
+      <span class="topic-title">Pigeonhole Principle</span>
+    </div>
+
+    <h3>The Principle</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Basic form</div>
+        <div class="concept-def">If <code>n+1</code> (or more) objects are placed into <code>n</code> boxes, then at least one box contains 2 or more objects.
+          <span class="note">Simple but powerful — proves existence without constructing the example.</span>
+        </div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Generalized form</div>
+        <div class="concept-def">If <code>N</code> objects are placed into <code>k</code> boxes, then at least one box contains <code>⌈N/k⌉</code> or more objects.
+          <span class="note">Formula: at least one box has ≥ ⌈N/k⌉ objects.</span>
+        </div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Identifying "pigeons"</div>
+        <div class="concept-def">The objects being distributed — what you have "too many" of. Count these as N.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Identifying "holes"</div>
+        <div class="concept-def">The categories / boxes they go into. Count these as k. If N &gt; k, some hole holds more than one pigeon.</div>
+      </div>
+    </div>
+
+    <div class="formula-block">
+      <span class="label">The Principle</span>
+      Basic:       N objects, k boxes, N > k  →  some box has ≥ 2
+      Generalized: N objects, k boxes          →  some box has ≥ ⌈N/k⌉
+      
+      Example: 13 people in a room → 2 share a birth month (12 months, 13 people)
+      Example: 5 points in a 2×2 grid → 2 are within √2 distance (4 unit squares)
+    </div>
+
+    <h3>Classic Examples</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Birth months</div>
+        <div class="concept-def">Any group of 13 people must have at least 2 who share a birth month. Pigeons = 13 people, holes = 12 months.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Socks problem</div>
+        <div class="concept-def">If you have 10 red socks and 10 blue socks mixed in a drawer and draw blindly, you need to draw 3 socks to guarantee a matching pair. Holes = 2 colors, so ⌈3/2⌉ = 2.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Handshakes</div>
+        <div class="concept-def">In a party of n ≥ 2 people, at least 2 people have shaken the same number of hands. Degrees range 0 to n−1 but 0 and n−1 can't both occur → n people, n−1 holes.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Integer sequences</div>
+        <div class="concept-def">Any sequence of n²+1 distinct integers must have an increasing or decreasing subsequence of length n+1. (Erdős–Szekeres theorem — pigeonhole in disguise.)</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>How to structure a pigeonhole proof:</strong> (1) Clearly define what the "pigeons" are. (2) Clearly define what the "holes" are. (3) Show #pigeons &gt; #holes. (4) Conclude: by the pigeonhole principle, some hole contains ≥ 2 (or ≥ ⌈N/k⌉) pigeons.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── ASYMPTOTIC ── -->
+  <div class="topic-section" id="asymptotic">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 5a</span>
+      <span class="topic-title">Asymptotic Notation</span>
+    </div>
+
+    <h3>The 5 Notations</h3>
+    <div class="asym-grid">
+      <div class="asym-card">
+        <div class="asym-sym">O(f)</div>
+        <div class="asym-name">Big-O · upper bound</div>
+        <div class="asym-meaning">g grows <em>no faster than</em> f. Worst case ceiling.</div>
+        <div class="asym-formal">∃c,n₀: g(n) ≤ c·f(n) for all n ≥ n₀</div>
+      </div>
+      <div class="asym-card">
+        <div class="asym-sym">Ω(f)</div>
+        <div class="asym-name">Big-Omega · lower bound</div>
+        <div class="asym-meaning">g grows <em>at least as fast as</em> f. Best case floor.</div>
+        <div class="asym-formal">∃c,n₀: g(n) ≥ c·f(n) for all n ≥ n₀</div>
+      </div>
+      <div class="asym-card">
+        <div class="asym-sym">Θ(f)</div>
+        <div class="asym-name">Big-Theta · tight bound</div>
+        <div class="asym-meaning">g grows <em>exactly like</em> f. Both O and Ω. The "equals" of asymptotics.</div>
+        <div class="asym-formal">g = O(f) AND g = Ω(f)</div>
+      </div>
+      <div class="asym-card">
+        <div class="asym-sym">o(f)</div>
+        <div class="asym-name">Little-o · strict upper</div>
+        <div class="asym-meaning">g grows <em>strictly slower</em> than f. Like &lt; (not ≤).</div>
+        <div class="asym-formal">lim(g/f) = 0 as n→∞</div>
+      </div>
+      <div class="asym-card">
+        <div class="asym-sym">ω(f)</div>
+        <div class="asym-name">Little-omega · strict lower</div>
+        <div class="asym-meaning">g grows <em>strictly faster</em> than f.</div>
+        <div class="asym-formal">lim(f/g) = 0 as n→∞</div>
+      </div>
+    </div>
+
+    <h3>Growth Rate Hierarchy (Slowest → Fastest)</h3>
+    <div class="growth-bar-wrap">
+      <div class="growth-row">
+        <div class="growth-label">O(1)</div>
+        <div class="growth-name">Constant</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:4%; background:#a8e87a"></div></div>
+        <div class="growth-ex">array lookup</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(log n)</div>
+        <div class="growth-name">Logarithmic</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:12%; background:#a8e87a"></div></div>
+        <div class="growth-ex">binary search</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(√n)</div>
+        <div class="growth-name">Square root</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:20%; background:#b8e07a"></div></div>
+        <div class="growth-ex">trial division</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(n)</div>
+        <div class="growth-name">Linear</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:32%; background:#d0d870"></div></div>
+        <div class="growth-ex">linear scan</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(n log n)</div>
+        <div class="growth-name">Log-linear</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:44%; background:#e8c870"></div></div>
+        <div class="growth-ex">merge sort</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(n²)</div>
+        <div class="growth-name">Quadratic</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:58%; background:#e8a060"></div></div>
+        <div class="growth-ex">bubble sort</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(n³)</div>
+        <div class="growth-name">Cubic</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:70%; background:#e07860"></div></div>
+        <div class="growth-ex">naive matrix mult</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(2ⁿ)</div>
+        <div class="growth-name">Exponential</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:86%; background:#e06060"></div></div>
+        <div class="growth-ex">all subsets</div>
+      </div>
+      <div class="growth-row">
+        <div class="growth-label">O(n!)</div>
+        <div class="growth-name">Factorial</div>
+        <div class="growth-bar-bg"><div class="growth-bar" style="width:100%; background:#c04060"></div></div>
+        <div class="growth-ex">all permutations</div>
+      </div>
+    </div>
+
+    <h3>Key Rules for Working with Big-O</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Drop constants</div>
+        <div class="concept-def"><code>O(5n²) = O(n²)</code>. Constant multipliers don't change the class. Only the dominant growth behavior matters.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Drop lower terms</div>
+        <div class="concept-def"><code>O(n² + n) = O(n²)</code>. As n → ∞, lower-order terms become negligible.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Sum rule</div>
+        <div class="concept-def"><code>O(f) + O(g) = O(max(f,g))</code>. Sequential code blocks: take the dominant one.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Product rule</div>
+        <div class="concept-def"><code>O(f) × O(g) = O(f·g)</code>. Nested loops multiply complexities.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Logs and exponents</div>
+        <div class="concept-def"><code>log(n) ≪ nᵉ</code> for any ε &gt; 0. Any polynomial beats any log. Any exponential beats any polynomial: <code>nᵏ ≪ cⁿ</code> for any c &gt; 1.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Transitivity</div>
+        <div class="concept-def">If f = O(g) and g = O(h), then f = O(h). The asymptotic order is a partial order.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Proving f(n) = O(g(n)):</strong> Find explicit constants c &gt; 0 and n₀ ≥ 1 such that <code>f(n) ≤ c · g(n)</code> for all <code>n ≥ n₀</code>. Show your work: pick c, pick n₀, verify the inequality.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Big-O is not equality.</strong> Writing <code>f = O(g)</code> means "f is in the set O(g)" — it's a membership claim, not numerical equality. O(n²) is a <em>class</em> of functions, not a specific function.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ── ALGORITHMS ── -->
+  <div class="topic-section" id="algorithms">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 5b</span>
+      <span class="topic-title">Algorithm Analysis</span>
+    </div>
+
+    <h3>Analyzing Algorithm Complexity</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Time complexity</div>
+        <div class="concept-def">Number of "basic operations" (comparisons, assignments, etc.) as a function of input size n. Expressed in asymptotic notation.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Worst case</div>
+        <div class="concept-def">Upper bound on running time for any input of size n. What Big-O usually describes. Most commonly analyzed and reported.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Best case</div>
+        <div class="concept-def">Lower bound for the best possible input. What Big-Ω often describes. Less practically useful but relevant for some proofs.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Average case</div>
+        <div class="concept-def">Expected running time over all inputs of size n (often assuming uniform distribution). Requires probabilistic analysis.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Space complexity</div>
+        <div class="concept-def">Memory used as a function of n. Same Big-O notation applies. Can differ significantly from time complexity.</div>
+      </div>
+    </div>
+
+    <h3>Common Algorithm Complexities</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Linear search</td><td>O(1)</td><td>O(n)</td><td>O(n)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Binary search</td><td>O(1)</td><td>O(log n)</td><td>O(log n)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Bubble sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Merge sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Quick sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Heap sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td></tr>
+          <tr><td style="color:var(--text);font-size:0.85rem;width:auto">Matrix mult (naive)</td><td>—</td><td>O(n³)</td><td>O(n³)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Analyzing Loops</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Single loop</div>
+        <div class="concept-def">A loop running from 1 to n doing O(1) work per iteration → <code>O(n)</code> total.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Nested loops</div>
+        <div class="concept-def">Outer loop n times, inner loop n times → <code>O(n²)</code>. Multiply the complexities of nested levels.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Halving loop</div>
+        <div class="concept-def">Loop where i doubles (or n halves) each iteration → <code>O(log n)</code> iterations. Classic: binary search, merging halves.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Recurrences</div>
+        <div class="concept-def">Many recursive algorithms satisfy <code>T(n) = aT(n/b) + f(n)</code>. Solve with the Master Theorem or substitution/recursion tree.</div>
+      </div>
+    </div>
+
+    <div class="formula-block">
+      <span class="label">Master Theorem (basic)</span>
+      T(n) = a·T(n/b) + O(nᵈ)
+
+      Case 1: d > log_b(a)  →  T(n) = O(nᵈ)         [work dominates]
+      Case 2: d = log_b(a)  →  T(n) = O(nᵈ log n)    [equal work at all levels]
+      Case 3: d < log_b(a)  →  T(n) = O(n^log_b(a))  [recursive calls dominate]
+
+      Example: Merge sort  T(n) = 2T(n/2) + O(n)
+               a=2, b=2, d=1  →  log₂(2) = 1 = d  →  T(n) = O(n log n)
+    </div>
+
+    <div class="callout purple">
+      <span class="callout-icon">🔮</span>
+      <p><strong>Counting step-by-step:</strong> To find T(n) for a code block, count: (1) loops at each level, (2) work per iteration, (3) multiply if nested, add if sequential. Then drop constants and lower-order terms to get the Big-O class.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  // Progress bar
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    bar.style.width = (window.scrollY / total * 100) + '%';
+  });
+
+  // Active nav highlighting
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.header-nav a');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '-52px 0px -60% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

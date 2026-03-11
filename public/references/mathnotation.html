@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematical Symbols Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #17171b;
+    --surface2: #1f1f25;
+    --border: #2e2e38;
+    --accent: #7df0a0;
+    --accent2: #f0d07d;
+    --accent3: #7db8f0;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --text-code: #b8f0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 14, 16, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(125, 240, 160, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.7rem 1rem;
+    font-weight: 400;
+  }
+
+  td {
+    padding: 0.6rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  tr:hover td { background: rgba(125, 240, 160, 0.03); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(125, 240, 160, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.8; }
+  .prose strong { color: var(--accent2); font-weight: 600; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.88rem; color: var(--text-dim); font-style: italic; }
+
+  .abbrev td:first-child { color: var(--accent2); }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code { font-family: 'DM Mono', monospace; color: var(--accent); white-space: nowrap; min-width: 80px; }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ol.precedence { counter-reset: prec; list-style: none; padding: 0; }
+  ol.precedence li {
+    counter-increment: prec;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ol.precedence li:last-child { border-bottom: none; }
+  ol.precedence li::before {
+    content: counter(prec);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">𝕄ath Ref</span>
+  <nav>
+    <a href="#set-theory">Sets</a>
+    <a href="#logic">Logic</a>
+    <a href="#relations">Relations</a>
+    <a href="#numbers">Numbers</a>
+    <a href="#functions">Functions</a>
+    <a href="#strings">Strings</a>
+    <a href="#automata">Automata</a>
+    <a href="#complexity">Complexity</a>
+    <a href="#graphs">Graphs</a>
+    <a href="#combinatorics">Counting</a>
+    <a href="#linear">Linear Alg</a>
+    <a href="#number-theory">Mod Arith</a>
+    <a href="#special">Special</a>
+    <a href="#typography">Typography</a>
+    <a href="#reading">Reading</a>
+    <a href="#abbreviations">Abbrevs</a>
+    <a href="#lookup">Lookup</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">CS Theory &nbsp;·&nbsp; Quick Reference</span>
+  <h1>Mathematical<br><span>Symbols</span></h1>
+  <p class="subtitle">Discrete Math &nbsp;·&nbsp; Automata Theory &nbsp;·&nbsp; Linear Algebra</p>
+</div>
+
+<main>
+
+  <div class="toc" id="top">
+    <div class="toc-title">Table of Contents</div>
+    <a href="#set-theory"><span class="toc-num">01</span> Set Theory</a>
+    <a href="#logic"><span class="toc-num">02</span> Logic</a>
+    <a href="#relations"><span class="toc-num">03</span> Relations</a>
+    <a href="#numbers"><span class="toc-num">04</span> Number Sets</a>
+    <a href="#functions"><span class="toc-num">05</span> Functions &amp; Mappings</a>
+    <a href="#strings"><span class="toc-num">06</span> Strings &amp; Languages</a>
+    <a href="#automata"><span class="toc-num">07</span> Automata Theory</a>
+    <a href="#complexity"><span class="toc-num">08</span> Complexity Theory</a>
+    <a href="#graphs"><span class="toc-num">09</span> Graph Theory</a>
+    <a href="#combinatorics"><span class="toc-num">10</span> Combinatorics</a>
+    <a href="#linear"><span class="toc-num">11</span> Linear Algebra</a>
+    <a href="#number-theory"><span class="toc-num">12</span> Number Theory</a>
+    <a href="#special"><span class="toc-num">13</span> Special Symbols</a>
+    <a href="#typography"><span class="toc-num">14</span> Typography</a>
+    <a href="#reading"><span class="toc-num">15</span> Reading Expressions</a>
+    <a href="#abbreviations"><span class="toc-num">16</span> Abbreviations</a>
+    <a href="#lookup"><span class="toc-num">17</span> Quick Lookup</a>
+    <a href="#tips"><span class="toc-num">18</span> Pro Tips</a>
+    <a href="#index"><span class="toc-num">19</span> Symbol Index</a>
+  </div>
+
+  <!-- 1 -->
+  <section id="set-theory">
+    <div class="section-header"><span class="section-icon">🎯</span><h2>Set Theory Symbols</h2></div>
+    <h3>Basic Set Operations</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th><th>Read As</th></tr></thead>
+      <tbody>
+        <tr><td>∅ or {}</td><td>Empty set</td><td>Set with no elements</td><td><code>∅ = {}</code></td><td>"the empty set"</td></tr>
+        <tr><td>∈</td><td>Element of</td><td>x belongs to set A</td><td><code>3 ∈ {1,2,3}</code></td><td>"3 is in"</td></tr>
+        <tr><td>∉</td><td>Not in</td><td>x not in set A</td><td><code>4 ∉ {1,2,3}</code></td><td>"4 is not in"</td></tr>
+        <tr><td>⊆</td><td>Subset</td><td>A contained in B (possibly equal)</td><td><code>{1,2} ⊆ {1,2,3}</code></td><td>"subset of"</td></tr>
+        <tr><td>⊂</td><td>Proper subset</td><td>A ⊂ B and A ≠ B</td><td><code>{1,2} ⊂ {1,2,3}</code></td><td>"proper subset of"</td></tr>
+        <tr><td>⊇</td><td>Superset</td><td>A contains B</td><td><code>{1,2,3} ⊇ {1,2}</code></td><td>"superset of"</td></tr>
+        <tr><td>⊃</td><td>Proper superset</td><td>A ⊃ B and A ≠ B</td><td><code>{1,2,3} ⊃ {1,2}</code></td><td>"proper superset of"</td></tr>
+        <tr><td>∪</td><td>Union</td><td>Elements in A or B</td><td><code>{1,2} ∪ {2,3} = {1,2,3}</code></td><td>"union"</td></tr>
+        <tr><td>∩</td><td>Intersection</td><td>Elements in A and B</td><td><code>{1,2} ∩ {2,3} = {2}</code></td><td>"intersect"</td></tr>
+        <tr><td>\ or −</td><td>Set difference</td><td>In A but not B</td><td><code>{1,2,3} \ {2} = {1,3}</code></td><td>"minus"</td></tr>
+        <tr><td>⊕</td><td>Symmetric diff</td><td>In A or B but not both</td><td><code>{1,2} ⊕ {2,3} = {1,3}</code></td><td>"XOR"</td></tr>
+        <tr><td>×</td><td>Cartesian product</td><td>All ordered pairs</td><td><code>{1,2} × {a,b}</code></td><td>"cross"</td></tr>
+        <tr><td>𝒫(A) or 2^A</td><td>Power set</td><td>All subsets of A</td><td><code>𝒫({1,2})</code></td><td>"power set of A"</td></tr>
+        <tr><td>|A| or #A</td><td>Cardinality</td><td>Number of elements</td><td><code>|{1,2,3}| = 3</code></td><td>"size of A"</td></tr>
+        <tr><td>Ā or A^c</td><td>Complement</td><td>Not in A (relative to U)</td><td><code>Ā = U \ A</code></td><td>"A complement"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Set Builder Notation</h3>
+    <div class="code-block">{x | P(x)} &nbsp;&nbsp; or &nbsp;&nbsp; {x : P(x)}</div>
+    <p class="prose">Read: <strong>"The set of all x such that P(x) is true"</strong></p>
+    <ul class="examples">
+      <li><code>{x | x ∈ ℕ ∧ x &lt; 5} = {0,1,2,3,4}</code></li>
+      <li><code>{x² | x ∈ {1,2,3}} = {1,4,9}</code></li>
+      <li><code>{n | n ≡ 0 (mod 2)}</code> = the even numbers</li>
+    </ul>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 2 -->
+  <section id="logic">
+    <div class="section-header"><span class="section-icon">🧮</span><h2>Logic Symbols</h2></div>
+    <h3>Propositional Logic</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Truth</th><th>Read As</th></tr></thead>
+      <tbody>
+        <tr><td>∧</td><td>AND / Conjunction</td><td>Both must be true</td><td><code>T∧T=T</code>, else F</td><td>"and"</td></tr>
+        <tr><td>∨</td><td>OR / Disjunction</td><td>At least one true</td><td><code>F∨F=F</code>, else T</td><td>"or"</td></tr>
+        <tr><td>¬ or ~ or !</td><td>NOT / Negation</td><td>Opposite value</td><td><code>¬T=F</code>, <code>¬F=T</code></td><td>"not"</td></tr>
+        <tr><td>⊕</td><td>XOR / Exclusive OR</td><td>Exactly one true</td><td><code>T⊕F=T</code>, <code>T⊕T=F</code></td><td>"XOR"</td></tr>
+        <tr><td>→ or ⇒</td><td>Implication</td><td>If...then</td><td><code>T→F=F</code>, else T</td><td>"implies"</td></tr>
+        <tr><td>↔ or ⇔</td><td>Biconditional</td><td>If and only if (iff)</td><td><code>T↔T=T</code>, <code>T↔F=F</code></td><td>"iff"</td></tr>
+        <tr><td>⊤</td><td>Tautology</td><td>Always true</td><td>Top</td><td>"true"</td></tr>
+        <tr><td>⊥</td><td>Contradiction</td><td>Always false</td><td>Bottom</td><td>"false"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Predicate Logic (Quantifiers)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th><th>Read As</th></tr></thead>
+      <tbody>
+        <tr><td>∀</td><td>Universal quantifier</td><td>For all / every</td><td><code>∀x ∈ ℕ, x ≥ 0</code></td><td>"for all x"</td></tr>
+        <tr><td>∃</td><td>Existential quantifier</td><td>There exists / some</td><td><code>∃x ∈ ℕ, x &gt; 100</code></td><td>"there exists x"</td></tr>
+        <tr><td>∃!</td><td>Unique existence</td><td>Exists exactly one</td><td><code>∃!x, x² = 4 ∧ x &gt; 0</code></td><td>"exists unique x"</td></tr>
+        <tr><td>∄</td><td>Does not exist</td><td>No such element</td><td><code>∄x ∈ ℕ, x &lt; 0</code></td><td>"does not exist"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Logical Relations</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Context</th></tr></thead>
+      <tbody>
+        <tr><td>⊢</td><td>Proves / Entails</td><td>Syntactic consequence</td><td><code>A ∧ B ⊢ A</code></td></tr>
+        <tr><td>⊨</td><td>Models / Satisfies</td><td>Semantic entailment</td><td><code>𝓜 ⊨ φ</code></td></tr>
+        <tr><td>≡</td><td>Logically equivalent</td><td>Same truth value</td><td><code>¬(A∧B) ≡ ¬A∨¬B</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 3 -->
+  <section id="relations">
+    <div class="section-header"><span class="section-icon">📊</span><h2>Relation Symbols</h2></div>
+    <h3>Ordering Relations</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>&lt;</td><td>Less than</td><td>Strictly smaller</td><td><code>2 &lt; 3</code></td></tr>
+        <tr><td>&gt;</td><td>Greater than</td><td>Strictly larger</td><td><code>5 &gt; 3</code></td></tr>
+        <tr><td>≤</td><td>Less than or equal</td><td>At most</td><td><code>2 ≤ 3</code>, <code>3 ≤ 3</code></td></tr>
+        <tr><td>≥</td><td>Greater than or equal</td><td>At least</td><td><code>3 ≥ 2</code></td></tr>
+        <tr><td>≪</td><td>Much less than</td><td>Asymptotically smaller</td><td><code>log n ≪ n</code></td></tr>
+        <tr><td>≫</td><td>Much greater than</td><td>Asymptotically larger</td><td><code>2ⁿ ≫ n²</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Equality &amp; Equivalence</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>=</td><td>Equals</td><td>Identical value</td><td><code>2 + 2 = 4</code></td></tr>
+        <tr><td>≠</td><td>Not equal</td><td>Different values</td><td><code>2 ≠ 3</code></td></tr>
+        <tr><td>≡</td><td>Equivalent to</td><td>Defined as / identical</td><td><code>a ≡ b (mod n)</code></td></tr>
+        <tr><td>≈</td><td>Approximately</td><td>Close to</td><td><code>π ≈ 3.14</code></td></tr>
+        <tr><td>~</td><td>Similar / Equivalent</td><td>Equivalence relation</td><td><code>a ~ b</code></td></tr>
+        <tr><td>:= or ≔</td><td>Defined as</td><td>Assignment / definition</td><td><code>f(x) := x²</code></td></tr>
+        <tr><td>∝</td><td>Proportional to</td><td>Scales linearly</td><td><code>A ∝ r²</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Divisibility</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>∣</td><td>Divides</td><td>a divides b evenly</td><td><code>3 ∣ 15</code></td></tr>
+        <tr><td>∤</td><td>Does not divide</td><td>Remainder exists</td><td><code>3 ∤ 16</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 4 -->
+  <section id="numbers">
+    <div class="section-header"><span class="section-icon">🔢</span><h2>Number Sets</h2></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Contains</th><th>Notation</th></tr></thead>
+      <tbody>
+        <tr><td>ℕ</td><td>Natural numbers</td><td>Non-negative integers</td><td><code>{0, 1, 2, 3, ...}</code></td></tr>
+        <tr><td>ℕ⁺ or ℤ⁺</td><td>Positive integers</td><td>Counting numbers</td><td><code>{1, 2, 3, ...}</code></td></tr>
+        <tr><td>ℤ</td><td>Integers</td><td>Whole numbers</td><td><code>{..., -2, -1, 0, 1, 2, ...}</code></td></tr>
+        <tr><td>ℤ⁻</td><td>Negative integers</td><td>Below zero</td><td><code>{..., -3, -2, -1}</code></td></tr>
+        <tr><td>ℚ</td><td>Rationals</td><td>Fractions</td><td><code>{p/q | p,q ∈ ℤ, q ≠ 0}</code></td></tr>
+        <tr><td>ℝ</td><td>Real numbers</td><td>All decimals</td><td>Continuous number line</td></tr>
+        <tr><td>ℝ⁺</td><td>Positive reals</td><td>Above zero</td><td><code>{x ∈ ℝ | x &gt; 0}</code></td></tr>
+        <tr><td>ℂ</td><td>Complex numbers</td><td>Real + imaginary</td><td><code>{a + bi | a,b ∈ ℝ}</code></td></tr>
+        <tr><td>i or j</td><td>Imaginary unit</td><td>√(−1)</td><td><code>i² = -1</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 5 -->
+  <section id="functions">
+    <div class="section-header"><span class="section-icon">📐</span><h2>Functions &amp; Mappings</h2></div>
+    <h3>Function Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>f: A → B</td><td>Function from A to B</td><td>Maps A to B</td><td><code>f: ℝ → ℝ</code></td></tr>
+        <tr><td>f(x)</td><td>Function application</td><td>Evaluate f at x</td><td><code>f(2) = 5</code></td></tr>
+        <tr><td>f ∘ g</td><td>Composition</td><td>Apply g then f</td><td><code>(f∘g)(x) = f(g(x))</code></td></tr>
+        <tr><td>f⁻¹</td><td>Inverse function</td><td>Reverses f</td><td><code>f⁻¹(5) = 2 if f(2)=5</code></td></tr>
+        <tr><td>dom(f)</td><td>Domain</td><td>Valid inputs</td><td>Set A</td></tr>
+        <tr><td>ran(f) or im(f)</td><td>Range / Image</td><td>Possible outputs</td><td>Subset of B</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Sequences &amp; Series</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>aₙ</td><td>nth term</td><td>Element at position n</td><td><code>a₅</code></td></tr>
+        <tr><td>{aₙ}</td><td>Sequence</td><td>Ordered list</td><td><code>{1, 2, 4, 8, ...}</code></td></tr>
+        <tr><td>⟨a,b⟩ or (a,b)</td><td>Ordered pair</td><td>Position matters</td><td><code>⟨1,2⟩ ≠ ⟨2,1⟩</code></td></tr>
+        <tr><td>Σ</td><td>Summation</td><td>Sum over range</td><td><code>Σᵢ₌₁ⁿ i = n(n+1)/2</code></td></tr>
+        <tr><td>Π</td><td>Product</td><td>Multiply over range</td><td><code>Πᵢ₌₁ⁿ i = n!</code></td></tr>
+        <tr><td>lim</td><td>Limit</td><td>Approaches value</td><td><code>lim(x→∞) 1/x = 0</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 6 -->
+  <section id="strings">
+    <div class="section-header"><span class="section-icon">🔤</span><h2>String &amp; Language Symbols</h2></div>
+    <h3>Alphabet &amp; Strings</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Σ</td><td>Alphabet</td><td>Finite set of symbols</td><td><code>Σ = {0,1}</code></td></tr>
+        <tr><td>w or s</td><td>String</td><td>Sequence of symbols</td><td><code>w = 0110</code></td></tr>
+        <tr><td>ε or λ or ϵ</td><td>Empty string</td><td>Zero-length string</td><td><code>|ε| = 0</code></td></tr>
+        <tr><td>|w|</td><td>Length</td><td>Number of symbols</td><td><code>|0110| = 4</code></td></tr>
+        <tr><td>wʳ or w^R</td><td>Reverse</td><td>String backwards</td><td><code>(abc)ʳ = cba</code></td></tr>
+        <tr><td>xy or x·y</td><td>Concatenation</td><td>x followed by y</td><td><code>01 · 10 = 0110</code></td></tr>
+        <tr><td>wⁿ</td><td>Repetition</td><td>w repeated n times</td><td><code>0³ = 000</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Languages</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>L</td><td>Language</td><td>Set of strings</td><td><code>L = {0ⁿ1ⁿ | n ≥ 0}</code></td></tr>
+        <tr><td>Σ*</td><td>Kleene star</td><td>All strings over Σ</td><td><code>{0,1}* = {ε,0,1,00,...}</code></td></tr>
+        <tr><td>Σ⁺</td><td>Positive closure</td><td>Non-empty strings</td><td><code>Σ⁺ = Σ* \ {ε}</code></td></tr>
+        <tr><td>L₁L₂</td><td>Concatenation</td><td>All xy where x∈L₁, y∈L₂</td><td>Language product</td></tr>
+        <tr><td>L*</td><td>Kleene closure</td><td>All concatenations of L</td><td><code>{0,1}*</code></td></tr>
+        <tr><td>L^R</td><td>Reversal</td><td>All reversed strings</td><td><code>{w^R | w ∈ L}</code></td></tr>
+        <tr><td>L̄ or L^c</td><td>Complement</td><td>Σ* \ L</td><td>Not in L</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 7 -->
+  <section id="automata">
+    <div class="section-header"><span class="section-icon">🤖</span><h2>Automata Theory Symbols</h2></div>
+    <h3>Automata Components</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Q</td><td>States</td><td>Finite set of states</td><td><code>Q = {q₀, q₁, q₂}</code></td></tr>
+        <tr><td>q₀</td><td>Initial state</td><td>Starting state</td><td>Marked with →</td></tr>
+        <tr><td>F</td><td>Final states</td><td>Accepting states</td><td><code>F ⊆ Q</code></td></tr>
+        <tr><td>δ</td><td>Transition function</td><td>State change rule</td><td><code>δ(q,a) = q'</code></td></tr>
+        <tr><td>Γ</td><td>Stack alphabet</td><td>PDA stack symbols</td><td><code>Γ = {Z₀, A, B}</code></td></tr>
+        <tr><td>Z₀</td><td>Initial stack</td><td>Bottom of stack</td><td>Starting symbol</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Automata Types</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Notation</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>DFA</td><td>Deterministic Finite Automaton</td><td>One next state per input</td></tr>
+        <tr><td>NFA</td><td>Nondeterministic FA</td><td>Multiple possible next states</td></tr>
+        <tr><td>ε-NFA</td><td>Epsilon-NFA</td><td>Has ε-transitions</td></tr>
+        <tr><td>PDA</td><td>Pushdown Automaton</td><td>FA + stack</td></tr>
+        <tr><td>TM</td><td>Turing Machine</td><td>Unlimited tape</td></tr>
+        <tr><td>LBA</td><td>Linear Bounded Automaton</td><td>Limited tape</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Configuration Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>⊢</td><td>Yields in one step</td><td>Single transition</td><td><code>q₀w ⊢ q₁w'</code></td></tr>
+        <tr><td>⊢*</td><td>Yields in zero or more</td><td>Multi-step</td><td><code>q₀w ⊢* qf</code></td></tr>
+        <tr><td>⇒</td><td>Derives</td><td>Grammar derivation</td><td><code>S ⇒ AB ⇒ aaB</code></td></tr>
+        <tr><td>⇒*</td><td>Derives (multi-step)</td><td>Zero or more steps</td><td><code>S ⇒* w</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 8 -->
+  <section id="complexity">
+    <div class="section-header"><span class="section-icon">⚡</span><h2>Complexity Theory Symbols</h2></div>
+    <h3>Asymptotic Notation (Big-O Family)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Intuition</th></tr></thead>
+      <tbody>
+        <tr><td>O(f)</td><td>Big-O</td><td>Upper bound</td><td>"At most"</td></tr>
+        <tr><td>Ω(f)</td><td>Big-Omega</td><td>Lower bound</td><td>"At least"</td></tr>
+        <tr><td>Θ(f)</td><td>Big-Theta</td><td>Tight bound</td><td>"Exactly" (both O and Ω)</td></tr>
+        <tr><td>o(f)</td><td>Little-o</td><td>Strict upper bound</td><td>"Strictly less than"</td></tr>
+        <tr><td>ω(f)</td><td>Little-omega</td><td>Strict lower bound</td><td>"Strictly more than"</td></tr>
+        <tr><td>~</td><td>Asymptotically equal</td><td>Same growth rate</td><td><code>f ~ g</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Complexity Classes</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>P</td><td>Polynomial time</td><td>Solvable in O(nᵏ)</td></tr>
+        <tr><td>NP</td><td>Nondeterministic polynomial</td><td>Verifiable in O(nᵏ)</td></tr>
+        <tr><td>coNP</td><td>Complement of NP</td><td>Complement in NP</td></tr>
+        <tr><td>PSPACE</td><td>Polynomial space</td><td>Uses O(nᵏ) space</td></tr>
+        <tr><td>EXPTIME</td><td>Exponential time</td><td>O(2^(nᵏ)) time</td></tr>
+        <tr><td>L</td><td>Logarithmic space</td><td>O(log n) space</td></tr>
+        <tr><td>NL</td><td>Nondeterministic log-space</td><td>ND O(log n) space</td></tr>
+        <tr><td>BPP</td><td>Bounded-error probabilistic</td><td>Randomized poly-time</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Reduction Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>A ≤ₘ B</td><td>Mapping reducible</td><td>Computable function reduces A to B</td></tr>
+        <tr><td>A ≤ₚ B</td><td>Polynomial-time reducible</td><td>Poly-time function reduces A to B</td></tr>
+        <tr><td>A ≤_L B</td><td>Log-space reducible</td><td>Log-space reduces A to B</td></tr>
+        <tr><td>A ≤_T B</td><td>Turing reducible</td><td>Oracle reduction</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 9 -->
+  <section id="graphs">
+    <div class="section-header"><span class="section-icon">📈</span><h2>Graph Theory Symbols</h2></div>
+    <h3>Graph Components</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>G = (V,E)</td><td>Graph</td><td>Vertices and edges</td><td><code>V={1,2,3}, E={(1,2),(2,3)}</code></td></tr>
+        <tr><td>V or V(G)</td><td>Vertex set</td><td>Nodes</td><td><code>V = {a,b,c}</code></td></tr>
+        <tr><td>E or E(G)</td><td>Edge set</td><td>Connections</td><td><code>E = {ab, bc}</code></td></tr>
+        <tr><td>n or |V|</td><td>Order</td><td>Number of vertices</td><td><code>n = 5</code></td></tr>
+        <tr><td>m or |E|</td><td>Size</td><td>Number of edges</td><td><code>m = 7</code></td></tr>
+        <tr><td>deg(v)</td><td>Degree</td><td>Number of edges at v</td><td><code>deg(v) = 3</code></td></tr>
+        <tr><td>δ(G)</td><td>Minimum degree</td><td>Smallest vertex degree</td><td>Min connections</td></tr>
+        <tr><td>Δ(G)</td><td>Maximum degree</td><td>Largest vertex degree</td><td>Max connections</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Special Graphs</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Kₙ</td><td>Complete graph</td><td>All vertices connected</td></tr>
+        <tr><td>Kₘ,ₙ</td><td>Complete bipartite</td><td>Two sets, fully connected between</td></tr>
+        <tr><td>Cₙ</td><td>Cycle graph</td><td>n vertices in a cycle</td></tr>
+        <tr><td>Pₙ</td><td>Path graph</td><td>n vertices in a path</td></tr>
+        <tr><td>Qₙ</td><td>Hypercube</td><td>n-dimensional cube graph</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Path &amp; Distance</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>u → v</td><td>Directed edge</td><td>Edge from u to v</td></tr>
+        <tr><td>d(u,v)</td><td>Distance</td><td>Shortest path length</td></tr>
+        <tr><td>diam(G)</td><td>Diameter</td><td>Maximum distance</td></tr>
+        <tr><td>girth(G)</td><td>Girth</td><td>Shortest cycle length</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 10 -->
+  <section id="combinatorics">
+    <div class="section-header"><span class="section-icon">🔢</span><h2>Combinatorics &amp; Counting</h2></div>
+    <h3>Counting Functions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>n!</td><td>Factorial</td><td>n × (n−1) × ... × 1</td><td><code>5! = 120</code></td></tr>
+        <tr><td>P(n,k)</td><td>Permutations</td><td>Ordered selections</td><td><code>n!/(n-k)!</code></td></tr>
+        <tr><td>C(n,k)</td><td>Combinations</td><td>Unordered selections</td><td><code>n!/(k!(n-k)!)</code></td></tr>
+        <tr><td>⌊x⌋</td><td>Floor</td><td>Largest integer ≤ x</td><td><code>⌊3.7⌋ = 3</code></td></tr>
+        <tr><td>⌈x⌉</td><td>Ceiling</td><td>Smallest integer ≥ x</td><td><code>⌈3.2⌉ = 4</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Common Sequences</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>Fₙ</td><td>Fibonacci</td><td><code>F₀=0, F₁=1, Fₙ=Fₙ₋₁+Fₙ₋₂</code></td></tr>
+        <tr><td>Cₙ</td><td>Catalan</td><td><code>(2n choose n)/(n+1)</code></td></tr>
+        <tr><td>Bₙ</td><td>Bell numbers</td><td>Number of partitions of n elements</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 11 -->
+  <section id="linear">
+    <div class="section-header"><span class="section-icon">📐</span><h2>Linear Algebra Symbols</h2></div>
+    <h3>Vectors</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>𝐯 or v⃗</td><td>Vector</td><td>Column vector</td><td><code>[1, 2, 3]ᵀ</code></td></tr>
+        <tr><td>vᵢ</td><td>ith component</td><td>Element at position i</td><td><code>v₂ = 5</code></td></tr>
+        <tr><td>‖𝐯‖</td><td>Norm / Length</td><td>Magnitude</td><td><code>‖𝐯‖ = √(v₁² + v₂² + ...)</code></td></tr>
+        <tr><td>‖𝐯‖₁</td><td>L¹ norm</td><td>Manhattan distance</td><td><code>|v₁| + |v₂| + ...</code></td></tr>
+        <tr><td>‖𝐯‖₂</td><td>L² norm</td><td>Euclidean distance</td><td><code>√(v₁² + v₂² + ...)</code></td></tr>
+        <tr><td>𝐮 · 𝐯 or ⟨𝐮,𝐯⟩</td><td>Dot product</td><td>Inner product</td><td><code>u₁v₁ + u₂v₂ + ...</code></td></tr>
+        <tr><td>𝐮 × 𝐯</td><td>Cross product</td><td>Perpendicular vector (3D)</td><td>Returns vector</td></tr>
+        <tr><td>𝐮 ⊗ 𝐯</td><td>Tensor product</td><td>Outer product</td><td>Matrix</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Matrices</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>A or 𝐀</td><td>Matrix</td><td>2D array</td><td><code>[aᵢⱼ]</code></td></tr>
+        <tr><td>aᵢⱼ or A[i,j]</td><td>Entry</td><td>Element at row i, col j</td><td><code>a₂₃</code></td></tr>
+        <tr><td>Aᵀ or A^T</td><td>Transpose</td><td>Rows ↔ columns</td><td><code>(Aᵀ)ᵢⱼ = Aⱼᵢ</code></td></tr>
+        <tr><td>A⁻¹</td><td>Inverse</td><td>AA⁻¹ = I</td><td>Only if det(A) ≠ 0</td></tr>
+        <tr><td>A* or A^H</td><td>Conjugate transpose</td><td>Hermitian transpose</td><td><code>(A*)ᵢⱼ = Āⱼᵢ</code></td></tr>
+        <tr><td>det(A) or |A|</td><td>Determinant</td><td>Scalar value</td><td>Volume scaling</td></tr>
+        <tr><td>tr(A)</td><td>Trace</td><td>Sum of diagonal</td><td><code>Σaᵢᵢ</code></td></tr>
+        <tr><td>rank(A)</td><td>Rank</td><td>Dimension of column space</td><td>Number of pivots</td></tr>
+        <tr><td>null(A)</td><td>Null space</td><td>Ker(A) = {𝐯 | A𝐯=0}</td><td>Solution space</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Special Matrices</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Properties</th></tr></thead>
+      <tbody>
+        <tr><td>I or Iₙ</td><td>Identity matrix</td><td><code>Iᵢⱼ = 1 if i=j, else 0</code></td></tr>
+        <tr><td>O or 𝟎</td><td>Zero matrix</td><td>All entries 0</td></tr>
+        <tr><td>diag(d₁,...,dₙ)</td><td>Diagonal matrix</td><td>Non-zero only on diagonal</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Matrix Properties</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>A = Aᵀ</td><td>Symmetric</td><td>Equal to transpose</td></tr>
+        <tr><td>A = −Aᵀ</td><td>Skew-symmetric</td><td>Negative of transpose</td></tr>
+        <tr><td>AAᵀ = I</td><td>Orthogonal</td><td>Preserves lengths</td></tr>
+        <tr><td>A = A*</td><td>Hermitian</td><td>Self-conjugate</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Vector Spaces &amp; Eigenvalues</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>ℝⁿ</td><td>n-dimensional reals</td><td>Vectors of n real numbers</td></tr>
+        <tr><td>ℂⁿ</td><td>n-dimensional complex</td><td>Vectors of n complex numbers</td></tr>
+        <tr><td>span(𝐯₁,...,𝐯ₖ)</td><td>Span</td><td>All linear combinations</td></tr>
+        <tr><td>dim(V)</td><td>Dimension</td><td>Number of basis vectors</td></tr>
+        <tr><td>𝐯 ⊥ 𝐮</td><td>Orthogonal</td><td>𝐯 · 𝐮 = 0</td></tr>
+        <tr><td>λ</td><td>Eigenvalue</td><td>Scaling factor in A𝐯 = λ𝐯</td></tr>
+        <tr><td>spec(A)</td><td>Spectrum</td><td>Set of all eigenvalues</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 12 -->
+  <section id="number-theory">
+    <div class="section-header"><span class="section-icon">🔐</span><h2>Number Theory &amp; Modular Arithmetic</h2></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>a ≡ b (mod n)</td><td>Congruent modulo n</td><td>Same remainder when ÷ n</td><td><code>7 ≡ 2 (mod 5)</code></td></tr>
+        <tr><td>a mod n</td><td>Modulo</td><td>Remainder of a ÷ n</td><td><code>7 mod 5 = 2</code></td></tr>
+        <tr><td>ℤₙ or ℤ/nℤ</td><td>Integers mod n</td><td>{0, 1, 2, ..., n−1}</td><td><code>ℤ₅ = {0,1,2,3,4}</code></td></tr>
+        <tr><td>gcd(a,b)</td><td>Greatest common divisor</td><td>Largest common factor</td><td><code>gcd(12,8) = 4</code></td></tr>
+        <tr><td>lcm(a,b)</td><td>Least common multiple</td><td>Smallest common multiple</td><td><code>lcm(4,6) = 12</code></td></tr>
+        <tr><td>φ(n)</td><td>Euler's totient</td><td>Count of coprime integers</td><td><code>φ(6) = 2</code></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 13 -->
+  <section id="special">
+    <div class="section-header"><span class="section-icon">🎯</span><h2>Special Symbols &amp; Operators</h2></div>
+    <h3>Calculus &amp; Analysis</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>∞</td><td>Infinity</td><td>Unbounded</td></tr>
+        <tr><td>→</td><td>Approaches</td><td>Limit notation</td></tr>
+        <tr><td>d/dx</td><td>Derivative</td><td>Rate of change</td></tr>
+        <tr><td>∫</td><td>Integral</td><td>Area under curve</td></tr>
+        <tr><td>∂</td><td>Partial derivative</td><td>Multi-variable derivative</td></tr>
+        <tr><td>∇</td><td>Nabla / Gradient</td><td>Vector of partials</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Probability</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>P(A)</td><td>Probability of A</td><td>Likelihood</td></tr>
+        <tr><td>A | B</td><td>Conditional</td><td>A given B</td></tr>
+        <tr><td>E[X]</td><td>Expected value</td><td>Average outcome</td></tr>
+        <tr><td>Var(X)</td><td>Variance</td><td>Spread</td></tr>
+        <tr><td>~</td><td>Distributed as</td><td><code>X ~ N(μ,σ²)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Miscellaneous</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>∴</td><td>Therefore</td><td>Conclusion follows</td></tr>
+        <tr><td>∵</td><td>Because</td><td>Reason</td></tr>
+        <tr><td>□ or ∎</td><td>Q.E.D.</td><td>End of proof</td></tr>
+        <tr><td>□</td><td>Necessary</td><td>Modal logic</td></tr>
+        <tr><td>◊</td><td>Possible</td><td>Modal logic</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 14 -->
+  <section id="typography">
+    <div class="section-header"><span class="section-icon">🎨</span><h2>Typography Conventions</h2></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Style</th><th>Used For</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bold</strong></td><td>Vectors, matrices</td><td><strong>v</strong>, <strong>A</strong></td></tr>
+        <tr><td><em>Italic</em></td><td>Variables, scalars</td><td><em>n</em>, <em>x</em>, <em>f</em></td></tr>
+        <tr><td><code>Monospace</code></td><td>Code, algorithms</td><td><code>while</code>, <code>return</code></td></tr>
+        <tr><td>CAPITALS</td><td>Sets, classes</td><td>REGULAR, NP-COMPLETE</td></tr>
+        <tr><td>Blackboard Bold</td><td>Number sets</td><td>ℕ, ℤ, ℚ, ℝ, ℂ</td></tr>
+        <tr><td>Greek</td><td>Parameters, angles</td><td>α, β, θ, λ, σ</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 15 -->
+  <section id="reading">
+    <div class="section-header"><span class="section-icon">💡</span><h2>Reading Complex Expressions</h2></div>
+
+    <div class="example-block">
+      <div class="expr">∀ε &gt; 0, ∃N ∈ ℕ, ∀n &gt; N: |aₙ − L| &lt; ε</div>
+      <div class="reading">"For all epsilon greater than zero, there exists N in the natural numbers such that for all n greater than N, the absolute value of a_n minus L is less than epsilon"</div>
+    </div>
+
+    <div class="example-block">
+      <div class="expr">L = {w ∈ Σ* | |w|ₐ = |w|_b}</div>
+      <div class="reading">"L is the set of all strings w in Sigma star such that the number of a's equals the number of b's"</div>
+    </div>
+
+    <div class="example-block">
+      <div class="expr">A ≤ₚ B ⟹ (B ∈ P ⟹ A ∈ P)</div>
+      <div class="reading">"If A is polynomial-time reducible to B, then if B is in P, then A is in P"</div>
+    </div>
+
+    <h3>When in Doubt</h3>
+    <ul class="examples">
+      <li><strong>Check the domain</strong> — what field of math?</li>
+      <li><strong>Read nearby text</strong> — definitions matter</li>
+      <li><strong>Look at types</strong> — sets? numbers? strings?</li>
+      <li><strong>Context clues</strong> — what makes sense here?</li>
+    </ul>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 16 -->
+  <section id="abbreviations">
+    <div class="section-header"><span class="section-icon">🔑</span><h2>Common Abbreviations</h2></div>
+    <div class="table-wrap"><table class="abbrev">
+      <thead><tr><th>Abbrev</th><th>Full Name</th></tr></thead>
+      <tbody>
+        <tr><td>iff</td><td>if and only if (↔)</td></tr>
+        <tr><td>WLOG</td><td>without loss of generality</td></tr>
+        <tr><td>QED</td><td>quod erat demonstrandum (thus proven)</td></tr>
+        <tr><td>s.t.</td><td>such that</td></tr>
+        <tr><td>w.r.t.</td><td>with respect to</td></tr>
+        <tr><td>i.e.</td><td>id est (that is)</td></tr>
+        <tr><td>e.g.</td><td>exempli gratia (for example)</td></tr>
+        <tr><td>etc.</td><td>et cetera (and so on)</td></tr>
+        <tr><td>resp.</td><td>respectively</td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 17 -->
+  <section id="lookup">
+    <div class="section-header"><span class="section-icon">🎯</span><h2>Quick Lookup Tables</h2></div>
+    <h3>Greek Alphabet (Common in Math)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Lower</th><th>Upper</th><th>Name</th><th>Common Use</th></tr></thead>
+      <tbody>
+        <tr><td>α</td><td>Α</td><td>alpha</td><td>angles, constants</td></tr>
+        <tr><td>β</td><td>Β</td><td>beta</td><td>angles, coefficients</td></tr>
+        <tr><td>γ</td><td>Γ</td><td>gamma</td><td>angles, Gamma function</td></tr>
+        <tr><td>δ</td><td>Δ</td><td>delta</td><td>change, small value</td></tr>
+        <tr><td>ε, ϵ</td><td>Ε</td><td>epsilon</td><td>small positive, empty string</td></tr>
+        <tr><td>θ</td><td>Θ</td><td>theta</td><td>angles, Big-Theta</td></tr>
+        <tr><td>λ</td><td>Λ</td><td>lambda</td><td>eigenvalue, empty string</td></tr>
+        <tr><td>μ</td><td>Μ</td><td>mu</td><td>mean, measure</td></tr>
+        <tr><td>π</td><td>Π</td><td>pi</td><td>3.14159..., product</td></tr>
+        <tr><td>σ</td><td>Σ</td><td>sigma</td><td>standard deviation, sum</td></tr>
+        <tr><td>φ, ϕ</td><td>Φ</td><td>phi</td><td>golden ratio, Euler's totient</td></tr>
+        <tr><td>ω</td><td>Ω</td><td>omega</td><td>angular velocity, Big-Omega</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Operator Precedence (High → Low)</h3>
+    <ol class="precedence">
+      <li><span>Parentheses: <code>( ) [ ] { }</code></span></li>
+      <li><span>Exponents: <code>^</code>, superscripts</span></li>
+      <li><span>Functions: <code>f(x)</code>, <code>sin(x)</code></span></li>
+      <li><span>Negation: <code>¬</code>, <code>−</code></span></li>
+      <li><span>Multiplication: <code>×</code>, <code>·</code>, adjacency</span></li>
+      <li><span>Division: <code>/</code>, <code>÷</code></span></li>
+      <li><span>Addition, Subtraction: <code>+</code>, <code>−</code></span></li>
+      <li><span>Comparisons: <code>&lt;</code>, <code>&gt;</code>, <code>≤</code>, <code>≥</code></span></li>
+      <li><span>Set operations: <code>∩</code>, <code>∪</code>, <code>\</code></span></li>
+      <li><span>Logical AND: <code>∧</code></span></li>
+      <li><span>Logical OR: <code>∨</code></span></li>
+      <li><span>Implication: <code>→</code>, <code>⇒</code></span></li>
+      <li><span>Quantifiers: <code>∀</code>, <code>∃</code></span></li>
+    </ol>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 18 -->
+  <section id="tips">
+    <div class="section-header"><span class="section-icon">🎓</span><h2>Pro Tips</h2></div>
+    <h3>Ambiguous Symbols — Context Matters!</h3>
+    <ul class="tip-list">
+      <li><span class="tip-code">|x|</span><span>could mean: absolute value, cardinality, length, determinant</span></li>
+      <li><span class="tip-code">f'</span><span>could mean: derivative or complement</span></li>
+      <li><span class="tip-code">*</span><span>could mean: Kleene star, convolution, or multiplication</span></li>
+      <li><span class="tip-code">()</span><span>could mean: grouping, ordered pair, or open interval</span></li>
+    </ul>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 19 -->
+  <section id="index">
+    <div class="section-header"><span class="section-icon">🗂</span><h2>Symbol Index</h2></div>
+    <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All symbols listed alphabetically by name.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Section</th></tr></thead>
+      <tbody>
+        <tr><td>∧</td><td>AND (conjunction)</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>≈</td><td>Approximately equal</td><td><a href="#relations" class="idx-link">Relations</a></td></tr>
+        <tr><td>∵</td><td>Because</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>↔ / ⇔</td><td>Biconditional (iff)</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>×</td><td>Cartesian product</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>⌈x⌉</td><td>Ceiling</td><td><a href="#combinatorics" class="idx-link">Combinatorics</a></td></tr>
+        <tr><td>C(n,k)</td><td>Combinations</td><td><a href="#combinatorics" class="idx-link">Combinatorics</a></td></tr>
+        <tr><td>ℂ</td><td>Complex numbers</td><td><a href="#numbers" class="idx-link">Number Sets</a></td></tr>
+        <tr><td>Ā / A^c</td><td>Complement (set)</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>L̄ / L^c</td><td>Complement (language)</td><td><a href="#strings" class="idx-link">Strings</a></td></tr>
+        <tr><td>f ∘ g</td><td>Composition</td><td><a href="#functions" class="idx-link">Functions</a></td></tr>
+        <tr><td>≡</td><td>Congruent modulo n</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+        <tr><td>⊥</td><td>Contradiction / Bottom</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>d/dx</td><td>Derivative</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>det(A)</td><td>Determinant</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>δ</td><td>Transition function / Delta</td><td><a href="#automata" class="idx-link">Automata</a></td></tr>
+        <tr><td>dim(V)</td><td>Dimension</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>∣</td><td>Divides</td><td><a href="#relations" class="idx-link">Relations</a></td></tr>
+        <tr><td>𝐮 · 𝐯</td><td>Dot product</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>λ</td><td>Eigenvalue</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>∈</td><td>Element of</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>∅</td><td>Empty set</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>ε / λ</td><td>Empty string</td><td><a href="#strings" class="idx-link">Strings</a></td></tr>
+        <tr><td>E[X]</td><td>Expected value</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>∃</td><td>Existential quantifier</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>∃!</td><td>Exists unique</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>n!</td><td>Factorial</td><td><a href="#combinatorics" class="idx-link">Combinatorics</a></td></tr>
+        <tr><td>⌊x⌋</td><td>Floor</td><td><a href="#combinatorics" class="idx-link">Combinatorics</a></td></tr>
+        <tr><td>∀</td><td>For all (universal)</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>f: A → B</td><td>Function notation</td><td><a href="#functions" class="idx-link">Functions</a></td></tr>
+        <tr><td>gcd(a,b)</td><td>Greatest common divisor</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+        <tr><td>∇</td><td>Gradient / Nabla</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>G = (V,E)</td><td>Graph</td><td><a href="#graphs" class="idx-link">Graph Theory</a></td></tr>
+        <tr><td>→ / ⇒</td><td>Implication</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>∫</td><td>Integral</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>∩</td><td>Intersection</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>ℤ</td><td>Integers</td><td><a href="#numbers" class="idx-link">Number Sets</a></td></tr>
+        <tr><td>A⁻¹</td><td>Inverse (matrix)</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>f⁻¹</td><td>Inverse (function)</td><td><a href="#functions" class="idx-link">Functions</a></td></tr>
+        <tr><td>Σ*</td><td>Kleene star</td><td><a href="#strings" class="idx-link">Strings</a></td></tr>
+        <tr><td>lcm(a,b)</td><td>Least common multiple</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+        <tr><td>≡</td><td>Logically equivalent</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>a mod n</td><td>Modulo</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+        <tr><td>ℕ</td><td>Natural numbers</td><td><a href="#numbers" class="idx-link">Number Sets</a></td></tr>
+        <tr><td>¬</td><td>NOT / Negation</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>∄</td><td>Does not exist</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>‖𝐯‖</td><td>Norm / Length</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>O(f)</td><td>Big-O (upper bound)</td><td><a href="#complexity" class="idx-link">Complexity</a></td></tr>
+        <tr><td>Ω(f)</td><td>Big-Omega (lower bound)</td><td><a href="#complexity" class="idx-link">Complexity</a></td></tr>
+        <tr><td>Θ(f)</td><td>Big-Theta (tight bound)</td><td><a href="#complexity" class="idx-link">Complexity</a></td></tr>
+        <tr><td>𝐯 ⊥ 𝐮</td><td>Orthogonal</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>∂</td><td>Partial derivative</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>P(n,k)</td><td>Permutations</td><td><a href="#combinatorics" class="idx-link">Combinatorics</a></td></tr>
+        <tr><td>φ(n)</td><td>Euler's totient (Phi)</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+        <tr><td>𝒫(A)</td><td>Power set</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>⊢</td><td>Proves / Entails / Yields</td><td><a href="#logic" class="idx-link">Logic</a>, <a href="#automata" class="idx-link">Automata</a></td></tr>
+        <tr><td>□ / ∎</td><td>Q.E.D.</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>ℚ</td><td>Rationals</td><td><a href="#numbers" class="idx-link">Number Sets</a></td></tr>
+        <tr><td>rank(A)</td><td>Rank</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>ℝ</td><td>Real numbers</td><td><a href="#numbers" class="idx-link">Number Sets</a></td></tr>
+        <tr><td>Σ</td><td>Alphabet / Summation</td><td><a href="#strings" class="idx-link">Strings</a>, <a href="#functions" class="idx-link">Functions</a></td></tr>
+        <tr><td>spec(A)</td><td>Spectrum (eigenvalues)</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>⊆</td><td>Subset</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>⊤</td><td>Tautology / Top</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>∴</td><td>Therefore</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>tr(A)</td><td>Trace</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>Aᵀ</td><td>Transpose</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>∪</td><td>Union</td><td><a href="#set-theory" class="idx-link">Set Theory</a></td></tr>
+        <tr><td>∨</td><td>OR (disjunction)</td><td><a href="#logic" class="idx-link">Logic</a></td></tr>
+        <tr><td>Var(X)</td><td>Variance</td><td><a href="#special" class="idx-link">Special Symbols</a></td></tr>
+        <tr><td>⊗</td><td>Tensor / outer product</td><td><a href="#linear" class="idx-link">Linear Algebra</a></td></tr>
+        <tr><td>⇒</td><td>Derives (grammar)</td><td><a href="#automata" class="idx-link">Automata</a></td></tr>
+        <tr><td>ℤₙ</td><td>Integers mod n</td><td><a href="#number-theory" class="idx-link">Number Theory</a></td></tr>
+      </tbody>
+    </table></div>
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+</main>
+
+<footer>
+  Mathematical Symbols Quick Reference &nbsp;·&nbsp; CS Theory &nbsp;·&nbsp; 2026
+</footer>
+
+</body>
+</html>

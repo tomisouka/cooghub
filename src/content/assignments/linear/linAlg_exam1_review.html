@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Math 2318 — Exam 1 Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml.min.js"></script>
+<style>
+  :root {
+    --bg:#080a0f;--surface:#0c0f18;--card:#0f1420;--border:#1e2535;--border-bright:#2d3a52;
+    --accent:#4f9cf0;--accent2:#e8a94a;--accent3:#52c98a;--accent4:#d96fb5;--accent5:#5bc8e0;
+    --text:#c8d0e0;--text-bright:#e8edf8;--muted:#4a5468;--muted2:#5a6880;
+    --sol-bg:#090c14;--sol-border:#1a2438;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.8;min-height:100vh;overflow-x:hidden;}
+
+  .progress-bar-wrap{position:sticky;top:0;z-index:200;height:2px;background:var(--border);}
+  #progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width 0.1s linear;box-shadow:0 0 12px var(--accent);}
+
+  header{position:relative;padding:5rem 2rem 4rem;text-align:center;overflow:hidden;
+    background:radial-gradient(ellipse 100% 120% at 50% -20%,rgba(79,156,240,0.08) 0%,transparent 60%),var(--surface);
+    border-bottom:1px solid var(--border);}
+  header::before{content:'';position:absolute;inset:0;
+    background-image:linear-gradient(rgba(79,156,240,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,156,240,0.04) 1px,transparent 1px);
+    background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 100% at 50% 0%,black 0%,transparent 80%);}
+  .header-inner{position:relative;z-index:2;}
+  .header-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;font-family:'JetBrains Mono',monospace;
+    font-size:0.65rem;font-weight:500;letter-spacing:0.22em;color:var(--accent);text-transform:uppercase;
+    margin-bottom:1.5rem;padding:0.3em 1em 0.3em 0.8em;background:rgba(79,156,240,0.06);
+    border:1px solid rgba(79,156,240,0.2);border-radius:2px;}
+  .header-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 8px var(--accent);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+  header h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,6vw,4.2rem);font-weight:700;
+    color:var(--text-bright);letter-spacing:-0.02em;line-height:1.1;margin-bottom:1rem;}
+  header h1 em{font-style:italic;color:var(--accent);}
+  .header-meta{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:1rem;}
+  .meta-item{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--muted2);letter-spacing:0.08em;}
+  .meta-sep{color:var(--border-bright);}
+
+  nav{position:sticky;top:2px;z-index:100;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;
+    padding:1rem 2rem;background:rgba(8,10,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+  nav a{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--muted2);text-decoration:none;
+    padding:0.3em 0.9em;border:1px solid var(--border);border-radius:2px;transition:all 0.25s ease;}
+  nav a:hover{color:var(--accent);border-color:rgba(79,156,240,0.4);background:rgba(79,156,240,0.06);}
+
+  main{max-width:960px;margin:0 auto;padding:3.5rem 1.5rem 6rem;display:flex;flex-direction:column;gap:2rem;}
+
+  /* ── Problem cards ── */
+  .prob-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+    transition:border-color 0.3s,box-shadow 0.3s;animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1) both;}
+  .prob-card:nth-child(1){animation-delay:0.05s;}.prob-card:nth-child(2){animation-delay:0.1s;}
+  .prob-card:nth-child(3){animation-delay:0.15s;}.prob-card:nth-child(4){animation-delay:0.2s;}
+  .prob-card:nth-child(5){animation-delay:0.25s;}.prob-card:nth-child(6){animation-delay:0.3s;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  .prob-card[data-color="purple"]{--c:#c97aed;}
+  .prob-card[data-color="blue"]{--c:var(--accent);}
+  .prob-card[data-color="gold"]{--c:var(--accent2);}
+  .prob-card[data-color="green"]{--c:var(--accent3);}
+  .prob-card[data-color="pink"]{--c:var(--accent4);}
+  .prob-card[data-color="teal"]{--c:var(--accent5);}
+  .prob-card::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--c) 0%,transparent 60%);opacity:0;transition:opacity 0.3s;}
+  .prob-card.open::before,.prob-card:hover::before{opacity:1;}
+  .prob-card:hover,.prob-card.open{border-color:color-mix(in srgb,var(--c) 30%,transparent);}
+
+  .card-header{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.2rem;
+    padding:1.2rem 1.6rem;cursor:pointer;user-select:none;transition:background 0.2s;}
+  .card-header:hover{background:rgba(255,255,255,0.015);}
+  .prob-num{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:600;letter-spacing:0.18em;
+    padding:0.28em 0.8em;border-radius:2px;color:var(--c);
+    background:color-mix(in srgb,var(--c) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--c) 25%,transparent);white-space:nowrap;}
+  .card-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--text-bright);letter-spacing:-0.01em;}
+  .card-pts{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.05em;
+    padding:0.2em 0.6em;border:1px solid var(--border);border-radius:2px;white-space:nowrap;}
+  .toggle-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--border);border-radius:2px;color:var(--muted);font-size:0.6rem;
+    transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s,color 0.2s;}
+  .prob-card.open .toggle-icon{transform:rotate(180deg);border-color:color-mix(in srgb,var(--c) 30%,transparent);color:var(--c);}
+
+  .card-body{display:none;padding:0 1.6rem 1.8rem;border-top:1px solid var(--border);}
+  .prob-card.open .card-body{display:block;}
+
+  /* ── Statement block ── */
+  .stmt-block{margin:1.5rem 0;padding:1.2rem 1.4rem;
+    background:color-mix(in srgb,var(--c) 4%,transparent);
+    border:1px solid color-mix(in srgb,var(--c) 15%,transparent);
+    border-left:3px solid var(--c);border-radius:0 3px 3px 0;}
+  .stmt-label{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:600;letter-spacing:0.2em;
+    text-transform:uppercase;color:var(--c);margin-bottom:0.7rem;display:flex;align-items:center;gap:0.5rem;}
+  .stmt-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 20%,transparent),transparent);}
+
+  /* ── Solution block ── */
+  .sol-block{background:var(--sol-bg);border:1px solid var(--sol-border);border-radius:3px;padding:1.5rem;position:relative;overflow:hidden;}
+  .sol-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent3),transparent);opacity:0.5;}
+  .sol-heading{font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:600;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--accent3);margin-bottom:1.2rem;padding-bottom:0.8rem;
+    border-bottom:1px solid var(--sol-border);display:flex;align-items:center;gap:0.6rem;}
+  .sol-heading::before{content:'✦';font-size:0.55rem;}
+
+  /* ── Parts ── */
+  .part{padding:1.2rem 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+  .part:first-child{padding-top:0;}.part:last-child{padding-bottom:0;border-bottom:none;}
+  .part-label{font-family:'JetBrains Mono',monospace;font-size:0.63rem;font-weight:500;color:var(--accent2);
+    letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.8rem;display:inline-flex;align-items:center;
+    gap:0.4rem;padding:0.15em 0.6em;background:rgba(232,169,74,0.07);border:1px solid rgba(232,169,74,0.2);border-radius:2px;}
+
+  /* ── Answer box ── */
+  .answer-box{display:inline-block;padding:0.6rem 1.1rem;margin-top:0.6rem;
+    background:rgba(82,201,138,0.06);border:1px solid rgba(82,201,138,0.25);border-radius:3px;position:relative;overflow:hidden;}
+  .answer-box::before{content:'ans';position:absolute;top:0.2rem;right:0.5rem;font-family:'JetBrains Mono',monospace;
+    font-size:0.5rem;color:rgba(82,201,138,0.4);letter-spacing:0.1em;text-transform:uppercase;}
+  .answer-box-no{background:rgba(217,111,181,0.06);border-color:rgba(217,111,181,0.25);}
+  .answer-box-no::before{color:rgba(217,111,181,0.4);}
+
+  /* ── Step indicators ── */
+  .step{display:flex;gap:0.9rem;margin:0.6rem 0;align-items:flex-start;}
+  .step-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:rgba(79,156,240,0.1);
+    border:1px solid rgba(79,156,240,0.25);display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:0.55rem;font-weight:600;color:var(--accent);margin-top:0.15rem;}
+  .step-body{flex:1;}
+
+  .note{font-size:0.84rem;color:var(--muted2);margin-top:0.5rem;font-style:italic;display:flex;align-items:center;gap:0.4rem;}
+  .note::before{content:'↳';font-style:normal;color:var(--muted);font-size:0.75rem;}
+
+  /* ── Concept callout boxes (inline, per problem) ── */
+  .concept-box{margin:1.4rem 0 0.6rem;border:1px solid rgba(91,200,224,0.2);border-radius:3px;overflow:hidden;background:rgba(91,200,224,0.03);}
+  .concept-hdr{display:flex;align-items:center;gap:0.7rem;padding:0.6rem 1rem;cursor:pointer;user-select:none;background:rgba(91,200,224,0.05);border-bottom:1px solid transparent;transition:background 0.2s;}
+  .concept-hdr:hover{background:rgba(91,200,224,0.09);}
+  .concept-box.open .concept-hdr{border-bottom-color:rgba(91,200,224,0.15);}
+  .concept-tag{font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#5bc8e0;padding:0.15em 0.55em;border:1px solid rgba(91,200,224,0.3);border-radius:2px;background:rgba(91,200,224,0.08);white-space:nowrap;flex-shrink:0;}
+  .concept-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:#a8d8e8;font-style:italic;flex:1;}
+  .concept-arrow{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+  .concept-box.open .concept-arrow{transform:rotate(180deg);color:#5bc8e0;}
+  .concept-body{display:none;padding:1rem 1.2rem;font-size:0.93rem;line-height:1.75;}
+  .concept-box.open .concept-body{display:block;}
+  .concept-body p{margin-bottom:0.55rem;}.concept-body p:last-child{margin-bottom:0;}
+  .concept-body .eg{margin-top:0.7rem;padding:0.6rem 1rem;background:rgba(79,156,240,0.05);border-left:2px solid rgba(79,156,240,0.3);border-radius:0 2px 2px 0;font-size:0.87rem;color:var(--muted2);}
+  .concept-body .eg strong{color:var(--accent);font-weight:500;}
+  .concept-body ul{padding-left:1.2rem;margin:0.3rem 0;}.concept-body li{margin-bottom:0.25rem;}
+
+  /* ── Goal block ── */
+  .goal-block{margin:1.2rem 0 0;padding:0.9rem 1.2rem;
+    background:linear-gradient(135deg,rgba(255,215,0,0.04),rgba(79,156,240,0.04));
+    border:1px solid rgba(255,215,0,0.18);border-left:3px solid #ffd700;border-radius:0 3px 3px 0;position:relative;}
+  .goal-label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:700;letter-spacing:0.2em;
+    text-transform:uppercase;color:#ffd700;display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;}
+  .goal-label::before{content:'◎';font-size:0.6rem;}
+  .goal-text{font-size:0.87rem;color:var(--text);line-height:1.7;}
+  .goal-text strong{color:var(--text-bright);}
+
+  /* ── Section divider ── */
+  .section-label{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.25em;
+    text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:1rem;margin:0.5rem 0 -0.5rem;}
+  .section-label::before,.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* ── Glossary section ── */
+  .gloss-section{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1) both;--c:#c97aed;}
+  .gloss-section::before{content:'';display:block;height:2px;background:linear-gradient(90deg,#c97aed 0%,transparent 60%);}
+  .gloss-hdr{display:flex;align-items:center;gap:1rem;padding:1.2rem 1.6rem;cursor:pointer;user-select:none;transition:background 0.2s;border-bottom:1px solid transparent;}
+  .gloss-hdr:hover{background:rgba(255,255,255,0.015);}
+  .gloss-section.open .gloss-hdr{border-bottom-color:var(--border);}
+  .gloss-tag{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:600;letter-spacing:0.18em;padding:0.28em 0.8em;border-radius:2px;white-space:nowrap;color:#c97aed;background:rgba(201,122,237,0.1);border:1px solid rgba(201,122,237,0.25);}
+  .gloss-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--text-bright);letter-spacing:-0.01em;flex:1;}
+  .gloss-count{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.05em;padding:0.2em 0.6em;border:1px solid var(--border);border-radius:2px;white-space:nowrap;}
+  .gloss-arrow{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:2px;color:var(--muted);font-size:0.6rem;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s,color 0.2s;}
+  .gloss-section.open .gloss-arrow{transform:rotate(180deg);border-color:rgba(201,122,237,0.3);color:#c97aed;}
+  .gloss-body{display:none;padding:1.5rem 1.6rem;}
+  .gloss-section.open .gloss-body{display:block;}
+  .gloss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;}
+  .def-card{background:var(--sol-bg);border:1px solid var(--sol-border);border-radius:3px;padding:1.1rem 1.2rem;position:relative;overflow:hidden;}
+  .def-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--dc,#5bc8e0),transparent);}
+  .def-term{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--text-bright);margin-bottom:0.5rem;font-style:italic;}
+  .def-body{font-size:0.87rem;line-height:1.72;color:var(--text);}
+  .def-body p{margin-bottom:0.45rem;}.def-body p:last-child{margin-bottom:0;}
+  .def-eg{margin-top:0.65rem;padding:0.5rem 0.8rem;font-size:0.82rem;background:rgba(79,156,240,0.05);border-left:2px solid rgba(79,156,240,0.25);border-radius:0 2px 2px 0;color:var(--muted2);}
+  .def-eg strong{color:var(--accent);font-weight:500;}
+  .def-body ul{padding-left:1.1rem;margin:0.3rem 0;}.def-body li{margin-bottom:0.2rem;}
+
+
+
+
+  /* ── Clickable def-term titles ── */
+  .def-term-anchor{color:inherit;text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+  .def-term-anchor::after{content:'#';font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+    color:var(--muted);opacity:0;transition:opacity 0.2s;}
+  .def-card:hover .def-term-anchor::after{opacity:1;}
+  .def-card:target .def-term-anchor::after{opacity:1;color:#5bc8e0;}
+  /* ── Bonus collapsible box ── */
+  .bonus-box{border:1px solid rgba(255,215,0,0.2);border-radius:3px;overflow:hidden;background:rgba(255,215,0,0.03);}
+  .bonus-hdr{display:flex;align-items:center;gap:0.7rem;padding:0.6rem 1rem;cursor:pointer;user-select:none;background:rgba(255,215,0,0.06);border-bottom:1px solid transparent;transition:background 0.2s;}
+  .bonus-hdr:hover{background:rgba(255,215,0,0.1);}
+  .bonus-box.open .bonus-hdr{border-bottom-color:rgba(255,215,0,0.15);}
+  .bonus-tag{font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#ffd700;padding:0.15em 0.55em;border:1px solid rgba(255,215,0,0.35);border-radius:2px;background:rgba(255,215,0,0.08);flex-shrink:0;}
+  .bonus-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:#ffe88a;font-style:italic;flex:1;}
+  .bonus-arrow{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:rgba(255,215,0,0.5);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+  .bonus-box.open .bonus-arrow{transform:rotate(180deg);color:#ffd700;}
+  .bonus-body{display:none;padding:1rem 1.2rem;font-size:0.93rem;line-height:1.75;}
+  .bonus-box.open .bonus-body{display:block;}
+  /* ── Glossary term links ── */
+  a.def-link{color:inherit;text-decoration:none;border-bottom:1px dashed rgba(91,200,224,0.4);
+    transition:border-color 0.2s,color 0.2s;cursor:pointer;}
+  a.def-link:hover{color:#5bc8e0;border-bottom-color:#5bc8e0;}
+  .def-card:target{outline:2px solid rgba(91,200,224,0.4);outline-offset:3px;animation:highlight 1.5s ease;}
+  @keyframes highlight{0%{outline-color:rgba(91,200,224,0.8);}100%{outline-color:rgba(91,200,224,0.0);}}
+  p{margin-bottom:0.65rem;}p:last-child{margin-bottom:0;}
+  strong{color:var(--text-bright);font-weight:500;}
+
+  footer{text-align:center;padding:2.5rem 2rem;font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);border-top:1px solid var(--border);position:relative;}
+  footer::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:80px;height:1px;background:var(--accent3);opacity:0.5;}
+
+  @media(max-width:640px){
+    main{padding:2rem 1rem 4rem;}.card-body{padding:0 1rem 1.4rem;}.card-header{padding:1rem;gap:0.8rem;}
+    header h1{font-size:2rem;}.card-pts{display:none;}.gloss-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Exam Review</div>
+    <h1>Math 2318 —<br><em>Linear Algebra</em></h1>
+    <div class="header-meta">
+      <span class="meta-item">Exam 1</span><span class="meta-sep">·</span>
+      <span class="meta-item">Sanders</span><span class="meta-sep">·</span>
+      <span class="meta-item">Spring 2024</span><span class="meta-sep">·</span>
+      <span class="meta-item">5 Problems</span><span class="meta-sep">·</span>
+      <span class="meta-item">100 Points</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <a href="#p1">01 · Matrix Arithmetic</a>
+  <a href="#p2">02 · Gaussian Elimination</a>
+  <a href="#p3">03 · Span</a>
+  <a href="#p4">04 · Basis &amp; Dimension</a>
+  <a href="#p5">05 · Null &amp; Range Space</a>
+  <a href="#tf">06 · True / False</a>
+  <a href="#glossary">07 · Key Concepts</a>
+</nav>
+
+<main>
+
+<div class="section-label">Problems</div>
+
+<!-- ══════════════════════ PROBLEM 1 ══════════════════════ -->
+<div class="prob-card open" id="p1" data-color="blue">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">PROB 01</span>
+    <span class="card-title">Matrix Arithmetic</span>
+    <span class="card-pts">20 pts</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+    <div class="stmt-block">
+      <div class="stmt-label">Problem</div>
+      <p>Given matrices:</p>
+      <p>\( A = \begin{pmatrix}3&2&1\\1&2&3\end{pmatrix},\quad B = \begin{pmatrix}1&2\\2&1\\1&1\end{pmatrix},\quad C = \begin{pmatrix}1&0&1\\0&1&0\end{pmatrix} \)</p>
+      <p>\( D = \begin{pmatrix}1&2\end{pmatrix},\quad E = \begin{pmatrix}3&4\end{pmatrix} \)</p>
+      <p>Compute when defined: (a) \(D+E\), &nbsp;(b) \(A+2C\), &nbsp;(c) \(AB\), &nbsp;(d) \(DC\).</p>
+    </div>
+    <div class="goal-block">
+      <div class="goal-label">Learning Goal</div>
+      <div class="goal-text">Check that dimensions match before adding or multiplying. For addition, both matrices must be the same size. For multiplication, the inner dimensions must match: \((m\times k)(k\times n)\) gives an \(m\times n\) result. Then compute each entry by dotting a row of the left matrix with a column of the right matrix.</div>
+    </div>
+    <div class="sol-block">
+      <div class="sol-heading">Full Solution</div>
+      <div style="margin-bottom:1.2rem;padding:1rem 1.2rem;background:rgba(79,156,240,0.04);border:1px solid rgba(79,156,240,0.15);border-radius:3px;font-size:0.88rem;line-height:1.9;">
+        <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:0.6rem;">Variable Key</strong>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0;">
+          <li>\(A, B, C, D, E\) — named matrices given in the problem</li>
+          <li>\(m \times n\) — shorthand for a matrix with \(m\) rows and \(n\) columns (e.g. \(A\) is \(2\times3\))</li>
+          <li><strong>Inner dimensions</strong> — for \(A\cdot B\), \(A\) is \(m\times k\) and \(B\) is \(k\times n\); the shared \(k\) must match</li>
+          <li><strong>Entry \((i,j)\)</strong> — the element in row \(i\), column \(j\) of the result; computed as the dot product of row \(i\) of the left matrix with column \(j\) of the right matrix</li>
+          <li>\(2C\) — scalar multiplication: multiply every entry of \(C\) by 2</li>
+        </ul>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (a) — D + E</span>
+        <p>Both are \(1\times 2\), so addition is defined:</p>
+        <div class="answer-box">\( D+E = \begin{pmatrix}1+3 & 2+4\end{pmatrix} = \begin{pmatrix}4 & 6\end{pmatrix} \)</div>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (b) — A + 2C</span>
+        <p>Both \(A\) and \(C\) are \(2\times 3\), so this is defined:</p>
+        <p>\( 2C = \begin{pmatrix}2&0&2\\0&2&0\end{pmatrix} \)</p>
+        <div class="answer-box">\( A+2C = \begin{pmatrix}5&2&3\\1&4&3\end{pmatrix} \)</div>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (c) — AB</span>
+        <p>\(A\) is \(2\times3\), \(B\) is \(3\times2\) → product is \(2\times2\):</p>
+        <p>\[ AB = \begin{pmatrix}3(1)+2(2)+1(1)&3(2)+2(1)+1(1)\\1(1)+2(2)+3(1)&1(2)+2(1)+3(1)\end{pmatrix} \]</p>
+        <div class="answer-box">\( AB = \begin{pmatrix}8&9\\8&7\end{pmatrix} \)</div>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (d) — DC</span>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Check dimensions.</strong> \(D\) is \(1\times2\) and \(C\) is \(2\times3\). Inner dimensions both equal 2, so the product is defined and will be \(1\times3\).</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Compute each entry</strong> by dotting \(D\)'s row with each column of \(C\):
+            \[D = \begin{pmatrix}1&2\end{pmatrix},\qquad C = \begin{pmatrix}1&0&1\\0&1&0\end{pmatrix}\]
+            <p style="margin-top:0.5rem"><strong>Entry (1,1)</strong> — col 1: \(\;1(1)+2(0)=1\)</p>
+            <p><strong>Entry (1,2)</strong> — col 2: \(\;1(0)+2(1)=2\)</p>
+            <p><strong>Entry (1,3)</strong> — col 3: \(\;1(1)+2(0)=1\)</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Alternative view — linear combination of rows.</strong> The entries of \(D\) weight the rows of \(C\):
+            \[DC = 1\cdot\begin{pmatrix}1&0&1\end{pmatrix}+2\cdot\begin{pmatrix}0&1&0\end{pmatrix} = \begin{pmatrix}1&0&1\end{pmatrix}+\begin{pmatrix}0&2&0\end{pmatrix}\]
+          </div>
+        </div>
+        <div class="answer-box">\( DC = \begin{pmatrix}1&2&1\end{pmatrix} \)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PROBLEM 2 ══════════════════════ -->
+<div class="prob-card open" id="p2" data-color="gold">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">PROB 02</span>
+    <span class="card-title">Gaussian Elimination</span>
+    <span class="card-pts">20 pts</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+    <div class="stmt-block">
+      <div class="stmt-label">Problem</div>
+      <p>Write each system as an augmented matrix, reduce to echelon form, and find all solutions.</p>
+      <p><strong>(a)</strong> \(\begin{aligned}x_1+2x_2+x_3+2x_4 &= 8\\x_1+x_2+x_3+2x_4 &= 7\\2x_1+x_2+x_3+x_4 &= 8\end{aligned}\)</p>
+      <br/>
+      <p><strong>(b)</strong> \(\begin{aligned}x_1+x_2+x_3 &= 2\\2x_1+x_3 &= 3\\3x_1+x_2+x_3 &= 4\\3x_1+x_2+2x_3 &= 5\end{aligned}\)</p>
+    </div>
+    <div class="goal-block">
+      <div class="goal-label">Learning Goal</div>
+      <div class="goal-text">Row-reduce the augmented matrix until you reach REF (staircase of pivots) or RREF (pivots = 1, zeros <em>above and below</em> every pivot). Then identify free vs. basic variables and back-substitute. The final form tells you the solution type: all variables pinned = unique solution; a free variable = infinite solutions; a row \([0\;\cdots\;0\mid c]\) with \(c\neq0\) = no solution.</div>
+    </div>
+
+    <div class="concept-box open">
+      <div class="concept-hdr" onclick="toggleEl(this,'.concept-box')">
+        <span class="concept-tag">concept</span>
+        <span class="concept-title">Augmented matrices, <a href="#def-ref" class="def-link">REF</a> &amp; <a href="#def-rref" class="def-link">RREF</a> — what's the difference?</span>
+        <span class="concept-arrow">▾</span>
+      </div>
+      <div class="concept-body">
+        <p>An <strong>augmented matrix</strong> encodes a linear system — each row is one equation, the bar separates coefficients from constants. Row operations simplify it without changing the solution set.</p>
+        <p><strong>REF (Row Echelon Form)</strong> only requires a staircase: each pivot is to the right of the one above, with zeros below each pivot. Pivots can be <em>any</em> nonzero number — <strong>not necessarily 1</strong>. Back-substitution is still needed to solve.</p>
+        <p><strong>RREF (Reduced Row Echelon Form)</strong> goes further: every pivot = 1, and zeros both <em>above and below</em> each pivot. Solutions can be read off directly with no back-substitution.</p>
+        <div class="eg">
+          <strong>Same system, two forms:</strong><br/>
+          REF (pivot −2 is perfectly valid): \(\left(\begin{array}{cc|c}1&3&5\\0&-2&4\end{array}\right)\)<br/>
+          RREF (pivot = 1, zero above it): \(\left(\begin{array}{cc|c}1&0&-1\\0&1&-2\end{array}\right)\)
+        </div>
+      </div>
+    </div>
+
+    <div class="sol-block">
+      <div class="sol-heading">Full Solution</div>
+      <div style="margin-bottom:1.2rem;padding:1rem 1.2rem;background:rgba(79,156,240,0.04);border:1px solid rgba(79,156,240,0.15);border-radius:3px;font-size:0.88rem;line-height:1.9;">
+        <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:0.6rem;">Variable Key</strong>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0;">
+          <li>\(x_1, x_2, x_3, x_4\) — the unknown variables we're solving for; each corresponds to one column of the augmented matrix (col 1 = \(x_1\), col 2 = \(x_2\), etc.)</li>
+          <li><strong>Pivot</strong> — the leading nonzero entry in a row after row reduction; the variable in that column is called a <em>basic variable</em> (its value is determined)</li>
+          <li><strong>Free variable</strong> — a variable whose column has no pivot; it can be any real number, so we assign it a parameter</li>
+          <li>\(t\) — a free parameter (any real number); used to express the infinite family of solutions when a free variable exists</li>
+          <li>\(R_i\) — shorthand for "row \(i\)" of the matrix; e.g. \(R_2 - R_1\) means replace row 2 with (row 2 minus row 1)</li>
+          <li><strong>Bar "|"</strong> — separates the coefficient side (left) from the constant side (right) in the augmented matrix</li>
+        </ul>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (a)</span>
+        <p>Augmented matrix and row operations:</p>
+        <p>\[\left(\begin{array}{cccc|c}1&2&1&2&8\\1&1&1&2&7\\2&1&1&1&8\end{array}\right)\xrightarrow{R_2-R_1,\;R_3-2R_1}\left(\begin{array}{cccc|c}1&2&1&2&8\\0&-1&0&0&-1\\0&-3&-1&-3&-8\end{array}\right)\]</p>
+        <p>\[\xrightarrow{-R_2,\;R_3-3R_2}\left(\begin{array}{cccc|c}1&2&1&2&8\\0&1&0&0&1\\0&0&-1&-3&-5\end{array}\right)\xrightarrow{-R_3}\left(\begin{array}{cccc|c}1&2&1&2&8\\0&1&0&0&1\\0&0&1&3&5\end{array}\right)\]</p>
+        <p>This is now in <strong><a href="#def-ref" class="def-link">REF</a></strong> — staircase of pivots 1, 1, 1. Each column maps to a variable: col 1 = \(x_1\), col 2 = \(x_2\), col 3 = \(x_3\), col 4 = \(x_4\), last col = constant.</p>
+        <p><strong>Step 1 — spot the free variable.</strong> There are 4 variables but only 3 pivot rows. Column 4 has no pivot, so \(x_4\) is free. Let \(x_4 = t\).</p>
+        <p><strong>Step 2 — back-substitute from the bottom up</strong> (bottom first because upper rows still contain unknowns that need the lower values first):</p>
+        <p><strong>Row 3</strong> reads: \(\;x_3 + 3x_4 = 5\)</p>
+        <p style="padding-left:1rem;">\(x_3 + 3t = 5 \Rightarrow \boxed{x_3 = 5 - 3t}\)</p>
+        <p><strong>Row 2</strong> reads: \(\;x_2 = 1\)</p>
+        <p style="padding-left:1rem;">\(\Rightarrow \boxed{x_2 = 1}\)</p>
+        <p><strong>Row 1</strong> reads: \(\;x_1 + 2x_2 + x_3 + 2x_4 = 8\). Now substitute in the values we just found:</p>
+        <p style="padding-left:1rem;">\(x_1 + 2(1) + (5-3t) + 2t = 8\)</p>
+        <p style="padding-left:1rem;">\(x_1 + 2 + 5 - 3t + 2t = 8\)</p>
+        <p style="padding-left:1rem;">\(x_1 + 7 - t = 8\)</p>
+        <p style="padding-left:1rem;">\(\Rightarrow \boxed{x_1 = 1 + t}\)</p>
+        <div class="answer-box">\( x_1=1+t,\quad x_2=1,\quad x_3=5-3t,\quad x_4=t,\quad t\in\mathbb{R} \)</div>
+        <p class="note">Infinitely many solutions — \(t\) is unconstrained so every real value gives a different valid solution.</p>
+
+        <div class="bonus-box open" style="margin-top:1.2rem;">
+          <div class="bonus-hdr" onclick="this.closest('.bonus-box').classList.toggle('open')">
+            <span class="bonus-tag">★ bonus</span>
+            <span class="bonus-title">Continuing to RREF</span>
+            <span class="bonus-arrow">▾</span>
+          </div>
+          <div class="bonus-body">
+            <p>The REF we reached has pivots 1, 1, 1 — but there are still nonzero entries <em>above</em> the pivots in columns 2 and 3. To reach RREF we need to clear those too.</p>
+            <p>Starting from: \[\left(\begin{array}{cccc|c}1&2&1&2&8\\0&1&0&0&1\\0&0&1&3&5\end{array}\right)\]</p>
+            <p><strong>Step 1 — clear above R₃'s pivot</strong> via \(R_1 - R_3\) (R₂ already has 0 in that column):</p>
+            <p>\[\left(\begin{array}{cccc|c}1&2&0&-1&3\\0&1&0&0&1\\0&0&1&3&5\end{array}\right)\]</p>
+            <p><strong>Step 2 — clear above R₂'s pivot</strong> via \(R_1 - 2R_2\):</p>
+            <p>\[\left(\begin{array}{cccc|c}1&0&0&-1&1\\0&1&0&0&1\\0&0&1&3&5\end{array}\right)\]</p>
+            <p>Now in <strong><a href="#def-rref" class="def-link">RREF</a></strong>. The variables \(x_1, x_2, x_3, x_4\) correspond directly to <strong>columns 1, 2, 3, 4</strong> of the matrix — column \(n\) holds the coefficients for \(x_n\). The column after the bar is the right-hand side constant.</p>
+            <p>\[\left(\begin{array}{cccc|c}1&0&0&-1&1\\0&1&0&0&1\\0&0&1&3&5\end{array}\right) \quad \leftarrow \text{cols: } x_1 \; x_2 \; x_3 \; x_4 \; | \; \text{const}\]</p>
+            <p><strong>Step 1 — identify free vs. basic variables</strong> by checking each column for a pivot:</p>
+            <ul style="padding-left:1.2rem;margin:0.4rem 0 0.8rem;font-size:0.9rem;line-height:1.9;">
+              <li><strong>Col 1 (\(x_1\))</strong> — the entry in row 1 is 1, all others are 0 → this is a pivot column → \(x_1\) is <em>basic</em></li>
+              <li><strong>Col 2 (\(x_2\))</strong> — the entry in row 2 is 1, all others are 0 → pivot column → \(x_2\) is <em>basic</em></li>
+              <li><strong>Col 3 (\(x_3\))</strong> — the entry in row 3 is 1, all others are 0 → pivot column → \(x_3\) is <em>basic</em></li>
+              <li><strong>Col 4 (\(x_4\))</strong> — the entries are −1, 0, 3 — <strong>no row has a leading 1 here</strong> → no pivot → \(x_4\) is <strong>free</strong></li>
+            </ul>
+            <p>Because \(x_4\) has no pivot, no equation pins it down to a single value. We assign it a free parameter: let \(x_4 = t\), where \(t\) can be any real number.</p>
+            <p><strong>Step 2 — convert each row back into an equation.</strong> Each row says: (coefficient in col 1)·\(x_1\) + (coefficient in col 2)·\(x_2\) + … = constant. Substitute \(x_4 = t\) and solve for the basic variable in that row:</p>
+            <p><strong>Row 3</strong> has entries \([0,\; 0,\; 1,\; 3\; |\; 5]\):</p>
+            <p style="padding-left:1rem;">\(0 \cdot x_1 + 0 \cdot x_2 + 1 \cdot x_3 + 3 \cdot x_4 = 5\)</p>
+            <p style="padding-left:1rem;">\(\Rightarrow x_3 + 3t = 5 \Rightarrow \boxed{x_3 = 5 - 3t}\)</p>
+            <p><strong>Row 2</strong> has entries \([0,\; 1,\; 0,\; 0\; |\; 1]\):</p>
+            <p style="padding-left:1rem;">\(0 \cdot x_1 + 1 \cdot x_2 + 0 \cdot x_3 + 0 \cdot x_4 = 1\)</p>
+            <p style="padding-left:1rem;">\(\Rightarrow \boxed{x_2 = 1}\)</p>
+            <p><strong>Row 1</strong> has entries \([1,\; 0,\; 0,\; -1\; |\; 1]\):</p>
+            <p style="padding-left:1rem;">\(1 \cdot x_1 + 0 \cdot x_2 + 0 \cdot x_3 + (-1) \cdot x_4 = 1\)</p>
+            <p style="padding-left:1rem;">\(\Rightarrow x_1 - t = 1 \Rightarrow \boxed{x_1 = 1 + t}\)</p>
+            <p>Since \(t\) is unconstrained, every real value of \(t\) gives a different valid solution — hence infinitely many solutions.</p>
+            <div class="answer-box">\( x_1=1+t,\quad x_2=1,\quad x_3=5-3t,\quad x_4=t,\quad t\in\mathbb{R} \) &nbsp;✓</div>
+          </div>
+        </div>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (b)</span>
+        <p>\[\left(\begin{array}{ccc|c}1&1&1&2\\2&0&1&3\\3&1&1&4\\3&1&2&5\end{array}\right)\xrightarrow{R_2-2R_1,\;R_3-3R_1,\;R_4-3R_1}\left(\begin{array}{ccc|c}1&1&1&2\\0&-2&-1&-1\\0&-2&-2&-2\\0&-2&-1&-1\end{array}\right)\]</p>
+        <p>\[\xrightarrow{R_3-R_2,\;R_4-R_2}\left(\begin{array}{ccc|c}1&1&1&2\\0&-2&-1&-1\\0&0&-1&-1\\0&0&0&0\end{array}\right)\]</p>
+        <p>This is <strong><a href="#def-ref" class="def-link">REF</a></strong> — the pivots are 1, −2, and −1. They don't need to be 1 to qualify as REF. Back-substitute: from row 3, \(x_3=1\); from row 2, \(-2x_2-1=-1\) so \(x_2=0\); from row 1, \(x_1=1\).</p>
+        <div class="answer-box">\( x_1=1,\quad x_2=0,\quad x_3=1 \)</div>
+        <p class="note">Unique solution.</p>
+
+        <div class="bonus-box open" style="margin-top:1.2rem;">
+          <div class="bonus-hdr" onclick="this.closest('.bonus-box').classList.toggle('open')">
+            <span class="bonus-tag">★ bonus</span>
+            <span class="bonus-title">Continuing to RREF</span>
+            <span class="bonus-arrow">▾</span>
+          </div>
+          <div class="bonus-body">
+            <p>Starting from the REF above, we can keep going to reach RREF by making all pivots equal to 1 and clearing entries <em>above</em> each pivot too.</p>
+            <p><strong>Step 1 — make R₃ pivot = 1</strong> via \(-R_3\):</p>
+            <p>\[\left(\begin{array}{ccc|c}1&1&1&2\\0&-2&-1&-1\\0&0&1&1\\0&0&0&0\end{array}\right)\]</p>
+            <p><strong>Step 2 — clear above R₃'s pivot</strong> via \(R_2+R_3\) and \(R_1-R_3\):</p>
+            <p>\[\left(\begin{array}{ccc|c}1&1&0&1\\0&-2&0&0\\0&0&1&1\\0&0&0&0\end{array}\right)\]</p>
+            <p><strong>Step 3 — make R₂ pivot = 1</strong> via \(-\tfrac{1}{2}R_2\):</p>
+            <p>\[\left(\begin{array}{ccc|c}1&1&0&1\\0&1&0&0\\0&0&1&1\\0&0&0&0\end{array}\right)\]</p>
+            <p><strong>Step 4 — clear above R₂'s pivot</strong> via \(R_1-R_2\):</p>
+            <p>\[\left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&0\\0&0&1&1\\0&0&0&0\end{array}\right)\]</p>
+            <p>Now in <strong><a href="#def-rref" class="def-link">RREF</a></strong> — every pivot is 1 with zeros above and below. Read the solution directly from the last column, no back-substitution needed:</p>
+            <div class="answer-box">\( x_1=1,\quad x_2=0,\quad x_3=1 \) &nbsp;✓ same answer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PROBLEM 3 ══════════════════════ -->
+<div class="prob-card open" id="p3" data-color="green">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">PROB 03</span>
+    <span class="card-title">Span / Linear Combinations</span>
+    <span class="card-pts">20 pts</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+    <div class="stmt-block">
+      <div class="stmt-label">Problem</div>
+      <p><strong>(a)</strong> Is \(\begin{pmatrix}5\\6\\7\end{pmatrix}\in\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix},\begin{pmatrix}3\\2\\1\end{pmatrix}\right\}\)?</p>
+      <br/>
+      <p><strong>(b)</strong> Is \(\begin{pmatrix}1\\1\\0\end{pmatrix}\in\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix},\begin{pmatrix}3\\2\\1\end{pmatrix}\right\}\)?</p>
+      <p>If yes, express as a linear combination. Show all work.</p>
+    </div>
+    <div class="goal-block">
+      <div class="goal-label">Learning Goal</div>
+      <div class="goal-text">To check if a vector \(\mathbf{b}\) is in the span, set up the equation \(c_1\mathbf{u}_1 + c_2\mathbf{u}_2 = \mathbf{b}\) and row-reduce the augmented matrix. <strong>Consistent</strong> = the bottom row is \([0\;0\mid 0]\) — zeros on <em>both</em> sides of the bar, meaning no contradiction. <strong>Inconsistent</strong> = the bottom row is \([0\;0\mid c]\) with \(c \neq 0\) — a nonzero constant on the right, which means \(0 = c\), impossible.</div>
+    </div>
+
+    <div class="concept-box open">
+      <div class="concept-hdr" onclick="toggleEl(this,'.concept-box')">
+        <span class="concept-tag">concept</span>
+        <span class="concept-title">What are <a href="#def-span" class="def-link">span</a> &amp; linear combinations?</span>
+        <span class="concept-arrow">▾</span>
+      </div>
+      <div class="concept-body">
+        <p>A <strong>linear combination</strong> scales and adds vectors: \(c_1\mathbf{v}_1 + c_2\mathbf{v}_2\), where \(c_1, c_2\) are any real numbers. The <strong><a href="#def-span" class="def-link">span</a></strong> is the set of <em>all</em> possible linear combinations — every point reachable by any choice of scalars.</p>
+        <p>To check if \(\mathbf{b}\) is in the span: ask whether scalars \(c_1, c_2\) exist such that \(c_1\mathbf{v}_1 + c_2\mathbf{v}_2 = \mathbf{b}\). Set up the augmented matrix and row-reduce. Consistent = in the span; a contradiction row = not in the span.</p>
+        <div class="eg"><strong>Geometrically:</strong> span of two non-parallel 3D vectors forms a plane through the origin.</div>
+      </div>
+    </div>
+
+    <div class="sol-block">
+      <div class="sol-heading">Full Solution</div>
+      <div style="margin-bottom:1.2rem;padding:1rem 1.2rem;background:rgba(79,156,240,0.04);border:1px solid rgba(79,156,240,0.15);border-radius:3px;font-size:0.88rem;line-height:1.9;">
+        <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:0.6rem;">Variable Key</strong>
+        <p>We want to find scalars \(c_1\) and \(c_2\) such that \(c_1\mathbf{u}_1 + c_2\mathbf{u}_2 = \mathbf{v}\), where:</p>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0;">
+          <li>\(\mathbf{u}_1 = \begin{pmatrix}1\\2\\3\end{pmatrix}\) — the <strong>first spanning vector</strong> (column 1 of the matrix)</li>
+          <li>\(\mathbf{u}_2 = \begin{pmatrix}3\\2\\1\end{pmatrix}\) — the <strong>second spanning vector</strong> (column 2 of the matrix)</li>
+          <li>\(\mathbf{v}\) — the <strong>target vector</strong> we're testing (column after the bar "|")</li>
+          <li>\(c_1, c_2\) — unknown <strong>scalars</strong> (how much to scale each spanning vector); these are what we solve for</li>
+        </ul>
+        <p style="margin-top:0.5rem;">Augmented matrix layout: \(\left[\,\mathbf{u}_1\;\;\mathbf{u}_2\;\Big|\;\mathbf{v}\,\right]\) — each column of spanning vectors becomes a column, \(\mathbf{v}\) goes after the bar.</p>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (a) — v = (5, 6, 7)ᵀ</span>
+        <p>\[\left(\begin{array}{cc|c}1&3&5\\2&2&6\\3&1&7\end{array}\right)\xrightarrow{R_2-2R_1,\;R_3-3R_1}\left(\begin{array}{cc|c}1&3&5\\0&-4&-4\\0&-8&-8\end{array}\right)\xrightarrow{R_3-2R_2}\left(\begin{array}{cc|c}1&3&5\\0&-4&-4\\0&0&0\end{array}\right)\]</p>
+        <p>The last row is \(\left[\,0\;\;0\;\Big|\;0\,\right]\) — zeros on <em>both</em> sides of the bar. This means the system is <strong>consistent</strong>: no contradiction, solutions exist. If the right side were nonzero (e.g. \([0\;0\mid{-1}]\)), that would say \(0 = -1\) — impossible, no solution. Back-substitute to find the scalars:</p>
+        <p><strong>Row 2</strong> reads: \(0 \cdot c_1 + (-4) \cdot c_2 = -4\), which simplifies to:</p>
+        <p style="padding-left:1rem;">\(-4c_2 = -4\)</p>
+        <p style="padding-left:1rem;">Divide both sides by \(-4\): \(\quad \dfrac{-4c_2}{-4} = \dfrac{-4}{-4} \quad \Rightarrow \quad \boxed{c_2 = 1}\)</p>
+        <p style="margin-top:0.6rem"><strong>Row 1</strong> reads: \(1 \cdot c_1 + 3 \cdot c_2 = 5\). Plug in \(c_2 = 1\):</p>
+        <p style="padding-left:1rem;">\(c_1 + 3(1) = 5\)</p>
+        <p style="padding-left:1rem;">\(c_1 + 3 = 5\)</p>
+        <p style="padding-left:1rem;">Subtract 3 from both sides: \(\quad \boxed{c_1 = 2}\)</p>
+        <div class="answer-box">\(\begin{pmatrix}5\\6\\7\end{pmatrix}=2\begin{pmatrix}1\\2\\3\end{pmatrix}+1\begin{pmatrix}3\\2\\1\end{pmatrix}\) ✓</div>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (b) — v = (1, 1, 0)ᵀ</span>
+        <p>\[\left(\begin{array}{cc|c}1&3&1\\2&2&1\\3&1&0\end{array}\right)\xrightarrow{R_2-2R_1,\;R_3-3R_1}\left(\begin{array}{cc|c}1&3&1\\0&-4&-1\\0&-8&-3\end{array}\right)\xrightarrow{R_3-2R_2}\left(\begin{array}{cc|c}1&3&1\\0&-4&-1\\0&0&-1\end{array}\right)\]</p>
+        <p>The last row is \(\left[\,0\;\;0\;\Big|\;-1\,\right]\) — zeros on the left but a <strong>nonzero constant on the right</strong>. This says \(0 = -1\), which is impossible. The system is <strong>inconsistent</strong> — no scalars \(c_1, c_2\) can satisfy it.</p>
+        <div class="answer-box answer-box-no">\(\begin{pmatrix}1\\1\\0\end{pmatrix}\notin\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix},\begin{pmatrix}3\\2\\1\end{pmatrix}\right\}\)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PROBLEM 4 ══════════════════════ -->
+<div class="prob-card open" id="p4" data-color="pink">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">PROB 04</span>
+    <span class="card-title">Basis &amp; Dimension of Subspaces</span>
+    <span class="card-pts">20 pts</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+    <div class="stmt-block">
+      <div class="stmt-label">Problem</div>
+      <p><strong>(a)</strong> \(\mathcal{V}_a=\operatorname{span}\!\left\{\begin{pmatrix}1\\1\\1\end{pmatrix},\begin{pmatrix}1\\2\\3\end{pmatrix}\right\}\subseteq\mathbb{R}^3\)</p>
+      <br/>
+      <p><strong>(b)</strong> \(\mathcal{V}_b=\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}2\\1\\2\end{pmatrix},\begin{pmatrix}1\\-1\\1\end{pmatrix}\right\}\subseteq\mathbb{R}^3\)</p>
+      <p>For each: find the <strong>standard basis</strong> and state the <strong><a href="#def-basis" class="def-link">dimension</a></strong>.</p>
+    </div>
+    <div class="goal-block">
+      <div class="goal-label">Learning Goal</div>
+      <div class="goal-text">Put the vectors as rows and row-reduce. The rows that have pivots are linearly independent — keep the original vectors from those rows as your basis. The number of pivot rows = the dimension. Any row that reduces to all zeros is a redundant vector and gets dropped.</div>
+    </div>
+
+    <div class="concept-box open">
+      <div class="concept-hdr" onclick="toggleEl(this,'.concept-box')">
+        <span class="concept-tag">concept</span>
+        <span class="concept-title">What are <a href="#def-basis" class="def-link">basis</a> &amp; dimension?</span>
+        <span class="concept-arrow">▾</span>
+      </div>
+      <div class="concept-body">
+        <p>A <strong><a href="#def-basis" class="def-link">basis</a></strong> is a set of vectors that is (1) linearly independent and (2) spans the subspace — the smallest possible spanning set, the "skeleton" of the space.</p>
+        <p>The <strong><a href="#def-basis" class="def-link">dimension</a></strong> is simply the number of vectors in a basis. Every basis for the same subspace has the same size.</p>
+        <ul>
+          <li>Arrange vectors as rows and row-reduce.</li>
+          <li>Count the pivot rows → that is the <strong><a href="#def-basis" class="def-link">dimension</a></strong>.</li>
+          <li>The original vectors corresponding to pivot rows form the <strong><a href="#def-basis" class="def-link">basis</a></strong>.</li>
+        </ul>
+        <div class="eg"><strong>Key fact:</strong> linearly dependent vectors "overlap" — one can be built from the others, so it adds no new dimension.</div>
+      </div>
+    </div>
+
+    <div class="sol-block">
+      <div class="sol-heading">Full Solution</div>
+      <div style="margin-bottom:1.2rem;padding:1rem 1.2rem;background:rgba(79,156,240,0.04);border:1px solid rgba(79,156,240,0.15);border-radius:3px;font-size:0.88rem;line-height:1.9;">
+        <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:0.6rem;">Variable Key</strong>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0;">
+          <li>\(\mathcal{V}_a,\, \mathcal{V}_b\) — names for the two subspaces we're analyzing (the set of all vectors in the span)</li>
+          <li><strong>Basis</strong> — the smallest set of vectors that still spans the subspace; every vector in the basis must be linearly independent (none can be built from the others)</li>
+          <li><strong>dim(\(\mathcal{V}\))</strong> — the dimension of subspace \(\mathcal{V}\); equals the number of vectors in any basis = number of pivot rows after row reduction</li>
+          <li><strong>Linearly independent</strong> — no vector in the set can be written as a combination of the others; in row reduction terms, each vector produces its own pivot row</li>
+          <li><strong>Redundant vector</strong> — a vector that reduces to an all-zero row, meaning it adds no new "direction" and is excluded from the basis</li>
+          <li>\(R_i\) — row \(i\) of the matrix; e.g. \(R_2 - 2R_1\) means replace row 2 with (row 2 minus 2 times row 1)</li>
+        </ul>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (a) — 𝒱ₐ</span>
+        <p>Row-reduce the matrix with the two vectors as rows.</p>
+
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;margin:0.5rem 0 0.3rem;padding:0.25em 0.8em;background:rgba(232,169,74,0.1);border:1px solid rgba(232,169,74,0.35);border-radius:2px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#e8a94a;">STAGE 1 — REF</span>
+        </div>
+        <p>\[\begin{pmatrix}1&1&1\\1&2&3\end{pmatrix}\xrightarrow{R_2-R_1}\underbrace{\begin{pmatrix}1&1&1\\0&1&2\end{pmatrix}}_{\text{REF — staircase of pivots, zeros below}}\]</p>
+        <p>Pivots in both rows — but the entry above the second pivot (row 1, col 2) is still 1, not 0. Not RREF yet.</p>
+
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;margin:0.8rem 0 0.3rem;padding:0.25em 0.8em;background:rgba(82,201,138,0.1);border:1px solid rgba(82,201,138,0.35);border-radius:2px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#52c98a;">STAGE 2 — RREF</span>
+        </div>
+        <p>Clear the entry <em>above</em> the second pivot via \(R_1 - R_2\):</p>
+        <p>\[\begin{pmatrix}1&1&1\\0&1&2\end{pmatrix}\xrightarrow{R_1-R_2}\underbrace{\begin{pmatrix}1&0&-1\\0&1&2\end{pmatrix}}_{\text{RREF — pivots = 1, zeros above AND below}}\]</p>
+        <p>Two pivot rows → both original vectors are <strong>linearly independent</strong> → both are kept as the basis.</p>
+        <div class="answer-box">\(\text{Basis} = \left\{\begin{pmatrix}1\\1\\1\end{pmatrix},\begin{pmatrix}1\\2\\3\end{pmatrix}\right\},\quad \dim(\mathcal{V}_a)=2\)</div>
+        <p class="note">Basis = the original vectors before reduction — RREF just confirms they are independent via the pivot count.</p>
+      </div>
+
+      <div class="part">
+        <span class="part-label">Part (b) — 𝒱ᵦ</span>
+        <p>Row-reduce the \(3\times3\) matrix.</p>
+
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;margin:0.5rem 0 0.3rem;padding:0.25em 0.8em;background:rgba(232,169,74,0.1);border:1px solid rgba(232,169,74,0.35);border-radius:2px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#e8a94a;">STAGE 1 — REF</span>
+        </div>
+        <p>\[\begin{pmatrix}1&2&1\\2&1&2\\1&-1&1\end{pmatrix}\xrightarrow{R_2-2R_1,\;R_3-R_1}\begin{pmatrix}1&2&1\\0&-3&0\\0&-3&0\end{pmatrix}\xrightarrow{R_3-R_2}\underbrace{\begin{pmatrix}1&2&1\\0&-3&0\\0&0&0\end{pmatrix}}_{\text{REF — staircase, row 3 all zeros = redundant vector}}\]</p>
+        <p>Row 3 is all zeros → the third original vector is <strong>redundant</strong> and gets dropped. Two pivots remain.</p>
+
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;margin:0.8rem 0 0.3rem;padding:0.25em 0.8em;background:rgba(82,201,138,0.1);border:1px solid rgba(82,201,138,0.35);border-radius:2px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#52c98a;">STAGE 2 — RREF</span>
+        </div>
+        <p><strong>Step 1 — make R₂ pivot = 1</strong> via \(-\tfrac{1}{3}R_2\):</p>
+        <p>\[\begin{pmatrix}1&2&1\\0&-3&0\\0&0&0\end{pmatrix}\xrightarrow{-\frac{1}{3}R_2}\begin{pmatrix}1&2&1\\0&1&0\\0&0&0\end{pmatrix}\]</p>
+        <p><strong>Step 2 — clear above R₂'s pivot</strong> via \(R_1 - 2R_2\):</p>
+        <p>\[\begin{pmatrix}1&2&1\\0&1&0\\0&0&0\end{pmatrix}\xrightarrow{R_1-2R_2}\underbrace{\begin{pmatrix}1&0&1\\0&1&0\\0&0&0\end{pmatrix}}_{\text{RREF — pivots = 1, zeros above AND below, zero row at bottom}}\]</p>
+        <p>Two pivot rows → basis uses the first two original vectors. Third is dropped (zero row).</p>
+        <div class="answer-box">\(\text{Basis} = \left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}2\\1\\2\end{pmatrix}\right\},\quad \dim(\mathcal{V}_b)=2\)</div>
+        <p class="note">Basis = the original first two vectors — they correspond to the two pivot rows before any reduction.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PROBLEM 5 ══════════════════════ -->
+<div class="prob-card open" id="p5" data-color="teal">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">PROB 05</span>
+    <span class="card-title">Null Space &amp; Range Space</span>
+    <span class="card-pts">20 pts</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+    <div class="stmt-block">
+      <div class="stmt-label">Problem</div>
+      <p>For \(\mathcal{L}(\mathbf{x})=A\mathbf{x}\), find a basis for the <strong><a href="#def-null" class="def-link">null space</a></strong> and the <strong>standard basis</strong> for the <strong><a href="#def-range" class="def-link">range space</a></strong>.</p>
+      <br/>
+      <p><strong>(a)</strong> \(A=\begin{pmatrix}1&2&1\\2&4&2\end{pmatrix}\)</p>
+      <br/>
+      <p><strong>(b)</strong> \(A=\begin{pmatrix}1&0&1\\1&2&3\\2&2&4\end{pmatrix}\)</p>
+    </div>
+    <div class="goal-block">
+      <div class="goal-label">Learning Goal</div>
+      <div class="goal-text"><strong>Null space:</strong> solve \(A\mathbf{x}=\mathbf{0}\) by row-reducing. Assign free variables as parameters and express the solution as a span. <strong>Range space:</strong> the basis is the pivot columns of the <em>original</em> \(A\) (not the reduced version). Always verify: rank + nullity = number of columns of \(A\).</div>
+    </div>
+
+    <div class="concept-box open">
+      <div class="concept-hdr" onclick="toggleEl(this,'.concept-box')">
+        <span class="concept-tag">concept</span>
+        <span class="concept-title">What are <a href="#def-null" class="def-link">null space</a> &amp; <a href="#def-range" class="def-link">range space</a>?</span>
+        <span class="concept-arrow">▾</span>
+      </div>
+      <div class="concept-body">
+        <p>For \(\mathcal{L}(\mathbf{x})=A\mathbf{x}\):</p>
+        <p><strong>Null space (kernel):</strong> all inputs \(\mathbf{x}\) sent to \(\mathbf{0}\). Solve \(A\mathbf{x}=\mathbf{0}\) and express the solution using free variables as parameters. Its dimension is the <em>nullity</em>.</p>
+        <p><strong>Range space (column space):</strong> all possible outputs \(A\mathbf{x}\). Its basis = the <em>pivot columns of the original \(A\)</em>. Its dimension is the <em>rank</em>.</p>
+        <p><strong>Rank-Nullity Theorem:</strong> \(\text{rank} + \text{nullity} = n\), where \(n\) = number of columns of \(A\).</p>
+        <div class="eg"><strong>Intuition:</strong> the null space is what gets "erased" by the map; the range space is everything it can produce.</div>
+      </div>
+    </div>
+
+    <div class="sol-block">
+      <div class="sol-heading">Full Solution</div>
+      <div style="margin-bottom:1.2rem;padding:1rem 1.2rem;background:rgba(79,156,240,0.04);border:1px solid rgba(79,156,240,0.15);border-radius:3px;font-size:0.88rem;line-height:1.9;">
+        <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:0.6rem;">Variable Key</strong>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0;">
+          <li>\(\mathcal{L}(\mathbf{x}) = A\mathbf{x}\) — the linear map (function) defined by multiplying input vector \(\mathbf{x}\) by matrix \(A\)</li>
+          <li>\(A\) — the matrix defining the linear map; its columns are the vectors \(A\) can "reach"</li>
+          <li>\(\mathbf{x}\) — the input vector (unknown); \(\mathbf{0}\) — the zero vector (all entries zero)</li>
+          <li>\(\ker(\mathcal{L})\) — the kernel (null space): all inputs \(\mathbf{x}\) such that \(A\mathbf{x} = \mathbf{0}\); found by row-reducing with a zero column after the bar</li>
+          <li>\(\operatorname{range}(\mathcal{L})\) — the range space (column space): all possible outputs \(A\mathbf{x}\); its basis = the <em>pivot columns of the original (unreduced) \(A\)</em></li>
+          <li>\(s, t\) — free parameters assigned to free variables; each free variable gets its own letter</li>
+          <li><strong>nullity</strong> — dimension of the null space (= number of free variables)</li>
+          <li><strong>rank</strong> — dimension of the range space (= number of pivot columns)</li>
+          <li><strong>Rank-Nullity:</strong> rank + nullity = total number of columns of \(A\)</li>
+        </ul>
+      </div>
+      <div class="part">
+        <span class="part-label">Part (a) — 2×3 matrix</span>
+        <p><strong>Null space</strong> — set up \(A\mathbf{x}=\mathbf{0}\) by putting a zero column after the bar, then row-reduce:</p>
+        <p>\[\left(\begin{array}{ccc|c}1&2&1&0\\2&4&2&0\end{array}\right)\xrightarrow{R_2-2R_1}\left(\begin{array}{ccc|c}1&2&1&0\\0&0&0&0\end{array}\right)\]</p>
+
+        <p><strong>Step 1 — identify free vs. basic variables.</strong> Look at each variable column:</p>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0 0.6rem;font-size:0.9rem;line-height:1.9;">
+          <li><strong>Col 1 (\(x_1\))</strong> — has a pivot (the 1 in row 1) → \(x_1\) is <em>basic</em> (we solve for it)</li>
+          <li><strong>Col 2 (\(x_2\))</strong> — no pivot (entire column is 0 after reduction) → \(x_2\) is <em>free</em> → let \(x_2 = s\)</li>
+          <li><strong>Col 3 (\(x_3\))</strong> — no pivot → \(x_3\) is <em>free</em> → let \(x_3 = t\)</li>
+        </ul>
+
+        <p><strong>Step 2 — solve for the basic variable.</strong> Row 1 reads: \(x_1 + 2x_2 + x_3 = 0\). Substitute \(x_2=s\) and \(x_3=t\):</p>
+        <p style="padding-left:1rem;">\(x_1 + 2s + t = 0 \quad\Rightarrow\quad x_1 = -2s - t\)</p>
+
+        <p><strong>Step 3 — write as a vector, then split by parameter.</strong> Stack all three variables into one vector and separate \(s\) terms from \(t\) terms:</p>
+        <p>\[\mathbf{x} = \begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix} = \begin{pmatrix}-2s-t\\s\\t\end{pmatrix} = s\begin{pmatrix}-2\\1\\0\end{pmatrix}+t\begin{pmatrix}-1\\0\\1\end{pmatrix}\]</p>
+        <p>Each parameter (\(s\) and \(t\)) produces one basis vector for the null space. Notice: the free variable's own row gets a 1 (e.g. \(s\) row gets 1 for \(x_2\)), all other free variable rows get 0.</p>
+        <div class="answer-box" style="margin-bottom:0.8rem;">\(\ker(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}-2\\1\\0\end{pmatrix},\begin{pmatrix}-1\\0\\1\end{pmatrix}\right\}\)</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:1.2rem;">
+          <div style="border:1px solid rgba(232,169,74,0.25);border-radius:3px;overflow:hidden;background:rgba(232,169,74,0.03);">
+            <div style="padding:0.5rem 1rem;background:rgba(232,169,74,0.08);border-bottom:1px solid rgba(232,169,74,0.2);">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#e8a94a;">Easier Method — Pivot Columns</span>
+            </div>
+            <div style="padding:1rem 1.2rem;font-size:0.88rem;line-height:1.85;">
+              <p>After row-reducing \(A\), identify which <strong>columns had pivots</strong>. Go back to the <strong>original unreduced</strong> \(A\) and take those columns as the basis.</p>
+              <p>From the reduction, only <strong>col 1</strong> had a pivot. Take col 1 of original \(A\):</p>
+              <p>\[A = \begin{pmatrix}\mathbf{1}&2&1\\\mathbf{2}&4&2\end{pmatrix}\]</p>
+              <div class="answer-box" style="font-size:0.85rem;">\(\operatorname{range}(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}1\\2\end{pmatrix}\right\}\)</div>
+              <p class="note" style="margin-top:0.5rem;">⚠️ Must use original \(A\), not the reduced version!</p>
+            </div>
+          </div>
+          <div style="border:1px solid rgba(201,122,237,0.25);border-radius:3px;overflow:hidden;background:rgba(201,122,237,0.03);">
+            <div style="padding:0.5rem 1rem;background:rgba(201,122,237,0.08);border-bottom:1px solid rgba(201,122,237,0.2);">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#c97aed;">Professor's Method — Transpose</span>
+            </div>
+            <div style="padding:1rem 1.2rem;font-size:0.88rem;line-height:1.85;">
+              <p>Transpose \(A\), row-reduce \(A^T\) to full echelon form, read pivot rows as basis.</p>
+              <p>\[A^T = \begin{pmatrix}1&2\\2&4\\1&2\end{pmatrix}\xrightarrow{R_2-2R_1,\;R_3-R_1}\begin{pmatrix}1&2\\0&0\\0&0\end{pmatrix}\]</p>
+              <p>One pivot row → read it off directly:</p>
+              <div class="answer-box" style="font-size:0.85rem;">\(\operatorname{range}(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}1\\2\end{pmatrix}\right\}\)</div>
+              <p class="note" style="margin-top:0.5rem;">✓ Same answer, cleaner read-off. Use this on exam!</p>
+            </div>
+          </div>
+        </div>
+        <p class="note" style="margin-top:0.6rem;">Check: nullity (2) + rank (1) = 3 = number of columns of \(A\) ✓</p>
+      </div>
+
+      <div class="part">
+        <span class="part-label">Part (b) — 3×3 matrix</span>
+        <p><strong>Null space</strong> — row-reduce \([A\mid\mathbf{0}]\):</p>
+        <p>\[\left(\begin{array}{ccc|c}1&0&1&0\\1&2&3&0\\2&2&4&0\end{array}\right)\xrightarrow{R_2-R_1,\;R_3-2R_1}\left(\begin{array}{ccc|c}1&0&1&0\\0&2&2&0\\0&2&2&0\end{array}\right)\xrightarrow{R_3-R_2}\left(\begin{array}{ccc|c}1&0&1&0\\0&2&2&0\\0&0&0&0\end{array}\right)\]</p>
+
+        <p><strong>Step 1 — identify free vs. basic variables:</strong></p>
+        <ul style="padding-left:1.2rem;margin:0.4rem 0 0.6rem;font-size:0.9rem;line-height:1.9;">
+          <li><strong>Col 1 (\(x_1\))</strong> — pivot in row 1 → \(x_1\) is <em>basic</em></li>
+          <li><strong>Col 2 (\(x_2\))</strong> — pivot in row 2 → \(x_2\) is <em>basic</em></li>
+          <li><strong>Col 3 (\(x_3\))</strong> — no pivot (row 3 is all zeros) → \(x_3\) is <em>free</em> → let \(x_3 = t\)</li>
+        </ul>
+
+        <p><strong>Step 2 — solve for basic variables from the bottom up:</strong></p>
+        <p><strong>Row 2</strong> reads: \(2x_2 + 2x_3 = 0\). Substitute \(x_3 = t\):</p>
+        <p style="padding-left:1rem;">\(2x_2 + 2t = 0 \quad\Rightarrow\quad 2x_2 = -2t \quad\Rightarrow\quad x_2 = -t\)</p>
+        <p><strong>Row 1</strong> reads: \(x_1 + x_3 = 0\). Substitute \(x_3 = t\):</p>
+        <p style="padding-left:1rem;">\(x_1 + t = 0 \quad\Rightarrow\quad x_1 = -t\)</p>
+
+        <p><strong>Step 3 — write as a vector and factor out the parameter:</strong></p>
+        <p>\[\mathbf{x} = \begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix} = \begin{pmatrix}-t\\-t\\t\end{pmatrix} = t\begin{pmatrix}-1\\-1\\1\end{pmatrix}\]</p>
+        <p>Only one free variable → only one basis vector for the null space.</p>
+        <div class="answer-box" style="margin-bottom:0.8rem;">\(\ker(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}-1\\-1\\1\end{pmatrix}\right\}\)</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:1.2rem;">
+          <div style="border:1px solid rgba(232,169,74,0.25);border-radius:3px;overflow:hidden;background:rgba(232,169,74,0.03);">
+            <div style="padding:0.5rem 1rem;background:rgba(232,169,74,0.08);border-bottom:1px solid rgba(232,169,74,0.2);">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#e8a94a;">Easier Method — Pivot Columns</span>
+            </div>
+            <div style="padding:1rem 1.2rem;font-size:0.88rem;line-height:1.85;">
+              <p>Cols 1 and 2 had pivots after reduction. Take those from the <strong>original</strong> \(A\):</p>
+              <p>\[A = \begin{pmatrix}\mathbf{1}&\mathbf{0}&1\\\mathbf{1}&\mathbf{2}&3\\\mathbf{2}&\mathbf{2}&4\end{pmatrix}\]</p>
+              <div class="answer-box" style="font-size:0.85rem;">\(\operatorname{range}(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}1\\1\\2\end{pmatrix},\begin{pmatrix}0\\2\\2\end{pmatrix}\right\}\)</div>
+              <p class="note" style="margin-top:0.5rem;">⚠️ Must use original \(A\), not the reduced version!</p>
+            </div>
+          </div>
+          <div style="border:1px solid rgba(201,122,237,0.25);border-radius:3px;overflow:hidden;background:rgba(201,122,237,0.03);">
+            <div style="padding:0.5rem 1rem;background:rgba(201,122,237,0.08);border-bottom:1px solid rgba(201,122,237,0.2);">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#c97aed;">Professor's Method — Transpose</span>
+            </div>
+            <div style="padding:1rem 1.2rem;font-size:0.88rem;line-height:1.85;">
+              <p>Transpose \(A\), row-reduce \(A^T\) to full echelon form, read pivot rows as basis.</p>
+              <p>\[A^T = \begin{pmatrix}1&1&2\\0&2&2\\1&3&4\end{pmatrix}\xrightarrow{}\cdots\xrightarrow{\text{RREF}}\begin{pmatrix}1&0&1\\0&1&1\\0&0&0\end{pmatrix}\]</p>
+              <p>Two pivot rows → read them off directly:</p>
+              <div class="answer-box" style="font-size:0.85rem;">\(\operatorname{range}(\mathcal{L}) = \operatorname{span}\!\left\{\begin{pmatrix}1\\0\\1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\}\)</div>
+              <p class="note" style="margin-top:0.5rem;">✓ Same dimension, cleaner vectors. Use this on exam!</p>
+            </div>
+          </div>
+        </div>
+        <p class="note" style="margin-top:0.6rem;">Check: nullity (1) + rank (2) = 3 = number of columns of \(A\) ✓</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TRUE / FALSE ══════════════════════ -->
+<div class="section-label">True / False</div>
+<div class="prob-card open" id="tf" data-color="teal">
+  <div class="card-header" onclick="toggleEl(this,'.prob-card')">
+    <span class="prob-num">REVIEW</span>
+    <span class="card-title">True / False — Know These Cold</span>
+    <span class="card-pts">exam tip</span>
+    <span class="toggle-icon">▾</span>
+  </div>
+  <div class="card-body">
+
+    <!-- Invertible definition -->
+    <div style="margin:1.5rem 0 1.2rem;padding:1.1rem 1.3rem;background:rgba(91,200,224,0.04);border:1px solid rgba(91,200,224,0.2);border-left:3px solid #5bc8e0;border-radius:0 3px 3px 0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#5bc8e0;margin-bottom:0.6rem;">Definition — Invertible Matrix</div>
+      <p>A square matrix \(A\) is <strong>invertible</strong> (also called <em>non-singular</em>) if there exists another matrix \(A^{-1}\) such that:</p>
+      <p style="text-align:center;margin:0.5rem 0;">\(A \cdot A^{-1} = A^{-1} \cdot A = I\)</p>
+      <p>where \(I\) is the <strong>identity matrix</strong> — the matrix with 1s on the diagonal and 0s everywhere else, e.g. \(\begin{pmatrix}1&0\\0&1\end{pmatrix}\) for \(2\times2\).</p>
+      <p style="margin-top:0.6rem">Think of \(A^{-1}\) as the "undo" button for \(A\). If \(A\mathbf{x} = \mathbf{b}\), then \(\mathbf{x} = A^{-1}\mathbf{b}\).</p>
+      <p style="margin-top:0.6rem"><strong>How to check:</strong> row-reduce \(A\). If every row has a pivot (pivots = number of rows = number of columns) → invertible. If any row reduces to all zeros → <strong>not invertible</strong>.</p>
+    </div>
+
+    <!-- True/False statements -->
+    <div style="display:flex;flex-direction:column;gap:0.8rem;margin-top:0.5rem;">
+
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1rem;padding:0.9rem 1.1rem;background:rgba(217,111,181,0.04);border:1px solid rgba(217,111,181,0.2);border-radius:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:#d96fb5;padding:0.2em 0.6em;background:rgba(217,111,181,0.1);border:1px solid rgba(217,111,181,0.3);border-radius:2px;white-space:nowrap;">FALSE</span>
+        <div style="font-size:0.92rem;">"All square matrices are invertible."</div>
+        <span style="font-size:1.1rem;">✗</span>
+      </div>
+      <div style="padding:0 1.1rem 0.6rem;font-size:0.87rem;color:var(--muted2);line-height:1.75;">
+        A square matrix is only invertible if <strong>every row has a pivot</strong> after row reduction. If any row reduces to all zeros (i.e. there's a free variable), the matrix is <strong>singular — not invertible</strong>. Example: \(\begin{pmatrix}1&2&1\\2&4&2\\3&6&3\end{pmatrix}\) is \(3\times3\) but reduces to only 1 pivot row → not invertible.
+      </div>
+
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1rem;padding:0.9rem 1.1rem;background:rgba(82,201,138,0.04);border:1px solid rgba(82,201,138,0.2);border-radius:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:#52c98a;padding:0.2em 0.6em;background:rgba(82,201,138,0.1);border:1px solid rgba(82,201,138,0.3);border-radius:2px;white-space:nowrap;">TRUE</span>
+        <div style="font-size:0.92rem;">"If a matrix has a free variable, it is not invertible."</div>
+        <span style="font-size:1.1rem;">✓</span>
+      </div>
+      <div style="padding:0 1.1rem 0.6rem;font-size:0.87rem;color:var(--muted2);line-height:1.75;">
+        A free variable means a column has no pivot, which means the null space contains more than just \(\mathbf{0}\). An invertible matrix must have <strong>only the trivial solution</strong> \(\mathbf{x}=\mathbf{0}\) to \(A\mathbf{x}=\mathbf{0}\).
+      </div>
+
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1rem;padding:0.9rem 1.1rem;background:rgba(82,201,138,0.04);border:1px solid rgba(82,201,138,0.2);border-radius:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:#52c98a;padding:0.2em 0.6em;background:rgba(82,201,138,0.1);border:1px solid rgba(82,201,138,0.3);border-radius:2px;white-space:nowrap;">TRUE</span>
+        <div style="font-size:0.92rem;">"The null space of an invertible matrix contains only the zero vector."</div>
+        <span style="font-size:1.1rem;">✓</span>
+      </div>
+      <div style="padding:0 1.1rem 0.6rem;font-size:0.87rem;color:var(--muted2);line-height:1.75;">
+        If \(A\) is invertible, \(A\mathbf{x}=\mathbf{0}\) has only the trivial solution \(\mathbf{x}=\mathbf{0}\). Nullity = 0, rank = \(n\). By Rank-Nullity: \(n + 0 = n\) ✓
+      </div>
+
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1rem;padding:0.9rem 1.1rem;background:rgba(217,111,181,0.04);border:1px solid rgba(217,111,181,0.2);border-radius:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:#d96fb5;padding:0.2em 0.6em;background:rgba(217,111,181,0.1);border:1px solid rgba(217,111,181,0.3);border-radius:2px;white-space:nowrap;">FALSE</span>
+        <div style="font-size:0.92rem;">"A matrix with a zero row is invertible."</div>
+        <span style="font-size:1.1rem;">✗</span>
+      </div>
+      <div style="padding:0 1.1rem 0.6rem;font-size:0.87rem;color:var(--muted2);line-height:1.75;">
+        A zero row means at least one row has no pivot. Pivots &lt; rows → not every variable is pinned down → not invertible.
+      </div>
+
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1rem;padding:0.9rem 1.1rem;background:rgba(82,201,138,0.04);border:1px solid rgba(82,201,138,0.2);border-radius:3px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;color:#52c98a;padding:0.2em 0.6em;background:rgba(82,201,138,0.1);border:1px solid rgba(82,201,138,0.3);border-radius:2px;white-space:nowrap;">TRUE</span>
+        <div style="font-size:0.92rem;">"A non-square matrix cannot be invertible."</div>
+        <span style="font-size:1.1rem;">✓</span>
+      </div>
+      <div style="padding:0 1.1rem 0.6rem;font-size:0.87rem;color:var(--muted2);line-height:1.75;">
+        Invertibility requires \(A \cdot A^{-1} = I\), which is only defined when \(A\) is square. A \(2\times3\) or \(3\times2\) matrix can never be invertible by definition.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ GLOSSARY ══════════════════════ -->
+<div class="section-label">Key Concepts</div>
+<div class="gloss-section open prob-card" id="glossary" data-color="purple">
+  <div class="gloss-hdr" onclick="toggleEl(this,'.gloss-section')">
+    <span class="gloss-tag">CONCEPTS</span>
+    <span class="gloss-title">Key Definitions to Know</span>
+    <span class="gloss-count">11 terms</span>
+    <span class="gloss-arrow">▾</span>
+  </div>
+  <div class="gloss-body">
+    <div class="gloss-grid">
+
+      <div class="def-card" id="def-augmented" style="--dc:#e8a94a">
+        <div class="def-term"><a href="#def-augmented" class="def-term-anchor">Augmented Matrix &amp; Linear System</a></div>
+        <div class="def-body">
+          <p>A <strong>linear system</strong> is a set of equations where each variable appears only to the first power — no \(x^2\), no \(xy\). For example: \(x_1 + 2x_2 = 5\) and \(3x_1 - x_2 = 1\).</p>
+          <p>An <strong>augmented matrix</strong> strips away the variable names and captures only the coefficients and constants in a grid, with a vertical bar separating left-hand-side from right:</p>
+          <p>\[\left(\begin{array}{cc|c}1&2&5\\3&-1&1\end{array}\right)\]</p>
+          <p>Each row = one equation. Each column (left of bar) = one variable's coefficients. Column after bar = the constants.</p>
+          <div class="def-eg">Think of it as the system's "passport" — all the info, none of the clutter.</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-ref" style="--dc:#f5c518">
+        <div class="def-term"><a href="#def-ref" class="def-term-anchor">Row Echelon Form (REF)</a></div>
+        <div class="def-body">
+          <p><strong>Gaussian elimination</strong> uses three legal row operations to simplify a matrix into a staircase pattern called REF:</p>
+          <ul>
+            <li>Swap two rows</li>
+            <li>Multiply a row by any nonzero scalar</li>
+            <li>Add a multiple of one row to another</li>
+          </ul>
+          <p>A matrix is in <strong><a href="#def-ref" class="def-link">REF</a></strong> when: (1) all-zero rows are at the bottom, (2) each row's leading nonzero entry (<strong>pivot</strong>) is strictly to the <em>right</em> of the pivot in the row above, and (3) everything <em>below</em> each pivot is zero.</p>
+          <p><strong>Pivots do NOT need to be 1</strong> — any nonzero value is fine. Back-substitution is still needed to read off the solution.</p>
+          <div class="def-eg"><strong>Valid REF</strong> — pivots 1, −2, 5 are all acceptable:<br/>\(\begin{pmatrix}1&3&2\\0&-2&4\\0&0&5\end{pmatrix}\)</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-rref" style="--dc:#ffe066">
+        <div class="def-term"><a href="#def-rref" class="def-term-anchor">Reduced Row Echelon Form (RREF)</a></div>
+        <div class="def-body">
+          <p>RREF adds two extra requirements on top of REF:</p>
+          <ul>
+            <li>Every pivot must equal exactly <strong>1</strong></li>
+            <li>Every entry <em>above</em> a pivot must also be zero (not just below)</li>
+          </ul>
+          <p>The payoff: solutions can be read off directly with <em>no</em> back-substitution needed. Every matrix has a <strong>unique</strong> RREF.</p>
+          <div class="def-eg">
+            <strong>REF → RREF:</strong><br/>
+            \(\begin{pmatrix}1&3&2\\0&-2&4\\0&0&5\end{pmatrix}\longrightarrow\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}\)<br/>
+            <span style="display:block;margin-top:0.3rem;">REF = staircase of nonzero pivots. RREF = staircase of 1s, zeros above and below.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-span" style="--dc:#52c98a">
+        <div class="def-term"><a href="#def-span" class="def-term-anchor">Span &amp; Linear Combinations</a></div>
+        <div class="def-body">
+          <p>A <strong>linear combination</strong> scales and adds vectors together: \(c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_k\mathbf{v}_k\), where the \(c_i\) are any real scalars.</p>
+          <p>The <strong><a href="#def-span" class="def-link">span</a></strong> of a set of vectors is the collection of <em>all possible</em> linear combinations — every point reachable by any scaling/adding combination.</p>
+          <p>To check if \(\mathbf{b}\in\operatorname{span}\{\mathbf{v}_1,\ldots,\mathbf{v}_k\}\): form the augmented matrix \([\mathbf{v}_1\;\cdots\;\mathbf{v}_k\mid\mathbf{b}]\) and row-reduce. Consistent = yes; a row \([0\;\cdots\;0\mid c]\) with \(c\neq0\) = no.</p>
+          <div class="def-eg">Geometrically: span of one nonzero vector = a line; span of two non-parallel vectors = a plane.</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-basis" style="--dc:#d96fb5">
+        <div class="def-term"><a href="#def-basis" class="def-term-anchor">Basis &amp; Dimension of a Subspace</a></div>
+        <div class="def-body">
+          <p>A <strong>subspace</strong> is a set closed under addition and scalar multiplication (and contains the zero vector).</p>
+          <p>A <strong><a href="#def-basis" class="def-link">basis</a></strong> is a set of vectors that (1) <em>spans</em> the subspace and (2) is <em>linearly independent</em> — no vector is a combination of the others. It's the minimal spanning set.</p>
+          <p>The <strong><a href="#def-basis" class="def-link">dimension</a></strong> = the number of vectors in any basis. All bases of the same subspace have the same size.</p>
+          <p>To find a basis: put the vectors as rows, row-reduce, keep the rows with pivot positions.</p>
+          <div class="def-eg">A plane through the origin in \(\mathbb{R}^3\) has dimension 2; a line through the origin has dimension 1.</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-null" style="--dc:#5bc8e0">
+        <div class="def-term"><a href="#def-null" class="def-term-anchor">Null Space (Kernel)</a></div>
+        <div class="def-body">
+          <p>For \(\mathcal{L}(\mathbf{x})=A\mathbf{x}\), the <strong><a href="#def-null" class="def-link">null space</a></strong> is all inputs that get mapped to the zero vector:</p>
+          <p>\[\ker(\mathcal{L}) = \{\mathbf{x} : A\mathbf{x} = \mathbf{0}\}\]</p>
+          <p>Find it by solving the homogeneous system \(A\mathbf{x}=\mathbf{0}\). Set free variables as parameters and express all other variables in terms of them. The result is a span of vectors forming the basis for the null space.</p>
+          <p>Its dimension is called the <strong>nullity</strong>.</p>
+          <div class="def-eg">The null space tells you what the map "crushes to zero" — anything in it is invisible to \(A\).</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-range" style="--dc:#7eaaff">
+        <div class="def-term"><a href="#def-range" class="def-term-anchor">Range Space (Column Space)</a></div>
+        <div class="def-body">
+          <p>The <strong><a href="#def-range" class="def-link">range space</a></strong> (or column space) is the set of all possible outputs of \(\mathcal{L}\):</p>
+          <p>\[\operatorname{range}(\mathcal{L}) = \{A\mathbf{x} : \mathbf{x}\in\mathbb{R}^n\}\]</p>
+          <p>Its basis comes from the <strong>pivot columns of the original \(A\)</strong> (not the reduced version). Its dimension is the <strong>rank</strong>.</p>
+          <p>The <strong><a href="#def-null" class="def-link">Rank-Nullity Theorem</a></strong> ties everything together: \[\text{rank} + \text{nullity} = \text{number of columns of }A\]</p>
+          <div class="def-eg">The range space tells you every output the map <em>can</em> produce. Rank + Nullity always = total # of variables.</div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-vartypes" style="--dc:#a78bfa">
+        <div class="def-term"><a href="#def-vartypes" class="def-term-anchor">Types of Variables</a></div>
+        <div class="def-body">
+          <p>Every variable in a system is one of exactly two types — determined by whether its column has a pivot:</p>
+          <p><strong>Basic variable</strong> — its column has a pivot. It gets solved to a specific value (or an expression involving free variables). It is "pinned down."</p>
+          <div class="def-eg"><strong>Example:</strong> pivot in col 1 → \(x_1\) is basic → \(x_1 = 1 + t\)</div>
+          <p style="margin-top:0.6rem"><strong>Free variable</strong> — its column has no pivot. It is unconstrained and can be any real number. We assign it a parameter like \(t\). Every free variable produces infinitely many solutions.</p>
+          <div class="def-eg"><strong>Example:</strong> no pivot in col 4 → \(x_4\) is free → let \(x_4 = t\)</div>
+          <p style="margin-top:0.6rem"><strong>Does not exist (DNE)</strong> — the variable simply isn't part of the system at all. For example, if a system has only 3 variables, \(x_4\) is not a free variable — it just doesn't exist. The number of variables = number of columns minus 1 (the last column is always constants).</p>
+          <div style="margin-top:0.8rem;border:1px solid var(--sol-border);border-radius:3px;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">
+              <thead>
+                <tr style="background:rgba(79,156,240,0.08);border-bottom:1px solid var(--sol-border);">
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Variable column</th>
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Type</th>
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">Has a pivot</td>
+                  <td style="padding:0.4rem 0.7rem;color:#52c98a;">Basic</td>
+                  <td style="padding:0.4rem 0.7rem;color:var(--muted2);">Solved for</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">No pivot</td>
+                  <td style="padding:0.4rem 0.7rem;color:#e8a94a;">Free</td>
+                  <td style="padding:0.4rem 0.7rem;color:var(--muted2);">Assign parameter \(t\)</td>
+                </tr>
+                <tr>
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">Not in system</td>
+                  <td style="padding:0.4rem 0.7rem;color:var(--muted2);">DNE</td>
+                  <td style="padding:0.4rem 0.7rem;color:var(--muted2);">Doesn't exist</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-solutions" style="--dc:#ff6b6b">
+        <div class="def-term"><a href="#def-solutions" class="def-term-anchor">Types of Solutions</a></div>
+        <div class="def-body">
+          <p>After row reducing, every system falls into exactly one of three categories:</p>
+          <p><strong>Unique solution</strong> — every variable column has a pivot, no contradiction row. Exactly one set of values satisfies the system. All variables are basic.</p>
+          <div class="def-eg"><strong>Sign:</strong> # pivots = # variables. Read off directly (RREF) or back-substitute (REF).</div>
+          <p style="margin-top:0.6rem"><strong>Infinite solutions</strong> — no contradiction row, but at least one variable column has no pivot (free variable). That parameter can be any real number, generating infinitely many valid solutions.</p>
+          <div class="def-eg"><strong>Sign:</strong> # pivots &lt; # variables. Solution written with parameter, e.g. \(x_1=1+t,\; x_4=t\).</div>
+          <p style="margin-top:0.6rem"><strong>No solution (inconsistent)</strong> — a row reduces to all zeros left of the bar with a nonzero constant right of the bar. This says \(0 = c\) where \(c\neq0\) — a contradiction. Nothing can satisfy it.</p>
+          <div class="def-eg"><strong>Sign:</strong> a row \(\left[\,0\;0\;\cdots\;0\mid c\,\right]\) with \(c\neq0\).</div>
+          <p style="margin-top:0.7rem"><strong>Don't confuse these three rows:</strong></p>
+          <div style="margin-top:0.4rem;border:1px solid var(--sol-border);border-radius:3px;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">
+              <thead>
+                <tr style="background:rgba(79,156,240,0.08);border-bottom:1px solid var(--sol-border);">
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Row looks like</th>
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">\(\left[\,0\;0\;0\mid c\,\right]\) with \(c\neq0\)</td>
+                  <td style="padding:0.4rem 0.7rem;color:#ff6b6b;">No solution — contradiction (0 = c)</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">\(\left[\,0\;0\;0\mid 0\,\right]\)</td>
+                  <td style="padding:0.4rem 0.7rem;color:var(--muted2);">Redundant row — ignore it (0 = 0)</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">All variables = 0, e.g. \(x_1=x_2=x_3=0\)</td>
+                  <td style="padding:0.4rem 0.7rem;color:#52c98a;">Trivial solution — valid unique solution</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:0.8rem;border:1px solid var(--sol-border);border-radius:3px;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">
+              <thead>
+                <tr style="background:rgba(79,156,240,0.08);border-bottom:1px solid var(--sol-border);">
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">What you see in REF</th>
+                  <th style="padding:0.4rem 0.7rem;text-align:left;color:var(--accent);font-weight:600;">Solution type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">Pivot in every variable column, no contradiction</td>
+                  <td style="padding:0.4rem 0.7rem;color:#52c98a;">Unique</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--sol-border);">
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">At least one variable column has no pivot</td>
+                  <td style="padding:0.4rem 0.7rem;color:#e8a94a;">Infinite</td>
+                </tr>
+                <tr>
+                  <td style="padding:0.4rem 0.7rem;color:var(--text);">Row of zeros left of bar, nonzero right of bar</td>
+                  <td style="padding:0.4rem 0.7rem;color:#ff6b6b;">No solution</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="def-card" id="def-transpose" style="--dc:#5bc8e0">
+        <div class="def-term"><a href="#def-transpose" class="def-term-anchor">Transpose</a></div>
+        <div class="def-body">
+          <p>The <strong>transpose</strong> of a matrix \(A\), written \(A^T\), is formed by <strong>flipping rows and columns</strong> — every row of \(A\) becomes a column of \(A^T\), and every column of \(A\) becomes a row of \(A^T\).</p>
+          <p>Equivalently: the entry at position (row \(i\), col \(j\)) in \(A\) moves to position (row \(j\), col \(i\)) in \(A^T\).</p>
+          <p>\[A = \begin{pmatrix}1&2&3\\4&5&6\end{pmatrix} \quad\Rightarrow\quad A^T = \begin{pmatrix}1&4\\2&5\\3&6\end{pmatrix}\]</p>
+          <p>Notice the size flips too — a \(2\times3\) matrix becomes a \(3\times2\) matrix after transposing.</p>
+          <p style="margin-top:0.6rem"><strong>Easy way to do it by hand:</strong> read down each <em>column</em> of \(A\) and write those values as a <em>row</em> in \(A^T\).</p>
+          <p style="margin-top:0.6rem"><strong>Where it's used:</strong> in Q5, your professor transposes \(A\) and row-reduces \(A^T\) to full echelon form to find the standard basis for the range space — the pivot rows of the reduced \(A^T\) are the basis vectors.</p>
+          <div class="def-eg">Think of it as reflecting the matrix along its diagonal — the top-right corner swaps with the bottom-left.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</main>
+<footer>Math 2318 &nbsp;·&nbsp; Linear Algebra &nbsp;·&nbsp; Exam 1 Review &nbsp;·&nbsp; Generated for exam prep</footer>
+
+<script>
+// Open glossary if a def-card anchor is targeted
+window.addEventListener('load', () => {
+  if (window.location.hash && window.location.hash.startsWith('#def-')) {
+    const gloss = document.querySelector('.gloss-section');
+    if (gloss) gloss.classList.add('open');
+  }
+});
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a.def-link');
+  if (link && link.href.includes('#def-')) {
+    const gloss = document.querySelector('.gloss-section');
+    if (gloss) gloss.classList.add('open');
+  }
+});
+function toggleEl(trigger, selector) {
+  trigger.closest(selector).classList.toggle('open');
+}
+window.addEventListener('scroll', () => {
+  const d = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progress-bar').style.width = (d > 0 ? (window.scrollY / d) * 100 : 0) + '%';
+});
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+</body>
+</html>

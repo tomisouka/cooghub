@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Computer Organization Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#0e1014;--surface:#161920;--elevated:#1e222c;--border:#2a2e38;--accent:#fb923c;--gold:#e8c547;--teal:#4ecdc4;--purple:#a78bfa;--blue:#60a5fa;--green:#34d399;--pink:#f472b6;--text:#d4d8e0;--muted:#7a8090}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:500;line-height:1.6;-webkit-font-smoothing:antialiased}
+  header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  header h1{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700} header h1 span{color:var(--accent)}
+  nav{display:flex;gap:6px;flex-wrap:wrap}
+  nav a{color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid transparent;transition:all 0.15s}
+  nav a:hover{color:var(--text);border-color:var(--border);background:var(--elevated)}
+  #search-input{margin-left:auto;background:var(--elevated);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.82rem;padding:6px 12px;outline:none;width:200px}
+  #search-input:focus{border-color:var(--accent)}
+  main{max-width:1200px;margin:0 auto;padding:40px 32px 80px}
+  .section-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin:56px 0 6px}
+  .section-sub{color:var(--muted);font-size:0.88rem;margin-bottom:24px}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:16px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color 0.15s,transform 0.15s}
+  .card:hover{border-color:var(--card-color,var(--accent));transform:translateY(-2px)}
+  .card-bar{height:4px;background:var(--card-color,var(--accent))}
+  .card-body{padding:16px 18px}
+  .card-label{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--card-color,var(--accent));font-weight:500;letter-spacing:0.5px;margin-bottom:6px}
+  .card-title{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:8px}
+  .card-desc{color:var(--muted);font-size:0.97rem;line-height:1.72}
+  .card-desc strong{color:var(--text)} .card-desc code{font-family:'DM Mono',monospace;background:var(--elevated);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.95rem;color:var(--gold)}
+  .ref-table{width:100%;border-collapse:collapse;font-size:0.95rem;margin-bottom:32px}
+  .ref-table th{background:var(--elevated);color:var(--muted);padding:10px 14px;text-align:left;border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px}
+  .ref-table td{padding:10px 14px;border:1px solid var(--border);color:var(--muted);vertical-align:top}
+  .ref-table tr:nth-child(even) td{background:var(--surface)}
+  .ref-table td:first-child{font-family:'DM Mono',monospace;color:var(--accent);font-weight:500}
+  .ref-table td strong{color:var(--text)}
+  .timeline{position:relative;padding-left:28px}
+  .timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--accent),var(--blue));opacity:0.4;border-radius:2px}
+  .timeline-item{position:relative;margin-bottom:22px}
+  .timeline-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--dot-color,var(--accent));border:2px solid var(--bg);box-shadow:0 0 0 2px var(--dot-color,var(--accent))}
+  .tl-year{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--dot-color,var(--accent));font-weight:500;letter-spacing:1px;margin-bottom:4px}
+  .tl-title{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
+  .tl-desc{color:var(--muted);font-size:0.97rem;line-height:1.72}
+  .card.hidden,.timeline-item.hidden,tr.hidden{display:none}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card,.timeline-item{animation:fadeIn 0.3s ease both}
+</style>
+</head>
+<body>
+<header>
+  <h1>Computer Organization <span>Reference</span></h1>
+  <nav><a href="#architecture">Architecture</a><a href="#memory">Memory</a><a href="#isa">ISA</a><a href="#pipeline">Pipeline</a><a href="#io">I/O</a><a href="#history">History</a></nav>
+  <input id="search-input" type="text" placeholder="search…" />
+</header>
+<main>
+
+<div id="architecture">
+  <div class="section-title">CPU Architecture</div>
+  <div class="section-sub">How a processor is structured — the hardware that executes every instruction</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">ALU</div><div class="card-title">Arithmetic Logic Unit</div>
+      <div class="card-desc">Performs all arithmetic (<code>+</code> <code>-</code> <code>×</code> <code>÷</code>) and logic (<code>AND</code> <code>OR</code> <code>NOT</code> <code>XOR</code>) operations. Takes two inputs + opcode, outputs result + condition flags (zero, carry, overflow, negative). The computational core of the CPU.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Registers</div><div class="card-title">Fastest Memory — On-Chip</div>
+      <div class="card-desc">Tiny storage directly on the CPU. Access in a single clock cycle. MIPS has 32 general-purpose 32-bit registers. x86-64 has 16 64-bit registers (RAX, RBX, RCX…).<br><br><strong>Special registers:</strong> PC (program counter), SP (stack pointer), IR (instruction register), MAR/MDR (memory address/data).</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Control Unit</div><div class="card-title">Instruction Director</div>
+      <div class="card-desc">Fetches, decodes, and coordinates execution of instructions. Generates control signals that tell the ALU, registers, and memory what to do each cycle.<br><br><strong>Hardwired CU:</strong> fixed logic, fast.<br><strong>Microprogrammed CU:</strong> flexible, uses microcode lookup table.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Fetch-Decode-Execute</div><div class="card-title">The Instruction Cycle</div>
+      <div class="card-desc"><strong>1. Fetch:</strong> PC → MAR → memory → MDR → IR, increment PC.<br><strong>2. Decode:</strong> CU interprets opcode in IR, identifies operands.<br><strong>3. Execute:</strong> ALU computes, result written to register or memory.<br><br>Every instruction on every processor follows this loop.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="memory">
+  <div class="section-title">Memory Hierarchy</div>
+  <div class="section-sub">Faster = smaller = more expensive. The hierarchy exploits locality to hide latency.</div>
+  <table class="ref-table">
+    <thead><tr><th>Level</th><th>Type</th><th>Size</th><th>Latency</th><th>Managed by</th></tr></thead>
+    <tbody>
+      <tr><td>Registers</td><td>SRAM (flip-flops)</td><td>~1 KB</td><td><strong style="color:#34d399">1 cycle</strong></td><td>Compiler / programmer</td></tr>
+      <tr><td>L1 Cache</td><td>SRAM</td><td>32–64 KB</td><td><strong style="color:#34d399">4 cycles</strong></td><td>Hardware (transparent)</td></tr>
+      <tr><td>L2 Cache</td><td>SRAM</td><td>256 KB–1 MB</td><td><strong style="color:#e8c547">12 cycles</strong></td><td>Hardware</td></tr>
+      <tr><td>L3 Cache</td><td>SRAM (shared)</td><td>4–64 MB</td><td><strong style="color:#e8c547">40 cycles</strong></td><td>Hardware</td></tr>
+      <tr><td>RAM (DRAM)</td><td>DRAM</td><td>4–64+ GB</td><td><strong style="color:#fb923c">~100 cycles</strong></td><td>OS + hardware</td></tr>
+      <tr><td>SSD</td><td>NAND Flash</td><td>100 GB–4 TB</td><td><strong style="color:#f472b6">~100 µs</strong></td><td>OS + filesystem</td></tr>
+      <tr><td>HDD</td><td>Magnetic disk</td><td>1–20 TB</td><td><strong style="color:#f472b6">~10 ms</strong></td><td>OS + filesystem</td></tr>
+    </tbody>
+  </table>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Temporal Locality</div><div class="card-title">Recently used → used again soon</div>
+      <div class="card-desc">If you access address X, you'll probably access it again. Caches keep recently-used data hot. <strong>Example:</strong> a loop variable accessed thousands of times stays in a register or L1.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Spatial Locality</div><div class="card-title">Nearby addresses accessed together</div>
+      <div class="card-desc">If you access address X, you'll probably access X+1, X+2, etc. Caches load blocks (cache lines, typically 64 bytes) at a time. <strong>Why arrays beat linked lists</strong> for iteration — array elements are adjacent; pointer nodes are scattered.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Cache Mapping</div><div class="card-title">Where does a block go in cache?</div>
+      <div class="card-desc"><strong>Direct-mapped:</strong> each block has exactly one cache slot (fast, but conflicts).<br><strong>Fully associative:</strong> block can go anywhere (flexible, expensive to search).<br><strong>N-way set associative:</strong> middle ground — most real CPUs use 4–16-way.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="isa">
+  <div class="section-title">Instruction Set Architecture</div>
+  <div class="section-sub">The contract between hardware and software</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">RISC vs CISC</div><div class="card-title">Two philosophies</div>
+      <div class="card-desc"><strong>RISC</strong> (ARM, MIPS): few simple fixed-length instructions, load/store architecture, many registers. Each instruction takes 1 cycle. Compilers do the work.<br><br><strong>CISC</strong> (x86): many complex variable-length instructions, memory operands allowed. Hardware does more per instruction. Internally translated to micro-ops anyway.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Addressing Modes</div><div class="card-title">How operands are specified</div>
+      <div class="card-desc"><strong>Immediate:</strong> <code>ADD R1, #5</code> — value in instruction.<br><strong>Register:</strong> <code>ADD R1, R2</code> — value in register.<br><strong>Direct:</strong> <code>LOAD R1, 0x1000</code> — address in instruction.<br><strong>Indirect:</strong> <code>LOAD R1, [R2]</code> — register holds address.<br><strong>Base+offset:</strong> <code>LOAD R1, 8[SP]</code> — for stack frames.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">MIPS R-Format</div><div class="card-title">32-bit instruction encoding</div>
+      <div class="card-desc"><code>op[6] | rs[5] | rt[5] | rd[5] | shamt[5] | funct[6]</code><br><br><strong>op:</strong> opcode (0 for R-type).<br><strong>rs/rt:</strong> source registers.<br><strong>rd:</strong> destination register.<br><strong>shamt:</strong> shift amount.<br><strong>funct:</strong> specific operation (add, sub, and, or…).</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="pipeline">
+  <div class="section-title">Pipelining</div>
+  <div class="section-sub">Overlap instruction execution — throughput over latency</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">5-Stage Pipeline</div><div class="card-title">IF → ID → EX → MEM → WB</div>
+      <div class="card-desc"><strong>IF:</strong> Instruction Fetch — load from memory.<br><strong>ID:</strong> Instruction Decode — read registers.<br><strong>EX:</strong> Execute — ALU operation.<br><strong>MEM:</strong> Memory access — read/write data.<br><strong>WB:</strong> Write Back — result → register.<br><br>Like an assembly line — 5 instructions in flight simultaneously.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Data Hazards</div><div class="card-title">Read-after-Write dependencies</div>
+      <div class="card-desc">Instruction needs a result that hasn't been written yet.<br><br><strong>Solution 1 — Stalling:</strong> insert NOPs (bubbles) — wastes cycles.<br><strong>Solution 2 — Forwarding:</strong> route result directly from EX/MEM output back to EX input — avoids most stalls.<br><strong>Still needs 1 stall:</strong> load-use hazard (MEM hasn't run yet).</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Control Hazards</div><div class="card-title">Branches disrupt the pipeline</div>
+      <div class="card-desc">When a branch is taken, the 2–3 instructions already fetched may be wrong — must be flushed.<br><br><strong>Branch prediction:</strong> CPU guesses which way a branch goes. Modern CPUs: >95% accuracy. Mispredict penalty: 15–20 cycles. Spectre/Meltdown exploited this.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="io">
+  <div class="section-title">I/O & Bus</div>
+  <div class="section-sub">How the CPU talks to everything else</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Programmed I/O</div><div class="card-title">CPU polls the device</div>
+      <div class="card-desc">CPU spins in a loop checking if the device is ready (<strong>busy-waiting</strong>). Simple but wastes 100% of CPU time waiting. Acceptable only for very fast devices or embedded systems where idle spinning is fine.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Interrupt-Driven I/O</div><div class="card-title">Device signals the CPU</div>
+      <div class="card-desc">CPU starts I/O, goes off and does other work. Device sends an interrupt when done. CPU saves context, runs Interrupt Service Routine (ISR), resumes. <strong>Much more efficient</strong> — used for keyboards, network cards, timers.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">DMA</div><div class="card-title">Direct Memory Access</div>
+      <div class="card-desc">A separate DMA controller handles large data transfers (disk → RAM) without CPU involvement. CPU gives the DMA controller: source, destination, size. DMA does the transfer and interrupts CPU when done. <strong>CPU is fully free during the transfer.</strong></div>
+    </div></div>
+  </div>
+</div>
+
+<div id="history">
+  <div class="section-title">History of Computer Architecture</div>
+  <div class="section-sub">From room-sized calculators to billion-transistor chips</div>
+  <div class="timeline">
+    <div class="timeline-item" style="--dot-color:#7a8090"><div class="tl-year">1945</div><div class="tl-title">Von Neumann Architecture</div><div class="tl-desc">John von Neumann's "First Draft" describes the stored-program computer — CPU, memory, I/O, with program and data in the same memory. Almost every computer since follows this model.</div></div>
+    <div class="timeline-item" style="--dot-color:#fb923c"><div class="tl-year">1947</div><div class="tl-title">Transistor Invented</div><div class="tl-desc">Shockley, Bardeen, and Brattain at Bell Labs. Replaced fragile vacuum tubes. Enabled reliable, fast, compact switching. The transistor is the atom of modern computing.</div></div>
+    <div class="timeline-item" style="--dot-color:#e8c547"><div class="tl-year">1958</div><div class="tl-title">Integrated Circuit</div><div class="tl-desc">Jack Kilby at TI and Robert Noyce at Fairchild independently invent the IC. Multiple transistors on a single chip. Moore's Law (1965) predicts transistor count doubles every ~2 years — held for 50+ years.</div></div>
+    <div class="timeline-item" style="--dot-color:#4ecdc4"><div class="tl-year">1971</div><div class="tl-title">Intel 4004 — First Microprocessor</div><div class="tl-desc">4-bit processor, 2,300 transistors, 740 KHz. Entire CPU on a single chip. Designed by Federico Faggin. Launched the era of general-purpose programmable chips.</div></div>
+    <div class="timeline-item" style="--dot-color:#a78bfa"><div class="tl-year">1980</div><div class="tl-title">RISC Revolution</div><div class="tl-desc">Patterson (Berkeley, RISC I) and Hennessy (Stanford, MIPS) independently develop RISC. Simpler instructions, faster clock speeds, better compiler optimization. MIPS architecture is still what most architecture courses teach today.</div></div>
+    <div class="timeline-item" style="--dot-color:#60a5fa"><div class="tl-year">1989–1993</div><div class="tl-title">Superscalar & Out-of-Order Execution</div><div class="tl-desc">Intel 486 (1989) and Pentium (1993) introduce superscalar execution — multiple instructions per clock cycle. Out-of-order execution lets the CPU reorder instructions to avoid stalls. Performance skyrockets beyond what clock speed alone could achieve.</div></div>
+    <div class="timeline-item" style="--dot-color:#34d399"><div class="tl-year">2005</div><div class="tl-title">Multi-Core Era</div><div class="tl-desc">Power wall hits — clock speed stops scaling. Intel and AMD pivot to multi-core. Software must now be parallel to use new hardware. The free lunch of single-threaded speedup is over.</div></div>
+    <div class="timeline-item" style="--dot-color:#f472b6"><div class="tl-year">2018–present</div><div class="tl-title">Spectre/Meltdown & Security</div><div class="tl-desc">Researchers reveal that branch prediction and speculative execution — the techniques that made modern CPUs fast — create side-channel attacks. Microarchitecture security becomes a first-class concern. The performance optimizations of the past 30 years have hidden costs.</div></div>
+  </div>
+</div>
+
+</main>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, .timeline-item, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+</body></html>

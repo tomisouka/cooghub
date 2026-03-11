@@ -1,0 +1,37 @@
+export const FLASHCARD_SETS = [
+  {
+    id: "prog_fundamentals", label: "Programming Fundamentals", subject: "General", color: "#e8c547",
+    cards: [
+      { q: "What is a variable?", a: "A named location in memory that holds a value" },
+      { q: "What is a function?", a: "Encapsulated reusable logic" },
+      { q: "For loop vs While loop", a: "A for loop is more structured/countable; while loops are more flexible conditional" },
+      { q: "Pass by reference vs value", a: "Pass by value passes a copy which does not change the original; pass by reference passes a reference which does affect the original" },
+      { q: "What is recursion?", a: "A function that calls itself repeatedly until a base case condition is met" },
+      { q: "Why use recursion over a loop?", a: "Recursion is best when wanting to break down a problem into smaller pieces" },
+    ],
+  },
+  {
+    id: "dsa_basics", label: "DSA Concepts", subject: "Data Structures", color: "#4ecdc4",
+    cards: [
+      { q: "What is O(1) complexity?", a: "Constant time — the operation takes the same time regardless of input size" },
+      { q: "What is O(n) complexity?", a: "Linear time — the operation scales proportionally with input size" },
+      { q: "What is O(log n) complexity?", a: "Logarithmic time — input is halved each step (e.g., binary search)" },
+      { q: "Array access time complexity?", a: "O(1) — direct index access" },
+      { q: "Linked list search time complexity?", a: "O(n) — must traverse from head" },
+      { q: "Hash table average lookup?", a: "O(1) average case with a good hash function" },
+      { q: "Binary search tree search (balanced)?", a: "O(log n)" },
+      { q: "What is a heap?", a: "A complete binary tree satisfying the heap property (min or max at root)" },
+    ],
+  },
+  {
+    id: "automata_basics", label: "Automata Theory", subject: "Automata", color: "#ff6b9d",
+    cards: [
+      { q: "What is a DFA?", a: "Deterministic Finite Automaton — exactly one transition per symbol per state" },
+      { q: "What is an NFA?", a: "Non-deterministic Finite Automaton — can have multiple or zero transitions per symbol" },
+      { q: "Are DFAs and NFAs equivalent?", a: "Yes — every NFA can be converted to an equivalent DFA" },
+      { q: "What language do finite automata recognize?", a: "Regular languages" },
+      { q: "What is the pumping lemma used for?", a: "Proving a language is NOT regular" },
+      { q: "What is a CFG?", a: "Context-Free Grammar — production rules generating context-free languages (recognized by PDAs)" },
+    ],
+  },
+];

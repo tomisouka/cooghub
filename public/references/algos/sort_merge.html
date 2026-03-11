@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merge Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#f472b6; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --blue:#60a5fa; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  /* split/merge tree */
+  .tree-wrap { display:flex; flex-direction:column; gap:0; align-items:center; }
+  .level { display:flex; justify-content:center; align-items:flex-start; position:relative; margin:0; }
+
+  .arr-block { display:inline-flex; gap:3px; padding:7px 10px; border-radius:6px; background:var(--surface); border:1px solid var(--border); margin:4px 6px; }
+  .arr-block.split-level { border-color:#f472b640; }
+  .arr-block.base  { border-color:#60a5fa60; background:#60a5fa08; }
+  .arr-block.merge-level { border-color:#6bde8460; background:#6bde8408; }
+  .arr-block.final { border-color:var(--green); background:#6bde8418; }
+
+  .cell { width:28px; height:28px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:#21252e; color:var(--text); }
+  .cell.pink  { background:#f472b620; color:var(--accent); }
+  .cell.blue  { background:#60a5fa20; color:var(--blue); }
+  .cell.green { background:#6bde8420; color:var(--green); }
+
+  .phase-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); font-weight:700; width:72px; text-align:right; padding-top:16px; padding-right:12px; flex-shrink:0; }
+
+  .level-row { display:flex; align-items:center; margin:6px 0; }
+
+  /* merge step detail */
+  .merge-detail { display:flex; gap:32px; flex-wrap:wrap; margin-top:8px; }
+  .merge-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 20px; border-top:2px solid var(--accent); flex:1; min-width:220px; }
+  .merge-box-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:10px; }
+  .ptr-row { display:flex; gap:6px; align-items:center; font-size:12px; margin-bottom:8px; }
+  .ptr-cell { width:32px; height:32px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .ptr-cell.active { background:#f472b620; border-color:var(--accent); color:var(--accent); }
+  .ptr-cell.done   { background:#6bde8418; border-color:var(--green); color:var(--green); }
+  .ptr-arrow { color:var(--accent); font-size:14px; }
+  .ptr-label { font-size:10px; color:var(--dim); }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--blue); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Merge<span>.</span></h1>
+    <div class="subtitle">Divide & Conquer · Stable · Not In-Place</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ob">O(n) — extra array</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation"><span>Split</span> the array in half recursively until every piece is size 1 (trivially sorted). Then <span>merge</span> sorted pieces back together — comparing front elements and taking the smaller one each time. The work is entirely in the merge step.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Split Phase on [5, 3, 8, 1, 4, 2]</div>
+  <div class="annotation">Keep halving until single elements. <span>log n</span> levels deep.</div>
+
+  <div style="overflow-x:auto;">
+  <div style="min-width:500px;">
+
+  <div class="level-row">
+    <span class="phase-label">Split ①</span>
+    <div class="level">
+      <div class="arr-block split-level">
+        <div class="cell pink">5</div><div class="cell pink">3</div><div class="cell pink">8</div>
+        <div class="cell pink">1</div><div class="cell pink">4</div><div class="cell pink">2</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↓</div>
+
+  <div class="level-row">
+    <span class="phase-label">Split ②</span>
+    <div class="level">
+      <div class="arr-block split-level">
+        <div class="cell pink">5</div><div class="cell pink">3</div><div class="cell pink">8</div>
+      </div>
+      <div class="arr-block split-level">
+        <div class="cell pink">1</div><div class="cell pink">4</div><div class="cell pink">2</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↓</div>
+
+  <div class="level-row">
+    <span class="phase-label">Split ③</span>
+    <div class="level">
+      <div class="arr-block split-level">
+        <div class="cell pink">5</div>
+      </div>
+      <div class="arr-block split-level">
+        <div class="cell pink">3</div><div class="cell pink">8</div>
+      </div>
+      <div class="arr-block split-level">
+        <div class="cell pink">1</div>
+      </div>
+      <div class="arr-block split-level">
+        <div class="cell pink">4</div><div class="cell pink">2</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↓</div>
+
+  <div class="level-row">
+    <span class="phase-label">Base</span>
+    <div class="level">
+      <div class="arr-block base"><div class="cell blue">5</div></div>
+      <div class="arr-block base"><div class="cell blue">3</div></div>
+      <div class="arr-block base"><div class="cell blue">8</div></div>
+      <div class="arr-block base"><div class="cell blue">1</div></div>
+      <div class="arr-block base"><div class="cell blue">4</div></div>
+      <div class="arr-block base"><div class="cell blue">2</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↑</div>
+
+  <div class="level-row">
+    <span class="phase-label">Merge ①</span>
+    <div class="level">
+      <div class="arr-block merge-level">
+        <div class="cell green">3</div><div class="cell green">5</div>
+      </div>
+      <div class="arr-block merge-level">
+        <div class="cell green">8</div>
+      </div>
+      <div class="arr-block merge-level">
+        <div class="cell green">1</div>
+      </div>
+      <div class="arr-block merge-level">
+        <div class="cell green">2</div><div class="cell green">4</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↑</div>
+
+  <div class="level-row">
+    <span class="phase-label">Merge ②</span>
+    <div class="level">
+      <div class="arr-block merge-level">
+        <div class="cell green">3</div><div class="cell green">5</div><div class="cell green">8</div>
+      </div>
+      <div class="arr-block merge-level">
+        <div class="cell green">1</div><div class="cell green">2</div><div class="cell green">4</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#2a2e38; font-size:18px; margin:-2px 0">↑</div>
+
+  <div class="level-row">
+    <span class="phase-label">Done</span>
+    <div class="level">
+      <div class="arr-block final">
+        <div class="cell green">1</div><div class="cell green">2</div><div class="cell green">3</div>
+        <div class="cell green">4</div><div class="cell green">5</div><div class="cell green">8</div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  </div>
+  <div class="caption">log₂(6) ≈ 3 levels of splitting. Each merge level does O(n) comparisons. Total: <strong>O(n log n)</strong>.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — The Merge Step</div>
+  <div class="annotation">Merging two sorted arrays: use <span>two pointers</span> — one per array. Compare front elements, take the smaller, advance that pointer. When one array is exhausted copy the rest of the other.</div>
+
+  <div class="merge-detail">
+    <div class="merge-box">
+      <div class="merge-box-title">Merging [3, 5, 8] + [1, 2, 4]</div>
+      <div class="ptr-row">
+        <span class="ptr-label">L→</span>
+        <div class="ptr-cell active">3</div><div class="ptr-cell">5</div><div class="ptr-cell">8</div>
+        <span style="color:#2a2e38;margin:0 8px">|</span>
+        <span class="ptr-label">R→</span>
+        <div class="ptr-cell active">1</div><div class="ptr-cell">2</div><div class="ptr-cell">4</div>
+        <span style="font-size:11px;color:var(--dim);margin-left:8px;">1&lt;3 → take 1</span>
+      </div>
+      <div class="ptr-row">
+        <span class="ptr-label">L→</span>
+        <div class="ptr-cell active">3</div><div class="ptr-cell">5</div><div class="ptr-cell">8</div>
+        <span style="color:#2a2e38;margin:0 8px">|</span>
+        <span class="ptr-label">R→</span>
+        <div class="ptr-cell done">1</div><div class="ptr-cell active">2</div><div class="ptr-cell">4</div>
+        <span style="font-size:11px;color:var(--dim);margin-left:8px;">2&lt;3 → take 2</span>
+      </div>
+      <div class="ptr-row">
+        <span class="ptr-label">L→</span>
+        <div class="ptr-cell active">3</div><div class="ptr-cell">5</div><div class="ptr-cell">8</div>
+        <span style="color:#2a2e38;margin:0 8px">|</span>
+        <span class="ptr-label">R→</span>
+        <div class="ptr-cell done">1</div><div class="ptr-cell done">2</div><div class="ptr-cell active">4</div>
+        <span style="font-size:11px;color:var(--dim);margin-left:8px;">3&lt;4 → take 3</span>
+      </div>
+      <div class="ptr-row">
+        <span class="ptr-label">L→</span>
+        <div class="ptr-cell done">3</div><div class="ptr-cell active">5</div><div class="ptr-cell">8</div>
+        <span style="color:#2a2e38;margin:0 8px">|</span>
+        <span class="ptr-label">R→</span>
+        <div class="ptr-cell done">1</div><div class="ptr-cell done">2</div><div class="ptr-cell active">4</div>
+        <span style="font-size:11px;color:var(--dim);margin-left:8px;">4&lt;5 → take 4</span>
+      </div>
+      <div class="ptr-row">
+        <span class="ptr-label"></span>
+        <span style="font-size:11px;color:var(--green);margin-left:4px;">R exhausted → copy rest of L: 5, 8</span>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:4px;">
+        <div class="ptr-cell done">1</div><div class="ptr-cell done">2</div><div class="ptr-cell done">3</div>
+        <div class="ptr-cell done">4</div><div class="ptr-cell done">5</div><div class="ptr-cell done">8</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Guaranteed O(n log n)</div>
+    <div class="card-body">Best, average, and worst case are all O(n log n). Input order has no effect. The only major sort with this guarantee.</div>
+    <div class="card-o" style="color:var(--accent)">always O(n log n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Stable</div>
+    <div class="card-body">Equal elements from the left subarray are always taken before the right, preserving original relative order.</div>
+    <div class="card-o" style="color:var(--green)">stable ✓</div>
+  </div>
+  <div class="card">
+    <div class="card-title">O(n) Extra Space</div>
+    <div class="card-body">Needs a temporary array for merging. Can't merge in-place efficiently. The main tradeoff vs. quicksort.</div>
+    <div class="card-o" style="color:var(--red)">O(n) space</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Great for Linked Lists</div>
+    <div class="card-body">Linked lists can be merged in O(1) extra space by relinking nodes. No random access needed — no index math.</div>
+    <div class="card-o" style="color:var(--blue)">ideal for lists</div>
+  </div>
+</div>
+
+</body>
+</html>

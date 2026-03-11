@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAM Model — Gopal Ch.1</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;--accent:#34d399;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;--mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(52,211,153,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(52,211,153,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}
+  .sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}
+  .kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}
+  .kv-v.y{color:var(--yellow)}.kv-v.g{color:var(--green)}.kv-v.r{color:var(--red)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  .feature-list{list-style:none}
+  .feature-list li{padding:.5rem 0 .5rem 2rem;position:relative;border-bottom:1px solid var(--border);font-size:.86rem;line-height:1.5}
+  .feature-list li:last-child{border-bottom:none}
+  .feature-list li::before{content:attr(data-n);position:absolute;left:0;top:.5rem;font-family:var(--mono);font-size:.65rem;color:var(--accent);background:var(--border2);width:1.4rem;height:1.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .warn{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:6px;padding:.75rem 1rem;font-size: .95rem;color:var(--red);margin-top:.5rem}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Gopal Ch. 1 · Section 1.4</div>
+  <h1>RAM Model of Computation</h1>
+  <div class="sub">The theoretical machine we use to analyze algorithm runtime. Single processor, sequential, unit-cost memory access.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">RAM Model — 4 Key Features</div>
+      <ul class="feature-list">
+        <li data-n="1">A computing unit (processor) plus unlimited memory</li>
+        <li data-n="2">Instructions execute <strong style="color:var(--text);">sequentially</strong> — one at a time, in program order</li>
+        <li data-n="3">Accessing any memory cell takes <strong style="color:var(--accent);">one step</strong> — regardless of location (hence "random access")</li>
+        <li data-n="4">Any <strong style="color:var(--text);">simple operation</strong> (add, compare, assign) takes one step</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">What We Count</div>
+      <div style="font-size: 1rem;color:var(--sub);line-height:1.8;">
+        We usually only bound the <span style="color:var(--accent);">costly operations</span> — those that dominate runtime.<br><br>
+        For example:<br>
+        • Sorting → count <strong style="color:var(--text);">comparisons</strong><br>
+        • Graph algorithms → count <strong style="color:var(--text);">edge traversals</strong><br>
+        • Number algorithms → count <strong style="color:var(--text);">arithmetic ops</strong><br><br>
+        Bounding costly ops bounds total runtime up to a constant factor.
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Input Size vs Input Value — Critical Distinction</div>
+      <div style="font-size: 1rem;color:var(--sub);line-height:1.8;margin-bottom:1rem;">
+        Complexity is a function of <span style="color:var(--accent);">input size</span> (number of bits), NOT input value.
+      </div>
+      <table>
+        <tr><th>Algorithm</th><th>Input Value</th><th>Input Size (bits)</th><th>Runtime</th><th>Actually</th></tr>
+        <tr>
+          <td>IsPrime(n)</td>
+          <td style="color:var(--yellow);">n</td>
+          <td style="color:var(--yellow);">b = ⌈log n⌉</td>
+          <td>O(n)</td>
+          <td style="color:var(--red);">O(2ᵇ) — EXPONENTIAL</td>
+        </tr>
+        <tr>
+          <td>FastIsPrime(n)</td>
+          <td style="color:var(--yellow);">n</td>
+          <td style="color:var(--yellow);">b = ⌈log n⌉</td>
+          <td>O(√n)</td>
+          <td style="color:var(--red);">O(2^(b/2)) — EXPONENTIAL</td>
+        </tr>
+        <tr>
+          <td>BinarySearch</td>
+          <td style="color:var(--yellow);">n elements</td>
+          <td style="color:var(--yellow);">O(n log M)</td>
+          <td>O(log n)</td>
+          <td style="color:var(--green);">POLY in input size ✓</td>
+        </tr>
+        <tr>
+          <td>MergeSort</td>
+          <td style="color:var(--yellow);">n elements</td>
+          <td style="color:var(--yellow);">O(n log M)</td>
+          <td>O(n log n)</td>
+          <td style="color:var(--green);">POLY in input size ✓</td>
+        </tr>
+      </table>
+      <div class="warn" style="margin-top:.75rem;">⚠ IsPrime and FastIsPrime are called <strong>pseudo-polynomial</strong>: polynomial in the input VALUE but exponential in input SIZE (number of bits).</div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">RAM vs Real Machines</div>
+      <div class="kv"><span class="kv-k">Processors</span><span class="kv-v" style="color:var(--sub);">RAM = 1 processor. Real = multiple (parallel).</span></div>
+      <div class="kv"><span class="kv-k">Word size</span><span class="kv-v" style="color:var(--sub);">Basic arithmetic on ≤64-bit ints = O(1). n-bit numbers can take O(n) steps.</span></div>
+      <div class="kv"><span class="kv-k">Memory</span><span class="kv-v g">RAM assumes unlimited cells, each accessed in O(1)</span></div>
+      <div class="kv"><span class="kv-k">Why RAM?</span><span class="kv-v" style="color:var(--sub);">Clean abstraction. Matches real performance up to constant factors for most algorithms.</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

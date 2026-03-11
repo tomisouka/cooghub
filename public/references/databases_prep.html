@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>COSC 3380 — Databases Prep Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#0e1014;--surface:#161920;--elevated:#1e222c;--border:#2a2e38;--accent:#f472b6;--gold:#e8c547;--teal:#4ecdc4;--purple:#a78bfa;--orange:#fb923c;--blue:#60a5fa;--green:#34d399;--text:#d4d8e0;--muted:#8a90a0;--dim:#3a4052}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:500;line-height:1.7;-webkit-font-smoothing:antialiased;font-size:16px}
+  header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700} header h1 span{color:var(--accent)}
+  .badge{background:var(--elevated);border:1px solid var(--border);border-radius:6px;font-size:0.75rem;font-weight:700;padding:3px 9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.5px}
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  nav a{color:var(--muted);font-size:0.8rem;font-weight:600;text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid transparent;transition:all 0.15s}
+  nav a:hover{color:var(--text);border-color:var(--border);background:var(--elevated)}
+  main{max-width:1100px;margin:0 auto;padding:40px 32px 80px}
+
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:40px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .hero-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;line-height:1.2;margin-bottom:8px}
+  .hero-title span{color:var(--accent)}
+  .hero-sub{color:var(--muted);font-size:0.93rem;margin-bottom:16px}
+  .hero-meta{display:flex;flex-direction:column;gap:7px}
+  .meta-row{display:flex;align-items:center;gap:8px;font-size:0.88rem}
+  .meta-row .label{color:var(--muted);width:110px;flex-shrink:0}
+  .meta-row .val{color:var(--text);font-weight:600}
+  .grade-grid{display:flex;flex-direction:column;gap:8px}
+  .grade-item{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+  .grade-item .name{font-size:0.88rem;color:var(--muted)}
+  .grade-item .pct{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--accent)}
+
+  .section-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin:52px 0 6px;letter-spacing:-0.3px}
+  .section-sub{color:var(--muted);font-size:0.9rem;margin-bottom:22px}
+
+  .topic-block{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--block-color,var(--accent));border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:16px}
+  .block-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .block-num{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--block-color,var(--accent));font-weight:500;letter-spacing:1px;text-transform:uppercase}
+  .block-title{font-weight:700;font-size:1.05rem;color:var(--text)}
+  .topic-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .topic{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:0.92rem;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+  .topic::before{content:'›';color:var(--block-color,var(--accent));font-weight:700;margin-top:1px;flex-shrink:0}
+  .topic strong{color:var(--text)}
+
+  .check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-bottom:12px}
+  .check-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 15px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:border-color 0.15s}
+  .check-item:hover{border-color:var(--accent)}
+  .check-item.done{border-color:var(--green);background:color-mix(in srgb,var(--green) 6%,var(--surface))}
+  .check-item.done .check-label{text-decoration:line-through;color:var(--dim)}
+  .checkbox{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all 0.15s}
+  .check-item.done .checkbox{background:var(--green);border-color:var(--green)}
+  .checkbox svg{display:none;width:11px;height:11px}
+  .check-item.done .checkbox svg{display:block}
+  .check-label{font-size:0.92rem;color:var(--text);font-weight:500;line-height:1.5}
+  .check-sub{font-size:0.82rem;color:var(--muted);margin-top:3px}
+
+  pre.code-block{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:18px 20px;font-family:'DM Mono',monospace;font-size:1rem;color:#c8d0e0;line-height:1.9;overflow-x:auto;margin:10px 0}
+  pre.code-block .kw{color:var(--purple)} pre.code-block .fn{color:var(--teal)} pre.code-block .cmt{color:var(--dim);font-style:italic} pre.code-block .str{color:var(--green)} pre.code-block .num{color:var(--gold)}
+  code{font-family:'DM Mono',monospace;background:var(--elevated);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:0.95rem;color:var(--gold)}
+
+  .concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:16px}
+  .concept-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color 0.15s,transform 0.15s}
+  .concept-card:hover{border-color:var(--card-color,var(--accent));transform:translateY(-2px)}
+  .concept-bar{height:4px;background:var(--card-color,var(--accent))}
+  .concept-body{padding:14px 16px}
+  .concept-label{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--card-color,var(--accent));font-weight:500;letter-spacing:0.5px;margin-bottom:5px}
+  .concept-title{font-weight:700;font-size:0.97rem;color:var(--text);margin-bottom:7px}
+  .concept-desc{color:var(--muted);font-size:0.9rem;line-height:1.6}
+  .concept-desc strong{color:var(--text)}
+  .concept-desc code{font-family:'DM Mono',monospace;background:var(--elevated);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.88rem;color:var(--gold)}
+
+  .warn-box{background:color-mix(in srgb,var(--gold) 8%,var(--elevated));border:1px solid color-mix(in srgb,var(--gold) 30%,var(--border));border-radius:9px;padding:14px 18px;margin-bottom:20px;font-size:0.92rem;color:var(--muted)}
+  .warn-box strong{color:var(--gold)}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .topic-block,.check-item,.concept-card{animation:fadeIn 0.3s ease both}
+</style>
+</head>
+<body>
+<header>
+  <h1>Databases <span>Prep Guide</span></h1>
+  <span class="badge">COSC 3380</span>
+  <span class="badge">Fall Prep</span>
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#topics">Topics</a>
+    <a href="#concepts">Key Concepts</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#sql">SQL Patterns</a>
+  </nav>
+</header>
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div>
+      <div class="hero-title">Database Systems<br><span>COSC 3380</span></div>
+      <div class="hero-sub">Instructor: Uma Ramamurthy · Mon/Wed 5:30–7:00 PM · SEC 103</div>
+      <div class="hero-meta">
+        <div class="meta-row"><span class="label">Textbook</span><span class="val">Elmasri & Navathe, Fundamentals of DB Systems, 7th Ed.</span></div>
+        <div class="meta-row"><span class="label">Assessment</span><span class="val">Team Project + 2 Exams + Participation</span></div>
+        <div class="meta-row"><span class="label">Format</span><span class="val">Face-to-face, SEC 103</span></div>
+        <div class="meta-row"><span class="label">Office hours</span><span class="val">After class in SEC 103</span></div>
+        <div class="meta-row"><span class="label">Note</span><span class="val">Participation graded — show up and engage</span></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;font-family:'DM Mono',monospace">Grading</div>
+      <div class="grade-grid">
+        <div class="grade-item"><span class="name">Team Project + Presentations</span><span class="pct" style="color:var(--accent)">40%</span></div>
+        <div class="grade-item"><span class="name">Exam 1 (Midterm)</span><span class="pct" style="color:var(--orange)">20%</span></div>
+        <div class="grade-item"><span class="name">Exam 2 (Final)</span><span class="pct" style="color:var(--orange)">30%</span></div>
+        <div class="grade-item"><span class="name">Class Participation</span><span class="pct" style="color:var(--teal)">10%</span></div>
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:color-mix(in srgb,var(--accent) 8%,var(--elevated));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border));border-radius:8px;font-size:0.88rem;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--accent)">⚠ Project = 40%</strong> — heaviest grade. Form a good team early, start the project before midterms.
+      </div>
+    </div>
+  </div>
+
+  <!-- Topics -->
+  <div id="topics">
+    <div class="section-title">Course Topics</div>
+    <div class="section-sub">7 major topic areas — the progression goes theory → design → implementation → internals</div>
+
+    <div class="topic-block" style="--block-color:#f472b6">
+      <div class="block-header"><span class="block-num">Topic 1</span><span class="block-title">Introduction to Databases</span></div>
+      <div class="topic-list">
+        <div class="topic">What is a DBMS vs flat file?</div>
+        <div class="topic">Data independence — physical vs logical</div>
+        <div class="topic">3-schema architecture (external/conceptual/internal)</div>
+        <div class="topic">Database users: DBA, end users, app developers</div>
+        <div class="topic">DBMS components overview</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#e8c547">
+      <div class="block-header"><span class="block-num">Topic 2</span><span class="block-title">Relational Data Model</span></div>
+      <div class="topic-list">
+        <div class="topic"><strong>Relation</strong> = table, <strong>tuple</strong> = row, <strong>attribute</strong> = column</div>
+        <div class="topic">Keys: superkey, candidate key, primary key, foreign key</div>
+        <div class="topic">Integrity constraints: entity, referential, domain</div>
+        <div class="topic">Relational algebra: σ (select), π (project), ⋈ (join), ∪, ∩, −</div>
+        <div class="topic">Relational algebra → basis for SQL</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#4ecdc4">
+      <div class="block-header"><span class="block-num">Topic 3</span><span class="block-title">SQL — Structured Query Language</span></div>
+      <div class="topic-list">
+        <div class="topic">DDL: CREATE TABLE, ALTER, DROP, constraints</div>
+        <div class="topic">DML: SELECT, INSERT, UPDATE, DELETE</div>
+        <div class="topic">Joins: INNER, LEFT/RIGHT OUTER, FULL OUTER, CROSS</div>
+        <div class="topic">Aggregations: GROUP BY, HAVING, COUNT, SUM, AVG</div>
+        <div class="topic">Subqueries: correlated, IN, EXISTS, scalar</div>
+        <div class="topic">Transactions: BEGIN, COMMIT, ROLLBACK, isolation levels</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#a78bfa">
+      <div class="block-header"><span class="block-num">Topic 4</span><span class="block-title">Conceptual Modeling & ER Design</span></div>
+      <div class="topic-list">
+        <div class="topic">Entity types, entity sets, attributes</div>
+        <div class="topic">Relationships: binary, ternary, recursive</div>
+        <div class="topic">Cardinality: 1:1, 1:N, M:N</div>
+        <div class="topic">Participation: total vs partial</div>
+        <div class="topic">Weak entities and identifying relationships</div>
+        <div class="topic">ER → Relational mapping (the algorithm)</div>
+        <div class="topic">Enhanced ER: specialization, generalization, aggregation</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#fb923c">
+      <div class="block-header"><span class="block-num">Topic 5</span><span class="block-title">Normalization</span></div>
+      <div class="topic-list">
+        <div class="topic">Functional dependencies — X → Y</div>
+        <div class="topic">1NF — atomic values, no repeating groups</div>
+        <div class="topic">2NF — no partial dependency on composite PK</div>
+        <div class="topic">3NF — no transitive dependency</div>
+        <div class="topic">BCNF — every determinant is a candidate key</div>
+        <div class="topic">Lossless join decomposition</div>
+        <div class="topic">Denormalization tradeoffs</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#60a5fa">
+      <div class="block-header"><span class="block-num">Topic 6</span><span class="block-title">Database Security</span></div>
+      <div class="topic-list">
+        <div class="topic">GRANT and REVOKE — privilege management</div>
+        <div class="topic">Views as security mechanism</div>
+        <div class="topic">SQL injection and parameterized queries</div>
+        <div class="topic">Access control models (DAC, MAC, RBAC)</div>
+      </div>
+    </div>
+
+    <div class="topic-block" style="--block-color:#34d399">
+      <div class="block-header"><span class="block-num">Topic 7</span><span class="block-title">Distributed Databases & NoSQL</span></div>
+      <div class="topic-list">
+        <div class="topic">Distributed DB concepts — fragmentation, replication</div>
+        <div class="topic">CAP theorem — Consistency, Availability, Partition tolerance</div>
+        <div class="topic">NoSQL types: document, key-value, column, graph</div>
+        <div class="topic">MongoDB basics — collections, documents, queries</div>
+        <div class="topic">ACID vs BASE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Concepts -->
+  <div id="concepts">
+    <div class="section-title">Key Concepts to Nail</div>
+    <div class="section-sub">These are exam-heavy topics in most DB courses — understand them deeply</div>
+
+    <div class="concept-grid">
+      <div class="concept-card" style="--card-color:#f472b6">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">Normalization</div><div class="concept-title">The most exam-tested topic</div>
+        <div class="concept-desc">Given a relation and FDs, determine the normal form and decompose to 3NF/BCNF. Practice finding all FDs, computing closures, and checking BCNF violations.<br><br><strong>Key algorithm:</strong> find all FDs → check every non-trivial FD → if LHS isn't superkey, BCNF violation → decompose.</div>
+      </div></div>
+      <div class="concept-card" style="--card-color:#e8c547">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">ER → Relational Mapping</div><div class="concept-title">8-step algorithm</div>
+        <div class="concept-desc">You will draw ER diagrams and convert them to tables. Know the rules cold:<br><br>
+        <strong>1:N</strong> → FK in N-side.<br>
+        <strong>M:N</strong> → new relation with both PKs as composite PK.<br>
+        <strong>Weak entity</strong> → include owner's PK.<br>
+        <strong>Multi-valued attr</strong> → separate table.</div>
+      </div></div>
+      <div class="concept-card" style="--card-color:#4ecdc4">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">Transactions & ACID</div><div class="concept-title">Atomicity, Consistency, Isolation, Durability</div>
+        <div class="concept-desc"><strong>Atomicity:</strong> all or nothing — rollback on failure.<br><strong>Consistency:</strong> DB goes from valid state to valid state.<br><strong>Isolation:</strong> concurrent transactions appear sequential.<br><strong>Durability:</strong> committed transactions survive crashes.<br><br>Isolation levels: READ UNCOMMITTED → READ COMMITTED → REPEATABLE READ → SERIALIZABLE.</div>
+      </div></div>
+      <div class="concept-card" style="--card-color:#a78bfa">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">DBMS Internals</div><div class="concept-title">Storage, indexing, locking</div>
+        <div class="concept-desc"><strong>Storage:</strong> heap files, pages, slotted pages.<br><strong>Indexing:</strong> B+ trees (most DB indexes), hash index. B+ tree: O(log n) search, all data in leaves.<br><strong>Query optimizer:</strong> parses SQL → logical plan → physical plan (chooses join algorithm, index scans).<br><strong>Locking:</strong> shared (read) vs exclusive (write). 2PL for serializability.</div>
+      </div></div>
+      <div class="concept-card" style="--card-color:#fb923c">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">Team Project</div><div class="concept-title">40% — start in week 2</div>
+        <div class="concept-desc">Most DB project sequences go:<br><strong>Phase 1:</strong> requirements + ER diagram.<br><strong>Phase 2:</strong> ER → relational schema + normalization proof.<br><strong>Phase 3:</strong> SQL DDL + data loading.<br><strong>Phase 4:</strong> queries + application.<br><strong>Presentation:</strong> live demo to class.<br><br>Pick teammates with complementary skills early.</div>
+      </div></div>
+      <div class="concept-card" style="--card-color:#34d399">
+        <div class="concept-bar"></div><div class="concept-body">
+        <div class="concept-label">Functional Dependencies</div><div class="concept-title">Foundation of normalization</div>
+        <div class="concept-desc">X → Y means: knowing X uniquely determines Y.<br><br><strong>Closure:</strong> X⁺ = all attributes determined by X.<br><strong>Minimal cover:</strong> minimal set of FDs equivalent to original.<br><strong>Armstrong's axioms:</strong> reflexivity, augmentation, transitivity.<br><br>Practice computing closures — exam questions always ask for this.</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div id="checklist">
+    <div class="section-title">Pre-Semester Checklist</div>
+    <div class="section-sub">What to know or review before the first class</div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace">Math / logic foundations</div>
+    <div class="check-grid">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Set theory — union, intersection, difference, product</div><div class="check-sub">Directly maps to relational algebra operators</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Propositional logic — AND, OR, NOT, implication</div><div class="check-sub">Used in WHERE clauses and FD reasoning</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Basic data modeling intuition — what a table/row/column means</div><div class="check-sub">You already know this from working with spreadsheets / JSON</div></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:18px 0 10px;font-family:'DM Mono',monospace">SQL to know before day one</div>
+    <div class="check-grid">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Basic SELECT with WHERE and ORDER BY</div><div class="check-sub">Prerequisite — don't walk in without this</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">INNER JOIN syntax and semantics</div><div class="check-sub">Most common exam query type</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">GROUP BY with aggregate functions</div><div class="check-sub">COUNT, SUM, AVG, MAX, MIN</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">CREATE TABLE with PRIMARY KEY and FOREIGN KEY</div><div class="check-sub">DDL — needed for the project immediately</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Subqueries — nested SELECT in WHERE</div><div class="check-sub">Exam-heavy — practice correlated subqueries</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">NULL handling — IS NULL, IS NOT NULL, COALESCE</div><div class="check-sub">NULL is not equal to NULL — a common gotcha</div></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:18px 0 10px;font-family:'DM Mono',monospace">For the team project</div>
+    <div class="check-grid">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Set up a local PostgreSQL or MySQL instance</div><div class="check-sub">Don't wait until week 8 to install a DB</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Know at least one DB client tool — DBeaver, TablePlus, or psql</div><div class="check-sub">You need to view and query your data visually</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Be able to draw an ER diagram (even in draw.io or Excalidraw)</div><div class="check-sub">Phase 1 deliverable will be an ER diagram</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Think of a project domain you care about</div><div class="check-sub">You'll spend the whole semester on it — pick something interesting</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SQL Patterns -->
+  <div id="sql">
+    <div class="section-title">SQL Patterns to Memorize</div>
+    <div class="section-sub">These query shapes appear on every DB exam</div>
+
+    <pre class="code-block"><span class="cmt">-- Multi-table JOIN with aggregation</span>
+<span class="kw">SELECT</span> e.name, d.dept_name, <span class="fn">COUNT</span>(p.project_id) <span class="kw">AS</span> num_projects
+<span class="kw">FROM</span> Employee e
+<span class="kw">JOIN</span> Department d <span class="kw">ON</span> e.dept_id = d.dept_id
+<span class="kw">LEFT JOIN</span> Works_On w <span class="kw">ON</span> e.ssn = w.essn
+<span class="kw">LEFT JOIN</span> Project p <span class="kw">ON</span> w.pno = p.pnumber
+<span class="kw">GROUP BY</span> e.ssn, e.name, d.dept_name
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(p.project_id) > <span class="num">2</span>
+<span class="kw">ORDER BY</span> num_projects <span class="kw">DESC</span>;</pre>
+
+    <pre class="code-block"><span class="cmt">-- Correlated subquery: employees earning more than dept average</span>
+<span class="kw">SELECT</span> e.name, e.salary
+<span class="kw">FROM</span> Employee e
+<span class="kw">WHERE</span> e.salary > (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(e2.salary)
+    <span class="kw">FROM</span> Employee e2
+    <span class="kw">WHERE</span> e2.dept_id = e.dept_id  <span class="cmt">-- references outer query</span>
+);</pre>
+
+    <pre class="code-block"><span class="cmt">-- EXISTS: departments with at least one manager over 40</span>
+<span class="kw">SELECT</span> d.dept_name
+<span class="kw">FROM</span> Department d
+<span class="kw">WHERE</span> <span class="kw">EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span>
+    <span class="kw">FROM</span> Employee e
+    <span class="kw">WHERE</span> e.ssn = d.mgr_ssn
+    <span class="kw">AND</span> e.age > <span class="num">40</span>
+);</pre>
+
+    <pre class="code-block"><span class="cmt">-- Transaction with rollback on error</span>
+<span class="kw">BEGIN</span>;
+    <span class="kw">UPDATE</span> Account <span class="kw">SET</span> balance = balance - <span class="num">500</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;
+    <span class="kw">UPDATE</span> Account <span class="kw">SET</span> balance = balance + <span class="num">500</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;
+    <span class="cmt">-- if either fails, ROLLBACK undoes both</span>
+<span class="kw">COMMIT</span>;</pre>
+
+    <pre class="code-block"><span class="cmt">-- Normalization example: find BCNF violations</span>
+<span class="cmt">-- Relation: R(A, B, C, D) with FDs: AB→C, C→D, D→A</span>
+<span class="cmt">-- Check: is C a superkey? C⁺ = {C,D,A} ≠ all attrs → BCNF violation</span>
+<span class="cmt">-- Decompose: R1(C,D,A) and R2(A,B,C)</span>
+<span class="cmt">-- Verify lossless: R1∩R2 = {A,C} → C→A, A⊆R1 → lossless ✓</span>
+
+<span class="cmt">-- Relational algebra notation:</span>
+<span class="cmt">-- σ_{salary>50000}(Employee)          -- select</span>
+<span class="cmt">-- π_{name, salary}(Employee)          -- project  </span>
+<span class="cmt">-- Employee ⋈_{ssn=essn} Works_On      -- natural join</span></pre>
+  </div>
+
+  <div class="warn-box" style="margin-top:40px">
+    <strong>⚡ Strategic note:</strong> The project is 40% of your grade. Uma Ramamurthy teaches this course — the project presentations happen in class. Form your team in week 1, choose a domain you actually care about, and start the ER diagram by week 2. Students who fall behind on the project cannot recover with exam scores alone.
+  </div>
+
+</main>
+<script>
+function toggle(el) {
+  el.classList.toggle('done');
+  const key = el.querySelector('.check-label').textContent.trim().slice(0,30);
+  const done = el.classList.contains('done');
+  try { localStorage.setItem('db_check_' + key, done); } catch(e) {}
+}
+</script>
+</body></html>

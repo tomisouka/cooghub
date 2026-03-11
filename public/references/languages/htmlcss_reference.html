@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HTML &amp; CSS Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #100f0e;
+    --surface: #1a1815;
+    --surface2: #23201c;
+    --border: #38332a;
+    --accent: #f08c55;
+    --accent2: #7ecfc4;
+    --accent3: #e8c97a;
+    --text: #f5f0ea;
+    --text-dim: #9e9080;
+    --text-code: #f5c8a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 13, 12, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(240, 140, 85, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(240, 140, 85, 0.04); }
+  tr:hover td:first-child { color: #fbb07a; text-shadow: 0 0 20px rgba(240, 140, 85, 0.45); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 140px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.02em;
+    border-right: 1px solid var(--border);
+    background: rgba(240, 140, 85, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(240, 140, 85, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.75;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.95rem; color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 150px;
+    font-size: 0.88rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ol.precedence { counter-reset: prec; list-style: none; padding: 0; }
+  ol.precedence li {
+    counter-increment: prec;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ol.precedence li:last-child { border-bottom: none; }
+  ol.precedence li::before {
+    content: counter(prec);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  /* Live demo swatches */
+  .swatch-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .swatch {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">&lt;/&gt; HTML·CSS</span>
+  <nav>
+    <a href="#html-basics">HTML Basics</a>
+    <a href="#structure">Document</a>
+    <a href="#text">Text Tags</a>
+    <a href="#links-media">Links &amp; Media</a>
+    <a href="#lists-tables">Lists &amp; Tables</a>
+    <a href="#forms">Forms</a>
+    <a href="#semantic">Semantic</a>
+    <a href="#css-basics">CSS Basics</a>
+    <a href="#selectors">Selectors</a>
+    <a href="#box-model">Box Model</a>
+    <a href="#layout">Layout</a>
+    <a href="#flexbox">Flexbox</a>
+    <a href="#grid">Grid</a>
+    <a href="#typography">Typography</a>
+    <a href="#colors">Colors</a>
+    <a href="#animations">Animations</a>
+    <a href="#responsive">Responsive</a>
+    <a href="#variables">Variables</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Web Development  ·  Quick Reference</span>
+  <h1>HTML &amp; CSS<br/><span>Language Guide</span></h1>
+  <p class="subtitle">Elements  ·  Selectors  ·  Box Model  ·  Flexbox  ·  Grid  ·  Animations</p>
+</div>
+
+<main>
+<div class="toc" id="top">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#html-basics"><span class="toc-num">01</span> HTML Basics &amp; Syntax</a>
+  <a href="#structure"><span class="toc-num">02</span> Document Structure</a>
+  <a href="#text"><span class="toc-num">03</span> Text &amp; Inline Elements</a>
+  <a href="#links-media"><span class="toc-num">04</span> Links, Images &amp; Media</a>
+  <a href="#lists-tables"><span class="toc-num">05</span> Lists &amp; Tables</a>
+  <a href="#forms"><span class="toc-num">06</span> Forms &amp; Inputs</a>
+  <a href="#semantic"><span class="toc-num">07</span> Semantic HTML</a>
+  <a href="#html-attrs"><span class="toc-num">08</span> Global HTML Attributes</a>
+  <a href="#css-basics"><span class="toc-num">09</span> CSS Basics &amp; Syntax</a>
+  <a href="#selectors"><span class="toc-num">10</span> Selectors</a>
+  <a href="#box-model"><span class="toc-num">11</span> Box Model</a>
+  <a href="#layout"><span class="toc-num">12</span> Display &amp; Positioning</a>
+  <a href="#flexbox"><span class="toc-num">13</span> Flexbox</a>
+  <a href="#grid"><span class="toc-num">14</span> CSS Grid</a>
+  <a href="#typography"><span class="toc-num">15</span> Typography</a>
+  <a href="#colors"><span class="toc-num">16</span> Colors &amp; Backgrounds</a>
+  <a href="#animations"><span class="toc-num">17</span> Transitions &amp; Animations</a>
+  <a href="#responsive"><span class="toc-num">18</span> Responsive Design</a>
+  <a href="#variables"><span class="toc-num">19</span> CSS Variables &amp; Functions</a>
+  <a href="#tips"><span class="toc-num">20</span> Pro Tips</a>
+  <a href="#index"><span class="toc-num">21</span> Element Index</a>
+</div>
+
+<!-- 01 HTML Basics -->
+<section id="html-basics">
+  <div class="section-header"><span class="section-icon">🧱</span><h2>HTML Basics &amp; Syntax</h2></div>
+  <p class="prose">HTML (HyperText Markup Language) describes the <strong>structure and meaning</strong> of web content. CSS handles appearance. JavaScript handles behavior.</p>
+
+  <div class="code-block">&lt;!-- This is an HTML comment --&gt;
+
+&lt;!-- Tags wrap content --&gt;
+&lt;p&gt;This is a paragraph.&lt;/p&gt;
+
+&lt;!-- Self-closing (void) elements have no closing tag --&gt;
+&lt;br&gt;
+&lt;img src="photo.jpg" alt="A photo"&gt;
+&lt;input type="text"&gt;
+
+&lt;!-- Attributes go inside the opening tag --&gt;
+&lt;a href="https://example.com" target="_blank" rel="noopener"&gt;Link&lt;/a&gt;
+
+&lt;!-- Elements can be nested --&gt;
+&lt;div class="card"&gt;
+  &lt;h2&gt;Title&lt;/h2&gt;
+  &lt;p&gt;Content inside a div.&lt;/p&gt;
+&lt;/div&gt;</div>
+
+  <h3>Tag Anatomy</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Part</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;tag&gt;</td><td class="plain-def">opening tag</td><td>Starts the element</td></tr>
+      <tr><td>&lt;/tag&gt;</td><td class="plain-def">closing tag</td><td>Ends the element; void elements omit this</td></tr>
+      <tr><td>attribute="value"</td><td class="plain-def">extra info on element</td><td><code>class="btn"</code>, <code>id="main"</code>, <code>href="..."</code></td></tr>
+      <tr><td>content</td><td class="plain-def">what's inside the tags</td><td>Text, other elements, or both</td></tr>
+      <tr><td>void element</td><td class="plain-def">self-contained, no content</td><td><code>&lt;br&gt;</code> <code>&lt;img&gt;</code> <code>&lt;input&gt;</code> <code>&lt;hr&gt;</code> <code>&lt;meta&gt;</code> <code>&lt;link&gt;</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Block vs Inline</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Behavior</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>Block</td><td class="plain-def">full-width row</td><td>Starts on new line, takes full width, can have width/height</td><td><code>div, p, h1–h6, ul, li, section</code></td></tr>
+      <tr><td>Inline</td><td class="plain-def">flows with text</td><td>Stays in line with surrounding content, width follows content</td><td><code>span, a, strong, em, img, input</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 Document Structure -->
+<section id="structure">
+  <div class="section-header"><span class="section-icon">🏗️</span><h2>Document Structure</h2></div>
+  <p class="prose">Every HTML document starts with a <strong>doctype</strong> declaration and follows a required skeleton. The <code>&lt;head&gt;</code> holds metadata; <code>&lt;body&gt;</code> holds visible content.</p>
+
+  <div class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;meta name="description" content="Page description for SEO"&gt;
+  &lt;title&gt;Page Title — shown in browser tab&lt;/title&gt;
+
+  &lt;!-- Link external CSS --&gt;
+  &lt;link rel="stylesheet" href="styles.css"&gt;
+
+  &lt;!-- Favicon --&gt;
+  &lt;link rel="icon" href="favicon.ico"&gt;
+
+  &lt;!-- Google Fonts --&gt;
+  &lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+  &lt;link href="https://fonts.googleapis.com/css2?family=Inter&amp;display=swap" rel="stylesheet"&gt;
+
+  &lt;!-- Open Graph (social sharing previews) --&gt;
+  &lt;meta property="og:title" content="My Page"&gt;
+  &lt;meta property="og:image" content="preview.jpg"&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;!-- All visible content goes here --&gt;
+
+  &lt;!-- JS at end of body for performance --&gt;
+  &lt;script src="main.js" defer&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;!DOCTYPE html&gt;</td><td class="plain-def">use modern HTML5</td><td>Must be first line; tells browser rendering mode</td></tr>
+      <tr><td>&lt;html lang=""&gt;</td><td class="plain-def">root of the document</td><td><code>lang</code> attr helps screen readers &amp; SEO</td></tr>
+      <tr><td>&lt;head&gt;</td><td class="plain-def">invisible metadata</td><td>Not rendered; holds title, links, meta tags</td></tr>
+      <tr><td>&lt;meta charset&gt;</td><td class="plain-def">character encoding</td><td>Always <code>UTF-8</code> — supports all languages</td></tr>
+      <tr><td>&lt;meta viewport&gt;</td><td class="plain-def">mobile scaling</td><td>Required for responsive design to work</td></tr>
+      <tr><td>&lt;title&gt;</td><td class="plain-def">browser tab label</td><td>Also used by search engines</td></tr>
+      <tr><td>&lt;link&gt;</td><td class="plain-def">connect external resource</td><td>CSS, fonts, favicon; uses <code>rel</code> attribute</td></tr>
+      <tr><td>&lt;script defer&gt;</td><td class="plain-def">load JS after HTML</td><td><code>defer</code> — execute after parse; <code>async</code> — execute ASAP</td></tr>
+      <tr><td>&lt;body&gt;</td><td class="plain-def">visible page content</td><td>Everything the user sees goes here</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 Text -->
+<section id="text">
+  <div class="section-header"><span class="section-icon">📝</span><h2>Text &amp; Inline Elements</h2></div>
+
+  <h3>Headings &amp; Paragraphs</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;h1&gt; – &lt;h6&gt;</td><td class="plain-def">section heading levels</td><td>h1 = most important (one per page); h6 = least. Use for structure, not size</td></tr>
+      <tr><td>&lt;p&gt;</td><td class="plain-def">paragraph of text</td><td>Block element; browser adds margin above/below</td></tr>
+      <tr><td>&lt;br&gt;</td><td class="plain-def">line break</td><td>Void element; don't use for spacing — use CSS margin</td></tr>
+      <tr><td>&lt;hr&gt;</td><td class="plain-def">horizontal divider</td><td>Void; thematic break, not just visual decoration</td></tr>
+      <tr><td>&lt;pre&gt;</td><td class="plain-def">preformatted text</td><td>Preserves whitespace and line breaks; uses monospace</td></tr>
+      <tr><td>&lt;blockquote&gt;</td><td class="plain-def">extended quotation</td><td>Use <code>cite</code> attribute for source URL</td></tr>
+      <tr><td>&lt;q&gt;</td><td class="plain-def">short inline quote</td><td>Browser adds quotation marks</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Inline Text Elements</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;strong&gt;</td><td class="plain-def">important text</td><td>Semantic importance; renders bold by default</td></tr>
+      <tr><td>&lt;em&gt;</td><td class="plain-def">emphasized text</td><td>Semantic stress; renders italic by default</td></tr>
+      <tr><td>&lt;b&gt;</td><td class="plain-def">bold (stylistic)</td><td>No semantic meaning; prefer <code>&lt;strong&gt;</code></td></tr>
+      <tr><td>&lt;i&gt;</td><td class="plain-def">italic (stylistic)</td><td>Also used for icons, foreign words; no semantic weight</td></tr>
+      <tr><td>&lt;u&gt;</td><td class="plain-def">underline</td><td>Avoid for links — confusing; use for spelling marks</td></tr>
+      <tr><td>&lt;s&gt;</td><td class="plain-def">strikethrough</td><td>Content no longer accurate; not deleted</td></tr>
+      <tr><td>&lt;del&gt;</td><td class="plain-def">deleted content</td><td>Semantic deletion (use with <code>&lt;ins&gt;</code>)</td></tr>
+      <tr><td>&lt;ins&gt;</td><td class="plain-def">inserted content</td><td>Semantic insertion; renders underlined</td></tr>
+      <tr><td>&lt;mark&gt;</td><td class="plain-def">highlighted text</td><td>Renders with yellow background; relevant/searched text</td></tr>
+      <tr><td>&lt;small&gt;</td><td class="plain-def">fine print / smaller</td><td>Legal text, captions; font-size smaller</td></tr>
+      <tr><td>&lt;sub&gt;</td><td class="plain-def">subscript</td><td>H₂O — below baseline</td></tr>
+      <tr><td>&lt;sup&gt;</td><td class="plain-def">superscript</td><td>x² — above baseline</td></tr>
+      <tr><td>&lt;code&gt;</td><td class="plain-def">inline code</td><td>Monospace font; for code snippets in prose</td></tr>
+      <tr><td>&lt;kbd&gt;</td><td class="plain-def">keyboard input</td><td>Press <code>Ctrl+C</code> — monospace, different style</td></tr>
+      <tr><td>&lt;abbr&gt;</td><td class="plain-def">abbreviation</td><td><code>&lt;abbr title="HyperText"&gt;HTML&lt;/abbr&gt;</code></td></tr>
+      <tr><td>&lt;span&gt;</td><td class="plain-def">generic inline wrapper</td><td>No semantic meaning; used for CSS/JS hooks</td></tr>
+      <tr><td>&lt;time&gt;</td><td class="plain-def">date/time value</td><td><code>&lt;time datetime="2025-01-01"&gt;New Year&lt;/time&gt;</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 Links & Media -->
+<section id="links-media">
+  <div class="section-header"><span class="section-icon">🔗</span><h2>Links, Images &amp; Media</h2></div>
+
+  <h3>Anchor / Link</h3>
+  <div class="code-block">&lt;a href="https://example.com"&gt;External link&lt;/a&gt;
+&lt;a href="/about"&gt;Relative link&lt;/a&gt;
+&lt;a href="#section-id"&gt;Jump to section on same page&lt;/a&gt;
+&lt;a href="mailto:hi@example.com"&gt;Email link&lt;/a&gt;
+&lt;a href="tel:+15551234567"&gt;Phone link&lt;/a&gt;
+&lt;a href="file.pdf" download&gt;Download file&lt;/a&gt;
+
+&lt;!-- Open in new tab safely --&gt;
+&lt;a href="https://example.com" target="_blank" rel="noopener noreferrer"&gt;
+  Safe external link
+&lt;/a&gt;</div>
+
+  <h3>Images</h3>
+  <div class="code-block">&lt;!-- Basic image --&gt;
+&lt;img src="photo.jpg" alt="Description of photo" width="800" height="600"&gt;
+
+&lt;!-- Responsive image with srcset --&gt;
+&lt;img
+  src="photo-800.jpg"
+  srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"
+  sizes="(max-width: 600px) 100vw, 50vw"
+  alt="Responsive photo"
+  loading="lazy"&gt;
+
+&lt;!-- Figure with caption --&gt;
+&lt;figure&gt;
+  &lt;img src="chart.png" alt="Bar chart showing 2024 growth"&gt;
+  &lt;figcaption&gt;Revenue growth in 2024.&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;!-- SVG inline --&gt;
+&lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none"&gt;
+  &lt;path d="M12 2L2 22h20L12 2z" fill="currentColor"/&gt;
+&lt;/svg&gt;</div>
+
+  <h3>Audio &amp; Video</h3>
+  <div class="code-block">&lt;video controls width="640" height="360" poster="thumb.jpg"&gt;
+  &lt;source src="video.mp4" type="video/mp4"&gt;
+  &lt;source src="video.webm" type="video/webm"&gt;
+  Your browser doesn't support video.
+&lt;/video&gt;
+
+&lt;audio controls&gt;
+  &lt;source src="audio.mp3" type="audio/mpeg"&gt;
+  &lt;source src="audio.ogg" type="audio/ogg"&gt;
+&lt;/audio&gt;
+
+&lt;iframe src="https://www.youtube.com/embed/ID"
+  width="560" height="315"
+  title="Video title"
+  allow="accelerometer; autoplay; clipboard-write"
+  allowfullscreen&gt;
+&lt;/iframe&gt;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Attribute</th><th class="plain-def-header">Plain English</th><th>Used on</th></tr></thead>
+    <tbody>
+      <tr><td>alt=""</td><td class="plain-def">text if image fails / for screen readers</td><td><code>&lt;img&gt;</code> — required; empty <code>alt=""</code> for decorative images</td></tr>
+      <tr><td>loading="lazy"</td><td class="plain-def">load only when visible</td><td><code>&lt;img&gt;</code> — defers offscreen images</td></tr>
+      <tr><td>controls</td><td class="plain-def">show play/pause UI</td><td><code>&lt;video&gt;</code>, <code>&lt;audio&gt;</code></td></tr>
+      <tr><td>autoplay</td><td class="plain-def">play immediately</td><td>Often blocked unless also <code>muted</code></td></tr>
+      <tr><td>loop</td><td class="plain-def">play again after end</td><td><code>&lt;video&gt;</code>, <code>&lt;audio&gt;</code></td></tr>
+      <tr><td>muted</td><td class="plain-def">no audio by default</td><td>Required for autoplay in most browsers</td></tr>
+      <tr><td>poster</td><td class="plain-def">preview thumbnail</td><td><code>&lt;video&gt;</code> — shows before play</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 Lists & Tables -->
+<section id="lists-tables">
+  <div class="section-header"><span class="section-icon">📋</span><h2>Lists &amp; Tables</h2></div>
+
+  <h3>Lists</h3>
+  <div class="code-block">&lt;!-- Unordered list (bullets) --&gt;
+&lt;ul&gt;
+  &lt;li&gt;Item one&lt;/li&gt;
+  &lt;li&gt;Item two&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Ordered list (numbers) --&gt;
+&lt;ol start="3" type="A"&gt;  &lt;!-- start at C --&gt;
+  &lt;li&gt;Third item&lt;/li&gt;
+  &lt;li&gt;Fourth item&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;!-- Description list (term + definition) --&gt;
+&lt;dl&gt;
+  &lt;dt&gt;HTML&lt;/dt&gt;
+  &lt;dd&gt;HyperText Markup Language — structures content.&lt;/dd&gt;
+  &lt;dt&gt;CSS&lt;/dt&gt;
+  &lt;dd&gt;Cascading Style Sheets — styles content.&lt;/dd&gt;
+&lt;/dl&gt;</div>
+
+  <h3>Tables</h3>
+  <div class="code-block">&lt;table&gt;
+  &lt;caption&gt;Sales by Quarter&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th scope="col"&gt;Quarter&lt;/th&gt;
+      &lt;th scope="col"&gt;Revenue&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Q1&lt;/td&gt;
+      &lt;td&gt;$120,000&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td colspan="2"&gt;Merged cell&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+  &lt;tfoot&gt;
+    &lt;tr&gt;&lt;td&gt;Total&lt;/td&gt;&lt;td&gt;$480,000&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tfoot&gt;
+&lt;/table&gt;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;table&gt;</td><td class="plain-def">the whole table</td><td>Use for tabular data, not layout</td></tr>
+      <tr><td>&lt;thead&gt;</td><td class="plain-def">header row group</td><td>Repeats on print; helps with accessibility</td></tr>
+      <tr><td>&lt;tbody&gt;</td><td class="plain-def">data row group</td><td>Main content rows</td></tr>
+      <tr><td>&lt;tfoot&gt;</td><td class="plain-def">footer row group</td><td>Summaries, totals</td></tr>
+      <tr><td>&lt;tr&gt;</td><td class="plain-def">table row</td><td>Contains <code>th</code> or <code>td</code> cells</td></tr>
+      <tr><td>&lt;th&gt;</td><td class="plain-def">header cell</td><td>Bold + center by default; use <code>scope</code> for accessibility</td></tr>
+      <tr><td>&lt;td&gt;</td><td class="plain-def">data cell</td><td>Regular cell content</td></tr>
+      <tr><td>colspan / rowspan</td><td class="plain-def">merge cells</td><td><code>colspan="2"</code> merges 2 columns; <code>rowspan="3"</code> merges 3 rows</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 Forms -->
+<section id="forms">
+  <div class="section-header"><span class="section-icon">📥</span><h2>Forms &amp; Inputs</h2></div>
+  <p class="prose">Forms collect user data and submit it to a server. Always use <strong>labels</strong> for accessibility.</p>
+
+  <div class="code-block">&lt;form action="/submit" method="POST" enctype="multipart/form-data"&gt;
+
+  &lt;!-- Text inputs --&gt;
+  &lt;label for="name"&gt;Name:&lt;/label&gt;
+  &lt;input type="text" id="name" name="name" placeholder="Alice" required&gt;
+
+  &lt;input type="email" name="email" autocomplete="email"&gt;
+  &lt;input type="password" name="pwd" minlength="8"&gt;
+  &lt;input type="number" name="age" min="0" max="120" step="1"&gt;
+  &lt;input type="tel" name="phone" pattern="[0-9]{10}"&gt;
+  &lt;input type="url" name="website"&gt;
+  &lt;input type="search" name="q"&gt;
+  &lt;input type="date" name="dob"&gt;
+  &lt;input type="color" name="fav_color"&gt;
+  &lt;input type="range" name="volume" min="0" max="100" value="50"&gt;
+  &lt;input type="file" name="upload" accept=".pdf,.doc" multiple&gt;
+  &lt;input type="hidden" name="token" value="abc123"&gt;
+
+  &lt;!-- Checkbox &amp; Radio --&gt;
+  &lt;input type="checkbox" id="agree" name="agree" value="yes"&gt;
+  &lt;label for="agree"&gt;I agree&lt;/label&gt;
+
+  &lt;input type="radio" id="opt1" name="choice" value="a"&gt;
+  &lt;label for="opt1"&gt;Option A&lt;/label&gt;
+
+  &lt;!-- Textarea --&gt;
+  &lt;textarea name="message" rows="4" cols="50" maxlength="500"&gt;&lt;/textarea&gt;
+
+  &lt;!-- Select dropdown --&gt;
+  &lt;select name="country"&gt;
+    &lt;option value=""&gt;— Select —&lt;/option&gt;
+    &lt;optgroup label="North America"&gt;
+      &lt;option value="us" selected&gt;United States&lt;/option&gt;
+      &lt;option value="ca"&gt;Canada&lt;/option&gt;
+    &lt;/optgroup&gt;
+  &lt;/select&gt;
+
+  &lt;!-- Fieldset groups related inputs --&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;Payment Method&lt;/legend&gt;
+    &lt;!-- radio buttons here --&gt;
+  &lt;/fieldset&gt;
+
+  &lt;!-- Buttons --&gt;
+  &lt;button type="submit"&gt;Submit&lt;/button&gt;
+  &lt;button type="reset"&gt;Reset&lt;/button&gt;
+  &lt;button type="button" onclick="doSomething()"&gt;Click Me&lt;/button&gt;
+  &lt;input type="submit" value="Submit"&gt;
+
+&lt;/form&gt;</div>
+
+  <h3>Common Input Attributes</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Attribute</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>required</td><td class="plain-def">must be filled in</td><td>Browser validates before submit</td></tr>
+      <tr><td>disabled</td><td class="plain-def">grayed out, not submittable</td><td>Value excluded from form data</td></tr>
+      <tr><td>readonly</td><td class="plain-def">can read, can't type</td><td>Value IS submitted</td></tr>
+      <tr><td>placeholder</td><td class="plain-def">hint text when empty</td><td>Not a substitute for <code>&lt;label&gt;</code></td></tr>
+      <tr><td>autocomplete</td><td class="plain-def">browser can fill in</td><td><code>autocomplete="email"</code></td></tr>
+      <tr><td>pattern</td><td class="plain-def">regex validation</td><td><code>pattern="[A-Za-z]{3}"</code></td></tr>
+      <tr><td>min / max</td><td class="plain-def">value range</td><td>For number, date, range inputs</td></tr>
+      <tr><td>maxlength</td><td class="plain-def">character limit</td><td>For text, email, textarea</td></tr>
+      <tr><td>multiple</td><td class="plain-def">allow multiple values</td><td>For file, email, select</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 Semantic -->
+<section id="semantic">
+  <div class="section-header"><span class="section-icon">🏛️</span><h2>Semantic HTML</h2></div>
+  <p class="prose">Semantic elements clearly describe their <strong>meaning and role</strong> to browsers, screen readers, and search engines. Always prefer semantic over generic <code>&lt;div&gt;</code>/<code>&lt;span&gt;</code>.</p>
+
+  <div class="code-block">&lt;body&gt;
+  &lt;header&gt;               &lt;!-- site/page header, logo, main nav --&gt;
+    &lt;nav&gt;                &lt;!-- primary navigation links --&gt;
+      &lt;ul&gt;...&lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;                 &lt;!-- one per page; unique main content --&gt;
+    &lt;article&gt;            &lt;!-- self-contained, shareable content --&gt;
+      &lt;header&gt;           &lt;!-- article header (inside article) --&gt;
+        &lt;h1&gt;Blog Post Title&lt;/h1&gt;
+        &lt;time datetime="2025-06-01"&gt;June 1, 2025&lt;/time&gt;
+      &lt;/header&gt;
+      &lt;section&gt;          &lt;!-- thematic group within article --&gt;
+        &lt;h2&gt;Section&lt;/h2&gt;
+        &lt;p&gt;Content...&lt;/p&gt;
+      &lt;/section&gt;
+    &lt;/article&gt;
+
+    &lt;aside&gt;              &lt;!-- tangentially related content; sidebar --&gt;
+      &lt;h2&gt;Related Posts&lt;/h2&gt;
+    &lt;/aside&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;               &lt;!-- site/page footer --&gt;
+    &lt;address&gt;            &lt;!-- contact info --&gt;
+      &lt;a href="mailto:hi@example.com"&gt;hi@example.com&lt;/a&gt;
+    &lt;/address&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;header&gt;</td><td class="plain-def">introductory group</td><td>Site header or section intro (can appear multiple times)</td></tr>
+      <tr><td>&lt;nav&gt;</td><td class="plain-def">navigation links</td><td>Major navigation blocks only</td></tr>
+      <tr><td>&lt;main&gt;</td><td class="plain-def">primary page content</td><td>One per page; skip-to-content landmark</td></tr>
+      <tr><td>&lt;article&gt;</td><td class="plain-def">self-contained content</td><td>Blog post, news item, product card — makes sense standalone</td></tr>
+      <tr><td>&lt;section&gt;</td><td class="plain-def">thematic group</td><td>Needs a heading; groups related content within a page</td></tr>
+      <tr><td>&lt;aside&gt;</td><td class="plain-def">tangentially related</td><td>Sidebar, pull quotes, ads, related links</td></tr>
+      <tr><td>&lt;footer&gt;</td><td class="plain-def">closing content</td><td>Page or section footer; copyright, links, contact</td></tr>
+      <tr><td>&lt;address&gt;</td><td class="plain-def">contact information</td><td>Physical or email address for nearest &lt;article&gt; or &lt;body&gt;</td></tr>
+      <tr><td>&lt;figure&gt;</td><td class="plain-def">self-contained media</td><td>Images, diagrams, code with captions</td></tr>
+      <tr><td>&lt;figcaption&gt;</td><td class="plain-def">caption for figure</td><td>Inside &lt;figure&gt;; first or last child</td></tr>
+      <tr><td>&lt;details&gt;</td><td class="plain-def">collapsible disclosure</td><td>FAQ, expandable section; native accordion</td></tr>
+      <tr><td>&lt;summary&gt;</td><td class="plain-def">visible label for details</td><td>First child of &lt;details&gt;; clickable toggle</td></tr>
+      <tr><td>&lt;dialog&gt;</td><td class="plain-def">modal / dialog box</td><td>Native modal with <code>.showModal()</code> JS method</td></tr>
+      <tr><td>&lt;template&gt;</td><td class="plain-def">inert HTML fragment</td><td>Not rendered; cloned by JS for dynamic content</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 HTML Attributes -->
+<section id="html-attrs">
+  <div class="section-header"><span class="section-icon">🏷️</span><h2>Global HTML Attributes</h2></div>
+  <p class="prose">These attributes can be used on <strong>any HTML element</strong>.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Attribute</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>id="name"</td><td class="plain-def">unique page identifier</td><td>One per page; used for CSS, JS, and anchor links</td></tr>
+      <tr><td>class="name"</td><td class="plain-def">reusable style group</td><td>Multiple classes: <code>class="btn btn-primary"</code></td></tr>
+      <tr><td>style="..."</td><td class="plain-def">inline CSS styles</td><td>Avoid — hard to override; prefer class-based CSS</td></tr>
+      <tr><td>data-*="value"</td><td class="plain-def">custom data attribute</td><td><code>data-user-id="42"</code> — readable via JS <code>dataset</code></td></tr>
+      <tr><td>hidden</td><td class="plain-def">hide element completely</td><td>Removes from layout and accessibility tree</td></tr>
+      <tr><td>title="text"</td><td class="plain-def">tooltip on hover</td><td>Poor accessibility — don't rely on it for important info</td></tr>
+      <tr><td>tabindex="0"</td><td class="plain-def">keyboard-focusable</td><td>0 = natural order; -1 = focusable by JS only; positive = explicit order (avoid)</td></tr>
+      <tr><td>contenteditable</td><td class="plain-def">user can edit content</td><td><code>contenteditable="true"</code></td></tr>
+      <tr><td>draggable="true"</td><td class="plain-def">drag-and-drop target</td><td>Pair with JS drag events</td></tr>
+      <tr><td>lang="en"</td><td class="plain-def">language of content</td><td>Helps screen readers; override per-element</td></tr>
+      <tr><td>dir="ltr"/"rtl"</td><td class="plain-def">text direction</td><td>For right-to-left languages like Arabic or Hebrew</td></tr>
+      <tr><td>role="..."</td><td class="plain-def">ARIA accessibility role</td><td><code>role="button"</code>, <code>role="alert"</code> — for non-semantic elements</td></tr>
+      <tr><td>aria-label="..."</td><td class="plain-def">accessible name</td><td>Labels element for screen readers when visible text isn't enough</td></tr>
+      <tr><td>aria-hidden="true"</td><td class="plain-def">hide from screen readers</td><td>For decorative icons, duplicate text</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 CSS Basics -->
+<section id="css-basics">
+  <div class="section-header"><span class="section-icon">🎨</span><h2>CSS Basics &amp; Syntax</h2></div>
+  <p class="prose">CSS (Cascading Style Sheets) controls the <strong>visual presentation</strong> of HTML. Rules have a selector, then a declaration block of property-value pairs.</p>
+
+  <div class="code-block">/* Basic rule */
+selector {
+  property: value;
+  another-property: value;
+}
+
+/* Multiple selectors */
+h1, h2, h3 { color: tomato; }
+
+/* Ways to include CSS */
+/* 1. External (preferred) */
+&lt;link rel="stylesheet" href="styles.css"&gt;
+
+/* 2. Internal */
+&lt;style&gt;
+  body { background: #fff; }
+&lt;/style&gt;
+
+/* 3. Inline (avoid) */
+&lt;p style="color: red;"&gt;Text&lt;/p&gt;</div>
+
+  <h3>The Cascade &amp; Specificity</h3>
+  <p class="prose">When two rules conflict, CSS picks by <strong>specificity</strong> (how specific the selector is), then <strong>order</strong> (last one wins). <code>!important</code> overrides all — use sparingly.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Selector Type</th><th class="plain-def-header">Plain English</th><th>Specificity</th></tr></thead>
+    <tbody>
+      <tr><td>Inline style</td><td class="plain-def">directly on element</td><td>1-0-0-0 (highest)</td></tr>
+      <tr><td>#id</td><td class="plain-def">by unique ID</td><td>0-1-0-0</td></tr>
+      <tr><td>.class, [attr], :pseudo-class</td><td class="plain-def">by class or attribute</td><td>0-0-1-0</td></tr>
+      <tr><td>element, ::pseudo-element</td><td class="plain-def">by tag name</td><td>0-0-0-1</td></tr>
+      <tr><td>* (universal)</td><td class="plain-def">everything</td><td>0-0-0-0 (lowest)</td></tr>
+      <tr><td>!important</td><td class="plain-def">force override</td><td>Beats all specificity; last resort</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Inheritance</h3>
+  <p class="prose">Some CSS properties are <strong>inherited</strong> by children (font-size, color, font-family, line-height). Others are not (margin, padding, border, background). Use <code>inherit</code>, <code>initial</code>, or <code>unset</code> to control this.</p>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 Selectors -->
+<section id="selectors">
+  <div class="section-header"><span class="section-icon">🎯</span><h2>Selectors</h2></div>
+
+  <h3>Basic Selectors</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Selector</th><th class="plain-def-header">Plain English</th><th>Matches</th></tr></thead>
+    <tbody>
+      <tr><td>*</td><td class="plain-def">everything</td><td>Every element on the page</td></tr>
+      <tr><td>p</td><td class="plain-def">by tag name</td><td>All <code>&lt;p&gt;</code> elements</td></tr>
+      <tr><td>.card</td><td class="plain-def">by class</td><td>All elements with <code>class="card"</code></td></tr>
+      <tr><td>#hero</td><td class="plain-def">by unique ID</td><td>The one element with <code>id="hero"</code></td></tr>
+      <tr><td>[href]</td><td class="plain-def">has this attribute</td><td>Any element with an <code>href</code> attribute</td></tr>
+      <tr><td>[type="text"]</td><td class="plain-def">attribute equals value</td><td>Inputs where type is "text"</td></tr>
+      <tr><td>[class~="btn"]</td><td class="plain-def">attribute contains word</td><td>Elements where class list includes "btn"</td></tr>
+      <tr><td>[href^="https"]</td><td class="plain-def">attribute starts with</td><td>Links starting with "https"</td></tr>
+      <tr><td>[href$=".pdf"]</td><td class="plain-def">attribute ends with</td><td>Links to PDF files</td></tr>
+      <tr><td>[href*="example"]</td><td class="plain-def">attribute contains</td><td>Links containing "example" anywhere</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Combinators</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Selector</th><th class="plain-def-header">Plain English</th><th>Matches</th></tr></thead>
+    <tbody>
+      <tr><td>A B</td><td class="plain-def">B inside A (any depth)</td><td>All <code>B</code> that are descendants of <code>A</code></td></tr>
+      <tr><td>A &gt; B</td><td class="plain-def">B directly inside A</td><td>Direct children only — not grandchildren</td></tr>
+      <tr><td>A + B</td><td class="plain-def">B right after A</td><td>Adjacent sibling: immediately follows A</td></tr>
+      <tr><td>A ~ B</td><td class="plain-def">B anywhere after A</td><td>All siblings B that come after A</td></tr>
+      <tr><td>A, B</td><td class="plain-def">A or B</td><td>Both A and B (grouped rule)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Pseudo-Classes</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pseudo-class</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>:hover</td><td class="plain-def">mouse is over it</td><td>Pointer device hovers element</td></tr>
+      <tr><td>:focus</td><td class="plain-def">keyboard/click focused</td><td>Important for accessibility — never remove outline without replacement</td></tr>
+      <tr><td>:active</td><td class="plain-def">being clicked</td><td>While mouse/touch is pressed down</td></tr>
+      <tr><td>:visited</td><td class="plain-def">link already visited</td><td>Only color/opacity can be changed (security)</td></tr>
+      <tr><td>:checked</td><td class="plain-def">checkbox/radio is on</td><td>For <code>input[type=checkbox]</code>, <code>input[type=radio]</code></td></tr>
+      <tr><td>:disabled</td><td class="plain-def">form field disabled</td><td>Matches <code>disabled</code> attribute</td></tr>
+      <tr><td>:required</td><td class="plain-def">form field required</td><td>Matches <code>required</code> attribute</td></tr>
+      <tr><td>:valid / :invalid</td><td class="plain-def">passes / fails validation</td><td>After user interaction or on submit</td></tr>
+      <tr><td>:placeholder-shown</td><td class="plain-def">placeholder visible</td><td>Input is empty</td></tr>
+      <tr><td>:first-child</td><td class="plain-def">first inside parent</td><td>First sibling of its type</td></tr>
+      <tr><td>:last-child</td><td class="plain-def">last inside parent</td><td>Last sibling of its type</td></tr>
+      <tr><td>:nth-child(n)</td><td class="plain-def">nth inside parent</td><td><code>:nth-child(2n)</code> = even; <code>:nth-child(2n+1)</code> = odd</td></tr>
+      <tr><td>:nth-of-type(n)</td><td class="plain-def">nth of this tag type</td><td>Counts only siblings of the same tag</td></tr>
+      <tr><td>:only-child</td><td class="plain-def">the only child</td><td>Parent has exactly one child</td></tr>
+      <tr><td>:not(selector)</td><td class="plain-def">everything except</td><td><code>:not(.hidden)</code>, <code>:not(p):not(div)</code></td></tr>
+      <tr><td>:is(A, B, C)</td><td class="plain-def">matches any of these</td><td>Cleaner than <code>A, B, C { }</code> — takes highest specificity</td></tr>
+      <tr><td>:where(A, B, C)</td><td class="plain-def">matches any, zero specificity</td><td>Like <code>:is()</code> but specificity is always 0</td></tr>
+      <tr><td>:has(selector)</td><td class="plain-def">parent selector</td><td><code>div:has(img)</code> — div that contains an img</td></tr>
+      <tr><td>:empty</td><td class="plain-def">has no children</td><td>Including no text nodes</td></tr>
+      <tr><td>:root</td><td class="plain-def">the html element</td><td>Highest-specificity place for CSS variables</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Pseudo-Elements</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pseudo-element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>::before</td><td class="plain-def">inject content before</td><td>Requires <code>content: ""</code>; not in DOM</td></tr>
+      <tr><td>::after</td><td class="plain-def">inject content after</td><td>Requires <code>content: ""</code>; great for decorative elements</td></tr>
+      <tr><td>::first-line</td><td class="plain-def">first line of text</td><td>Only typography properties apply</td></tr>
+      <tr><td>::first-letter</td><td class="plain-def">first character</td><td>Drop caps; only block-level elements</td></tr>
+      <tr><td>::placeholder</td><td class="plain-def">input placeholder text</td><td>Style color, opacity</td></tr>
+      <tr><td>::selection</td><td class="plain-def">user's text selection</td><td>Highlighted text — style background &amp; color</td></tr>
+      <tr><td>::marker</td><td class="plain-def">list bullet or number</td><td>Style <code>color</code>, <code>content</code>, <code>font-size</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 Box Model -->
+<section id="box-model">
+  <div class="section-header"><span class="section-icon">📐</span><h2>Box Model</h2></div>
+  <p class="prose">Every element is a rectangular box made of <strong>content → padding → border → margin</strong>. By default, <code>width</code> only sets content width. Use <code>box-sizing: border-box</code> so width includes padding and border.</p>
+
+  <div class="code-block">/* Always add this — makes sizing intuitive */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.box {
+  /* Content */
+  width: 300px;
+  height: 200px;
+  min-width: 100px;
+  max-width: 600px;
+  min-height: 50px;
+  max-height: 400px;
+
+  /* Padding (space inside border) */
+  padding: 16px;                  /* all sides */
+  padding: 8px 16px;             /* top/bottom  left/right */
+  padding: 4px 8px 12px 16px;   /* top right bottom left (clockwise) */
+  padding-top: 8px;
+  padding-inline: 16px;          /* left + right (logical) */
+  padding-block: 8px;            /* top + bottom (logical) */
+
+  /* Border */
+  border: 2px solid #333;
+  border-width: 1px;
+  border-style: solid | dashed | dotted | none;
+  border-color: #333;
+  border-radius: 8px;            /* rounded corners */
+  border-radius: 50%;            /* circle (if square element) */
+  outline: 2px solid blue;       /* like border but outside box model */
+  outline-offset: 4px;
+
+  /* Margin (space outside border) */
+  margin: 16px;
+  margin: 0 auto;                /* center block element horizontally */
+  margin-top: 8px;
+  margin-inline: auto;           /* logical: left + right auto */
+
+  /* Overflow */
+  overflow: visible | hidden | scroll | auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+}</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Property</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>box-sizing: border-box</td><td class="plain-def">width includes padding+border</td><td>Almost always what you want — set globally</td></tr>
+      <tr><td>padding</td><td class="plain-def">inner space</td><td>Between content and border; inherits background</td></tr>
+      <tr><td>margin</td><td class="plain-def">outer space</td><td>Between border and next element; transparent always</td></tr>
+      <tr><td>border</td><td class="plain-def">edge line</td><td>Shorthand: <code>width style color</code></td></tr>
+      <tr><td>outline</td><td class="plain-def">ring outside border</td><td>Doesn't affect layout; used for focus rings</td></tr>
+      <tr><td>margin collapse</td><td class="plain-def">adjacent margins merge</td><td>Two vertical margins collapse to the larger one; doesn't happen with flex/grid</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 Layout -->
+<section id="layout">
+  <div class="section-header"><span class="section-icon">🗂️</span><h2>Display &amp; Positioning</h2></div>
+
+  <h3>display</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Value</th><th class="plain-def-header">Plain English</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>block</td><td class="plain-def">full-width row</td><td>Starts new line; takes full width; can set width/height</td></tr>
+      <tr><td>inline</td><td class="plain-def">flows with text</td><td>No line break; width/height ignored; margin/padding only horizontal</td></tr>
+      <tr><td>inline-block</td><td class="plain-def">inline but box-model</td><td>Flows inline but respects width, height, all padding/margin</td></tr>
+      <tr><td>none</td><td class="plain-def">completely gone</td><td>Removed from layout AND accessibility tree</td></tr>
+      <tr><td>flex</td><td class="plain-def">1D flexible layout</td><td>Children become flex items; horizontal by default</td></tr>
+      <tr><td>inline-flex</td><td class="plain-def">flex but inline</td><td>Container is inline, children are flex items</td></tr>
+      <tr><td>grid</td><td class="plain-def">2D grid layout</td><td>Children placed in rows and columns</td></tr>
+      <tr><td>inline-grid</td><td class="plain-def">grid but inline</td><td>Container is inline, children in grid</td></tr>
+      <tr><td>contents</td><td class="plain-def">element disappears, children remain</td><td>Box removed; children participate in parent layout</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>position</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Value</th><th class="plain-def-header">Plain English</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>static</td><td class="plain-def">normal flow (default)</td><td><code>top/left/right/bottom</code> have no effect</td></tr>
+      <tr><td>relative</td><td class="plain-def">offset from normal spot</td><td>Shifted with <code>top/left</code> but original space is kept. Creates stacking context.</td></tr>
+      <tr><td>absolute</td><td class="plain-def">placed relative to ancestor</td><td>Removed from flow; positioned relative to nearest <code>position: relative/absolute/fixed</code> ancestor</td></tr>
+      <tr><td>fixed</td><td class="plain-def">pinned to viewport</td><td>Stays put during scroll; relative to browser window</td></tr>
+      <tr><td>sticky</td><td class="plain-def">scrolls then sticks</td><td>Normal until scroll threshold, then fixed within parent</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">/* Centering — common patterns */
+
+/* Flex centering */
+.parent { display: flex; justify-content: center; align-items: center; }
+
+/* Grid centering */
+.parent { display: grid; place-items: center; }
+
+/* Absolute centering */
+.child {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Margin auto (horizontal only, block element with set width) */
+.child { width: 600px; margin: 0 auto; }
+
+/* z-index — controls stacking order */
+.modal   { position: fixed; z-index: 1000; }
+.overlay { position: fixed; z-index: 999;  }
+/* z-index only works on positioned elements (not static) */</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 Flexbox -->
+<section id="flexbox">
+  <div class="section-header"><span class="section-icon">↔️</span><h2>Flexbox</h2></div>
+  <p class="prose">Flexbox is perfect for <strong>one-dimensional layouts</strong> — a row or column of items. Set <code>display: flex</code> on the container; children become flex items automatically.</p>
+
+  <h3>Container Properties</h3>
+  <div class="code-block">.container {
+  display: flex;
+
+  /* Direction of main axis */
+  flex-direction: row;              /* → default */
+  flex-direction: row-reverse;      /* ← */
+  flex-direction: column;           /* ↓ */
+  flex-direction: column-reverse;   /* ↑ */
+
+  /* Wrapping */
+  flex-wrap: nowrap;     /* all in one line (default) */
+  flex-wrap: wrap;       /* overflow to next line */
+  flex-wrap: wrap-reverse;
+
+  /* Shorthand: direction + wrap */
+  flex-flow: row wrap;
+
+  /* Alignment along main axis (→ in row) */
+  justify-content: flex-start;    /* pack at start */
+  justify-content: flex-end;      /* pack at end */
+  justify-content: center;        /* center */
+  justify-content: space-between; /* equal gaps between */
+  justify-content: space-around;  /* equal gaps around */
+  justify-content: space-evenly;  /* perfectly equal gaps */
+
+  /* Alignment along cross axis (↕ in row) */
+  align-items: stretch;     /* fill cross axis (default) */
+  align-items: flex-start;  /* top-align */
+  align-items: flex-end;    /* bottom-align */
+  align-items: center;      /* center cross axis */
+  align-items: baseline;    /* align text baselines */
+
+  /* Multi-line cross-axis alignment (when wrapping) */
+  align-content: flex-start | flex-end | center | space-between | space-around;
+
+  /* Gap between items */
+  gap: 16px;          /* both row and column gap */
+  gap: 8px 16px;      /* row-gap column-gap */
+  row-gap: 8px;
+  column-gap: 16px;
+}</div>
+
+  <h3>Item Properties</h3>
+  <div class="code-block">.item {
+  /* How much item grows if there's extra space */
+  flex-grow: 0;    /* default — don't grow */
+  flex-grow: 1;    /* grow proportionally */
+
+  /* How much item shrinks when space is tight */
+  flex-shrink: 1;  /* default — shrink equally */
+  flex-shrink: 0;  /* don't shrink */
+
+  /* Starting size before grow/shrink */
+  flex-basis: auto;   /* use width/content size */
+  flex-basis: 200px;  /* explicit starting size */
+  flex-basis: 0;      /* ignore content size; distribute by ratio */
+
+  /* Shorthand: grow shrink basis */
+  flex: 1;            /* flex: 1 1 0 — grow, shrink, ignore content size */
+  flex: 1 0 auto;
+  flex: none;         /* flex: 0 0 auto — rigid */
+  flex: auto;         /* flex: 1 1 auto */
+
+  /* Override container's align-items for this item */
+  align-self: auto | flex-start | flex-end | center | stretch | baseline;
+
+  /* Reorder visually (not in DOM!) */
+  order: 0;           /* default — source order */
+  order: -1;          /* push to front */
+  order: 99;          /* push to back */
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 Grid -->
+<section id="grid">
+  <div class="section-header"><span class="section-icon">⬛</span><h2>CSS Grid</h2></div>
+  <p class="prose">CSS Grid is for <strong>two-dimensional layouts</strong> — rows AND columns simultaneously. Set <code>display: grid</code> on the container.</p>
+
+  <h3>Container Properties</h3>
+  <div class="code-block">.container {
+  display: grid;
+
+  /* Define columns */
+  grid-template-columns: 200px 1fr 1fr;        /* 3 cols: fixed + two equal */
+  grid-template-columns: repeat(3, 1fr);        /* 3 equal cols */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));  /* responsive! */
+  grid-template-columns: [start] 1fr [mid] 2fr [end]; /* named lines */
+
+  /* Define rows */
+  grid-template-rows: auto 200px auto;          /* 3 rows */
+  grid-template-rows: repeat(3, minmax(100px, auto));
+
+  /* Gaps */
+  gap: 24px;
+  column-gap: 24px;
+  row-gap: 16px;
+
+  /* Template areas — visual layout map */
+  grid-template-areas:
+    "header header header"
+    "sidebar main   main"
+    "footer  footer footer";
+
+  /* Alignment of all items */
+  justify-items: start | end | center | stretch; /* horizontal */
+  align-items:   start | end | center | stretch; /* vertical */
+  place-items: center;                           /* shorthand */
+
+  /* Alignment of the grid itself within container */
+  justify-content: start | end | center | space-between | space-evenly;
+  align-content: start | end | center | space-between;
+
+  /* Auto-placed rows height */
+  grid-auto-rows: 200px;
+  grid-auto-rows: minmax(100px, auto);
+  grid-auto-flow: row | column | dense;
+}</div>
+
+  <h3>Item Properties</h3>
+  <div class="code-block">.item {
+  /* Span by line numbers */
+  grid-column: 1 / 3;         /* from line 1 to line 3 (span 2 cols) */
+  grid-column: 1 / -1;        /* from first to last line (full width!) */
+  grid-column: span 2;        /* span 2 columns from current position */
+  grid-row: 2 / 4;
+
+  /* Shorthand */
+  grid-area: 2 / 1 / 4 / 3;  /* row-start / col-start / row-end / col-end */
+
+  /* Named area (matches grid-template-areas) */
+  grid-area: header;
+  grid-area: sidebar;
+  grid-area: main;
+
+  /* Self-alignment (overrides container's align/justify-items) */
+  justify-self: start | end | center | stretch;
+  align-self:   start | end | center | stretch;
+  place-self: center;
+}</div>
+
+  <h3>fr Unit &amp; Key Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function / Unit</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>fr</td><td class="plain-def">fraction of free space</td><td><code>1fr 2fr</code> — second column is twice as wide</td></tr>
+      <tr><td>repeat(N, size)</td><td class="plain-def">repeat a pattern N times</td><td><code>repeat(4, 1fr)</code> = 4 equal columns</td></tr>
+      <tr><td>minmax(min, max)</td><td class="plain-def">flexible size with limits</td><td><code>minmax(200px, 1fr)</code> — at least 200px, can grow</td></tr>
+      <tr><td>auto-fill</td><td class="plain-def">fit as many as possible</td><td>Empty columns exist when items are few</td></tr>
+      <tr><td>auto-fit</td><td class="plain-def">fit and collapse empties</td><td>Items stretch to fill; no empty tracks</td></tr>
+      <tr><td>fit-content(size)</td><td class="plain-def">shrink to content, up to max</td><td><code>fit-content(300px)</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 Typography -->
+<section id="typography">
+  <div class="section-header"><span class="section-icon">🔤</span><h2>Typography</h2></div>
+
+  <div class="code-block">.text {
+  /* Font family */
+  font-family: 'Georgia', serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Courier New', monospace;
+
+  /* Font size */
+  font-size: 16px;      /* absolute */
+  font-size: 1rem;      /* relative to root (html) font-size */
+  font-size: 1.2em;     /* relative to parent font-size */
+  font-size: clamp(1rem, 2.5vw, 2rem);  /* responsive min/ideal/max */
+
+  /* Weight, style, variant */
+  font-weight: normal | bold | 100–900;
+  font-style: normal | italic | oblique;
+  font-variant: normal | small-caps;
+
+  /* Line height */
+  line-height: 1.5;     /* unitless — recommended */
+  line-height: 150%;
+  line-height: 24px;
+
+  /* Letter &amp; word spacing */
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+
+  /* Text alignment */
+  text-align: left | right | center | justify;
+  text-align-last: center;
+
+  /* Decoration */
+  text-decoration: underline | line-through | overline | none;
+  text-decoration: underline dotted red;
+
+  /* Transform */
+  text-transform: uppercase | lowercase | capitalize | none;
+
+  /* Indentation */
+  text-indent: 2em;
+
+  /* Overflow behavior */
+  white-space: normal | nowrap | pre | pre-wrap;
+  overflow-wrap: break-word;   /* break long words */
+  word-break: break-all;
+
+  /* Ellipsis for single-line overflow */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  /* Text shadow */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 0 20px rgba(255,100,0,0.8);  /* glow effect */
+}</div>
+
+  <h3>@font-face &amp; Variable Fonts</h3>
+  <div class="code-block">/* Load custom font */
+@font-face {
+  font-family: 'MyFont';
+  src: url('myfont.woff2') format('woff2'),
+       url('myfont.woff')  format('woff');
+  font-weight: 100 900;   /* range for variable fonts */
+  font-display: swap;     /* show fallback while loading */
+}
+
+/* Variable font axes */
+.variable-text {
+  font-variation-settings: 'wght' 650, 'wdth' 80;
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 16 Colors -->
+<section id="colors">
+  <div class="section-header"><span class="section-icon">🌈</span><h2>Colors &amp; Backgrounds</h2></div>
+
+  <h3>Color Formats</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Format</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Named color</td><td class="plain-def">English color name</td><td><code>red</code>, <code>tomato</code>, <code>cornflowerblue</code></td></tr>
+      <tr><td>#RRGGBB</td><td class="plain-def">hex — red green blue</td><td><code>#ff5733</code>, <code>#fff</code> (shorthand)</td></tr>
+      <tr><td>#RRGGBBAA</td><td class="plain-def">hex with alpha</td><td><code>#ff573380</code> — 50% opacity</td></tr>
+      <tr><td>rgb(r, g, b)</td><td class="plain-def">red green blue 0–255</td><td><code>rgb(255, 87, 51)</code></td></tr>
+      <tr><td>rgba(r, g, b, a)</td><td class="plain-def">rgb + alpha 0–1</td><td><code>rgba(255,87,51, 0.5)</code></td></tr>
+      <tr><td>hsl(h, s%, l%)</td><td class="plain-def">hue saturation lightness</td><td><code>hsl(14, 100%, 60%)</code></td></tr>
+      <tr><td>hsla(h, s%, l%, a)</td><td class="plain-def">hsl + alpha</td><td><code>hsla(14, 100%, 60%, 0.8)</code></td></tr>
+      <tr><td>oklch(l c h)</td><td class="plain-def">perceptually uniform</td><td><code>oklch(0.7 0.2 40)</code> — modern, consistent</td></tr>
+      <tr><td>currentColor</td><td class="plain-def">inherit the text color</td><td>Good for borders/SVG that match text</td></tr>
+      <tr><td>transparent</td><td class="plain-def">fully invisible</td><td>rgba(0,0,0,0)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Backgrounds</h3>
+  <div class="code-block">.box {
+  /* Solid color */
+  background-color: #f5f5f5;
+  background-color: transparent;
+
+  /* Image */
+  background-image: url('image.jpg');
+  background-size: cover;          /* fill area, may crop */
+  background-size: contain;        /* show fully, may letterbox */
+  background-size: 200px 100px;
+  background-position: center;
+  background-position: top right;
+  background-position: 50% 25%;
+  background-repeat: no-repeat | repeat | repeat-x | repeat-y;
+  background-attachment: scroll | fixed | local;  /* fixed = parallax */
+  background-origin: border-box | padding-box | content-box;
+  background-clip: text;           /* clip bg to text shape */
+
+  /* Linear gradient */
+  background-image: linear-gradient(to right, #ff5733, #ffd700);
+  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Radial gradient */
+  background-image: radial-gradient(circle at center, #ff5733, #ffd700);
+  background-image: radial-gradient(ellipse 60% 40% at 30% 50%, red, blue);
+
+  /* Conic gradient */
+  background-image: conic-gradient(red 0deg, yellow 120deg, blue 240deg);
+
+  /* Multiple backgrounds (comma-separated, first = top) */
+  background:
+    url('overlay.png') center / cover no-repeat,
+    linear-gradient(to bottom, #0f0f0f, #333);
+
+  /* Shorthand */
+  background: #f5f5f5 url('img.jpg') center/cover no-repeat;
+
+  /* Box shadow */
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.2);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);  /* inner shadow */
+  box-shadow: 0 0 30px rgba(255,100,0,0.6);       /* glow */
+  box-shadow:                                      /* multiple */
+    0 2px 4px rgba(0,0,0,0.1),
+    0 8px 16px rgba(0,0,0,0.2);
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 17 Animations -->
+<section id="animations">
+  <div class="section-header"><span class="section-icon">🎬</span><h2>Transitions &amp; Animations</h2></div>
+
+  <h3>Transitions</h3>
+  <p class="prose">Transitions animate a change <strong>from one state to another</strong> (like hover). Set on the element, not the trigger.</p>
+  <div class="code-block">.button {
+  background: blue;
+  transform: scale(1);
+
+  /* property duration timing-function delay */
+  transition: background 0.3s ease;
+  transition: all 0.3s ease-in-out;
+  transition:
+    background 0.3s ease,
+    transform  0.2s ease-out;
+
+  /* Timing functions */
+  /* ease (default) | linear | ease-in | ease-out | ease-in-out */
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* spring */
+}
+
+.button:hover {
+  background: darkblue;
+  transform: scale(1.05);
+}</div>
+
+  <h3>Keyframe Animations</h3>
+  <div class="code-block">/* Define the animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Apply the animation */
+.element {
+  animation-name: fadeIn;
+  animation-duration: 0.6s;
+  animation-timing-function: ease-out;
+  animation-delay: 0.2s;
+  animation-iteration-count: 1 | infinite | 3;
+  animation-direction: normal | reverse | alternate | alternate-reverse;
+  animation-fill-mode: none | forwards | backwards | both;
+  animation-play-state: running | paused;
+
+  /* Shorthand: name duration timing delay count direction fill-mode */
+  animation: fadeIn 0.6s ease-out 0.2s 1 normal forwards;
+
+  /* Multiple animations */
+  animation: fadeIn 0.6s ease forwards, pulse 2s ease infinite 0.6s;
+}</div>
+
+  <h3>Transform</h3>
+  <div class="code-block">.element {
+  /* 2D transforms */
+  transform: translateX(20px);           /* move right */
+  transform: translateY(-50%);           /* move up by half own height */
+  transform: translate(10px, 20px);      /* x and y */
+  transform: scale(1.2);                 /* uniform scale */
+  transform: scale(1.5, 0.8);           /* x and y scale */
+  transform: rotate(45deg);             /* clockwise */
+  transform: rotate(-0.5turn);          /* half turn counter-clockwise */
+  transform: skewX(15deg);
+  transform: skew(10deg, 5deg);
+
+  /* 3D transforms */
+  transform: translateZ(50px);
+  transform: perspective(500px) rotateY(30deg);
+  transform: rotateX(20deg) rotateY(10deg);
+
+  /* Multiple transforms (right to left evaluation) */
+  transform: translateY(-50%) rotate(45deg) scale(1.1);
+
+  /* Transform origin */
+  transform-origin: center;             /* default */
+  transform-origin: top left;
+  transform-origin: 0 0;
+
+  /* 3D perspective on container */
+  perspective: 800px;
+  transform-style: preserve-3d;
+}</div>
+
+  <h3>Filter &amp; Backdrop</h3>
+  <div class="code-block">.element {
+  filter: blur(4px);
+  filter: brightness(1.2);
+  filter: contrast(1.5);
+  filter: grayscale(100%);
+  filter: hue-rotate(90deg);
+  filter: invert(100%);
+  filter: opacity(0.5);
+  filter: saturate(2);
+  filter: sepia(100%);
+  filter: drop-shadow(2px 4px 6px black);  /* like box-shadow but follows alpha */
+  filter: blur(4px) brightness(0.8);        /* combine multiple */
+
+  backdrop-filter: blur(12px);              /* blur behind element */
+  backdrop-filter: blur(8px) brightness(0.9);
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 18 Responsive -->
+<section id="responsive">
+  <div class="section-header"><span class="section-icon">📱</span><h2>Responsive Design</h2></div>
+  <p class="prose">Responsive design makes pages look good on all screen sizes. Core tools: <strong>media queries, relative units, flexible layouts</strong>.</p>
+
+  <h3>Media Queries</h3>
+  <div class="code-block">/* Mobile-first: start with mobile styles, enhance upward */
+/* Base styles = mobile */
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Maximum width (desktop-first approach) */
+@media (max-width: 600px) {
+  nav { display: none; }
+}
+
+/* Orientation */
+@media (orientation: landscape) { ... }
+@media (orientation: portrait)  { ... }
+
+/* Dark mode preference */
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111; --text: #fff; }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High-DPI / Retina screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo { background-image: url('logo@2x.png'); }
+}
+
+/* Range syntax (modern) */
+@media (768px &lt;= width &lt; 1024px) {
+  /* tablet only */
+}</div>
+
+  <h3>Relative Units</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Unit</th><th class="plain-def-header">Plain English</th><th>Relative to</th></tr></thead>
+    <tbody>
+      <tr><td>rem</td><td class="plain-def">root font size</td><td>HTML element's font-size (usually 16px); consistent, accessible</td></tr>
+      <tr><td>em</td><td class="plain-def">parent font size</td><td>Nearest parent's font-size; compounds when nested</td></tr>
+      <tr><td>%</td><td class="plain-def">percentage of parent</td><td>Width → parent width; height → parent height (if set)</td></tr>
+      <tr><td>vw</td><td class="plain-def">viewport width %</td><td><code>100vw</code> = full viewport width</td></tr>
+      <tr><td>vh</td><td class="plain-def">viewport height %</td><td><code>100vh</code> = full viewport height</td></tr>
+      <tr><td>svh / dvh</td><td class="plain-def">small / dynamic viewport height</td><td>Accounts for mobile browser chrome; <code>dvh</code> changes as chrome appears</td></tr>
+      <tr><td>vmin / vmax</td><td class="plain-def">smaller / larger viewport dim</td><td><code>1vmin</code> = 1% of the smaller of width/height</td></tr>
+      <tr><td>ch</td><td class="plain-def">character width</td><td>Width of "0" in current font; useful for text columns</td></tr>
+      <tr><td>lh</td><td class="plain-def">line height</td><td>Current line-height; useful for vertical rhythm</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Common Breakpoints</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th class="plain-def-header">Plain English</th><th>Typical width</th></tr></thead>
+    <tbody>
+      <tr><td>Mobile</td><td class="plain-def">phones</td><td>&lt; 640px</td></tr>
+      <tr><td>Tablet</td><td class="plain-def">tablets, large phones</td><td>640px – 1024px</td></tr>
+      <tr><td>Desktop</td><td class="plain-def">laptops, desktops</td><td>1024px – 1440px</td></tr>
+      <tr><td>Wide</td><td class="plain-def">large monitors</td><td>&gt; 1440px</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 19 Variables & Functions -->
+<section id="variables">
+  <div class="section-header"><span class="section-icon">🔧</span><h2>CSS Variables &amp; Functions</h2></div>
+  <p class="prose">CSS custom properties (variables) cascade and can be changed at runtime with JavaScript. Modern CSS functions like <code>calc()</code>, <code>clamp()</code>, and <code>min()</code>/<code>max()</code> enable dynamic, flexible values.</p>
+
+  <h3>Custom Properties (Variables)</h3>
+  <div class="code-block">/* Declare in :root for global access */
+:root {
+  --color-primary: #f08c55;
+  --color-text:    #f5f0ea;
+  --font-size-base: 16px;
+  --spacing-unit:  8px;
+  --border-radius: 8px;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Use with var() */
+.button {
+  background: var(--color-primary);
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 4);
+  border-radius: var(--border-radius);
+}
+
+/* Fallback value */
+color: var(--text-color, black);   /* uses black if --text-color not set */
+
+/* Override in component or theme */
+.dark-theme {
+  --color-primary: #7ecfc4;
+  --color-text: #111;
+}
+
+/* Change with JavaScript */
+document.documentElement.style.setProperty('--color-primary', '#ff0');
+</div>
+
+  <h3>CSS Math Functions</h3>
+  <div class="code-block">.responsive {
+  /* calc() — mix units in math */
+  width: calc(100% - 2rem);
+  height: calc(100vh - 60px);
+  margin: calc(var(--spacing) * 2);
+
+  /* clamp(min, ideal, max) — responsive sizing */
+  font-size: clamp(1rem, 2.5vw, 2rem);    /* never &lt;1rem, never &gt;2rem */
+  width: clamp(300px, 50%, 800px);
+  padding: clamp(1rem, 5vw, 3rem);
+
+  /* min() — smallest of the values */
+  width: min(600px, 100%);               /* never wider than 600px */
+
+  /* max() — largest of the values */
+  width: max(300px, 50%);               /* never narrower than 300px */
+
+  /* round(), mod(), rem() — CSS 4 math */
+  width: round(100% / 3, 1px);
+}
+
+/* Container queries (modern, replaces width hacks) */
+@container (min-width: 500px) {
+  .card { flex-direction: row; }
+}
+.card-wrapper {
+  container-type: inline-size;
+  container-name: card;
+}</div>
+
+  <h3>Other Key CSS Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>url()</td><td class="plain-def">reference a file</td><td><code>background-image: url('img.png')</code></td></tr>
+      <tr><td>rgb() / hsl() / oklch()</td><td class="plain-def">color by components</td><td><code>color: rgb(255 87 51 / 0.8)</code></td></tr>
+      <tr><td>linear-gradient()</td><td class="plain-def">gradual color blend</td><td><code>background: linear-gradient(to right, red, blue)</code></td></tr>
+      <tr><td>radial-gradient()</td><td class="plain-def">circular gradient</td><td><code>background: radial-gradient(circle, red, blue)</code></td></tr>
+      <tr><td>translate()</td><td class="plain-def">move element</td><td><code>transform: translate(-50%, -50%)</code></td></tr>
+      <tr><td>rotate()</td><td class="plain-def">rotate element</td><td><code>transform: rotate(45deg)</code></td></tr>
+      <tr><td>scale()</td><td class="plain-def">resize element</td><td><code>transform: scale(1.1)</code></td></tr>
+      <tr><td>attr()</td><td class="plain-def">read HTML attribute value</td><td><code>content: attr(data-label)</code></td></tr>
+      <tr><td>env()</td><td class="plain-def">device environment values</td><td><code>padding-bottom: env(safe-area-inset-bottom)</code></td></tr>
+      <tr><td>counter()</td><td class="plain-def">CSS counters</td><td><code>content: counter(section)</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 20 Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">🎓</span><h2>Pro Tips</h2></div>
+  <h3>Common Pitfalls — Context Matters!</h3>
+  <ul class="tip-list">
+    <li><span class="tip-code">box-sizing</span><span>Always set <code>*, *::before, *::after { box-sizing: border-box; }</code> globally. Otherwise padding grows your elements wider than you set — constant source of confusion.</span></li>
+    <li><span class="tip-code">margin collapse</span><span>Adjacent vertical margins between block elements merge into one — they don't add. Use padding or gap instead if you need the full space. Flexbox/grid children don't collapse.</span></li>
+    <li><span class="tip-code">100vh on mobile</span><span><code>100vh</code> includes the mobile browser's address bar — causing overflow. Use <code>100dvh</code> (dynamic viewport height) instead, or <code>100svh</code> (small viewport).</span></li>
+    <li><span class="tip-code">z-index mystery</span><span><code>z-index</code> only works on positioned elements (<code>relative</code>, <code>absolute</code>, <code>fixed</code>, <code>sticky</code>). Also, stacking contexts limit z-index — a child can never go above its parent's stacking context.</span></li>
+    <li><span class="tip-code">Specificity wars</span><span>Avoid chaining IDs and classes for specificity (<code>#header .nav .link</code>). Use low-specificity selectors and component structure. If you fight specificity, you'll lose — eventually reaching <code>!important</code>.</span></li>
+    <li><span class="tip-code">alt="" on &lt;img&gt;</span><span>Every image needs an <code>alt</code> attribute. Descriptive text for meaningful images; empty <code>alt=""</code> for decorative images (screen readers skip them). Missing <code>alt</code> reads the full URL aloud.</span></li>
+    <li><span class="tip-code">target="_blank"</span><span>Always add <code>rel="noopener noreferrer"</code> to external links with <code>target="_blank"</code>. Without it, the opened page can access your page via <code>window.opener</code> — a security risk.</span></li>
+    <li><span class="tip-code">flexbox 1fr</span><span>In Grid, <code>1fr</code> = 1 fraction of available space. But <code>min-content</code> can prevent it from shrinking. If a grid column won't shrink, try <code>minmax(0, 1fr)</code> instead of just <code>1fr</code>.</span></li>
+    <li><span class="tip-code">CSS reset</span><span>Browsers have different default styles. Use a CSS reset or normalize.css so your design starts from a consistent baseline across all browsers.</span></li>
+    <li><span class="tip-code">outline vs border</span><span>Never set <code>outline: none</code> without providing an alternative focus style. Keyboard users rely on the focus outline to know where they are. Use <code>:focus-visible</code> to show outlines only for keyboard navigation.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 21 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂</span><h2>Element Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">Common HTML elements listed alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Section</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;a&gt;</td><td class="plain-def">hyperlink / anchor</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;abbr&gt;</td><td class="plain-def">abbreviation with tooltip</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;address&gt;</td><td class="plain-def">contact information</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;article&gt;</td><td class="plain-def">self-contained content</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;aside&gt;</td><td class="plain-def">sidebar / tangential</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;audio&gt;</td><td class="plain-def">sound player</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;b&gt;</td><td class="plain-def">bold (stylistic)</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;blockquote&gt;</td><td class="plain-def">extended quotation</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;body&gt;</td><td class="plain-def">visible page content</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;br&gt;</td><td class="plain-def">line break</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;button&gt;</td><td class="plain-def">clickable button</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;caption&gt;</td><td class="plain-def">table caption</td><td><a class="idx-link" href="#lists-tables">Tables</a></td></tr>
+      <tr><td>&lt;code&gt;</td><td class="plain-def">inline code snippet</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;col&gt; / &lt;colgroup&gt;</td><td class="plain-def">table column styling</td><td><a class="idx-link" href="#lists-tables">Tables</a></td></tr>
+      <tr><td>&lt;data&gt;</td><td class="plain-def">machine-readable value</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;datalist&gt;</td><td class="plain-def">autocomplete options</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;dd&gt; / &lt;dt&gt;</td><td class="plain-def">definition description/term</td><td><a class="idx-link" href="#lists-tables">Lists</a></td></tr>
+      <tr><td>&lt;del&gt;</td><td class="plain-def">deleted content</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;details&gt;</td><td class="plain-def">collapsible content</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;dialog&gt;</td><td class="plain-def">modal dialog</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;div&gt;</td><td class="plain-def">generic block container</td><td><a class="idx-link" href="#html-basics">Basics</a></td></tr>
+      <tr><td>&lt;dl&gt;</td><td class="plain-def">description list</td><td><a class="idx-link" href="#lists-tables">Lists</a></td></tr>
+      <tr><td>&lt;em&gt;</td><td class="plain-def">stressed emphasis</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;fieldset&gt;</td><td class="plain-def">group related form fields</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;figcaption&gt;</td><td class="plain-def">figure caption</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;figure&gt;</td><td class="plain-def">self-contained media</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;footer&gt;</td><td class="plain-def">page/section footer</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;form&gt;</td><td class="plain-def">data input container</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;h1&gt; – &lt;h6&gt;</td><td class="plain-def">section headings</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;head&gt;</td><td class="plain-def">invisible document metadata</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;header&gt;</td><td class="plain-def">introductory content</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;hr&gt;</td><td class="plain-def">thematic break / divider</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;html&gt;</td><td class="plain-def">root element</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;i&gt;</td><td class="plain-def">italic / alternate voice</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;iframe&gt;</td><td class="plain-def">embedded web page</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;img&gt;</td><td class="plain-def">image</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;input&gt;</td><td class="plain-def">form input field</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;ins&gt;</td><td class="plain-def">inserted content</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;kbd&gt;</td><td class="plain-def">keyboard input</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;label&gt;</td><td class="plain-def">form field label</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;legend&gt;</td><td class="plain-def">fieldset title</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;li&gt;</td><td class="plain-def">list item</td><td><a class="idx-link" href="#lists-tables">Lists</a></td></tr>
+      <tr><td>&lt;link&gt;</td><td class="plain-def">link external resource</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;main&gt;</td><td class="plain-def">primary page content</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;mark&gt;</td><td class="plain-def">highlighted text</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;meta&gt;</td><td class="plain-def">page metadata</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;nav&gt;</td><td class="plain-def">navigation links</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;noscript&gt;</td><td class="plain-def">fallback when JS disabled</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;ol&gt;</td><td class="plain-def">ordered (numbered) list</td><td><a class="idx-link" href="#lists-tables">Lists</a></td></tr>
+      <tr><td>&lt;optgroup&gt;</td><td class="plain-def">group of select options</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;option&gt;</td><td class="plain-def">selectable option</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;output&gt;</td><td class="plain-def">result of calculation</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;p&gt;</td><td class="plain-def">paragraph</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;picture&gt;</td><td class="plain-def">responsive image container</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;pre&gt;</td><td class="plain-def">preformatted text</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;progress&gt;</td><td class="plain-def">progress bar</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;q&gt;</td><td class="plain-def">inline quotation</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;s&gt;</td><td class="plain-def">strikethrough text</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;script&gt;</td><td class="plain-def">JavaScript code/link</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;section&gt;</td><td class="plain-def">thematic content group</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;select&gt;</td><td class="plain-def">dropdown list</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;small&gt;</td><td class="plain-def">fine print / footnote</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;source&gt;</td><td class="plain-def">media source option</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;span&gt;</td><td class="plain-def">generic inline container</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;strong&gt;</td><td class="plain-def">important content</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;style&gt;</td><td class="plain-def">internal CSS</td><td><a class="idx-link" href="#css-basics">CSS Basics</a></td></tr>
+      <tr><td>&lt;sub&gt;</td><td class="plain-def">subscript</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;summary&gt;</td><td class="plain-def">details toggle label</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;sup&gt;</td><td class="plain-def">superscript</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;table&gt;</td><td class="plain-def">tabular data</td><td><a class="idx-link" href="#lists-tables">Tables</a></td></tr>
+      <tr><td>&lt;td&gt; / &lt;th&gt;</td><td class="plain-def">table cell / header cell</td><td><a class="idx-link" href="#lists-tables">Tables</a></td></tr>
+      <tr><td>&lt;template&gt;</td><td class="plain-def">inert HTML fragment</td><td><a class="idx-link" href="#semantic">Semantic</a></td></tr>
+      <tr><td>&lt;textarea&gt;</td><td class="plain-def">multi-line text input</td><td><a class="idx-link" href="#forms">Forms</a></td></tr>
+      <tr><td>&lt;time&gt;</td><td class="plain-def">date/time value</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;title&gt;</td><td class="plain-def">browser tab title</td><td><a class="idx-link" href="#structure">Document</a></td></tr>
+      <tr><td>&lt;tr&gt;</td><td class="plain-def">table row</td><td><a class="idx-link" href="#lists-tables">Tables</a></td></tr>
+      <tr><td>&lt;u&gt;</td><td class="plain-def">underline / annotation</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;ul&gt;</td><td class="plain-def">unordered (bullet) list</td><td><a class="idx-link" href="#lists-tables">Lists</a></td></tr>
+      <tr><td>&lt;var&gt;</td><td class="plain-def">variable in code/math</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+      <tr><td>&lt;video&gt;</td><td class="plain-def">video player</td><td><a class="idx-link" href="#links-media">Links &amp; Media</a></td></tr>
+      <tr><td>&lt;wbr&gt;</td><td class="plain-def">optional line break hint</td><td><a class="idx-link" href="#text">Text Elements</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  HTML &amp; CSS Quick Reference  ·  Web Development  ·  2026
+</footer>
+</body>
+</html>

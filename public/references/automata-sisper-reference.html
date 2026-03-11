@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Automata Theory — Sipser Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #111114;
+    --surface: #1a1a1f;
+    --surface2: #222228;
+    --border: #38384a;
+    --accent: #6ee89a;
+    --accent2: #f5d97a;
+    --accent3: #82c8f8;
+    --text: #f0f0fa;
+    --text-dim: #b0b0cc;
+    --text-code: #aff0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 14, 16, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(125, 240, 160, 0.08); }
+  nav a.active { color: var(--accent); background: rgba(125, 240, 160, 0.12); }
+
+  /* ── Section scroll strip ── */
+  .section-strip {
+    position: sticky;
+    top: 56px;
+    z-index: 90;
+    background: rgba(14,14,16,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    height: 44px;
+  }
+  .section-strip::-webkit-scrollbar {
+    height: 3px;
+  }
+  .section-strip::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .section-strip::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 99px;
+  }
+  .section-strip::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+  .section-strip a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.28rem 0.75rem;
+    border-radius: 99px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .section-strip a:hover {
+    color: var(--accent);
+    background: rgba(110,232,154,0.08);
+    border-color: rgba(110,232,154,0.2);
+  }
+  .section-strip a.active {
+    color: var(--accent);
+    background: rgba(110,232,154,0.12);
+    border-color: rgba(110,232,154,0.35);
+  }
+  .section-strip .strip-num {
+    font-size: 0.6rem;
+    opacity: 0.45;
+    margin-right: 0.3em;
+  }
+  .strip-divider {
+    width: 1px;
+    height: 14px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 0.3rem;
+  }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(125, 240, 160, 0.05); }
+  tr:hover td:first-child { color: #a8ffbf; text-shadow: 0 0 20px rgba(125, 240, 160, 0.5); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.9rem;
+    color: var(--accent);
+    white-space: nowrap;
+    text-align: center;
+    min-width: 80px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.05em;
+    border-right: 1px solid var(--border);
+    background: rgba(125, 240, 160, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  /* Wider first col for notation rows */
+  .notation-table td:first-child {
+    font-size: 1rem;
+    text-align: left;
+    min-width: 160px;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(125, 240, 160, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.95rem; color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code { font-family: 'DM Mono', monospace; color: var(--accent); white-space: nowrap; min-width: 80px; font-size: 1.4rem; }
+  .tip-code.sm { font-size: 0.9rem; min-width: 140px; }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 140px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  /* Sipser theorem callout box */
+  .theorem-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .theorem-box .thm-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.3rem;
+  }
+  .theorem-box .thm-body {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── Sipser Definition Box (matches textbook style) ── */
+  .sipser-def {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-top: 3px solid var(--accent2);
+    border-radius: 0 0 10px 10px;
+    padding: 1.5rem 2rem 1.5rem 2rem;
+    margin: 1.25rem 0 1.75rem;
+    position: relative;
+  }
+  .sipser-def-label {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    background: var(--surface2);
+    border-bottom: 1.5px solid var(--border);
+    padding: 0.45rem 2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    border-radius: 0;
+  }
+  .sipser-def-label .def-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .sipser-def-label .def-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .sipser-def-body {
+    margin-top: 2.8rem;
+  }
+  .sipser-def-body .def-intro {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+  .sipser-def-body .def-intro em.def-term {
+    font-style: italic;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sipser-def-body ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: sipser-item;
+  }
+  .sipser-def-body ol li {
+    counter-increment: sipser-item;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .sipser-def-body ol li::before {
+    content: counter(sipser-item) ".";
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent2);
+    min-width: 1.4rem;
+    flex-shrink: 0;
+  }
+  .sipser-def-body ol li strong {
+    font-style: italic;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .sipser-def-body ol li .set-notation {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9em;
+    color: var(--accent3);
+    background: rgba(130, 200, 248, 0.08);
+    padding: 0.05em 0.35em;
+    border-radius: 3px;
+    margin-left: 0.35rem;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── GNFA Visualizer ── */
+  .gnfa-visualizer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .gnfa-viz-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .gnfa-viz-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+  }
+
+  .gnfa-step-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .gnfa-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .gnfa-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+  .gnfa-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .gnfa-step-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(110,232,154,0.1);
+    border: 1px solid rgba(110,232,154,0.25);
+    border-radius: 4px;
+    padding: 0.3rem 0.65rem;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .gnfa-stage {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .gnfa-diagram-wrap {
+    flex: 0 0 auto;
+    min-width: 280px;
+  }
+
+  .gnfa-svg-container {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .gnfa-info {
+    flex: 1 1 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .gnfa-desc-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+
+  .gnfa-desc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  .gnfa-desc-text {
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.75;
+    font-weight: 500;
+  }
+
+  .gnfa-formula-box {
+    background: rgba(110,232,154,0.05);
+    border: 1px solid rgba(110,232,154,0.2);
+    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--accent);
+    line-height: 1.8;
+  }
+
+  .gnfa-formula-box .formula-label {
+    font-size: 0.65rem;
+    color: var(--accent2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .gnfa-result-banner {
+    background: linear-gradient(135deg, rgba(110,232,154,0.12), rgba(130,200,248,0.06));
+    border: 1px solid rgba(110,232,154,0.3);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+
+  .gnfa-result-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.4rem;
+  }
+
+  .gnfa-result-expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .rip-highlight { fill: rgba(245,100,80,0.18); stroke: #f56450; stroke-width: 2px; }
+  .rip-text { fill: #f5a090; }
+
+  .regex-pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    background: rgba(130,200,248,0.1);
+    border: 1px solid rgba(130,200,248,0.25);
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+    color: var(--accent3);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">Automata Ref</span>
+  <nav>
+    <a href="#notation">Notation</a>
+    <a href="#strings">Strings</a>
+    <a href="#dfa">DFA</a>
+    <a href="#nfa">NFA</a>
+    <a href="#closure">Closure</a>
+    <a href="#regex">Regex</a>
+    <a href="#cfg">CFG</a>
+    <a href="#pda">PDA</a>
+    <a href="#tm">Turing</a>
+    <a href="#decidability">Decidability</a>
+    <a href="#reducibility">Reducibility</a>
+    <a href="#complexity">Complexity</a>
+    <a href="#hierarchy">Hierarchy</a>
+    <a href="#reading">Reading</a>
+    <a href="#theorems">Theorems</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="section-strip" id="section-strip">
+  <a href="#notation"><span class="strip-num">01</span>Notation</a>
+  <div class="strip-divider"></div>
+  <a href="#strings"><span class="strip-num">02</span>Strings</a>
+  <div class="strip-divider"></div>
+  <a href="#dfa"><span class="strip-num">03</span>DFA</a>
+  <div class="strip-divider"></div>
+  <a href="#nfa"><span class="strip-num">04</span>NFA</a>
+  <div class="strip-divider"></div>
+  <a href="#closure"><span class="strip-num">05</span>Closure</a>
+  <div class="strip-divider"></div>
+  <a href="#regex"><span class="strip-num">06</span>Regex</a>
+  <div class="strip-divider"></div>
+  <a href="#cfg"><span class="strip-num">07</span>CFG</a>
+  <div class="strip-divider"></div>
+  <a href="#pda"><span class="strip-num">08</span>PDA</a>
+  <div class="strip-divider"></div>
+  <a href="#tm"><span class="strip-num">09</span>Turing</a>
+  <div class="strip-divider"></div>
+  <a href="#decidability"><span class="strip-num">10</span>Decidability</a>
+  <div class="strip-divider"></div>
+  <a href="#reducibility"><span class="strip-num">11</span>Reducibility</a>
+  <div class="strip-divider"></div>
+  <a href="#complexity"><span class="strip-num">12</span>Complexity</a>
+  <div class="strip-divider"></div>
+  <a href="#hierarchy"><span class="strip-num">13</span>Hierarchy</a>
+  <div class="strip-divider"></div>
+  <a href="#reading"><span class="strip-num">14</span>Reading</a>
+  <div class="strip-divider"></div>
+  <a href="#theorems"><span class="strip-num">15</span>Theorems</a>
+  <div class="strip-divider"></div>
+  <a href="#index"><span class="strip-num">16</span>Index</a>
+</div>
+
+<script>
+(function() {
+  const strip = document.getElementById('section-strip');
+  const stripLinks = strip ? Array.from(strip.querySelectorAll('a[href^="#"]')) : [];
+  const sectionIds = stripLinks.map(a => a.getAttribute('href').slice(1));
+
+  function getActiveId() {
+    const scrollY = window.scrollY + 120;
+    let active = sectionIds[0];
+    for (const id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top + window.scrollY <= scrollY) {
+        active = id;
+      }
+    }
+    return active;
+  }
+
+  function updateStrip() {
+    const active = getActiveId();
+    stripLinks.forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      a.classList.toggle('active', id === active);
+    });
+    // Scroll active pill into view within the strip
+    const activeLink = strip.querySelector('a.active');
+    if (activeLink) {
+      const linkLeft = activeLink.offsetLeft;
+      const linkWidth = activeLink.offsetWidth;
+      const stripWidth = strip.clientWidth;
+      const target = linkLeft - stripWidth / 2 + linkWidth / 2;
+      strip.scrollTo({ left: target, behavior: 'smooth' });
+    }
+  }
+
+  window.addEventListener('scroll', updateStrip, { passive: true });
+  window.addEventListener('load', updateStrip);
+  updateStrip();
+})();
+</script>
+
+<div class="hero" id="top">
+  <span class="hero-tag">Theory of Computation · Sipser 3rd Ed.</span>
+  <h1>Automata<br/><span>Theory</span></h1>
+  <p class="subtitle">DFA · NFA · CFG · PDA · Turing Machines · Decidability · Complexity</p>
+</div>
+
+<main>
+<div class="toc">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#notation"><span class="toc-num">01</span>Core Notation &amp; Symbols</a>
+  <a href="#strings"><span class="toc-num">02</span>Strings &amp; Languages</a>
+  <a href="#dfa"><span class="toc-num">03</span>Deterministic Finite Automata</a>
+  <a href="#nfa"><span class="toc-num">04</span>Nondeterministic FA</a>
+  <a href="#closure"><span class="toc-num">05</span>Closure Properties &amp; Constructions</a>
+  <a href="#regex"><span class="toc-num">06</span>Regular Expressions</a>
+  <a href="#cfg"><span class="toc-num">07</span>Context-Free Grammars</a>
+  <a href="#pda"><span class="toc-num">08</span>Pushdown Automata</a>
+  <a href="#tm"><span class="toc-num">09</span>Turing Machines</a>
+  <a href="#decidability"><span class="toc-num">10</span>Decidability</a>
+  <a href="#reducibility"><span class="toc-num">11</span>Reducibility</a>
+  <a href="#complexity"><span class="toc-num">12</span>Complexity Theory</a>
+  <a href="#hierarchy"><span class="toc-num">13</span>Chomsky Hierarchy</a>
+  <a href="#reading"><span class="toc-num">14</span>Reading Expressions</a>
+  <a href="#theorems"><span class="toc-num">15</span>Key Theorems</a>
+  <a href="#index"><span class="toc-num">16</span>Symbol Index</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 01  CORE NOTATION -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="notation">
+<div class="section-header"><span class="section-icon">🔣</span><h2>Core Notation &amp; Symbols</h2></div>
+<p class="prose">All notation follows <strong>Sipser's Introduction to the Theory of Computation (3rd Ed.)</strong>. Greek letters, calligraphic letters, and bold capitals each carry specific roles — memorizing the conventions is half the battle.</p>
+
+<h3>Automata Components</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Sipser Name</th><th>What It Is</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Q</td><td class="plain-def">the states</td><td>States</td><td>Finite, non-empty set of states</td><td><code>Q = {q₁, q₂, q₃}</code></td></tr>
+<tr><td>Σ</td><td class="plain-def">the alphabet</td><td>Alphabet</td><td>Finite, non-empty set of input symbols</td><td><code>Σ = {0, 1}</code></td></tr>
+<tr><td>δ</td><td class="plain-def">the rules</td><td>Transition function</td><td>Maps (state, input) → next state(s)</td><td><code>δ: Q × Σ → Q</code></td></tr>
+<tr><td>q₀</td><td class="plain-def">where we start</td><td>Start state</td><td>Initial state; element of Q</td><td><code>q₀ ∈ Q</code></td></tr>
+<tr><td>F</td><td class="plain-def">the accept states</td><td>Accept states</td><td>Subset of Q; double-circle in diagrams</td><td><code>F ⊆ Q</code></td></tr>
+<tr><td>Γ</td><td class="plain-def">stack/tape alphabet</td><td>Tape / Stack alphabet</td><td>Symbols on tape (TM) or stack (PDA); Γ ⊇ Σ</td><td><code>Γ = {0, 1, ⊔}</code></td></tr>
+<tr><td>⊔</td><td class="plain-def">blank cell</td><td>Blank symbol</td><td>Tape blank in TM; ⊔ ∈ Γ \ Σ</td><td><code>⊔ ∉ Σ</code></td></tr>
+<tr><td>$</td><td class="plain-def">stack bottom</td><td>Initial stack symbol</td><td>Bottom-of-stack marker in PDA</td><td><code>$ ∈ Γ</code></td></tr>
+</tbody>
+</table></div>
+
+<h3>General Math Notation Used in Sipser</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>In Sipser's Context</th></tr></thead>
+<tbody>
+<tr><td>∈</td><td class="plain-def">is a member of</td><td>Element of</td><td><code>w ∈ L</code> — string w is in language L</td></tr>
+<tr><td>∉</td><td class="plain-def">is not a member</td><td>Not element of</td><td><code>w ∉ L</code> — w is rejected</td></tr>
+<tr><td>⊆</td><td class="plain-def">contained within</td><td>Subset of</td><td><code>F ⊆ Q</code> — accept states are a subset of Q</td></tr>
+<tr><td>∅</td><td class="plain-def">nothing inside</td><td>Empty set</td><td>The empty language <code>∅</code>; also F = ∅ means no accepts</td></tr>
+<tr><td>|S|</td><td class="plain-def">how many elements</td><td>Cardinality</td><td><code>|Q|</code> = number of states</td></tr>
+<tr><td>∀</td><td class="plain-def">every single one</td><td>For all</td><td><code>∀w ∈ Σ*</code> — for every string over Σ</td></tr>
+<tr><td>∃</td><td class="plain-def">there is at least one</td><td>There exists</td><td><code>∃q ∈ F</code> — some accept state exists</td></tr>
+<tr><td>|</td><td class="plain-def">where / such that</td><td>Such that (set-builder)</td><td>Separates the variable from the condition inside <code>{ }</code>. <code>{w | w starts with 0}</code> = "the set of all w <em>such that</em> w starts with 0." Also written <code>:</code> in some texts — Sipser uses <code>|</code>.</td></tr>
+<tr><td>¬</td><td class="plain-def">flip it</td><td>Negation</td><td>Complement of a language or decision</td></tr>
+<tr><td>⟨M⟩</td><td class="plain-def">the encoding of M</td><td>Encoding</td><td>String representation of machine M; Sipser's standard</td></tr>
+<tr><td>⟨M, w⟩</td><td class="plain-def">M paired with w</td><td>Encoded pair</td><td>Input to a universal/deciding TM</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 02  STRINGS & LANGUAGES -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="strings">
+<div class="section-header"><span class="section-icon">🔤</span><h2>Strings &amp; Languages</h2></div>
+
+<h3>Alphabet &amp; Strings</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Σ</td><td class="plain-def">the alphabet</td><td>Alphabet</td><td>Finite set of symbols; the input alphabet</td><td><code>Σ = {a, b}</code></td></tr>
+<tr><td>w, x, y, z</td><td class="plain-def">a string</td><td>String / word</td><td>Finite sequence of symbols from Σ</td><td><code>w = abba</code></td></tr>
+<tr><td>ε</td><td class="plain-def">the empty string</td><td>Epsilon / empty string</td><td>String of length zero; ε ∈ Σ* for any Σ</td><td><code>|ε| = 0</code></td></tr>
+<tr><td>|w|</td><td class="plain-def">length of w</td><td>Length</td><td>Number of symbols in string w</td><td><code>|abba| = 4</code></td></tr>
+<tr><td>|w|ₐ</td><td class="plain-def">count of a's in w</td><td>Symbol count</td><td>Number of occurrences of symbol a in w</td><td><code>|abba|ₐ = 2</code></td></tr>
+<tr><td>xy</td><td class="plain-def">x then y</td><td>Concatenation</td><td>Juxtaposition of strings; x followed by y</td><td><code>ab · ba = abba</code></td></tr>
+<tr><td>wⁿ</td><td class="plain-def">w repeated n times</td><td>String repetition</td><td>w concatenated with itself n times; w⁰ = ε</td><td><code>a³ = aaa</code></td></tr>
+<tr><td>wᴿ</td><td class="plain-def">w backwards</td><td>Reversal</td><td>w written in reverse order</td><td><code>(abc)ᴿ = cba</code></td></tr>
+</tbody>
+</table></div>
+
+<h3>Languages</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>L</td><td class="plain-def">a set of strings</td><td>Language</td><td>Any (possibly infinite) set of strings over Σ</td><td><code>L = {0ⁿ1ⁿ | n ≥ 0}</code></td></tr>
+<tr><td>Σ*</td><td class="plain-def">all strings ever</td><td>Kleene star</td><td>Set of ALL strings over Σ, including ε</td><td><code>{a,b}* = {ε,a,b,aa,ab,...}</code></td></tr>
+<tr><td>Σ⁺</td><td class="plain-def">all non-empty strings</td><td>Positive closure</td><td>Σ* minus the empty string</td><td><code>Σ⁺ = Σ* \ {ε}</code></td></tr>
+<tr><td>L̄ or Lᶜ</td><td class="plain-def">strings not in L</td><td>Complement</td><td>Σ* \ L — all strings over Σ not in L</td><td>If L = {a}, L̄ = {ε, b, aa, ...}</td></tr>
+<tr><td>L₁ ∪ L₂</td><td class="plain-def">either language</td><td>Union</td><td>Strings in L₁ or L₂ (or both)</td><td>Regular and CFL both closed under ∪</td></tr>
+<tr><td>L₁ ∩ L₂</td><td class="plain-def">both languages</td><td>Intersection</td><td>Strings in both L₁ and L₂</td><td>Regular closed; CFL not closed under ∩</td></tr>
+<tr><td>L₁ · L₂</td><td class="plain-def">L₁ then L₂</td><td>Concatenation</td><td>{xy | x ∈ L₁, y ∈ L₂}</td><td><code>{a}{b*} = {abⁿ | n ≥ 0}</code></td></tr>
+<tr><td>L*</td><td class="plain-def">repeat L any times</td><td>Kleene closure</td><td>{w₁w₂…wₖ | k ≥ 0, each wᵢ ∈ L}</td><td>ε ∈ L* always</td></tr>
+<tr><td>L⁺</td><td class="plain-def">repeat L one+ times</td><td>Positive closure</td><td>{w₁w₂…wₖ | k ≥ 1, each wᵢ ∈ L}</td><td>May not contain ε</td></tr>
+</tbody>
+</table></div>
+
+<div class="example-block">
+  <div class="expr">L = {w ∈ {0,1}* | w contains an equal number of 0s and 1s}</div>
+  <div class="reading">"L is the set of all binary strings where the count of 0s equals the count of 1s." Note: this is not regular — you need a stack to count.</div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 03  DFA -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="dfa">
+<div class="section-header"><span class="section-icon">🔵</span><h2>Deterministic Finite Automata (DFA)</h2></div>
+<p class="prose">A DFA reads input left-to-right, one symbol at a time. Each state-input pair leads to <strong>exactly one</strong> next state — fully deterministic, no choices, no ε-moves.</p>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Definition</span>
+    <span class="def-num">1.5</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">A <em class="def-term">finite automaton</em> is a 5-tuple (Q, Σ, δ, q₀, F), where</p>
+    <ol>
+      <li>Q is a finite set called the <strong>states</strong>, <span class="set-notation">Q = {q₁, q₂, …, qₙ}</span></li>
+      <li>Σ is a finite set called the <strong>alphabet</strong>, <span class="set-notation">Σ = {0, 1}</span></li>
+      <li>δ: Q × Σ ⟶ Q is the <strong>transition function</strong>, <span class="set-notation">δ(q, a) = q'</span></li>
+      <li>q₀ ∈ Q is the <strong>start state</strong>, and <span class="set-notation">q₀ ∈ Q</span></li>
+      <li>F ⊆ Q is the <strong>set of accept states</strong>. <span class="set-notation">F ⊆ Q</span></li>
+    </ol>
+  </div>
+</div>
+
+<div class="theorem-box" style="margin-bottom:1.5rem;">
+  <div class="thm-label">Acceptance — Definition 1.16</div>
+  <div class="thm-body">
+    M accepts string w = w₁w₂…wₙ iff there exist states r₀, r₁, …, rₙ in Q such that:<br>
+    &nbsp;&nbsp;(i) r₀ = q₀,&nbsp;&nbsp;(ii) δ(rᵢ, wᵢ₊₁) = rᵢ₊₁ for i = 0,…,n−1,&nbsp;&nbsp;(iii) rₙ ∈ F.<br><br>
+    <strong>L(M) = {w | M accepts w}</strong> — the <em>language recognized</em> by M.<br>
+    A language is <strong>regular</strong> if and only if some finite automaton recognizes it.
+  </div>
+</div>
+
+<h3>Formal Definition Components</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Component</th><th>Formal Type</th><th>Sipser Ref.</th></tr></thead>
+<tbody>
+<tr><td>Q</td><td class="plain-def">the states</td><td>Finite set of states</td><td>Finite, non-empty set</td><td>Def. 1.5</td></tr>
+<tr><td>Σ</td><td class="plain-def">the alphabet</td><td>Input alphabet</td><td>Finite, non-empty set</td><td>Def. 1.5</td></tr>
+<tr><td>δ</td><td class="plain-def">the rules</td><td>Transition function</td><td><code>δ: Q × Σ → Q</code></td><td>Def. 1.5</td></tr>
+<tr><td>q₀</td><td class="plain-def">start here</td><td>Start state</td><td><code>q₀ ∈ Q</code></td><td>Def. 1.5</td></tr>
+<tr><td>F</td><td class="plain-def">accepting states</td><td>Set of accept states</td><td><code>F ⊆ Q</code></td><td>Def. 1.5</td></tr>
+</tbody>
+</table></div>
+
+<h3>Extended Transition Function</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>δ(q, a)</td><td class="plain-def">one step from q on a</td><td>Transition</td><td>State reached from q reading single symbol a</td></tr>
+<tr><td>δ̂(q, w)</td><td class="plain-def">many steps from q on w</td><td>Extended transition</td><td>State reached from q reading entire string w; δ̂(q,ε) = q</td></tr>
+<tr><td>δ̂(q, wa)</td><td class="plain-def">process string then one more</td><td>Recursive definition</td><td><code>δ(δ̂(q, w), a)</code> — process w, then apply a</td></tr>
+</tbody>
+</table></div>
+
+<h3>Acceptance &amp; Language</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Notation</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>M accepts w</td><td class="plain-def">M says yes to w</td><td>δ̂(q₀, w) ∈ F — the computation ends in an accept state</td></tr>
+<tr><td>M rejects w</td><td class="plain-def">M says no to w</td><td>δ̂(q₀, w) ∉ F — the computation ends in a non-accept state</td></tr>
+<tr><td>L(M)</td><td class="plain-def">what M accepts</td><td>Language recognized by M: {w | M accepts w}</td></tr>
+<tr><td>M recognizes L</td><td class="plain-def">M accepts exactly L</td><td>L(M) = L</td></tr>
+<tr><td>regular language</td><td class="plain-def">DFA-recognizable</td><td>A language L is regular iff some DFA recognizes it</td></tr>
+</tbody>
+</table></div>
+
+<div class="code-block">DFA M = (Q, Σ, δ, q₁, F) where:
+  Q = {q₁, q₂, q₃}
+  Σ = {0, 1}
+  F = {q₂}
+  δ:        0       1
+     q₁ → q₁    q₁ → q₂
+     q₂ → q₃    q₂ → q₂
+     q₃ → q₂    q₃ → q₂
+
+L(M) = {w | w ends in 1 OR w contains an odd number of 0s...}
+       (described by the transition table above)</div>
+
+<h3>Dead State (Trap State)</h3>
+<p class="prose">A <strong>dead state</strong> (also called a <em>trap state</em> or <em>sink state</em>) is a non-accepting state from which no accept state is reachable — once the machine enters it, the string is guaranteed to be rejected. Dead states are not part of Sipser's formal definition, but they appear naturally in DFA construction and are essential for keeping δ a <em>total</em> function.</p>
+
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Formal Meaning</th></tr></thead>
+<tbody>
+<tr><td>Dead state q<sub>dead</sub></td><td class="plain-def">the reject pit</td><td>A state q<sub>dead</sub> ∉ F where δ(q<sub>dead</sub>, a) = q<sub>dead</sub> for every a ∈ Σ — all transitions loop back on themselves</td></tr>
+<tr><td>Why it's needed</td><td class="plain-def">δ must be total</td><td>Sipser's δ: Q × Σ → Q must be defined for every (state, symbol) pair. If no real transition exists, it goes to q<sub>dead</sub></td></tr>
+<tr><td>Implicit vs. explicit</td><td class="plain-def">shown or hidden</td><td>Diagrams often omit q<sub>dead</sub> for clarity (implicit). Formal/complete DFAs include it explicitly so δ is total</td></tr>
+<tr><td>Complement DFA</td><td class="plain-def">flip accepts — carefully</td><td>When complementing a DFA (swapping F and Q \ F), q<sub>dead</sub> becomes an accept state — it must be included in Q before complementing</td></tr>
+</tbody>
+</table></div>
+
+<div class="example-block">
+  <div class="expr">L = {w ∈ {a,b}* | w starts with 'ab'}</div>
+  <div class="reading">DFA needs states: q₀ (start), q₁ (saw 'a'), q₂ (saw 'ab', accept), q<sub>dead</sub> (trap). Any symbol in q₀ other than 'a', or any symbol in q₁ other than 'b', sends the machine to q<sub>dead</sub>. Once there, it loops forever — the string is rejected regardless of what follows.</div>
+</div>
+
+<div class="theorem-box" style="margin-bottom:1.5rem;">
+  <div class="thm-label">Dead State &amp; Complement</div>
+  <div class="thm-body">
+    To complement a DFA M, swap F and Q \ F. If M was built without an explicit dead state, <strong>add q<sub>dead</sub> first</strong> — otherwise strings that were implicitly rejected (missing transitions) would incorrectly become accepted. After the swap, q<sub>dead</sub> ∈ F, so it becomes an accept state that accepts all strings with no valid path in the original.
+  </div>
+</div>
+
+<h3>DFA Operations &amp; Closure</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Operation</th><th class="plain-def-header">Plain English</th><th>How to Construct</th></tr></thead>
+<tbody>
+<tr><td>L₁ ∪ L₂</td><td class="plain-def">either language</td><td>Product construction: Q = Q₁ × Q₂; accept if either accepts</td></tr>
+<tr><td>L₁ ∩ L₂</td><td class="plain-def">both languages</td><td>Product construction: Q = Q₁ × Q₂; accept if both accept</td></tr>
+<tr><td>L̄ (complement)</td><td class="plain-def">flip accepts</td><td>Swap F and Q \ F in the DFA (swap accept ↔ reject states)</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 04  NFA -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="nfa">
+<div class="section-header"><span class="section-icon">🔀</span><h2>Nondeterministic Finite Automata (NFA)</h2></div>
+<p class="prose">An NFA is a 5-tuple <strong>M = (Q, Σ, Δ, s, F)</strong>, where Δ is a <em>transition relation</em> (not a function) and ε-transitions are allowed via Σ<sub>ε</sub> = Σ ∪ {ε}. An NFA accepts if <em>any</em> branch of computation ends in an accept state.</p>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Definition</span>
+    <span class="def-num">NFA</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">Notation: Σ<sub>ε</sub> = Σ ∪ {ε}. A <em class="def-term">nondeterministic finite automaton</em> is a 5-tuple M = (Q, Σ, Δ, s, F), where</p>
+    <ol>
+      <li>Q is a finite set of <strong>states</strong>, <span class="set-notation">Q = {q₁, q₂, …, qₙ}</span></li>
+      <li>Σ is the <strong>input alphabet</strong>, <span class="set-notation">Σ = {0, 1}</span></li>
+      <li>s ∈ Q is the <strong>initial state</strong>, <span class="set-notation">s ∈ Q</span></li>
+      <li>F ⊆ Q is the <strong>set of final states</strong>, <span class="set-notation">F ⊆ Q</span></li>
+      <li>Δ ⊆ Q × Σ<sub>ε</sub> × Q is the <strong>transition relation</strong>, <span class="set-notation">Δ ⊆ Q × Σ<sub>ε</sub> × Q</span></li>
+    </ol>
+    <p style="margin-top:0.75rem; font-size:1rem; color:var(--text-dim);">If (p, u, q) ∈ Δ, then the NFA in state <em>p</em> can read <em>u</em> and go to <em>q</em>.</p>
+  </div>
+</div>
+
+<div class="theorem-box" style="margin-bottom:1.5rem;">
+  <div class="thm-label">NFA Acceptance</div>
+  <div class="thm-body">
+    M accepts w if we can write w = y₁y₂…yₘ where each yᵢ ∈ Σ<sub>ε</sub> and there exist states r₀, r₁, …, rₘ in Q such that:<br>
+    &nbsp;&nbsp;(i) r₀ = s,&nbsp;&nbsp;(ii) (rᵢ, yᵢ₊₁, rᵢ₊₁) ∈ Δ for i = 0,…,m−1,&nbsp;&nbsp;(iii) rₘ ∈ F.
+  </div>
+</div>
+
+<h3>NFA vs DFA — Key Differences</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Feature</th><th class="plain-def-header">DFA</th><th>NFA</th></tr></thead>
+<tbody>
+<tr><td>Transition type</td><td class="plain-def">δ: Q×Σ → Q (function)</td><td>Δ ⊆ Q × Σ<sub>ε</sub> × Q (relation)</td></tr>
+<tr><td>Start state</td><td class="plain-def">q₀</td><td>s</td></tr>
+<tr><td>Next states</td><td class="plain-def">exactly one</td><td>zero, one, or many states</td></tr>
+<tr><td>ε-transitions</td><td class="plain-def">none</td><td>allowed (free moves on ε)</td></tr>
+<tr><td>Acceptance</td><td class="plain-def">must end in F</td><td>any branch ends in F</td></tr>
+<tr><td>Power</td><td class="plain-def">equal to NFA</td><td>equal to DFA (Thm. 1.39)</td></tr>
+</tbody>
+</table></div>
+
+<h3>NFA Notation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Σ<sub>ε</sub></td><td class="plain-def">alphabet plus ε</td><td>Extended alphabet</td><td>Σ ∪ {ε} — allows ε-transitions in NFA Δ</td></tr>
+<tr><td>Δ</td><td class="plain-def">the transition rules</td><td>Transition relation</td><td>Δ ⊆ Q × Σ<sub>ε</sub> × Q — a set of triples (p, u, q)</td></tr>
+<tr><td>(p, u, q) ∈ Δ</td><td class="plain-def">can read u and go from p to q</td><td>Transition triple</td><td>In state p, reading u ∈ Σ<sub>ε</sub>, the NFA may move to q</td></tr>
+<tr><td>E(R)</td><td class="plain-def">ε-reach from R</td><td>Epsilon-closure</td><td>All states reachable from set R using only ε-transitions</td></tr>
+<tr><td>E({q})</td><td class="plain-def">states ε-reachable from q</td><td>Single-state ε-closure</td><td>Includes q itself; <code>q ∈ E({q})</code> always</td></tr>
+</tbody>
+</table></div>
+
+<h3>NFA Acceptance</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Notation</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>M accepts w</td><td class="plain-def">some branch says yes</td><td>w = y₁y₂…yₘ, ∃ states r₀,r₁,…,rₘ where r₀ = s, (rᵢ, yᵢ₊₁, rᵢ₊₁) ∈ Δ, rₘ ∈ F</td></tr>
+<tr><td>L(M)</td><td class="plain-def">what M accepts</td><td>{w | M accepts w} — same expressive power as DFA</td></tr>
+</tbody>
+</table></div>
+
+<div class="theorem-box">
+  <div class="thm-label">Theorem 1.39 (Sipser) — NFA = DFA</div>
+  <div class="thm-body">Every nondeterministic finite automaton has an equivalent deterministic finite automaton. The subset construction converts an NFA with k states to a DFA with at most 2ᵏ states.</div>
+</div>
+
+<h3>Subset Construction (NFA → DFA)</h3>
+<div class="code-block">Given NFA M = (Q, Σ, Δ, s, F), build DFA D = (Q', Σ, δ', s₀', F') where:
+  Q'   = 𝒫(Q)                         — each DFA state is a SET of NFA states
+  s₀'  = E({s})                        — start = ε-closure of NFA start state
+  F'   = {R ∈ Q' | R ∩ F ≠ ∅}         — accept if any NFA accept state in set
+  δ'(R, a) = E(⋃_{q∈R} {r | (q,a,r) ∈ Δ})  — take all NFA transitions, then ε-close</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 05  CLOSURE PROPERTIES & CONSTRUCTIONS                         -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="closure">
+<div class="section-header"><span class="section-icon">🔒</span><h2>Closure Properties &amp; Constructions</h2></div>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Definition</span>
+    <span class="def-num">Closure</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">A class of languages is <em class="def-term">closed</em> under an operation if applying the operation to languages in the class always produces a language that is still in the class.</p>
+  </div>
+</div>
+
+<h3>Regular Language Closure Summary</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Operation</th><th class="plain-def-header">Closed?</th><th>Notation</th><th>Construction Method</th><th>Sipser Ref</th></tr></thead>
+<tbody>
+<tr><td>Union</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L₁ ∪ L₂</code></td><td>Product construction (or NFA union)</td><td>Thm 1.25</td></tr>
+<tr><td>Intersection</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L₁ ∩ L₂</code></td><td>Product construction</td><td>Cor 1.26 / Ex 1.25</td></tr>
+<tr><td>Concatenation</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L₁ · L₂</code></td><td>NFA with ε-edge from F₁ to q₀₂</td><td>Thm 1.26</td></tr>
+<tr><td>Kleene Star</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L*</code></td><td>NFA with ε-loops back to start</td><td>Thm 1.26</td></tr>
+<tr><td>Complement</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L̄ = Σ* \ L</code></td><td>Swap accept/non-accept in DFA</td><td>Cor 1.26</td></tr>
+<tr><td>Reversal</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>Lᴿ</code></td><td>Reverse all edges; swap start &amp; accept</td><td>Ex 1.14</td></tr>
+<tr><td>Homomorphism</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>h(L)</code></td><td>Apply h to transition labels</td><td>—</td></tr>
+<tr><td>Inverse Homomorphism</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>h⁻¹(L)</code></td><td>Preimage; apply h⁻¹ to inputs</td><td>—</td></tr>
+<tr><td>Difference</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td><code>L₁ \ L₂</code></td><td>L₁ ∩ L̄₂ (intersection + complement)</td><td>—</td></tr>
+</tbody>
+</table></div>
+
+<div class="theorem-box">
+  <div class="thm-label">Core Closure Fact</div>
+  <div class="thm-body">
+    If L₁ and L₂ are regular, then <strong>L₁ ∪ L₂</strong> is regular and <strong>L₁ ∩ L₂</strong> is regular.<br>
+    Proof of intersection uses the <em>product construction</em>: simulate both DFAs simultaneously.
+  </div>
+</div>
+
+<!-- ─── Product Construction ─── -->
+<h3>Product Construction (Union &amp; Intersection)</h3>
+<p class="prose">Given DFAs M₁ = (Q₁, Σ, δ₁, q₁, F₁) and M₂ = (Q₂, Σ, δ₂, q₂, F₂), build a single DFA that tracks both machines at once.</p>
+
+<div class="code-block">Product DFA  M = (Q, Σ, δ, q₀, F)  where:
+
+  Q   = Q₁ × Q₂          — states are PAIRS (r₁, r₂), one from each DFA
+  q₀  = (q₁, q₂)          — start in both start states simultaneously
+  δ((r₁,r₂), a) = (δ₁(r₁,a), δ₂(r₂,a))   — step both DFAs on same symbol
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  For INTERSECTION:  F = F₁ × F₂                            │
+  │    Accept iff BOTH machines are in an accept state          │
+  │                                                             │
+  │  For UNION:         F = (F₁ × Q₂) ∪ (Q₁ × F₂)             │
+  │    Accept iff AT LEAST ONE machine is in an accept state    │
+  │                                                             │
+  │  For DIFFERENCE L₁\L₂:  F = F₁ × (Q₂ \ F₂)               │
+  │    Accept iff M₁ accepts AND M₂ rejects                    │
+  └─────────────────────────────────────────────────────────────┘
+
+  Size: |Q₁| · |Q₂| states total</div>
+
+<div class="example-block">
+  <div class="expr">Example: strings over {a,b} that contain "aa" AND end in "b"</div>
+  <div class="reading">Build DFA₁ for "contains aa" (3 states) and DFA₂ for "ends in b" (2 states). Their product DFA has 3×2 = 6 states and accepts (r₁,r₂) pairs where r₁ ∈ F₁ and r₂ ∈ F₂. This is far simpler than constructing the intersection DFA from scratch.</div>
+</div>
+
+<!-- ─── Complement Construction ─── -->
+<h3>Complement Construction</h3>
+<p class="prose">Complementing a regular language is trivial for DFAs — impossible for NFAs without first converting to DFA.</p>
+
+<div class="code-block">Given DFA  M = (Q, Σ, δ, q₀, F),  build complement DFA  M̄:
+
+  M̄  = (Q, Σ, δ, q₀, Q \ F)    ← same machine, swap accept/non-accept
+
+  CRITICAL: M must be a COMPLETE DFA (every (state, symbol) pair has
+  a transition). Add a dead/sink state q_dead if any transitions
+  are missing — otherwise swapping accept states is wrong.
+
+  q_dead:  δ(q_dead, a) = q_dead  for all a ∈ Σ  (trap state)</div>
+
+<div class="theorem-box">
+  <div class="thm-label">Why NFA Complement Is Harder</div>
+  <div class="thm-body">
+    You <strong>cannot</strong> complement an NFA by swapping accept states. An NFA accepts if <em>any</em> computation path accepts — swapping accept/reject states on each branch does not invert this OR-logic. You must first convert NFA → DFA (subset construction), then swap accept states on the DFA.
+  </div>
+</div>
+
+<!-- ─── Union via NFA ─── -->
+<h3>Union via NFA Construction</h3>
+<p class="prose">An alternative to the product construction: build a new NFA that nondeterministically "chooses" which machine to run.</p>
+
+<div class="code-block">Given NFAs N₁ = (Q₁, Σ, Δ₁, s₁, F₁) and N₂ = (Q₂, Σ, Δ₂, s₂, F₂):
+
+  Union NFA  N = (Q, Σ, Δ, q₀, F):
+
+  Q   = {q₀} ∪ Q₁ ∪ Q₂          — fresh start + all states from both
+  F   = F₁ ∪ F₂                  — accept if either machine accepts
+  Δ(q₀, ε) = {s₁, s₂}           — ε-branch into either machine
+  Δ  otherwise inherits Δ₁, Δ₂  — each machine runs independently
+
+  Size: |Q₁| + |Q₂| + 1 states</div>
+
+<!-- ─── Concatenation via NFA ─── -->
+<h3>Concatenation via NFA Construction</h3>
+<p class="prose">Run N₁ to completion, then nondeterministically start N₂.</p>
+
+<div class="code-block">Given NFAs N₁ = (Q₁, Σ, Δ₁, s₁, F₁) and N₂ = (Q₂, Σ, Δ₂, s₂, F₂):
+
+  Concat NFA  N = (Q, Σ, Δ, s₁, F₂):
+
+  Q   = Q₁ ∪ Q₂
+  F   = F₂                       — only N₂'s accept states are final
+  Δ   = Δ₁ ∪ Δ₂
+      ∪ { (q, ε, s₂) | q ∈ F₁ } — ε-edge from every N₁ accept → N₂ start
+
+  Intuition: when N₁ has "finished" accepting a prefix, guess the split
+  point and hand off to N₂ via an ε-transition.
+
+  Size: |Q₁| + |Q₂| states</div>
+
+<!-- ─── Kleene Star via NFA ─── -->
+<h3>Kleene Star via NFA Construction</h3>
+<p class="prose">Allow the machine to restart itself after each accepted substring.</p>
+
+<div class="code-block">Given NFA N₁ = (Q₁, Σ, Δ₁, s₁, F₁):
+
+  Star NFA  N = (Q, Σ, Δ, q₀, F):
+
+  Q   = {q₀} ∪ Q₁               — fresh start state
+  F   = {q₀} ∪ F₁               — q₀ accepts ε (zero repetitions)
+  Δ(q₀, ε) = {s₁}               — ε-edge to original start
+  Δ  = Δ₁ ∪ { (q, ε, s₁) | q ∈ F₁ }   — loop back on each accept
+
+  Why fresh q₀?  If s₁ ∈ F₁ and we just made s₁ accept ε, adding loops
+  back to s₁ could break the original machine's behavior. A fresh q₀
+  avoids this.
+
+  Size: |Q₁| + 1 states</div>
+
+<!-- ─── Reversal ─── -->
+<h3>Reversal Construction</h3>
+<div class="code-block">Given DFA  M = (Q, Σ, δ, q₀, F),  build NFA for Lᴿ:
+
+  1. Reverse all edges:  if δ(p, a) = q then add (q, a, p) to Δ
+  2. New start state  q₀' with ε-transitions to every q ∈ F
+  3. New accept state = original q₀
+
+  The result is an NFA (may be nondeterministic after reversing).
+  Convert to DFA via subset construction if a DFA is required.</div>
+
+<!-- ─── CFL Closure ─── -->
+<h3>Context-Free Language Closure</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Operation</th><th class="plain-def-header">Closed?</th><th>Method / Note</th></tr></thead>
+<tbody>
+<tr><td>Union</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td>New start S → S₁ | S₂</td></tr>
+<tr><td>Concatenation</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td>New start S → S₁ S₂</td></tr>
+<tr><td>Kleene Star</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td>New start S → S S₁ | ε</td></tr>
+<tr><td>Reversal</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td>Reverse all grammar rules right-hand sides</td></tr>
+<tr><td>Intersection with Regular</td><td class="plain-def" style="color:var(--accent)">✓ Yes</td><td>Intersect PDA with DFA (product PDA construction)</td></tr>
+<tr><td>Intersection</td><td class="plain-def" style="color:#f56450">✗ No</td><td>{aⁿbⁿcⁿ} = {aⁿbⁿ|n≥0} ∩ {aⁿbⁿ|n≥0} fails — not CFL</td></tr>
+<tr><td>Complement</td><td class="plain-def" style="color:#f56450">✗ No</td><td>If CFLs were closed under complement, then L ∩ L̄ = ∅ would let us decide CFL intersection — contradiction</td></tr>
+</tbody>
+</table></div>
+
+<div class="example-block">
+  <div class="expr">Closure proof sketch — Regular ∩ CFL = CFL</div>
+  <div class="reading">Given PDA P for CFL L₁ and DFA D for regular L₂, build a product machine that runs P and D in parallel. The PDA component handles the stack; the DFA component tracks the regular constraint. Accept when both accept. This product machine is a valid PDA, so the intersection is context-free.</div>
+</div>
+
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 06  REGULAR EXPRESSIONS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="regex">
+<div class="section-header"><span class="section-icon">✳️</span><h2>Regular Expressions</h2></div>
+<p class="prose">Sipser Definition 1.52: A <strong>regular expression</strong> R describes a language. R is built from atomic expressions using the three operations: union (<code>∪</code>), concatenation, and Kleene star (<code>*</code>).</p>
+
+<h3>Regular Expression Syntax</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Operation</th><th>Language Denoted</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>a</td><td class="plain-def">just the symbol a</td><td>Atom</td><td>{a} — the single-symbol language</td><td><code>0</code> denotes {0}</td></tr>
+<tr><td>ε</td><td class="plain-def">empty string only</td><td>Epsilon</td><td>{ε}</td><td><code>ε</code> denotes {ε}</td></tr>
+<tr><td>∅</td><td class="plain-def">nothing</td><td>Empty language</td><td>∅ — no strings at all</td><td><code>∅</code> denotes {}</td></tr>
+<tr><td>R₁ ∪ R₂</td><td class="plain-def">R₁ or R₂</td><td>Union</td><td>L(R₁) ∪ L(R₂)</td><td><code>0 ∪ 1</code> = {0,1}</td></tr>
+<tr><td>R₁ ∘ R₂ or R₁R₂</td><td class="plain-def">R₁ then R₂</td><td>Concatenation</td><td>L(R₁) · L(R₂)</td><td><code>01</code> = {01}</td></tr>
+<tr><td>R*</td><td class="plain-def">zero or more R's</td><td>Kleene star</td><td>L(R)* — including ε</td><td><code>0*</code> = {ε,0,00,000,...}</td></tr>
+<tr><td>R⁺</td><td class="plain-def">one or more R's</td><td>Positive closure</td><td>L(R)⁺ — shorthand for RR*</td><td><code>0⁺</code> = {0,00,000,...}</td></tr>
+<tr><td>Rᵏ</td><td class="plain-def">exactly k of R</td><td>Repetition</td><td>k-fold concatenation of R with itself</td><td><code>0³</code> = {000}</td></tr>
+</tbody>
+</table></div>
+
+<h3>Equivalence &amp; Identities</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Identity</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>R ∪ ∅ = R</td><td class="plain-def">anything or nothing = anything</td><td>∅ is the identity for union</td></tr>
+<tr><td>R ∘ ε = R</td><td class="plain-def">anything then nothing = anything</td><td>ε is the identity for concatenation</td></tr>
+<tr><td>R ∘ ∅ = ∅</td><td class="plain-def">anything then impossible = impossible</td><td>∅ annihilates concatenation</td></tr>
+<tr><td>∅* = {ε}</td><td class="plain-def">star of nothing = empty string</td><td>Zero concatenations of ∅ = ε</td></tr>
+<tr><td>(R*)* = R*</td><td class="plain-def">star of star = star</td><td>Star is idempotent</td></tr>
+</tbody>
+</table></div>
+
+<div class="theorem-box">
+  <div class="thm-label">Theorem 1.54 (Sipser) — REGEX = Regular Languages</div>
+  <div class="thm-body">A language is regular if and only if some regular expression describes it. Proof uses GNFA (Generalized NFA) to convert DFA → regex, and induction on regex structure to convert regex → NFA.</div>
+</div>
+
+<h3>Generalized NFA (GNFA)</h3>
+<p class="prose">A <strong>GNFA</strong> is like an NFA, but transition labels are <em>regular expressions</em> instead of single symbols. It is the intermediate machine used in Sipser's proof of Theorem 1.54 to mechanically convert any DFA into an equivalent regular expression via <strong>state ripping</strong>.</p>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Definition</span>
+    <span class="def-num">1.64</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">A <em class="def-term">generalized nondeterministic finite automaton</em> is a 5-tuple (Q, Σ, δ, q<sub>s</sub>, q<sub>acc</sub>), where</p>
+    <ol>
+      <li>Q is a finite set of <strong>states</strong></li>
+      <li>Σ is the <strong>input alphabet</strong></li>
+      <li>δ: (Q \ {q<sub>acc</sub>}) × (Q \ {q<sub>s</sub>}) → ℛ is the <strong>transition function</strong>, where ℛ is the set of all regular expressions over Σ. <span class="set-notation">δ(q<sub>i</sub>, q<sub>j</sub>) = R</span></li>
+      <li>q<sub>s</sub> ∈ Q is the <strong>start state</strong> — unique, with no incoming transitions</li>
+      <li>q<sub>acc</sub> ∈ Q is the <strong>sole accept state</strong> — unique, with no outgoing transitions</li>
+    </ol>
+  </div>
+</div>
+
+<h3>GNFA State Naming</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Role</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>q<sub>s</sub></td><td class="plain-def">the new start</td><td>New start state</td><td>Added fresh when converting from DFA. Has ε-transitions to every original state. No incoming edges allowed.</td></tr>
+<tr><td>q<sub>acc</sub></td><td class="plain-def">the new accept</td><td>New sole accept state</td><td>Added fresh. Every original DFA accept state gets an ε-transition into q<sub>acc</sub>. No outgoing edges allowed.</td></tr>
+<tr><td>q₁, q₂, …, qₙ</td><td class="plain-def">the original states</td><td>Interior states (to be ripped)</td><td>The states from the original DFA. These are removed one at a time during state ripping.</td></tr>
+</tbody>
+</table></div>
+
+<h3>DFA → GNFA Construction</h3>
+<div class="code-block">Given DFA M = (Q, Σ, δ, q₀, F), build GNFA G as follows:
+
+1. Add new start state q_s with ε-transition to original q₀
+2. Add new accept state q_acc
+3. For every original accept state q ∈ F, add ε-transition q → q_acc
+4. For every DFA transition δ(qᵢ, a) = qⱼ, label edge qᵢ → qⱼ with "a"
+   (if multiple symbols lead from qᵢ to qⱼ, combine them with ∪)
+5. For any pair (qᵢ, qⱼ) with no transition, add edge labeled ∅
+   (∅ means "this path is impossible")
+
+Result: GNFA with k+2 states where k = |Q|</div>
+
+<h3>State Ripping</h3>
+<p class="prose">State ripping removes one interior state at a time, updating the remaining transition labels with a regular expression that absorbs all paths through the ripped state. After ripping all k interior states, only q<sub>s</sub> and q<sub>acc</sub> remain, and the single label δ(q<sub>s</sub>, q<sub>acc</sub>) <em>is</em> the regular expression for the language.</p>
+
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Notation</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>q<sub>rip</sub></td><td class="plain-def">the state being removed</td><td>The interior state selected for ripping in this round</td></tr>
+<tr><td>R₁</td><td class="plain-def">getting into q<sub>rip</sub></td><td>Label on edge q<sub>i</sub> → q<sub>rip</sub> (from some state qᵢ to the ripped state)</td></tr>
+<tr><td>R₂</td><td class="plain-def">looping at q<sub>rip</sub></td><td>Label on the self-loop q<sub>rip</sub> → q<sub>rip</sub> (∅ if none)</td></tr>
+<tr><td>R₃</td><td class="plain-def">leaving q<sub>rip</sub></td><td>Label on edge q<sub>rip</sub> → q<sub>j</sub> (to some state qⱼ)</td></tr>
+<tr><td>R₄</td><td class="plain-def">bypass path</td><td>Label already on edge q<sub>i</sub> → q<sub>j</sub> before ripping (∅ if none)</td></tr>
+</tbody>
+</table></div>
+
+<div class="theorem-box">
+  <div class="thm-label">State Ripping Formula</div>
+  <div class="thm-body">
+    When ripping q<sub>rip</sub>, replace the label on every remaining edge q<sub>i</sub> → q<sub>j</sub> with:<br><br>
+    <strong>δ'(qᵢ, qⱼ) = R₁(R₂)*R₃ ∪ R₄</strong><br><br>
+    Read: "go from qᵢ into q<sub>rip</sub> via R₁, loop any number of times via R₂, exit to qⱼ via R₃ — OR take the existing bypass R₄."<br><br>
+    Apply this for <em>every</em> pair (qᵢ, qⱼ) where qᵢ ≠ q<sub>rip</sub> and qⱼ ≠ q<sub>rip</sub>. Then delete q<sub>rip</sub> and all its edges.
+  </div>
+</div>
+
+<div class="code-block">Full DFA → Regex algorithm (Sipser Lemma 1.60):
+
+CONVERT(G):
+  if G has only 2 states (q_s and q_acc):
+      return δ(q_s, q_acc)          ← this label IS the regex
+  else:
+      pick any interior state q_rip
+      for each pair (qᵢ, qⱼ) with qᵢ ≠ q_rip, qⱼ ≠ q_rip:
+          R₁ = δ(qᵢ, q_rip)
+          R₂ = δ(q_rip, q_rip)
+          R₃ = δ(q_rip, qⱼ)
+          R₄ = δ(qᵢ, qⱼ)
+          δ(qᵢ, qⱼ) ← R₁(R₂)*R₃ ∪ R₄
+      remove q_rip and all its edges
+      return CONVERT(G)              ← recurse on smaller GNFA</div>
+
+<div class="example-block">
+  <div class="expr">Ripping a state with a self-loop</div>
+  <div class="reading">Suppose qᵢ → q<sub>rip</sub> is labeled <code>a</code>, q<sub>rip</sub> → q<sub>rip</sub> is labeled <code>b</code>, q<sub>rip</sub> → qⱼ is labeled <code>c</code>, and qᵢ → qⱼ already has label <code>d</code>. After ripping: δ'(qᵢ, qⱼ) = <code>ab*c ∪ d</code>. The self-loop <code>b</code> becomes a Kleene star, capturing any number of loops through the ripped state.</div>
+</div>
+
+<h3>Worked Example — DFA → GNFA → Regex</h3>
+<p class="prose">
+  The DFA below recognizes strings over <code>{a, b}</code> that <strong>start with <code>a</code></strong> and <strong>contain at least one <code>b</code></strong>.
+  Step through the conversion to see how state ripping collapses the GNFA into a single regular expression.
+</p>
+
+<div class="gnfa-visualizer">
+  <div class="gnfa-viz-header">
+    <span class="gnfa-viz-title">Interactive GNFA Conversion</span>
+    <div class="gnfa-step-controls">
+      <button class="gnfa-btn" id="gnfa-prev" onclick="gnfaStep(-1)" disabled>← Prev</button>
+      <span class="gnfa-step-badge" id="gnfa-badge">Step 0 / 4</span>
+      <button class="gnfa-btn" id="gnfa-next" onclick="gnfaStep(1)">Next →</button>
+    </div>
+  </div>
+  <div class="gnfa-stage">
+    <div class="gnfa-diagram-wrap">
+      <div class="gnfa-svg-container" id="gnfa-svg-wrap"></div>
+    </div>
+    <div class="gnfa-info" id="gnfa-info"></div>
+  </div>
+</div>
+
+<div class="theorem-box" style="margin-top:0.5rem;">
+  <div class="thm-label">Key Insight — Why GNFA Works</div>
+  <div class="thm-body">
+    Each state rip is lossless: the formula <strong>R₁(R₂)*R₃ ∪ R₄</strong> captures every path that used to pass through the ripped state. After k rips the only edge left — from q<sub>s</sub> to q<sub>acc</sub> — carries the complete regular expression for the language.
+  </div>
+</div>
+
+<h3>Regex ↔ NFA ↔ DFA Equivalence Chain</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Direction</th><th class="plain-def-header">Method</th><th>Key Idea</th><th>Theorem</th></tr></thead>
+<tbody>
+<tr><td>Regex → NFA</td><td class="plain-def">structural induction</td><td>Build NFA for each atomic regex; combine for ∪, ∘, *</td><td>Lemma 1.55</td></tr>
+<tr><td>NFA → DFA</td><td class="plain-def">powerset construction</td><td>States of DFA = subsets of NFA states; up to 2ᵏ states</td><td>Theorem 1.39</td></tr>
+<tr><td>DFA → GNFA</td><td class="plain-def">add q_s, q_acc + ε-edges</td><td>Wrap DFA with fresh start/accept; label missing edges ∅</td><td>Lemma 1.60 proof</td></tr>
+<tr><td>GNFA → Regex</td><td class="plain-def">state ripping</td><td>Rip each interior state; formula absorbs all paths through it</td><td>Lemma 1.60</td></tr>
+</tbody>
+</table></div>
+
+<script>
+(function() {
+  /* ─── Step data ─────────────────────────────────────────── */
+  const STEPS = [
+    {
+      label: "Step 0 / 4",
+      title: "Original DFA",
+      desc: "The DFA has 3 states and recognizes strings over {a, b} that start with 'a' and contain at least one 'b'.<br><br>• <strong>q₀</strong> = start (dead for wrong first symbol)<br>• <strong>q₁</strong> = seen first 'a', awaiting 'b'<br>• <strong>q₂</strong> = seen 'a' then ≥1 'b' (accept)<br><br>Accepted: <span class='regex-pill'>ab</span>, <span class='regex-pill'>aab</span>, <span class='regex-pill'>abb</span>, <span class='regex-pill'>abba</span>…",
+      formula: null,
+      result: null,
+      nodes: [
+        { id:"q0", x:60,  y:130, label:"q₀", isStart:true,  isAccept:false, rip:false },
+        { id:"q1", x:195, y:130, label:"q₁", isStart:false, isAccept:false, rip:false },
+        { id:"q2", x:330, y:130, label:"q₂", isStart:false, isAccept:true,  rip:false },
+      ],
+      edges: [
+        { from:"q0", to:"q1", label:"a",     curve:0 },
+        { from:"q0", to:"q0", label:"b",     self:true },
+        { from:"q1", to:"q1", label:"a",     self:true },
+        { from:"q1", to:"q2", label:"b",     curve:0 },
+        { from:"q2", to:"q2", label:"a∪b",   self:true },
+      ]
+    },
+    {
+      label: "Step 1 / 4",
+      title: "DFA → GNFA",
+      desc: "Add fresh <strong>q<sub>s</sub></strong> with an ε-edge to q₀, and fresh <strong>q<sub>acc</sub></strong>. Since q₂ is the only DFA accept state, add ε from q₂ → q<sub>acc</sub>.<br><br>Missing directed pairs get label <strong>∅</strong> (impossible path). The GNFA now has 5 states.",
+      formula: "Added: qs --ε--> q0\n         q2 --ε--> qacc\nMissing edges labeled ∅",
+      result: null,
+      nodes: [
+        { id:"qs",   x:25,  y:130, label:"qₛ",   isStart:true,  isAccept:false, rip:false },
+        { id:"q0",   x:130, y:130, label:"q₀",   isStart:false, isAccept:false, rip:false },
+        { id:"q1",   x:240, y:130, label:"q₁",   isStart:false, isAccept:false, rip:false },
+        { id:"q2",   x:350, y:130, label:"q₂",   isStart:false, isAccept:false, rip:false },
+        { id:"qacc", x:455, y:130, label:"qₐ",   isStart:false, isAccept:true,  rip:false },
+      ],
+      edges: [
+        { from:"qs",   to:"q0",   label:"ε",     curve:0 },
+        { from:"q0",   to:"q1",   label:"a",     curve:0 },
+        { from:"q0",   to:"q0",   label:"b",     self:true },
+        { from:"q1",   to:"q1",   label:"a",     self:true },
+        { from:"q1",   to:"q2",   label:"b",     curve:0 },
+        { from:"q2",   to:"q2",   label:"a∪b",   self:true },
+        { from:"q2",   to:"qacc", label:"ε",     curve:0 },
+      ]
+    },
+    {
+      label: "Step 2 / 4",
+      title: "Rip q₀",
+      desc: "Rip <strong>q₀</strong> (highlighted in red).<br><br>Only path through q₀ relevant to remaining states:<br>• q<sub>s</sub> → q₀ via <span class='regex-pill'>ε</span><br>• q₀ self-loop <span class='regex-pill'>b</span><br>• q₀ → q₁ via <span class='regex-pill'>a</span><br>• q<sub>s</sub> → q₁ bypass: <span class='regex-pill'>∅</span><br><br>New label: <strong>ε · b* · a ∪ ∅ = b*a</strong>",
+      formula: "R₁=ε, R₂=b, R₃=a, R₄=∅\nδ(qs, q1) = ε(b*)a ∪ ∅ = b*a",
+      result: null,
+      nodes: [
+        { id:"qs",   x:40,  y:130, label:"qₛ",   isStart:true,  isAccept:false, rip:false },
+        { id:"q0",   x:160, y:130, label:"q₀",   isStart:false, isAccept:false, rip:true  },
+        { id:"q1",   x:290, y:130, label:"q₁",   isStart:false, isAccept:false, rip:false },
+        { id:"q2",   x:400, y:130, label:"q₂",   isStart:false, isAccept:false, rip:false },
+        { id:"qacc", x:490, y:130, label:"qₐ",   isStart:false, isAccept:true,  rip:false },
+      ],
+      edges: [
+        { from:"qs",   to:"q0",   label:"ε",     curve:0,  rip:true },
+        { from:"q0",   to:"q0",   label:"b",     self:true, rip:true },
+        { from:"q0",   to:"q1",   label:"a",     curve:0,  rip:true },
+        { from:"q1",   to:"q1",   label:"a",     self:true },
+        { from:"q1",   to:"q2",   label:"b",     curve:0 },
+        { from:"q2",   to:"q2",   label:"a∪b",   self:true },
+        { from:"q2",   to:"qacc", label:"ε",     curve:0 },
+        { from:"qs",   to:"q1",   label:"b*a",   curve:-40, isNew:true },
+      ]
+    },
+    {
+      label: "Step 3 / 4",
+      title: "Rip q₁",
+      desc: "After removing q₀, rip <strong>q₁</strong>.<br><br>• q<sub>s</sub> → q₁ via <span class='regex-pill'>b*a</span><br>• q₁ self-loop <span class='regex-pill'>a</span><br>• q₁ → q₂ via <span class='regex-pill'>b</span><br>• q<sub>s</sub> → q₂ bypass: <span class='regex-pill'>∅</span><br><br>New label: <strong>b*a · a* · b ∪ ∅ = b*aa*b</strong>",
+      formula: "R₁=b*a, R₂=a, R₃=b, R₄=∅\nδ(qs, q2) = b*a(a*)b ∪ ∅\n          = b*a⁺b",
+      result: null,
+      nodes: [
+        { id:"qs",   x:60,  y:130, label:"qₛ",   isStart:true,  isAccept:false, rip:false },
+        { id:"q1",   x:210, y:130, label:"q₁",   isStart:false, isAccept:false, rip:true  },
+        { id:"q2",   x:360, y:130, label:"q₂",   isStart:false, isAccept:false, rip:false },
+        { id:"qacc", x:490, y:130, label:"qₐ",   isStart:false, isAccept:true,  rip:false },
+      ],
+      edges: [
+        { from:"qs",   to:"q1",   label:"b*a",   curve:0,  rip:true },
+        { from:"q1",   to:"q1",   label:"a",     self:true, rip:true },
+        { from:"q1",   to:"q2",   label:"b",     curve:0,  rip:true },
+        { from:"q2",   to:"q2",   label:"a∪b",   self:true },
+        { from:"q2",   to:"qacc", label:"ε",     curve:0 },
+        { from:"qs",   to:"q2",   label:"b*a⁺b", curve:-42, isNew:true },
+      ]
+    },
+    {
+      label: "Step 4 / 4",
+      title: "Rip q₂ → Final Regex",
+      desc: "Rip <strong>q₂</strong> — the last interior state.<br><br>• q<sub>s</sub> → q₂ via <span class='regex-pill'>b*a⁺b</span><br>• q₂ self-loop <span class='regex-pill'>a∪b</span><br>• q₂ → q<sub>acc</sub> via <span class='regex-pill'>ε</span><br>• q<sub>s</sub> → q<sub>acc</sub> bypass: <span class='regex-pill'>∅</span><br><br>New label on q<sub>s</sub> → q<sub>acc</sub>:<br><strong>b*a⁺b(a∪b)*ε ∪ ∅ = b*a⁺b(a∪b)*</strong>",
+      formula: "R₁=b*a⁺b, R₂=a∪b, R₃=ε, R₄=∅\nδ(qs,qacc) = b*a⁺b · (a∪b)* · ε ∪ ∅\n           = b*a⁺b(a∪b)*",
+      result: "b*a⁺b(a∪b)*",
+      nodes: [
+        { id:"qs",   x:120, y:130, label:"qₛ",   isStart:true,  isAccept:false, rip:false },
+        { id:"qacc", x:380, y:130, label:"qₐ",   isStart:false, isAccept:true,  rip:false },
+      ],
+      edges: [
+        { from:"qs", to:"qacc", label:"b*a⁺b(a∪b)*", curve:0, isNew:true },
+      ]
+    },
+  ];
+
+  let currentStep = 0;
+
+  function gnfaStep(dir) {
+    currentStep = Math.max(0, Math.min(STEPS.length - 1, currentStep + dir));
+    render();
+  }
+  window.gnfaStep = gnfaStep;
+
+  function render() {
+    const step = STEPS[currentStep];
+    document.getElementById('gnfa-badge').textContent = step.label;
+    document.getElementById('gnfa-prev').disabled = currentStep === 0;
+    document.getElementById('gnfa-next').disabled = currentStep === STEPS.length - 1;
+
+    // Diagram
+    document.getElementById('gnfa-svg-wrap').innerHTML = buildSVG(step);
+
+    // Info panel
+    let infoHTML = `
+      <div class="gnfa-desc-box">
+        <div class="gnfa-desc-label">${step.title}</div>
+        <div class="gnfa-desc-text">${step.desc}</div>
+      </div>`;
+
+    if (step.formula) {
+      infoHTML += `<div class="gnfa-formula-box"><span class="formula-label">Ripping Formula</span>${step.formula}</div>`;
+    }
+
+    if (step.result) {
+      infoHTML += `
+        <div class="gnfa-result-banner">
+          <div class="gnfa-result-label">✓ Final Regular Expression</div>
+          <div class="gnfa-result-expr">${step.result}</div>
+        </div>`;
+    }
+
+    document.getElementById('gnfa-info').innerHTML = infoHTML;
+  }
+
+  function buildSVG(step) {
+    const W = 530, H = 240;
+    const r = 26;
+    const nodeMap = {};
+    step.nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono, monospace">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#6ee89a"/>
+        </marker>
+        <marker id="arr-rip" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#f56450"/>
+        </marker>
+        <marker id="arr-new" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#82c8f8"/>
+        </marker>
+      </defs>`;
+
+    // Edges
+    step.edges.forEach(e => {
+      if (e.self) {
+        const n = nodeMap[e.from];
+        const cx = n.x, cy = n.y - r - 2;
+        const color = e.rip ? '#f56450' : '#6ee89a';
+        const markId = e.rip ? 'arr-rip' : 'arr';
+        svg += `<path d="M${cx-14},${n.y-r} C${cx-28},${cy-28} ${cx+28},${cy-28} ${cx+14},${n.y-r}"
+          fill="none" stroke="${color}" stroke-width="1.5" marker-end="url(#${markId})"/>
+          <text x="${cx}" y="${cy-22}" text-anchor="middle" fill="${color}" font-size="11">${e.label}</text>`;
+        return;
+      }
+      const s = nodeMap[e.from], t = nodeMap[e.to];
+      const dx = t.x - s.x, dy = t.y - s.y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const nx = dx/dist, ny = dy/dist;
+      const x1 = s.x + nx*r, y1 = s.y + ny*r;
+      const x2 = t.x - nx*(r+8), y2 = t.y - ny*(r+8);
+      const color = e.isNew ? '#82c8f8' : e.rip ? '#f56450' : '#6ee89a';
+      const markId = e.isNew ? 'arr-new' : e.rip ? 'arr-rip' : 'arr';
+
+      if (e.curve && e.curve !== 0) {
+        const mx = (s.x+t.x)/2, my = (s.y+t.y)/2;
+        const cx2 = mx - ny*e.curve, cy2 = my + nx*e.curve;
+        const dashed = e.rip ? 'stroke-dasharray="5,3"' : '';
+        svg += `<path d="M${x1},${y1} Q${cx2},${cy2} ${x2},${y2}"
+          fill="none" stroke="${color}" stroke-width="1.5" ${dashed} marker-end="url(#${markId})"/>`;
+        const lx = (x1+2*cx2+x2)/4, ly = (y1+2*cy2+y2)/4 - 6;
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" fill="${color}" font-size="10.5">${e.label}</text>`;
+      } else {
+        const dashed = e.rip ? 'stroke-dasharray="5,3"' : '';
+        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+          stroke="${color}" stroke-width="1.5" ${dashed} marker-end="url(#${markId})"/>`;
+        const mx = (x1+x2)/2, my = (y1+y2)/2;
+        svg += `<text x="${mx}" y="${my-8}" text-anchor="middle" fill="${color}" font-size="11">${e.label}</text>`;
+      }
+    });
+
+    // Nodes
+    step.nodes.forEach(n => {
+      const fill = n.rip ? 'rgba(245,100,80,0.15)' : 'rgba(26,26,31,0.8)';
+      const stroke = n.rip ? '#f56450' : '#38384a';
+      const textColor = n.rip ? '#f5a090' : '#f0f0fa';
+
+      if (n.isStart) {
+        svg += `<line x1="${n.x-r-22}" y1="${n.y}" x2="${n.x-r-2}" y2="${n.y}" stroke="#6ee89a" stroke-width="1.5" marker-end="url(#arr)"/>`;
+      }
+      svg += `<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${n.rip?2:1.5}"/>`;
+      if (n.isAccept) {
+        svg += `<circle cx="${n.x}" cy="${n.y}" r="${r-5}" fill="none" stroke="${stroke}" stroke-width="1"/>`;
+      }
+      svg += `<text x="${n.x}" y="${n.y+5}" text-anchor="middle" fill="${textColor}" font-size="13" font-weight="600">${n.label}</text>`;
+    });
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    render();
+  }
+})();
+</script>
+
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 06  CFG -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="cfg">
+<div class="section-header"><span class="section-icon">📝</span><h2>Context-Free Grammars (CFG)</h2></div>
+<p class="prose">Sipser Definition 2.2: A CFG is a 4-tuple <strong>G = (V, Σ, R, S)</strong>. It generates strings by repeatedly replacing variables with the right-hand sides of rules.</p>
+
+<h3>CFG Components</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>What It Is</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>V</td><td class="plain-def">variables</td><td>Variables (nonterminals)</td><td>Finite set of symbols that can be replaced</td><td><code>V = {S, A, B}</code></td></tr>
+<tr><td>Σ</td><td class="plain-def">terminals</td><td>Terminal alphabet</td><td>Symbols that appear in strings; V ∩ Σ = ∅</td><td><code>Σ = {a, b}</code></td></tr>
+<tr><td>R</td><td class="plain-def">the rules</td><td>Rules / Productions</td><td>Finite set of rules of the form A → w</td><td><code>S → aSb | ε</code></td></tr>
+<tr><td>S</td><td class="plain-def">start here</td><td>Start variable</td><td>The variable to start derivations from; S ∈ V</td><td>Usually written S or S₀</td></tr>
+</tbody>
+</table></div>
+
+<h3>Derivation Notation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>⇒</td><td class="plain-def">rewrites in one step</td><td>Derives (one step)</td><td>Apply one rule to replace one variable</td></tr>
+<tr><td>⇒*</td><td class="plain-def">rewrites in any steps</td><td>Derives (zero or more)</td><td>Sequence of zero or more single derivation steps</td></tr>
+<tr><td>⇒ₗₘ</td><td class="plain-def">leftmost rewrite</td><td>Leftmost derivation</td><td>Always replace the leftmost variable; used to define ambiguity</td></tr>
+<tr><td>L(G)</td><td class="plain-def">what G generates</td><td>Language of grammar</td><td>{w ∈ Σ* | S ⇒* w} — all terminal strings derivable from S</td></tr>
+<tr><td>CFL</td><td class="plain-def">grammar-generable</td><td>Context-free language</td><td>Language generated by some CFG</td></tr>
+</tbody>
+</table></div>
+
+<div class="example-block">
+  <div class="expr">G: S → aSb | ε</div>
+  <div class="reading">Derivation of "aabb": S ⇒ aSb ⇒ aaSbb ⇒ aabb. This grammar generates L = {aⁿbⁿ | n ≥ 0} — a classic CFL that is not regular.</div>
+</div>
+
+<h3>Parse Trees &amp; Ambiguity</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>parse tree</td><td class="plain-def">tree form of derivation</td><td>Tree where root = S, internal nodes = variables, leaves = terminals/ε, children ordered by rule applied</td></tr>
+<tr><td>yield of tree</td><td class="plain-def">the string it generates</td><td>Leaves of parse tree read left-to-right</td></tr>
+<tr><td>ambiguous</td><td class="plain-def">two ways to parse same string</td><td>Grammar G is ambiguous if some string has two distinct leftmost derivations (two distinct parse trees)</td></tr>
+<tr><td>inherently ambiguous</td><td class="plain-def">ambiguity can't be fixed</td><td>A CFL for which every CFG generating it is ambiguous</td></tr>
+</tbody>
+</table></div>
+
+<h3>Normal Forms</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Form</th><th class="plain-def-header">Plain English</th><th>Definition</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>CNF (Chomsky Normal Form)</td><td class="plain-def">two-var or one-terminal rules</td><td>Every rule is A → BC or A → a (plus S → ε if ε ∈ L)</td><td>Proofs, CYK algorithm, pumping lemma for CFLs</td></tr>
+<tr><td>GNF (Greibach Normal Form)</td><td class="plain-def">terminal first</td><td>Every rule is A → aB₁B₂…Bₖ with a ∈ Σ</td><td>Simpler PDA construction</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 07  PDA -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="pda">
+<div class="section-header"><span class="section-icon">📚</span><h2>Pushdown Automata (PDA)</h2></div>
+<p class="prose">Sipser Definition 2.13: A PDA is a 6-tuple <strong>M = (Q, Σ, Γ, δ, q₀, F)</strong>. It is an NFA augmented with a stack, giving it the power to recognize all context-free languages.</p>
+
+<h3>PDA Formal Definition</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Component</th><th>Formal Type</th></tr></thead>
+<tbody>
+<tr><td>Q</td><td class="plain-def">the states</td><td>States</td><td>Finite set of states</td></tr>
+<tr><td>Σ</td><td class="plain-def">input alphabet</td><td>Input alphabet</td><td>Finite set; symbols read from input</td></tr>
+<tr><td>Γ</td><td class="plain-def">stack alphabet</td><td>Stack alphabet</td><td>Finite set; symbols pushed/popped from stack</td></tr>
+<tr><td>δ</td><td class="plain-def">the rules</td><td>Transition function</td><td><code>δ: Q × Σ<sub>ε</sub> × Γ<sub>ε</sub> → 𝒫(Q × Γ<sub>ε</sub>)</code></td></tr>
+<tr><td>q₀</td><td class="plain-def">start state</td><td>Start state</td><td><code>q₀ ∈ Q</code></td></tr>
+<tr><td>F</td><td class="plain-def">accept states</td><td>Accept states</td><td><code>F ⊆ Q</code></td></tr>
+</tbody>
+</table></div>
+
+<h3>PDA Transition Notation</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Notation</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>δ(q, a, s) ∋ (r, t)</td><td class="plain-def">from q, reading a, pop s, push t, go to r</td><td>In state q, reading input a and popping s from stack, push t and move to state r</td></tr>
+<tr><td>a = ε</td><td class="plain-def">no input read</td><td>ε-transition on input; move without consuming a symbol</td></tr>
+<tr><td>s = ε</td><td class="plain-def">no pop</td><td>Don't read from stack</td></tr>
+<tr><td>t = ε</td><td class="plain-def">no push</td><td>Don't push to stack (net pop)</td></tr>
+</tbody>
+</table></div>
+
+<div class="code-block">PDA for L = {aⁿbⁿ | n ≥ 0}:
+  q₀ →(ε, ε → $)→ q₁       push bottom marker $
+  q₁ →(a, ε → a)→ q₁       reading a's: push an a each time  
+  q₁ →(ε, ε → ε)→ q₂       nondeterministically switch to popping
+  q₂ →(b, a → ε)→ q₂       reading b's: pop an a each time
+  q₂ →(ε, $ → ε)→ q₃       pop bottom marker when done
+  q₃ is an accept state</div>
+
+<div class="theorem-box">
+  <div class="thm-label">Theorem 2.20 (Sipser)</div>
+  <div class="thm-body">A language is context-free if and only if some pushdown automaton recognizes it.</div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 08  TURING MACHINES -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="tm">
+<div class="section-header"><span class="section-icon">📼</span><h2>Turing Machines (TM)</h2></div>
+<p class="prose">Sipser Definition 3.3: A TM is a 7-tuple <strong>M = (Q, Σ, Γ, δ, q₀, q<sub>accept</sub>, q<sub>reject</sub>)</strong>. It has an infinite read/write tape and can move left or right. The most powerful model of computation.</p>
+
+<h3>TM Formal Definition</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Component</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Q</td><td class="plain-def">the states</td><td>States</td><td>Finite set; includes q<sub>accept</sub> and q<sub>reject</sub></td></tr>
+<tr><td>Σ</td><td class="plain-def">input alphabet</td><td>Input alphabet</td><td>Finite set; ⊔ ∉ Σ</td></tr>
+<tr><td>Γ</td><td class="plain-def">tape alphabet</td><td>Tape alphabet</td><td>Finite set; Σ ⊆ Γ, ⊔ ∈ Γ</td></tr>
+<tr><td>δ</td><td class="plain-def">the rules</td><td>Transition function</td><td><code>δ: Q' × Γ → Q × Γ × {L, R}</code> where Q' = Q \ {q<sub>accept</sub>, q<sub>reject</sub>}</td></tr>
+<tr><td>q₀</td><td class="plain-def">start here</td><td>Start state</td><td><code>q₀ ∈ Q</code></td></tr>
+<tr><td>q<sub>accept</sub></td><td class="plain-def">yes state</td><td>Accept state</td><td>Halt and accept immediately upon entering</td></tr>
+<tr><td>q<sub>reject</sub></td><td class="plain-def">no state</td><td>Reject state</td><td>Halt and reject immediately upon entering; q<sub>reject</sub> ≠ q<sub>accept</sub></td></tr>
+</tbody>
+</table></div>
+
+<h3>TM Transition Notation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>δ(q, a) = (r, b, L)</td><td class="plain-def">in q read a, write b, go left, enter r</td><td>Transition</td><td>State q, reading a → write b, move Left, enter state r</td></tr>
+<tr><td>δ(q, a) = (r, b, R)</td><td class="plain-def">in q read a, write b, go right, enter r</td><td>Transition</td><td>State q, reading a → write b, move Right, enter state r</td></tr>
+<tr><td>L</td><td class="plain-def">move tape head left</td><td>Left move</td><td>Head moves one cell to the left</td></tr>
+<tr><td>R</td><td class="plain-def">move tape head right</td><td>Right move</td><td>Head moves one cell to the right</td></tr>
+<tr><td>⊔</td><td class="plain-def">blank</td><td>Blank symbol</td><td>All tape cells not written are blank; ⊔ ∈ Γ \ Σ</td></tr>
+</tbody>
+</table></div>
+
+<h3>Configurations &amp; Computation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>uqv</td><td class="plain-def">tape contents with state</td><td>Configuration</td><td>String u is left of head, state q, string v is at/right of head</td></tr>
+<tr><td>C₁ ⊢ C₂</td><td class="plain-def">one computation step</td><td>Yields (one step)</td><td>Configuration C₁ yields C₂ in a single TM step</td></tr>
+<tr><td>C₁ ⊢* C₂</td><td class="plain-def">zero or more steps</td><td>Yields (multi-step)</td><td>C₁ reaches C₂ in zero or more steps</td></tr>
+<tr><td>start config</td><td class="plain-def">initial setup</td><td>Starting configuration</td><td>q₀w — state q₀, tape contains input w, head at left</td></tr>
+<tr><td>accept config</td><td class="plain-def">yes answer</td><td>Accepting configuration</td><td>Any configuration in which state = q<sub>accept</sub></td></tr>
+<tr><td>reject config</td><td class="plain-def">no answer</td><td>Rejecting configuration</td><td>Any configuration in which state = q<sub>reject</sub></td></tr>
+</tbody>
+</table></div>
+
+<h3>TM Acceptance &amp; Languages</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>M accepts w</td><td class="plain-def">TM says yes</td><td>Computation on w enters q<sub>accept</sub></td></tr>
+<tr><td>M rejects w</td><td class="plain-def">TM says no</td><td>Computation on w enters q<sub>reject</sub></td></tr>
+<tr><td>M loops on w</td><td class="plain-def">TM runs forever</td><td>Computation on w never halts (neither accepts nor rejects)</td></tr>
+<tr><td>L(M)</td><td class="plain-def">what M accepts</td><td>{w | M accepts w} — the language recognized by M</td></tr>
+<tr><td>Turing-recognizable</td><td class="plain-def">TM can accept it</td><td>∃ TM M such that L(M) = L (M may loop on non-members)</td></tr>
+<tr><td>Turing-decidable</td><td class="plain-def">TM always halts</td><td>∃ TM M that decides L: accepts members, rejects non-members; never loops</td></tr>
+<tr><td>decidable</td><td class="plain-def">always yes or no</td><td>Synonym for Turing-decidable (Sipser: "recursive")</td></tr>
+</tbody>
+</table></div>
+
+<h3>TM Variants</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Variant</th><th class="plain-def-header">Plain English</th><th>Key Property</th></tr></thead>
+<tbody>
+<tr><td>Multitape TM</td><td class="plain-def">multiple tape heads</td><td>k tapes with independent heads; equivalent to single-tape TM (Thm. 3.13)</td></tr>
+<tr><td>Nondeterministic TM</td><td class="plain-def">guessing machine</td><td>δ maps to sets of options; accepts if any branch accepts; equivalent to TM (Thm. 3.16)</td></tr>
+<tr><td>Enumerator</td><td class="plain-def">string printer</td><td>TM with printer output; enumerates L iff L is Turing-recognizable (Thm. 3.21)</td></tr>
+<tr><td>Oracle TM</td><td class="plain-def">TM with black box</td><td>TM plus query to oracle for language B; written Mᴮ</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 09  DECIDABILITY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="decidability">
+<div class="section-header"><span class="section-icon">❓</span><h2>Decidability</h2></div>
+<p class="prose">Chapter 4–5 of Sipser. A language is <strong>decidable</strong> if a TM always halts on all inputs. <strong>Undecidable</strong> means no such TM exists. The <em>Halting Problem</em> is the canonical undecidable language.</p>
+
+<h3>Standard Decision Problems (Sipser's Named Languages)</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Language</th><th class="plain-def-header">Plain English</th><th>Definition</th><th>Decidable?</th></tr></thead>
+<tbody>
+<tr><td>A<sub>DFA</sub></td><td class="plain-def">DFA accepts this string</td><td>{⟨B, w⟩ | B is a DFA and B accepts w}</td><td>✅ Yes (Thm. 4.1)</td></tr>
+<tr><td>A<sub>NFA</sub></td><td class="plain-def">NFA accepts this string</td><td>{⟨B, w⟩ | B is an NFA and B accepts w}</td><td>✅ Yes (Cor. 4.2)</td></tr>
+<tr><td>A<sub>REX</sub></td><td class="plain-def">regex matches this string</td><td>{⟨R, w⟩ | R is a regex and w ∈ L(R)}</td><td>✅ Yes (Cor. 4.3)</td></tr>
+<tr><td>E<sub>DFA</sub></td><td class="plain-def">DFA's language is empty</td><td>{⟨A⟩ | A is a DFA and L(A) = ∅}</td><td>✅ Yes (Thm. 4.4)</td></tr>
+<tr><td>EQ<sub>DFA</sub></td><td class="plain-def">two DFAs accept same language</td><td>{⟨A, B⟩ | A, B are DFAs and L(A) = L(B)}</td><td>✅ Yes (Thm. 4.5)</td></tr>
+<tr><td>A<sub>CFG</sub></td><td class="plain-def">CFG generates this string</td><td>{⟨G, w⟩ | G is a CFG and w ∈ L(G)}</td><td>✅ Yes (Thm. 4.7)</td></tr>
+<tr><td>E<sub>CFG</sub></td><td class="plain-def">CFG generates nothing</td><td>{⟨G⟩ | G is a CFG and L(G) = ∅}</td><td>✅ Yes (Thm. 4.8)</td></tr>
+<tr><td>EQ<sub>CFG</sub></td><td class="plain-def">two CFGs generate same language</td><td>{⟨G, H⟩ | G, H are CFGs and L(G) = L(H)}</td><td>❌ No (undecidable)</td></tr>
+<tr><td>A<sub>TM</sub></td><td class="plain-def">TM accepts this string</td><td>{⟨M, w⟩ | M is a TM and M accepts w}</td><td>❌ No (Thm. 4.11)</td></tr>
+<tr><td>HALT<sub>TM</sub></td><td class="plain-def">TM halts on this string</td><td>{⟨M, w⟩ | M is a TM and M halts on input w}</td><td>❌ No (Cor. 5.1)</td></tr>
+<tr><td>E<sub>TM</sub></td><td class="plain-def">TM accepts nothing</td><td>{⟨M⟩ | M is a TM and L(M) = ∅}</td><td>❌ No (Thm. 5.2)</td></tr>
+<tr><td>REGULAR<sub>TM</sub></td><td class="plain-def">TM's language is regular</td><td>{⟨M⟩ | M is a TM and L(M) is regular}</td><td>❌ No (Thm. 5.3)</td></tr>
+<tr><td>EQ<sub>TM</sub></td><td class="plain-def">two TMs accept same language</td><td>{⟨M₁, M₂⟩ | M₁, M₂ are TMs and L(M₁)=L(M₂)}</td><td>❌ No (Thm. 5.4)</td></tr>
+</tbody>
+</table></div>
+
+<h3>Diagonalization &amp; Encoding</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Notation</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>⟨M⟩</td><td class="plain-def">the encoding of M</td><td>String representation of TM M; Sipser's standard bracket notation</td></tr>
+<tr><td>⟨M, w⟩</td><td class="plain-def">TM paired with input</td><td>Encoding of TM M together with string w; input to universal TM</td></tr>
+<tr><td>U</td><td class="plain-def">the universal TM</td><td>Universal Turing Machine: simulates any TM M on input w given ⟨M, w⟩</td></tr>
+<tr><td>diagonalization</td><td class="plain-def">self-reference trick</td><td>Cantor's technique: assume TM H decides A<sub>TM</sub>, construct TM D that contradicts H</td></tr>
+</tbody>
+</table></div>
+
+<div class="theorem-box">
+  <div class="thm-label">Theorem 4.11 (Sipser) — A<sub>TM</sub> is undecidable</div>
+  <div class="thm-body">Proof by diagonalization. Assume decider H for A<sub>TM</sub>. Build D that accepts ⟨M⟩ iff H rejects ⟨M, ⟨M⟩⟩. Then D(⟨D⟩) accepts iff D(⟨D⟩) rejects — contradiction.</div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 10  REDUCIBILITY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="reducibility">
+<div class="section-header"><span class="section-icon">↘️</span><h2>Reducibility</h2></div>
+<p class="prose">Sipser Chapter 5. <strong>Reducibility</strong> transfers hardness between problems. If A reduces to B, then B is at least as hard as A.</p>
+
+<h3>Mapping Reducibility</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>A ≤ₘ B</td><td class="plain-def">A reduces to B</td><td>Mapping reducible</td><td>∃ computable function f: Σ* → Σ* such that w ∈ A ↔ f(w) ∈ B</td></tr>
+<tr><td>f</td><td class="plain-def">the reduction function</td><td>Reduction</td><td>Computable function witnessing A ≤ₘ B</td></tr>
+</tbody>
+</table></div>
+
+<h3>Reducibility Consequences</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Implication</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>A ≤ₘ B ∧ B decidable ⟹ A decidable</td><td class="plain-def">if B is easy, A is easy</td><td>Decidability transfers backwards (Thm. 5.22)</td></tr>
+<tr><td>A ≤ₘ B ∧ A undecidable ⟹ B undecidable</td><td class="plain-def">if A is hard, B is hard</td><td>Undecidability transfers forwards — the main proof technique</td></tr>
+<tr><td>A ≤ₘ B ∧ B recognizable ⟹ A recognizable</td><td class="plain-def">if B is semidecidable, A is</td><td>Turing-recognizability also transfers</td></tr>
+<tr><td>A ≤ₘ B ∧ A not recognizable ⟹ B not recognizable</td><td class="plain-def">if A is hopeless, B is hopeless</td><td>Non-recognizability transfers</td></tr>
+</tbody>
+</table></div>
+
+<h3>Turing Reducibility (Oracle Reduction)</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>A ≤ₜ B</td><td class="plain-def">A Turing-reduces to B</td><td>A is Turing-reducible to B: TM deciding A uses oracle for B</td></tr>
+<tr><td>Mᴮ</td><td class="plain-def">TM with oracle for B</td><td>Oracle Turing Machine: queries B in one step; models relative computability</td></tr>
+</tbody>
+</table></div>
+
+<div class="example-block">
+  <div class="expr">A<sub>TM</sub> ≤ₘ HALT<sub>TM</sub></div>
+  <div class="reading">To show HALT<sub>TM</sub> is undecidable: reduce A<sub>TM</sub> to it. Given ⟨M, w⟩, construct M' that runs M on w and if M accepts, accepts; if M rejects, loops. Then M halts on w ↔ M accepts w. So ⟨M, w⟩ ∈ A<sub>TM</sub> ↔ ⟨M', w⟩ ∈ HALT<sub>TM</sub>.</div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 11  COMPLEXITY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="complexity">
+<div class="section-header"><span class="section-icon">⚡</span><h2>Complexity Theory</h2></div>
+<p class="prose">Sipser Chapter 7. Complexity measures <strong>how much resource</strong> a decider needs. Time complexity leads to P, NP; space complexity leads to PSPACE and L.</p>
+
+<h3>Asymptotic Notation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formal Definition</th></tr></thead>
+<tbody>
+<tr><td>O(f)</td><td class="plain-def">at most this rate</td><td>Big-O (upper bound)</td><td>∃c, n₀ s.t. ∀n≥n₀: g(n) ≤ c·f(n)</td></tr>
+<tr><td>Ω(f)</td><td class="plain-def">at least this rate</td><td>Big-Omega (lower bound)</td><td>∃c, n₀ s.t. ∀n≥n₀: g(n) ≥ c·f(n)</td></tr>
+<tr><td>Θ(f)</td><td class="plain-def">exactly this rate</td><td>Big-Theta (tight)</td><td>g is both O(f) and Ω(f)</td></tr>
+<tr><td>o(f)</td><td class="plain-def">strictly slower</td><td>Little-o</td><td>lim g(n)/f(n) = 0</td></tr>
+</tbody>
+</table></div>
+
+<h3>Complexity Classes</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Definition (Sipser)</th></tr></thead>
+<tbody>
+<tr><td>TIME(t(n))</td><td class="plain-def">decidable in t(n) time</td><td>Time complexity class</td><td>Languages decided by O(t(n))-time TM</td></tr>
+<tr><td>P</td><td class="plain-def">fast to solve</td><td>Polynomial time</td><td>⋃ₖ TIME(nᵏ) — solvable in polynomial time</td></tr>
+<tr><td>NP</td><td class="plain-def">fast to verify</td><td>Nondeterministic polynomial</td><td>Languages with polynomial-time verifiers; or decided by poly-time NTM</td></tr>
+<tr><td>coNP</td><td class="plain-def">complements of NP</td><td>Complement of NP</td><td>{L | L̄ ∈ NP}</td></tr>
+<tr><td>SPACE(s(n))</td><td class="plain-def">decidable in s(n) space</td><td>Space complexity class</td><td>Languages decided by O(s(n))-space TM</td></tr>
+<tr><td>PSPACE</td><td class="plain-def">polynomial space</td><td>Polynomial space</td><td>⋃ₖ SPACE(nᵏ)</td></tr>
+<tr><td>NPSPACE</td><td class="plain-def">nondeterministic poly space</td><td>NP-space</td><td>Savitch: NPSPACE = PSPACE (Thm. 8.5)</td></tr>
+<tr><td>L (LOGSPACE)</td><td class="plain-def">uses only log space</td><td>Logarithmic space</td><td>SPACE(log n) — work tape O(log n)</td></tr>
+<tr><td>NL</td><td class="plain-def">nondeterministic log space</td><td>Nondeterministic logspace</td><td>NSPACE(log n)</td></tr>
+<tr><td>EXPTIME</td><td class="plain-def">exponential time</td><td>Exponential time</td><td>⋃ₖ TIME(2^(nᵏ))</td></tr>
+</tbody>
+</table></div>
+
+<h3>P vs NP &amp; Verifiers</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Sipser Definition</th></tr></thead>
+<tbody>
+<tr><td>verifier</td><td class="plain-def">checks a certificate</td><td>TM V where L = {w | ∃c, V accepts ⟨w,c⟩} and V runs in poly time in |w|</td></tr>
+<tr><td>certificate</td><td class="plain-def">the proof / witness</td><td>String c that V uses to verify w ∈ L; has poly length in |w|</td></tr>
+<tr><td>NP-hard</td><td class="plain-def">at least as hard as all of NP</td><td>∀L ∈ NP: L ≤ₚ B (every NP problem poly reduces to B)</td></tr>
+<tr><td>NP-complete</td><td class="plain-def">hardest in NP</td><td>B is NP-hard AND B ∈ NP</td></tr>
+</tbody>
+</table></div>
+
+<h3>Polynomial-Time Reduction</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>A ≤ₚ B</td><td class="plain-def">A poly-reduces to B</td><td>Polynomial-time reducible</td><td>∃ poly-time computable f s.t. w∈A ↔ f(w)∈B</td></tr>
+</tbody>
+</table></div>
+
+<h3>Key NP-Complete Problems (Sipser)</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Problem</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>SAT</td><td class="plain-def">satisfiable boolean formula</td><td>{⟨φ⟩ | φ is a satisfiable Boolean formula} — NP-complete by Cook-Levin (Thm. 7.37)</td></tr>
+<tr><td>3SAT</td><td class="plain-def">satisfiable 3-CNF</td><td>{⟨φ⟩ | φ is a satisfiable 3cnf-formula} — SAT ≤ₚ 3SAT</td></tr>
+<tr><td>CLIQUE</td><td class="plain-def">graph has k-clique</td><td>{⟨G, k⟩ | G is an undirected graph with a k-clique}</td></tr>
+<tr><td>VERTEX-COVER</td><td class="plain-def">k nodes cover all edges</td><td>{⟨G, k⟩ | G has a vertex cover of size k}</td></tr>
+<tr><td>HAMPATH</td><td class="plain-def">Hamiltonian path exists</td><td>{⟨G, s, t⟩ | G is a directed graph with a Hamiltonian path from s to t}</td></tr>
+<tr><td>SUBSET-SUM</td><td class="plain-def">subset sums to target</td><td>{⟨S, t⟩ | S is a multiset of integers with a subset summing to t}</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 12  CHOMSKY HIERARCHY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="hierarchy">
+<div class="section-header"><span class="section-icon">🏔️</span><h2>Chomsky Hierarchy</h2></div>
+<p class="prose">The Chomsky hierarchy stratifies all languages into four levels by the type of automaton required to recognize them. Each level is strictly contained in the one above.</p>
+
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Grammar</th><th>Automaton</th><th>Language Class</th><th>Sipser Term</th></tr></thead>
+<tbody>
+<tr><td>Type 3</td><td class="plain-def">simplest</td><td>Regular grammar</td><td>DFA / NFA</td><td>Regular languages</td><td>Regular</td></tr>
+<tr><td>Type 2</td><td class="plain-def">one variable expands</td><td>Context-free grammar (CFG)</td><td>PDA</td><td>Context-free languages (CFL)</td><td>Context-free</td></tr>
+<tr><td>Type 1</td><td class="plain-def">context must match</td><td>Context-sensitive grammar</td><td>Linear bounded automaton (LBA)</td><td>Context-sensitive languages</td><td>(not main focus)</td></tr>
+<tr><td>Type 0</td><td class="plain-def">unrestricted</td><td>Unrestricted grammar</td><td>Turing machine</td><td>Recursively enumerable (r.e.) languages</td><td>Turing-recognizable</td></tr>
+</tbody>
+</table></div>
+
+<h3>Containment &amp; Separation</h3>
+<div class="code-block">Regular ⊊ CFL ⊊ Decidable ⊊ Turing-recognizable ⊊ All languages
+
+Regular:              DFA  = NFA  = regex           (Sipser Ch. 1)
+CFL:                  CFG  = PDA                    (Sipser Ch. 2)
+Decidable:            Halts on all inputs            (Sipser Ch. 3–4)
+Turing-recognizable:  May loop on non-members        (Sipser Ch. 3–4)
+co-Turing-recognizable: Complement is T-recognizable
+Undecidable:          No TM ever decides it          (Sipser Ch. 4–5)</div>
+
+<h3>Closure Properties Summary</h3>
+<div class="table-wrap notation-table"><table>
+<thead><tr><th>Operation</th><th class="plain-def-header">Regular</th><th>CFL</th><th>Decidable</th><th>T-recognizable</th></tr></thead>
+<tbody>
+<tr><td>Union (∪)</td><td class="plain-def">✅ closed</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Intersection (∩)</td><td class="plain-def">✅ closed</td><td>❌ not closed</td><td>✅</td><td>✅</td></tr>
+<tr><td>Complement (L̄)</td><td class="plain-def">✅ closed</td><td>❌ not closed</td><td>✅</td><td>❌ not closed</td></tr>
+<tr><td>Concatenation (·)</td><td class="plain-def">✅ closed</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Kleene star (*)</td><td class="plain-def">✅ closed</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Reversal (ᴿ)</td><td class="plain-def">✅ closed</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Intersection w/ regular</td><td class="plain-def">✅</td><td>✅ closed</td><td>✅</td><td>✅</td></tr>
+</tbody>
+</table></div>
+
+<h3>Pumping Lemmas</h3>
+<p class="prose">Both pumping lemmas are built entirely from the string and language notation established earlier. Every symbol in the lemma statements has a precise meaning from that foundation — the table below maps each one before the lemma is stated.</p>
+
+<!-- ── NOTATION PREREQS: Regular Pumping Lemma ── -->
+<h3>Notation Used in Lemma 1.70</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Role in Pumping Lemma</th></tr></thead>
+<tbody>
+<tr><td>A</td><td class="plain-def">the language being tested</td><td>Language</td><td>The regular language assumed to exist; a set of strings over Σ</td></tr>
+<tr><td>p</td><td class="plain-def">the threshold length</td><td>Pumping length</td><td>Guaranteed by regularity; depends on the number of states in the DFA</td></tr>
+<tr><td>s</td><td class="plain-def">a string in A</td><td>String</td><td>Any string in A with |s| ≥ p; you choose this in proofs</td></tr>
+<tr><td>s ∈ A</td><td class="plain-def">s belongs to A</td><td>Membership</td><td>s is one of the strings the language accepts</td></tr>
+<tr><td>|s|</td><td class="plain-def">how long s is</td><td>String length</td><td>Number of symbols in s; must be ≥ p to apply the lemma</td></tr>
+<tr><td>s = xyz</td><td class="plain-def">split s into three parts</td><td>String decomposition</td><td>x is the prefix, y is the <em>pumpable middle</em>, z is the suffix</td></tr>
+<tr><td>x, y, z</td><td class="plain-def">the three pieces of s</td><td>Substrings</td><td>x, y, z ∈ Σ*; concatenation xyz = s</td></tr>
+<tr><td>yⁱ</td><td class="plain-def">y repeated i times</td><td>String repetition</td><td>y⁰ = ε, y¹ = y, y² = yy, …; this is the "pumping" operation</td></tr>
+<tr><td>xyⁱz</td><td class="plain-def">x, then i copies of y, then z</td><td>Pumped string</td><td>The result of pumping y exactly i times; must stay in A</td></tr>
+<tr><td>∀i ≥ 0</td><td class="plain-def">for every non-negative integer i</td><td>Universal quantifier</td><td>The pumped string must be in A for ALL values of i, including i = 0</td></tr>
+<tr><td>xyⁱz ∈ A</td><td class="plain-def">pumped string is in A</td><td>Membership after pump</td><td>Closure condition — pumping never leaves the language</td></tr>
+<tr><td>|y| &gt; 0</td><td class="plain-def">y is not empty</td><td>Non-empty middle</td><td>y ≠ ε; ensures that pumping actually changes the string</td></tr>
+<tr><td>|xy| ≤ p</td><td class="plain-def">x and y together are at most p long</td><td>Prefix length bound</td><td>Forces y to lie entirely within the first p symbols of s</td></tr>
+<tr><td>ε</td><td class="plain-def">the empty string</td><td>Epsilon</td><td>When i = 0, yⁱ = ε and the string collapses to xz</td></tr>
+</tbody>
+</table></div>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Lemma</span>
+    <span class="def-num">1.70 — Pumping Lemma for Regular Languages</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">If A is a <em class="def-term">regular language</em>, then there is a number p (the <em class="def-term">pumping length</em>) where if s is any string in A of length at least p, then s may be divided into three pieces <strong>s = xyz</strong>, satisfying the following conditions:</p>
+    <ol>
+      <li>for each i ≥ 0, &nbsp;<strong>xy<sup>i</sup>z ∈ A</strong> <span class="set-notation">∀i ≥ 0 : xy<sup>i</sup>z ∈ A</span></li>
+      <li><strong>|y| &gt; 0</strong> <span class="set-notation">y ≠ ε</span></li>
+      <li><strong>|xy| ≤ p</strong> <span class="set-notation">|xy| ≤ p</span></li>
+    </ol>
+  </div>
+</div>
+
+<!-- String decomposition diagram -->
+<div class="code-block">String decomposition  s = x y z   (|s| ≥ p)
+
+  ┌─────────────────────────────────────────────┐
+  │  x  │░░░░░ y ░░░░░│          z              │
+  └─────────────────────────────────────────────┘
+  │◄──── |xy| ≤ p ────►│
+         │◄─ |y| > 0 ─►│
+
+  pump up  (i=2): x  y  y  z  ∈ A
+  pump down (i=0): x        z  ∈ A   (y vanishes → xz)
+  pump up  (i=3): x  y  y  y  z  ∈ A</div>
+
+<div class="theorem-box" style="margin-bottom: 2rem;">
+  <div class="thm-label">How to Use — Proving a Language is NOT Regular</div>
+  <div class="thm-body">
+    Proof by contradiction. Assume A is regular with pumping length p.<br>
+    &nbsp;&nbsp;1. Pick s ∈ A with |s| ≥ p — <em>you</em> choose s strategically.<br>
+    &nbsp;&nbsp;2. For <em>every</em> valid split s = xyz (|xy| ≤ p, |y| &gt; 0) …<br>
+    &nbsp;&nbsp;3. Find some i ≥ 0 such that xy<sup>i</sup>z ∉ A.<br>
+    &nbsp;&nbsp;4. This contradicts the lemma — A is not regular. □<br><br>
+    <strong>Classic example:</strong> &nbsp;B = {0ⁿ1ⁿ | n ≥ 0}. &nbsp;Choose s = 0ᵖ1ᵖ.<br>
+    Since |xy| ≤ p, y = 0ᵏ for some k ≥ 1. Pumping i = 2 gives 0^(p+k) 1ᵖ — unequal counts → ∉ B.
+  </div>
+</div>
+
+<!-- ── NOTATION PREREQS: CFL Pumping Lemma ── -->
+<h3>Notation Used in Lemma 2.34</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Role in CFL Pumping Lemma</th></tr></thead>
+<tbody>
+<tr><td>A</td><td class="plain-def">the CFL being tested</td><td>Language</td><td>The context-free language assumed to exist; generated by some CFG</td></tr>
+<tr><td>p</td><td class="plain-def">the threshold length</td><td>Pumping length</td><td>Derived from the size of the grammar; related to parse tree height</td></tr>
+<tr><td>s</td><td class="plain-def">a string in A</td><td>String</td><td>Any string in A with |s| ≥ p; chosen strategically in proofs</td></tr>
+<tr><td>s = uvxyz</td><td class="plain-def">split s into five parts</td><td>String decomposition</td><td>Two pumpable pieces (v and y) surrounding a fixed middle x</td></tr>
+<tr><td>u, v, x, y, z</td><td class="plain-def">the five pieces of s</td><td>Substrings</td><td>u, v, x, y, z ∈ Σ*; concatenation uvxyz = s</td></tr>
+<tr><td>v</td><td class="plain-def">left pumpable piece</td><td>Left pump string</td><td>Pumped in tandem with y; lies to the left of x in the parse tree</td></tr>
+<tr><td>y</td><td class="plain-def">right pumpable piece</td><td>Right pump string</td><td>Pumped in tandem with v; lies to the right of x in the parse tree</td></tr>
+<tr><td>vⁱ and yⁱ</td><td class="plain-def">v and y each repeated i times</td><td>Tandem repetition</td><td>Both pieces must be pumped the same number of times simultaneously</td></tr>
+<tr><td>uvⁱxyⁱz</td><td class="plain-def">u, i copies of v, x, i copies of y, z</td><td>Pumped string</td><td>Result of pumping both v and y exactly i times; must stay in A</td></tr>
+<tr><td>∀i ≥ 0</td><td class="plain-def">for every non-negative integer i</td><td>Universal quantifier</td><td>Must hold for all i, including i = 0 (dropping both v and y)</td></tr>
+<tr><td>|vy| &gt; 0</td><td class="plain-def">v and y are not both empty</td><td>Non-empty pump</td><td>At least one of v or y is non-empty; pumping changes the string</td></tr>
+<tr><td>|vxy| ≤ p</td><td class="plain-def">the middle section is at most p long</td><td>Middle length bound</td><td>Forces v, x, y to lie within a window of size p; limits where the repeated variable appears in the parse tree</td></tr>
+</tbody>
+</table></div>
+
+<div class="sipser-def">
+  <div class="sipser-def-label">
+    <span class="def-word">Lemma</span>
+    <span class="def-num">2.34 — Pumping Lemma for Context-Free Languages</span>
+  </div>
+  <div class="sipser-def-body">
+    <p class="def-intro">If A is a <em class="def-term">context-free language</em>, then there is a number p (the <em class="def-term">pumping length</em>) where if s is any string in A of length at least p, then s may be divided into five pieces <strong>s = uvxyz</strong>, satisfying the following conditions:</p>
+    <ol>
+      <li>for each i ≥ 0, &nbsp;<strong>uv<sup>i</sup>xy<sup>i</sup>z ∈ A</strong> <span class="set-notation">∀i ≥ 0 : uv<sup>i</sup>xy<sup>i</sup>z ∈ A</span></li>
+      <li><strong>|vy| &gt; 0</strong> <span class="set-notation">v ≠ ε  or  y ≠ ε</span></li>
+      <li><strong>|vxy| ≤ p</strong> <span class="set-notation">|vxy| ≤ p</span></li>
+    </ol>
+  </div>
+</div>
+
+<!-- String decomposition diagram -->
+<div class="code-block">String decomposition  s = u v x y z   (|s| ≥ p)
+
+  ┌──────────────────────────────────────────────────────┐
+  │   u   │░ v ░│    x    │░ y ░│         z             │
+  └──────────────────────────────────────────────────────┘
+                │◄────── |vxy| ≤ p ───────►│
+                │◄|v|►│         │◄─|y|─►│
+                  |vy| > 0  (at least one non-empty)
+
+  pump up  (i=2): u  v  v  x  y  y  z  ∈ A
+  pump down (i=0): u        x        z  ∈ A   (v and y vanish → uxz)
+  pump up  (i=3): u  v  v  v  x  y  y  y  z  ∈ A
+
+  Note: v and y are ALWAYS pumped the same number of times (both i).</div>
+
+<div class="theorem-box" style="margin-bottom: 1.5rem;">
+  <div class="thm-label">How to Use — Proving a Language is NOT Context-Free</div>
+  <div class="thm-body">
+    Proof by contradiction. Assume A is a CFL with pumping length p.<br>
+    &nbsp;&nbsp;1. Pick s ∈ A with |s| ≥ p — choose s strategically.<br>
+    &nbsp;&nbsp;2. For <em>every</em> valid split s = uvxyz (|vxy| ≤ p, |vy| &gt; 0) …<br>
+    &nbsp;&nbsp;3. Find some i ≥ 0 such that uv<sup>i</sup>xy<sup>i</sup>z ∉ A.<br>
+    &nbsp;&nbsp;4. This contradicts the lemma — A is not a CFL. □<br><br>
+    <strong>Classic example:</strong> &nbsp;C = {aⁿbⁿcⁿ | n ≥ 0}. &nbsp;Choose s = aᵖbᵖcᵖ.<br>
+    Since |vxy| ≤ p, the window vxy cannot span all three symbol regions. So v and y together touch at most two of {a,b,c}. Pumping i = 2 inflates at most two counts while the third stays at p → unequal → ∉ C.
+  </div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 13  READING EXPRESSIONS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="reading">
+<div class="section-header"><span class="section-icon">💬</span><h2>Reading Expressions Aloud</h2></div>
+<p class="prose">How to say Sipser's notation out loud — essential for exams and discussions.</p>
+
+<div class="example-block">
+  <div class="expr">M = (Q, Σ, δ, q₀, F)</div>
+  <div class="reading">"M is a five-tuple consisting of: Q (the states), Sigma (the alphabet), delta (the transition function), q-zero (the start state), and F (the set of accept states)."</div>
+</div>
+<div class="example-block">
+  <div class="expr">δ(q₁, a) = q₂</div>
+  <div class="reading">"Delta of q-one and a equals q-two." Meaning: in state q₁ reading symbol a, transition to state q₂.</div>
+</div>
+<div class="example-block">
+  <div class="expr">L(M) = {w ∈ Σ* | M accepts w}</div>
+  <div class="reading">"The language of M equals the set of all strings w in Sigma-star such that M accepts w."</div>
+</div>
+<div class="example-block">
+  <div class="expr">S ⇒* aⁿbⁿ</div>
+  <div class="reading">"S derives a-to-the-n b-to-the-n" or "S can produce the string aⁿbⁿ in zero or more derivation steps."</div>
+</div>
+<div class="example-block">
+  <div class="expr">A<sub>TM</sub> ≤ₘ HALT<sub>TM</sub></div>
+  <div class="reading">"A-sub-TM is mapping-reducible to HALT-sub-TM." Meaning: if we could decide HALT<sub>TM</sub>, we could decide A<sub>TM</sub>.</div>
+</div>
+<div class="example-block">
+  <div class="expr">∀⟨M, w⟩ ∈ A<sub>TM</sub>, ∃ c s.t. |c| = O(|w|ᵏ)</div>
+  <div class="reading">"For all encoded pairs M-comma-w in A-TM, there exists a certificate c such that the length of c is Big-O of the k-th power of the length of w."</div>
+</div>
+<div class="example-block">
+  <div class="expr">uq₁abv ⊢ uaq₂bv</div>
+  <div class="reading">"Configuration u q-one a b v yields u a q-two b v in one step." The head moved right after writing a.</div>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 14  KEY THEOREMS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="theorems">
+<div class="section-header"><span class="section-icon">📜</span><h2>Key Theorems — Quick Reference</h2></div>
+
+<h3>Chapter 1 — Regular Languages</h3>
+<ul class="tip-list">
+  <li><span class="tip-code sm">Thm 1.39</span><span><strong>Every NFA has an equivalent DFA.</strong> Subset (powerset) construction. NFA with k states → DFA with ≤ 2ᵏ states.</span></li>
+  <li><span class="tip-code sm">Thm 1.54</span><span><strong>A language is regular iff it is described by a regular expression.</strong> Regex ↔ NFA ↔ DFA — all equivalent.</span></li>
+  <li><span class="tip-code sm">Thm 1.70</span><span><strong>Pumping Lemma for Regular Languages.</strong> All regular languages have a pumping length p. Tool to prove a language is NOT regular.</span></li>
+  <li><span class="tip-code sm">Closure</span><span><strong>Regular languages are closed</strong> under ∪, ·, *, ∩, complement, reversal, homomorphism, inverse homomorphism.</span></li>
+</ul>
+
+<h3>Chapter 2 — Context-Free Languages</h3>
+<ul class="tip-list">
+  <li><span class="tip-code sm">Thm 2.20</span><span><strong>A language is context-free iff some PDA recognizes it.</strong> CFG ↔ PDA — both equivalent models.</span></li>
+  <li><span class="tip-code sm">Thm 2.34</span><span><strong>Pumping Lemma for CFLs.</strong> All CFLs have pumping length p. Used to prove a language is NOT context-free (e.g., {aⁿbⁿcⁿ} is not CFL).</span></li>
+  <li><span class="tip-code sm">Closure</span><span><strong>CFLs are closed</strong> under ∪, ·, *, reversal, intersection with regular. NOT closed under ∩ or complement.</span></li>
+</ul>
+
+<h3>Chapter 3–4 — Computability</h3>
+<ul class="tip-list">
+  <li><span class="tip-code sm">Thm 3.13</span><span><strong>Every multitape TM has an equivalent single-tape TM.</strong> Multitape is just a convenience; no extra power.</span></li>
+  <li><span class="tip-code sm">Thm 3.16</span><span><strong>Every nondeterministic TM has an equivalent deterministic TM.</strong> NTM = TM in recognizing power; exponential slowdown possible.</span></li>
+  <li><span class="tip-code sm">Thm 3.21</span><span><strong>A language is Turing-recognizable iff some enumerator enumerates it.</strong></span></li>
+  <li><span class="tip-code sm">Thm 4.11</span><span><strong>A<sub>TM</sub> is undecidable.</strong> Canonical undecidable language. Proved by diagonalization.</span></li>
+  <li><span class="tip-code sm">Cor 4.23</span><span><strong>A language is decidable iff it is Turing-recognizable AND co-Turing-recognizable.</strong></span></li>
+</ul>
+
+<h3>Chapter 5 — Reducibility</h3>
+<ul class="tip-list">
+  <li><span class="tip-code sm">Thm 5.22</span><span><strong>If A ≤ₘ B and B is decidable, then A is decidable.</strong> Contrapositively: if A is undecidable and A ≤ₘ B, then B is undecidable.</span></li>
+  <li><span class="tip-code sm">Rice's Thm</span><span><strong>Every non-trivial property of the language of a TM is undecidable.</strong> Non-trivial = some TMs have it, some don't.</span></li>
+</ul>
+
+<h3>Chapter 7–8 — Complexity</h3>
+<ul class="tip-list">
+  <li><span class="tip-code sm">Thm 7.37</span><span><strong>SAT is NP-complete.</strong> Cook-Levin theorem. Every NP language reduces to SAT in polynomial time.</span></li>
+  <li><span class="tip-code sm">Thm 8.5</span><span><strong>PSPACE = NPSPACE.</strong> Savitch's Theorem: nondeterministic space s(n) ⊆ deterministic space s(n)².</span></tr></span></li>
+  <li><span class="tip-code sm">Inclusions</span><span><strong>P ⊆ NP ⊆ PSPACE ⊆ EXPTIME.</strong> All inclusions known; P ≠ EXPTIME known. P = NP? Unknown.</span></li>
+</ul>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 15  INDEX -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="index">
+<div class="section-header"><span class="section-icon">🗂</span><h2>Symbol Index</h2></div>
+<p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All automata symbols from Sipser listed alphabetically by symbol or name.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Section</th></tr></thead>
+<tbody>
+<tr><td>A<sub>DFA</sub></td><td class="plain-def">DFA accepts this string</td><td>DFA acceptance problem</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>A<sub>TM</sub></td><td class="plain-def">TM accepts this string</td><td>TM acceptance problem</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>A ≤ₘ B</td><td class="plain-def">A reduces to B</td><td>Mapping reducibility</td><td><a class="idx-link" href="#reducibility">Reducibility</a></td></tr>
+<tr><td>A ≤ₚ B</td><td class="plain-def">A poly-reduces to B</td><td>Polynomial-time reducibility</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>⊢</td><td class="plain-def">one computation step</td><td>Yields (one step)</td><td><a class="idx-link" href="#tm">Turing Machines</a></td></tr>
+<tr><td>⊢*</td><td class="plain-def">zero or more steps</td><td>Yields (multi-step)</td><td><a class="idx-link" href="#tm">Turing Machines</a></td></tr>
+<tr><td>⇒</td><td class="plain-def">one grammar derivation step</td><td>Derives (one step)</td><td><a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>⇒*</td><td class="plain-def">zero or more grammar steps</td><td>Derives (multi-step)</td><td><a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>⇒ₗₘ</td><td class="plain-def">leftmost derivation step</td><td>Leftmost derives</td><td><a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>δ</td><td class="plain-def">the transition rules</td><td>Transition function</td><td><a class="idx-link" href="#dfa">DFA</a>, <a class="idx-link" href="#tm">TM</a></td></tr>
+<tr><td>Δ</td><td class="plain-def">the transition relation</td><td>Transition relation</td><td><a class="idx-link" href="#nfa">NFA</a></td></tr>
+<tr><td>δ̂</td><td class="plain-def">rules for whole strings</td><td>Extended transition function</td><td><a class="idx-link" href="#dfa">DFA</a></td></tr>
+<tr><td>ε</td><td class="plain-def">the empty string</td><td>Epsilon / empty string</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>E(R)</td><td class="plain-def">ε-reachable states</td><td>Epsilon-closure</td><td><a class="idx-link" href="#nfa">NFA</a></td></tr>
+<tr><td>E<sub>TM</sub></td><td class="plain-def">TM's language is empty</td><td>TM emptiness problem</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>EQ<sub>DFA</sub></td><td class="plain-def">two DFAs are equivalent</td><td>DFA equivalence problem</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>F</td><td class="plain-def">accept states</td><td>Set of final/accept states</td><td><a class="idx-link" href="#dfa">DFA</a>, <a class="idx-link" href="#nfa">NFA</a>, <a class="idx-link" href="#pda">PDA</a></td></tr>
+<tr><td>q<sub>dead</sub></td><td class="plain-def">the reject pit</td><td>Dead / trap / sink state</td><td><a class="idx-link" href="#dfa">DFA</a></td></tr>
+<tr><td>GNFA</td><td class="plain-def">regex-labeled NFA</td><td>Generalized NFA</td><td><a class="idx-link" href="#regex">Regular Expressions</a></td></tr>
+<tr><td>q<sub>s</sub></td><td class="plain-def">the new start</td><td>GNFA start state</td><td><a class="idx-link" href="#regex">Regular Expressions</a></td></tr>
+<tr><td>q<sub>acc</sub></td><td class="plain-def">the new accept</td><td>GNFA sole accept state</td><td><a class="idx-link" href="#regex">Regular Expressions</a></td></tr>
+<tr><td>q<sub>rip</sub></td><td class="plain-def">state being removed</td><td>Ripped state (state ripping)</td><td><a class="idx-link" href="#regex">Regular Expressions</a></td></tr>
+<tr><td>Γ</td><td class="plain-def">tape/stack symbols</td><td>Tape / stack alphabet</td><td><a class="idx-link" href="#tm">TM</a>, <a class="idx-link" href="#pda">PDA</a></td></tr>
+<tr><td>HALT<sub>TM</sub></td><td class="plain-def">TM halts on this input</td><td>Halting problem</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>L</td><td class="plain-def">a set of strings</td><td>Language</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>L(M) or L(G)</td><td class="plain-def">what M/G accepts/generates</td><td>Language of machine/grammar</td><td><a class="idx-link" href="#dfa">DFA</a>, <a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>L̄ or Lᶜ</td><td class="plain-def">strings not in L</td><td>Complement language</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>NP</td><td class="plain-def">verifiable in poly time</td><td>Nondeterministic polynomial time</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>O(f)</td><td class="plain-def">at most this growth rate</td><td>Big-O upper bound</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>P</td><td class="plain-def">solvable in poly time</td><td>Polynomial time</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>𝒫(Q)</td><td class="plain-def">all subsets of Q</td><td>Power set of Q</td><td><a class="idx-link" href="#nfa">NFA</a></td></tr>
+<tr><td>PSPACE</td><td class="plain-def">poly space solvable</td><td>Polynomial space</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>Q</td><td class="plain-def">the states</td><td>Set of states</td><td><a class="idx-link" href="#dfa">DFA</a></td></tr>
+<tr><td>q₀</td><td class="plain-def">where we start</td><td>Start state</td><td><a class="idx-link" href="#dfa">DFA</a></td></tr>
+<tr><td>q<sub>accept</sub></td><td class="plain-def">yes answer state</td><td>Accept state (TM)</td><td><a class="idx-link" href="#tm">TM</a></td></tr>
+<tr><td>q<sub>reject</sub></td><td class="plain-def">no answer state</td><td>Reject state (TM)</td><td><a class="idx-link" href="#tm">TM</a></td></tr>
+<tr><td>R, S, A, B</td><td class="plain-def">grammar variables</td><td>Variables (nonterminals)</td><td><a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>R*</td><td class="plain-def">zero or more of R</td><td>Kleene star (regex)</td><td><a class="idx-link" href="#regex">Regex</a></td></tr>
+<tr><td>S</td><td class="plain-def">start variable</td><td>Start variable (grammar)</td><td><a class="idx-link" href="#cfg">CFG</a></td></tr>
+<tr><td>SAT</td><td class="plain-def">satisfiable formula</td><td>Boolean satisfiability</td><td><a class="idx-link" href="#complexity">Complexity</a></td></tr>
+<tr><td>Σ</td><td class="plain-def">the alphabet</td><td>Alphabet</td><td><a class="idx-link" href="#notation">Notation</a></td></tr>
+<tr><td>Σ*</td><td class="plain-def">all strings ever</td><td>Kleene star (language)</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>Σ<sub>ε</sub></td><td class="plain-def">alphabet plus ε</td><td>Sigma-epsilon</td><td><a class="idx-link" href="#nfa">NFA</a>, <a class="idx-link" href="#pda">PDA</a></td></tr>
+<tr><td>⊔</td><td class="plain-def">blank tape cell</td><td>Blank symbol</td><td><a class="idx-link" href="#tm">TM</a></td></tr>
+<tr><td>⟨M⟩</td><td class="plain-def">encoding of machine M</td><td>Encoding (Sipser brackets)</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>⟨M, w⟩</td><td class="plain-def">TM paired with input</td><td>Encoded pair</td><td><a class="idx-link" href="#decidability">Decidability</a></td></tr>
+<tr><td>uqv</td><td class="plain-def">tape contents + state</td><td>TM Configuration</td><td><a class="idx-link" href="#tm">TM</a></td></tr>
+<tr><td>w, x, y, z</td><td class="plain-def">a string</td><td>String variable</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>|w|</td><td class="plain-def">length of w</td><td>String length</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>{ … | … }</td><td class="plain-def">such that</td><td>Set-builder notation</td><td><a class="idx-link" href="#notation">Notation</a>, <a class="idx-link" href="#strings">Strings</a></td></tr>
+<tr><td>wᴿ</td><td class="plain-def">w reversed</td><td>Reversal</td><td><a class="idx-link" href="#strings">Strings</a></td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  Automata Theory — Sipser's Introduction to the Theory of Computation (3rd Ed.)  ·  2026
+</footer>
+</body>
+</html>

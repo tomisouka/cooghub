@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red-Black Tree — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #f87171;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --yellow: #e8c547;
+    --orange: #fb923c;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+    --node-black: #1e2230;
+    --node-black-border: #4a5068;
+    --node-red: #f8717118;
+    --node-red-border: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .oh { color: var(--green); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .annotation span.blk { color: var(--blue); }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 16px; }
+  .caption strong { color: var(--text); }
+
+  .tree-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+  /* rules list */
+  .rules-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; border-left: 3px solid var(--accent); }
+  .rule-item { display: flex; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; font-size: 13px; }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-num { font-size: 11px; font-weight: 700; color: var(--accent); width: 20px; flex-shrink: 0; padding-top: 2px; }
+  .rule-text { color: var(--dim); line-height: 1.6; }
+  .rule-text strong { color: var(--text); }
+  .rule-text .r { color: var(--red); font-weight: 700; }
+  .rule-text .b { color: var(--blue); font-weight: 700; }
+
+  /* fix grid */
+  .fix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .fix-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .fix-box:nth-child(1) { border-top: 2px solid var(--yellow); }
+  .fix-box:nth-child(2) { border-top: 2px solid var(--orange); }
+  .fix-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .fix-when  { font-size: 11px; color: var(--dim); margin-bottom: 12px; line-height: 1.5; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--blue); }
+  .card:nth-child(3) { border-top-color: var(--green); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Red<span>-</span>Black</h1>
+    <div class="subtitle">Self-Balancing Binary Search Tree</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">search</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">insert</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">remove</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">height</span>  <span class="oh">≤ 2 log n</span></div>
+    <div class="big-o-row"><span class="op">rotations</span><span class="oh">at most 2 per insert</span></div>
+  </div>
+</div>
+
+<!-- 1. The five rules -->
+<div class="diagram-section">
+  <div class="label">1 — The Five Rules</div>
+  <div class="annotation">Every node is colored <span>red</span> or <span class="blk">black</span>. The colors aren't decoration — they enforce five rules that keep the tree balanced without being as strict as AVL.</div>
+
+  <div class="rules-box">
+    <div class="rule-item"><span class="rule-num">1</span><span class="rule-text">Every node is either <span class="r">red</span> or <span class="b">black</span>.</span></div>
+    <div class="rule-item"><span class="rule-num">2</span><span class="rule-text">The <strong>root is always black</strong>. After any operation, the root gets recolored black if needed.</span></div>
+    <div class="rule-item"><span class="rule-num">3</span><span class="rule-text">All <strong>null pointers (leaf sentinels)</strong> are considered <span class="b">black</span>. Every path eventually ends at a black null.</span></div>
+    <div class="rule-item"><span class="rule-num">4</span><span class="rule-text"><strong>No two reds in a row.</strong> A <span class="r">red</span> node cannot have a <span class="r">red</span> parent or <span class="r">red</span> child — they must be separated by a <span class="b">black</span> node.</span></div>
+    <div class="rule-item"><span class="rule-num">5</span><span class="rule-text"><strong>Black height is uniform.</strong> Every path from any node down to a null leaf passes through the same number of <span class="b">black</span> nodes.</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. Valid tree with black heights -->
+<div class="diagram-section">
+  <div class="label">2 — A Valid Red-Black Tree</div>
+  <div class="annotation">Black nodes shown in <span class="blk">blue-grey</span>, red nodes in <span>red</span>. Every path from root to null has <span class="blk">black height = 2</span>.</div>
+
+  <div class="tree-wrap">
+    <svg width="540" height="300" viewBox="0 0 540 300">
+      <!-- edges -->
+      <line x1="270" y1="54" x2="155" y2="114" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="270" y1="54" x2="385" y2="114" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="155" y1="134" x2="88"  y2="194" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="155" y1="134" x2="222" y2="194" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="385" y1="134" x2="318" y2="194" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="385" y1="134" x2="452" y2="194" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="88"  y1="214" x2="56"  y2="264" stroke="#2a2e38" stroke-width="1.5" opacity="0.5"/>
+      <line x1="88"  y1="214" x2="120" y2="264" stroke="#2a2e38" stroke-width="1.5" opacity="0.5"/>
+
+      <!-- root — BLACK 30 -->
+      <circle cx="270" cy="38" r="28" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+      <text x="270" y="44" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">30</text>
+      <text x="270" y="10" text-anchor="middle" font-size="9" fill="#60a5fa" font-weight="700" letter-spacing="1">BLACK · root</text>
+
+      <!-- level 1 -->
+      <!-- BLACK 15 -->
+      <circle cx="155" cy="124" r="26" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+      <text x="155" y="130" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">15</text>
+      <text x="155" y="102" text-anchor="middle" font-size="8" fill="#60a5fa" font-weight="700">BLACK</text>
+
+      <!-- BLACK 50 -->
+      <circle cx="385" cy="124" r="26" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+      <text x="385" y="130" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">50</text>
+      <text x="385" y="102" text-anchor="middle" font-size="8" fill="#60a5fa" font-weight="700">BLACK</text>
+
+      <!-- level 2 -->
+      <!-- RED 10 -->
+      <circle cx="88" cy="204" r="24" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+      <text x="88" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#f87171">10</text>
+      <text x="88" y="184" text-anchor="middle" font-size="8" fill="#f87171" font-weight="700">RED</text>
+
+      <!-- RED 20 -->
+      <circle cx="222" cy="204" r="24" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+      <text x="222" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#f87171">20</text>
+      <text x="222" y="184" text-anchor="middle" font-size="8" fill="#f87171" font-weight="700">RED</text>
+
+      <!-- RED 40 -->
+      <circle cx="318" cy="204" r="24" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+      <text x="318" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#f87171">40</text>
+      <text x="318" y="184" text-anchor="middle" font-size="8" fill="#f87171" font-weight="700">RED</text>
+
+      <!-- RED 70 -->
+      <circle cx="452" cy="204" r="24" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+      <text x="452" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#f87171">70</text>
+      <text x="452" y="184" text-anchor="middle" font-size="8" fill="#f87171" font-weight="700">RED</text>
+
+      <!-- null sentinels under 10 -->
+      <rect x="38" y="258" width="32" height="18" rx="3" fill="#0a0c0f" stroke="#2a2e38" stroke-width="1"/>
+      <text x="54" y="271" text-anchor="middle" font-size="9" fill="#3a4052">null</text>
+      <rect x="104" y="258" width="32" height="18" rx="3" fill="#0a0c0f" stroke="#2a2e38" stroke-width="1"/>
+      <text x="120" y="271" text-anchor="middle" font-size="9" fill="#3a4052">null</text>
+
+      <!-- black height annotation -->
+      <line x1="510" y1="38" x2="510" y2="270" stroke="#2a2e38" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="530" y="42"  text-anchor="middle" font-size="9" fill="#4a5068" font-weight="700">bh=2</text>
+      <text x="530" y="128" text-anchor="middle" font-size="9" fill="#4a5068" font-weight="700">bh=1</text>
+      <text x="530" y="210" text-anchor="middle" font-size="9" fill="#4a5068" font-weight="700">bh=0</text>
+    </svg>
+  </div>
+  <div class="caption">
+    <strong>Black height = 2</strong> for every path from root to null. Red nodes (10, 20, 40, 70) all have black parents — rule 4 satisfied. No two reds in a row anywhere.
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Insert — new nodes are always red -->
+<div class="diagram-section">
+  <div class="label">3 — Insert — New Nodes Are Always Red</div>
+  <div class="annotation">New nodes are always inserted as <span>red</span>. If the parent is black — done. If the parent is red — violation. Fix with <span>recoloring</span> or <span>rotation</span>.</div>
+
+  <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start; justify-content:center;">
+
+    <!-- Case: uncle is red → recolor -->
+    <div>
+      <div style="font-size:10px;color:var(--yellow);font-weight:700;text-align:center;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Fix: Uncle is Red → Recolor</div>
+      <svg width="240" height="200" viewBox="0 0 240 200">
+        <!-- before -->
+        <line x1="80" y1="32" x2="44"  y2="72" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="80" y1="32" x2="116" y2="72" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="44" y1="88" x2="24"  y2="128" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <!-- BLACK root -->
+        <circle cx="80" cy="20" r="18" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="80" y="26" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">30</text>
+
+        <!-- RED parent -->
+        <circle cx="44" cy="80" r="17" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+        <text x="44" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#f87171">15</text>
+        <text x="44" y="62" text-anchor="middle" font-size="8" fill="#f87171">parent=RED</text>
+
+        <!-- RED uncle -->
+        <circle cx="116" cy="80" r="17" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+        <text x="116" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#f87171">50</text>
+        <text x="116" y="62" text-anchor="middle" font-size="8" fill="#f87171">uncle=RED</text>
+
+        <!-- RED new node — violation! -->
+        <circle cx="24" cy="136" r="16" fill="#f8717130" stroke="#f87171" stroke-width="2.5" stroke-dasharray="4,2"/>
+        <text x="24" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">10</text>
+        <text x="24" y="158" text-anchor="middle" font-size="8" fill="#f87171">new! ✕</text>
+
+        <!-- arrow -->
+        <text x="170" y="95" text-anchor="middle" font-size="22" fill="#e8c547">→</text>
+
+        <!-- after recolor -->
+        <!-- BLACK root stays black -->
+        <circle cx="218" cy="20" r="18" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="218" y="26" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">30</text>
+
+        <!-- now BLACK -->
+        <circle cx="188" cy="70" r="17" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="188" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">15</text>
+        <text x="188" y="52" text-anchor="middle" font-size="8" fill="#60a5fa">→ BLACK</text>
+        <line x1="218" y1="32" x2="188" y2="56" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <!-- now BLACK -->
+        <!-- <circle cx="248" cy="70"... skipped for space, just show left branch> -->
+
+        <!-- red child stays red, valid now -->
+        <line x1="188" y1="82" x2="172" y2="118" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="172" cy="128" r="15" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="172" y="134" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">10</text>
+        <text x="172" y="150" text-anchor="middle" font-size="8" fill="#6bde84">valid ✓</text>
+      </svg>
+    </div>
+
+    <!-- Case: uncle is black → rotate -->
+    <div>
+      <div style="font-size:10px;color:var(--orange);font-weight:700;text-align:center;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Fix: Uncle is Black → Rotate + Recolor</div>
+      <svg width="240" height="200" viewBox="0 0 240 200">
+        <!-- before -->
+        <line x1="80" y1="32" x2="44"  y2="72" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="80" y1="32" x2="116" y2="72" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="44" y1="88" x2="64"  y2="128" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <!-- BLACK root -->
+        <circle cx="80" cy="20" r="18" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="80" y="26" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">30</text>
+
+        <!-- RED parent -->
+        <circle cx="44" cy="80" r="17" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+        <text x="44" y="86" text-anchor="middle" font-size="13" font-weight="700" fill="#f87171">15</text>
+        <text x="44" y="62" text-anchor="middle" font-size="8" fill="#f87171">parent=RED</text>
+
+        <!-- BLACK uncle (null) -->
+        <rect x="102" y="72" width="28" height="16" rx="3" fill="#0a0c0f" stroke="#2a2e38" stroke-width="1"/>
+        <text x="116" y="84" text-anchor="middle" font-size="8" fill="#3a4052">null/B</text>
+        <text x="116" y="62" text-anchor="middle" font-size="8" fill="#60a5fa">uncle=BLACK</text>
+
+        <!-- RED new node -->
+        <circle cx="64" cy="136" r="16" fill="#f8717130" stroke="#f87171" stroke-width="2.5" stroke-dasharray="4,2"/>
+        <text x="64" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">20</text>
+        <text x="64" y="158" text-anchor="middle" font-size="8" fill="#f87171">new! ✕</text>
+
+        <!-- arrow -->
+        <text x="155" y="95" text-anchor="middle" font-size="22" fill="#fb923c">→</text>
+
+        <!-- after rotation + recolor -->
+        <!-- 20 becomes root of subtree -->
+        <circle cx="208" cy="20" r="18" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="208" y="26" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">30</text>
+
+        <circle cx="190" cy="72" r="17" fill="#1e2230" stroke="#4a5068" stroke-width="2"/>
+        <text x="190" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">20</text>
+        <text x="190" y="52" text-anchor="middle" font-size="8" fill="#60a5fa">→ BLACK</text>
+        <line x1="208" y1="32" x2="190" y2="58" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <line x1="190" y1="84" x2="174" y2="120" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="190" y1="84" x2="208" y2="120" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <circle cx="174" cy="130" r="15" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="174" y="136" text-anchor="middle" font-size="11" font-weight="700" fill="#f87171">15</text>
+        <circle cx="208" cy="130" r="15" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="208" y="136" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">—</text>
+        <text x="174" y="152" text-anchor="middle" font-size="8" fill="#6bde84">valid ✓</text>
+      </svg>
+    </div>
+
+  </div>
+  <div class="caption">
+    <strong>Uncle red</strong> → recolor parent + uncle to black, grandparent to red. Propagate up if needed.<br>
+    <strong>Uncle black</strong> → rotate (1 or 2 rotations) + recolor. At most 2 rotations total per insert.
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. AVL vs Red-Black -->
+<div class="diagram-section">
+  <div class="label">4 — Red-Black vs AVL</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">
+    <tr>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">Property</th>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">Red-Black</th>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">AVL</th>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Height guarantee</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);font-weight:700;">≤ 2 log n</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">≤ 1.44 log n</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Balance mechanism</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">color rules + recolor + rotate</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">balance factor + rotate</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Rotations per insert</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">at most 2</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);font-weight:700;">up to O(log n)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Search speed</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);">slightly slower (taller)</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">slightly faster (shorter)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Insert/delete speed</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">faster (fewer rotations)</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);">slower (more rotations)</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;color:var(--text);">Used in</td>
+      <td style="padding:8px 12px;color:var(--accent);font-weight:700;">Java TreeMap, C++ std::map, Linux kernel</td>
+      <td style="padding:8px 12px;color:var(--blue);font-weight:700;">databases, read-heavy systems</td>
+    </tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Color Rules</div>
+    <div class="card-body">Every node is red or black. Root is always black. No two reds in a row. Black height is uniform on all paths.</div>
+    <div class="card-o" style="color:var(--accent)">5 rules always hold</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Black Height</div>
+    <div class="card-body">Every path from any node to a null leaf must have the same number of black nodes. This enforces balance.</div>
+    <div class="card-o" style="color:var(--blue)">uniform black depth</div>
+  </div>
+  <div class="card">
+    <div class="card-title">At Most 2 Rotations</div>
+    <div class="card-body">Insert always fixes in at most 2 rotations plus recoloring. Cheaper than AVL's potential O(log n) rotations.</div>
+    <div class="card-o" style="color:var(--green)">write-optimized</div>
+  </div>
+  <div class="card">
+    <div class="card-title">New Nodes = Red</div>
+    <div class="card-body">Always insert as red. If parent is black — done. If red — fix with recolor (uncle red) or rotate (uncle black).</div>
+    <div class="card-o" style="color:var(--yellow)">insert red, fix up</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used Everywhere</div>
+    <div class="card-body">Java's TreeMap and TreeSet, C++ std::map and std::set, Linux kernel scheduler, nginx. Preferred over AVL for general use.</div>
+    <div class="card-o" style="color:var(--orange)">industry standard</div>
+  </div>
+</div>
+
+</body>
+</html>

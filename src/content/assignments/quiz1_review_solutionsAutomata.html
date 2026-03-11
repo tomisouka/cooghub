@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz 1 — COSC 3340 · Review & Corrections</title>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141414;
+    --surface: #1c1c1c;
+    --border: #2a2a2a;
+    --accent: #ff6b35;
+    --blue: #4a9eff;
+    --green: #4ecb71;
+    --red: #ff4757;
+    --amber: #ffb347;
+    --purple: #c678dd;
+    --text: #ebebeb;
+    --muted: #666;
+    --card: #1a1a1a;
+    --mono: 'Courier Prime', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.01) 39px, rgba(255,255,255,0.01) 40px);
+  }
+
+  header {
+    padding: 0;
+    border-bottom: 2px solid var(--accent);
+    background: var(--surface);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+  }
+
+  .quiz-badge {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .quiz-num {
+    font-family: var(--mono);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .quiz-info h1 { font-size: 1.1rem; font-weight: 600; }
+  .quiz-info p { font-size: 0.78rem; color: var(--muted); font-weight: 300; margin-top: 0.2rem; }
+
+  .header-meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .score-banner {
+    background: linear-gradient(90deg, rgba(255,107,53,0.1), transparent);
+    border-top: 1px solid rgba(255,107,53,0.2);
+    padding: 0.8rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    font-size: 0.8rem;
+  }
+  .score-label { color: var(--muted); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .score-val { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .score-item { display: flex; flex-direction: column; gap: 0.1rem; }
+  .score-item.green .score-val { color: var(--green); }
+  .score-item.red .score-val { color: var(--red); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 1.8rem;
+    overflow: hidden;
+  }
+
+  .q-card-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    background: rgba(28,28,28,0.8);
+    transition: background 0.15s;
+  }
+  .q-card-head:hover { background: rgba(40,40,40,0.8); }
+
+  .q-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .ql-default { background: rgba(255,107,53,0.15); color: var(--accent); border: 1px solid rgba(255,107,53,0.3); }
+
+  .q-title-txt { font-weight: 500; flex: 1; font-size: 0.95rem; }
+
+  .pts-badge {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-good { background: var(--green); }
+  .dot-partial { background: var(--amber); }
+  .dot-wrong { background: var(--red); }
+
+  .q-expand { color: var(--muted); font-size: 0.7rem; transition: transform 0.25s; }
+  .q-card.open .q-expand { transform: rotate(180deg); }
+
+  .q-body { display: none; padding: 1.5rem; }
+  .q-card.open .q-body { display: block; }
+
+  .problem-stmt {
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid var(--muted);
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 3px 3px 0;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    color: #888;
+    line-height: 1.75;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .student-answer {
+    background: rgba(255,183,71,0.05);
+    border: 1px solid rgba(255,183,71,0.2);
+    border-radius: 4px;
+    padding: 1rem;
+  }
+  .student-answer-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .student-answer-label::before { content: '✏'; font-size: 0.7rem; }
+  .student-answer p { font-size: 0.85rem; color: #aaa; line-height: 1.65; }
+
+  .correct-answer {
+    background: rgba(78,203,113,0.05);
+    border: 1px solid rgba(78,203,113,0.2);
+    border-radius: 4px;
+    padding: 1rem;
+  }
+  .correct-answer-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .correct-answer-label::before { content: '✓'; font-weight: 700; }
+  .correct-answer p { font-size: 0.85rem; color: var(--text); line-height: 1.65; }
+
+  .sol-head {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin: 1.2rem 0 0.5rem;
+  }
+
+  p { margin-bottom: 0.65rem; font-size: 0.9rem; line-height: 1.75; }
+  strong { color: var(--blue); font-weight: 600; }
+  em { color: var(--amber); font-style: italic; }
+
+  .mono-block {
+    font-family: var(--mono);
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.7rem 0;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    color: #aaa;
+    overflow-x: auto;
+  }
+  .mono-block .hi { color: var(--blue); }
+  .mono-block .ok { color: var(--green); }
+  .mono-block .err { color: var(--red); }
+
+  table { width: 100%; border-collapse: collapse; margin: 0.7rem 0; }
+  th {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.9rem;
+    background: rgba(74,158,255,0.08);
+    color: var(--blue);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  td { padding: 0.5rem 0.9rem; border-bottom: 1px solid rgba(42,42,42,0.8); font-family: var(--mono); font-size: 0.78rem; }
+  tr:last-child td { border-bottom: none; }
+  .g { color: var(--green); } .r { color: var(--red); } .am { color: var(--amber); }
+
+  .diag-container {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 0.7rem 0;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: #666;
+    overflow-x: auto;
+  }
+
+  .feedback-box {
+    background: rgba(255,71,87,0.06);
+    border: 1px solid rgba(255,71,87,0.2);
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    margin: 0.7rem 0;
+  }
+  .feedback-label { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); margin-bottom: 0.3rem; }
+  .feedback-box p { font-size: 0.83rem; color: #ccc; margin: 0; }
+
+  .qed { text-align: right; font-family: var(--mono); color: var(--green); font-size: 0.9rem; margin-top: 0.5rem; }
+
+  .prob-num {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .bijection-table td:first-child { color: var(--purple); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="quiz-badge">
+      <div class="quiz-num">Q1</div>
+      <div class="quiz-info">
+        <h1>Quiz 1 — Review & Correct Solutions</h1>
+        <p>COSC 3340: Automata & Computability · February 10, 2026 · 60 min · 80 pts</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      Dr. Rakesh Verma<br>
+      Vu Minh Hoang Dang · Bryan Tuck<br>
+      Student: Jesrah Agudele
+    </div>
+  </div>
+  <div class="score-banner">
+    <div class="score-item">
+      <div class="score-label">Total Points</div>
+      <div class="score-val">80</div>
+    </div>
+    <div class="score-item green">
+      <div class="score-label">Questions</div>
+      <div class="score-val">8</div>
+    </div>
+    <div style="color: var(--muted); font-size: 0.8rem; flex: 1;">
+      Each problem below shows the student's answer alongside the fully correct solution with explanations.
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Q1 Diagonalization -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q1</span>
+      <span class="q-title-txt">Diagonalization — 12 points</span>
+      <span class="pts-badge">12 pts</span>
+      <span class="status-dot dot-partial"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">
+        <strong>(a)</strong> In one sentence, define the diagonalization principle.<br><br>
+        <strong>(b)</strong> Given infinite binary strings s₁=01010101…, s₂=11001100…, s₃=00000000…, s₄=10101010…, use diagonalization to construct t guaranteed not to appear in the list.
+      </div>
+
+      <div class="sol-head">Part (a)</div>
+      <div class="two-col">
+        <div class="student-answer">
+          <div class="student-answer-label">Student's Answer</div>
+          <p>"Set up a matrix, pick a pivot, and reduce"</p>
+        </div>
+        <div class="correct-answer">
+          <div class="correct-answer-label">Correct Answer</div>
+          <p>The diagonalization principle constructs an object that differs from every element in a given enumerable list by disagreeing with the n-th element on the n-th "coordinate," ensuring the constructed object cannot appear anywhere in the list.</p>
+        </div>
+      </div>
+      <div class="feedback-box">
+        <div class="feedback-label">Feedback</div>
+        <p>The student confused diagonalization with Gaussian elimination (a linear algebra technique). Diagonalization in this context is Cantor's diagonal argument — about constructing objects that differ from every listed element.</p>
+      </div>
+
+      <div class="sol-head">Part (b) — Diagonal Construction</div>
+      <div class="correct-answer">
+        <div class="correct-answer-label">Correct Diagonalization</div>
+        <p>Read the diagonal: sᵢ[i] for each position i. Flip each bit.</p>
+      </div>
+      <div class="diag-container">
+        <svg viewBox="0 0 480 200" fill="none" style="width:100%;max-width:480px;display:block;margin:0 auto">
+          <!-- Grid lines -->
+          <rect x="10" y="10" width="460" height="180" rx="3" fill="rgba(255,255,255,0.02)"/>
+          
+          <!-- Column headers -->
+          <text x="60" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">pos 1</text>
+          <text x="110" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">pos 2</text>
+          <text x="160" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">pos 3</text>
+          <text x="210" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">pos 4</text>
+          <text x="260" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">pos 5</text>
+          <text x="310" y="30" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">…</text>
+
+          <!-- s1 -->
+          <text x="30" y="65" font-family="monospace" font-size="11" fill="#aaa">s₁=</text>
+          <rect x="48" y="50" width="24" height="24" rx="2" fill="rgba(74,158,255,0.15)" stroke="rgba(74,158,255,0.5)"/>
+          <text x="60" y="67" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#4a9eff">0</text>
+          <text x="110" y="67" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <text x="160" y="67" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="210" y="67" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <text x="260" y="67" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="310" y="67" font-family="monospace" font-size="11" fill="#555">…</text>
+
+          <!-- s2 -->
+          <text x="30" y="105" font-family="monospace" font-size="11" fill="#aaa">s₂=</text>
+          <text x="60" y="105" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <rect x="98" y="90" width="24" height="24" rx="2" fill="rgba(74,158,255,0.15)" stroke="rgba(74,158,255,0.5)"/>
+          <text x="110" y="107" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#4a9eff">1</text>
+          <text x="160" y="105" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="210" y="105" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="260" y="105" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <text x="310" y="105" font-family="monospace" font-size="11" fill="#555">…</text>
+
+          <!-- s3 -->
+          <text x="30" y="143" font-family="monospace" font-size="11" fill="#aaa">s₃=</text>
+          <text x="60" y="143" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="110" y="143" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <rect x="148" y="129" width="24" height="24" rx="2" fill="rgba(74,158,255,0.15)" stroke="rgba(74,158,255,0.5)"/>
+          <text x="160" y="147" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#4a9eff">0</text>
+          <text x="210" y="143" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="260" y="143" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="310" y="143" font-family="monospace" font-size="11" fill="#555">…</text>
+
+          <!-- s4 -->
+          <text x="30" y="178" font-family="monospace" font-size="11" fill="#aaa">s₄=</text>
+          <text x="60" y="178" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <text x="110" y="178" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">0</text>
+          <text x="160" y="178" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <rect x="198" y="163" width="24" height="24" rx="2" fill="rgba(74,158,255,0.15)" stroke="rgba(74,158,255,0.5)"/>
+          <text x="210" y="182" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#4a9eff">0</text>
+          <text x="260" y="178" text-anchor="middle" font-family="monospace" font-size="13" fill="#666">1</text>
+          <text x="310" y="178" font-family="monospace" font-size="11" fill="#555">…</text>
+
+          <!-- Diagonal label -->
+          <text x="385" y="60" font-family="monospace" font-size="10" fill="#4a9eff">Diagonal: 0,1,0,0,…</text>
+          <text x="385" y="75" font-family="monospace" font-size="10" fill="#4ecb71">Flipped:  1,0,1,1,…</text>
+          <line x1="380" y1="45" x2="380" y2="85" stroke="#333" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="mono-block">
+<span class="hi">Diagonal bits</span> (sᵢ[i]):  s₁[1]=0, s₂[2]=1, s₃[3]=0, s₄[4]=0, …
+
+<span class="ok">t[i] = flip(sᵢ[i]):</span>  t[1]=1, t[2]=0, t[3]=1, t[4]=1, …
+
+<span class="ok">Therefore: t = 1011…</span>
+
+<span class="hi">Why t ∉ list:</span> t differs from sᵢ in position i for every i.
+So t ≠ s₁ (differs at pos 1), t ≠ s₂ (differs at pos 2), etc. □
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 Induction -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q2</span>
+      <span class="q-title-txt">Proof by Induction: Σ(2i−1) = n² — 10 points</span>
+      <span class="pts-badge">10 pts</span>
+      <span class="status-dot dot-partial"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">Prove by mathematical induction that for all n ≥ 1: 1 + 3 + 5 + … + (2n−1) = n².</div>
+      
+      <div class="sol-head">Student's Approach vs. Complete Proof</div>
+      <div class="two-col">
+        <div class="student-answer">
+          <div class="student-answer-label">Student's Attempt</div>
+          <p>Had the right idea (inductive step with k≥1), but used k where n was needed and the algebra was incomplete. Showed LHS = RHS conceptually but not rigorously.</p>
+        </div>
+        <div class="correct-answer">
+          <div class="correct-answer-label">Complete Correct Proof</div>
+          <p>Full three-part induction with base case, IH, and step.</p>
+        </div>
+      </div>
+      <div class="mono-block">
+<span class="hi">BASE CASE (n = 1):</span>
+  LHS = 2(1) − 1 = 1
+  RHS = 1² = 1
+  LHS = RHS ✓
+
+<span class="hi">INDUCTIVE HYPOTHESIS:</span>
+  Assume for some k ≥ 1:  Σᵢ₌₁ᵏ (2i−1) = k²
+
+<span class="hi">INDUCTIVE STEP:</span> Show for k+1:
+  Σᵢ₌₁ᵏ⁺¹ (2i−1)
+  = [Σᵢ₌₁ᵏ (2i−1)] + (2(k+1)−1)
+  = k²              + (2k + 1)       [by IH]
+  = k² + 2k + 1
+  = (k + 1)²                         ✓
+
+<span class="ok">By mathematical induction, Σᵢ₌₁ⁿ (2i−1) = n² for all n ≥ 1. □</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 Pigeonhole -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q3</span>
+      <span class="q-title-txt">Pigeonhole Principle — Socks — 8 points</span>
+      <span class="pts-badge">8 pts</span>
+      <span class="status-dot dot-wrong"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">In a drawer there are six pairs of socks of six different colors. What is the minimum number of socks you must draw to guarantee two of the same color? You cannot see them as you pull them out.</div>
+      <div class="two-col">
+        <div class="student-answer">
+          <div class="student-answer-label">Student's Answer</div>
+          <p>"You have to pull out all the socks [12] to guarantee a pair."</p>
+        </div>
+        <div class="correct-answer">
+          <div class="correct-answer-label">Correct Answer: 7</div>
+          <p>By the Pigeonhole Principle: with 6 colors (pigeonholes), drawing 6 socks could give one of each color (worst case, no pair). The 7th sock must match one already drawn.</p>
+        </div>
+      </div>
+      <div class="feedback-box">
+        <div class="feedback-label">Common Mistake</div>
+        <p>Pulling all 12 socks would certainly give pairs, but we want the <em>minimum</em> to guarantee at least one pair. Worst case: 6 socks, one each color. The 7th guarantees a pair. Answer = <strong>7</strong>.</p>
+      </div>
+      <div class="mono-block">
+Pigeonholes = 6 colors
+Pigeons = socks drawn
+
+Worst case: 6 socks drawn, one of each color — no pair yet.
+7th sock → must go in one of the 6 color buckets → <span class="ok">PAIR GUARANTEED</span>
+
+<span class="ok">Minimum = 6 + 1 = 7</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 Cardinality -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q4</span>
+      <span class="q-title-txt">Cardinality of E vs F — 9 points</span>
+      <span class="pts-badge">9 pts</span>
+      <span class="status-dot dot-partial"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">Let E = {0,2,4,6,…} (even naturals) and F = {0,4,8,12,…} (multiples of 4). Prove or disprove: E and F have the same cardinality.</div>
+      <div class="sol-head">Correct Proof</div>
+      <p>Student correctly concluded "same cardinality" and noted F ⊂ E and both are infinite — but did not provide a rigorous bijection.</p>
+      <p><strong>Claim: |E| = |F|.</strong> Define the bijection f: E → F by <code>f(n) = 2n</code>.</p>
+      <table class="bijection-table">
+        <tr><th>E element (n)</th><th>f(n) = 2n ∈ F</th></tr>
+        <tr><td>0</td><td>0</td></tr>
+        <tr><td>2</td><td>4</td></tr>
+        <tr><td>4</td><td>8</td></tr>
+        <tr><td>6</td><td>12</td></tr>
+        <tr><td>2k</td><td>4k</td></tr>
+      </table>
+      <div class="mono-block">
+<span class="ok">Injective:</span>  f(n) = f(m) → 2n = 2m → n = m  ✓
+<span class="ok">Surjective:</span> For any 4k ∈ F, f(2k) = 4k and 2k ∈ E  ✓
+
+f is a bijection E → F, so |E| = |F|.  □
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 Functions -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q5</span>
+      <span class="q-title-txt">Binary Relation that is a Function on S — 8 points</span>
+      <span class="pts-badge">8 pts</span>
+      <span class="status-dot dot-partial"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">Let S be the set of students in this course. Define a binary relation on S such that it is also a function. How do you know it is a function? Justify carefully.</div>
+      <div class="sol-head">Correct Answer</div>
+      <p><strong>Example relation (Identity):</strong> Define R = {(s, s) | s ∈ S}, i.e., the identity relation where each student maps to themselves.</p>
+      <p><strong>Or (PSID map):</strong> R = {(s, PSID(s)) | s ∈ S} where PSID(s) is the student's unique ID number.</p>
+      <div class="mono-block">
+<span class="hi">A binary relation f on S is a function if:</span>
+  1. It is <span class="ok">total</span>: every s ∈ S has at least one pair (s, y) ∈ f
+  2. It is <span class="ok">single-valued</span>: if (s, y) ∈ f and (s, z) ∈ f, then y = z
+
+<span class="hi">For identity f(s) = s:</span>
+  Total: every s maps to itself ✓
+  Single-valued: f(s) = s is unique for each s ✓
+  → f is a function  ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 Equivalence Relation -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q6</span>
+      <span class="q-title-txt">Equivalence Relation on E — 10 points</span>
+      <span class="pts-badge">10 pts</span>
+      <span class="status-dot dot-partial"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">Define a relation on E = {0, 2, 4, 6, …} and prove or disprove that it is an equivalence relation.</div>
+      <div class="sol-head">Correct Definition + Proof</div>
+      <p>Define: x R y ⟺ 4 | (x − y) (x and y are equivalent mod 4).</p>
+      <p>This gives two equivalence classes: {0,4,8,12,…} and {2,6,10,14,…}.</p>
+      <div class="mono-block">
+<span class="hi">REFLEXIVE:</span>  x − x = 0, and 4 | 0 → x R x  ✓
+
+<span class="hi">SYMMETRIC:</span>  If 4|(x−y), then x−y = 4k → y−x = −4k = 4(−k) → 4|(y−x) ✓
+
+<span class="hi">TRANSITIVE:</span> If 4|(x−y) and 4|(y−z):
+  x−y = 4j, y−z = 4k
+  x−z = (x−y) + (y−z) = 4j + 4k = 4(j+k)
+  → 4|(x−z) ✓
+
+<span class="ok">R is an equivalence relation on E. □</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7 Probability -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q7</span>
+      <span class="q-title-txt">Probability — Coin & Die — 11 points</span>
+      <span class="pts-badge">11 pts</span>
+      <span class="status-dot dot-wrong"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">
+        (a) Probability of at least one head in 3 tosses of a fair coin.<br>
+        (b) Probability of an even number from a 6-sided die AND a tail from the coin (one toss each).
+      </div>
+      <div class="two-col">
+        <div class="student-answer">
+          <div class="student-answer-label">Student's Answers</div>
+          <p>(a) Student computed something like 2/6 → 1/3 — <strong>WRONG</strong></p>
+          <p>(b) Student got 1/12 — <strong>WRONG</strong></p>
+        </div>
+        <div class="correct-answer">
+          <div class="correct-answer-label">Correct Answers</div>
+          <p>(a) <strong>7/8</strong></p>
+          <p>(b) <strong>1/4</strong></p>
+        </div>
+      </div>
+      <div class="mono-block">
+<span class="hi">Part (a): P(at least one H in 3 tosses)</span>
+
+Complement method (easier):
+  P(at least one H) = 1 − P(no heads at all)
+  P(no heads) = P(TTT) = (1/2)³ = 1/8
+  P(at least one H) = 1 − 1/8 = <span class="ok">7/8</span>
+
+<span class="hi">Part (b): P(even die AND tail)</span>
+
+Events are independent:
+  P(even die) = 3/6 = 1/2   (die shows 2, 4, or 6)
+  P(tail) = 1/2
+
+  P(both) = P(even) × P(tail) = (1/2) × (1/2) = <span class="ok">1/4</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q8 Summary -->
+  <div class="q-card open">
+    <div class="q-card-head" onclick="toggle(this)">
+      <span class="q-label ql-default">Q8</span>
+      <span class="q-title-txt">Week 1 Course Content Summary — 12 points</span>
+      <span class="pts-badge">12 pts</span>
+      <span class="status-dot dot-good"></span>
+      <span class="q-expand">▼</span>
+    </div>
+    <div class="q-body">
+      <div class="problem-stmt">What course content did you learn from the first week of class? Summarize in 75 words.</div>
+      <div class="sol-head">Student's Answer (awarded full points)</div>
+      <div class="student-answer">
+        <div class="student-answer-label">Jesrah's Answer</div>
+        <p>"We learned about one of the most powerful machines: NFA & DFA. They both are defined with 5-tuple definitions. We learned about regular languages and that DFA is a subset of a NFA. Deterministic Function Automata & Nondeterministic Function Automata. We are currently learning how to construct regular expressions using Kleene star, concatenation & union."</p>
+      </div>
+      <div class="sol-head">Model Answer</div>
+      <div class="correct-answer">
+        <div class="correct-answer-label">Exemplary Answer</div>
+        <p>In the first week of COSC 3340, we studied mathematical foundations: sets, functions, relations, cardinality, and proof techniques (induction, diagonalization, pigeonhole). We established that some infinities are countable (ℕ, finite subsets of ℕ) and others are uncountable (𝒫(ℕ)). We introduced formal language theory, defining Deterministic Finite Automata (DFAs) and Nondeterministic Finite Automata (NFAs) as 5-tuple machines recognizing regular languages, and began exploring regular expressions via Kleene star, concatenation, and union.</p>
+      </div>
+      <div class="feedback-box" style="background:rgba(78,203,113,0.06);border-color:rgba(78,203,113,0.2);">
+        <div class="feedback-label" style="color:var(--green)">Feedback</div>
+        <p>Good job! A minor note: DFA is a special case (subset) of NFA, not the reverse — every DFA is an NFA, but not every NFA is a DFA. The student's terminology "DFA is a subset of NFA" is correct in this sense.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>COSC 3340 — Automata & Computability · Spring 2026 · Quiz 1 Review</footer>
+
+<script>
+function toggle(head) {
+  const card = head.closest('.q-card');
+  card.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

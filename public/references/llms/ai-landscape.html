@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Landscape</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f12;
+    --surface: #17171d;
+    --surface2: #1e1e26;
+    --border: #2c2c3a;
+    --text: #f0f0f2;
+    --muted: #8a8aaa;
+    --accent-ai:    #4ade80;
+    --accent-ml:    #60a5fa;
+    --accent-dl:    #c084fc;
+    --accent-llm:   #fb923c;
+    --accent-agent: #f87171;
+    --accent-rl:    #facc15;
+    --accent-cv:    #34d399;
+    --accent-nlp:   #f472b6;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  header {
+    max-width: 980px;
+    margin: 0 auto 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-top: 4px;
+  }
+
+  .tag-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 4px 12px;
+    color: var(--muted);
+  }
+
+  .layout {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  h2.section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── RINGS (SVG-based) ── */
+  .diagram-section { grid-column: 1 / -1; display: grid; grid-template-columns: 400px 1fr; gap: 32px; align-items: start; }
+
+  .rings-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+  #ringSvg {
+    width: 380px;
+    height: 380px;
+    display: block;
+    overflow: visible;
+  }
+
+  #ringSvg circle {
+    fill: none;
+    stroke-width: 18;
+    cursor: pointer;
+    transition: stroke-opacity 0.2s, filter 0.2s;
+    stroke-opacity: 0.55;
+    /* pointer-events: stroke makes ONLY the stroke line clickable, not the interior */
+    pointer-events: stroke;
+  }
+
+  #ringSvg circle:hover   { stroke-opacity: 0.9; filter: drop-shadow(0 0 6px currentColor); }
+  #ringSvg circle.active  { stroke-opacity: 1;   filter: drop-shadow(0 0 10px currentColor); }
+
+  #ringSvg text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    dominant-baseline: middle;
+  }
+
+  /* ── DETAIL SECTIONS ── */
+  .detail-sections { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 1px; margin-top: 8px; }
+
+  .detail-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .detail-section.ds-open { border-color: #44445a; }
+
+  .ds-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: var(--surface);
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .ds-header:hover { background: var(--surface2); }
+
+  .ds-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+  .ds-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .ds-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .ds-chevron {
+    font-size: 0.7rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+    margin-left: auto;
+  }
+
+  .detail-section.ds-open .ds-chevron { transform: rotate(180deg); }
+
+  .ds-body {
+    display: none;
+    padding: 0 18px 18px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  .detail-section.ds-open .ds-body { display: block; }
+
+  .ds-text {
+    font-size: 0.95rem;
+    color: #c8c8e0;
+    line-height: 1.75;
+    font-weight: 400;
+    padding-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .ds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .ds-fact {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 11px 14px;
+  }
+
+  .ds-fact .fact-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .ds-fact .fact-value { font-size: 0.88rem; color: #d0d0e8; line-height: 1.55; font-weight: 400; }
+
+  .ds-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ds-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 12px;
+    color: #b8b8d8;
+    background: var(--surface2);
+  }
+
+  /* ── INFO PANEL ── */
+  .info-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    min-height: 340px;
+    transition: border-color 0.25s;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .info-panel .ip-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .info-panel h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .info-panel .ip-body {
+    font-size: 0.93rem;
+    color: #c8c8e0;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  .info-panel .ip-examples {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-panel .ip-examples-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .ip-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ip-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 12px;
+    color: #b8b8d8;
+    background: var(--surface2);
+  }
+
+  .ip-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .ip-fact {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .ip-fact .fact-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+
+  .ip-fact .fact-value { font-size: 0.85rem; color: #d0d0e8; line-height: 1.45; font-weight: 400; }
+
+  /* ring legend */
+  .ring-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .legend-item {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── SIBLING FIELDS ── */
+  .siblings-section { grid-column: 1 / -1; }
+
+  .siblings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+  }
+
+  .sib-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .sib-card:hover { border-color: #44445a; background: var(--surface2); }
+  .sib-card.active { background: var(--surface2); }
+
+  .sib-card .sib-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .sib-card .sib-desc {
+    font-size: 0.85rem;
+    color: #9898b8;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── SPECTRUM ── */
+  .spectrum-section { grid-column: 1 / -1; }
+
+  .spectrum-bar {
+    height: 44px;
+    border-radius: 6px;
+    background: linear-gradient(to right, var(--accent-ml), var(--accent-llm), var(--accent-agent));
+    opacity: 0.8;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .spectrum-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    padding: 0 2px;
+    margin-bottom: 16px;
+  }
+
+  .spectrum-pins { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  .pin {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #b0b0cc;
+    cursor: default;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .pin:hover { border-color: #4a4a60; color: #e0e0f0; }
+  .pin[data-tier="assistant"] { border-color: #1e3a5f55; }
+  .pin[data-tier="hybrid"]    { border-color: #92400e55; }
+  .pin[data-tier="agent"]     { border-color: #7f1d1d55; }
+
+  /* ── CONCEPTS ── */
+  .concepts-section { grid-column: 1 / -1; }
+
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .concept-card .c-term {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .concept-card .c-def {
+    font-size: 0.88rem;
+    color: #9898b8;
+    line-height: 1.65;
+    font-weight: 400;
+  }
+
+  /* ── PRODUCTS ── */
+  .products-section { grid-column: 1 / -1; }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    transition: border-color 0.2s;
+  }
+  .product-card:hover { border-color: #333; }
+
+  .product-card .name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+  .tag-assistant { background: #1e3a5f; color: var(--accent-ml); }
+  .tag-hybrid    { background: #3b2a14; color: var(--accent-llm); }
+  .tag-agent     { background: #3b1414; color: var(--accent-agent); }
+
+  .product-card .desc {
+    font-size: 0.85rem;
+    color: #9898b8;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── INSIGHT ── */
+  .insight {
+    grid-column: 1 / -1;
+    border: 1px solid #1e1e1e;
+    border-left: 3px solid var(--accent-agent);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 20px;
+    background: #0d0808;
+  }
+
+  .insight .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-agent);
+    margin-bottom: 6px;
+  }
+
+  .insight p {
+    font-size: 0.95rem;
+    color: #c8c8e0;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+  .insight strong { color: var(--text); font-weight: 600; }
+
+  /* ── TIMELINE VISUAL ── */
+  .timeline-section { grid-column: 1 / -1; }
+
+  .tl-scroll {
+    overflow-x: auto;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+  }
+  .tl-scroll::-webkit-scrollbar { height: 4px; }
+  .tl-scroll::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .tl-track {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    padding: 0 24px 0 0;
+  }
+
+  /* horizontal spine */
+  .tl-track::before {
+    content: '';
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #2a2a2a 5%, #2a2a2a 95%, transparent);
+  }
+
+  .tl-node {
+    position: relative;
+    width: 180px;
+    flex-shrink: 0;
+    cursor: pointer;
+    padding-top: 0;
+  }
+
+  /* alternating above/below */
+  .tl-node:nth-child(odd)  { padding-top: 0;    }
+  .tl-node:nth-child(even) { padding-top: 110px; }
+
+  .tl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 0 8px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .tl-node:hover .tl-card { border-color: #333; background: #151515; }
+  .tl-node.tl-active .tl-card { background: #151515; }
+
+  /* vertical connector from card to spine */
+  .tl-connector {
+    width: 1px;
+    background: #2a2a2a;
+    margin: 0 auto;
+    position: relative;
+  }
+  .tl-node:nth-child(odd)  .tl-connector { height: 20px; }
+  .tl-node:nth-child(even) .tl-connector { height: 20px; order: -1; }
+
+  .tl-dot-outer {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.2s;
+    background: var(--bg);
+  }
+  .tl-node:hover .tl-dot-outer { transform: scale(1.4); }
+  .tl-node.tl-active .tl-dot-outer { transform: scale(1.5); }
+
+  /* odd: card → connector → dot (dot on spine) */
+  /* even: dot → connector → card (card below spine) */
+  .tl-node:nth-child(odd)  { display: flex; flex-direction: column; }
+  .tl-node:nth-child(even) { display: flex; flex-direction: column-reverse; }
+
+  .tl-year-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .tl-title-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 5px;
+  }
+  .tl-body-label {
+    font-size: 0.8rem;
+    color: #8888a8;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  /* detail panel below */
+  .tl-detail {
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    min-height: 60px;
+    transition: border-color 0.25s;
+  }
+  .tl-detail h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .tl-detail p {
+    font-size: 0.92rem;
+    color: #a8a8c8;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  /* divider */
+  .divider { grid-column: 1/-1; border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+
+  @media (max-width: 640px) {
+    .diagram-section { grid-template-columns: 1fr; }
+    .rings-container { width: 300px; height: 300px; }
+    .layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>AI Landscape</h1>
+    <p>A structured map of artificial intelligence — from the broad field down to agents.</p>
+  </div>
+  <span class="tag-pill">Click rings & cards to explore</span>
+</header>
+
+<div class="layout">
+
+  <!-- ── CONTAINMENT MAP ── -->
+  <div class="diagram-section">
+    <div class="rings-wrap">
+      <h2 class="section-label">Containment Map</h2>
+      <svg id="ringSvg" viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rings drawn largest→smallest. pointer-events:stroke means only the stroke line is clickable -->
+        <!-- r values: AI=180, ML=162, DL=140, LLM=118, Agent=96 (each ~18px apart = stroke-width) -->
+        <circle data-key="ai"    cx="190" cy="190" r="171" stroke="#4ade80" />
+        <circle data-key="ml"    cx="190" cy="190" r="153" stroke="#60a5fa" />
+        <circle data-key="dl"    cx="190" cy="190" r="131" stroke="#c084fc" />
+        <circle data-key="llm"   cx="190" cy="190" r="109" stroke="#fb923c" />
+        <circle data-key="agent" cx="190" cy="190" r="87"  stroke="#f87171" />
+        <!-- Labels -->
+        <text x="22"  y="190" fill="#4ade80" text-anchor="start">AI</text>
+        <text x="40"  y="190" fill="#60a5fa" text-anchor="start" dx="0" dy="-16">ML</text>
+        <text x="62"  y="190" fill="#c084fc" text-anchor="start" dx="0" dy="16">Deep Learning</text>
+        <text x="84"  y="190" fill="#fb923c" text-anchor="start" dx="0" dy="-16">LLMs</text>
+        <text x="106" y="190" fill="#f87171" text-anchor="middle" dx="84">Agents</text>
+      </svg>
+      <div class="ring-legend">
+        <span class="legend-item" data-key="ai">    <span class="legend-dot" style="background:#4ade80"></span>AI</span>
+        <span class="legend-item" data-key="ml">    <span class="legend-dot" style="background:#60a5fa"></span>ML</span>
+        <span class="legend-item" data-key="dl">    <span class="legend-dot" style="background:#c084fc"></span>Deep Learning</span>
+        <span class="legend-item" data-key="llm">   <span class="legend-dot" style="background:#fb923c"></span>LLMs</span>
+        <span class="legend-item" data-key="agent"> <span class="legend-dot" style="background:#f87171"></span>Agents</span>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-label">Layer Details</h2>
+      <div class="info-panel" id="infoPanel">
+        <div class="ip-eyebrow">Select a layer</div>
+        <h3 style="color:#333;">← Click a ring</h3>
+        <div class="ip-body">Each ring is a subset of the one containing it. Click any ring to understand what it covers, how it works, and what it enables.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EXPANDABLE DETAIL SECTIONS ── -->
+  <div style="grid-column:1/-1">
+    <h2 class="section-label" style="margin-bottom:12px;">Deep Dive — Click any layer to expand</h2>
+    <div class="detail-sections" id="detailSections"></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SIBLING FIELDS ── -->
+  <div class="siblings-section">
+    <h2 class="section-label">AI Subfields — Beyond Language</h2>
+    <div class="siblings-grid" id="sibGrid">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── KEY CONCEPTS ── -->
+  <div class="concepts-section">
+    <h2 class="section-label">Core Concepts — The Vocabulary</h2>
+    <div class="concepts-grid" id="conceptsGrid"></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SPECTRUM ── -->
+  <div class="spectrum-section">
+    <h2 class="section-label">Assistant → Agent Spectrum</h2>
+    <div class="spectrum-bar"></div>
+    <div class="spectrum-labels">
+      <span>Pure assistant (reactive)</span>
+      <span>Hybrid (tools + context)</span>
+      <span>Full agent (autonomous loops)</span>
+    </div>
+    <div class="spectrum-pins">
+      <span class="pin" data-tier="assistant">ChatGPT (chat)</span>
+      <span class="pin" data-tier="assistant">Claude (chat)</span>
+      <span class="pin" data-tier="assistant">Gemini (chat)</span>
+      <span class="pin" data-tier="hybrid">GitHub Copilot</span>
+      <span class="pin" data-tier="hybrid">Cursor (autocomplete)</span>
+      <span class="pin" data-tier="hybrid">Claude + tools</span>
+      <span class="pin" data-tier="agent">Cursor Agent</span>
+      <span class="pin" data-tier="agent">Claude Code</span>
+      <span class="pin" data-tier="agent">Devin</span>
+      <span class="pin" data-tier="agent">AutoGPT</span>
+    </div>
+  </div>
+
+  <!-- ── KEY INSIGHT ── -->
+  <div class="insight">
+    <div class="label">Key Insight</div>
+    <p><strong>"Agent" is not a type of model — it's a pattern of use.</strong> The same LLM becomes an agent when placed in a loop with tools, memory, and goals. Cursor and Claude Code use the same underlying models as their chat counterparts. The difference is <em>autonomy</em>: the model plans, acts, observes outcomes, and iterates — without a human in the loop at each step.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── PRODUCTS ── -->
+  <div class="products-section">
+    <h2 class="section-label">Products Placed</h2>
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="name">Claude (chat)</div>
+        <div class="tag tag-assistant">assistant</div>
+        <div class="desc">Anthropic's LLM in conversational mode. Reactive — responds to prompts. Excels at reasoning, writing, and analysis.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Claude Code</div>
+        <div class="tag tag-agent">agent</div>
+        <div class="desc">Claude in an agentic loop. Terminal access, file editing, multi-step planning. Writes and executes code autonomously.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Cursor (autocomplete)</div>
+        <div class="tag tag-hybrid">hybrid</div>
+        <div class="desc">LLM with full codebase context. Suggests and completes — you still drive every decision.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Cursor Agent</div>
+        <div class="tag tag-agent">agent</div>
+        <div class="desc">Plans tasks, writes files, runs commands autonomously. Same model as autocomplete, different architecture.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">ChatGPT</div>
+        <div class="tag tag-assistant">assistant</div>
+        <div class="desc">OpenAI's flagship chat. With plugins and tools it edges toward hybrid. GPT-4o powers vision and voice too.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">GitHub Copilot</div>
+        <div class="tag tag-hybrid">hybrid</div>
+        <div class="desc">IDE-embedded LLM with repo context. Autocompletes and suggests in-flow, now with agent features in Copilot Workspace.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Devin</div>
+        <div class="tag tag-agent">agent</div>
+        <div class="desc">Fully autonomous software engineer. Plans, writes, debugs, and deploys. Sets the upper bound on what agents can do today.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Gemini (chat)</div>
+        <div class="tag tag-assistant">assistant</div>
+        <div class="desc">Google's multimodal LLM. Deep integration with Google Workspace. Handles text, images, audio, and video natively.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Midjourney</div>
+        <div class="tag tag-assistant">assistant</div>
+        <div class="desc">Text-to-image diffusion model. Takes a text prompt, returns a high-quality image. Reactive, not agentic.</div>
+      </div>
+      <div class="product-card">
+        <div class="name">Whisper (OpenAI)</div>
+        <div class="tag tag-assistant">assistant</div>
+        <div class="desc">Speech-to-text model. Transcribes audio across 99 languages. A narrow, focused deep learning model — not an LLM.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── TIMELINE VISUAL ── -->
+  <div class="timeline-section">
+    <h2 class="section-label">Brief History — Key Milestones <span style="color:#333;font-size:0.6rem;margin-left:8px;">scroll →</span></h2>
+    <div class="tl-scroll">
+      <div class="tl-track" id="tlTrack"></div>
+    </div>
+    <div class="tl-detail" id="tlDetail">
+      <h4 style="color:#333;">← Click a milestone</h4>
+      <p>Select any event on the timeline to read more about it.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ──────────────── DATA ──────────────── */
+
+const ringInfo = {
+  ai: {
+    color: "#4ade80",
+    eyebrow: "The outer boundary",
+    title: "Artificial Intelligence",
+    body: "The broadest category: any technique enabling machines to simulate intelligence. This includes rule-based expert systems from the 1970s, game-playing algorithms (chess, Go), robotics, computer vision, and today's neural networks. Most 20th-century AI had nothing to do with learning — it was hand-coded logic. The term dates to 1956 (Dartmouth Conference). Today, \"AI\" is often used loosely to mean any machine learning system.",
+    facts: [
+      { label: "Born", value: "1956, Dartmouth" },
+      { label: "Techniques", value: "Rules, search, logic, stats, learning" },
+      { label: "Scope", value: "Any machine intelligence" },
+      { label: "Includes", value: "ML, robotics, vision, planning" },
+    ],
+    examples: ["Expert systems", "Chess engines", "Robotics", "Computer vision", "Speech recognition"]
+  },
+  ml: {
+    color: "#60a5fa",
+    eyebrow: "Subset of AI",
+    title: "Machine Learning",
+    body: "Systems that learn patterns from data rather than following hand-written rules. You feed examples in, the algorithm finds structure and makes predictions. ML covers a wide family: decision trees, random forests, support vector machines, clustering, and neural networks. The key shift: instead of programming rules, you program an optimization process — and the model learns the rules itself. Most of modern AI is ML.",
+    facts: [
+      { label: "Core idea", value: "Learn from data, not rules" },
+      { label: "Types", value: "Supervised, Unsupervised, RL" },
+      { label: "Classic algos", value: "Decision trees, SVMs, k-means" },
+      { label: "Foundation", value: "Statistics + linear algebra" },
+    ],
+    examples: ["Spam filters", "Recommendation engines", "Fraud detection", "Random forests", "k-means clustering"]
+  },
+  dl: {
+    color: "#c084fc",
+    eyebrow: "Subset of ML",
+    title: "Deep Learning",
+    body: "A subset of ML using multi-layered artificial neural networks — inspired loosely by the brain. 'Deep' refers to many layers (sometimes hundreds). Each layer learns increasingly abstract representations. Deep learning revolutionized computer vision (2012, AlexNet), then speech, then language. It requires massive data and GPUs to train. Key architectures: CNNs for images, RNNs for sequences, Transformers for everything modern.",
+    facts: [
+      { label: "Breakthrough", value: "AlexNet 2012 — ImageNet" },
+      { label: "Key hardware", value: "GPUs (NVIDIA)" },
+      { label: "Architectures", value: "CNN, RNN, LSTM, Transformer" },
+      { label: "Requires", value: "Huge data + compute" },
+    ],
+    examples: ["Image classification", "Speech-to-text", "Style transfer", "GANs", "Transformers"]
+  },
+  llm: {
+    color: "#fb923c",
+    eyebrow: "Subset of Deep Learning",
+    title: "Large Language Models",
+    body: "Transformer-based deep learning models trained on massive text corpora — hundreds of billions of words — to predict the next token. The 'large' matters: scale unlocks emergent capabilities like reasoning and instruction-following that smaller models don't exhibit. LLMs don't 'understand' text — they model statistical relationships across vast token sequences. Key insight: next-token prediction at scale is a surprisingly general capability that transfers to writing, coding, math, and more.",
+    facts: [
+      { label: "Architecture", value: "Transformer (2017, Google)" },
+      { label: "Training task", value: "Next token prediction" },
+      { label: "Scale", value: "Billions–trillions of parameters" },
+      { label: "Key property", value: "Emergent reasoning at scale" },
+    ],
+    examples: ["GPT-4", "Claude", "Gemini", "Llama 3", "Mistral", "Command R"]
+  },
+  agent: {
+    color: "#f87171",
+    eyebrow: "Pattern built on LLMs",
+    title: "AI Agents",
+    body: "Not a new model — an architectural pattern. An LLM placed inside a loop: it reasons, takes an action (calling a tool, writing code, browsing the web), observes the result, and continues. The loop runs until a goal is met. What makes it 'agentic': tool use, memory across steps, and operating autonomously without a human confirming each action. The same Claude model that powers chat also powers Claude Code — the difference is the surrounding architecture, not the model weights.",
+    facts: [
+      { label: "Core loop", value: "Reason → Act → Observe → Repeat" },
+      { label: "Tools", value: "Code exec, search, file I/O, APIs" },
+      { label: "Memory", value: "Context window + external stores" },
+      { label: "Key risk", value: "Error propagation across steps" },
+    ],
+    examples: ["Claude Code", "Devin", "Cursor Agent", "AutoGPT", "LangGraph agents", "OpenAI Assistants"]
+  }
+};
+
+const siblings = [
+  { name: "Computer Vision", color: "#34d399", desc: "Enables machines to interpret images and video. Powers facial recognition, medical imaging, autonomous vehicles, and surveillance. CNNs dominated until Vision Transformers (ViT) arrived." },
+  { name: "Natural Language Processing", color: "#f472b6", desc: "Processing and understanding human language — translation, sentiment analysis, summarization. NLP existed before LLMs (rule-based, then statistical). LLMs are now the dominant NLP approach." },
+  { name: "Reinforcement Learning", color: "#facc15", desc: "An agent learns by trial and error: take an action, receive a reward signal, improve. Trained AlphaGo, AlphaFold, and game-playing AIs. Also used to fine-tune LLMs (RLHF — Reinforcement Learning from Human Feedback)." },
+  { name: "Generative AI", color: "#fb923c", desc: "Models that generate new content: text, images, audio, video, code, 3D. Includes LLMs, diffusion models (Midjourney, Stable Diffusion), and GANs. The current commercial wave." },
+  { name: "Robotics + Embodied AI", color: "#60a5fa", desc: "AI in physical form. Combines computer vision, planning, and control systems. Frontier: training robots on human video demonstrations. Companies: Boston Dynamics, Figure, 1X." },
+  { name: "Multimodal AI", color: "#c084fc", desc: "Models that handle more than one modality — text + image, text + audio, text + video. GPT-4o, Gemini, and Claude 3 are multimodal. The boundary between modalities is collapsing." },
+  { name: "Audio & Speech", color: "#4ade80", desc: "Speech-to-text (Whisper), text-to-speech (ElevenLabs, Google TTS), music generation (Suno, Udio). Deep learning transformed audio quality dramatically post-2017." },
+  { name: "Graph Neural Networks", color: "#a78bfa", desc: "ML on graph-structured data — molecules, social networks, knowledge graphs. Critical for drug discovery (AlphaFold uses them), recommendation systems, and fraud detection." },
+];
+
+const concepts = [
+  { term: "Parameters", def: "The 'weights' of a neural network — numbers adjusted during training. GPT-4 has ~1.8 trillion. More parameters generally means more capacity, but diminishing returns apply." },
+  { term: "Training vs Inference", def: "Training = learning from data (expensive, done once). Inference = running the trained model on new inputs (cheaper, done constantly). You pay for training; users pay for inference." },
+  { term: "Fine-tuning", def: "Taking a pre-trained model and continuing to train it on a smaller, specific dataset. Adapts a general model to a domain (e.g., legal, medical) without training from scratch." },
+  { term: "RLHF", def: "Reinforcement Learning from Human Feedback. Humans rate model outputs; those ratings train a reward model; RL optimizes the LLM against it. How ChatGPT and Claude learned to be helpful." },
+  { term: "Context Window", def: "How much text an LLM can 'see' at once. GPT-4: 128k tokens (~96k words). Claude: up to 200k. Larger windows enable longer documents and richer conversation history." },
+  { term: "Tokens", def: "The atomic unit of LLM input/output. Not words — sub-word pieces. 'unhappiness' might be 3 tokens. Models are priced per token. ~750 words ≈ 1,000 tokens." },
+  { term: "Embeddings", def: "Numerical representations of text (or images) in high-dimensional space. Similar meanings cluster together. Power semantic search, RAG, and recommendation systems." },
+  { term: "RAG", def: "Retrieval-Augmented Generation. A technique where relevant documents are fetched from a database and injected into the LLM's context before it answers. Keeps responses grounded in current facts." },
+  { term: "Hallucination", def: "When an LLM confidently generates plausible-sounding but factually wrong information. Not a bug per se — it's a consequence of how next-token prediction works. Mitigated by RAG and grounding." },
+  { term: "Prompt Engineering", def: "Crafting inputs to get better outputs from an LLM. Includes techniques: chain-of-thought, few-shot examples, role-setting, structured output requests. A real skill with measurable impact." },
+  { term: "Transformer", def: "The neural network architecture behind all modern LLMs. Introduced in 'Attention Is All You Need' (Google, 2017). The 'attention mechanism' lets it relate any token to any other token." },
+  { term: "Temperature", def: "A sampling parameter controlling randomness. Temperature 0 = deterministic (always picks the most likely token). Temperature 1+ = creative and varied. Used to tune output style." },
+];
+
+const timeline = [
+  { year: "1950", color: "#4ade80", title: "Turing Test proposed", body: "Alan Turing asks: 'Can machines think?' Proposes the imitation game. Defines the field's first benchmark." },
+  { year: "1956", color: "#4ade80", title: "Dartmouth Conference — AI named", body: "John McCarthy coins 'Artificial Intelligence.' The field officially begins. Early optimism: 'human-level AI in 20 years.'" },
+  { year: "1986", color: "#60a5fa", title: "Backpropagation popularized", body: "Rumelhart, Hinton & Williams publish the backprop algorithm. Neural networks can now be trained effectively. Enables modern ML." },
+  { year: "2012", color: "#c084fc", title: "AlexNet — Deep Learning breakthrough", body: "Geoffrey Hinton's team wins ImageNet by a 10% margin using a deep CNN on GPUs. Launches the modern deep learning era." },
+  { year: "2017", color: "#fb923c", title: "'Attention Is All You Need'", body: "Google Brain introduces the Transformer architecture. Replaces RNNs for NLP. Every major LLM today uses this foundation." },
+  { year: "2018", color: "#fb923c", title: "GPT-1 & BERT", body: "OpenAI (GPT-1) and Google (BERT) show pre-training on text + fine-tuning is the dominant NLP paradigm. The LLM era begins." },
+  { year: "2020", color: "#fb923c", title: "GPT-3 — scale changes everything", body: "175B parameters. Few-shot learning without fine-tuning. The world sees that scaling alone unlocks emergent capabilities." },
+  { year: "2022", color: "#f87171", title: "ChatGPT — mass adoption", body: "RLHF-tuned GPT-3.5 reaches 100M users in 2 months. Fastest product growth in history. AI becomes a consumer product." },
+  { year: "2023", color: "#f87171", title: "GPT-4, Claude, Gemini — the race", body: "Multimodal reasoning. Coding. 100k+ context windows. The frontier moves monthly. Open-source models (Llama) close the gap." },
+  { year: "2024–25", color: "#f87171", title: "Agents go mainstream", body: "Claude Code, Cursor Agent, Devin. Models run autonomously in loops. The shift from 'assistant' to 'autonomous worker' accelerates." },
+];
+
+/* ──────────────── RENDER ──────────────── */
+
+const panel = document.getElementById('infoPanel');
+
+// ── SVG Ring clicks — each <circle> is its own element, pointer-events:stroke ──
+function showRing(key) {
+  const d = ringInfo[key];
+
+  // Active states
+  document.querySelectorAll('#ringSvg circle').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.legend-item').forEach(l => l.classList.remove('active'));
+  const circle = document.querySelector(`#ringSvg circle[data-key="${key}"]`);
+  const legend = document.querySelector(`.legend-item[data-key="${key}"]`);
+  if (circle) circle.classList.add('active');
+  if (legend) legend.classList.add('active');
+
+  // Update side panel
+  panel.style.borderColor = d.color;
+  panel.innerHTML = `
+    <div class="ip-eyebrow">${d.eyebrow}</div>
+    <h3 style="color:${d.color}">${d.title}</h3>
+    <div class="ip-body">${d.body}</div>
+    <div class="ip-facts">
+      ${d.facts.map(f => `<div class="ip-fact"><div class="fact-label">${f.label}</div><div class="fact-value">${f.value}</div></div>`).join('')}
+    </div>
+    <div class="ip-examples">
+      <div class="ip-examples-label">Examples</div>
+      <div class="ip-chips">${d.examples.map(e => `<span class="ip-chip">${e}</span>`).join('')}</div>
+    </div>
+  `;
+
+  // Scroll to and open the matching detail section
+  const sec = document.getElementById('ds-' + key);
+  if (sec && !sec.classList.contains('ds-open')) {
+    sec.classList.add('ds-open');
+    sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+document.querySelectorAll('#ringSvg circle').forEach(c => {
+  c.addEventListener('click', () => showRing(c.dataset.key));
+});
+
+document.querySelectorAll('.legend-item').forEach(el => {
+  el.addEventListener('click', () => showRing(el.dataset.key));
+});
+
+// ── Detail Sections ──
+const ringOrder = ['ai', 'ml', 'dl', 'llm', 'agent'];
+const detailContainer = document.getElementById('detailSections');
+
+// Extended detail data for each ring
+const ringDetail = {
+  ai: {
+    howItWorks: "Traditional AI uses explicit rules — IF this condition THEN this action. Expert systems store thousands of hand-coded rules. Game AI uses search algorithms (minimax, alpha-beta pruning) to evaluate positions. Unlike ML, these systems don't learn — they execute logic programmed by humans.",
+    keyFigures: ["Alan Turing (1950 — Turing Test)", "John McCarthy (coined 'AI', 1956)", "Marvin Minsky (MIT AI Lab)", "Herbert Simon & Allen Newell (Logic Theorist)"],
+    subtypes: ["Rule-based / Expert Systems", "Search & Planning algorithms", "Symbolic AI / Knowledge graphs", "Evolutionary algorithms", "Robotics & Control systems"],
+    whyItMatters: "Pre-ML AI still powers critical systems — chess engines, logistics planners, medical diagnostic rules, and game NPC behavior. Understanding it clarifies what ML replaced and what it didn't."
+  },
+  ml: {
+    howItWorks: "You provide labeled examples (input → correct output). A learning algorithm adjusts internal parameters to minimize prediction error, measured by a loss function. It repeats this across thousands or millions of examples until it generalizes. Three main paradigms: supervised (labeled data), unsupervised (find patterns), reinforcement (trial and error with reward signals).",
+    keyFigures: ["Geoffrey Hinton (neural nets)", "Yann LeCun (CNNs)", "Yoshua Bengio (deep learning theory)", "Leo Breiman (Random Forests)"],
+    subtypes: ["Supervised learning (classification, regression)", "Unsupervised learning (clustering, dimensionality reduction)", "Reinforcement learning (reward-based)", "Semi-supervised & self-supervised"],
+    whyItMatters: "ML is the engine behind recommendation systems (Netflix, Spotify), fraud detection at banks, spam filters, medical diagnosis from scans, and virtually all modern AI products."
+  },
+  dl: {
+    howItWorks: "A neural network is layers of mathematical functions (neurons) connected by weighted edges. Input flows forward through layers; each layer transforms it. During training, errors flow backward (backpropagation) adjusting weights. 'Deep' means many layers — enabling hierarchical feature learning. Early layers detect edges; deeper layers detect shapes, faces, concepts.",
+    keyFigures: ["Geoffrey Hinton (backprop, Boltzmann machines)", "Yann LeCun (CNNs for vision)", "Ian Goodfellow (GANs)", "Andrej Karpathy (vision + LLM research)"],
+    subtypes: ["CNNs — Convolutional Neural Networks (images)", "RNNs / LSTMs — sequential data, text", "GANs — Generative Adversarial Networks", "Diffusion models (Stable Diffusion, DALL-E)", "Transformers (attention-based)"],
+    whyItMatters: "Deep learning cracked image recognition (matching human accuracy in 2015), real-time translation, protein folding (AlphaFold), voice assistants, self-driving perception, and all modern LLMs."
+  },
+  llm: {
+    howItWorks: "A Transformer model is pre-trained on a massive text corpus — predicting the next token billions of times. This forces it to internalize grammar, facts, reasoning patterns, and code. Then fine-tuned with RLHF to be helpful and safe. At inference: given a prompt, it samples token by token from a probability distribution — 'temperature' controls randomness. The model has no memory between sessions; its 'knowledge' is baked into weights.",
+    keyFigures: ["Vaswani et al. (Transformer, 2017)", "OpenAI (GPT series)", "Anthropic (Claude)", "Google DeepMind (Gemini)", "Meta AI (Llama, open-source)"],
+    subtypes: ["Proprietary closed models (GPT-4, Claude, Gemini)", "Open-weight models (Llama 3, Mistral, Falcon)", "Code-specialized (CodeLlama, StarCoder)", "Multimodal LLMs (handle text + image + audio)", "Instruction-tuned vs base models"],
+    whyItMatters: "LLMs are the core technology behind the current AI wave. They power chat assistants, coding tools, search, customer service, document analysis, and agentic systems. Understanding them is now a baseline skill in tech."
+  },
+  agent: {
+    howItWorks: "The agent loop: (1) Receive goal, (2) LLM reasons and plans, (3) Calls a tool (runs code, searches web, reads file), (4) Observes result, (5) Updates context and repeats. Memory can be in-context (within the 200k token window) or external (vector databases, structured stores). Human-in-the-loop checkpoints can be added at any step. Frameworks like LangGraph, AutoGen, and CrewAI provide scaffolding.",
+    keyFigures: ["Harrison Chase (LangChain)", "OpenAI (function calling, Assistants API)", "Anthropic (tool use, Claude Code)", "Microsoft (AutoGen framework)", "Cognition AI (Devin)"],
+    subtypes: ["Single-agent loops (Claude Code, Devin)", "Multi-agent systems (specialized agents collaborating)", "Human-in-the-loop agents (approval gates)", "Retrieval-augmented agents (RAG + tools)", "Computer-use agents (control browser/desktop)"],
+    whyItMatters: "Agents can automate multi-step knowledge work: write + test + deploy code, research + synthesize + write reports, book travel, manage files. They represent the shift from AI as a tool to AI as a worker."
+  }
+};
+
+ringOrder.forEach(key => {
+  const d = ringInfo[key];
+  const ext = ringDetail[key];
+  const sec = document.createElement('div');
+  sec.className = 'detail-section';
+  sec.id = 'ds-' + key;
+
+  sec.innerHTML = `
+    <div class="ds-header">
+      <div class="ds-dot" style="background:${d.color}"></div>
+      <div>
+        <div class="ds-eyebrow">${d.eyebrow}</div>
+        <div class="ds-title" style="color:${d.color}">${d.title}</div>
+      </div>
+      <div class="ds-chevron">▼</div>
+    </div>
+    <div class="ds-body">
+      <div class="ds-text">${d.body}</div>
+
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">How It Works</div>
+      <div class="ds-text" style="margin-bottom:14px;">${ext.howItWorks}</div>
+
+      <div class="ds-grid">
+        <div class="ds-fact">
+          <div class="fact-label">Key Figures</div>
+          <div class="fact-value">${ext.keyFigures.join('<br>')}</div>
+        </div>
+        <div class="ds-fact">
+          <div class="fact-label">Why It Matters</div>
+          <div class="fact-value">${ext.whyItMatters}</div>
+        </div>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">Subtypes</div>
+      <div class="ds-chips">${ext.subtypes.map(s => `<span class="ds-chip">${s}</span>`).join('')}</div>
+
+      <div style="margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">Examples</div>
+      <div class="ds-chips">${d.examples.map(e => `<span class="ds-chip">${e}</span>`).join('')}</div>
+    </div>
+  `;
+
+  sec.querySelector('.ds-header').addEventListener('click', () => {
+    const isOpen = sec.classList.toggle('ds-open');
+    // Also sync ring highlight
+    if (isOpen) showRing(key);
+  });
+
+  detailContainer.appendChild(sec);
+});
+
+// ── Siblings ──
+const sibGrid = document.getElementById('sibGrid');
+siblings.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'sib-card';
+  card.innerHTML = `<div class="sib-name" style="color:${s.color}">${s.name}</div><div class="sib-desc">${s.desc}</div>`;
+  sibGrid.appendChild(card);
+});
+
+// ── Concepts ──
+const cGrid = document.getElementById('conceptsGrid');
+concepts.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'concept-card';
+  card.innerHTML = `<div class="c-term">${c.term}</div><div class="c-def">${c.def}</div>`;
+  cGrid.appendChild(card);
+});
+
+// ── Visual Timeline ──
+const tlTrack = document.getElementById('tlTrack');
+const tlDetail = document.getElementById('tlDetail');
+
+timeline.forEach((t, i) => {
+  const node = document.createElement('div');
+  node.className = 'tl-node';
+  node.innerHTML = `
+    <div class="tl-card">
+      <div class="tl-year-label">${t.year}</div>
+      <div class="tl-title-label" style="color:${t.color}">${t.title}</div>
+      <div class="tl-body-label">${t.body.split('.')[0]}.</div>
+    </div>
+    <div class="tl-connector"></div>
+    <div class="tl-dot-outer" style="border-color:${t.color};box-shadow:0 0 6px ${t.color}44"></div>
+  `;
+  node.addEventListener('click', () => {
+    document.querySelectorAll('.tl-node').forEach(n => n.classList.remove('tl-active'));
+    node.classList.add('tl-active');
+    tlDetail.style.borderColor = t.color;
+    tlDetail.innerHTML = `<h4 style="color:${t.color}">${t.year} — ${t.title}</h4><p>${t.body}</p>`;
+  });
+  tlTrack.appendChild(node);
+});
+</script>
+</body>
+</html>

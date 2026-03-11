@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFS — Breadth-First Search</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --surface: #080c12; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #4a9eff; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --purple: #c084fc; --cyan: #00e5ff;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(74,158,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(74,158,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .header { margin-bottom: 2rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; align-items: baseline; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); }
+  .kv-v { font-family: var(--mono); color: var(--text); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); }
+  .kv-v.yellow { color: var(--yellow); }
+  .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; color: var(--text); overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  .str { color: var(--green); } .num { color: var(--yellow); }
+  .steps { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; padding: 0.5rem 0 0.5rem 2.5rem; position: relative; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: 0.5rem; width: 1.6rem; height: 1.6rem; background: var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: var(--accent); }
+  .vis { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+  .queue-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.5rem 0; align-items: center; }
+  .q-node { width: 2.2rem; height: 2.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.8rem; font-weight: 700; border: 2px solid; }
+  .q-unvisited { background: var(--card); border-color: var(--border2); color: var(--sub); }
+  .q-current { background: rgba(74,158,255,0.2); border-color: var(--accent); color: var(--accent); }
+  .q-visited { background: rgba(0,230,118,0.15); border-color: var(--green); color: var(--green); }
+  .q-queued { background: rgba(232,197,71,0.15); border-color: var(--yellow); color: var(--yellow); }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .leg { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--sub); }
+  .leg-dot { width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 2px solid; }
+  .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .use-case { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.82rem; }
+  .use-case .uc-icon { font-size: 1rem; margin-bottom: 0.25rem; }
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.65rem; font-weight: 700; }
+  .badge-blue { background: rgba(74,158,255,0.15); color: var(--accent); border: 1px solid rgba(74,158,255,0.3); }
+  .badge-green { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  h2 { font-family: var(--mono); font-size: 0.85rem; color: var(--text); margin-bottom: 0.75rem; }
+  .full { grid-column: 1/-1; }
+  .vs-row { display: flex; gap: 1rem; }
+  .vs-col { flex: 1; }
+  .vs-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+  .vs-label.blue { color: var(--accent); } .vs-label.red { color: var(--red); }
+  .vs-item { font-size: 0.82rem; color: var(--sub); padding: 0.2rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="tag">Graph Algorithms · BFS</div>
+    <h1>Breadth-First Search</h1>
+    <div class="sub">Explore all neighbors at the current depth before going deeper. Level by level.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time</span><span class="kv-v yellow">O(V + E)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(V)</span></div>
+      <div class="kv"><span class="kv-k">Data structure</span><span class="kv-v">Queue (FIFO)</span></div>
+      <div class="kv"><span class="kv-k">Shortest path?</span><span class="kv-v green">✓ Unweighted graphs</span></div>
+      <div class="kv"><span class="kv-k">Complete?</span><span class="kv-v green">✓ Yes</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Properties</div>
+      <div class="kv"><span class="kv-k">Graph type</span><span class="kv-v">Directed or Undirected</span></div>
+      <div class="kv"><span class="kv-k">Weighted?</span><span class="kv-v red">✗ Unweighted only</span></div>
+      <div class="kv"><span class="kv-k">Traversal order</span><span class="kv-v">Level by level</span></div>
+      <div class="kv"><span class="kv-k">Cycle safe?</span><span class="kv-v green">✓ With visited set</span></div>
+      <div class="kv"><span class="kv-k">Memory</span><span class="kv-v">High for wide graphs</span></div>
+    </div>
+  </div>
+
+  <div class="vis">
+    <div class="card-title">Level-by-Level Traversal</div>
+    <div style="font-size: 1rem; color:var(--sub); margin-bottom:0.75rem;">Starting from node A, BFS visits all neighbors before going deeper:</div>
+    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+      <div><span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);width:5rem;display:inline-block;">Level 0:</span>
+        <span class="q-node q-current" style="display:inline-flex;">A</span>
+      </div>
+      <div><span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);width:5rem;display:inline-block;">Level 1:</span>
+        <span class="queue-row" style="display:inline-flex;gap:0.4rem;">
+          <span class="q-node q-queued">B</span>
+          <span class="q-node q-queued">C</span>
+          <span class="q-node q-queued">D</span>
+        </span>
+      </div>
+      <div><span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);width:5rem;display:inline-block;">Level 2:</span>
+        <span class="queue-row" style="display:inline-flex;gap:0.4rem;">
+          <span class="q-node q-unvisited">E</span>
+          <span class="q-node q-unvisited">F</span>
+          <span class="q-node q-unvisited">G</span>
+        </span>
+      </div>
+      <div><span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);width:5rem;display:inline-block;">Queue:</span>
+        <span style="font-family:var(--mono);font-size: 1rem;color:var(--accent);">[ B, C, D ] → dequeue B → enqueue E, F → [ C, D, E, F ]</span>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="border-color:var(--accent);background:rgba(74,158,255,0.2);"></div>Current</div>
+      <div class="leg"><div class="leg-dot" style="border-color:var(--yellow);background:rgba(232,197,71,0.15);"></div>In Queue</div>
+      <div class="leg"><div class="leg-dot" style="border-color:var(--green);background:rgba(0,230,118,0.15);"></div>Visited</div>
+      <div class="leg"><div class="leg-dot" style="border-color:var(--border2);background:var(--card);"></div>Unvisited</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Algorithm Steps</div>
+      <ol class="steps">
+        <li>Start: enqueue source node, mark visited</li>
+        <li>Dequeue front node → process it</li>
+        <li>Enqueue all unvisited neighbors, mark visited</li>
+        <li>Repeat until queue is empty</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="card-title">Use Cases</div>
+      <div class="use-cases">
+        <div class="use-case"><div class="uc-icon">🗺️</div>Shortest path (unweighted)</div>
+        <div class="use-case"><div class="uc-icon">🔗</div>Connected components</div>
+        <div class="use-case"><div class="uc-icon">🌐</div>Web crawling</div>
+        <div class="use-case"><div class="uc-icon">♟️</div>Puzzle solving</div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Pseudocode</div>
+      <pre><span class="fn">BFS</span>(graph, start):
+  queue ← [start]
+  visited ← {start}
+
+  <span class="keyword">while</span> queue <span class="keyword">not</span> empty:
+    node ← queue.<span class="fn">dequeue</span>()
+    <span class="fn">process</span>(node)
+
+    <span class="keyword">for</span> neighbor <span class="keyword">in</span> graph[node]:
+      <span class="keyword">if</span> neighbor <span class="keyword">not in</span> visited:
+        visited.<span class="fn">add</span>(neighbor)
+        queue.<span class="fn">enqueue</span>(neighbor)</pre>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">BFS vs DFS</div>
+      <div class="vs-row">
+        <div class="vs-col">
+          <div class="vs-label blue">BFS (Queue)</div>
+          <div class="vs-item">✓ Shortest path (unweighted)</div>
+          <div class="vs-item">✓ Level-order traversal</div>
+          <div class="vs-item">✗ More memory for wide graphs</div>
+          <div class="vs-item">✗ Slower for deep targets</div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-label red">DFS (Stack)</div>
+          <div class="vs-item">✓ Less memory (deep graphs)</div>
+          <div class="vs-item">✓ Cycle detection, topo sort</div>
+          <div class="vs-item">✗ No shortest path guarantee</div>
+          <div class="vs-item">✗ Can get lost in deep branches</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

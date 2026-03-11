@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tree Traversals</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #4a9eff; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --purple: #c084fc; --orange: #fb923c;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(74,158,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(74,158,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .grid4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .blue { color: var(--accent); } .green { color: var(--green); } .purple { color: var(--purple); } .orange { color: var(--orange); }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  .tree-vis { font-family: var(--mono); font-size: 0.82rem; line-height: 2; text-align: center; padding: 1rem; background: var(--card2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem; }
+  .n { display: inline-flex; width: 1.8rem; height: 1.8rem; border-radius: 50%; align-items: center; justify-content: center; font-weight: 700; border: 2px solid; }
+  .n-root { background: rgba(74,158,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .n-left { background: rgba(0,230,118,0.12); border-color: var(--green); color: var(--green); }
+  .n-right { background: rgba(192,132,252,0.12); border-color: var(--purple); color: var(--purple); }
+  .order-badge { display: inline-block; font-family: var(--mono); font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin: 0.1rem; }
+  .ob-pre { background: rgba(74,158,255,0.15); color: var(--accent); border: 1px solid rgba(74,158,255,0.3); }
+  .ob-in { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+  .ob-post { background: rgba(192,132,252,0.12); color: var(--purple); border: 1px solid rgba(192,132,252,0.25); }
+  .ob-level { background: rgba(251,146,60,0.12); color: var(--orange); border: 1px solid rgba(251,146,60,0.25); }
+  .trav-rule { background: var(--card2); border-left: 3px solid; border-radius: 0 6px 6px 0; padding: 0.6rem 0.8rem; font-size: 0.83rem; margin-bottom: 0.4rem; }
+  .trav-rule.pre { border-color: var(--accent); } .trav-rule.in { border-color: var(--green); } .trav-rule.post { border-color: var(--purple); } .trav-rule.level { border-color: var(--orange); }
+  .trav-name { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.25rem; }
+  .trav-rule.pre .trav-name { color: var(--accent); } .trav-rule.in .trav-name { color: var(--green); }
+  .trav-rule.post .trav-name { color: var(--purple); } .trav-rule.level .trav-name { color: var(--orange); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Tree Algorithms</div>
+  <h1>Tree Traversals</h1>
+  <div class="sub">Four ways to visit every node in a tree. Each produces a different order and serves a different purpose.</div>
+
+  <div class="card full" style="margin-bottom:1rem;">
+    <div class="card-title blue">Reference Tree</div>
+    <div class="tree-vis">
+                <span class="n n-root">1</span><br>
+        <span class="n n-left">2</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n n-right">3</span><br>
+  <span class="n n-left">4</span>&nbsp;&nbsp;<span class="n n-left">5</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="n n-right">6</span>&nbsp;&nbsp;<span class="n n-right">7</span>
+    </div>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+      <div><span style="font-size:0.75rem;color:var(--sub);">Preorder:</span> <span class="order-badge ob-pre">1</span><span class="order-badge ob-pre">2</span><span class="order-badge ob-pre">4</span><span class="order-badge ob-pre">5</span><span class="order-badge ob-pre">3</span><span class="order-badge ob-pre">6</span><span class="order-badge ob-pre">7</span></div>
+      <div><span style="font-size:0.75rem;color:var(--sub);">Inorder:</span> <span class="order-badge ob-in">4</span><span class="order-badge ob-in">2</span><span class="order-badge ob-in">5</span><span class="order-badge ob-in">1</span><span class="order-badge ob-in">6</span><span class="order-badge ob-in">3</span><span class="order-badge ob-in">7</span></div>
+      <div><span style="font-size:0.75rem;color:var(--sub);">Postorder:</span> <span class="order-badge ob-post">4</span><span class="order-badge ob-post">5</span><span class="order-badge ob-post">2</span><span class="order-badge ob-post">6</span><span class="order-badge ob-post">7</span><span class="order-badge ob-post">3</span><span class="order-badge ob-post">1</span></div>
+      <div><span style="font-size:0.75rem;color:var(--sub);">Level-order:</span> <span class="order-badge ob-level">1</span><span class="order-badge ob-level">2</span><span class="order-badge ob-level">3</span><span class="order-badge ob-level">4</span><span class="order-badge ob-level">5</span><span class="order-badge ob-level">6</span><span class="order-badge ob-level">7</span></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title blue">Traversal Rules</div>
+      <div class="trav-rule pre">
+        <div class="trav-name">Preorder</div>
+        Root → Left → Right<br>
+        <span style="color:var(--muted);font-size: 1rem;">Use: copy tree, prefix expressions</span>
+      </div>
+      <div class="trav-rule in">
+        <div class="trav-name">Inorder</div>
+        Left → Root → Right<br>
+        <span style="color:var(--muted);font-size: 1rem;">Use: sorted output from BST</span>
+      </div>
+      <div class="trav-rule post">
+        <div class="trav-name">Postorder</div>
+        Left → Right → Root<br>
+        <span style="color:var(--muted);font-size: 1rem;">Use: delete tree, postfix expressions</span>
+      </div>
+      <div class="trav-rule level">
+        <div class="trav-name">Level-Order (BFS)</div>
+        Level by level, left to right<br>
+        <span style="color:var(--muted);font-size: 1rem;">Use: shortest path in tree, serialization</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title blue">Complexity</div>
+      <div class="kv"><span class="kv-k">All DFS traversals</span><span class="kv-v" style="color:var(--yellow);">O(n) time, O(h) space</span></div>
+      <div class="kv"><span class="kv-k">Level-order (BFS)</span><span class="kv-v" style="color:var(--yellow);">O(n) time, O(w) space</span></div>
+      <div class="kv"><span class="kv-k">h = height</span><span class="kv-v" style="color:var(--sub);">O(log n) balanced, O(n) skewed</span></div>
+      <div class="kv"><span class="kv-k">w = max width</span><span class="kv-v" style="color:var(--sub);">O(n/2) at last level</span></div>
+      <div style="margin-top:1rem; font-size:0.83rem; color:var(--sub); line-height:1.6;">
+        <strong style="color:var(--yellow);">BST inorder trick:</strong> Inorder on a BST gives nodes in sorted (ascending) order. This is a common interview technique.
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title blue">Pseudocode</div>
+      <pre><span class="comment">// Preorder</span>
+<span class="fn">preorder</span>(node):
+  <span class="keyword">if</span> node <span class="keyword">is</span> null: <span class="keyword">return</span>
+  <span class="fn">visit</span>(node)          <span class="comment">// Root first</span>
+  <span class="fn">preorder</span>(node.left)
+  <span class="fn">preorder</span>(node.right)
+
+<span class="comment">// Inorder</span>
+<span class="fn">inorder</span>(node):
+  <span class="keyword">if</span> node <span class="keyword">is</span> null: <span class="keyword">return</span>
+  <span class="fn">inorder</span>(node.left)
+  <span class="fn">visit</span>(node)          <span class="comment">// Root middle</span>
+  <span class="fn">inorder</span>(node.right)
+
+<span class="comment">// Postorder</span>
+<span class="fn">postorder</span>(node):
+  <span class="keyword">if</span> node <span class="keyword">is</span> null: <span class="keyword">return</span>
+  <span class="fn">postorder</span>(node.left)
+  <span class="fn">postorder</span>(node.right)
+  <span class="fn">visit</span>(node)          <span class="comment">// Root last</span>
+
+<span class="comment">// Level-order</span>
+<span class="fn">levelOrder</span>(root):
+  queue ← [root]
+  <span class="keyword">while</span> queue:
+    node ← queue.<span class="fn">dequeue</span>()
+    <span class="fn">visit</span>(node)
+    <span class="keyword">if</span> node.left:  queue.<span class="fn">enqueue</span>(node.left)
+    <span class="keyword">if</span> node.right: queue.<span class="fn">enqueue</span>(node.right)</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

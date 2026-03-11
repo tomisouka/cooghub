@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack ADT — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --accent: #34d399;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px;
+    padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 56px;
+  }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+  .adt-badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px;
+    border: 1px solid var(--accent); color: var(--accent); background: #34d39912;
+    margin-top: 10px;
+  }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 700; }
+  .on { color: var(--red);   font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ── ADT box ── */
+  .adt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    border-left: 3px solid var(--accent);
+  }
+  .adt-title { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .adt-op { font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; align-items: baseline; }
+  .adt-op:last-child { border-bottom: none; }
+  .adt-op .sig  { color: var(--text); font-weight: 700; font-family: monospace; font-size: 14px; }
+  .adt-op .desc { color: var(--dim); font-size: 12px; }
+
+  /* ── Stack plates ── */
+  .stack-scene { display: flex; gap: 56px; flex-wrap: wrap; align-items: flex-start; }
+  .step-col { display: flex; flex-direction: column; align-items: center; }
+  .step-title { font-size: 11px; font-weight: 700; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+
+  .top-label { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; align-self: flex-end; padding-right: 8px; }
+
+  .plate {
+    width: 156px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--border);
+    border-bottom: none;
+    background: var(--surface);
+    font-size: 18px; font-weight: 700; color: var(--text);
+  }
+  .plate:last-of-type { border-bottom: 1.5px solid var(--border); }
+  .plate.top     { background: #34d39918; border-color: var(--accent); color: var(--accent); }
+  .plate.pushing { background: #6bde8418; border-color: var(--green);  color: var(--green); }
+  .plate.popping { background: #f8717118; border-color: var(--red);    color: var(--red); }
+  .stack-base { width: 176px; height: 10px; background: var(--border); border-radius: 0 0 6px 6px; }
+
+  .op-arrow { font-size: 28px; margin-bottom: 4px; }
+  .push-arrow { color: var(--green); }
+  .pop-arrow  { color: var(--red); }
+  .op-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+  .push-label { color: var(--green); }
+  .pop-label  { color: var(--red); }
+
+  /* ── Impl grid ── */
+  .impl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .impl-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .impl-box.array-impl  { border-top: 2px solid var(--blue); }
+  .impl-box.linked-impl { border-top: 2px solid var(--orange); }
+  .impl-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .impl-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--dim); gap: 12px; }
+  .impl-row:last-child { border-bottom: none; }
+  .impl-row .key { color: var(--text); flex-shrink: 0; }
+  .impl-row .val-good { color: var(--green); font-weight: 700; text-align: right; }
+  .impl-row .val-mid  { color: var(--orange); font-weight: 700; text-align: right; }
+
+  /* ── Array diagram ── */
+  .arr-cell {
+    width: 58px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700;
+    border: 1.5px solid var(--border);
+    border-right: none;
+    background: var(--surface);
+    color: var(--text);
+  }
+  .arr-cell:last-child { border-right: 1.5px solid var(--border); }
+  .arr-cell.top-cell { background: #34d39918; border-color: var(--accent); color: var(--accent); }
+  .arr-cell.empty { background: #16192080; border-style: dashed; color: #3a4052; font-size: 12px; }
+  .arr-idx { font-size: 10px; color: var(--dim); text-align: center; margin-top: 6px; }
+  .arr-idx.top-idx { color: var(--accent); }
+
+  /* ── Node ── */
+  .node-box { display: flex; border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface); }
+  .node-data { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--text); border-right: 1.5px solid var(--border); }
+  .node-ptr  { width: 36px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #a78bfa; }
+  .node-box.top-node { border-color: var(--accent); }
+  .node-box.top-node .node-data { color: var(--accent); background: #34d39912; }
+  .node-box.top-node .node-ptr  { color: var(--accent); }
+  .ll-arrow { font-size: 18px; color: #a78bfa; padding: 0 4px; padding-bottom: 0; display: flex; align-items: center; }
+  .ll-null  { height: 52px; padding: 0 12px; display: flex; align-items: center; border: 1.5px dashed #2a2e38; border-radius: 6px; font-size: 12px; color: #3a4052; }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--red); }
+  .card:nth-child(4) { border-top-color: var(--blue); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Stack<span>.</span></h1>
+    <div class="subtitle">Last In, First Out</div>
+    <div class="adt-badge">Abstract Data Type</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">push</span>   <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">pop</span>    <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">peek</span>   <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">search</span> <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. ADT interface -->
+<div class="diagram-section">
+  <div class="label">1 — The ADT Interface</div>
+  <div class="annotation">A Stack is an <span>Abstract Data Type</span> — it defines <em>what</em> operations exist, not <em>how</em> they're built internally. You can implement it with an array or a linked list — the interface stays the same.</div>
+  <div class="adt-box">
+    <div class="adt-title">Stack ADT — Operations</div>
+    <div class="adt-op"><span class="sig">push(val)</span>  <span class="desc">Add val to the top of the stack</span></div>
+    <div class="adt-op"><span class="sig">pop()</span>      <span class="desc">Remove and return the top element</span></div>
+    <div class="adt-op"><span class="sig">peek()</span>     <span class="desc">Return the top element without removing it</span></div>
+    <div class="adt-op"><span class="sig">isEmpty()</span>  <span class="desc">Return true if the stack has no elements</span></div>
+    <div class="adt-op"><span class="sig">size()</span>     <span class="desc">Return the number of elements</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. LIFO plates -->
+<div class="diagram-section">
+  <div class="label">2 — LIFO — Stack of Plates</div>
+  <div class="annotation">Always add to the <span>top</span>, always remove from the <span>top</span>. You never touch the middle or bottom.</div>
+  <div class="stack-scene">
+
+    <div class="step-col">
+      <div class="step-title">Current Stack</div>
+      <div class="top-label">← top</div>
+      <div>
+        <div class="plate top">42</div>
+        <div class="plate">17</div>
+        <div class="plate">8</div>
+        <div class="plate">55</div>
+        <div class="stack-base"></div>
+      </div>
+    </div>
+
+    <div class="step-col" style="justify-content:center;padding-top:56px;">
+      <div class="op-arrow push-arrow">↓</div>
+      <div class="op-label push-label">push(99)</div>
+    </div>
+
+    <div class="step-col">
+      <div class="step-title">After push(99)</div>
+      <div class="top-label">← top</div>
+      <div>
+        <div class="plate pushing">99</div>
+        <div class="plate">42</div>
+        <div class="plate">17</div>
+        <div class="plate">8</div>
+        <div class="plate">55</div>
+        <div class="stack-base"></div>
+      </div>
+    </div>
+
+    <div class="step-col" style="justify-content:center;padding-top:56px;">
+      <div class="op-arrow pop-arrow">↑</div>
+      <div class="op-label pop-label">pop() → 99</div>
+    </div>
+
+    <div class="step-col">
+      <div class="step-title">After pop()</div>
+      <div class="top-label">← top</div>
+      <div>
+        <div class="plate top">42</div>
+        <div class="plate">17</div>
+        <div class="plate">8</div>
+        <div class="plate">55</div>
+        <div class="stack-base"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Two implementations -->
+<div class="diagram-section">
+  <div class="label">3 — Two Implementations, Same Interface</div>
+  <div class="annotation">The ADT doesn't care how it's built. Both give <span>O(1)</span> push and pop.</div>
+  <div class="impl-grid">
+    <div class="impl-box array-impl">
+      <div class="impl-title">Array-Based</div>
+      <div class="impl-row"><span class="key">top</span>           <span class="val-good">index into array</span></div>
+      <div class="impl-row"><span class="key">push</span>          <span class="val-good">arr[++top] = val</span></div>
+      <div class="impl-row"><span class="key">pop</span>           <span class="val-good">return arr[top--]</span></div>
+      <div class="impl-row"><span class="key">memory</span>        <span class="val-good">contiguous, cache-friendly</span></div>
+      <div class="impl-row"><span class="key">overflow</span>      <span class="val-mid">fixed capacity — needs resize</span></div>
+    </div>
+    <div class="impl-box linked-impl">
+      <div class="impl-title">Linked List-Based</div>
+      <div class="impl-row"><span class="key">top</span>           <span class="val-good">head node</span></div>
+      <div class="impl-row"><span class="key">push</span>          <span class="val-good">insert at head</span></div>
+      <div class="impl-row"><span class="key">pop</span>           <span class="val-good">remove head</span></div>
+      <div class="impl-row"><span class="key">memory</span>        <span class="val-mid">scattered, pointer overhead</span></div>
+      <div class="impl-row"><span class="key">overflow</span>      <span class="val-good">dynamic — grows as needed</span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Array impl -->
+<div class="diagram-section">
+  <div class="label">4 — Array Implementation</div>
+  <div class="annotation"><span>top</span> is just an index. Push increments it, pop decrements it. The array doesn't actually shift anything.</div>
+  <div style="display:flex; gap:0;">
+    <div>
+      <div style="display:flex;">
+        <div class="arr-cell">55</div>
+        <div class="arr-cell">8</div>
+        <div class="arr-cell">17</div>
+        <div class="arr-cell top-cell">42</div>
+        <div class="arr-cell empty">—</div>
+        <div class="arr-cell empty">—</div>
+      </div>
+      <div style="display:flex;">
+        <div class="arr-idx" style="width:58px">[0]</div>
+        <div class="arr-idx" style="width:58px">[1]</div>
+        <div class="arr-idx" style="width:58px">[2]</div>
+        <div class="arr-idx top-idx" style="width:58px">[3] top</div>
+        <div class="arr-idx" style="width:58px">[4]</div>
+        <div class="arr-idx" style="width:58px">[5]</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption" style="margin-top:16px">
+    <strong>top = 3.</strong>&nbsp; push(99) → arr[4] = 99, top becomes 4. &nbsp;|&nbsp; pop() → return arr[3], top becomes 2.
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. Linked list impl -->
+<div class="diagram-section">
+  <div class="label">5 — Linked List Implementation</div>
+  <div class="annotation">The <span>head</span> is the top. Push = insert new head. Pop = remove head. Both O(1), no index needed.</div>
+  <div style="display:flex; align-items:center; gap:0; flex-wrap:wrap;">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-right:10px;">
+      <div style="font-size:10px;color:var(--yellow);font-weight:700;letter-spacing:1px;margin-bottom:4px;">TOP</div>
+      <div style="font-size:20px;color:var(--yellow);">→</div>
+    </div>
+    <div class="node-box top-node">
+      <div class="node-data">42</div>
+      <div class="node-ptr">→</div>
+    </div>
+    <div class="ll-arrow">→</div>
+    <div class="node-box">
+      <div class="node-data">17</div>
+      <div class="node-ptr">→</div>
+    </div>
+    <div class="ll-arrow">→</div>
+    <div class="node-box">
+      <div class="node-data">8</div>
+      <div class="node-ptr">→</div>
+    </div>
+    <div class="ll-arrow">→</div>
+    <div class="node-box">
+      <div class="node-data">55</div>
+      <div class="node-ptr" style="color:#3a4052">∅</div>
+    </div>
+    <div class="ll-arrow" style="color:#3a4052">→</div>
+    <div class="ll-null">null</div>
+  </div>
+  <div class="caption" style="margin-top:12px">Head node = top of stack. Push inserts a new head. Pop removes and returns the head.</div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">ADT — Not a Structure</div>
+    <div class="card-body">Stack defines behavior only: push, pop, peek. The internal structure is an implementation detail hidden from the user.</div>
+    <div class="card-o" style="color:var(--accent)">abstraction</div>
+  </div>
+  <div class="card">
+    <div class="card-title">LIFO</div>
+    <div class="card-body">Last In, First Out. Whatever you pushed most recently is always the next thing that comes out.</div>
+    <div class="card-o" style="color:var(--green)">last in = first out</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top Access Only</div>
+    <div class="card-body">No random access. You can only ever see or touch the top element. Middle and bottom are unreachable.</div>
+    <div class="card-o" style="color:var(--red)">top only</div>
+  </div>
+  <div class="card">
+    <div class="card-title">All Core Ops O(1)</div>
+    <div class="card-body">Push, pop, and peek are constant time in both array and linked list implementations.</div>
+    <div class="card-o" style="color:var(--blue)">O(1)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Function call stack, undo/redo, expression parsing, backtracking, DFS, browser back button.</div>
+    <div class="card-o" style="color:var(--orange)">everywhere</div>
+  </div>
+</div>
+
+</body>
+</html>

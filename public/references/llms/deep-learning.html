@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Learning — How Neural Networks Learn</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Fira+Code:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0c0c10;
+  --bg2:      #12121a;
+  --bg3:      #1a1a26;
+  --border:   #252535;
+  --border2:  #35354a;
+  --text:     #e8e8f0;
+  --text2:    #a8a8c0;
+  --text3:    #686888;
+  --neon:     #7df9c0;
+  --neon2:    #7db8f9;
+  --neon3:    #f97db8;
+  --neon4:    #f9d07d;
+  --neon5:    #c07df9;
+  --sans:     'Syne', sans-serif;
+  --mono:     'Fira Code', monospace;
+  --serif:    'Libre Baskerville', Georgia, serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(12,12,16,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 36px;
+  gap: 36px;
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--neon);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: var(--neon); }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 60px 64px;
+  overflow: hidden;
+}
+
+#heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 860px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--neon);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--neon);
+  box-shadow: 0 0 8px var(--neon);
+}
+
+.hero h1 {
+  font-family: var(--sans);
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 28px;
+}
+
+.hero h1 .hl { color: var(--neon); text-shadow: 0 0 40px rgba(125,249,192,0.4); }
+.hero h1 .hl2 { color: var(--neon2); text-shadow: 0 0 40px rgba(125,184,249,0.4); }
+
+.hero-lead {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 620px;
+  margin-bottom: 40px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.h-stat .h-num {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--neon);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.h-stat .h-lbl {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  line-height: 1.4;
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 1140px; margin: 0 auto; padding: 0 40px; }
+
+.section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.section h2 {
+  font-family: var(--sans);
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+}
+
+.neon-word { color: var(--neon); }
+.neon2-word { color: var(--neon2); }
+.neon3-word { color: var(--neon3); }
+
+.prose {
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text2);
+  max-width: 660px;
+}
+.prose p { margin-bottom: 1.1em; }
+.prose strong { color: var(--text); font-family: var(--sans); font-weight: 600; font-style: normal; }
+
+/* ── GRID LAYOUTS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 26px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card-body {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* ── NEURAL NET DEMO ── */
+#nnCanvas {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg2);
+  cursor: pointer;
+  width: 100%;
+}
+
+/* ── ARCHITECTURE TABS ── */
+.arch-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.arch-tab {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.arch-tab:hover { border-color: var(--border2); color: var(--text); }
+.arch-tab.active { background: var(--neon); border-color: var(--neon); color: var(--bg); }
+
+.arch-panel { display: none; }
+.arch-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+.arch-visual {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.arch-info { }
+
+.arch-name {
+  font-family: var(--sans);
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.arch-year {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+
+.arch-desc {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.arch-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.arch-tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 4px 11px;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text2);
+}
+
+/* ── BACKPROP DEMO ── */
+.bp-demo {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px;
+  margin-top: 32px;
+}
+
+.bp-equation {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--neon);
+  padding: 14px 18px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+
+.bp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bp-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.bp-step:hover { border-color: var(--border2); }
+.bp-step.bp-active { border-color: var(--neon); background: rgba(125,249,192,0.04); }
+
+.bp-step-num {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--neon);
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.bp-step-text {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.bp-step.bp-active .bp-step-text { color: var(--text); }
+
+/* ── ACTIVATION DEMO ── */
+#actCanvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg2);
+}
+
+.act-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.act-btn {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.act-btn:hover { border-color: var(--border2); color: var(--text); }
+.act-btn.active { background: var(--neon2); border-color: var(--neon2); color: var(--bg); }
+
+/* ── LOSS CURVE ── */
+#lossCanvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg2);
+}
+
+/* ── TIMELINE ── */
+.dl-timeline {
+  position: relative;
+  padding-left: 32px;
+  margin-top: 32px;
+}
+
+.dl-timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--neon), var(--neon5), var(--neon3));
+}
+
+.tl-event {
+  position: relative;
+  margin-bottom: 28px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.tl-event.visible { opacity: 1; transform: translateX(0); }
+
+.tl-dot {
+  position: absolute;
+  left: -29px;
+  top: 5px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.tl-year {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text3);
+  margin-bottom: 2px;
+}
+
+.tl-title {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tl-body {
+  font-family: var(--serif);
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+/* ── GLOSSARY ── */
+.gloss-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.gloss-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.gloss-card:hover { border-color: var(--border2); }
+
+.gloss-term {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--neon);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gloss-def {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* ── CALLOUT ── */
+.callout {
+  border-left: 2px solid var(--neon);
+  padding: 16px 20px;
+  background: rgba(125,249,192,0.04);
+  border-radius: 0 6px 6px 0;
+  margin: 28px 0;
+}
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--neon);
+  margin-bottom: 6px;
+}
+.callout p {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.callout strong { color: var(--text); font-family: var(--sans); font-weight: 600; }
+
+/* ── CONTROLS ── */
+.ctrl-btn {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.ctrl-btn:hover { background: var(--neon); border-color: var(--neon); color: var(--bg); }
+
+/* ── FADE ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 36px 40px;
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-logo { font-family: var(--mono); font-size: 0.7rem; color: var(--neon); }
+.footer-note { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); }
+
+@media (max-width: 720px) {
+  .hero { padding: 0 24px 48px; }
+  .page { padding: 0 20px; }
+  .two-col, .three-col, .arch-panel.active { grid-template-columns: 1fr; }
+  nav { padding: 0 16px; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">// deep_learning.html</span>
+  <ul class="nav-links">
+    <li><a href="#what">What it is</a></li>
+    <li><a href="#neuron">Neurons</a></li>
+    <li><a href="#backprop">Backprop</a></li>
+    <li><a href="#activations">Activations</a></li>
+    <li><a href="#architectures">Architectures</a></li>
+    <li><a href="#training">Training</a></li>
+    <li><a href="#history">History</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas id="heroBg"></canvas>
+  <div class="hero-content">
+    <div class="hero-eyebrow">A Technical Deep Dive</div>
+    <h1><span class="hl">Deep</span><br>Learning<br><span class="hl2">Explained</span></h1>
+    <p class="hero-lead">Multi-layered neural networks that learn hierarchical representations from data — the engine behind computer vision, speech recognition, and every LLM you've ever used.</p>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="h-num">1986</div><div class="h-lbl">Backprop<br>popularized</div></div>
+      <div class="h-stat"><div class="h-num">2012</div><div class="h-lbl">AlexNet<br>breakthrough</div></div>
+      <div class="h-stat"><div class="h-num">96+</div><div class="h-lbl">Layers in<br>GPT-3</div></div>
+      <div class="h-stat"><div class="h-num">GPU</div><div class="h-lbl">What made<br>it possible</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ── 1. WHAT IS DEEP LEARNING ── -->
+<section class="section fade-in" id="what">
+  <div class="sec-num">01 — What is Deep Learning?</div>
+  <h2>Machine Learning with <span class="neon-word">many layers</span> of abstraction</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Deep Learning is a subset of Machine Learning where the model is a <strong>neural network with multiple hidden layers</strong> — "deep" means many layers, not profound. Each layer transforms its input into a progressively more abstract representation.</p>
+      <p>A shallow model (1 layer) can only learn simple linear patterns. Add layers, and the network can learn hierarchical features: a vision model's first layers detect edges, middle layers detect shapes, late layers detect faces or objects. This <strong>automatic feature learning</strong> is what replaced decades of hand-crafted feature engineering.</p>
+      <p>What changed between the 1980s (when the math existed) and 2012 (when it took off)? <strong>Three things:</strong> massive datasets (ImageNet, Common Crawl), GPU compute, and regularization tricks like dropout. The math was always there — the hardware and data weren't.</p>
+    </div>
+    <div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);">Where deep learning sits</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:14px 16px;border:1px solid #3a5a3a;border-radius:6px;background:rgba(125,249,192,0.05);">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--neon);margin-bottom:3px;">OUTER RING</div>
+            <div style="font-family:var(--sans);font-weight:700;font-size:0.9rem;">Artificial Intelligence</div>
+            <div style="font-family:var(--serif);font-size:0.8rem;color:var(--text2);margin-top:2px;">Any technique that enables machine intelligence</div>
+          </div>
+          <div style="padding:14px 16px;border:1px solid #3a4a6a;border-radius:6px;background:rgba(125,184,249,0.05);margin-left:16px;">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--neon2);margin-bottom:3px;">SUBSET OF AI</div>
+            <div style="font-family:var(--sans);font-weight:700;font-size:0.9rem;">Machine Learning</div>
+            <div style="font-family:var(--serif);font-size:0.8rem;color:var(--text2);margin-top:2px;">Systems that learn patterns from data</div>
+          </div>
+          <div style="padding:14px 16px;border:2px solid var(--neon5);border-radius:6px;background:rgba(192,125,249,0.08);margin-left:32px;">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--neon5);margin-bottom:3px;">YOU ARE HERE</div>
+            <div style="font-family:var(--sans);font-weight:700;font-size:0.9rem;color:var(--neon5);">Deep Learning</div>
+            <div style="font-family:var(--serif);font-size:0.8rem;color:var(--text2);margin-top:2px;">ML using multi-layered neural networks</div>
+          </div>
+          <div style="padding:14px 16px;border:1px solid #5a3a2a;border-radius:6px;background:rgba(249,208,125,0.05);margin-left:48px;">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--neon4);margin-bottom:3px;">SUBSET OF DL</div>
+            <div style="font-family:var(--sans);font-weight:700;font-size:0.9rem;">LLMs, CNNs, Diffusion…</div>
+            <div style="font-family:var(--serif);font-size:0.8rem;color:var(--text2);margin-top:2px;">Specific architectures of deep networks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 2. THE NEURON ── -->
+<section class="section fade-in" id="neuron">
+  <div class="sec-num">02 — Neurons & Layers</div>
+  <h2>The <span class="neon2-word">artificial neuron</span> — the basic unit</h2>
+  <div class="two-col">
+    <div>
+      <div class="prose">
+        <p>An artificial neuron loosely mimics the biological neuron. It takes <strong>multiple inputs</strong>, multiplies each by a learned <strong>weight</strong>, sums them, adds a <strong>bias</strong>, then passes the result through an <strong>activation function</strong>.</p>
+        <p>Mathematically: <code style="font-family:var(--mono);background:var(--bg3);padding:2px 7px;border-radius:3px;font-size:0.85rem;color:var(--neon);">output = σ(Σ wᵢxᵢ + b)</code></p>
+        <p>Alone, a neuron is weak. <strong>Stack thousands per layer, stack dozens of layers</strong> — and the network can learn arbitrarily complex functions. The Universal Approximation Theorem proves that even a single hidden layer can approximate any continuous function given enough neurons. Depth makes this efficient in practice.</p>
+      </div>
+      <div class="callout" style="margin-top:24px;">
+        <div class="callout-label">Why "deep"?</div>
+        <p>A network with 1 hidden layer is "shallow." Networks with 10, 50, 100+ hidden layers are "deep." <strong>Depth enables hierarchy</strong> — each layer builds on the previous layer's features rather than raw input.</p>
+      </div>
+    </div>
+    <div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:16px;">Live neural network — click to pulse</div>
+        <canvas id="nnCanvas" height="300"></canvas>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-top:12px;line-height:1.5;">Input layer → 2 hidden layers → Output. Click any neuron to fire a signal forward through the network.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. BACKPROP ── -->
+<section class="section fade-in" id="backprop">
+  <div class="sec-num">03 — Backpropagation</div>
+  <h2>How the network <span class="neon-word">learns</span> — error flowing backward</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Backpropagation is the algorithm that makes deep learning trainable. After a <strong>forward pass</strong> produces a prediction, the error (loss) is computed. Backprop then uses the <strong>chain rule of calculus</strong> to compute the gradient of the loss with respect to every weight in the network — working backward from output to input.</p>
+      <p>These gradients tell us exactly how much each weight contributed to the error. <strong>Gradient descent</strong> then nudges every weight in the direction that reduces the loss. Repeat this millions of times across your dataset, and the network converges to weights that produce accurate predictions.</p>
+      <p>Key insight: the chain rule works perfectly through arbitrary depth. A 100-layer network can be trained with backprop just as easily as a 2-layer one — in theory. In practice, <strong>vanishing gradients</strong> (where gradients become tiny as they propagate backward) was the key obstacle that prevented deep networks from working until the 2010s.</p>
+    </div>
+    <div>
+      <div class="bp-demo">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:16px;">Backprop step by step — click each step</div>
+        <div class="bp-equation">Loss = ½(y_pred − y_true)²<br>∂Loss/∂w = ∂Loss/∂y · ∂y/∂w  <span style="color:var(--text3);">[chain rule]</span></div>
+        <div class="bp-steps" id="bpSteps"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. ACTIVATIONS ── -->
+<section class="section fade-in" id="activations">
+  <div class="sec-num">04 — Activation Functions</div>
+  <h2>The <span class="neon3-word">non-linearity</span> that makes depth work</h2>
+  <div class="two-col">
+    <div>
+      <div class="prose">
+        <p>Without an activation function, stacking layers is pointless — multiplying linear transformations gives you a single linear transformation. <strong>Activation functions introduce non-linearity</strong>, enabling networks to learn curved, complex decision boundaries.</p>
+        <p>The history of activations tracks the history of deep learning itself. <strong>Sigmoid</strong> (1980s) squashes everything to 0–1 but kills gradients in deep networks. <strong>tanh</strong> improved on it. <strong>ReLU</strong> (2010) — just max(0, x) — is simple, fast, and solved vanishing gradients almost overnight. Modern networks use <strong>GELU</strong> (used in GPT/BERT) or <strong>SiLU/Swish</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <div class="act-btns" id="actBtns">
+        <button class="act-btn active" data-fn="relu">ReLU</button>
+        <button class="act-btn" data-fn="sigmoid">Sigmoid</button>
+        <button class="act-btn" data-fn="tanh">tanh</button>
+        <button class="act-btn" data-fn="gelu">GELU</button>
+        <button class="act-btn" data-fn="leaky">Leaky ReLU</button>
+      </div>
+      <canvas id="actCanvas" height="220"></canvas>
+      <div id="actDesc" style="font-family:var(--serif);font-size:0.88rem;color:var(--text2);margin-top:14px;line-height:1.6;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 5. ARCHITECTURES ── -->
+<section class="section fade-in" id="architectures">
+  <div class="sec-num">05 — Architectures</div>
+  <h2>The major <span class="neon2-word">network families</span></h2>
+
+  <div class="arch-tabs" id="archTabs">
+    <button class="arch-tab active" data-arch="mlp">MLP</button>
+    <button class="arch-tab" data-arch="cnn">CNN</button>
+    <button class="arch-tab" data-arch="rnn">RNN / LSTM</button>
+    <button class="arch-tab" data-arch="transformer">Transformer</button>
+    <button class="arch-tab" data-arch="diffusion">Diffusion</button>
+    <button class="arch-tab" data-arch="gan">GAN</button>
+  </div>
+
+  <div id="archPanels"></div>
+</section>
+
+<!-- ── 6. TRAINING DYNAMICS ── -->
+<section class="section fade-in" id="training">
+  <div class="sec-num">06 — Training Dynamics</div>
+  <h2>Watching a network <span class="neon-word">learn</span> over time</h2>
+  <div class="two-col">
+    <div>
+      <div class="prose">
+        <p>Training a deep network is an optimization problem: find the weights that minimize a <strong>loss function</strong> on the training data. The loss curve shows how this unfolds over training steps.</p>
+        <p><strong>Overfitting</strong> is the central challenge: the model can memorize the training set perfectly but fail on new data. Signs: training loss keeps dropping while validation loss climbs. Solutions: dropout, weight decay, early stopping, more data, data augmentation.</p>
+        <p><strong>Learning rate</strong> is the most critical hyperparameter — how big a step to take in weight-space each update. Too high: unstable, diverges. Too low: trains forever. Modern approaches use <strong>learning rate schedules</strong> (warmup + cosine decay) and adaptive optimizers like Adam.</p>
+      </div>
+      <div class="callout">
+        <div class="callout-label">The Bitter Lesson</div>
+        <p>Richard Sutton's 2019 essay: <strong>"General methods that leverage computation always win in the end."</strong> Every clever architectural trick eventually loses to simply scaling up a simpler approach with more data and compute. This is why LLMs work.</p>
+      </div>
+    </div>
+    <div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px;">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+          <span>Live loss curve simulation</span>
+          <button class="ctrl-btn" id="restartLoss">↺ Restart</button>
+        </div>
+        <canvas id="lossCanvas" height="240"></canvas>
+        <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.65rem;color:var(--text3);">
+            <div style="width:16px;height:2px;background:var(--neon);"></div>Training loss
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.65rem;color:var(--text3);">
+            <div style="width:16px;height:2px;background:var(--neon3);"></div>Validation loss
+          </div>
+          <div id="epochLabel" style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-left:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="three-col" style="margin-top:40px;">
+    <div class="card">
+      <div class="card-label">Optimizer</div>
+      <div class="card-title" style="color:var(--neon);">Adam</div>
+      <div class="card-body">Adaptive Moment Estimation — the default optimizer for most deep learning. Adapts the learning rate per-parameter based on past gradients. Combines momentum + RMSprop. Almost always better than plain SGD for deep networks.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Regularization</div>
+      <div class="card-title" style="color:var(--neon2);">Dropout</div>
+      <div class="card-body">During training, randomly zero out a fraction (e.g. 20%) of neurons at each forward pass. Forces the network to learn redundant representations — no single neuron can be relied upon. Invented by Hinton (2012). Dramatically reduces overfitting.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Normalization</div>
+      <div class="card-title" style="color:var(--neon5);">Batch Norm</div>
+      <div class="card-body">Normalizes activations within each mini-batch to zero mean and unit variance. Stabilizes training, allows much higher learning rates, reduces sensitivity to initialization. Enabled reliably training networks with 50–100+ layers before Transformers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 7. HISTORY ── -->
+<section class="section fade-in" id="history">
+  <div class="sec-num">07 — History</div>
+  <h2>The <span class="neon-word">long road</span> to the current era</h2>
+  <div class="two-col">
+    <div class="dl-timeline" id="timeline"></div>
+    <div class="prose" style="margin-top:32px;">
+      <p>Deep learning went through two "AI winters" — periods where funding dried up and progress stalled. The field persisted through the work of a small group of researchers (Hinton, LeCun, Bengio — the "Godfathers of AI") who kept working on neural networks when most of academia had moved on.</p>
+      <p>The 2012 breakthrough wasn't an algorithm change — it was AlexNet showing that a deep CNN trained on GPUs could <strong>crush all other approaches</strong> on ImageNet by 10 percentage points. That single result changed everything and triggered the modern AI era.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 8. GLOSSARY ── -->
+<section class="section fade-in" id="glossary">
+  <div class="sec-num">08 — Glossary</div>
+  <h2>Key terms <span class="neon2-word">defined</span></h2>
+  <div class="gloss-grid" id="glossGrid"></div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-logo">// deep_learning.html</div>
+  <div class="footer-note">Part of the AI Landscape series · 2025</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════ DATA ═══════════════════════════════ */
+
+const bpStepsData = [
+  { label: "01 — Forward pass", text: "Input data flows forward through all layers. Each neuron computes its weighted sum, applies its activation function. The final layer outputs a prediction (e.g., class probabilities via softmax)." },
+  { label: "02 — Compute loss", text: "Compare prediction to true label using a loss function. For classification: cross-entropy loss. For regression: mean squared error. The loss is a single number — how wrong we were." },
+  { label: "03 — Compute output gradient", text: "Calculate ∂Loss/∂output — how much the loss changes as the output changes. This is the starting point for backprop. For MSE: gradient = (y_pred − y_true)." },
+  { label: "04 — Chain rule backward", text: "Apply the chain rule layer by layer, moving backward. ∂Loss/∂w = ∂Loss/∂activation × ∂activation/∂pre-activation × ∂pre-activation/∂w. Gradients multiply through every layer." },
+  { label: "05 — Update weights", text: "w ← w − η · ∂Loss/∂w. Each weight is nudged in the direction that reduces the loss. η (eta) is the learning rate — too large and training diverges; too small and it crawls. Repeat for every batch." },
+];
+
+const actFunctions = {
+  relu: {
+    fn: x => Math.max(0, x),
+    color: '#7df9c0',
+    desc: "ReLU (Rectified Linear Unit): f(x) = max(0, x). The default activation since 2010. Simple, fast, doesn't kill gradients for positive inputs. Problem: 'dying ReLU' — neurons that always output 0 stop learning permanently.",
+    label: "ReLU"
+  },
+  sigmoid: {
+    fn: x => 1 / (1 + Math.exp(-x)),
+    color: '#f97db8',
+    desc: "Sigmoid: f(x) = 1/(1+e⁻ˣ). Squashes output to (0,1). Was the default in the 1980s–90s. Problem: gradient vanishing — for large |x|, the gradient approaches 0, blocking learning in deep networks.",
+    label: "Sigmoid"
+  },
+  tanh: {
+    fn: x => Math.tanh(x),
+    color: '#7db8f9',
+    desc: "tanh: f(x) = (eˣ−e⁻ˣ)/(eˣ+e⁻ˣ). Squashes to (-1, 1). Zero-centered (unlike sigmoid), which helps gradient flow. Still suffers from vanishing gradients for very deep networks.",
+    label: "tanh"
+  },
+  gelu: {
+    fn: x => 0.5 * x * (1 + Math.tanh(Math.sqrt(2/Math.PI) * (x + 0.044715 * x**3))),
+    color: '#f9d07d',
+    desc: "GELU (Gaussian Error Linear Unit): Used in BERT, GPT, and most modern Transformers. Smoother than ReLU — it probabilistically zeros out inputs based on a Gaussian CDF. Better gradient flow in very deep networks.",
+    label: "GELU"
+  },
+  leaky: {
+    fn: x => x >= 0 ? x : 0.1 * x,
+    color: '#c07df9',
+    desc: "Leaky ReLU: f(x) = x if x ≥ 0 else 0.01x. Fixes the dying ReLU problem by allowing a small negative slope. Neurons can still learn even when they're in the negative region.",
+    label: "Leaky ReLU"
+  }
+};
+
+const architectures = {
+  mlp: {
+    name: "Multi-Layer Perceptron",
+    year: "1986 (popularized)",
+    color: "#7df9c0",
+    desc: "The simplest deep learning architecture — fully connected layers stacked in sequence. Every neuron in layer N connects to every neuron in layer N+1. MLPs are universal function approximators but don't encode any useful prior structure for images or sequences. Still used as classifier heads on top of other architectures.",
+    usedFor: ["Tabular data", "Classification heads", "Regression", "Simple function approximation"],
+    layers: ["Input", "Dense", "Dense", "Dense", "Output"],
+  },
+  cnn: {
+    name: "Convolutional Neural Network",
+    year: "1989 (LeCun) / 2012 (AlexNet)",
+    color: "#7db8f9",
+    desc: "CNNs apply learned filters across an input spatially — each filter detects a pattern regardless of where it appears in the image (translation invariance). Stacking conv layers builds increasingly abstract features: edges → textures → shapes → objects. MaxPooling reduces spatial dimensions. Dominated computer vision from 2012–2020 until Vision Transformers.",
+    usedFor: ["Image classification", "Object detection", "Semantic segmentation", "Medical imaging"],
+    layers: ["Conv+ReLU", "MaxPool", "Conv+ReLU", "MaxPool", "Dense", "Softmax"],
+  },
+  rnn: {
+    name: "RNN / LSTM",
+    year: "1986 (RNN) / 1997 (LSTM)",
+    color: "#f9d07d",
+    desc: "Recurrent Neural Networks process sequences by maintaining a hidden state that carries information from previous steps. The key problem: vanilla RNNs forget long-range dependencies due to vanishing gradients. LSTM (Long Short-Term Memory) solves this with gating mechanisms — a cell state controlled by forget, input, and output gates. Dominated NLP from 2014–2017 until the Transformer.",
+    usedFor: ["Language modeling (pre-2017)", "Time series forecasting", "Speech recognition", "Music generation"],
+    layers: ["Embedding", "LSTM cell", "LSTM cell", "Dense", "Output"],
+  },
+  transformer: {
+    name: "Transformer",
+    year: "2017 (Vaswani et al., Google)",
+    color: "#c07df9",
+    desc: "Processes all tokens simultaneously via self-attention — every token can attend to every other token directly, with no recurrence. Scales perfectly to GPU parallelism. 'Attention Is All You Need' replaced RNNs for NLP within two years. Now used for text, images (ViT), audio, video, protein structure, and more. Every major LLM is a Transformer.",
+    usedFor: ["LLMs (GPT, Claude, Gemini)", "Vision (ViT, DINO)", "Protein folding (AlphaFold)", "Code generation"],
+    layers: ["Embedding", "Pos. Encoding", "Self-Attention", "LayerNorm", "FFN", "×N", "LM Head"],
+  },
+  diffusion: {
+    name: "Diffusion Model",
+    year: "2020 (Ho et al., Google Brain)",
+    color: "#f97db8",
+    desc: "Learns to reverse a noise-addition process. Training: gradually add Gaussian noise to an image over T steps until it's pure noise. The model learns to predict and remove noise at each step. Inference: start from pure noise, iteratively denoise to generate a sample. Powers Stable Diffusion, DALL-E 2/3, Midjourney, Sora.",
+    usedFor: ["Image generation", "Video generation", "Audio synthesis", "Drug molecule design"],
+    layers: ["Pure noise", "Denoise T", "Denoise T-1", "…", "Generated image"],
+  },
+  gan: {
+    name: "GAN (Generative Adversarial Network)",
+    year: "2014 (Goodfellow et al.)",
+    color: "#f9d07d",
+    desc: "Two networks trained adversarially: a Generator (creates fake samples from noise) and a Discriminator (classifies real vs fake). They compete — the generator gets better at fooling, the discriminator gets better at catching. When equilibrium is reached, the generator produces realistic samples. Notoriously unstable to train. Largely superseded by diffusion models for image generation.",
+    usedFor: ["Image synthesis", "Style transfer", "Super-resolution", "Data augmentation"],
+    layers: ["Noise z", "Generator G", "Fake image", "Discriminator D", "Real/Fake?"],
+  },
+};
+
+const timelineData = [
+  { year: "1943", color: "#7df9c0", title: "McCulloch-Pitts Neuron", body: "First mathematical model of a neuron. Binary threshold — fires if weighted sum exceeds a threshold. No learning yet, but established the concept." },
+  { year: "1957", color: "#7df9c0", title: "Perceptron", body: "Frank Rosenblatt's learning algorithm for a single-layer network. Can classify linearly separable patterns. First algorithm that could actually learn from data." },
+  { year: "1969", color: "#f97db8", title: "Perceptrons (Minsky & Papert)", body: "Proved that a single-layer perceptron cannot learn XOR. Combined with the compute limits of the era, this triggered the first AI winter for neural networks." },
+  { year: "1986", color: "#7db8f9", title: "Backpropagation published", body: "Rumelhart, Hinton & Williams popularize backprop for multi-layer networks. Multi-layer networks could now learn complex functions. The math that powers all deep learning today." },
+  { year: "1989", color: "#7db8f9", title: "LeNet — CNNs for digit recognition", body: "Yann LeCun applies CNNs to handwritten digit recognition. Deployed in US mail sorting. First practical deep learning system." },
+  { year: "1997", color: "#7db8f9", title: "LSTM invented", body: "Hochreiter & Schmidhuber introduce Long Short-Term Memory — solving the vanishing gradient problem for RNNs. Enables long-range sequence modeling." },
+  { year: "2006", color: "#c07df9", title: "Deep Belief Networks", body: "Hinton shows that deep networks can be pre-trained layer-by-layer using restricted Boltzmann machines. Reignited interest in deep architectures." },
+  { year: "2012", color: "#f9d07d", title: "AlexNet — the watershed moment", body: "Krizhevsky, Sutskever & Hinton win ImageNet with a deep CNN on GPUs, beating the next competitor by 10%. The moment the world took notice. The modern deep learning era begins." },
+  { year: "2014", color: "#f9d07d", title: "GANs invented", body: "Ian Goodfellow invents Generative Adversarial Networks. Opens the door to high-quality image generation, eventually leading to Stable Diffusion and DALL-E." },
+  { year: "2017", color: "#f9d07d", title: "Transformer — Attention Is All You Need", body: "Google Brain team replaces RNNs with pure attention. Revolutionizes NLP instantly. All modern LLMs (GPT, Claude, Gemini) are Transformers." },
+  { year: "2020", color: "#f9d07d", title: "GPT-3 — scale changes everything", body: "175 billion parameters. Few-shot learning emerges. The field discovers that scaling a simple architecture with more data and compute unlocks qualitatively new capabilities." },
+  { year: "2022–25", color: "#f97db8", title: "Foundation models dominate", body: "Large pre-trained models fine-tuned for everything. ChatGPT, Stable Diffusion, Claude, Gemini, Sora. Deep learning is now embedded in every layer of technology." },
+];
+
+const glossaryTerms = [
+  { term: "Forward Pass", def: "One full computation from input to output through all layers. Produces a prediction. Does not update weights. Used for both training and inference." },
+  { term: "Loss Function", def: "Measures how wrong the model's prediction is. Cross-entropy for classification, MSE for regression. The number backprop tries to minimize." },
+  { term: "Gradient Descent", def: "Iteratively move weights in the direction of steepest loss reduction. w ← w − η·∇L. The optimizer (Adam, SGD) determines how exactly to do this update." },
+  { term: "Vanishing Gradient", def: "In deep networks, gradients shrink exponentially as they propagate backward through many layers. Weights in early layers stop learning. ReLU and residual connections largely solved this." },
+  { term: "Residual Connection", def: "Add the layer's input to its output: y = F(x) + x. Introduced in ResNet (2015). Allows gradients to flow directly backward, enabling 100+ layer networks to train reliably." },
+  { term: "Dropout", def: "Regularization technique: randomly zero out neurons during training with probability p. Prevents co-adaptation, forces robust features. Disabled at inference time." },
+  { term: "Batch Size", def: "How many examples are processed before updating weights. Large batches: more stable gradients, faster on GPU. Small batches: noisier updates that can help generalization." },
+  { term: "Epoch", def: "One full pass through the entire training dataset. Training typically runs for many epochs (10–100+) until the loss stops improving." },
+  { term: "Hyperparameter", def: "Parameters set before training (not learned): learning rate, batch size, number of layers, dropout rate. Choosing these is called hyperparameter tuning — a significant part of ML engineering." },
+  { term: "Overfitting", def: "The model memorizes training data and fails on new examples. Training loss → 0, validation loss increases. Prevented by regularization, more data, early stopping." },
+  { term: "Transfer Learning", def: "Take a model pre-trained on a large dataset (e.g., ImageNet) and fine-tune it on a smaller task-specific dataset. Most practical deep learning uses transfer learning." },
+  { term: "Embedding", def: "A dense vector representation of discrete input (tokens, words, categories). Learned during training. Encodes similarity — similar inputs have nearby embeddings." },
+];
+
+/* ═══════════════════════════════ HERO CANVAS ═══════════════════════════════ */
+const heroBg = document.getElementById('heroBg');
+const hCtx = heroBg.getContext('2d');
+let hW, hH, hNodes = [], hEdges = [], hAnimFrame;
+
+function initHero() {
+  hW = heroBg.width = heroBg.parentElement.offsetWidth;
+  hH = heroBg.height = heroBg.parentElement.offsetHeight;
+  hNodes = [];
+  hEdges = [];
+  const count = Math.floor((hW * hH) / 18000);
+  for (let i = 0; i < count; i++) {
+    hNodes.push({
+      x: Math.random() * hW,
+      y: Math.random() * hH,
+      r: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      pulse: Math.random() * Math.PI * 2,
+    });
+  }
+  // Connect nearby nodes
+  hEdges = [];
+  const maxDist = 120;
+  for (let i = 0; i < hNodes.length; i++) {
+    for (let j = i+1; j < hNodes.length; j++) {
+      const dx = hNodes[i].x - hNodes[j].x;
+      const dy = hNodes[i].y - hNodes[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < maxDist) hEdges.push([i, j, d, maxDist]);
+    }
+  }
+}
+
+function animHero(t) {
+  hCtx.clearRect(0, 0, hW, hH);
+  // Draw edges
+  hEdges.forEach(([i, j, d, max]) => {
+    const alpha = (1 - d/max) * 0.12;
+    hCtx.beginPath();
+    hCtx.strokeStyle = `rgba(125,249,192,${alpha})`;
+    hCtx.lineWidth = 0.5;
+    hCtx.moveTo(hNodes[i].x, hNodes[i].y);
+    hCtx.lineTo(hNodes[j].x, hNodes[j].y);
+    hCtx.stroke();
+  });
+  // Draw nodes
+  hNodes.forEach(n => {
+    n.pulse += 0.02;
+    n.x += n.vx; n.y += n.vy;
+    if (n.x < 0 || n.x > hW) n.vx *= -1;
+    if (n.y < 0 || n.y > hH) n.vy *= -1;
+    const glow = 0.4 + 0.3 * Math.sin(n.pulse);
+    hCtx.beginPath();
+    hCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    hCtx.fillStyle = `rgba(125,249,192,${glow})`;
+    hCtx.fill();
+  });
+  // Dark overlay at bottom
+  const grad = hCtx.createLinearGradient(0, hH*0.5, 0, hH);
+  grad.addColorStop(0, 'rgba(12,12,16,0)');
+  grad.addColorStop(1, 'rgba(12,12,16,1)');
+  hCtx.fillStyle = grad;
+  hCtx.fillRect(0, hH*0.5, hW, hH*0.5);
+  hAnimFrame = requestAnimationFrame(animHero);
+}
+
+initHero();
+animHero();
+window.addEventListener('resize', () => { cancelAnimationFrame(hAnimFrame); initHero(); animHero(); });
+
+/* ═══════════════════════════════ NEURAL NET CANVAS ═══════════════════════════════ */
+const nnCanvas = document.getElementById('nnCanvas');
+const nCtx = nnCanvas.getContext('2d');
+let nnNodes = [], nnEdges = [], activations = [];
+
+function initNN() {
+  const layers = [3, 4, 4, 2];
+  const W = nnCanvas.offsetWidth;
+  const H = 300;
+  nnCanvas.width = W * window.devicePixelRatio;
+  nnCanvas.height = H * window.devicePixelRatio;
+  nnCanvas.style.width = W + 'px';
+  nnCanvas.style.height = H + 'px';
+  nCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  nnNodes = [];
+  nnEdges = [];
+  activations = [];
+  const padX = 48, padY = 28;
+  const usableW = W - padX*2, usableH = H - padY*2;
+  const xStep = usableW / (layers.length - 1);
+
+  layers.forEach((count, li) => {
+    const x = padX + li * xStep;
+    const yStep = usableH / (count + 1);
+    for (let ni = 0; ni < count; ni++) {
+      const y = padY + yStep * (ni + 1);
+      nnNodes.push({ x, y, layer: li, idx: ni, act: 0, pulse: 0 });
+    }
+  });
+
+  // Build edges between adjacent layers
+  let layerStart = 0;
+  for (let li = 0; li < layers.length - 1; li++) {
+    const from = nnNodes.filter(n => n.layer === li);
+    const to = nnNodes.filter(n => n.layer === li+1);
+    from.forEach(f => {
+      to.forEach(t => {
+        nnEdges.push({ from: f, to: t, w: (Math.random()-0.5)*0.8 });
+      });
+    });
+    layerStart += layers[li];
+  }
+  activations = nnNodes.map(() => 0);
+  drawNN();
+}
+
+function drawNN() {
+  const W = nnCanvas.offsetWidth, H = 300;
+  nCtx.clearRect(0, 0, W, H);
+
+  // Edges
+  nnEdges.forEach(e => {
+    const strength = (e.from.act + e.to.act) / 2;
+    const alpha = 0.08 + strength * 0.5;
+    nCtx.beginPath();
+    nCtx.strokeStyle = `rgba(125,249,192,${alpha})`;
+    nCtx.lineWidth = 0.5 + strength;
+    nCtx.moveTo(e.from.x, e.from.y);
+    nCtx.lineTo(e.to.x, e.to.y);
+    nCtx.stroke();
+  });
+
+  // Nodes
+  nnNodes.forEach(n => {
+    const a = n.act;
+    const r = 9 + a * 4;
+    // Glow
+    if (a > 0.1) {
+      const grd = nCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r*2.5);
+      grd.addColorStop(0, `rgba(125,249,192,${a*0.3})`);
+      grd.addColorStop(1, 'rgba(125,249,192,0)');
+      nCtx.beginPath();
+      nCtx.arc(n.x, n.y, r*2.5, 0, Math.PI*2);
+      nCtx.fillStyle = grd;
+      nCtx.fill();
+    }
+    nCtx.beginPath();
+    nCtx.arc(n.x, n.y, r, 0, Math.PI*2);
+    nCtx.fillStyle = `rgba(18,18,26,1)`;
+    nCtx.fill();
+    nCtx.strokeStyle = a > 0.1 ? `rgba(125,249,192,${0.5 + a*0.5})` : 'rgba(53,53,74,1)';
+    nCtx.lineWidth = 1.5;
+    nCtx.stroke();
+    if (a > 0.2) {
+      nCtx.fillStyle = `rgba(125,249,192,${a})`;
+      nCtx.beginPath();
+      nCtx.arc(n.x, n.y, r*0.45, 0, Math.PI*2);
+      nCtx.fill();
+    }
+  });
+}
+
+function pulseFromNode(node) {
+  node.act = 1;
+  drawNN();
+  // Propagate to next layer
+  const nextLayerEdges = nnEdges.filter(e => e.from === node);
+  if (nextLayerEdges.length === 0) {
+    setTimeout(() => { decayAll(); }, 300);
+    return;
+  }
+  setTimeout(() => {
+    nextLayerEdges.forEach(e => {
+      e.to.act = Math.min(1, e.to.act + Math.abs(e.w) * node.act * 0.9);
+    });
+    drawNN();
+    nextLayerEdges.forEach(e => {
+      if (e.to.act > 0.15) pulseFromNode(e.to);
+    });
+  }, 180);
+}
+
+function decayAll() {
+  let anyActive = false;
+  nnNodes.forEach(n => { if (n.act > 0.01) { n.act *= 0.6; anyActive = true; } else n.act = 0; });
+  drawNN();
+  if (anyActive) setTimeout(decayAll, 80);
+}
+
+function resetNN() {
+  nnNodes.forEach(n => n.act = 0);
+  drawNN();
+}
+
+nnCanvas.addEventListener('click', (e) => {
+  const rect = nnCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  let hit = null, bestDist = 30;
+  nnNodes.forEach(n => {
+    const d = Math.hypot(n.x - mx, n.y - my);
+    if (d < bestDist) { bestDist = d; hit = n; }
+  });
+  if (hit) { resetNN(); pulseFromNode(hit); }
+  else {
+    // Click anywhere — pulse random input
+    const inputs = nnNodes.filter(n => n.layer === 0);
+    resetNN();
+    inputs.forEach((n, i) => setTimeout(() => pulseFromNode(n), i * 120));
+  }
+});
+
+setTimeout(() => {
+  initNN();
+  // Auto-demo on load
+  setTimeout(() => {
+    const inputs = nnNodes.filter(n => n.layer === 0);
+    inputs.forEach((n, i) => setTimeout(() => pulseFromNode(n), i * 150));
+  }, 600);
+}, 100);
+
+/* ═══════════════════════════════ BACKPROP STEPS ═══════════════════════════════ */
+const bpContainer = document.getElementById('bpSteps');
+bpStepsData.forEach((step, i) => {
+  const el = document.createElement('div');
+  el.className = 'bp-step';
+  el.innerHTML = `<div class="bp-step-num">${step.label.split(' — ')[0]}</div><div class="bp-step-text"><strong>${step.label.split(' — ')[1]}</strong> — ${step.text}</div>`;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.bp-step').forEach(s => s.classList.remove('bp-active'));
+    el.classList.add('bp-active');
+  });
+  bpContainer.appendChild(el);
+});
+
+/* ═══════════════════════════════ ACTIVATION CANVAS ═══════════════════════════════ */
+const actCanvas = document.getElementById('actCanvas');
+const aCtx = actCanvas.getContext('2d');
+const actDesc = document.getElementById('actDesc');
+let currentFn = 'relu';
+
+function drawActivation(fnKey) {
+  const fn = actFunctions[fnKey];
+  const W = actCanvas.offsetWidth, H = 220;
+  actCanvas.width = W * window.devicePixelRatio;
+  actCanvas.height = H * window.devicePixelRatio;
+  actCanvas.style.width = W + 'px'; actCanvas.style.height = H + 'px';
+  aCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  aCtx.clearRect(0, 0, W, H);
+
+  const padX = 40, padY = 24;
+  const plotW = W - padX*2, plotH = H - padY*2;
+  const xRange = 6, yRange = 1.5;
+  const cx = padX + plotW/2, cy = padY + plotH/2;
+  const scaleX = plotW / (xRange*2), scaleY = plotH / (yRange*2);
+
+  // Grid
+  aCtx.strokeStyle = 'rgba(53,53,74,0.6)';
+  aCtx.lineWidth = 0.5;
+  [-1,0,1].forEach(yv => {
+    const y = cy - yv * scaleY;
+    aCtx.beginPath(); aCtx.moveTo(padX, y); aCtx.lineTo(W-padX, y); aCtx.stroke();
+  });
+  [-4,-2,0,2,4].forEach(xv => {
+    const x = cx + xv * scaleX;
+    aCtx.beginPath(); aCtx.moveTo(x, padY); aCtx.lineTo(x, H-padY); aCtx.stroke();
+  });
+
+  // Axes
+  aCtx.strokeStyle = 'rgba(104,104,136,0.8)';
+  aCtx.lineWidth = 1;
+  aCtx.beginPath(); aCtx.moveTo(padX, cy); aCtx.lineTo(W-padX, cy); aCtx.stroke();
+  aCtx.beginPath(); aCtx.moveTo(cx, padY); aCtx.lineTo(cx, H-padY); aCtx.stroke();
+
+  // Axis labels
+  aCtx.fillStyle = 'rgba(104,104,136,0.7)';
+  aCtx.font = '10px Fira Code, monospace';
+  aCtx.textAlign = 'center';
+  [-4,-2,2,4].forEach(xv => aCtx.fillText(xv, cx + xv*scaleX, H-padY+14));
+  aCtx.textAlign = 'right';
+  [-1,1].forEach(yv => aCtx.fillText(yv, padX-6, cy - yv*scaleY + 4));
+
+  // Plot function
+  aCtx.beginPath();
+  aCtx.strokeStyle = fn.color;
+  aCtx.lineWidth = 2.5;
+  aCtx.shadowColor = fn.color;
+  aCtx.shadowBlur = 8;
+  let first = true;
+  for (let px = 0; px <= plotW; px++) {
+    const x = (px / plotW) * xRange * 2 - xRange;
+    const y = fn.fn(x);
+    const sx = padX + px;
+    const sy = cy - y * scaleY;
+    if (first) { aCtx.moveTo(sx, sy); first = false; }
+    else aCtx.lineTo(sx, sy);
+  }
+  aCtx.stroke();
+  aCtx.shadowBlur = 0;
+
+  // Label
+  aCtx.fillStyle = fn.color;
+  aCtx.font = 'bold 11px Syne, sans-serif';
+  aCtx.textAlign = 'left';
+  aCtx.fillText(fn.label, padX+6, padY+16);
+
+  actDesc.textContent = fn.desc;
+}
+
+document.querySelectorAll('.act-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.act-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFn = btn.dataset.fn;
+    drawActivation(currentFn);
+  });
+});
+setTimeout(() => drawActivation('relu'), 200);
+
+/* ═══════════════════════════════ ARCHITECTURES ═══════════════════════════════ */
+const archPanels = document.getElementById('archPanels');
+
+function renderArch(key) {
+  const a = architectures[key];
+  archPanels.innerHTML = `
+    <div class="arch-panel active">
+      <div class="arch-visual">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:12px;">Layer stack</div>
+        ${a.layers.map((l, i) => `
+          <div style="
+            padding:10px 20px;
+            background:${i === 0 ? 'var(--bg3)' : i === a.layers.length-1 ? 'var(--bg3)' : `${a.color}18`};
+            border:1px solid ${i === 0 || i === a.layers.length-1 ? 'var(--border)' : a.color + '40'};
+            border-radius:4px;
+            font-family:var(--mono);
+            font-size:0.72rem;
+            font-weight:500;
+            color:${i === 0 || i === a.layers.length-1 ? 'var(--text3)' : a.color};
+            width:180px;
+            text-align:center;
+            ${i > 0 && i < a.layers.length-1 ? `box-shadow: 0 0 8px ${a.color}20;` : ''}
+          ">${l}</div>
+          ${i < a.layers.length-1 ? `<div style="color:var(--text3);font-size:0.8rem;">↓</div>` : ''}
+        `).join('')}
+      </div>
+      <div class="arch-info">
+        <div class="arch-name" style="color:${a.color}">${a.name}</div>
+        <div class="arch-year">${a.year}</div>
+        <div class="arch-desc">${a.desc}</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:10px;">Used for</div>
+        <div class="arch-tags">${a.usedFor.map(u => `<span class="arch-tag">${u}</span>`).join('')}</div>
+      </div>
+    </div>
+  `;
+}
+
+document.querySelectorAll('.arch-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.arch-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderArch(tab.dataset.arch);
+  });
+});
+renderArch('mlp');
+
+/* ═══════════════════════════════ LOSS CURVE ═══════════════════════════════ */
+const lossCanvas = document.getElementById('lossCanvas');
+const lCtx = lossCanvas.getContext('2d');
+let lossPoints = [], valPoints = [], lossStep = 0, lossAnim;
+
+function initLoss() {
+  const W = lossCanvas.offsetWidth, H = 240;
+  lossCanvas.width = W * window.devicePixelRatio;
+  lossCanvas.height = H * window.devicePixelRatio;
+  lossCanvas.style.width = W + 'px'; lossCanvas.style.height = H + 'px';
+  lCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  lossPoints = []; valPoints = []; lossStep = 0;
+  animateLoss();
+}
+
+function animateLoss() {
+  const W = lossCanvas.offsetWidth, H = 240;
+  const totalSteps = 80;
+  const padX = 40, padY = 20;
+  const plotW = W - padX*2, plotH = H - padY*2;
+
+  if (lossStep <= totalSteps) {
+    const t = lossStep / totalSteps;
+    const trainLoss = 2.4 * Math.exp(-t * 3.5) + 0.08 + (Math.random()-0.5)*0.05;
+    const overfit = lossStep > 55 ? (lossStep-55)*0.012 : 0;
+    const valLoss = 2.4 * Math.exp(-t * 2.8) + 0.18 + overfit + (Math.random()-0.5)*0.06;
+    lossPoints.push(trainLoss); valPoints.push(valLoss); lossStep++;
+    document.getElementById('epochLabel').textContent = `Step ${lossStep}/${totalSteps}`;
+  }
+
+  lCtx.clearRect(0, 0, W, H);
+
+  // Grid
+  lCtx.strokeStyle = 'rgba(53,53,74,0.4)';
+  lCtx.lineWidth = 0.5;
+  [0.25, 0.5, 0.75].forEach(pct => {
+    const y = padY + pct * plotH;
+    lCtx.beginPath(); lCtx.moveTo(padX, y); lCtx.lineTo(W-padX, y); lCtx.stroke();
+  });
+
+  const maxLoss = 2.5;
+  const toX = (i) => padX + (i / (lossPoints.length-1)) * plotW;
+  const toY = (v) => padY + (1 - Math.min(v/maxLoss, 1)) * plotH;
+
+  function drawLine(pts, color) {
+    if (pts.length < 2) return;
+    lCtx.beginPath();
+    lCtx.strokeStyle = color;
+    lCtx.lineWidth = 2;
+    lCtx.shadowColor = color;
+    lCtx.shadowBlur = 4;
+    pts.forEach((v, i) => {
+      i === 0 ? lCtx.moveTo(toX(i), toY(v)) : lCtx.lineTo(toX(i), toY(v));
+    });
+    lCtx.stroke();
+    lCtx.shadowBlur = 0;
+  }
+
+  drawLine(lossPoints, '#7df9c0');
+  drawLine(valPoints, '#f97db8');
+
+  // Y labels
+  lCtx.fillStyle = 'rgba(104,104,136,0.6)';
+  lCtx.font = '10px Fira Code, monospace';
+  lCtx.textAlign = 'right';
+  [0,1,2].forEach(v => lCtx.fillText(v.toFixed(1), padX-6, toY(v)+4));
+  lCtx.textAlign = 'left';
+  lCtx.fillText('loss', padX, padY-6);
+
+  if (lossStep <= totalSteps) lossAnim = setTimeout(animateLoss, 60);
+  else document.getElementById('epochLabel').textContent = 'Training complete';
+}
+
+document.getElementById('restartLoss').addEventListener('click', () => {
+  clearTimeout(lossAnim); initLoss();
+});
+setTimeout(() => initLoss(), 300);
+
+/* ═══════════════════════════════ TIMELINE ═══════════════════════════════ */
+const tlContainer = document.getElementById('timeline');
+timelineData.forEach((ev, i) => {
+  const el = document.createElement('div');
+  el.className = 'tl-event';
+  el.innerHTML = `
+    <div class="tl-dot" style="border-color:${ev.color};background:${ev.color}30"></div>
+    <div class="tl-year">${ev.year}</div>
+    <div class="tl-title" style="color:${ev.color}">${ev.title}</div>
+    <div class="tl-body">${ev.body}</div>
+  `;
+  tlContainer.appendChild(el);
+});
+
+/* ═══════════════════════════════ GLOSSARY ═══════════════════════════════ */
+const glossGrid = document.getElementById('glossGrid');
+glossaryTerms.forEach(t => {
+  const card = document.createElement('div');
+  card.className = 'gloss-card';
+  card.innerHTML = `<div class="gloss-term">${t.term}</div><div class="gloss-def">${t.def}</div>`;
+  glossGrid.appendChild(card);
+});
+
+/* ═══════════════════════════════ INTERSECTION OBSERVER ═══════════════════════════════ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.07 });
+
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Timeline stagger
+const tlObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const events = e.target.querySelectorAll('.tl-event');
+      events.forEach((ev, i) => setTimeout(() => ev.classList.add('visible'), i * 80));
+      tlObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+tlObs.observe(tlContainer);
+</script>
+</body>
+</html>

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro to LLMs — A Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00e5ff;
+    --accent2: #ff6b6b;
+    --accent3: #a8ff78;
+    --text: #e0e0f0;
+    --muted: #6b6b8a;
+    --heading: #ffffff;
+    --card: #13131d;
+    --glow: rgba(0,229,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', serif;
+    font-size: 17px;
+    line-height: 1.85;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Sidebar Nav */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo span {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+  }
+
+  .toc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .toc a {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.4rem 0.6rem;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  .toc a:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    padding-left: 1rem;
+  }
+
+  .toc a.section {
+    color: var(--text);
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  .toc a.sub {
+    padding-left: 1.2rem;
+    font-size: 0.67rem;
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 260px;
+    padding: 4rem 4rem 6rem 5rem;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 3rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .hero-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: var(--heading);
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  h1 .accent { color: var(--accent); }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 600px;
+    font-style: italic;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 5rem;
+    padding-top: 1rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.9rem;
+    color: var(--heading);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: -0.01em;
+  }
+
+  h2 .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.1em;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--heading);
+    margin: 2rem 0 0.75rem;
+  }
+
+  p { margin-bottom: 1.2rem; }
+
+  /* Callout boxes */
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .callout.red { border-left-color: var(--accent2); }
+  .callout.green { border-left-color: var(--accent3); }
+
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .callout.red .callout-label { color: var(--accent2); }
+  .callout.green .callout-label { color: var(--accent3); }
+
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  /* Token visualizer */
+  .token-demo {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 2;
+  }
+
+  .token-demo .label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .token {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .t1 { background: rgba(0,229,255,0.15); color: #00e5ff; border: 1px solid rgba(0,229,255,0.3); }
+  .t2 { background: rgba(255,107,107,0.15); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+  .t3 { background: rgba(168,255,120,0.15); color: #a8ff78; border: 1px solid rgba(168,255,120,0.3); }
+  .t4 { background: rgba(255,200,100,0.15); color: #ffc864; border: 1px solid rgba(255,200,100,0.3); }
+  .t5 { background: rgba(200,150,255,0.15); color: #c896ff; border: 1px solid rgba(200,150,255,0.3); }
+
+  /* Model comparison table */
+  .model-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+
+  .model-table th {
+    background: var(--card);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .model-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .model-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .model-name {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  /* Context window bar */
+  .ctx-bar-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .ctx-bar-wrap .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .ctx-item {
+    margin-bottom: 1rem;
+  }
+
+  .ctx-item-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .ctx-item-label span { color: var(--muted); }
+
+  .ctx-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ctx-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* Timeline */
+  .timeline {
+    border-left: 2px solid var(--border);
+    padding-left: 2rem;
+    margin: 2rem 0;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.45rem;
+    top: 0.4rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .timeline-year {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--heading);
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* Index */
+  .index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .index-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .index-item:hover {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    transform: translateY(-2px);
+  }
+
+  .index-item .idx-term {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .index-item .idx-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* Highlight */
+  .hl { color: var(--accent); font-style: normal; }
+  .hl2 { color: var(--accent2); }
+  .hl3 { color: var(--accent3); }
+
+  /* Scroll indicator */
+  .scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 200;
+  }
+
+  .scroll-top.visible { opacity: 1; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 2rem 1.25rem 4rem; }
+    h1 { font-size: 2rem; }
+  }
+
+  /* Fade in */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section {
+    animation: fadeUp 0.5s ease both;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    LLM PRIMER
+    <span>A Deep Dive Guide</span>
+  </div>
+  <div class="toc-label">Table of Contents</div>
+  <nav class="toc">
+    <a href="#intro" class="section">01 — What is an LLM?</a>
+    <a href="#breakthrough" class="section">02 — The Breakthrough</a>
+    <a href="#tokens" class="section">03 — Tokens</a>
+    <a href="#tokens-by-model" class="sub">↳ Tokens by Model</a>
+    <a href="#context" class="sub">↳ Context Windows</a>
+    <a href="#how-it-works" class="section">04 — How LLMs Work</a>
+    <a href="#attention" class="sub">↳ Attention Mechanism</a>
+    <a href="#training" class="sub">↳ Training</a>
+    <a href="#models" class="section">05 — Model Comparison</a>
+    <a href="#reasoning" class="section">06 — Reasoning Models</a>
+    <a href="#index" class="section">Index</a>
+  </nav>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Hero -->
+  <div class="hero" id="top">
+    <div class="hero-tag">// Educational Guide · 2025</div>
+    <h1>Intro to <span class="accent">Large Language Models</span></h1>
+    <p class="hero-desc">From the transformer breakthrough to tokens, context windows, and how today's most powerful models actually think.</p>
+  </div>
+
+  <!-- 01 What is an LLM -->
+  <section id="intro">
+    <h2><span class="num">01 //</span> What is a Large Language Model?</h2>
+    <p>A <strong>Large Language Model (LLM)</strong> is a type of AI trained on enormous amounts of text data — books, websites, code, research papers — to predict and generate human language. At its core, it's a probability machine: given some input text, it calculates the most likely next word, then the next, and so on.</p>
+    <p>The "large" in LLM refers to two things: the size of the training data (often hundreds of billions to trillions of words) and the number of <em>parameters</em> — the internal numerical weights that the model learns during training. Models like <span class="hl">GPT-4</span>, <span class="hl">Claude</span>, and <span class="hl">Gemini</span> have hundreds of billions of parameters.</p>
+
+    <div class="callout">
+      <div class="callout-label">Key Concept</div>
+      <p>A parameter is a single number the model adjusts during training. A model with 70 billion parameters has 70 billion of these numbers working together to transform your input into a response.</p>
+    </div>
+
+    <p>LLMs don't "know" things the way humans do — they don't have beliefs, memory between conversations (by default), or real understanding. What they have is an extraordinarily refined statistical map of how language works, which produces outputs that <em>appear</em> deeply intelligent.</p>
+  </section>
+
+  <!-- 02 Breakthrough -->
+  <section id="breakthrough">
+    <h2><span class="num">02 //</span> The Breakthrough — "Attention Is All You Need"</h2>
+    <p>Before 2017, language AI was limited. Models processed text word-by-word in sequence (RNNs and LSTMs), meaning they struggled with long documents and couldn't parallelize training efficiently. Then came the paper that changed everything.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">2017</div>
+        <div class="timeline-title">"Attention Is All You Need" — Google Brain</div>
+        <p class="timeline-desc">Researchers introduced the <strong>Transformer architecture</strong>, replacing sequential processing with a mechanism called <em>self-attention</em>. Every word could now relate to every other word in the input simultaneously. Training became massively parallelizable on GPUs.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2018</div>
+        <div class="timeline-title">BERT & GPT-1</div>
+        <p class="timeline-desc">Google released BERT (Bidirectional Encoder Representations from Transformers) for understanding tasks. OpenAI released GPT-1, showing that unsupervised pretraining on large text corpora produces powerful general-purpose language abilities.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2020</div>
+        <div class="timeline-title">GPT-3 — 175 Billion Parameters</div>
+        <p class="timeline-desc">GPT-3 was a shock to the research community. At 175B parameters, it could write essays, answer questions, generate code, and more — all from a single model with no task-specific fine-tuning. The era of foundation models began.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2022</div>
+        <div class="timeline-title">ChatGPT & RLHF</div>
+        <p class="timeline-desc">OpenAI introduced ChatGPT, which added <strong>Reinforcement Learning from Human Feedback (RLHF)</strong> on top of GPT — human raters taught the model to be helpful, harmless, and honest. LLMs became consumer products overnight.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2023–2025</div>
+        <div class="timeline-title">The Frontier Era</div>
+        <p class="timeline-desc">Claude, Gemini, Mistral, LLaMA, and DeepSeek emerged. Models gained multimodal capabilities (images, audio), massive context windows, and specialized reasoning abilities. The field now advances monthly.</p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-label">Why It Mattered</div>
+      <p>The transformer allowed models to scale. More data + more compute + more parameters = reliably better models. This "scaling law" drove the LLM arms race that defines AI today.</p>
+    </div>
+  </section>
+
+  <!-- 03 Tokens -->
+  <section id="tokens">
+    <h2><span class="num">03 //</span> Tokens — The Unit of Language</h2>
+    <p>LLMs don't read words — they read <strong>tokens</strong>. A token is a chunk of text, somewhere between a character and a word. The model converts all text — your input and its output — into sequences of tokens before doing any processing.</p>
+
+    <h3>How Tokenization Works</h3>
+    <p>Most modern LLMs use a method called <strong>Byte Pair Encoding (BPE)</strong>. It starts with individual characters and repeatedly merges the most common pairs until it has a vocabulary of ~50,000–100,000 tokens. Common words become single tokens; rare words get split into multiple.</p>
+
+    <div class="token-demo">
+      <span class="label">// Example — How the sentence "Transformers changed AI forever" gets tokenized</span>
+      <span class="token t1">Transform</span><span class="token t2">ers</span><span class="token t3"> changed</span><span class="token t4"> AI</span><span class="token t5"> forever</span>
+      <br><br>
+      <span class="label">// A longer, rarer word gets split more aggressively</span>
+      <span class="token t1">Un</span><span class="token t2">struct</span><span class="token t3">ured</span><span class="token t4">Data</span><span class="token t5">Pipeline</span>
+      <br><br>
+      <span class="label">// Code tokenization — each symbol may be its own token</span>
+      <span class="token t1">def</span><span class="token t2"> calculate</span><span class="token t3">(</span><span class="token t4">x</span><span class="token t5">):</span>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Rule of Thumb</div>
+      <p>~1 token ≈ ¾ of a word in English. 100 tokens ≈ 75 words. A full novel (~90,000 words) ≈ 120,000 tokens. Code and non-English languages often use more tokens per word.</p>
+    </div>
+
+    <h3 id="tokens-by-model">Tokens Across Different Models</h3>
+    <p>Token limits and pricing vary significantly across models. This directly affects what tasks you can perform and at what cost.</p>
+
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Input Context</th>
+          <th>Output Limit</th>
+          <th>Token Vocab Size</th>
+          <th>Pricing (per 1M in/out)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="model-name">Claude Sonnet 4.6</span></td>
+          <td>200K tokens</td>
+          <td>64K tokens</td>
+          <td>~100K</td>
+          <td>$3 / $15</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Claude Opus 4.6</span></td>
+          <td>200K tokens</td>
+          <td>32K tokens</td>
+          <td>~100K</td>
+          <td>$15 / $75</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Gemini 2.5 Pro</span></td>
+          <td>1M tokens</td>
+          <td>65K tokens</td>
+          <td>~256K</td>
+          <td>$1.25 / $10</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">GPT-4o</span></td>
+          <td>128K tokens</td>
+          <td>16K tokens</td>
+          <td>~100K</td>
+          <td>$2.50 / $10</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">DeepSeek R1</span></td>
+          <td>128K tokens</td>
+          <td>32K tokens</td>
+          <td>~102K</td>
+          <td>$0.55 / $2.19</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Llama 3.1 70B</span></td>
+          <td>128K tokens</td>
+          <td>4K tokens</td>
+          <td>~128K</td>
+          <td>~$0.12 / $0.30</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="context">Context Windows — Why They Matter</h3>
+    <p>The <strong>context window</strong> is the total number of tokens the model can "see" at once — your input + conversation history + its output. If you exceed the context window, the earliest content gets cut off (the model forgets the beginning of your conversation).</p>
+    <p>Context windows are why you can paste an entire codebase into Gemini 2.5 Pro but might need to chunk it for GPT-4o. Larger context = more powerful for long documents, multi-file coding, and lengthy research tasks.</p>
+
+    <div class="ctx-bar-wrap">
+      <span class="label">// Context Window Comparison (tokens)</span>
+
+      <div class="ctx-item">
+        <div class="ctx-item-label">Gemini 2.5 Pro <span>1,000,000 tokens</span></div>
+        <div class="ctx-bar"><div class="ctx-fill" style="width:100%; background: linear-gradient(90deg, #a8ff78, #00e5ff);"></div></div>
+      </div>
+      <div class="ctx-item">
+        <div class="ctx-item-label">Claude Sonnet / Opus 4.6 <span>200,000 tokens</span></div>
+        <div class="ctx-bar"><div class="ctx-fill" style="width:20%; background: linear-gradient(90deg, #00e5ff, #c896ff);"></div></div>
+      </div>
+      <div class="ctx-item">
+        <div class="ctx-item-label">GPT-4o / DeepSeek R1 <span>128,000 tokens</span></div>
+        <div class="ctx-bar"><div class="ctx-fill" style="width:12.8%; background: linear-gradient(90deg, #ff6b6b, #ffc864);"></div></div>
+      </div>
+      <div class="ctx-item">
+        <div class="ctx-item-label">Llama 3.1 70B <span>128,000 tokens</span></div>
+        <div class="ctx-bar"><div class="ctx-fill" style="width:12.8%; background: linear-gradient(90deg, #ffc864, #a8ff78);"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 How it Works -->
+  <section id="how-it-works">
+    <h2><span class="num">04 //</span> How LLMs Actually Work</h2>
+    <p>Under the hood, an LLM is a neural network — specifically a <strong>Transformer</strong> — that converts tokens into vectors (lists of numbers), processes them through many layers, and outputs a probability distribution over the next token.</p>
+
+    <h3 id="attention">Self-Attention — The Core Mechanism</h3>
+    <p>The key innovation of the Transformer is <strong>self-attention</strong>. When processing the word "bank" in the sentence "I went to the bank to deposit money," self-attention lets the model relate "bank" to "deposit" and "money" to determine it means a financial institution — not a river bank.</p>
+    <p>For every token, the model computes three vectors: a <span class="hl">Query</span> (what am I looking for?), a <span class="hl2">Key</span> (what do I represent?), and a <span class="hl3">Value</span> (what should I contribute?). Attention scores between every pair of tokens determine how much each one influences the others.</p>
+
+    <div class="callout">
+      <div class="callout-label">In Plain Terms</div>
+      <p>Self-attention lets every word in your prompt simultaneously "look at" every other word to understand context. This is why transformers handle long-range dependencies that stumped older sequential models.</p>
+    </div>
+
+    <h3 id="training">Training — Pretraining & Fine-Tuning</h3>
+    <p>LLM training happens in two main phases:</p>
+    <p><strong>Pretraining</strong> — The model is given massive text corpora (Common Crawl, Wikipedia, books, GitHub, etc.) and trained to predict the next token. It does this billions of times, adjusting its parameters via backpropagation. This is extremely compute-intensive — GPT-3 training was estimated to cost ~$5M in GPU time.</p>
+    <p><strong>Fine-tuning / RLHF</strong> — After pretraining, the model is refined. Instruction fine-tuning teaches it to follow instructions. RLHF (Reinforcement Learning from Human Feedback) uses human raters to score responses, then trains the model to produce higher-rated outputs. This is why Claude, ChatGPT, and Gemini feel "aligned" rather than like raw text predictors.</p>
+
+    <div class="callout red">
+      <div class="callout-label">Important Distinction</div>
+      <p>Pretraining gives the model knowledge. Fine-tuning shapes its behavior. A base GPT model and ChatGPT have the same underlying weights — they're just tuned differently. Claude's helpfulness and safety constraints come from Anthropic's fine-tuning, not a different architecture.</p>
+    </div>
+  </section>
+
+  <!-- 05 Models -->
+  <section id="models">
+    <h2><span class="num">05 //</span> Model Families & Architectures</h2>
+    <p>Different companies have taken different approaches to model architecture, training data, and specialization. Here's how the major families compare conceptually.</p>
+
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Family</th>
+          <th>Architecture Style</th>
+          <th>Strengths</th>
+          <th>Notable Trait</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="model-name">Claude (Anthropic)</span></td>
+          <td>Dense Transformer</td>
+          <td>Reasoning, writing, coding, safety</td>
+          <td>Constitutional AI for alignment</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">GPT / o-series (OpenAI)</span></td>
+          <td>Dense Transformer</td>
+          <td>General purpose, tool use</td>
+          <td>o-series uses extended "thinking" chains</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Gemini (Google)</span></td>
+          <td>Multimodal Transformer</td>
+          <td>Long context, vision, search</td>
+          <td>Native multimodal from ground up</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">DeepSeek (DeepSeek AI)</span></td>
+          <td>MoE Transformer</td>
+          <td>Math, coding, cost efficiency</td>
+          <td>Mixture-of-Experts: only activates relevant parts</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">LLaMA (Meta)</span></td>
+          <td>Dense Transformer</td>
+          <td>Open source, customizable</td>
+          <td>Weights are public — run locally</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Mistral</span></td>
+          <td>MoE Transformer</td>
+          <td>Efficiency, small footprint</td>
+          <td>Strong performance at small model sizes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout green">
+      <div class="callout-label">Mixture of Experts (MoE)</div>
+      <p>MoE models like DeepSeek and Mistral have a large total parameter count but only activate a <em>subset</em> of parameters per token — making them faster and cheaper to run while maintaining high quality. DeepSeek V3 has 671B total parameters but only activates ~37B per token.</p>
+    </div>
+  </section>
+
+  <!-- 06 Reasoning -->
+  <section id="reasoning">
+    <h2><span class="num">06 //</span> Reasoning Models — A New Paradigm</h2>
+    <p>Standard LLMs generate responses token-by-token in a single forward pass. <strong>Reasoning models</strong> take a different approach: they spend extra compute <em>thinking</em> before answering, producing long internal chains of thought.</p>
+    <p>Models like <span class="hl">DeepSeek R1</span>, <span class="hl">o3</span>, and increasingly <span class="hl">Claude Opus 4.6</span> with its "extended thinking" mode use this paradigm. They're trained with reinforcement learning to explore multiple solution paths, self-verify, and backtrack — much like a human working through a hard problem on scratch paper.</p>
+
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Thinking Style</th>
+          <th>Best For</th>
+          <th>Trade-off</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="model-name">Claude Sonnet 4.6</span></td>
+          <td>Standard (fast)</td>
+          <td>Writing, coding, everyday tasks</td>
+          <td>Less deep on hard math/logic</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Claude Opus 4.6</span></td>
+          <td>Extended thinking (optional)</td>
+          <td>Complex multi-step problems</td>
+          <td>Slower, higher quota cost</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">DeepSeek R1</span></td>
+          <td>Chain-of-thought (always on)</td>
+          <td>Math, algorithms, proofs</td>
+          <td>Verbose, slower responses</td>
+        </tr>
+        <tr>
+          <td><span class="model-name">o3 (OpenAI)</span></td>
+          <td>Extended thinking (scalable)</td>
+          <td>Competitive coding, hard science</td>
+          <td>Very expensive at high compute</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-label">Token Cost of Reasoning</div>
+      <p>Reasoning models use many more tokens internally before producing an answer. A single o3-high response might consume 10,000–50,000 "thinking tokens" you never see — which is why they're expensive and slower. You're paying for compute time to think, not just output words.</p>
+    </div>
+  </section>
+
+  <!-- Index -->
+  <section id="index">
+    <h2><span class="num">// </span> Index</h2>
+    <p>Quick reference to every key term covered in this guide.</p>
+    <div class="index-grid">
+      <a href="#intro" class="index-item">
+        <span class="idx-term">LLM</span>
+        <span class="idx-desc">Large Language Model — AI trained on text to generate language</span>
+      </a>
+      <a href="#how-it-works" class="index-item">
+        <span class="idx-term">Transformer</span>
+        <span class="idx-desc">Neural network architecture powering all modern LLMs</span>
+      </a>
+      <a href="#tokens" class="index-item">
+        <span class="idx-term">Token</span>
+        <span class="idx-desc">Subword text chunk — the unit LLMs process and generate</span>
+      </a>
+      <a href="#tokens" class="index-item">
+        <span class="idx-term">BPE</span>
+        <span class="idx-desc">Byte Pair Encoding — the algorithm that creates tokens</span>
+      </a>
+      <a href="#context" class="index-item">
+        <span class="idx-term">Context Window</span>
+        <span class="idx-desc">Max tokens the model can see at once (input + output)</span>
+      </a>
+      <a href="#attention" class="index-item">
+        <span class="idx-term">Self-Attention</span>
+        <span class="idx-desc">Mechanism letting every token relate to every other token</span>
+      </a>
+      <a href="#attention" class="index-item">
+        <span class="idx-term">Query / Key / Value</span>
+        <span class="idx-desc">Three vectors used in attention score computation</span>
+      </a>
+      <a href="#training" class="index-item">
+        <span class="idx-term">Pretraining</span>
+        <span class="idx-desc">Training on raw text to predict next tokens — gives knowledge</span>
+      </a>
+      <a href="#training" class="index-item">
+        <span class="idx-term">Fine-tuning</span>
+        <span class="idx-desc">Further training to shape model behavior post-pretraining</span>
+      </a>
+      <a href="#training" class="index-item">
+        <span class="idx-term">RLHF</span>
+        <span class="idx-desc">Reinforcement Learning from Human Feedback — alignment technique</span>
+      </a>
+      <a href="#intro" class="index-item">
+        <span class="idx-term">Parameters</span>
+        <span class="idx-desc">Numerical weights learned during training — model's "knowledge"</span>
+      </a>
+      <a href="#models" class="index-item">
+        <span class="idx-term">MoE</span>
+        <span class="idx-desc">Mixture of Experts — only activates a subset of params per token</span>
+      </a>
+      <a href="#breakthrough" class="index-item">
+        <span class="idx-term">Scaling Laws</span>
+        <span class="idx-desc">More data + compute + params = reliably better models</span>
+      </a>
+      <a href="#reasoning" class="index-item">
+        <span class="idx-term">Chain-of-Thought</span>
+        <span class="idx-desc">Technique of generating step-by-step reasoning before answering</span>
+      </a>
+      <a href="#reasoning" class="index-item">
+        <span class="idx-term">Reasoning Model</span>
+        <span class="idx-desc">LLM that "thinks" using extended internal compute before responding</span>
+      </a>
+      <a href="#tokens-by-model" class="index-item">
+        <span class="idx-term">Tokenizer</span>
+        <span class="idx-desc">Model-specific tool that converts text → token IDs</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- Scroll to top -->
+<a href="#top" class="scroll-top" id="scrollTop">↑ Top</a>
+
+<script>
+  // Scroll to top button
+  const scrollBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Active TOC highlighting
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const tocLinks = document.querySelectorAll('.toc a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(link => {
+          link.style.color = '';
+          link.style.borderLeftColor = '';
+        });
+        const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+        if (active) {
+          active.style.color = 'var(--accent)';
+          active.style.borderLeftColor = 'var(--accent)';
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculus II — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0e1016;--panel:#13161e;--border:#1f2330;
+    --accent:#d46e7a;--accent2:#7aaccc;--accent3:#7ec8a4;
+    --text:#d0d6e8;--muted:#6a7290;--code-bg:#0a0d14;
+    --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;}
+  body{padding:32px 40px 80px;max-width:960px;margin:0 auto;}
+  h1{font-size:26px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:12px;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+  h2{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px;margin:36px 0 16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .card-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 10px;border-bottom:1px solid var(--border);}
+  td{padding:7px 10px;border-bottom:1px solid #181c26;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
+  pre{font-family:var(--mono);font-size:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.9;color:#b0bcd8;margin:10px 0;}
+  .formula{font-family:var(--mono);font-size:13px;background:var(--code-bg);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;color:var(--text);}
+  .formula .label{color:var(--muted);font-size:11px;display:block;margin-bottom:4px;}
+  .row{display:flex;gap:14px;margin-bottom:14px;}
+  .row .card{flex:1;}
+</style>
+</head>
+<body>
+
+<h1>Calculus II</h1>
+<div class="subtitle">MATH 2414 · Reference Sheet</div>
+
+<!-- INTEGRATION TECHNIQUES -->
+<h2>Integration Techniques</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Integration by Parts</div>
+    <div class="formula"><span class="label">Formula</span>∫u dv = uv − ∫v du</div>
+    <div class="formula"><span class="label">LIATE priority for u</span>L ogarithm
+I nverse trig
+A lgebraic (poly)
+T rig
+E xponential</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Trig Integrals</div>
+    <table>
+      <tr><th>Form</th><th>Strategy</th></tr>
+      <tr><td>∫sinⁿx cosᵐx dx</td><td>odd power → save one, use Pythagorean; both even → half-angle</td></tr>
+      <tr><td>∫tanⁿx secᵐx dx</td><td>even sec → save sec²; odd tan → save sec·tan</td></tr>
+    </table>
+    <div class="formula" style="margin-top:10px"><span class="label">Reduction formulas</span>∫sinⁿx dx = −(sinⁿ⁻¹x cosx)/n + (n−1)/n ∫sinⁿ⁻²x dx</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Trig Substitution</div>
+    <table>
+      <tr><th>Form</th><th>Sub</th><th>Identity used</th></tr>
+      <tr><td>√(a²−x²)</td><td>x = a sinθ</td><td>1−sin²=cos²</td></tr>
+      <tr><td>√(a²+x²)</td><td>x = a tanθ</td><td>1+tan²=sec²</td></tr>
+      <tr><td>√(x²−a²)</td><td>x = a secθ</td><td>sec²−1=tan²</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Partial Fractions</div>
+    <pre>P(x)/Q(x) — deg P &lt; deg Q required
+
+Factor Q(x) fully, then:
+  Linear (ax+b)^n  →  A₁/(ax+b)+...+Aₙ/(ax+b)ⁿ
+  Quadratic (irred)  →  (Ax+B)/(ax²+bx+c)</pre>
+  </div>
+</div>
+
+<!-- IMPROPER INTEGRALS -->
+<h2>Improper Integrals &amp; Convergence</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Types</div>
+    <div class="formula"><span class="label">Infinite limit</span>∫ₐ^∞ f(x) dx = lim_{b→∞} ∫ₐᵇ f(x) dx</div>
+    <div class="formula"><span class="label">Discontinuity at b</span>∫ₐᵇ f(x) dx = lim_{t→b⁻} ∫ₐᵗ f(x) dx</div>
+  </div>
+  <div class="card">
+    <div class="card-title">p-Series &amp; Comparison</div>
+    <div class="formula"><span class="label">p-series ∫₁^∞ x⁻ᵖ dx</span>converges if p &gt; 1,  diverges if p ≤ 1</div>
+    <div class="formula"><span class="label">Comparison Test</span>0≤f≤g: g conv → f conv; f div → g div</div>
+    <div class="formula"><span class="label">Limit Comparison</span>lim f/g = L &gt; 0 → both same behavior</div>
+  </div>
+</div>
+
+<!-- SEQUENCES & SERIES -->
+<h2>Sequences &amp; Series</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Series Convergence Tests</div>
+    <table>
+      <tr><th>Test</th><th>Use when / Condition</th></tr>
+      <tr><td>Divergence</td><td>if lim aₙ ≠ 0 → diverges</td></tr>
+      <tr><td>Geometric</td><td>Σarⁿ: |r|&lt;1 → conv to a/(1−r)</td></tr>
+      <tr><td>p-Series</td><td>Σ1/nᵖ: p&gt;1 conv, p≤1 div</td></tr>
+      <tr><td>Integral Test</td><td>f positive, continuous, decreasing</td></tr>
+      <tr><td>Comparison</td><td>compare to known series</td></tr>
+      <tr><td>Limit Comparison</td><td>lim aₙ/bₙ = L&gt;0 → same behavior</td></tr>
+      <tr><td>Ratio Test</td><td>lim|aₙ₊₁/aₙ|=L: L&lt;1 conv, L&gt;1 div</td></tr>
+      <tr><td>Root Test</td><td>lim|aₙ|^(1/n)=L: L&lt;1 conv, L&gt;1 div</td></tr>
+      <tr><td>Alt Series</td><td>Σ(−1)ⁿbₙ: bₙ decr to 0 → conv</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Absolute vs Conditional Convergence</div>
+    <div class="formula"><span class="label">Absolute convergence</span>Σ|aₙ| converges → Σaₙ converges absolutely</div>
+    <div class="formula"><span class="label">Conditional convergence</span>Σaₙ converges but Σ|aₙ| diverges</div>
+    <div class="formula"><span class="label">Alt Series Error Bound</span>|error| ≤ bₙ₊₁  (next term)</div>
+  </div>
+</div>
+
+<!-- POWER SERIES -->
+<h2>Power Series &amp; Taylor Series</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Power Series</div>
+    <div class="formula"><span class="label">Form centered at a</span>Σcₙ(x−a)ⁿ = c₀ + c₁(x−a) + c₂(x−a)² + ...</div>
+    <div class="formula"><span class="label">Radius of convergence R</span>via Ratio Test: R = lim|cₙ/cₙ₊₁|
+converges for |x−a| &lt; R</div>
+    <div class="formula"><span class="label">Differentiation / Integration</span>term-by-term, same radius R</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Taylor &amp; Maclaurin Series</div>
+    <div class="formula"><span class="label">Taylor series at a</span>Σ f⁽ⁿ⁾(a)/n! · (x−a)ⁿ</div>
+    <table style="margin-top:10px">
+      <tr><th>Function</th><th>Maclaurin Series</th><th>R</th></tr>
+      <tr><td>eˣ</td><td>Σ xⁿ/n!</td><td>∞</td></tr>
+      <tr><td>sin x</td><td>Σ (−1)ⁿ x²ⁿ⁺¹/(2n+1)!</td><td>∞</td></tr>
+      <tr><td>cos x</td><td>Σ (−1)ⁿ x²ⁿ/(2n)!</td><td>∞</td></tr>
+      <tr><td>1/(1−x)</td><td>Σ xⁿ</td><td>1</td></tr>
+      <tr><td>ln(1+x)</td><td>Σ (−1)ⁿ⁺¹ xⁿ/n</td><td>1</td></tr>
+      <tr><td>arctan x</td><td>Σ (−1)ⁿ x²ⁿ⁺¹/(2n+1)</td><td>1</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- APPLICATIONS OF INTEGRATION -->
+<h2>Applications of Integration</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Volume</div>
+    <div class="formula"><span class="label">Disk Method (rotation about x-axis)</span>V = π∫ₐᵇ [f(x)]² dx</div>
+    <div class="formula"><span class="label">Washer Method</span>V = π∫ₐᵇ ([R(x)]² − [r(x)]²) dx</div>
+    <div class="formula"><span class="label">Shell Method (vertical shells)</span>V = 2π∫ₐᵇ x·f(x) dx</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Arc Length &amp; Surface Area</div>
+    <div class="formula"><span class="label">Arc Length</span>L = ∫ₐᵇ √(1 + [f'(x)]²) dx</div>
+    <div class="formula"><span class="label">Parametric Arc Length</span>L = ∫ √((dx/dt)²+(dy/dt)²) dt</div>
+    <div class="formula"><span class="label">Surface Area (rotation about x-axis)</span>SA = 2π∫ₐᵇ f(x) √(1+[f'(x)]²) dx</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Parametric &amp; Polar</div>
+    <div class="formula"><span class="label">Parametric dy/dx</span>(dy/dt) / (dx/dt)</div>
+    <div class="formula"><span class="label">Polar — Area</span>A = (1/2)∫θ₁^θ₂ [r(θ)]² dθ</div>
+    <div class="formula"><span class="label">Polar — Arc Length</span>L = ∫ √(r² + (dr/dθ)²) dθ</div>
+    <div class="formula"><span class="label">Polar → Cartesian</span>x = r cosθ,  y = r sinθ,  r² = x²+y²</div>
+  </div>
+</div>
+
+</body>
+</html>

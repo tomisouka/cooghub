@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bubble Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#60a5fa; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .oa { color:var(--yellow); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  /* array bars */
+  .pass-grid { display:flex; flex-direction:column; gap:14px; }
+  .pass-row { display:flex; align-items:center; gap:12px; }
+  .pass-label { font-size:10px; color:var(--dim); width:56px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .bars { display:flex; gap:6px; align-items:flex-end; }
+  .bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .bar { width:40px; border-radius:4px 4px 0 0; transition:all 0.2s; }
+  .bar-val { font-size:12px; font-weight:700; color:var(--text); }
+  .bar-default  { background:#21252e; border:1px solid #2a2e38; }
+  .bar-compare  { background:#60a5fa30; border:1px solid var(--accent); }
+  .bar-swap     { background:#f8717130; border:1px solid var(--red); }
+  .bar-sorted   { background:#6bde8420; border:1px solid var(--green); }
+  .bar-active   { background:#e8c54730; border:1px solid var(--yellow); }
+
+  /* swap arrow */
+  .swap-note { font-size:11px; color:var(--red); margin-left:8px; font-weight:700; }
+  .no-swap   { font-size:11px; color:var(--green); margin-left:8px; }
+
+  /* cards */
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--yellow); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Bubble<span>.</span></h1>
+    <div class="subtitle">Comparison Sort · In-Place · Stable</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="ok">O(n) — already sorted</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="ob">O(n²)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="ob">O(n²)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1)</span></div>
+  </div>
+</div>
+
+<!-- idea -->
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">Walk through the array comparing <span>adjacent pairs</span>. If the left is bigger than the right, swap them. After each full pass the <span>largest unsorted element bubbles to its final position</span> at the end. Repeat until no swaps occur.</div>
+</div>
+
+<hr>
+
+<!-- full trace -->
+<div class="section">
+  <div class="label">2 — Full Trace on [5, 3, 8, 1, 4]</div>
+  <div class="annotation">Each pass compares adjacent pairs left to right. <span style="color:var(--accent)">Blue</span> = being compared, <span style="color:var(--red)">Red</span> = swapped, <span style="color:var(--green)">Green</span> = in final position.</div>
+
+  <div class="pass-grid">
+
+    <!-- Initial -->
+    <div class="pass-row">
+      <span class="pass-label">Start</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+    </div>
+
+    <!-- Pass 1 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 1</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+      <span class="swap-note">↕ swap 5,3 → 5,8 ok → swap 8,1 → swap 8,4</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="no-swap">→ 8 is in final position</span>
+    </div>
+
+    <!-- Pass 2 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 2</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="swap-note">↕ 3,5 ok → swap 5,1 → swap 5,4</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="no-swap">→ 5 settled</span>
+    </div>
+
+    <!-- Pass 3 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 3</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-swap" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="swap-note">↕ swap 3,1 → 3,4 ok</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="no-swap">→ 4 settled</span>
+    </div>
+
+    <!-- Pass 4 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 4</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-compare" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-compare" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+      <span class="no-swap">1,3 ok — no swaps this pass → done early</span>
+    </div>
+
+    <!-- Final -->
+    <div class="pass-row">
+      <span class="pass-label">Done</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="caption"><strong>4 passes</strong> on 5 elements. Each pass shrinks the unsorted region by 1. Early exit when a full pass produces zero swaps.</div>
+</div>
+
+<hr>
+
+<!-- key insight: shrinking boundary -->
+<div class="section">
+  <div class="label">3 — The Shrinking Boundary</div>
+  <div class="annotation">After pass i, the last i elements are <span>guaranteed sorted</span>. No need to compare into that region. The inner loop runs n−1, n−2, n−3... comparisons each pass.</div>
+  <svg width="520" height="80" viewBox="0 0 520 80">
+    <rect x="0"   y="20" width="80" height="32" rx="4" fill="#21252e" stroke="#2a2e38" stroke-width="1"/>
+    <rect x="86"  y="20" width="80" height="32" rx="4" fill="#21252e" stroke="#2a2e38" stroke-width="1"/>
+    <rect x="172" y="20" width="80" height="32" rx="4" fill="#21252e" stroke="#2a2e38" stroke-width="1"/>
+    <rect x="258" y="20" width="80" height="32" rx="4" fill="#21252e" stroke="#2a2e38" stroke-width="1"/>
+    <rect x="344" y="20" width="80" height="32" rx="4" fill="#6bde8420" stroke="#6bde84" stroke-width="1.5"/>
+    <rect x="430" y="20" width="80" height="32" rx="4" fill="#6bde8420" stroke="#6bde84" stroke-width="1.5"/>
+    <text x="40"  y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#d4d8e0">?</text>
+    <text x="126" y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#d4d8e0">?</text>
+    <text x="212" y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#d4d8e0">?</text>
+    <text x="298" y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#d4d8e0">?</text>
+    <text x="384" y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#6bde84">✓</text>
+    <text x="470" y="41" text-anchor="middle" font-size="13" font-family="Atkinson Hyperlegible,sans-serif" fill="#6bde84">✓</text>
+    <text x="172" y="72" text-anchor="middle" font-size="10" font-family="Atkinson Hyperlegible,sans-serif" fill="#7a8090">← compare these 4 next pass →</text>
+    <text x="430" y="72" text-anchor="middle" font-size="10" font-family="Atkinson Hyperlegible,sans-serif" fill="#6bde84">sorted</text>
+  </svg>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Adjacent Swaps Only</div>
+    <div class="card-body">Only ever swaps neighbors. This is why it's stable — equal elements never pass each other.</div>
+    <div class="card-o" style="color:var(--accent)">stable ✓</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Early Exit</div>
+    <div class="card-body">If a full pass produces zero swaps the array is sorted. Best case O(n) on already-sorted input.</div>
+    <div class="card-o" style="color:var(--green)">O(n) best</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Worst Case</div>
+    <div class="card-body">Reverse-sorted input. Every comparison is a swap. n−1 + n−2 + ... + 1 = n(n−1)/2 swaps.</div>
+    <div class="card-o" style="color:var(--red)">O(n²) worst</div>
+  </div>
+  <div class="card">
+    <div class="card-title">In Practice</div>
+    <div class="card-body">Rarely used. Insertion sort is strictly better — same complexity but far fewer writes on average.</div>
+    <div class="card-o" style="color:var(--yellow)">mostly educational</div>
+  </div>
+</div>
+
+</body>
+</html>

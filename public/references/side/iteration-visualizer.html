@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iteration Visualizer — Discrete Math</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --panel: #0f0f1a;
+  --panel2: #151525;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --green: #4fffb0;
+  --blue: #4fb8ff;
+  --yellow: #ffe066;
+  --pink: #ff6eb4;
+  --purple: #c084fc;
+  --orange: #ff9f4a;
+  --red: #ff5555;
+  --text: #dde0f0;
+  --dim: #5a5a80;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(78,255,176,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78,255,176,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,8,16,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--green);
+}
+.logo span { color: var(--dim); font-weight: 400; }
+.header-tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.header-tabs::-webkit-scrollbar { display: none; }
+.tab {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--dim);
+  background: none;
+  border: none;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tab:hover { color: var(--green); background: rgba(78,255,176,0.06); }
+.tab.active { color: var(--green); background: rgba(78,255,176,0.1); }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: 3.5rem 2rem 2.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 0.75rem;
+}
+.hero h1 {
+  font-family: var(--sans);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+.hero h1 em { color: var(--green); font-style: normal; }
+.hero-sub { font-size: 0.8rem; color: var(--dim); max-width: 560px; line-height: 1.7; }
+
+/* ── MAIN LAYOUT ── */
+.main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+/* ── SECTION ── */
+.viz-section {
+  margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.5s ease forwards;
+}
+.viz-section:nth-child(1) { animation-delay: 0.05s; }
+.viz-section:nth-child(2) { animation-delay: 0.15s; }
+.viz-section:nth-child(3) { animation-delay: 0.25s; }
+.viz-section:nth-child(4) { animation-delay: 0.35s; }
+.viz-section:nth-child(5) { animation-delay: 0.45s; }
+@keyframes fadeUp { to { opacity: 1; transform: none; } }
+
+.sec-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.4rem;
+}
+.sec-title {
+  font-family: var(--sans);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.complexity-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  border: 1px solid;
+}
+.badge-green { color: var(--green); border-color: rgba(78,255,176,0.3); background: rgba(78,255,176,0.08); }
+.badge-blue  { color: var(--blue);  border-color: rgba(79,184,255,0.3); background: rgba(79,184,255,0.08); }
+.badge-yellow{ color: var(--yellow);border-color: rgba(255,224,102,0.3); background: rgba(255,224,102,0.08); }
+.badge-orange{ color: var(--orange);border-color: rgba(255,159,74,0.3); background: rgba(255,159,74,0.08); }
+.badge-pink  { color: var(--pink);  border-color: rgba(255,110,180,0.3); background: rgba(255,110,180,0.08); }
+.badge-red   { color: var(--red);   border-color: rgba(255,85,85,0.3);  background: rgba(255,85,85,0.08); }
+
+/* ── CARD LAYOUT ── */
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 720px) { .card-row { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ── CODE PANE ── */
+.code-pane {
+  background: var(--panel2);
+  border-bottom: 1px solid var(--border);
+  padding: 1.1rem 1.25rem;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.code-pane pre { overflow-x: auto; }
+.kw  { color: var(--purple); }
+.fn  { color: var(--blue); }
+.num { color: var(--yellow); }
+.cmt { color: var(--dim); font-style: italic; }
+.var { color: var(--green); }
+.op  { color: var(--orange); }
+
+/* highlight active line */
+.line { display: block; border-radius: 3px; padding: 0 4px; margin: 0 -4px; transition: background 0.15s; }
+.line.active-line { background: rgba(78,255,176,0.12); }
+.line.done-line   { background: rgba(78,255,176,0.04); color: rgba(221,224,240,0.5); }
+
+/* ── VIZ PANE ── */
+.viz-pane {
+  padding: 1.1rem 1.25rem;
+}
+.viz-pane-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.9rem;
+}
+
+/* ── ITERATION GRID ── */
+.iter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 1rem;
+}
+.cell {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: var(--dim);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.12s;
+  font-family: var(--mono);
+}
+.cell.visited  { background: rgba(78,255,176,0.15); border-color: var(--green); color: var(--green); }
+.cell.active   { background: rgba(78,255,176,0.35); border-color: var(--green); color: #fff; transform: scale(1.15); box-shadow: 0 0 10px rgba(78,255,176,0.5); }
+.cell.inactive { background: transparent; border-color: var(--border); color: var(--dim); transform: none; }
+
+/* ── NESTED GRID (2D) ── */
+.nested-grid {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 1rem;
+}
+.nested-cell {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  color: var(--dim);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.nested-cell.visited  { background: rgba(79,184,255,0.2); border-color: var(--blue); color: var(--blue); }
+.nested-cell.active   { background: rgba(79,184,255,0.45); border-color: var(--blue); color: #fff; box-shadow: 0 0 8px rgba(79,184,255,0.5); }
+
+/* ── LOG HALVING ── */
+.halving-track {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.h-block {
+  border-radius: 4px;
+  height: 32px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: var(--dim);
+  transition: all 0.2s;
+  min-width: 32px;
+  padding: 0 6px;
+}
+.h-block.active { background: rgba(255,224,102,0.3); border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 8px rgba(255,224,102,0.4); }
+.h-block.visited { background: rgba(255,224,102,0.08); border-color: rgba(255,224,102,0.3); color: rgba(255,224,102,0.5); }
+.h-arrow { color: var(--dim); font-size: 0.7rem; }
+
+/* ── RECURSION TREE ── */
+.rtree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 1rem;
+}
+.rtree-level {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.rnode {
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  padding: 4px 8px;
+  font-size: 0.62rem;
+  color: var(--dim);
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-align: center;
+}
+.rnode.active  { background: rgba(192,132,252,0.3); border-color: var(--purple); color: var(--purple); box-shadow: 0 0 8px rgba(192,132,252,0.4); }
+.rnode.visited { background: rgba(192,132,252,0.08); border-color: rgba(192,132,252,0.25); color: rgba(192,132,252,0.5); }
+.rtree-line { width: 1px; height: 8px; background: var(--border2); margin: 0 auto; }
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--dim);
+  padding: 0.35rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { color: var(--text); border-color: var(--text); }
+.btn.primary { border-color: rgba(78,255,176,0.4); color: var(--green); }
+.btn.primary:hover { background: rgba(78,255,176,0.1); }
+.btn.running { border-color: var(--orange); color: var(--orange); }
+.btn:disabled { opacity: 0.3; cursor: default; }
+
+.speed-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--dim);
+}
+.speed-group input[type=range] {
+  width: 80px;
+  accent-color: var(--green);
+}
+
+/* ── COUNTER / STATS ── */
+.stats-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-label { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+.stat-value {
+  font-family: var(--sans);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--green);
+  transition: color 0.2s;
+  line-height: 1;
+}
+.stat-value.flash { color: #fff; }
+
+/* ── INFO BOX ── */
+.info-box {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-size: 0.78rem;
+  color: #9090b8;
+  line-height: 1.7;
+  margin-top: 0.75rem;
+}
+.info-box strong { color: var(--green); }
+.info-box .step-msg { color: var(--text); font-size: 0.8rem; }
+
+/* ── FULL-WIDTH SECTION ── */
+.full-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.full-card .code-pane { border-bottom: 1px solid var(--border); }
+.full-pane { padding: 1.25rem; }
+
+/* ── FIBONACCI TREE ── */
+.fib-tree-wrap { overflow-x: auto; padding-bottom: 0.5rem; }
+svg.fib-svg { display: block; }
+
+/* ── COMPARISON TABLE ── */
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 2rem;
+}
+.cmp-table th {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border2);
+  background: var(--panel2);
+}
+.cmp-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text);
+}
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-table tr:hover td { background: rgba(78,255,176,0.03); }
+.cmp-table td:first-child { font-weight: 700; color: var(--text); }
+.cmp-table .big-o { font-family: var(--mono); }
+
+/* ── DIVIDER ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">iter<span>.viz</span></div>
+  <div class="header-tabs">
+    <button class="tab active" onclick="scrollTo('#single')">Single Loop</button>
+    <button class="tab" onclick="scrollTo('#nested')">Nested Loop</button>
+    <button class="tab" onclick="scrollTo('#log')">Log Loop</button>
+    <button class="tab" onclick="scrollTo('#recursion')">Recursion</button>
+    <button class="tab" onclick="scrollTo('#mergesort')">Merge Sort</button>
+    <button class="tab" onclick="scrollTo('#summary')">Summary</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Discrete Math · Iteration &amp; Asymptotic Analysis</div>
+  <h1>How <em>Iteration</em><br>Actually Works</h1>
+  <p class="hero-sub">Step through each loop pattern and watch exactly which cells get touched — and why that maps to its Big-O class. Press <strong style="color:var(--green)">Run</strong> to animate, or <strong style="color:var(--green)">Step</strong> to go one iteration at a time.</p>
+</div>
+
+<div class="main">
+
+  <!-- ═══════════════ 1. SINGLE LOOP ═══════════════ -->
+  <div class="viz-section" id="single">
+    <div class="sec-label">Pattern 01</div>
+    <div class="sec-title">
+      Single Loop
+      <span class="complexity-badge badge-green">O(n)</span>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="code-pane">
+          <pre id="code-single"><span class="line" data-line="0"><span class="kw">for</span> i <span class="kw">in</span> range(<span class="var">n</span>):           <span class="cmt"># n iterations</span></span>
+<span class="line" data-line="1">    process(arr[i])        <span class="cmt"># O(1) work each</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Array cells visited</div>
+          <div class="iter-grid" id="grid-single"></div>
+          <div class="controls">
+            <button class="btn primary" id="btn-run-single" onclick="runSingle()">▶ Run</button>
+            <button class="btn" id="btn-step-single" onclick="stepSingle()">→ Step</button>
+            <button class="btn" onclick="resetSingle()">↺ Reset</button>
+            <div class="speed-group">Speed <input type="range" id="speed-single" min="50" max="600" value="300" step="50"></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-label">Iterations</div><div class="stat-value" id="count-single">0</div></div>
+            <div class="stat"><div class="stat-label">i</div><div class="stat-value" id="i-single">—</div></div>
+            <div class="stat"><div class="stat-label">n</div><div class="stat-value" id="n-single" style="color:var(--blue)">8</div></div>
+          </div>
+          <div class="info-box" id="msg-single">
+            <strong>O(n)</strong> — touches each element exactly once. Total steps = n. Doubling n doubles the work.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="code-pane">
+          <pre><span class="line"><span class="cmt"># What "O(n)" means formally:</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Find constants c > 0 and n₀ ≥ 1 such that:</span></span>
+<span class="line"><span class="cmt"># f(n) ≤ c · g(n)  for all n ≥ n₀</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># For a single loop doing 1 op each iter:</span></span>
+<span class="line"><span class="var">f</span>(n) <span class="op">=</span> <span class="num">1</span>·n  (exactly n operations)</span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Choose c = 1, n₀ = 1:</span></span>
+<span class="line">  n ≤ <span class="num">1</span>·n  ✓  for all n ≥ <span class="num">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># ∴ f(n) = O(n)  □</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Growth: iterations vs n</div>
+          <canvas id="chart-single" width="300" height="140" style="display:block;width:100%;max-width:300px"></canvas>
+          <div class="info-box" style="margin-top:0.75rem">
+            <span class="step-msg">The line is <strong>straight</strong>. 2× input = 2× work. That's linear — O(n).</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 2. NESTED LOOP ═══════════════ -->
+  <div class="viz-section" id="nested">
+    <div class="sec-label">Pattern 02</div>
+    <div class="sec-title">
+      Nested Loop
+      <span class="complexity-badge badge-yellow">O(n²)</span>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="code-pane">
+          <pre id="code-nested"><span class="line" data-line="0"><span class="kw">for</span> i <span class="kw">in</span> range(<span class="var">n</span>):       <span class="cmt"># outer: n iterations</span></span>
+<span class="line" data-line="1">    <span class="kw">for</span> j <span class="kw">in</span> range(<span class="var">n</span>):   <span class="cmt"># inner: n iterations</span></span>
+<span class="line" data-line="2">        process(i, j)    <span class="cmt"># n × n = n² total</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">2D grid — each cell (i,j)</div>
+          <div id="grid-nested" style="margin-bottom:0.75rem"></div>
+          <div class="controls">
+            <button class="btn primary" id="btn-run-nested" onclick="runNested()">▶ Run</button>
+            <button class="btn" id="btn-step-nested" onclick="stepNested()">→ Step</button>
+            <button class="btn" onclick="resetNested()">↺ Reset</button>
+            <div class="speed-group">Speed <input type="range" id="speed-nested" min="30" max="400" value="180" step="30"></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-label">Total ops</div><div class="stat-value" id="count-nested">0</div></div>
+            <div class="stat"><div class="stat-label">i</div><div class="stat-value" id="i-nested" style="color:var(--yellow)">—</div></div>
+            <div class="stat"><div class="stat-label">j</div><div class="stat-value" id="j-nested" style="color:var(--blue)">—</div></div>
+          </div>
+          <div class="info-box" id="msg-nested">
+            <strong>O(n²)</strong> — outer loop runs n times; for each, inner runs n times. Total = n × n = n².
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="code-pane">
+          <pre><span class="line"><span class="cmt"># Counting nested loops:</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Outer:  i = 0, 1, 2, …, n−1  →  n times</span></span>
+<span class="line"><span class="cmt"># Inner:  j = 0, 1, 2, …, n−1  →  n times</span></span>
+<span class="line"><span class="cmt">#         per outer iteration</span></span>
+<span class="line"></span>
+<span class="line">Total <span class="op">=</span> n <span class="op">×</span> n <span class="op">=</span> n²</span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Product rule: O(n) × O(n) = O(n²)</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># If inner ran m times instead:</span></span>
+<span class="line">Total <span class="op">=</span> n <span class="op">×</span> m  <span class="op">=</span>  O(n·m)</span>
+<span class="line"><span class="cmt"># e.g. 2D array traversal</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Growth: operations vs n</div>
+          <canvas id="chart-nested" width="300" height="140" style="display:block;width:100%;max-width:300px"></canvas>
+          <div class="info-box" style="margin-top:0.75rem">
+            <span class="step-msg"><strong>Parabola</strong>. n=5 → 25 ops. n=10 → 100 ops. Doubling n quadruples the work.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 3. LOG LOOP ═══════════════ -->
+  <div class="viz-section" id="log">
+    <div class="sec-label">Pattern 03</div>
+    <div class="sec-title">
+      Halving Loop
+      <span class="complexity-badge badge-blue">O(log n)</span>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="code-pane">
+          <pre id="code-log"><span class="line" data-line="0"><span class="var">i</span> <span class="op">=</span> <span class="var">n</span>                   <span class="cmt"># start at n</span></span>
+<span class="line" data-line="1"><span class="kw">while</span> i <span class="op">></span> <span class="num">0</span>:           <span class="cmt"># loop while positive</span></span>
+<span class="line" data-line="2">    process(i)</span>
+<span class="line" data-line="3">    i <span class="op">=</span> i <span class="op">//</span> <span class="num">2</span>           <span class="cmt"># halve each time</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Value of i at each step</div>
+          <div class="halving-track" id="track-log"></div>
+          <div class="controls">
+            <button class="btn primary" id="btn-run-log" onclick="runLog()">▶ Run</button>
+            <button class="btn" id="btn-step-log" onclick="stepLog()">→ Step</button>
+            <button class="btn" onclick="resetLog()">↺ Reset</button>
+            <div class="speed-group">Speed <input type="range" id="speed-log" min="100" max="800" value="450" step="50"></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-label">Steps</div><div class="stat-value" id="count-log">0</div></div>
+            <div class="stat"><div class="stat-label">i</div><div class="stat-value" id="i-log" style="color:var(--yellow)">64</div></div>
+            <div class="stat"><div class="stat-label">⌊log₂ n⌋</div><div class="stat-value" id="logn-log" style="color:var(--blue)">6</div></div>
+          </div>
+          <div class="info-box" id="msg-log">
+            <strong>O(log n)</strong> — i is halved each step. Starting at n=64, it takes exactly ⌊log₂(64)⌋ = 6 steps.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="code-pane">
+          <pre><span class="line"><span class="cmt"># Why halving = log n steps?</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Each division by 2:</span></span>
+<span class="line">step <span class="num">0</span>: i <span class="op">=</span> n</span>
+<span class="line">step <span class="num">1</span>: i <span class="op">=</span> n/<span class="num">2</span></span>
+<span class="line">step <span class="num">2</span>: i <span class="op">=</span> n/<span class="num">4</span></span>
+<span class="line">step k: i <span class="op">=</span> n / <span class="num">2</span>ᵏ</span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Loop ends when i ≤ 0:</span></span>
+<span class="line">n / <span class="num">2</span>ᵏ ≤ <span class="num">1</span>  →  <span class="num">2</span>ᵏ ≥ n</span>
+<span class="line">         →  k ≥ log₂(n)</span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Steps = ⌊log₂(n)⌋ + 1 = O(log n)</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Same logic: binary search, tree height</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Growth: steps vs n</div>
+          <canvas id="chart-log" width="300" height="140" style="display:block;width:100%;max-width:300px"></canvas>
+          <div class="info-box" style="margin-top:0.75rem">
+            <span class="step-msg"><strong>Barely grows</strong>. n=64 → 6 steps. n=1024 → 10 steps. Exponential input increase = tiny step increase.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 4. RECURSION ═══════════════ -->
+  <div class="viz-section" id="recursion">
+    <div class="sec-label">Pattern 04</div>
+    <div class="sec-title">
+      Recursive Calls
+      <span class="complexity-badge badge-orange">O(2ⁿ)</span>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div class="code-pane">
+          <pre id="code-fib"><span class="line" data-line="0"><span class="kw">def</span> <span class="fn">fib</span>(n):</span>
+<span class="line" data-line="1">    <span class="kw">if</span> n <span class="op"><=</span> <span class="num">1</span>:              <span class="cmt"># base case</span></span>
+<span class="line" data-line="2">        <span class="kw">return</span> n</span>
+<span class="line" data-line="3">    <span class="kw">return</span> <span class="fn">fib</span>(n<span class="op">-</span><span class="num">1</span>) <span class="op">+</span> <span class="fn">fib</span>(n<span class="op">-</span><span class="num">2</span>)  <span class="cmt"># 2 calls!</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Call tree for fib(5)</div>
+          <div id="fib-tree-display"></div>
+          <div class="controls">
+            <button class="btn primary" id="btn-run-fib" onclick="runFib()">▶ Animate</button>
+            <button class="btn" onclick="resetFib()">↺ Reset</button>
+            <div class="speed-group">Speed <input type="range" id="speed-fib" min="100" max="900" value="500" step="100"></div>
+          </div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-label">Calls made</div><div class="stat-value" id="count-fib">0</div></div>
+            <div class="stat"><div class="stat-label">Unique values</div><div class="stat-value" id="unique-fib" style="color:var(--blue)">6</div></div>
+          </div>
+          <div class="info-box" id="msg-fib">
+            <strong>O(2ⁿ)</strong> — each call spawns 2 more. fib(5) makes 15 total calls, even though there are only 6 unique subproblems.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="code-pane">
+          <pre><span class="line"><span class="cmt"># The call tree grows exponentially:</span></span>
+<span class="line"></span>
+<span class="line">T(n) <span class="op">=</span> T(n<span class="op">-</span><span class="num">1</span>) <span class="op">+</span> T(n<span class="op">-</span><span class="num">2</span>) <span class="op">+</span> O(<span class="num">1</span>)</span>
+<span class="line"></span>
+<span class="line">level <span class="num">0</span>:        fib(n)          <span class="cmt"># 1 node</span></span>
+<span class="line">level <span class="num">1</span>:     fib(n<span class="op">-</span><span class="num">1</span>) fib(n<span class="op">-</span><span class="num">2</span>)  <span class="cmt"># 2 nodes</span></span>
+<span class="line">level <span class="num">2</span>:   …   …   …   …       <span class="cmt"># ≤4 nodes</span></span>
+<span class="line">level k:             …          <span class="cmt"># ≤2ᵏ nodes</span></span>
+<span class="line"></span>
+<span class="line">Total nodes ≤ <span class="num">2</span>⁰ <span class="op">+</span> <span class="num">2</span>¹ <span class="op">+</span> … <span class="op">+</span> <span class="num">2</span>ⁿ <span class="op">=</span> <span class="num">2</span>ⁿ⁺¹ <span class="op">-</span> <span class="num">1</span></span>
+<span class="line">         <span class="op">=</span> O(<span class="num">2</span>ⁿ)</span>
+<span class="line"></span>
+<span class="line"><span class="cmt"># Fix: memoization → O(n)</span></span></pre>
+        </div>
+        <div class="viz-pane">
+          <div class="viz-pane-title">Calls vs n (explodes fast)</div>
+          <canvas id="chart-fib" width="300" height="140" style="display:block;width:100%;max-width:300px"></canvas>
+          <div class="info-box" style="margin-top:0.75rem">
+            <span class="step-msg">n=5 → 15 calls. n=10 → 177 calls. n=20 → 21891 calls. <strong>Avoid exponential when possible.</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 5. MERGE SORT ═══════════════ -->
+  <div class="viz-section" id="mergesort">
+    <div class="sec-label">Pattern 05</div>
+    <div class="sec-title">
+      Divide &amp; Conquer — Merge Sort
+      <span class="complexity-badge badge-blue">O(n log n)</span>
+    </div>
+    <div class="full-card">
+      <div class="code-pane">
+        <pre><span class="line"><span class="kw">def</span> <span class="fn">mergesort</span>(arr):           <span class="cmt"># T(n) = 2·T(n/2) + O(n)</span></span>
+<span class="line">    <span class="kw">if</span> len(arr) <span class="op"><=</span> <span class="num">1</span>: <span class="kw">return</span> arr  <span class="cmt"># base case: T(1) = O(1)</span></span>
+<span class="line">    mid <span class="op">=</span> len(arr) <span class="op">//</span> <span class="num">2</span></span>
+<span class="line">    L <span class="op">=</span> <span class="fn">mergesort</span>(arr[:mid])      <span class="cmt"># left half  → T(n/2)</span></span>
+<span class="line">    R <span class="op">=</span> <span class="fn">mergesort</span>(arr[mid:])      <span class="cmt"># right half → T(n/2)</span></span>
+<span class="line">    <span class="kw">return</span> <span class="fn">merge</span>(L, R)           <span class="cmt"># merge       → O(n)</span></span></pre>
+      </div>
+      <div class="full-pane">
+        <div class="viz-pane-title">Recursion levels — each level does O(n) total work</div>
+        <div id="msort-display"></div>
+        <div class="controls">
+          <button class="btn primary" id="btn-run-ms" onclick="runMergeSort()">▶ Animate Levels</button>
+          <button class="btn" onclick="resetMergeSort()">↺ Reset</button>
+          <div class="speed-group">Speed <input type="range" id="speed-ms" min="200" max="1200" value="700" step="100"></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-label">Current level</div><div class="stat-value" id="level-ms">—</div></div>
+          <div class="stat"><div class="stat-label">Work this level</div><div class="stat-value" id="work-ms" style="color:var(--blue)">—</div></div>
+          <div class="stat"><div class="stat-label">Total levels</div><div class="stat-value" id="levels-ms" style="color:var(--purple)">—</div></div>
+        </div>
+        <div class="info-box" id="msg-ms">
+          <strong>Master Theorem:</strong> T(n) = 2·T(n/2) + O(n). a=2, b=2, d=1. Since log₂(2)=1=d → <strong>Case 2: T(n) = O(n log n)</strong>. Each of the log n levels does exactly n total work.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SUMMARY TABLE ═══════════════ -->
+  <div class="viz-section" id="summary">
+    <div class="sec-label">Summary</div>
+    <div class="sec-title">All Patterns at a Glance</div>
+    <div class="full-card">
+      <div class="full-pane">
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th>Pattern</th>
+              <th>Code Shape</th>
+              <th>Complexity</th>
+              <th>Why</th>
+              <th>n=16 ops</th>
+              <th>n=1024 ops</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Single loop</td>
+              <td><code>for i in range(n)</code></td>
+              <td class="big-o" style="color:var(--green)">O(n)</td>
+              <td>Visits each of n items once</td>
+              <td>16</td>
+              <td>1,024</td>
+            </tr>
+            <tr>
+              <td>Nested loop</td>
+              <td><code>for i … for j …</code></td>
+              <td class="big-o" style="color:var(--yellow)">O(n²)</td>
+              <td>n × n = n² pairs</td>
+              <td>256</td>
+              <td>1,048,576</td>
+            </tr>
+            <tr>
+              <td>Triple nested</td>
+              <td><code>for i for j for k</code></td>
+              <td class="big-o" style="color:var(--orange)">O(n³)</td>
+              <td>n × n × n = n³ triples</td>
+              <td>4,096</td>
+              <td>~10⁹</td>
+            </tr>
+            <tr>
+              <td>Halving loop</td>
+              <td><code>while i > 0: i //= 2</code></td>
+              <td class="big-o" style="color:var(--blue)">O(log n)</td>
+              <td>Halves each step → ⌊log₂ n⌋ steps</td>
+              <td>4</td>
+              <td>10</td>
+            </tr>
+            <tr>
+              <td>Loop + halving</td>
+              <td><code>for i … while j //= 2</code></td>
+              <td class="big-o" style="color:var(--blue)">O(n log n)</td>
+              <td>n outer × log n inner</td>
+              <td>64</td>
+              <td>10,240</td>
+            </tr>
+            <tr>
+              <td>Naive recursion</td>
+              <td><code>f(n) = f(n-1) + f(n-2)</code></td>
+              <td class="big-o" style="color:var(--red)">O(2ⁿ)</td>
+              <td>Each call spawns 2 more, tree doubles per level</td>
+              <td>65,535</td>
+              <td>~10³⁰⁸</td>
+            </tr>
+            <tr>
+              <td>Merge sort</td>
+              <td><code>T(n) = 2T(n/2) + O(n)</code></td>
+              <td class="big-o" style="color:var(--blue)">O(n log n)</td>
+              <td>Master Theorem Case 2: d = log_b(a)</td>
+              <td>64</td>
+              <td>10,240</td>
+            </tr>
+            <tr>
+              <td>All subsets</td>
+              <td>enumerate powerset</td>
+              <td class="big-o" style="color:var(--red)">O(2ⁿ)</td>
+              <td>2ⁿ subsets of n-element set</td>
+              <td>65,536</td>
+              <td>~10³⁰⁸</td>
+            </tr>
+            <tr>
+              <td>All permutations</td>
+              <td>enumerate permutations</td>
+              <td class="big-o" style="color:var(--pink)">O(n!)</td>
+              <td>n! orderings; grows faster than 2ⁿ</td>
+              <td>~2×10¹³</td>
+              <td>astronomical</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── Utilities ──────────────────────────────────────────────
+function scrollTo(id) {
+  document.querySelector(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function flash(el) {
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 200);
+}
+
+// ── CHARTS ──────────────────────────────────────────────────
+function drawChart(canvasId, data, color, label) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = 140 * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const w = W, h = 140;
+  ctx.clearRect(0,0,w,h);
+
+  const maxY = Math.max(...data.map(d=>d.y));
+  const maxX = data.length - 1;
+  const pad = { top:10, right:10, bottom:28, left:38 };
+  const pw = w - pad.left - pad.right;
+  const ph = h - pad.top - pad.bottom;
+
+  // grid lines
+  for (let i=0; i<=4; i++) {
+    const y = pad.top + ph - (i/4)*ph;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+pw, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = `${Math.round(9*window.devicePixelRatio)/window.devicePixelRatio}px JetBrains Mono`;
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxY*(i/4)), pad.left-4, y+3);
+  }
+
+  // axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+ph); ctx.lineTo(pad.left+pw, pad.top+ph);
+  ctx.stroke();
+
+  // x labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = `${Math.round(9*window.devicePixelRatio)/window.devicePixelRatio}px JetBrains Mono`;
+  ctx.textAlign = 'center';
+  data.forEach((d,i) => {
+    if (i % Math.ceil(data.length/6) === 0 || i === data.length-1) {
+      const x = pad.left + (i/maxX)*pw;
+      ctx.fillText(d.x, x, h - 6);
+    }
+  });
+
+  // line
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  data.forEach((d,i) => {
+    const x = pad.left + (i/maxX)*pw;
+    const y = pad.top + ph - (d.y/maxY)*ph;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // fill
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = color.replace(')', ',0.08)').replace('rgb','rgba').replace('#','');
+  const gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top+ph);
+  gradient.addColorStop(0, color + '33');
+  gradient.addColorStop(1, color + '00');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  data.forEach((d,i) => {
+    const x = pad.left + (i/maxX)*pw;
+    const y = pad.top + ph - (d.y/maxY)*ph;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad.left + pw, pad.top+ph);
+  ctx.lineTo(pad.left, pad.top+ph);
+  ctx.closePath();
+  ctx.fill();
+
+  // axis label
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `${Math.round(9*window.devicePixelRatio)/window.devicePixelRatio}px JetBrains Mono`;
+  ctx.textAlign = 'left';
+  ctx.fillText('n →', w - pad.right - 20, h - 6);
+}
+
+// draw all charts on load
+window.addEventListener('load', () => {
+  // O(n)
+  const dLinear = Array.from({length:10},(_,i)=>({x:i+1,y:i+1}));
+  drawChart('chart-single', dLinear, '#4fffb0', 'n');
+  // O(n²)
+  const dQuad = Array.from({length:10},(_,i)=>({x:i+1,y:(i+1)**2}));
+  drawChart('chart-nested', dQuad, '#ffe066', 'n²');
+  // O(log n)
+  const dLog = Array.from({length:10},(_,i)=>({x:Math.pow(2,i+1),y:(i+1)}));
+  drawChart('chart-log', dLog, '#4fb8ff', 'log n');
+  // O(2^n)
+  const dExp = Array.from({length:8},(_,i)=>({x:i+1,y:Math.pow(2,i+1)-1}));
+  drawChart('chart-fib', dExp, '#ff5555', '2ⁿ');
+});
+
+// ── 1. SINGLE LOOP ──────────────────────────────────────────
+const N_SINGLE = 8;
+let singleState = { i: -1, running: false, timer: null };
+
+function buildSingleGrid() {
+  const g = document.getElementById('grid-single');
+  g.innerHTML = '';
+  for (let i=0;i<N_SINGLE;i++) {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.id = `sc-${i}`;
+    c.textContent = i;
+    g.appendChild(c);
+  }
+}
+
+function resetSingle() {
+  clearTimeout(singleState.timer);
+  singleState = { i: -1, running: false, timer: null };
+  buildSingleGrid();
+  document.getElementById('count-single').textContent = '0';
+  document.getElementById('i-single').textContent = '—';
+  document.getElementById('msg-single').innerHTML = '<strong>O(n)</strong> — touches each element exactly once. Total steps = n. Doubling n doubles the work.';
+  document.getElementById('btn-run-single').textContent = '▶ Run';
+  document.getElementById('btn-run-single').classList.remove('running');
+  highlightCode('code-single', -1);
+}
+
+function highlightCode(preId, line) {
+  const lines = document.querySelectorAll(`#${preId} .line`);
+  lines.forEach((l, i) => {
+    l.classList.remove('active-line', 'done-line');
+    if (i < line) l.classList.add('done-line');
+    if (i === line) l.classList.add('active-line');
+  });
+}
+
+async function stepSingle() {
+  if (singleState.running) return;
+  singleState.i++;
+  if (singleState.i > N_SINGLE) { singleState.i = N_SINGLE; return; }
+
+  // un-active prev
+  if (singleState.i > 0) {
+    document.getElementById(`sc-${singleState.i-1}`)?.classList.replace('active','visited');
+  }
+
+  if (singleState.i < N_SINGLE) {
+    highlightCode('code-single', 0);
+    await sleep(80);
+    highlightCode('code-single', 1);
+    document.getElementById(`sc-${singleState.i}`).className = 'cell active';
+    document.getElementById('i-single').textContent = singleState.i;
+    const cnt = document.getElementById('count-single');
+    cnt.textContent = singleState.i + 1;
+    flash(cnt);
+    document.getElementById('msg-single').innerHTML = `<span class="step-msg">Processing arr[<strong style="color:var(--green)">${singleState.i}</strong>] — iteration ${singleState.i+1} of ${N_SINGLE}</span>`;
+  } else {
+    highlightCode('code-single', -1);
+    document.getElementById('msg-single').innerHTML = `<strong>Done!</strong> Visited ${N_SINGLE} cells → exactly <strong style="color:var(--green)">n = ${N_SINGLE}</strong> operations. This is O(n).`;
+  }
+}
+
+async function runSingle() {
+  if (singleState.running) {
+    clearTimeout(singleState.timer);
+    singleState.running = false;
+    document.getElementById('btn-run-single').textContent = '▶ Run';
+    document.getElementById('btn-run-single').classList.remove('running');
+    return;
+  }
+  resetSingle();
+  await sleep(100);
+  singleState.running = true;
+  document.getElementById('btn-run-single').textContent = '⏸ Pause';
+  document.getElementById('btn-run-single').classList.add('running');
+
+  const go = async () => {
+    if (!singleState.running) return;
+    if (singleState.i >= N_SINGLE) {
+      singleState.running = false;
+      document.getElementById('btn-run-single').textContent = '▶ Run';
+      document.getElementById('btn-run-single').classList.remove('running');
+      return;
+    }
+    await stepSingle();
+    const spd = parseInt(document.getElementById('speed-single').value);
+    singleState.timer = setTimeout(go, 601 - spd);
+  };
+  go();
+}
+buildSingleGrid();
+
+// ── 2. NESTED LOOP ──────────────────────────────────────────
+const N_NESTED = 6;
+let nestedState = { i:0, j:-1, total:0, running:false, timer:null };
+
+function buildNestedGrid() {
+  const g = document.getElementById('grid-nested');
+  g.innerHTML = '';
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `display:grid;grid-template-columns:repeat(${N_NESTED},1fr);gap:3px;max-width:${N_NESTED*25+15}px`;
+  for (let i=0;i<N_NESTED;i++) for (let j=0;j<N_NESTED;j++) {
+    const c = document.createElement('div');
+    c.className = 'nested-cell';
+    c.id = `nc-${i}-${j}`;
+    c.textContent = '';
+    wrapper.appendChild(c);
+  }
+  g.appendChild(wrapper);
+}
+
+function resetNested() {
+  clearTimeout(nestedState.timer);
+  nestedState = { i:0, j:-1, total:0, running:false, timer:null };
+  buildNestedGrid();
+  document.getElementById('count-nested').textContent = '0';
+  document.getElementById('i-nested').textContent = '—';
+  document.getElementById('j-nested').textContent = '—';
+  document.getElementById('msg-nested').innerHTML = '<strong>O(n²)</strong> — outer loop runs n times; for each, inner runs n times. Total = n × n = n².';
+  document.getElementById('btn-run-nested').textContent = '▶ Run';
+  document.getElementById('btn-run-nested').classList.remove('running');
+  highlightCode('code-nested', -1);
+}
+
+async function stepNested() {
+  if (nestedState.running) return;
+  nestedState.j++;
+  if (nestedState.j >= N_NESTED) { nestedState.i++; nestedState.j = 0; }
+  if (nestedState.i >= N_NESTED) return;
+
+  const prev_i = nestedState.j === 0 && nestedState.i > 0 ? nestedState.i-1 : nestedState.i;
+  const prev_j = nestedState.j === 0 ? N_NESTED-1 : nestedState.j-1;
+  const prevCell = document.getElementById(`nc-${prev_i}-${prev_j}`);
+  if (prevCell) prevCell.className = 'nested-cell visited';
+
+  highlightCode('code-nested', nestedState.j === 0 ? 0 : 1);
+  await sleep(40);
+  highlightCode('code-nested', 2);
+
+  const cell = document.getElementById(`nc-${nestedState.i}-${nestedState.j}`);
+  if (cell) cell.className = 'nested-cell active';
+  nestedState.total++;
+
+  const cnt = document.getElementById('count-nested');
+  cnt.textContent = nestedState.total;
+  flash(cnt);
+  document.getElementById('i-nested').textContent = nestedState.i;
+  document.getElementById('j-nested').textContent = nestedState.j;
+  document.getElementById('msg-nested').innerHTML = `<span class="step-msg">i=<strong style="color:var(--yellow)">${nestedState.i}</strong>, j=<strong style="color:var(--blue)">${nestedState.j}</strong> — operation ${nestedState.total} of ${N_NESTED*N_NESTED}</span>`;
+}
+
+async function runNested() {
+  if (nestedState.running) {
+    clearTimeout(nestedState.timer);
+    nestedState.running = false;
+    document.getElementById('btn-run-nested').textContent = '▶ Run';
+    document.getElementById('btn-run-nested').classList.remove('running');
+    return;
+  }
+  resetNested();
+  await sleep(100);
+  nestedState.running = true;
+  document.getElementById('btn-run-nested').textContent = '⏸ Pause';
+  document.getElementById('btn-run-nested').classList.add('running');
+
+  const go = async () => {
+    if (!nestedState.running) return;
+    if (nestedState.i >= N_NESTED && nestedState.j >= N_NESTED) {
+      nestedState.running = false;
+      document.getElementById('btn-run-nested').textContent = '▶ Run';
+      document.getElementById('btn-run-nested').classList.remove('running');
+      highlightCode('code-nested', -1);
+      document.getElementById('msg-nested').innerHTML = `<strong>Done!</strong> ${N_NESTED*N_NESTED} operations total = n² where n=${N_NESTED}. This is <strong style="color:var(--yellow)">O(n²)</strong>.`;
+      return;
+    }
+    await stepNested();
+    const spd = parseInt(document.getElementById('speed-nested').value);
+    nestedState.timer = setTimeout(go, 401 - spd);
+  };
+  go();
+}
+buildNestedGrid();
+
+// ── 3. LOG LOOP ──────────────────────────────────────────────
+const N_LOG = 64;
+let logState = { i: N_LOG, steps: 0, running: false, timer: null, sequence: [] };
+
+function buildLogSequence() {
+  let i = N_LOG, seq = [];
+  while (i > 0) { seq.push(i); i = Math.floor(i/2); }
+  return seq;
+}
+
+function buildLogTrack() {
+  const seq = buildLogSequence();
+  const t = document.getElementById('track-log');
+  t.innerHTML = '';
+  seq.forEach((val, idx) => {
+    if (idx > 0) {
+      const arr = document.createElement('span');
+      arr.className = 'h-arrow';
+      arr.textContent = '→';
+      t.appendChild(arr);
+    }
+    const b = document.createElement('div');
+    b.className = 'h-block';
+    b.id = `lb-${idx}`;
+    b.textContent = val;
+    t.appendChild(b);
+  });
+  return seq;
+}
+
+function resetLog() {
+  clearTimeout(logState.timer);
+  logState.sequence = buildLogTrack();
+  logState.steps = 0;
+  logState.i = N_LOG;
+  logState.running = false;
+  logState.currentStep = 0;
+  document.getElementById('count-log').textContent = '0';
+  document.getElementById('i-log').textContent = N_LOG;
+  document.getElementById('logn-log').textContent = Math.floor(Math.log2(N_LOG));
+  document.getElementById('msg-log').innerHTML = `<strong>O(log n)</strong> — i is halved each step. Starting at n=${N_LOG}, it takes exactly ⌊log₂(${N_LOG})⌋ = ${Math.floor(Math.log2(N_LOG))} steps.`;
+  document.getElementById('btn-run-log').textContent = '▶ Run';
+  document.getElementById('btn-run-log').classList.remove('running');
+  highlightCode('code-log', -1);
+}
+
+async function stepLog() {
+  if (logState.running) return;
+  if (!logState.currentStep) logState.currentStep = 0;
+
+  const seq = logState.sequence;
+  if (!seq || logState.currentStep >= seq.length) return;
+
+  if (logState.currentStep > 0) {
+    document.getElementById(`lb-${logState.currentStep-1}`)?.classList.replace('active','visited');
+  }
+
+  highlightCode('code-log', 1);
+  await sleep(60);
+  highlightCode('code-log', 2);
+  await sleep(60);
+  highlightCode('code-log', 3);
+
+  const b = document.getElementById(`lb-${logState.currentStep}`);
+  if (b) b.className = 'h-block active';
+  logState.steps++;
+  logState.i = seq[logState.currentStep];
+  logState.currentStep++;
+
+  const cnt = document.getElementById('count-log');
+  cnt.textContent = logState.steps;
+  flash(cnt);
+  document.getElementById('i-log').textContent = logState.i;
+  document.getElementById('msg-log').innerHTML = `<span class="step-msg">Step <strong style="color:var(--yellow)">${logState.steps}</strong> — i = <strong style="color:var(--yellow)">${logState.i}</strong> (i was halved)</span>`;
+
+  if (logState.currentStep >= seq.length) {
+    await sleep(200);
+    highlightCode('code-log', -1);
+    document.getElementById('msg-log').innerHTML = `<strong>Done!</strong> ${logState.steps} steps for n=${N_LOG}. <strong style="color:var(--blue)">⌊log₂(${N_LOG})⌋ = ${Math.floor(Math.log2(N_LOG))}</strong>. This is O(log n).`;
+  }
+}
+
+async function runLog() {
+  if (logState.running) {
+    clearTimeout(logState.timer);
+    logState.running = false;
+    document.getElementById('btn-run-log').textContent = '▶ Run';
+    document.getElementById('btn-run-log').classList.remove('running');
+    return;
+  }
+  resetLog();
+  await sleep(100);
+  logState.running = true;
+  document.getElementById('btn-run-log').textContent = '⏸ Pause';
+  document.getElementById('btn-run-log').classList.add('running');
+
+  const go = async () => {
+    if (!logState.running) return;
+    if (logState.currentStep >= logState.sequence.length) {
+      logState.running = false;
+      document.getElementById('btn-run-log').textContent = '▶ Run';
+      document.getElementById('btn-run-log').classList.remove('running');
+      return;
+    }
+    await stepLog();
+    const spd = parseInt(document.getElementById('speed-log').value);
+    logState.timer = setTimeout(go, 901 - spd);
+  };
+  go();
+}
+resetLog();
+
+// ── 4. FIB RECURSION ─────────────────────────────────────────
+const fibTree = {
+  nodes: [
+    { id: 0, label: 'fib(5)', level: 0 },
+    { id: 1, label: 'fib(4)', level: 1 },
+    { id: 2, label: 'fib(3)', level: 1 },
+    { id: 3, label: 'fib(3)', level: 2 },
+    { id: 4, label: 'fib(2)', level: 2 },
+    { id: 5, label: 'fib(2)', level: 2 },
+    { id: 6, label: 'fib(1)', level: 2 },
+    { id: 7, label: 'fib(2)', level: 3 },
+    { id: 8, label: 'fib(1)', level: 3 },
+    { id: 9, label: 'fib(1)', level: 3 },
+    { id: 10, label: 'fib(0)', level: 3 },
+    { id: 11, label: 'fib(1)', level: 3 },
+    { id: 12, label: 'fib(0)', level: 3 },
+    { id: 13, label: 'fib(1)', level: 4 },
+    { id: 14, label: 'fib(0)', level: 4 },
+  ],
+  visitOrder: [0,1,3,7,13,14,8,9,10,4,11,12,2,5,6],
+};
+
+let fibAnimState = { step: 0, running: false, timer: null };
+
+function buildFibTree() {
+  const levels = {};
+  fibTree.nodes.forEach(n => {
+    if (!levels[n.level]) levels[n.level] = [];
+    levels[n.level].push(n);
+  });
+  const container = document.getElementById('fib-tree-display');
+  container.innerHTML = '';
+  const tree = document.createElement('div');
+  tree.className = 'rtree';
+
+  Object.keys(levels).sort().forEach(lv => {
+    const row = document.createElement('div');
+    row.className = 'rtree-level';
+    levels[lv].forEach(n => {
+      const nd = document.createElement('div');
+      nd.className = 'rnode';
+      nd.id = `fib-${n.id}`;
+      nd.textContent = n.label;
+      row.appendChild(nd);
+    });
+    tree.appendChild(row);
+    if (parseInt(lv) < Object.keys(levels).length - 1) {
+      const line = document.createElement('div');
+      line.className = 'rtree-line';
+      tree.appendChild(line);
+    }
+  });
+  container.appendChild(tree);
+}
+
+function resetFib() {
+  clearTimeout(fibAnimState.timer);
+  fibAnimState = { step: 0, running: false, timer: null };
+  buildFibTree();
+  document.getElementById('count-fib').textContent = '0';
+  document.getElementById('msg-fib').innerHTML = '<strong>O(2ⁿ)</strong> — each call spawns 2 more. fib(5) makes 15 total calls, even though there are only 6 unique subproblems.';
+  document.getElementById('btn-run-fib').textContent = '▶ Animate';
+  document.getElementById('btn-run-fib').classList.remove('running');
+}
+
+async function runFib() {
+  if (fibAnimState.running) {
+    clearTimeout(fibAnimState.timer);
+    fibAnimState.running = false;
+    document.getElementById('btn-run-fib').textContent = '▶ Animate';
+    document.getElementById('btn-run-fib').classList.remove('running');
+    return;
+  }
+  resetFib();
+  await sleep(100);
+  fibAnimState.running = true;
+  document.getElementById('btn-run-fib').textContent = '⏸ Pause';
+  document.getElementById('btn-run-fib').classList.add('running');
+
+  const go = async () => {
+    if (!fibAnimState.running) return;
+    if (fibAnimState.step >= fibTree.visitOrder.length) {
+      fibAnimState.running = false;
+      document.getElementById('btn-run-fib').textContent = '▶ Animate';
+      document.getElementById('btn-run-fib').classList.remove('running');
+      document.getElementById('msg-fib').innerHTML = `<strong>Done!</strong> ${fibTree.visitOrder.length} calls to compute fib(5). Many calls repeated — fib(2) computed 3 times. This is why naïve recursion is <strong style="color:var(--red)">O(2ⁿ)</strong>.`;
+      return;
+    }
+
+    const id = fibTree.visitOrder[fibAnimState.step];
+    // mark prev as visited
+    if (fibAnimState.step > 0) {
+      const prevId = fibTree.visitOrder[fibAnimState.step - 1];
+      document.getElementById(`fib-${prevId}`)?.classList.replace('active','visited');
+    }
+    const el = document.getElementById(`fib-${id}`);
+    if (el) el.className = 'rnode active';
+
+    fibAnimState.step++;
+    const cnt = document.getElementById('count-fib');
+    cnt.textContent = fibAnimState.step;
+    flash(cnt);
+
+    const node = fibTree.nodes.find(n=>n.id===id);
+    document.getElementById('msg-fib').innerHTML = `<span class="step-msg">Calling <strong style="color:var(--purple)">${node.label}</strong> — call #${fibAnimState.step} of ${fibTree.visitOrder.length}</span>`;
+
+    const spd = parseInt(document.getElementById('speed-fib').value);
+    fibAnimState.timer = setTimeout(go, 1001 - spd);
+  };
+  go();
+}
+buildFibTree();
+
+// ── 5. MERGE SORT ─────────────────────────────────────────────
+const MS_N = 8;
+let msState = { level: -1, running: false, timer: null };
+
+function buildMergeSortDisplay() {
+  const levels = Math.log2(MS_N); // 3
+  const container = document.getElementById('msort-display');
+  container.innerHTML = '';
+
+  // Level 0: full array
+  // Level 1: 2 halves
+  // Level 2: 4 quarters
+  // Level 3: 8 singles
+  // Then merge back
+  // Levels: split 0-3, merge 4-7
+
+  const phases = [
+    { label: 'Level 0 — split', desc: 'Full array — 1 call, n elements', n: 1, size: MS_N, color: 'var(--purple)', work: MS_N },
+    { label: 'Level 1 — split', desc: '2 calls, n/2 elements each, n/2+n/2=n total', n: 2, size: MS_N/2, color: 'var(--blue)', work: MS_N },
+    { label: 'Level 2 — split', desc: '4 calls, n/4 elements each, 4×n/4=n total', n: 4, size: MS_N/4, color: 'var(--green)', work: MS_N },
+    { label: 'Level 3 — base', desc: '8 base cases, size 1, 8×1=n total', n: 8, size: 1, color: 'var(--yellow)', work: MS_N },
+    { label: 'Level 2 — merge', desc: 'Merge 4 pairs → n work total', n: 4, size: MS_N/4, color: 'var(--green)', work: MS_N },
+    { label: 'Level 1 — merge', desc: 'Merge 2 pairs → n work total', n: 2, size: MS_N/2, color: 'var(--blue)', work: MS_N },
+    { label: 'Level 0 — merge', desc: 'Final merge → n work total', n: 1, size: MS_N, color: 'var(--purple)', work: MS_N },
+  ];
+
+  document.getElementById('levels-ms').textContent = `${levels * 2 + 1} phases`;
+
+  phases.forEach((ph, idx) => {
+    const row = document.createElement('div');
+    row.id = `ms-level-${idx}`;
+    row.style.cssText = `display:flex;align-items:center;gap:8px;padding:6px 0;opacity:0.25;transition:opacity 0.3s;`;
+
+    const lbl = document.createElement('div');
+    lbl.style.cssText = `font-size:0.65rem;color:var(--dim);min-width:140px;font-family:var(--mono);letter-spacing:0.05em`;
+    lbl.textContent = ph.label;
+
+    const blocks = document.createElement('div');
+    blocks.style.cssText = `display:flex;gap:4px;flex:1;`;
+    for (let i=0;i<ph.n;i++) {
+      const b = document.createElement('div');
+      const w = Math.max(ph.size * 20, 20);
+      b.style.cssText = `height:26px;min-width:${w}px;max-width:${w}px;border-radius:4px;border:1px solid ${ph.color}44;background:${ph.color}18;display:flex;align-items:center;justify-content:center;font-size:0.62rem;color:${ph.color};font-family:var(--mono);transition:all 0.2s;`;
+      b.textContent = `[${ph.size}]`;
+      b.id = `ms-block-${idx}-${i}`;
+      blocks.appendChild(b);
+    }
+
+    const info = document.createElement('div');
+    info.style.cssText = `font-size:0.65rem;color:var(--dim);min-width:190px;font-family:var(--mono)`;
+    info.textContent = `→ ${ph.work} ops`;
+
+    row.appendChild(lbl);
+    row.appendChild(blocks);
+    row.appendChild(info);
+    container.appendChild(row);
+  });
+
+  // Total line
+  const total = document.createElement('div');
+  total.style.cssText = `padding:8px 0;border-top:1px solid var(--border2);margin-top:4px;font-size:0.75rem;color:var(--dim);font-family:var(--mono)`;
+  total.innerHTML = `Total work = <strong style="color:var(--blue)">${phases.length} levels × n ops = n log n</strong>`;
+  container.appendChild(total);
+}
+
+function resetMergeSort() {
+  clearTimeout(msState.timer);
+  msState = { level: -1, running: false, timer: null };
+  buildMergeSortDisplay();
+  document.getElementById('level-ms').textContent = '—';
+  document.getElementById('work-ms').textContent = '—';
+  document.getElementById('msg-ms').innerHTML = '<strong>Master Theorem:</strong> T(n) = 2·T(n/2) + O(n). a=2, b=2, d=1. Since log₂(2)=1=d → <strong>Case 2: T(n) = O(n log n)</strong>. Each of the log n levels does exactly n total work.';
+  document.getElementById('btn-run-ms').textContent = '▶ Animate Levels';
+  document.getElementById('btn-run-ms').classList.remove('running');
+}
+
+async function runMergeSort() {
+  if (msState.running) {
+    clearTimeout(msState.timer);
+    msState.running = false;
+    document.getElementById('btn-run-ms').textContent = '▶ Animate Levels';
+    document.getElementById('btn-run-ms').classList.remove('running');
+    return;
+  }
+  resetMergeSort();
+  await sleep(200);
+  msState.running = true;
+  document.getElementById('btn-run-ms').textContent = '⏸ Pause';
+  document.getElementById('btn-run-ms').classList.add('running');
+
+  const phaseCount = 7;
+  const phaseNames = ['L0 split','L1 split','L2 split','Base case','L2 merge','L1 merge','L0 merge'];
+
+  const go = async () => {
+    if (!msState.running) return;
+    msState.level++;
+
+    if (msState.level >= phaseCount) {
+      msState.running = false;
+      document.getElementById('btn-run-ms').textContent = '▶ Animate Levels';
+      document.getElementById('btn-run-ms').classList.remove('running');
+      document.getElementById('msg-ms').innerHTML = `<strong>Done!</strong> ${phaseCount} levels × ${MS_N} work per level = <strong style="color:var(--blue)">${phaseCount * MS_N} total ops = n log n</strong> where n=${MS_N}. Each level is exactly O(n), and there are O(log n) levels.`;
+      return;
+    }
+
+    // dim previous
+    if (msState.level > 0) {
+      const prev = document.getElementById(`ms-level-${msState.level-1}`);
+      if (prev) { prev.style.opacity = '0.4'; }
+    }
+
+    const row = document.getElementById(`ms-level-${msState.level}`);
+    if (row) {
+      row.style.opacity = '1';
+      const blocks = row.querySelectorAll('[id^="ms-block"]');
+      blocks.forEach(b => { b.style.opacity = '1'; b.style.transform = 'scale(1.05)'; });
+      setTimeout(() => blocks.forEach(b => b.style.transform = 'scale(1)'), 300);
+    }
+
+    document.getElementById('level-ms').textContent = phaseNames[msState.level];
+    document.getElementById('work-ms').textContent = `${MS_N} ops`;
+    const cnt = document.getElementById('work-ms');
+    flash(cnt);
+
+    const spd = parseInt(document.getElementById('speed-ms').value);
+    msState.timer = setTimeout(go, 1201 - spd);
+  };
+  go();
+}
+buildMergeSortDisplay();
+
+// ── Tab scroll highlighting ─────────────────────────────────
+const tabs = document.querySelectorAll('.tab');
+window.addEventListener('scroll', () => {
+  const sections = ['single','nested','log','recursion','mergesort','summary'];
+  let active = 'single';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < window.innerHeight * 0.5) active = id;
+  });
+  tabs.forEach((t, i) => {
+    t.classList.toggle('active', ['#single','#nested','#log','#recursion','#mergesort','#summary'][i] === '#'+active);
+  });
+});
+</script>
+</body>
+</html>

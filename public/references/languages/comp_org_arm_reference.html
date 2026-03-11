@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Computer Organization &amp; Architecture — Patterson &amp; Hennessy Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2128;
+    --border: #2e3340;
+    --accent: #6eb5f8;    /* blue — CPU/silicon vibe */
+    --accent2: #f5c97a;   /* amber — highlights */
+    --accent3: #7de8b8;   /* green — code/values */
+    --accent4: #e87d7d;   /* red — warnings/key terms */
+    --text: #eef0fa;
+    --text-dim: #9aa0bb;
+    --text-code: #7de8b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13, 15, 20, 0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(110, 181, 248, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(110, 181, 248, 0.04); }
+  tr:hover td:first-child { color: #a8d6ff; text-shadow: 0 0 20px rgba(110, 181, 248, 0.45); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    line-height: 1.4;
+    padding: 0.75rem 1.25rem;
+    border-right: 1px solid var(--border);
+    background: rgba(110, 181, 248, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(125, 232, 184, 0.08);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.95rem; color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; font-size: 0.9rem; }
+  .idx-link:hover { text-decoration: underline; }
+
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--accent);
+  }
+  .formula-box .label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 1.25rem; }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+  .tag.blue { border-color: rgba(110,181,248,0.4); color: var(--accent); background: rgba(110,181,248,0.06); }
+  .tag.amber { border-color: rgba(245,201,122,0.4); color: var(--accent2); background: rgba(245,201,122,0.06); }
+  .tag.green { border-color: rgba(125,232,184,0.4); color: var(--accent3); background: rgba(125,232,184,0.06); }
+  .tag.red { border-color: rgba(232,125,125,0.4); color: var(--accent4); background: rgba(232,125,125,0.06); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Diagram styles ── */
+  .diagram-wrap {
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .diagram-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .diagram-wrap svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .diag-text {
+    font-family: 'DM Mono', monospace;
+    fill: #eef0fa;
+  }
+  .diag-dim { fill: #9aa0bb; }
+  .diag-accent { fill: #6eb5f8; }
+  .diag-accent2 { fill: #f5c97a; }
+  .diag-accent3 { fill: #7de8b8; }
+  .diag-accent4 { fill: #e87d7d; }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">⚙ CompOrg ARM</span>
+  <nav>
+    <a href="#abstractions">Abstractions</a>
+    <a href="#performance">Performance</a>
+    <a href="#isa">ISA</a>
+    <a href="#arm-registers">Registers</a>
+    <a href="#arm-instructions">Instructions</a>
+    <a href="#addressing">Addressing</a>
+    <a href="#arithmetic">Arithmetic</a>
+    <a href="#datapath">Datapath</a>
+    <a href="#control">Control</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#hazards">Hazards</a>
+    <a href="#memory">Memory</a>
+    <a href="#cache">Cache</a>
+    <a href="#vm">Virtual Memory</a>
+    <a href="#io">I/O</a>
+    <a href="#parallelism">Parallelism</a>
+    <a href="#formulas">Formulas</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Patterson &amp; Hennessy · ARM Edition · Quick Reference</span>
+  <h1>Computer<br/><span>Organization</span></h1>
+  <p class="subtitle">ISA  ·  Datapath  ·  Pipeline  ·  Memory Hierarchy  ·  Parallelism</p>
+</div>
+
+<main>
+<div class="toc" id="top">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#abstractions"><span class="toc-num">01</span> Great Ideas &amp; Abstractions</a>
+  <a href="#performance"><span class="toc-num">02</span> Performance &amp; Cost</a>
+  <a href="#isa"><span class="toc-num">03</span> Instruction Set Architecture</a>
+  <a href="#arm-registers"><span class="toc-num">04</span> ARM Registers</a>
+  <a href="#arm-instructions"><span class="toc-num">05</span> ARM Instruction Types</a>
+  <a href="#addressing"><span class="toc-num">06</span> Addressing Modes</a>
+  <a href="#arithmetic"><span class="toc-num">07</span> Arithmetic &amp; Logic</a>
+  <a href="#datapath"><span class="toc-num">08</span> Datapath &amp; ALU</a>
+  <a href="#control"><span class="toc-num">09</span> Control Unit</a>
+  <a href="#pipeline"><span class="toc-num">10</span> Pipelining</a>
+  <a href="#hazards"><span class="toc-num">11</span> Pipeline Hazards</a>
+  <a href="#memory"><span class="toc-num">12</span> Memory &amp; Storage</a>
+  <a href="#cache"><span class="toc-num">13</span> Cache</a>
+  <a href="#vm"><span class="toc-num">14</span> Virtual Memory</a>
+  <a href="#io"><span class="toc-num">15</span> I/O &amp; Buses</a>
+  <a href="#parallelism"><span class="toc-num">16</span> Parallelism &amp; Multiprocessors</a>
+  <a href="#formulas"><span class="toc-num">17</span> Key Formulas</a>
+</div>
+
+<!-- 01 -->
+<section id="abstractions">
+<div class="section-header"><span class="section-icon">🏛</span><h2>Great Ideas &amp; Abstractions</h2></div>
+<h3>The Eight Great Ideas (Patterson &amp; Hennessy)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Idea</th><th class="plain-def-header">One-liner</th><th>What it means</th><th>Where you see it</th></tr></thead>
+<tbody>
+<tr><td>Design for Moore's Law</td><td class="plain-def">anticipate faster chips</td><td>Plan ahead; transistor count doubles ~every 2 years</td><td>Speculative execution, out-of-order</td></tr>
+<tr><td>Abstraction</td><td class="plain-def">hide complexity</td><td>Layers hide detail below; expose only what's needed</td><td>ISA hides hardware; OS hides hardware from apps</td></tr>
+<tr><td>Common Case Fast</td><td class="plain-def">optimize the frequent path</td><td>Amdahl's Law — speedup what runs most</td><td>Branch prediction, caching hot data</td></tr>
+<tr><td>Parallelism</td><td class="plain-def">do many things at once</td><td>Multiple operations simultaneously increase throughput</td><td>Pipelining, multi-core, SIMD</td></tr>
+<tr><td>Pipelining</td><td class="plain-def">overlap instruction stages</td><td>Divide work into stages, overlap execution</td><td>5-stage ARM pipeline</td></tr>
+<tr><td>Prediction</td><td class="plain-def">guess and correct</td><td>Guessing and fixing mistakes faster than waiting</td><td>Branch prediction, speculative execution</td></tr>
+<tr><td>Memory Hierarchy</td><td class="plain-def">fast near, big far</td><td>Exploit locality with fast-small and slow-large memory</td><td>Registers → Cache → DRAM → Disk</td></tr>
+<tr><td>Dependability via Redundancy</td><td class="plain-def">backup everything</td><td>Redundant components to detect and recover from failures</td><td>ECC memory, RAID, checksum</td></tr>
+</tbody>
+</table></div>
+
+<h3>Abstraction Layers</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th class="plain-def-header">What you see</th><th>What's hidden below</th></tr></thead>
+<tbody>
+<tr><td>Problem / Algorithm</td><td class="plain-def">high-level logic</td><td>Everything below</td></tr>
+<tr><td>Programming Language</td><td class="plain-def">C, Java, Python</td><td>Compilation, ISA</td></tr>
+<tr><td>Operating System</td><td class="plain-def">system calls, processes</td><td>Hardware management</td></tr>
+<tr><td>ISA (Architecture)</td><td class="plain-def">instructions, registers</td><td>Microarchitecture</td></tr>
+<tr><td>Microarchitecture</td><td class="plain-def">datapath, control, pipeline</td><td>Logic gates, circuits</td></tr>
+<tr><td>Logic / Digital Circuits</td><td class="plain-def">AND, OR, flip-flops</td><td>Transistors</td></tr>
+<tr><td>Transistors / Devices</td><td class="plain-def">switches</td><td>Physics / electrons</td></tr>
+</tbody>
+</table></div>
+<!-- Abstraction Pyramid Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Abstraction Layers — Stack Diagram</div>
+  <svg viewBox="0 0 740 340" xmlns="http://www.w3.org/2000/svg" style="padding:1.5rem 1rem 1rem">
+    <defs>
+      <linearGradient id="layerGrad0" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e2128"/><stop offset="100%" stop-color="#252a35"/></linearGradient>
+      <linearGradient id="layerGrad1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a2030"/><stop offset="100%" stop-color="#1e2840"/></linearGradient>
+      <linearGradient id="layerGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#162030"/><stop offset="100%" stop-color="#1a2838"/></linearGradient>
+      <linearGradient id="layerGrad3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#122030"/><stop offset="100%" stop-color="#162838"/></linearGradient>
+    </defs>
+    <!-- Layer bars -->
+    <g>
+      <!-- Layer 7: Problem / top -->
+      <rect x="80" y="10" width="580" height="36" rx="6" fill="url(#layerGrad0)" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="33" class="diag-text diag-accent2" font-size="12" font-weight="600">Problem / Algorithm</text>
+      <text x="500" y="33" class="diag-text diag-dim" font-size="11" text-anchor="end">high-level intent</text>
+      <text x="650" y="33" class="diag-text" font-size="11" fill="#6eb5f8" text-anchor="end">Python / C</text>
+
+      <!-- Layer 6 -->
+      <rect x="80" y="53" width="580" height="36" rx="6" fill="url(#layerGrad1)" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="76" class="diag-text diag-accent3" font-size="12" font-weight="600">Programming Language</text>
+      <text x="500" y="76" class="diag-text diag-dim" font-size="11" text-anchor="end">syntax → machine code</text>
+      <text x="650" y="76" class="diag-text" font-size="11" fill="#7de8b8" text-anchor="end">Compiler / JIT</text>
+
+      <!-- Layer 5 -->
+      <rect x="80" y="96" width="580" height="36" rx="6" fill="url(#layerGrad1)" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="119" class="diag-text diag-accent3" font-size="12" font-weight="600">Operating System</text>
+      <text x="500" y="119" class="diag-text diag-dim" font-size="11" text-anchor="end">process / memory / I/O</text>
+      <text x="650" y="119" class="diag-text" font-size="11" fill="#7de8b8" text-anchor="end">Linux / macOS</text>
+
+      <!-- Layer 4: ISA — highlighted -->
+      <rect x="80" y="139" width="580" height="40" rx="6" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+      <text x="100" y="164" class="diag-text diag-accent" font-size="13" font-weight="700">ISA  ← You are here</text>
+      <text x="500" y="164" class="diag-text diag-dim" font-size="11" text-anchor="end">instructions · registers · addressing</text>
+      <text x="650" y="164" class="diag-text diag-accent" font-size="11" text-anchor="end">AArch64 ARM</text>
+
+      <!-- Layer 3 -->
+      <rect x="80" y="186" width="580" height="36" rx="6" fill="url(#layerGrad2)" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="209" class="diag-text" font-size="12" font-weight="600" fill="#b0b8e8">Microarchitecture</text>
+      <text x="500" y="209" class="diag-text diag-dim" font-size="11" text-anchor="end">pipeline · datapath · control</text>
+      <text x="650" y="209" class="diag-text diag-dim" font-size="11" text-anchor="end">5-stage ARM</text>
+
+      <!-- Layer 2 -->
+      <rect x="80" y="229" width="580" height="36" rx="6" fill="url(#layerGrad3)" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="252" class="diag-text" font-size="12" font-weight="600" fill="#9098c8">Logic / Digital Circuits</text>
+      <text x="500" y="252" class="diag-text diag-dim" font-size="11" text-anchor="end">AND · OR · flip-flops · MUX</text>
+      <text x="650" y="252" class="diag-text diag-dim" font-size="11" text-anchor="end">gates</text>
+
+      <!-- Layer 1: bottom -->
+      <rect x="80" y="272" width="580" height="36" rx="6" fill="#100f18" stroke="#2e3340" stroke-width="1"/>
+      <text x="100" y="295" class="diag-text" font-size="12" font-weight="600" fill="#706888">Transistors / Physics</text>
+      <text x="500" y="295" class="diag-text diag-dim" font-size="11" text-anchor="end">electrons · CMOS switches</text>
+      <text x="650" y="295" class="diag-text diag-dim" font-size="11" text-anchor="end">silicon</text>
+    </g>
+    <!-- Vertical label -->
+    <text x="60" y="170" class="diag-dim" font-size="10" font-family="'DM Mono', monospace" text-anchor="middle" transform="rotate(-90,60,170)">HIGHER ABSTRACTION ↑</text>
+    <!-- Down arrow -->
+    <line x1="36" y1="30" x2="36" y2="295" stroke="#2e3340" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <defs>
+      <marker id="arrowDown" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+        <path d="M0,0 L6,0 L3,6 Z" fill="#2e3340"/>
+      </marker>
+    </defs>
+  </svg>
+</div>
+
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 -->
+<section id="performance">
+<div class="section-header"><span class="section-icon">📈</span><h2>Performance &amp; Cost</h2></div>
+<h3>Core Performance Terms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th><th>Formula / Notes</th></tr></thead>
+<tbody>
+<tr><td>Response Time (Latency)</td><td class="plain-def">how long one task takes</td><td>Total time from start to finish of one task</td><td>Wall-clock time</td></tr>
+<tr><td>Throughput (Bandwidth)</td><td class="plain-def">tasks per unit time</td><td>Number of tasks completed per second</td><td>jobs / second</td></tr>
+<tr><td>CPU Time</td><td class="plain-def">time CPU spends on your program</td><td>Excludes I/O wait and other programs' time</td><td>= Instruction Count × CPI × Clock Cycle Time</td></tr>
+<tr><td>Clock Cycle Time</td><td class="plain-def">length of one clock tick</td><td>Reciprocal of clock frequency</td><td>= 1 / Clock Rate</td></tr>
+<tr><td>Clock Rate (Frequency)</td><td class="plain-def">ticks per second</td><td>Hz — cycles per second</td><td>GHz = 10⁹ Hz</td></tr>
+<tr><td>CPI</td><td class="plain-def">cycles per instruction</td><td>Average clock cycles per instruction</td><td>varies by instruction type</td></tr>
+<tr><td>IC (Instruction Count)</td><td class="plain-def">total instructions executed</td><td>Dynamic count for a given program &amp; input</td><td>depends on ISA + compiler</td></tr>
+<tr><td>MIPS</td><td class="plain-def">millions of instructions/sec</td><td>Old metric; misleading across ISAs</td><td>= IC / (CPU Time × 10⁶)</td></tr>
+<tr><td>FLOPS</td><td class="plain-def">floating-point ops/sec</td><td>Used for scientific computing benchmarks</td><td>GFlops, TFlops common today</td></tr>
+<tr><td>Speedup</td><td class="plain-def">how much faster</td><td>Old time / New time</td><td>Speedup = T_old / T_new</td></tr>
+<tr><td>Amdahl's Law</td><td class="plain-def">speedup limited by serial part</td><td>Overall speedup bounded by non-parallelized fraction</td><td>Speedup = 1 / [(1−p) + p/s]</td></tr>
+<tr><td>Power</td><td class="plain-def">energy per second</td><td>Dynamic power dominates in CMOS</td><td>P = α × C × V² × f</td></tr>
+<tr><td>Energy</td><td class="plain-def">total work done</td><td>Power × Time; joules per task</td><td>E = P × T</td></tr>
+<tr><td>Die</td><td class="plain-def">the chip itself</td><td>Rectangular piece of silicon cut from a wafer</td><td>smaller die → cheaper, faster</td></tr>
+<tr><td>Yield</td><td class="plain-def">fraction of good dies</td><td>Good dies / Dies per wafer</td><td>affected by defects per area</td></tr>
+</tbody>
+</table></div>
+
+<h3>The Iron Law of Performance</h3>
+<div class="formula-box">
+<div class="label">Iron Law</div>
+CPU Time = Instruction Count × CPI × Clock Cycle Time
+         = (IC) × (CPI) × (1 / Clock Rate)
+</div>
+<p class="prose">Each factor is influenced by different things: <strong>IC</strong> → algorithm &amp; compiler; <strong>CPI</strong> → ISA &amp; microarchitecture; <strong>Clock Rate</strong> → technology &amp; circuit design.</p>
+
+<h3>Amdahl's Law</h3>
+<div class="formula-box">
+<div class="label">Amdahl's Law — upper bound on speedup</div>
+Speedup = 1 / [ (1 − Fraction_enhanced) + (Fraction_enhanced / Speedup_enhanced) ]
+</div>
+<p class="prose">Key insight: <strong>make the common case fast</strong>. If 10% of code is serial, max parallelism speedup is 10×, no matter how many cores.</p>
+
+<!-- Amdahl's Law visual bar chart -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Amdahl's Law — Max Speedup vs Serial Fraction</div>
+  <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="padding:1.25rem 1.5rem 1rem">
+    <!-- Y axis label -->
+    <text x="12" y="105" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle" transform="rotate(-90,12,100)">Max Speedup</text>
+    <!-- bars: serial fraction 1%, 5%, 10%, 20%, 50% -->
+    <!-- max speedups: 100, 20, 10, 5, 2 — scale to max 100 in 150px height -->
+    <g transform="translate(40,10)">
+      <!-- Grid lines -->
+      <line x1="20" y1="0" x2="20" y2="150" stroke="#2e3340" stroke-width="1"/>
+      <line x1="20" y1="150" x2="620" y2="150" stroke="#2e3340" stroke-width="1"/>
+      <!-- Grid horizontals -->
+      <line x1="20" y1="0" x2="620" y2="0" stroke="#2e3340" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="20" y1="75" x2="620" y2="75" stroke="#2e3340" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="20" y1="112" x2="620" y2="112" stroke="#2e3340" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <text x="8" y="4" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb">100×</text>
+      <text x="8" y="79" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb">50×</text>
+      <text x="8" y="116" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb">25×</text>
+      <!-- Bar 1: 1% serial → max 100× speedup -->
+      <rect x="30" y="0" width="80" height="150" rx="4" fill="#6eb5f8" opacity="0.85"/>
+      <text x="70" y="145" font-size="10" font-family="'DM Mono',monospace" fill="#0d0f14" text-anchor="middle" font-weight="600">100×</text>
+      <text x="70" y="168" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">1% serial</text>
+      <!-- Bar 2: 5% → 20× -->
+      <rect x="140" y="120" width="80" height="30" rx="4" fill="#6eb5f8" opacity="0.75"/>
+      <text x="180" y="145" font-size="10" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle" font-weight="600">20×</text>
+      <text x="180" y="168" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">5% serial</text>
+      <!-- Bar 3: 10% → 10× -->
+      <rect x="250" y="135" width="80" height="15" rx="4" fill="#7de8b8" opacity="0.85"/>
+      <text x="290" y="132" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">10×</text>
+      <text x="290" y="168" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">10% serial</text>
+      <!-- Bar 4: 20% → 5× -->
+      <rect x="360" y="142.5" width="80" height="7.5" rx="3" fill="#f5c97a" opacity="0.85"/>
+      <text x="400" y="138" font-size="10" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">5×</text>
+      <text x="400" y="168" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">20% serial</text>
+      <!-- Bar 5: 50% → 2× -->
+      <rect x="470" y="147" width="80" height="3" rx="2" fill="#e87d7d" opacity="0.9"/>
+      <text x="510" y="143" font-size="10" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">2×</text>
+      <text x="510" y="168" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">50% serial</text>
+    </g>
+  </svg>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 -->
+<section id="isa">
+<div class="section-header"><span class="section-icon">📋</span><h2>Instruction Set Architecture (ISA)</h2></div>
+<h3>Key ISA Concepts</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>ISA</td><td class="plain-def">the contract between HW &amp; SW</td><td>Defines instructions, registers, memory model, data types, addressing modes visible to programmer/compiler</td></tr>
+<tr><td>RISC</td><td class="plain-def">simple, fast instructions</td><td>Reduced Instruction Set Computer — few, simple instructions; load/store architecture; fixed-length encoding</td></tr>
+<tr><td>CISC</td><td class="plain-def">complex, powerful instructions</td><td>Complex Instruction Set Computer — rich instruction set, variable-length encoding (x86)</td></tr>
+<tr><td>ARM</td><td class="plain-def">the dominant RISC ISA</td><td>Advanced RISC Machines; used in nearly all mobile/embedded devices; AArch64 = 64-bit ARM (ARMv8)</td></tr>
+<tr><td>AArch64 / ARMv8</td><td class="plain-def">64-bit ARM</td><td>Current mainstream ARM ISA; 64-bit registers; used in iPhone, M-series Macs, Raspberry Pi 4+</td></tr>
+<tr><td>Word</td><td class="plain-def">native data size</td><td>In ARMv8: 64 bits (doubleword). A "word" in ARM docs = 32 bits; "doubleword" = 64 bits</td></tr>
+<tr><td>Byte</td><td class="plain-def">8 bits</td><td>Smallest addressable memory unit</td></tr>
+<tr><td>Halfword</td><td class="plain-def">16 bits</td><td>2 bytes</td></tr>
+<tr><td>Word (ARM)</td><td class="plain-def">32 bits</td><td>4 bytes; in ARM docs "word" = 32 bits</td></tr>
+<tr><td>Doubleword</td><td class="plain-def">64 bits</td><td>8 bytes; native size for AArch64 registers</td></tr>
+<tr><td>Register</td><td class="plain-def">fastest storage</td><td>Small, named storage locations directly in the CPU; ARM has 31 general-purpose + special registers</td></tr>
+<tr><td>PC (Program Counter)</td><td class="plain-def">where we are in the program</td><td>Register holding address of the current instruction; auto-incremented or set by branches</td></tr>
+<tr><td>SP (Stack Pointer)</td><td class="plain-def">top of stack</td><td>Register X28 (by convention SP) pointing to top of the call stack</td></tr>
+<tr><td>Load/Store Architecture</td><td class="plain-def">only registers do math</td><td>Arithmetic only on registers; memory accessed only via load/store instructions (RISC principle)</td></tr>
+<tr><td>Endianness</td><td class="plain-def">which byte comes first</td><td>Big-endian: MSB at lowest address. Little-endian: LSB at lowest address. ARM supports both; default little-endian.</td></tr>
+<tr><td>Alignment</td><td class="plain-def">address must match size</td><td>An n-byte value should be at an address divisible by n for efficiency (sometimes required)</td></tr>
+</tbody>
+</table></div>
+
+<h3>Design Principles (RISC / ARM)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Principle</th><th class="plain-def-header">Guideline</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Simplicity → regularity</td><td class="plain-def">uniform formats are easier</td><td>All ARM instructions are 32 bits wide (fixed encoding)</td></tr>
+<tr><td>Smaller is faster</td><td class="plain-def">fewer registers → simpler hardware</td><td>31 GPRs vs hundreds in memory</td></tr>
+<tr><td>Good design demands good compromises</td><td class="plain-def">balance competing goals</td><td>Immediate field limited to 12 bits to keep fixed-width encoding</td></tr>
+<tr><td>Make the common case fast</td><td class="plain-def">optimize frequent operations</td><td>Small constants fit in instruction; big ones need MOVZ/MOVK</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 -->
+<section id="arm-registers">
+<div class="section-header"><span class="section-icon">🗂</span><h2>ARM Registers (AArch64)</h2></div>
+<h3>General-Purpose Registers</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Register</th><th class="plain-def-header">Common Role</th><th>64-bit name</th><th>32-bit view</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>X0 – X7</td><td class="plain-def">function args &amp; return values</td><td>X0…X7</td><td>W0…W7</td><td>First 8 arguments; X0 = return value</td></tr>
+<tr><td>X8</td><td class="plain-def">indirect result location</td><td>X8</td><td>W8</td><td>Used for syscall number on Linux</td></tr>
+<tr><td>X9 – X15</td><td class="plain-def">caller-saved temporaries</td><td>X9…X15</td><td>W9…W15</td><td>Callee may clobber — caller saves if needed</td></tr>
+<tr><td>X16 – X17</td><td class="plain-def">intra-procedure-call scratch</td><td>X16 (IP0), X17 (IP1)</td><td>—</td><td>Used by linker stubs</td></tr>
+<tr><td>X18</td><td class="plain-def">platform register</td><td>X18</td><td>—</td><td>OS-reserved on some platforms</td></tr>
+<tr><td>X19 – X28</td><td class="plain-def">callee-saved</td><td>X19…X28</td><td>W19…W28</td><td>Callee must preserve; save/restore in prologue/epilogue</td></tr>
+<tr><td>X29 (FP)</td><td class="plain-def">frame pointer</td><td>X29</td><td>—</td><td>Points to stack frame base</td></tr>
+<tr><td>X30 (LR)</td><td class="plain-def">link register / return address</td><td>X30</td><td>—</td><td>BL stores return address here; RET reads it</td></tr>
+<tr><td>SP</td><td class="plain-def">stack pointer</td><td>SP (X31 in some contexts)</td><td>WSP</td><td>Points to top of stack; must be 16-byte aligned</td></tr>
+<tr><td>PC</td><td class="plain-def">program counter</td><td>PC</td><td>—</td><td>Not directly readable as a GPR in AArch64</td></tr>
+<tr><td>XZR / WZR</td><td class="plain-def">always-zero register</td><td>XZR</td><td>WZR</td><td>Reads 0; writes discarded. X31 in data ops.</td></tr>
+<tr><td>PSTATE / NZCV</td><td class="plain-def">condition flags</td><td>N, Z, C, V bits</td><td>—</td><td>Set by arithmetic; read by conditional branches</td></tr>
+</tbody>
+</table></div>
+
+<!-- ARM Register Map Visual -->
+<div class="diagram-wrap">
+  <div class="diagram-label">AArch64 Register File — Quick Map</div>
+  <svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+    <defs>
+      <linearGradient id="regBlue" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0d2040"/><stop offset="100%" stop-color="#0a1830"/></linearGradient>
+      <linearGradient id="regGreen" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0a2018"/><stop offset="100%" stop-color="#081810"/></linearGradient>
+      <linearGradient id="regAmber" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#20180a"/><stop offset="100%" stop-color="#181008"/></linearGradient>
+      <linearGradient id="regRed" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#200a0a"/><stop offset="100%" stop-color="#180808"/></linearGradient>
+    </defs>
+
+    <!-- Group: Args X0-X7 -->
+    <rect x="10" y="10" width="170" height="110" rx="8" fill="url(#regBlue)" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="20" y="28" font-size="10" font-family="'DM Mono',monospace" fill="#6eb5f8" letter-spacing="0.08em">ARGS / RETURN</text>
+    <text x="20" y="46" font-size="12" font-family="'DM Mono',monospace" fill="#eef0fa">X0 – X7</text>
+    <text x="20" y="62" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• First 8 arguments</text>
+    <text x="20" y="76" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• X0 = return value</text>
+    <text x="20" y="90" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Caller-saved</text>
+    <text x="20" y="112" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8">W0–W7 = 32-bit view</text>
+
+    <!-- Group: Caller-saved temps X9-X15 -->
+    <rect x="192" y="10" width="170" height="110" rx="8" fill="url(#regAmber)" stroke="#f5c97a" stroke-width="1"/>
+    <text x="202" y="28" font-size="10" font-family="'DM Mono',monospace" fill="#f5c97a" letter-spacing="0.08em">CALLER-SAVED TEMPS</text>
+    <text x="202" y="46" font-size="12" font-family="'DM Mono',monospace" fill="#eef0fa">X9 – X15</text>
+    <text x="202" y="62" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Scratch registers</text>
+    <text x="202" y="76" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Callee may clobber</text>
+    <text x="202" y="90" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Caller saves if needed</text>
+    <text x="202" y="112" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a">W9–W15 = 32-bit view</text>
+
+    <!-- Group: Callee-saved X19-X28 -->
+    <rect x="374" y="10" width="170" height="110" rx="8" fill="url(#regGreen)" stroke="#7de8b8" stroke-width="1"/>
+    <text x="384" y="28" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">CALLEE-SAVED</text>
+    <text x="384" y="46" font-size="12" font-family="'DM Mono',monospace" fill="#eef0fa">X19 – X28</text>
+    <text x="384" y="62" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Callee must preserve</text>
+    <text x="384" y="76" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Save in prologue</text>
+    <text x="384" y="90" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">• Restore in epilogue</text>
+    <text x="384" y="112" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">W19–W28 = 32-bit view</text>
+
+    <!-- Group: Special registers -->
+    <rect x="556" y="10" width="154" height="110" rx="8" fill="url(#regRed)" stroke="#e87d7d" stroke-width="1"/>
+    <text x="566" y="28" font-size="10" font-family="'DM Mono',monospace" fill="#e87d7d" letter-spacing="0.08em">SPECIAL</text>
+    <text x="566" y="46" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa">X29  FP  frame ptr</text>
+    <text x="566" y="62" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa">X30  LR  link reg</text>
+    <text x="566" y="78" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa">SP       stack ptr</text>
+    <text x="566" y="94" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa">PC       prog ctr</text>
+    <text x="566" y="112" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa">XZR      always 0</text>
+
+    <!-- Register width visual — 64-bit breakdown -->
+    <rect x="10" y="140" width="700" height="40" rx="6" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <rect x="10" y="140" width="350" height="40" rx="6" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <rect x="360" y="140" width="350" height="40" rx="6" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="185" y="155" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Xn  (64-bit)</text>
+    <text x="185" y="170" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">bits 63 ─────────────────────── 32</text>
+    <text x="535" y="155" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">Wn  (32-bit view — lower half)</text>
+    <text x="535" y="170" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">bits 31 ──────────────────────── 0</text>
+
+    <!-- NZCV flags visual -->
+    <rect x="10" y="198" width="700" height="58" rx="6" fill="#1a1620" stroke="#2e3340" stroke-width="1"/>
+    <text x="25" y="216" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" letter-spacing="0.1em">PSTATE FLAGS (NZCV)</text>
+    <!-- N flag -->
+    <rect x="25" y="222" width="60" height="26" rx="4" fill="#20150a" stroke="#f5c97a" stroke-width="1"/>
+    <text x="55" y="239" font-size="12" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle" font-weight="700">N</text>
+    <text x="55" y="254" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">negative</text>
+    <!-- Z flag -->
+    <rect x="95" y="222" width="60" height="26" rx="4" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="125" y="239" font-size="12" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle" font-weight="700">Z</text>
+    <text x="125" y="254" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">zero</text>
+    <!-- C flag -->
+    <rect x="165" y="222" width="60" height="26" rx="4" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="195" y="239" font-size="12" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle" font-weight="700">C</text>
+    <text x="195" y="254" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">carry</text>
+    <!-- V flag -->
+    <rect x="235" y="222" width="60" height="26" rx="4" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+    <text x="265" y="239" font-size="12" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle" font-weight="700">V</text>
+    <text x="265" y="254" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">overflow</text>
+    <!-- description -->
+    <text x="320" y="232" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">Set by ADDS, SUBS, ANDS, CMP…</text>
+    <text x="320" y="248" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb">Read by B.EQ, B.LT, B.GE …</text>
+  </svg>
+</div>
+
+<h3>Condition Flags (NZCV)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Flag</th><th class="plain-def-header">Set when...</th><th>Name</th><th>Typical use</th></tr></thead>
+<tbody>
+<tr><td>N</td><td class="plain-def">result is negative</td><td>Negative</td><td>Signed comparison</td></tr>
+<tr><td>Z</td><td class="plain-def">result is zero</td><td>Zero</td><td>Equality test</td></tr>
+<tr><td>C</td><td class="plain-def">unsigned overflow / borrow out</td><td>Carry</td><td>Unsigned comparison, multi-word add</td></tr>
+<tr><td>V</td><td class="plain-def">signed overflow</td><td>oVerflow</td><td>Signed arithmetic overflow</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 -->
+<section id="arm-instructions">
+<div class="section-header"><span class="section-icon">📝</span><h2>ARM Instruction Types &amp; Formats</h2></div>
+<h3>Instruction Format Types (AArch64)</h3>
+<!-- ARM Instruction Encoding Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">ARM Instruction Formats — 32-bit Fixed-Width Encoding</div>
+  <svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem">
+    <!-- R-type -->
+    <text x="10" y="22" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">R-TYPE (register)  — ADD X1, X2, X3</text>
+    <rect x="10" y="28" width="220" height="28" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="120" y="47" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">opcode [10:0]</text>
+    <rect x="232" y="28" width="80" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="272" y="47" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Rm [4:0]</text>
+    <rect x="314" y="28" width="100" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="364" y="47" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">shamt [5:0]</text>
+    <rect x="416" y="28" width="80" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="456" y="47" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Rn [4:0]</text>
+    <rect x="498" y="28" width="80" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="538" y="47" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">Rd [4:0]</text>
+    <!-- bit labels -->
+    <text x="10" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">31</text>
+    <text x="222" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">21</text>
+    <text x="232" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">20</text>
+    <text x="306" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">16</text>
+    <text x="314" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">15</text>
+    <text x="408" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">10</text>
+    <text x="416" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">9</text>
+    <text x="490" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">5</text>
+    <text x="498" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">4</text>
+    <text x="572" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#2e3340">0</text>
+
+    <!-- D-type -->
+    <text x="10" y="92" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">D-TYPE (data/memory) — LDUR X1, [X2, #8]</text>
+    <rect x="10" y="98" width="220" height="28" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="120" y="117" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">opcode [10:0]</text>
+    <rect x="232" y="98" width="180" height="28" rx="3" fill="#162028" stroke="#7de8b8" stroke-width="1"/>
+    <text x="322" y="117" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">address/offset [9:0]</text>
+    <rect x="414" y="98" width="40" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="434" y="117" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">op2</text>
+    <rect x="456" y="98" width="80" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="496" y="117" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Rn [4:0]</text>
+    <rect x="538" y="98" width="40" height="28" rx="3" fill="#162028" stroke="#7de8b8" stroke-width="1"/>
+    <text x="558" y="117" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">Rt</text>
+
+    <!-- I-type -->
+    <text x="10" y="152" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">I-TYPE (immediate) — ADDI X1, X2, #5</text>
+    <rect x="10" y="158" width="220" height="28" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="120" y="177" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">opcode [10:0]</text>
+    <rect x="232" y="158" width="230" height="28" rx="3" fill="#20180a" stroke="#f5c97a" stroke-width="1"/>
+    <text x="347" y="177" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">immediate [11:0]  (12-bit)</text>
+    <rect x="464" y="158" width="72" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="500" y="177" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Rn [4:0]</text>
+    <rect x="538" y="158" width="40" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="558" y="177" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">Rd</text>
+
+    <!-- B-type -->
+    <text x="10" y="212" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">B-TYPE (branch) — B label  /  BL func</text>
+    <rect x="10" y="218" width="80" height="28" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="50" y="237" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">opcode[5:0]</text>
+    <rect x="92" y="218" width="490" height="28" rx="3" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+    <text x="337" y="237" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">PC-relative offset [25:0]  (26-bit, ±128 MB range)</text>
+
+    <!-- CB-type -->
+    <text x="10" y="272" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.08em">CB-TYPE (cond branch) — CBZ X1, label</text>
+    <rect x="10" y="278" width="80" height="28" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="50" y="297" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">opcode[7:0]</text>
+    <rect x="92" y="278" width="400" height="28" rx="3" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+    <text x="292" y="297" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">PC-relative offset [18:0]  (19-bit)</text>
+    <rect x="494" y="278" width="90" height="28" rx="3" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="539" y="297" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Rt [4:0]</text>
+  </svg>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Format</th><th class="plain-def-header">What it encodes</th><th>Key fields</th><th>Example instructions</th></tr></thead>
+<tbody>
+<tr><td>R-type (Register)</td><td class="plain-def">op on 3 registers</td><td>opcode | Rm | shamt | Rn | Rd</td><td><code>ADD X1, X2, X3</code></td></tr>
+<tr><td>I-type (Immediate)</td><td class="plain-def">op on register + constant</td><td>opcode | immediate | Rn | Rd</td><td><code>ADDI X1, X2, #5</code></td></tr>
+<tr><td>D-type (Data Transfer)</td><td class="plain-def">load/store address</td><td>opcode | address | op2 | Rn | Rt</td><td><code>LDUR X1, [X2, #4]</code></td></tr>
+<tr><td>B-type (Branch)</td><td class="plain-def">unconditional branch</td><td>opcode | 26-bit offset</td><td><code>B label</code>, <code>BL func</code></td></tr>
+<tr><td>CB-type (Cond. Branch)</td><td class="plain-def">branch if condition</td><td>opcode | 19-bit offset | Rt</td><td><code>CBZ X1, label</code></td></tr>
+</tbody>
+</table></div>
+
+<h3>Common ARM Instructions</h3>
+<h3>— Data Processing</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Instruction</th><th class="plain-def-header">What it does</th><th>Syntax</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>ADD / ADDS</td><td class="plain-def">add registers</td><td><code>ADD Xd, Xn, Xm</code></td><td>ADDS updates NZCV flags</td></tr>
+<tr><td>ADDI / ADDIS</td><td class="plain-def">add immediate</td><td><code>ADDI Xd, Xn, #imm12</code></td><td>12-bit unsigned immediate</td></tr>
+<tr><td>SUB / SUBS</td><td class="plain-def">subtract</td><td><code>SUB Xd, Xn, Xm</code></td><td>SUBS sets flags (use for CMP)</td></tr>
+<tr><td>SUBI / SUBIS</td><td class="plain-def">subtract immediate</td><td><code>SUBI Xd, Xn, #imm</code></td><td>—</td></tr>
+<tr><td>MUL</td><td class="plain-def">multiply</td><td><code>MUL Xd, Xn, Xm</code></td><td>Low 64 bits of product</td></tr>
+<tr><td>SDIV / UDIV</td><td class="plain-def">signed/unsigned divide</td><td><code>SDIV Xd, Xn, Xm</code></td><td>Integer division (truncates)</td></tr>
+<tr><td>AND / ANDS</td><td class="plain-def">bitwise AND</td><td><code>AND Xd, Xn, Xm</code></td><td>ANDS sets flags</td></tr>
+<tr><td>ANDI / ANDIS</td><td class="plain-def">AND with immediate</td><td><code>ANDI Xd, Xn, #imm</code></td><td>—</td></tr>
+<tr><td>ORR / ORRI</td><td class="plain-def">bitwise OR</td><td><code>ORR Xd, Xn, Xm</code></td><td>—</td></tr>
+<tr><td>EOR / EORI</td><td class="plain-def">bitwise XOR</td><td><code>EOR Xd, Xn, Xm</code></td><td>—</td></tr>
+<tr><td>LSL / LSR</td><td class="plain-def">logical shift left/right</td><td><code>LSL Xd, Xn, #shamt</code></td><td>LSR fills with 0; ASR fills with sign</td></tr>
+<tr><td>ASR</td><td class="plain-def">arithmetic shift right</td><td><code>ASR Xd, Xn, #shamt</code></td><td>Preserves sign bit</td></tr>
+<tr><td>MOVZ</td><td class="plain-def">move zero-extended immediate</td><td><code>MOVZ Xd, #imm16, LSL #shift</code></td><td>Zeros rest; use to load large constants</td></tr>
+<tr><td>MOVK</td><td class="plain-def">move keep (partial)</td><td><code>MOVK Xd, #imm16, LSL #shift</code></td><td>Keeps other bits; used with MOVZ for 64-bit const</td></tr>
+</tbody>
+</table></div>
+
+<h3>— Memory Access</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Instruction</th><th class="plain-def-header">What it does</th><th>Syntax</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>LDUR</td><td class="plain-def">load register (unscaled)</td><td><code>LDUR Xt, [Xn, #offset]</code></td><td>Loads 64-bit doubleword from memory</td></tr>
+<tr><td>STUR</td><td class="plain-def">store register (unscaled)</td><td><code>STUR Xt, [Xn, #offset]</code></td><td>Stores 64-bit doubleword to memory</td></tr>
+<tr><td>LDURW</td><td class="plain-def">load word (32-bit)</td><td><code>LDURW Wt, [Xn, #offset]</code></td><td>Zero-extends into Xt</td></tr>
+<tr><td>LDURB</td><td class="plain-def">load byte</td><td><code>LDURB Wt, [Xn, #offset]</code></td><td>Zero-extends; for chars</td></tr>
+<tr><td>LDURSW</td><td class="plain-def">load signed word</td><td><code>LDURSW Xt, [Xn, #offset]</code></td><td>Sign-extends 32-bit into 64-bit</td></tr>
+<tr><td>LDR / STR</td><td class="plain-def">load/store (scaled offset)</td><td><code>LDR Xt, [Xn, #imm]</code></td><td>Offset is scaled by data size</td></tr>
+<tr><td>LDP / STP</td><td class="plain-def">load/store pair</td><td><code>STP X29, X30, [SP, #-16]!</code></td><td>Saves two registers; used in prologues</td></tr>
+</tbody>
+</table></div>
+
+<h3>— Control Flow</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Instruction</th><th class="plain-def-header">What it does</th><th>Syntax</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>B</td><td class="plain-def">unconditional branch</td><td><code>B label</code></td><td>PC-relative; 26-bit offset (±128 MB)</td></tr>
+<tr><td>BL</td><td class="plain-def">branch and link (call)</td><td><code>BL func</code></td><td>Saves PC+4 into X30 (LR); jumps to func</td></tr>
+<tr><td>BR</td><td class="plain-def">branch to register</td><td><code>BR Xn</code></td><td>Jump to address in register</td></tr>
+<tr><td>BLR</td><td class="plain-def">branch and link to register</td><td><code>BLR Xn</code></td><td>Call through pointer; saves return addr in X30</td></tr>
+<tr><td>RET</td><td class="plain-def">return from function</td><td><code>RET</code></td><td>Branches to address in X30</td></tr>
+<tr><td>CBZ</td><td class="plain-def">branch if zero</td><td><code>CBZ Xn, label</code></td><td>Does not set flags</td></tr>
+<tr><td>CBNZ</td><td class="plain-def">branch if not zero</td><td><code>CBNZ Xn, label</code></td><td>—</td></tr>
+<tr><td>B.cond</td><td class="plain-def">branch if condition true</td><td><code>B.EQ label</code>, <code>B.LT label</code></td><td>Checks NZCV flags set by prior SUBS/ANDS/CMP</td></tr>
+<tr><td>CMP</td><td class="plain-def">compare (sets flags)</td><td><code>CMP Xn, Xm</code></td><td>Alias for <code>SUBS XZR, Xn, Xm</code>; discards result</td></tr>
+</tbody>
+</table></div>
+
+<h3>Condition Codes for B.cond</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Suffix</th><th class="plain-def-header">Condition</th><th>Flags checked</th><th>Signed or Unsigned</th></tr></thead>
+<tbody>
+<tr><td>EQ</td><td class="plain-def">equal</td><td>Z=1</td><td>Both</td></tr>
+<tr><td>NE</td><td class="plain-def">not equal</td><td>Z=0</td><td>Both</td></tr>
+<tr><td>LT</td><td class="plain-def">less than</td><td>N≠V</td><td>Signed</td></tr>
+<tr><td>LE</td><td class="plain-def">less or equal</td><td>Z=1 or N≠V</td><td>Signed</td></tr>
+<tr><td>GT</td><td class="plain-def">greater than</td><td>Z=0 and N=V</td><td>Signed</td></tr>
+<tr><td>GE</td><td class="plain-def">greater or equal</td><td>N=V</td><td>Signed</td></tr>
+<tr><td>LO / CC</td><td class="plain-def">lower (unsigned &lt;)</td><td>C=0</td><td>Unsigned</td></tr>
+<tr><td>LS</td><td class="plain-def">lower or same</td><td>C=0 or Z=1</td><td>Unsigned</td></tr>
+<tr><td>HI</td><td class="plain-def">higher (unsigned &gt;)</td><td>C=1 and Z=0</td><td>Unsigned</td></tr>
+<tr><td>HS / CS</td><td class="plain-def">higher or same (unsigned ≥)</td><td>C=1</td><td>Unsigned</td></tr>
+<tr><td>MI</td><td class="plain-def">minus / negative</td><td>N=1</td><td>—</td></tr>
+<tr><td>PL</td><td class="plain-def">plus / positive or zero</td><td>N=0</td><td>—</td></tr>
+<tr><td>VS</td><td class="plain-def">overflow set</td><td>V=1</td><td>—</td></tr>
+<tr><td>VC</td><td class="plain-def">overflow clear</td><td>V=0</td><td>—</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 -->
+<section id="addressing">
+<div class="section-header"><span class="section-icon">📍</span><h2>Addressing Modes</h2></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Mode</th><th class="plain-def-header">Address comes from</th><th>ARM syntax</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Register</td><td class="plain-def">value is in a register</td><td><code>Xn</code></td><td><code>ADD X1, X2, X3</code> — operands are regs</td></tr>
+<tr><td>Immediate</td><td class="plain-def">constant embedded in instruction</td><td><code>#imm</code></td><td><code>ADDI X1, X2, #10</code></td></tr>
+<tr><td>Base + Offset</td><td class="plain-def">register + constant offset</td><td><code>[Xn, #offset]</code></td><td><code>LDUR X1, [X2, #8]</code></td></tr>
+<tr><td>Base + Register</td><td class="plain-def">register + register</td><td><code>[Xn, Xm]</code></td><td><code>LDR X1, [X2, X3]</code></td></tr>
+<tr><td>Pre-indexed</td><td class="plain-def">update base before access</td><td><code>[Xn, #imm]!</code></td><td><code>LDR X1, [X2, #8]!</code> — X2 += 8 then load</td></tr>
+<tr><td>Post-indexed</td><td class="plain-def">update base after access</td><td><code>[Xn], #imm</code></td><td><code>LDR X1, [X2], #8</code> — load then X2 += 8</td></tr>
+<tr><td>PC-relative</td><td class="plain-def">offset from program counter</td><td>label / #offset from PC</td><td><code>B label</code>, <code>ADR X0, label</code></td></tr>
+</tbody>
+</table></div>
+<p class="prose">ARM uses <strong>base + offset addressing</strong> as the primary mode for loads/stores. The offset must fit in the immediate field (9 bits signed for LDUR; 12 bits unsigned scaled for LDR).</p>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 -->
+<section id="arithmetic">
+<div class="section-header"><span class="section-icon">🔢</span><h2>Arithmetic &amp; Number Representation</h2></div>
+<h3>Integer Representations</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Representation</th><th class="plain-def-header">How negatives are stored</th><th>Range (n bits)</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Unsigned</td><td class="plain-def">no negatives; all bits = magnitude</td><td>0 to 2ⁿ − 1</td><td>Carry out = overflow</td></tr>
+<tr><td>Two's Complement</td><td class="plain-def">flip bits + 1</td><td>−2ⁿ⁻¹ to 2ⁿ⁻¹ − 1</td><td>MSB has weight −2ⁿ⁻¹; one representation of 0; hardware addition same circuit</td></tr>
+<tr><td>Sign-Magnitude</td><td class="plain-def">MSB = sign, rest = magnitude</td><td>−(2ⁿ⁻¹−1) to 2ⁿ⁻¹−1</td><td>Two zeros; not used in modern CPUs</td></tr>
+<tr><td>One's Complement</td><td class="plain-def">flip all bits</td><td>−(2ⁿ⁻¹−1) to 2ⁿ⁻¹−1</td><td>Two zeros; historical; used in checksums</td></tr>
+<tr><td>Biased / Excess-N</td><td class="plain-def">stored value = true value + bias</td><td>Depends on bias</td><td>Used in IEEE 754 exponent field</td></tr>
+</tbody>
+</table></div>
+
+<h3>Overflow Rules</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Operation</th><th class="plain-def-header">Overflow occurs when...</th><th>Detected by</th></tr></thead>
+<tbody>
+<tr><td>Signed Add</td><td class="plain-def">adding same-sign gives different sign</td><td>V flag set; or (pos + pos = neg) or (neg + neg = pos)</td></tr>
+<tr><td>Signed Sub</td><td class="plain-def">subtracting different sign gives wrong sign</td><td>V flag set</td></tr>
+<tr><td>Unsigned Add</td><td class="plain-def">result smaller than either operand</td><td>C flag set (carry out)</td></tr>
+<tr><td>Unsigned Sub</td><td class="plain-def">result larger than minuend</td><td>C flag clear (borrow)</td></tr>
+</tbody>
+</table></div>
+
+<h3>IEEE 754 Floating Point</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Field</th><th class="plain-def-header">What it stores</th><th>Single (32-bit)</th><th>Double (64-bit)</th></tr></thead>
+<tbody>
+<tr><td>Sign (S)</td><td class="plain-def">positive or negative</td><td>1 bit</td><td>1 bit</td></tr>
+<tr><td>Exponent (E)</td><td class="plain-def">magnitude of scale</td><td>8 bits (bias 127)</td><td>11 bits (bias 1023)</td></tr>
+<tr><td>Mantissa / Fraction (M)</td><td class="plain-def">significant digits</td><td>23 bits</td><td>52 bits</td></tr>
+</tbody>
+</table></div>
+<div class="formula-box">
+<div class="label">IEEE 754 Value (normalized)</div>
+Value = (−1)^S  ×  1.M  ×  2^(E − bias)
+Special: E=0 → denormalized;  E=all 1s, M=0 → ±Infinity;  E=all 1s, M≠0 → NaN
+</div>
+
+<!-- IEEE 754 Bit Layout Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">IEEE 754 Floating-Point Bit Layout</div>
+  <svg viewBox="0 0 720 160" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem">
+    <!-- Single precision label -->
+    <text x="10" y="22" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8">Single Precision (32-bit)</text>
+    <!-- Sign -->
+    <rect x="10" y="28" width="36" height="36" rx="4" fill="#200a0a" stroke="#e87d7d" stroke-width="2"/>
+    <text x="28" y="49" font-size="11" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle" font-weight="700">S</text>
+    <text x="28" y="76" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">1 bit</text>
+    <text x="28" y="86" font-size="7" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">bit 31</text>
+    <!-- Exponent -->
+    <rect x="50" y="28" width="140" height="36" rx="4" fill="#20180a" stroke="#f5c97a" stroke-width="2"/>
+    <text x="120" y="49" font-size="11" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle" font-weight="700">Exponent</text>
+    <text x="120" y="76" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">8 bits, bias=127</text>
+    <text x="120" y="86" font-size="7" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">bits 30–23</text>
+    <!-- Mantissa -->
+    <rect x="194" y="28" width="290" height="36" rx="4" fill="#0a2018" stroke="#7de8b8" stroke-width="2"/>
+    <text x="339" y="49" font-size="11" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle" font-weight="700">Mantissa / Fraction</text>
+    <text x="339" y="76" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">23 bits (hidden leading 1 implied)</text>
+    <text x="339" y="86" font-size="7" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">bits 22–0</text>
+
+    <!-- Double precision -->
+    <text x="10" y="110" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8">Double Precision (64-bit)</text>
+    <rect x="10" y="118" width="20" height="28" rx="3" fill="#200a0a" stroke="#e87d7d" stroke-width="1.5"/>
+    <text x="20" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">S</text>
+    <rect x="34" y="118" width="110" height="28" rx="3" fill="#20180a" stroke="#f5c97a" stroke-width="1.5"/>
+    <text x="89" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">Exp 11 bits, bias=1023</text>
+    <rect x="148" y="118" width="430" height="28" rx="3" fill="#0a2018" stroke="#7de8b8" stroke-width="1.5"/>
+    <text x="363" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">Mantissa — 52 bits  (higher precision, smaller rounding error)</text>
+
+    <!-- Special values note -->
+    <text x="500" y="56" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb">Special values:</text>
+    <text x="500" y="68" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d">E=11111111, M=0  →  ±∞</text>
+    <text x="500" y="80" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d">E=11111111, M≠0  →  NaN</text>
+    <text x="500" y="92" font-size="8" font-family="'DM Mono',monospace" fill="#555">E=00000000  →  denormal</text>
+  </svg>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 -->
+<section id="datapath">
+<div class="section-header"><span class="section-icon">⚙</span><h2>Datapath &amp; ALU</h2></div>
+<h3>Datapath Components</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Component</th><th class="plain-def-header">What it does</th><th>Key signals / ports</th></tr></thead>
+<tbody>
+<tr><td>PC (Program Counter)</td><td class="plain-def">tracks current instruction address</td><td>Output: current address; Input: next address (PC+4 or branch target)</td></tr>
+<tr><td>Instruction Memory</td><td class="plain-def">holds instructions</td><td>Input: address; Output: 32-bit instruction</td></tr>
+<tr><td>Register File</td><td class="plain-def">31 GPRs + XZR; 2 read, 1 write</td><td>Read reg 1, Read reg 2, Write reg; Read data 1, Read data 2; Write data; RegWrite</td></tr>
+<tr><td>ALU</td><td class="plain-def">performs arithmetic &amp; logic</td><td>A, B inputs; Result, Zero flag; ALU control</td></tr>
+<tr><td>Data Memory</td><td class="plain-def">read/write RAM for loads/stores</td><td>Address, Write data; Read data; MemRead, MemWrite</td></tr>
+<tr><td>Sign Extender</td><td class="plain-def">extends immediate to 64 bits</td><td>Input: n-bit immediate; Output: 64-bit signed extended value</td></tr>
+<tr><td>Shift Left 2 / 1</td><td class="plain-def">scales branch offset by 4 (2 bits)</td><td>Converts instruction-word offset to byte offset</td></tr>
+<tr><td>MUX (Multiplexer)</td><td class="plain-def">selects between inputs based on control</td><td>2-input: select bit chooses A or B</td></tr>
+<tr><td>Adder</td><td class="plain-def">pure addition, no flags</td><td>PC+4; branch target computation</td></tr>
+</tbody>
+</table></div>
+
+<!-- Single-Cycle Datapath Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">ARM Single-Cycle Datapath — Block Diagram</div>
+  <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+    <defs>
+      <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#9aa0bb"/>
+      </marker>
+      <marker id="arrBlue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#6eb5f8"/>
+      </marker>
+      <marker id="arrGreen" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#7de8b8"/>
+      </marker>
+    </defs>
+
+    <!-- PC box -->
+    <rect x="10" y="100" width="52" height="40" rx="5" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="36" y="124" font-size="10" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle" font-weight="700">PC</text>
+
+    <!-- Instr Memory -->
+    <rect x="80" y="80" width="88" height="80" rx="5" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+    <text x="124" y="112" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Instruction</text>
+    <text x="124" y="126" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Memory</text>
+    <text x="124" y="140" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">[Read Only]</text>
+
+    <!-- Control -->
+    <rect x="186" y="30" width="80" height="40" rx="5" fill="#20180a" stroke="#f5c97a" stroke-width="1.5"/>
+    <text x="226" y="48" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">Control</text>
+    <text x="226" y="62" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">Unit</text>
+
+    <!-- Register File -->
+    <rect x="200" y="80" width="100" height="90" rx="5" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+    <text x="250" y="108" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Register</text>
+    <text x="250" y="122" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">File</text>
+    <text x="250" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">31 × 64-bit</text>
+    <text x="250" y="150" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">+ XZR</text>
+
+    <!-- Sign Extend -->
+    <rect x="200" y="192" width="100" height="30" rx="5" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="250" y="211" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Sign Extend</text>
+
+    <!-- MUX1 (ALU src) -->
+    <polygon points="325,88 325,158 340,148 340,98" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="329" y="126" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">M</text>
+    <text x="329" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">U</text>
+    <text x="329" y="146" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">X</text>
+
+    <!-- ALU -->
+    <polygon points="360,90 360,180 400,165 400,105" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="378" y="133" font-size="11" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle" font-weight="700">ALU</text>
+    <text x="378" y="147" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Zero</text>
+
+    <!-- Data Memory -->
+    <rect x="430" y="100" width="100" height="70" rx="5" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+    <text x="480" y="130" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Data</text>
+    <text x="480" y="144" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Memory</text>
+    <text x="480" y="158" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">R/W</text>
+
+    <!-- MUX2 (WB src) -->
+    <polygon points="550,108 550,162 565,152 565,118" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="554" y="136" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">M</text>
+    <text x="554" y="146" font-size="8" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">X</text>
+
+    <!-- Write-back arrow back to reg file -->
+    <text x="590" y="136" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">→ WB</text>
+    <text x="590" y="150" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb">(to reg file)</text>
+
+    <!-- PC+4 adder -->
+    <circle cx="42" cy="60" r="14" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="42" y="64" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">+4</text>
+
+    <!-- Arrows -->
+    <!-- PC → Instr Mem -->
+    <line x1="62" y1="120" x2="78" y2="120" stroke="#6eb5f8" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+    <text x="65" y="114" font-size="7" font-family="'DM Mono',monospace" fill="#6eb5f8">addr</text>
+    <!-- PC → adder -->
+    <line x1="36" y1="100" x2="36" y2="74" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <line x1="36" y1="60" x2="56" y2="60" stroke="#9aa0bb" stroke-width="1"/>
+    <!-- Instr → Control -->
+    <line x1="168" y1="100" x2="184" y2="60" stroke="#f5c97a" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+    <!-- Instr → Reg File -->
+    <line x1="168" y1="110" x2="198" y2="110" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <!-- Reg File → MUX1 -->
+    <line x1="300" y1="105" x2="323" y2="105" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <line x1="300" y1="145" x2="323" y2="145" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <!-- Sign Extend → MUX1 -->
+    <line x1="250" y1="192" x2="250" y2="170" stroke="#9aa0bb" stroke-width="1"/>
+    <line x1="250" y1="170" x2="323" y2="150" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <!-- MUX1 → ALU -->
+    <line x1="341" y1="120" x2="358" y2="120" stroke="#6eb5f8" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+    <!-- ALU → Data Mem -->
+    <line x1="401" y1="130" x2="428" y2="130" stroke="#6eb5f8" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+    <text x="404" y="124" font-size="7" font-family="'DM Mono',monospace" fill="#6eb5f8">addr/result</text>
+    <!-- Reg File WB → Data Mem -->
+    <line x1="300" y1="155" x2="428" y2="155" stroke="#9aa0bb" stroke-width="1" marker-end="url(#arr)"/>
+    <text x="340" y="163" font-size="7" font-family="'DM Mono',monospace" fill="#9aa0bb">write data</text>
+    <!-- Data Mem → MUX2 -->
+    <line x1="530" y1="130" x2="548" y2="130" stroke="#7de8b8" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+    <!-- ALU result → MUX2 (bypass) -->
+    <line x1="401" y1="118" x2="420" y2="118" stroke="#6eb5f8" stroke-width="1"/>
+    <line x1="420" y1="118" x2="420" y2="95" stroke="#6eb5f8" stroke-width="1"/>
+    <line x1="420" y1="95" x2="548" y2="120" stroke="#6eb5f8" stroke-width="1" marker-end="url(#arrBlue)"/>
+
+    <!-- Legend -->
+    <line x1="10" y1="240" x2="40" y2="240" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="44" y="244" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8">data path</text>
+    <line x1="120" y1="240" x2="150" y2="240" stroke="#f5c97a" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="154" y="244" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a">control signals</text>
+    <line x1="260" y1="240" x2="290" y2="240" stroke="#7de8b8" stroke-width="1.5"/>
+    <text x="294" y="244" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">memory read data</text>
+  </svg>
+</div>
+
+<h3>ALU Operations &amp; Control</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ALU Control</th><th class="plain-def-header">Operation performed</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td>0000</td><td class="plain-def">AND</td><td>AND / ANDI</td></tr>
+<tr><td>0001</td><td class="plain-def">OR</td><td>ORR / ORRI</td></tr>
+<tr><td>0010</td><td class="plain-def">Add</td><td>ADD, LDUR, STUR</td></tr>
+<tr><td>0110</td><td class="plain-def">Subtract</td><td>SUB, SUBS, CMP, CBZ</td></tr>
+<tr><td>0111</td><td class="plain-def">Set-on-less-than</td><td>Comparison result in some ISAs</td></tr>
+<tr><td>1100</td><td class="plain-def">NOR</td><td>—</td></tr>
+</tbody>
+</table></div>
+<p class="prose">The ALU Control is generated by a small <strong>ALU control unit</strong> from the main control's ALUOp field combined with instruction bits [28:21] for R-type/D-type disambiguation.</p>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 -->
+<section id="control">
+<div class="section-header"><span class="section-icon">🎛</span><h2>Control Unit</h2></div>
+<h3>Main Control Signals</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Signal</th><th class="plain-def-header">Controls</th><th>0 means</th><th>1 means</th></tr></thead>
+<tbody>
+<tr><td>Reg2Loc</td><td class="plain-def">register file read port 2 source</td><td>Read Rm (R-type)</td><td>Read Rt (CB-type)</td></tr>
+<tr><td>UnconBr</td><td class="plain-def">unconditional branch</td><td>Not B-type</td><td>B instruction — always branch</td></tr>
+<tr><td>Branch</td><td class="plain-def">conditional branch taken</td><td>Not a branch</td><td>Branch if Zero (CBZ)</td></tr>
+<tr><td>MemRead</td><td class="plain-def">data memory read enable</td><td>No read</td><td>LDUR — read memory</td></tr>
+<tr><td>MemToReg</td><td class="plain-def">what goes into register write data</td><td>ALU result</td><td>Data memory output</td></tr>
+<tr><td>ALUOp</td><td class="plain-def">high-level ALU operation hint</td><td>00=add; 01=sub; 10=look at instruction</td><td>— (2-bit field)</td></tr>
+<tr><td>MemWrite</td><td class="plain-def">data memory write enable</td><td>No write</td><td>STUR — write memory</td></tr>
+<tr><td>ALUSrc</td><td class="plain-def">ALU second input source</td><td>Register (Rm)</td><td>Sign-extended immediate</td></tr>
+<tr><td>RegWrite</td><td class="plain-def">register file write enable</td><td>No register write</td><td>Write result to Rd</td></tr>
+</tbody>
+</table></div>
+
+<h3>Control Signal Truth Table (key instructions)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Instruction</th><th>Reg2Loc</th><th>ALUSrc</th><th>MemToReg</th><th>RegWrite</th><th>MemRead</th><th>MemWrite</th><th>Branch</th><th>ALUOp</th></tr></thead>
+<tbody>
+<tr><td>R-type (ADD/SUB…)</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>10</td></tr>
+<tr><td>LDUR</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>00</td></tr>
+<tr><td>STUR</td><td>1</td><td>1</td><td>X</td><td>0</td><td>0</td><td>1</td><td>0</td><td>00</td></tr>
+<tr><td>CBZ</td><td>1</td><td>0</td><td>X</td><td>0</td><td>0</td><td>0</td><td>1</td><td>01</td></tr>
+<tr><td>B (unconditional)</td><td>X</td><td>X</td><td>X</td><td>0</td><td>0</td><td>0</td><td>X</td><td>XX</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 -->
+<section id="pipeline">
+<div class="section-header"><span class="section-icon">🔄</span><h2>Pipelining</h2></div>
+<h3>The 5-Stage ARM Pipeline</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th class="plain-def-header">What happens</th><th>Abbreviation</th><th>Key hardware used</th></tr></thead>
+<tbody>
+<tr><td>Instruction Fetch</td><td class="plain-def">get instruction from memory</td><td>IF</td><td>PC, Instruction Memory, PC+4 Adder</td></tr>
+<tr><td>Instruction Decode / Register Read</td><td class="plain-def">decode opcode; read registers</td><td>ID</td><td>Control unit, Register File read ports</td></tr>
+<tr><td>Execute / Address Calculate</td><td class="plain-def">ALU computes result or address</td><td>EX</td><td>ALU, MUXes for ALUSrc, branch adder</td></tr>
+<tr><td>Memory Access</td><td class="plain-def">read or write data memory</td><td>MEM</td><td>Data Memory, branch resolution</td></tr>
+<tr><td>Write Back</td><td class="plain-def">write result to register file</td><td>WB</td><td>Register File write port, MUX for MemToReg</td></tr>
+</tbody>
+</table></div>
+
+<h3>Pipeline Registers</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Register</th><th class="plain-def-header">Sits between</th><th>Holds</th></tr></thead>
+<tbody>
+<tr><td>IF/ID</td><td class="plain-def">IF and ID stages</td><td>Fetched instruction, PC+4</td></tr>
+<tr><td>ID/EX</td><td class="plain-def">ID and EX stages</td><td>Control signals, register values, immediate, register numbers</td></tr>
+<tr><td>EX/MEM</td><td class="plain-def">EX and MEM stages</td><td>ALU result, Zero flag, Write data, control signals, destination reg</td></tr>
+<tr><td>MEM/WB</td><td class="plain-def">MEM and WB stages</td><td>Memory read data or ALU result, destination reg, control signals</td></tr>
+</tbody>
+</table></div>
+
+<!-- Pipeline Timing Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">5-Stage Pipeline — 4-Instruction Timing Diagram</div>
+  <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+    <!-- Stage labels col -->
+    <text x="8" y="50" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8">I1</text>
+    <text x="8" y="90" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">I2</text>
+    <text x="8" y="130" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a">I3</text>
+    <text x="8" y="170" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d">I4</text>
+
+    <!-- Clock cycle labels -->
+    <text x="30" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC1</text>
+    <text x="140" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC2</text>
+    <text x="250" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC3</text>
+    <text x="360" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC4</text>
+    <text x="470" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC5</text>
+    <text x="580" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC6</text>
+    <text x="690" y="20" font-size="9" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">CC7</text>
+
+    <!-- I1: starts CC1 -->
+    <rect x="20" y="30" width="90" height="28" rx="4" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="65" y="49" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">IF</text>
+    <rect x="130" y="30" width="90" height="28" rx="4" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="175" y="49" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">ID</text>
+    <rect x="240" y="30" width="90" height="28" rx="4" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="285" y="49" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">EX</text>
+    <rect x="350" y="30" width="90" height="28" rx="4" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="395" y="49" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">MEM</text>
+    <rect x="460" y="30" width="90" height="28" rx="4" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="505" y="49" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">WB</text>
+
+    <!-- I2: starts CC2 -->
+    <rect x="130" y="70" width="90" height="28" rx="4" fill="#0a2018" stroke="#7de8b8" stroke-width="1.5"/>
+    <text x="175" y="89" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">IF</text>
+    <rect x="240" y="70" width="90" height="28" rx="4" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="285" y="89" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">ID</text>
+    <rect x="350" y="70" width="90" height="28" rx="4" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="395" y="89" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">EX</text>
+    <rect x="460" y="70" width="90" height="28" rx="4" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="505" y="89" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">MEM</text>
+    <rect x="570" y="70" width="90" height="28" rx="4" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="615" y="89" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">WB</text>
+
+    <!-- I3: starts CC3 -->
+    <rect x="240" y="110" width="90" height="28" rx="4" fill="#20180a" stroke="#f5c97a" stroke-width="1.5"/>
+    <text x="285" y="129" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">IF</text>
+    <rect x="350" y="110" width="90" height="28" rx="4" fill="#1a2030" stroke="#f5c97a" stroke-width="1"/>
+    <text x="395" y="129" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">ID</text>
+    <rect x="460" y="110" width="90" height="28" rx="4" fill="#1a2030" stroke="#f5c97a" stroke-width="1"/>
+    <text x="505" y="129" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">EX</text>
+    <rect x="570" y="110" width="90" height="28" rx="4" fill="#1a2030" stroke="#f5c97a" stroke-width="1"/>
+    <text x="615" y="129" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">MEM</text>
+    <rect x="680" y="110" width="30" height="28" rx="4" fill="#1a2030" stroke="#f5c97a" stroke-width="1"/>
+    <text x="695" y="129" font-size="7" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">WB</text>
+
+    <!-- I4: starts CC4 -->
+    <rect x="350" y="150" width="90" height="28" rx="4" fill="#200a0a" stroke="#e87d7d" stroke-width="1.5"/>
+    <text x="395" y="169" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">IF</text>
+    <rect x="460" y="150" width="90" height="28" rx="4" fill="#1a2030" stroke="#e87d7d" stroke-width="1"/>
+    <text x="505" y="169" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">ID</text>
+    <rect x="570" y="150" width="90" height="28" rx="4" fill="#1a2030" stroke="#e87d7d" stroke-width="1"/>
+    <text x="615" y="169" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">EX</text>
+    <rect x="680" y="150" width="30" height="28" rx="4" fill="#1a2030" stroke="#e87d7d" stroke-width="1"/>
+    <text x="695" y="169" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">MEM</text>
+
+    <!-- Pipeline register dividers (vertical dashed lines) -->
+    <line x1="120" y1="25" x2="120" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="230" y1="25" x2="230" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="340" y1="25" x2="340" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="450" y1="25" x2="450" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="560" y1="25" x2="560" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="670" y1="25" x2="670" y2="185" stroke="#2e3340" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- pipeline register labels at top -->
+    <text x="120" y="18" font-size="7" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">IF/ID</text>
+    <text x="230" y="18" font-size="7" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">ID/EX</text>
+    <text x="340" y="18" font-size="7" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">EX/MEM</text>
+    <text x="450" y="18" font-size="7" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">MEM/WB</text>
+  </svg>
+</div>
+
+<h3>Pipelining Key Concepts</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Formula / Notes</th></tr></thead>
+<tbody>
+<tr><td>Pipeline depth</td><td class="plain-def">number of stages</td><td>ARM: 5 stages; modern processors: 15–20+</td></tr>
+<tr><td>Throughput improvement</td><td class="plain-def">ideally one instruction per cycle</td><td>Ideal CPI = 1 when pipeline full; limited by hazards</td></tr>
+<tr><td>Latency</td><td class="plain-def">time for one instruction</td><td>Still 5 cycles end-to-end; pipelining improves throughput, not latency</td></tr>
+<tr><td>Clock cycle time</td><td class="plain-def">determined by slowest stage</td><td>All stages must complete in one cycle; balance stages to maximize clock rate</td></tr>
+<tr><td>Pipeline speedup (ideal)</td><td class="plain-def">equal to pipeline depth</td><td>Speedup ≈ depth if stages balanced; hazards reduce this</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 -->
+<section id="hazards">
+<div class="section-header"><span class="section-icon">⚠</span><h2>Pipeline Hazards</h2></div>
+<h3>Types of Hazards</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Hazard Type</th><th class="plain-def-header">Problem</th><th>Causes</th><th>Solutions</th></tr></thead>
+<tbody>
+<tr><td>Structural Hazard</td><td class="plain-def">hardware conflict</td><td>Two instructions need same resource in same cycle (e.g., one memory for both instr. fetch and data)</td><td>Separate instruction &amp; data memory (Harvard); add more hardware units</td></tr>
+<tr><td>Data Hazard (RAW)</td><td class="plain-def">read before write completes</td><td>Instruction needs result not yet written back by earlier instruction</td><td>Forwarding (bypassing), pipeline stalls (bubbles), compiler scheduling</td></tr>
+<tr><td>Data Hazard (WAR)</td><td class="plain-def">write before stale read completes</td><td>Out-of-order: later write reaches dest before earlier read sees old value</td><td>In-order pipelines: rarely an issue; out-of-order: register renaming</td></tr>
+<tr><td>Data Hazard (WAW)</td><td class="plain-def">two writes, wrong order</td><td>Out-of-order: second write completes before first</td><td>Register renaming, in-order commit</td></tr>
+<tr><td>Control Hazard</td><td class="plain-def">branch destination unknown</td><td>Branch outcome not known until EX or MEM; wrong instructions fetched</td><td>Stall (flush 2–3 instructions), branch prediction, delayed branches</td></tr>
+</tbody>
+</table></div>
+
+<h3>Forwarding (Bypassing)</h3>
+<p class="prose">Instead of waiting for Write Back, route ALU result directly from EX/MEM or MEM/WB pipeline register back to the ALU input of a later instruction in EX stage.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Forwarding path</th><th class="plain-def-header">From where to where</th><th>Handles</th></tr></thead>
+<tbody>
+<tr><td>EX-EX Forward</td><td class="plain-def">EX/MEM → ID/EX (ALU input)</td><td>1-cycle-earlier dependency (immediate successor)</td></tr>
+<tr><td>MEM-EX Forward</td><td class="plain-def">MEM/WB → ID/EX (ALU input)</td><td>2-cycle-earlier dependency</td></tr>
+<tr><td>Load-Use Hazard</td><td class="plain-def">cannot forward in time</td><td>LDUR result not available until after MEM stage; need 1 stall (bubble) even with forwarding</td></tr>
+</tbody>
+</table></div>
+
+<!-- Forwarding / Load-Use Hazard Visual -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Data Forwarding vs Load-Use Stall</div>
+  <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+    <defs>
+      <marker id="fwdArr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#7de8b8"/>
+      </marker>
+      <marker id="stlArr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#e87d7d"/>
+      </marker>
+    </defs>
+
+    <!-- Section A: Forwarding -->
+    <text x="10" y="18" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" letter-spacing="0.06em">EX-EX Forwarding  (ADD X1,X2,X3  →  SUB X4,X1,X5)</text>
+
+    <!-- I1 row -->
+    <text x="4" y="42" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8">I1</text>
+    <rect x="20" y="28" width="70" height="22" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="55" y="43" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">IF</text>
+    <rect x="100" y="28" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="135" y="43" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">ID</text>
+    <rect x="180" y="28" width="70" height="22" rx="3" fill="#0a2030" stroke="#6eb5f8" stroke-width="2"/>
+    <text x="215" y="43" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">EX ★</text>
+    <rect x="260" y="28" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="295" y="43" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">MEM</text>
+    <rect x="340" y="28" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="375" y="43" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">WB</text>
+
+    <!-- I2 row -->
+    <text x="4" y="82" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8">I2</text>
+    <rect x="100" y="68" width="70" height="22" rx="3" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="135" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">IF</text>
+    <rect x="180" y="68" width="70" height="22" rx="3" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="215" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">ID</text>
+    <rect x="260" y="68" width="70" height="22" rx="3" fill="#0a2018" stroke="#7de8b8" stroke-width="2"/>
+    <text x="295" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">EX ★</text>
+    <rect x="340" y="68" width="70" height="22" rx="3" fill="#1a2030" stroke="#7de8b8" stroke-width="1"/>
+    <text x="375" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">MEM</text>
+
+    <!-- Forwarding arrow: EX/MEM of I1 → EX input of I2 -->
+    <path d="M 250,39 L 250,55 L 258,79" stroke="#7de8b8" stroke-width="1.5" fill="none" stroke-dasharray="3,2" marker-end="url(#fwdArr)"/>
+    <text x="190" y="60" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8">forward EX→EX</text>
+
+    <!-- Section B: Load-Use Stall -->
+    <text x="10" y="118" font-size="10" font-family="'DM Mono',monospace" fill="#e87d7d" letter-spacing="0.06em">Load-Use Hazard — 1 Stall Required  (LDUR X1, [X2]  →  ADD X3, X1, X4)</text>
+
+    <!-- I3 LDUR row -->
+    <text x="4" y="142" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8">I3</text>
+    <rect x="20" y="128" width="70" height="22" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="55" y="143" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">IF</text>
+    <rect x="100" y="128" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="135" y="143" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">ID</text>
+    <rect x="180" y="128" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="215" y="143" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">EX</text>
+    <rect x="260" y="128" width="70" height="22" rx="3" fill="#0a2030" stroke="#6eb5f8" stroke-width="2"/>
+    <text x="295" y="143" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">MEM★</text>
+    <rect x="340" y="128" width="70" height="22" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="375" y="143" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">WB</text>
+
+    <!-- I4 ADD row with stall bubble -->
+    <text x="4" y="182" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d">I4</text>
+    <rect x="100" y="168" width="70" height="22" rx="3" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+    <text x="135" y="183" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">IF</text>
+    <rect x="180" y="168" width="70" height="22" rx="3" fill="#1a1a1a" stroke="#444" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="215" y="183" font-size="8" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">STALL</text>
+    <rect x="260" y="168" width="70" height="22" rx="3" fill="#1a2030" stroke="#e87d7d" stroke-width="1"/>
+    <text x="295" y="183" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">ID</text>
+    <rect x="340" y="168" width="70" height="22" rx="3" fill="#200a0a" stroke="#e87d7d" stroke-width="2"/>
+    <text x="375" y="183" font-size="8" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">EX ★</text>
+
+    <!-- Forwarding MEM→EX arrow for load-use -->
+    <path d="M 330,139 L 330,157 L 338,172" stroke="#7de8b8" stroke-width="1.5" fill="none" stroke-dasharray="3,2" marker-end="url(#fwdArr)"/>
+    <text x="348" y="158" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8">MEM→EX fwd</text>
+
+    <!-- Stall arrow label -->
+    <rect x="178" y="195" width="72" height="14" rx="2" fill="#1a0808" stroke="#e87d7d" stroke-width="0.5"/>
+    <text x="214" y="206" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">1-cycle bubble</text>
+  </svg>
+</div>
+
+<h3>Branch Prediction</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Strategy</th><th class="plain-def-header">What it does</th><th>Accuracy / Notes</th></tr></thead>
+<tbody>
+<tr><td>Flush / Stall</td><td class="plain-def">wait for branch outcome</td><td>Always correct; 2-cycle penalty every branch</td></tr>
+<tr><td>Predict Not Taken</td><td class="plain-def">assume branch not taken; keep fetching</td><td>Simple; flush if wrong; good for forward branches</td></tr>
+<tr><td>Predict Taken</td><td class="plain-def">assume branch taken</td><td>Good for backward branches (loops)</td></tr>
+<tr><td>1-bit Predictor</td><td class="plain-def">remember last outcome</td><td>Mispredicts first and last iteration of loops</td></tr>
+<tr><td>2-bit Predictor</td><td class="plain-def">change prediction only after 2 misses</td><td>Much better for loops; standard in modern CPUs</td></tr>
+<tr><td>Tournament Predictor</td><td class="plain-def">choose between local &amp; global predictors</td><td>&gt;95% accuracy typical; modern CPUs use neural/perceptron predictors</td></tr>
+</tbody>
+</table></div>
+
+<h3>Pipeline Stall (Bubble)</h3>
+<p class="prose">A <strong>stall</strong> inserts a NOP-equivalent cycle (bubble) into the pipeline by holding the PC and IF/ID registers and inserting zeros into the ID/EX register. This gives earlier instructions time to complete.</p>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 -->
+<section id="memory">
+<div class="section-header"><span class="section-icon">💾</span><h2>Memory &amp; Storage</h2></div>
+<h3>Memory Hierarchy Overview</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Level</th><th class="plain-def-header">Speed / Size trade-off</th><th>Typical size</th><th>Access time</th><th>Technology</th></tr></thead>
+<tbody>
+<tr><td>Registers</td><td class="plain-def">fastest; tiny</td><td>31 × 64 bits ≈ 248 bytes</td><td>&lt;1 ns (&lt;1 cycle)</td><td>Flip-flops (SRAM)</td></tr>
+<tr><td>L1 Cache</td><td class="plain-def">very fast; small</td><td>16 – 64 KB</td><td>~1 ns (2–4 cycles)</td><td>SRAM</td></tr>
+<tr><td>L2 Cache</td><td class="plain-def">fast; moderate</td><td>256 KB – 2 MB</td><td>~5 ns (10–20 cycles)</td><td>SRAM</td></tr>
+<tr><td>L3 Cache (LLC)</td><td class="plain-def">slower; large</td><td>4 – 32 MB</td><td>~20 ns (40–60 cycles)</td><td>SRAM</td></tr>
+<tr><td>Main Memory (DRAM)</td><td class="plain-def">slow; large</td><td>8 – 512 GB</td><td>~50–100 ns (200+ cycles)</td><td>DRAM</td></tr>
+<tr><td>SSD / Flash</td><td class="plain-def">very slow; very large</td><td>256 GB – 4 TB</td><td>~100 µs</td><td>NAND Flash</td></tr>
+<tr><td>HDD / Magnetic</td><td class="plain-def">slowest; biggest</td><td>1 – 20 TB</td><td>~5–10 ms</td><td>Magnetic disk</td></tr>
+</tbody>
+</table></div>
+
+<!-- Memory Hierarchy Pyramid -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Memory Hierarchy — Speed vs Capacity</div>
+  <svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.5rem 1.25rem">
+    <!-- Pyramid tiers, bottom to top -->
+    <!-- HDD -->
+    <polygon points="60,290 660,290 620,250 100,250" fill="#141418" stroke="#2e3340" stroke-width="1"/>
+    <text x="360" y="275" font-size="11" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">HDD / Magnetic Disk</text>
+    <text x="360" y="287" font-size="9" font-family="'DM Mono',monospace" fill="#444" text-anchor="middle">1–20 TB  ·  5–10 ms  ·  cheapest</text>
+
+    <!-- SSD -->
+    <polygon points="100,248 620,248 580,210 140,210" fill="#161618" stroke="#2e3340" stroke-width="1"/>
+    <text x="360" y="232" font-size="11" font-family="'DM Mono',monospace" fill="#666" text-anchor="middle">SSD / NAND Flash</text>
+    <text x="360" y="244" font-size="9" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">256 GB – 4 TB  ·  ~100 µs</text>
+
+    <!-- DRAM -->
+    <polygon points="140,208 580,208 540,170 180,170" fill="#18191e" stroke="#2e3340" stroke-width="1"/>
+    <text x="360" y="192" font-size="11" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Main Memory (DRAM)</text>
+    <text x="360" y="204" font-size="9" font-family="'DM Mono',monospace" fill="#777" text-anchor="middle">8 – 512 GB  ·  50–100 ns</text>
+
+    <!-- L3 Cache -->
+    <polygon points="180,168 540,168 500,130 220,130" fill="#1a2028" stroke="#2e3340" stroke-width="1"/>
+    <text x="360" y="151" font-size="11" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">L3 Cache  (LLC)</text>
+    <text x="360" y="163" font-size="9" font-family="'DM Mono',monospace" fill="#777" text-anchor="middle">4–32 MB  ·  ~20 ns</text>
+
+    <!-- L2 Cache -->
+    <polygon points="220,128 500,128 460,90 260,90" fill="#1c2432" stroke="#6eb5f8" stroke-width="0.5"/>
+    <text x="360" y="111" font-size="11" font-family="'DM Mono',monospace" fill="#8aaae0" text-anchor="middle">L2 Cache</text>
+    <text x="360" y="123" font-size="9" font-family="'DM Mono',monospace" fill="#6e88b8" text-anchor="middle">256 KB – 2 MB  ·  ~5 ns</text>
+
+    <!-- L1 Cache -->
+    <polygon points="260,88 460,88 420,50 300,50" fill="#1a2a40" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="360" y="70" font-size="11" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">L1 Cache</text>
+    <text x="360" y="82" font-size="9" font-family="'DM Mono',monospace" fill="#4e8ab8" text-anchor="middle">16–64 KB  ·  ~1 ns</text>
+
+    <!-- Registers -->
+    <polygon points="300,48 420,48 400,14 320,14" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="360" y="30" font-size="10" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Registers</text>
+    <text x="360" y="42" font-size="8" font-family="'DM Mono',monospace" fill="#4e8ab8" text-anchor="middle">&lt;1 ns</text>
+
+    <!-- Side labels -->
+    <text x="28" y="50" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle" transform="rotate(-90,28,160)">← FASTER / SMALLER / COSTLIER</text>
+    <text x="692" y="240" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle" transform="rotate(90,692,160)">← SLOWER / LARGER / CHEAPER</text>
+  </svg>
+</div>
+
+<h3>Locality Principles</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Principle</th><th class="plain-def-header">What it means</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Temporal Locality</td><td class="plain-def">recently used items used again soon</td><td>Loop variable accessed every iteration; instruction in tight loop</td></tr>
+<tr><td>Spatial Locality</td><td class="plain-def">items near recently used items used soon</td><td>Array traversal: accessing A[0] → likely A[1], A[2]… soon</td></tr>
+</tbody>
+</table></div>
+<p class="prose">The entire memory hierarchy exploits <strong>locality</strong>: caches work because programs reuse data (temporal) and access nearby addresses (spatial).</p>
+
+<h3>Memory Technology Terms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">What it is</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>SRAM</td><td class="plain-def">static RAM; holds data without refresh</td><td>6 transistors/bit; fast; expensive; used in caches</td></tr>
+<tr><td>DRAM</td><td class="plain-def">dynamic RAM; needs periodic refresh</td><td>1 transistor + 1 capacitor/bit; dense; slower; used for main memory</td></tr>
+<tr><td>SDRAM</td><td class="plain-def">synchronous DRAM</td><td>Synchronized to system clock; DDR variants double data rate</td></tr>
+<tr><td>DDR4 / DDR5</td><td class="plain-def">modern main memory standard</td><td>Double Data Rate: transfer on both rising and falling clock edges</td></tr>
+<tr><td>Volatile</td><td class="plain-def">data lost on power off</td><td>SRAM, DRAM</td></tr>
+<tr><td>Non-volatile</td><td class="plain-def">data persists without power</td><td>Flash (SSD), HDD, ROM</td></tr>
+<tr><td>Row / Column Address</td><td class="plain-def">DRAM addressing</td><td>RAS (row address strobe) then CAS (column address strobe)</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 -->
+<section id="cache">
+<div class="section-header"><span class="section-icon">🗄</span><h2>Cache</h2></div>
+<h3>Cache Terminology</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Hit</td><td class="plain-def">data found in cache</td><td>Requested data is in the cache; fast access</td></tr>
+<tr><td>Miss</td><td class="plain-def">data not in cache</td><td>Must go to lower level memory; slow</td></tr>
+<tr><td>Hit Rate</td><td class="plain-def">fraction of accesses that hit</td><td>= Hits / Total accesses</td></tr>
+<tr><td>Miss Rate</td><td class="plain-def">fraction that miss</td><td>= 1 − Hit Rate</td></tr>
+<tr><td>Hit Time</td><td class="plain-def">time to access cache on hit</td><td>Typically 2–5 cycles for L1</td></tr>
+<tr><td>Miss Penalty</td><td class="plain-def">extra time to fetch from lower level</td><td>Cycles to bring data from DRAM: 100–200 cycles</td></tr>
+<tr><td>AMAT</td><td class="plain-def">average memory access time</td><td>= Hit Time + Miss Rate × Miss Penalty</td></tr>
+<tr><td>Block / Line</td><td class="plain-def">unit of data transfer</td><td>Data moved between levels in blocks (e.g., 64 bytes)</td></tr>
+<tr><td>Tag</td><td class="plain-def">identifies which memory block is cached</td><td>Upper bits of address</td></tr>
+<tr><td>Index</td><td class="plain-def">selects which cache set to look in</td><td>Middle bits of address</td></tr>
+<tr><td>Offset</td><td class="plain-def">which byte within a block</td><td>Lower bits of address</td></tr>
+<tr><td>Valid bit</td><td class="plain-def">is this entry meaningful?</td><td>0 at startup; set to 1 on first load</td></tr>
+<tr><td>Dirty bit</td><td class="plain-def">has block been modified?</td><td>Set when cache block written but not yet to memory (write-back)</td></tr>
+</tbody>
+</table></div>
+
+<h3>Cache Organization</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th class="plain-def-header">How blocks map to sets</th><th>Sets</th><th>Ways</th><th>Pro / Con</th></tr></thead>
+<tbody>
+<tr><td>Direct Mapped</td><td class="plain-def">each block → exactly 1 set</td><td>Many (=# of blocks)</td><td>1</td><td>Simple, fast; high conflict miss rate</td></tr>
+<tr><td>Fully Associative</td><td class="plain-def">block goes anywhere</td><td>1</td><td>All blocks</td><td>Lowest conflict miss rate; complex, expensive</td></tr>
+<tr><td>N-Way Set Associative</td><td class="plain-def">block maps to 1 set of N slots</td><td># of sets</td><td>N (2, 4, 8…)</td><td>Balance; most common (L1: 4–8 way, L2: 8–16)</td></tr>
+</tbody>
+</table></div>
+
+<h3>Address Decomposition</h3>
+<div class="formula-box">
+<div class="label">Cache Address Bits</div>
+| Tag bits | Index bits | Block Offset bits |
+                               └─ log₂(block_size)
+              └─ log₂(number_of_sets)
+└─ remaining upper bits
+</div>
+
+<!-- Cache Structure Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Cache Address Decomposition &amp; Set-Associative Structure</div>
+  <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+
+    <!-- Address bits breakdown (64-bit addr, 4-way, 64 sets, 64-byte block) -->
+    <!-- Offset: log2(64) = 6 bits; Index: log2(64) = 6 bits; Tag: 52 bits -->
+    <text x="10" y="18" font-size="10" font-family="'DM Mono',monospace" fill="#9aa0bb" letter-spacing="0.06em">64-BIT ADDRESS  (e.g. 64-set, 4-way, 64B block)</text>
+
+    <!-- Tag bits -->
+    <rect x="10" y="26" width="380" height="30" rx="4" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="200" y="45" font-size="10" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">TAG  [63:12]  —  52 bits</text>
+    <!-- Index bits -->
+    <rect x="392" y="26" width="120" height="30" rx="4" fill="#20180a" stroke="#f5c97a" stroke-width="1.5"/>
+    <text x="452" y="45" font-size="10" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">INDEX  [11:6]  6 bits</text>
+    <!-- Offset bits -->
+    <rect x="514" y="26" width="196" height="30" rx="4" fill="#0a2018" stroke="#7de8b8" stroke-width="1.5"/>
+    <text x="612" y="45" font-size="10" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">OFFSET  [5:0]  —  6 bits</text>
+
+    <!-- Arrows -->
+    <line x1="452" y1="56" x2="452" y2="72" stroke="#f5c97a" stroke-width="1.5"/>
+    <line x1="452" y1="72" x2="80" y2="90" stroke="#f5c97a" stroke-width="1" stroke-dasharray="3,2"/>
+    <line x1="612" y1="56" x2="612" y2="72" stroke="#7de8b8" stroke-width="1.5"/>
+    <line x1="612" y1="72" x2="620" y2="90" stroke="#7de8b8" stroke-width="1" stroke-dasharray="3,2"/>
+
+    <!-- Cache array: sets × ways -->
+    <text x="10" y="88" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a">↓ selects set</text>
+    <text x="570" y="88" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">↓ byte within block</text>
+
+    <!-- Header row -->
+    <rect x="10" y="96" width="60" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="40" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Set #</text>
+    <rect x="72" y="96" width="20" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="82" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">V</text>
+    <rect x="94" y="96" width="20" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="104" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">D</text>
+    <rect x="116" y="96" width="100" height="22" rx="2" fill="#1e2128" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="166" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Tag (Way 0)</text>
+    <rect x="218" y="96" width="130" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="283" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Data (64 bytes, Way 0)</text>
+    <!-- Way 1 -->
+    <rect x="350" y="96" width="20" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="360" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">V</text>
+    <rect x="372" y="96" width="20" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="382" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">D</text>
+    <rect x="394" y="96" width="100" height="22" rx="2" fill="#1e2128" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="444" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Tag (Way 1)</text>
+    <rect x="496" y="96" width="130" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="561" y="111" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Data (64 bytes, Way 1)</text>
+
+    <!-- Sample rows -->
+    <g>
+      <!-- Set 0 -->
+      <rect x="10" y="120" width="60" height="22" rx="2" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+      <text x="40" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">0</text>
+      <rect x="72" y="120" width="20" height="22" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+      <text x="82" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">1</text>
+      <rect x="94" y="120" width="20" height="22" rx="2" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+      <text x="104" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">1</text>
+      <rect x="116" y="120" width="100" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="166" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">0xABCDE...</text>
+      <rect x="218" y="120" width="130" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="283" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">[ block data ]</text>
+      <rect x="350" y="120" width="20" height="22" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+      <text x="360" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">1</text>
+      <rect x="372" y="120" width="20" height="22" rx="2" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+      <text x="382" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">0</text>
+      <rect x="394" y="120" width="100" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="444" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">0x12345...</text>
+      <rect x="496" y="120" width="130" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="561" y="135" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">[ block data ]</text>
+
+      <!-- Set 1 -->
+      <rect x="10" y="144" width="60" height="22" rx="2" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+      <text x="40" y="159" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">1</text>
+      <rect x="72" y="144" width="20" height="22" rx="2" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+      <text x="82" y="159" font-size="9" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">0</text>
+      <rect x="94" y="144" width="20" height="22" rx="2" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+      <text x="104" y="159" font-size="9" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">—</text>
+      <rect x="116" y="144" width="232" height="22" rx="2" fill="#151518" stroke="#222" stroke-width="1"/>
+      <text x="232" y="159" font-size="9" font-family="'DM Mono',monospace" fill="#444" text-anchor="middle">invalid (cold miss on first access)</text>
+      <rect x="350" y="144" width="278" height="22" rx="2" fill="#151518" stroke="#222" stroke-width="1"/>
+      <text x="489" y="159" font-size="9" font-family="'DM Mono',monospace" fill="#444" text-anchor="middle">invalid</text>
+
+      <!-- dots -->
+      <text x="40" y="182" font-size="14" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">⋮</text>
+      <text x="283" y="182" font-size="14" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">⋮</text>
+      <text x="500" y="182" font-size="14" font-family="'DM Mono',monospace" fill="#2e3340" text-anchor="middle">⋮</text>
+
+      <!-- Last set -->
+      <rect x="10" y="192" width="60" height="22" rx="2" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+      <text x="40" y="207" font-size="9" font-family="'DM Mono',monospace" fill="#f5c97a" text-anchor="middle">63</text>
+      <rect x="72" y="192" width="20" height="22" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+      <text x="82" y="207" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">1</text>
+      <rect x="94" y="192" width="20" height="22" rx="2" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+      <text x="104" y="207" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">0</text>
+      <rect x="116" y="192" width="100" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="166" y="207" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">0xFEDCB...</text>
+      <rect x="218" y="192" width="130" height="22" rx="2" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+      <text x="283" y="207" font-size="9" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle">[ block data ]</text>
+    </g>
+
+    <!-- Legend -->
+    <text x="10" y="240" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb">V = Valid bit</text>
+    <text x="100" y="240" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d">D = Dirty bit (write-back)</text>
+    <text x="300" y="240" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8">Tag compared with address tag to detect HIT or MISS</text>
+    <text x="10" y="256" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">On HIT: return data[offset].   On MISS: evict LRU way, load block from lower level.</text>
+  </svg>
+</div>
+
+<h3>Write Policies</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Policy</th><th class="plain-def-header">When write hits cache...</th><th>When evicting dirty block...</th></tr></thead>
+<tbody>
+<tr><td>Write-Through</td><td class="plain-def">write to cache AND memory simultaneously</td><td>Nothing extra needed; block always clean</td><td>Simple; higher bandwidth; uses write buffer to hide latency</td></tr>
+<tr><td>Write-Back</td><td class="plain-def">write only to cache</td><td>Must write dirty block back to memory first</td><td>Lower bandwidth; need dirty bit; more complex</td></tr>
+</tbody>
+</table></div>
+
+<h3>Miss Categories (3 C's)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Category</th><th class="plain-def-header">Why it misses</th><th>Reduction</th></tr></thead>
+<tbody>
+<tr><td>Compulsory (Cold)</td><td class="plain-def">first access ever</td><td>Prefetching; nothing fully eliminates</td></tr>
+<tr><td>Capacity</td><td class="plain-def">cache too small to hold all needed data</td><td>Bigger cache</td></tr>
+<tr><td>Conflict</td><td class="plain-def">two blocks fight for the same set</td><td>Higher associativity</td></tr>
+</tbody>
+</table></div>
+
+<h3>Replacement Policies</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Policy</th><th class="plain-def-header">Which block to evict</th><th>Used in</th></tr></thead>
+<tbody>
+<tr><td>LRU (Least Recently Used)</td><td class="plain-def">evict oldest-used block</td><td>Most caches; expensive to implement perfectly at high ways</td></tr>
+<tr><td>FIFO</td><td class="plain-def">evict block that arrived first</td><td>Simpler than LRU</td></tr>
+<tr><td>Random</td><td class="plain-def">evict random block</td><td>Simple hardware; surprisingly good for large caches</td></tr>
+<tr><td>Pseudo-LRU</td><td class="plain-def">approximation of LRU via bit tree</td><td>Real L1/L2 caches (e.g., tree-PLRU)</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 -->
+<section id="vm">
+<div class="section-header"><span class="section-icon">🗺</span><h2>Virtual Memory</h2></div>
+<h3>Key Virtual Memory Terms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Virtual Address (VA)</td><td class="plain-def">address the program uses</td><td>Address space seen by each process; can be larger than physical memory</td></tr>
+<tr><td>Physical Address (PA)</td><td class="plain-def">actual location in DRAM</td><td>Real address in hardware; managed by OS and MMU</td></tr>
+<tr><td>Page</td><td class="plain-def">fixed-size chunk of address space</td><td>Typical size: 4 KB (AArch64 supports 4KB, 16KB, 64KB)</td></tr>
+<tr><td>Frame</td><td class="plain-def">physical memory slot for a page</td><td>Same size as a page</td></tr>
+<tr><td>Page Table</td><td class="plain-def">map from virtual to physical pages</td><td>Per-process table; entry = physical frame number + flags (valid, dirty, protection)</td></tr>
+<tr><td>PTE (Page Table Entry)</td><td class="plain-def">one row in the page table</td><td>Contains physical frame number, valid bit, dirty bit, access bits, protection bits</td></tr>
+<tr><td>TLB</td><td class="plain-def">cache for address translations</td><td>Translation Lookaside Buffer; fast hardware cache of recent VA→PA mappings</td></tr>
+<tr><td>TLB Hit</td><td class="plain-def">translation found in TLB</td><td>Fast; ~1 cycle</td></tr>
+<tr><td>TLB Miss</td><td class="plain-def">translation not cached</td><td>Must walk page table; 10–100+ cycles (hardware or software TLB fill)</td></tr>
+<tr><td>Page Fault</td><td class="plain-def">page not in physical memory</td><td>OS must fetch page from disk (swap space); very expensive: millions of cycles</td></tr>
+<tr><td>Swap Space</td><td class="plain-def">disk space used as overflow RAM</td><td>Pages evicted from DRAM go to swap; needed page brought back on page fault</td></tr>
+<tr><td>MMU</td><td class="plain-def">translates virtual to physical address</td><td>Memory Management Unit; hardware unit in CPU that handles TLB lookup and page table walk</td></tr>
+<tr><td>ASID</td><td class="plain-def">process ID tag for TLB entries</td><td>Address Space Identifier; prevents TLB flush on context switch</td></tr>
+<tr><td>Protection</td><td class="plain-def">read/write/execute permissions per page</td><td>Enforced by MMU; protection fault if violated</td></tr>
+<tr><td>Dirty bit (VM)</td><td class="plain-def">page has been written to</td><td>OS uses this to know if page must be written back to disk before eviction</td></tr>
+</tbody>
+</table></div>
+
+<h3>Address Translation</h3>
+<div class="formula-box">
+<div class="label">Virtual to Physical Translation</div>
+Virtual Address:  [ Virtual Page Number (VPN) | Page Offset ]
+                         ↓   (via TLB or page table)
+Physical Address: [ Physical Frame Number (PFN) | Page Offset ]
+
+Page Offset bits = log₂(page size)   e.g., 4 KB → 12 bits
+</div>
+
+<!-- Virtual Memory Translation Diagram -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Virtual Address Translation — TLB Hit &amp; Miss Flow</div>
+  <svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem 1.25rem">
+    <defs>
+      <marker id="vmArr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#9aa0bb"/>
+      </marker>
+      <marker id="vmArrG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#7de8b8"/>
+      </marker>
+      <marker id="vmArrR" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#e87d7d"/>
+      </marker>
+      <marker id="vmArrB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0,0 7,3.5 0,7" fill="#6eb5f8"/>
+      </marker>
+    </defs>
+
+    <!-- VA box -->
+    <rect x="10" y="20" width="200" height="38" rx="5" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="110" y="34" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Virtual Address</text>
+    <rect x="12" y="38" width="110" height="16" rx="2" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="67" y="50" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">VPN</text>
+    <rect x="124" y="38" width="84" height="16" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="166" y="50" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">Page Offset</text>
+
+    <!-- Arrow to TLB -->
+    <line x1="210" y1="39" x2="255" y2="39" stroke="#9aa0bb" stroke-width="1.5" marker-end="url(#vmArr)"/>
+
+    <!-- TLB -->
+    <rect x="255" y="18" width="110" height="44" rx="5" fill="#162030" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="310" y="34" font-size="10" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle" font-weight="700">TLB</text>
+    <text x="310" y="48" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">VPN → PFN cache</text>
+    <text x="310" y="58" font-size="7" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">~1 cycle lookup</text>
+
+    <!-- TLB HIT path -->
+    <text x="370" y="30" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">HIT ✓</text>
+    <line x1="365" y1="34" x2="420" y2="34" stroke="#7de8b8" stroke-width="1.5" marker-end="url(#vmArrG)"/>
+
+    <!-- TLB MISS path -->
+    <text x="280" y="88" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d">MISS ✗ → walk page table</text>
+    <line x1="310" y1="62" x2="310" y2="80" stroke="#e87d7d" stroke-width="1.5" marker-end="url(#vmArrR)"/>
+    <!-- Page Table box -->
+    <rect x="210" y="80" width="200" height="44" rx="5" fill="#200a0a" stroke="#e87d7d" stroke-width="1"/>
+    <text x="310" y="96" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">Page Table (in memory)</text>
+    <text x="310" y="110" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">PTE: PFN + Valid + Dirty + Protect</text>
+    <text x="310" y="120" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">~100+ cycles</text>
+    <!-- Miss → fill TLB -->
+    <line x1="350" y1="80" x2="365" y2="60" stroke="#e87d7d" stroke-width="1" stroke-dasharray="2,2"/>
+    <text x="354" y="75" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d">fill TLB</text>
+
+    <!-- PA assembly box -->
+    <rect x="420" y="18" width="230" height="44" rx="5" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="535" y="33" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Physical Address</text>
+    <rect x="422" y="38" width="110" height="16" rx="2" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="477" y="50" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">PFN (from TLB)</text>
+    <rect x="534" y="38" width="113" height="16" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="590" y="50" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">Page Offset (same)</text>
+
+    <!-- PA → cache/memory -->
+    <line x1="535" y1="62" x2="535" y2="90" stroke="#6eb5f8" stroke-width="1.5" marker-end="url(#vmArrB)"/>
+    <rect x="440" y="90" width="200" height="30" rx="5" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="540" y="109" font-size="9" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Cache / DRAM Access</text>
+
+    <!-- Page fault path -->
+    <text x="210" y="148" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d">Page Fault (page not in RAM)</text>
+    <line x1="310" y1="124" x2="310" y2="142" stroke="#e87d7d" stroke-width="1" stroke-dasharray="2,2" marker-end="url(#vmArrR)"/>
+    <rect x="180" y="142" width="260" height="38" rx="5" fill="#1a0808" stroke="#e87d7d" stroke-width="1"/>
+    <text x="310" y="157" font-size="9" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">OS Page Fault Handler</text>
+    <text x="310" y="171" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Find free frame → load from swap disk → retry</text>
+    <text x="310" y="182" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">Millions of cycles!</text>
+
+    <!-- Access time comparison -->
+    <rect x="10" y="200" width="700" height="58" rx="6" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="20" y="218" font-size="9" font-family="'DM Mono',monospace" fill="#9aa0bb" letter-spacing="0.08em">ACCESS TIME COMPARISON</text>
+    <rect x="20" y="222" width="80" height="12" rx="2" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="60" y="231" font-size="7" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">TLB hit: ~1 cycle</text>
+    <rect x="115" y="222" width="140" height="12" rx="2" fill="#162028" stroke="#6eb5f8" stroke-width="0.5"/>
+    <text x="185" y="231" font-size="7" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">TLB miss (hw walk): ~10-50 cycles</text>
+    <rect x="270" y="222" width="180" height="12" rx="2" fill="#200a0a" stroke="#e87d7d" stroke-width="0.5"/>
+    <text x="360" y="231" font-size="7" font-family="'DM Mono',monospace" fill="#e87d7d" text-anchor="middle">Page fault: ~millions of cycles (disk I/O)</text>
+    <text x="20" y="252" font-size="9" font-family="'DM Mono',monospace" fill="#7de8b8">TLB hit rate typically &gt;99% in well-behaved programs (spatial locality of page accesses)</text>
+  </svg>
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 -->
+<section id="io">
+<div class="section-header"><span class="section-icon">🔌</span><h2>I/O &amp; Buses</h2></div>
+<h3>I/O Key Terms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Bus</td><td class="plain-def">shared communication wire</td><td>Set of wires shared by multiple devices; defines protocol for data transfer</td></tr>
+<tr><td>Processor Bus</td><td class="plain-def">CPU to memory</td><td>High-speed; connects CPU and memory controller</td></tr>
+<tr><td>I/O Bus</td><td class="plain-def">CPU to devices</td><td>Slower, longer; connects peripheral devices (PCIe, USB)</td></tr>
+<tr><td>PCIe</td><td class="plain-def">fast device interface</td><td>Point-to-point serial bus; used for GPUs, NVMe SSDs; up to ~64 GB/s (PCIe 5.0 x16)</td></tr>
+<tr><td>USB</td><td class="plain-def">universal device connector</td><td>Universal Serial Bus; up to 40 Gbps (USB4); hot-pluggable</td></tr>
+<tr><td>DMA</td><td class="plain-def">device copies memory without CPU</td><td>Direct Memory Access; device transfers data directly to/from DRAM without occupying CPU</td></tr>
+<tr><td>Programmed I/O</td><td class="plain-def">CPU polls and moves data itself</td><td>CPU checks device status in a loop; simple but wastes CPU time</td></tr>
+<tr><td>Interrupt-Driven I/O</td><td class="plain-def">device signals CPU when ready</td><td>CPU does other work; device raises interrupt when data ready; CPU handles interrupt</td></tr>
+<tr><td>Interrupt</td><td class="plain-def">asynchronous signal to CPU</td><td>Hardware signal that causes CPU to save state and jump to interrupt handler (ISR)</td></tr>
+<tr><td>ISR</td><td class="plain-def">interrupt service routine</td><td>OS code that handles the interrupt; then restores CPU state and resumes previous task</td></tr>
+<tr><td>Throughput (I/O)</td><td class="plain-def">data per second</td><td>Bandwidth; measured in MB/s or GB/s</td></tr>
+<tr><td>Latency (I/O)</td><td class="plain-def">time to complete one request</td><td>Seek + rotational latency + transfer time for HDD; much lower for SSD</td></tr>
+<tr><td>RAID</td><td class="plain-def">redundant disk array</td><td>Redundant Array of Independent Disks; improves throughput and/or reliability</td></tr>
+</tbody>
+</table></div>
+
+<h3>RAID Levels</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Level</th><th class="plain-def-header">What it does</th><th>Min Disks</th><th>Fault Tolerance</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td>RAID 0</td><td class="plain-def">stripe; no redundancy</td><td>2</td><td>None (worse!)</td><td>Max performance; no safety</td></tr>
+<tr><td>RAID 1</td><td class="plain-def">mirror; duplicate data</td><td>2</td><td>1 disk failure</td><td>High reliability; 50% capacity</td></tr>
+<tr><td>RAID 5</td><td class="plain-def">stripe with distributed parity</td><td>3</td><td>1 disk failure</td><td>Good balance; most common for servers</td></tr>
+<tr><td>RAID 6</td><td class="plain-def">stripe with double parity</td><td>4</td><td>2 disk failures</td><td>Higher reliability than RAID 5</td></tr>
+<tr><td>RAID 10</td><td class="plain-def">mirror + stripe</td><td>4</td><td>1 per mirrored pair</td><td>High performance + reliability</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 16 -->
+<section id="parallelism">
+<div class="section-header"><span class="section-icon">🔀</span><h2>Parallelism &amp; Multiprocessors</h2></div>
+<h3>Types of Parallelism</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th class="plain-def-header">What runs in parallel</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>ILP (Instruction-Level Parallelism)</td><td class="plain-def">multiple instructions per cycle</td><td>Superscalar, out-of-order execution, VLIW</td></tr>
+<tr><td>DLP (Data-Level Parallelism)</td><td class="plain-def">same op on many data elements</td><td>SIMD (ARM NEON, SVE), vector processors</td></tr>
+<tr><td>TLP (Thread-Level Parallelism)</td><td class="plain-def">multiple threads simultaneously</td><td>Multi-core CPUs, SMT/hyperthreading</td></tr>
+<tr><td>RLP (Request-Level Parallelism)</td><td class="plain-def">many independent requests</td><td>Web servers, cloud computing, warehouses</td></tr>
+</tbody>
+</table></div>
+
+<h3>Flynn's Taxonomy</h3>
+<!-- Flynn's Taxonomy Visual -->
+<div class="diagram-wrap">
+  <div class="diagram-label">Flynn's Taxonomy — Instruction × Data Streams</div>
+  <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" style="padding:1rem 1.25rem">
+    <!-- SISD -->
+    <rect x="10" y="20" width="160" height="150" rx="8" fill="#1a2030" stroke="#2e3340" stroke-width="1"/>
+    <text x="90" y="42" font-size="11" font-family="'DM Mono',monospace" fill="#eef0fa" text-anchor="middle" font-weight="700">SISD</text>
+    <text x="90" y="56" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">1 instr · 1 data</text>
+    <!-- Visual: 1 pipe -->
+    <rect x="50" y="68" width="80" height="16" rx="3" fill="#0d2040" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="90" y="80" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">I1 → D1 → R</text>
+    <text x="90" y="115" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Classic CPU</text>
+    <text x="90" y="130" font-size="8" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">scalar execute</text>
+
+    <!-- SIMD -->
+    <rect x="185" y="20" width="160" height="150" rx="8" fill="#0a2018" stroke="#7de8b8" stroke-width="1.5"/>
+    <text x="265" y="42" font-size="11" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle" font-weight="700">SIMD</text>
+    <text x="265" y="56" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">1 instr · N data</text>
+    <!-- Visual: 1 instr fan out -->
+    <rect x="225" y="65" width="80" height="14" rx="3" fill="#0a2018" stroke="#7de8b8" stroke-width="1"/>
+    <text x="265" y="76" font-size="8" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">ADD (×8 lanes)</text>
+    <line x1="265" y1="79" x2="225" y2="94" stroke="#7de8b8" stroke-width="0.8"/>
+    <line x1="265" y1="79" x2="240" y2="94" stroke="#7de8b8" stroke-width="0.8"/>
+    <line x1="265" y1="79" x2="265" y2="94" stroke="#7de8b8" stroke-width="0.8"/>
+    <line x1="265" y1="79" x2="290" y2="94" stroke="#7de8b8" stroke-width="0.8"/>
+    <line x1="265" y1="79" x2="310" y2="94" stroke="#7de8b8" stroke-width="0.8"/>
+    <rect x="212" y="95" width="108" height="14" rx="2" fill="#0a2018" stroke="#7de8b8" stroke-width="0.5"/>
+    <text x="265" y="106" font-size="7" font-family="'DM Mono',monospace" fill="#7de8b8" text-anchor="middle">D[0]D[1]D[2]D[3]D[4]…</text>
+    <text x="265" y="128" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">ARM NEON / SVE</text>
+    <text x="265" y="142" font-size="8" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">GPU shaders, AVX</text>
+
+    <!-- MISD -->
+    <rect x="360" y="20" width="160" height="150" rx="8" fill="#1e2128" stroke="#2e3340" stroke-width="1"/>
+    <text x="440" y="42" font-size="11" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle" font-weight="700">MISD</text>
+    <text x="440" y="56" font-size="8" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">N instrs · 1 data</text>
+    <text x="440" y="100" font-size="10" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">⚠ Rare</text>
+    <text x="440" y="115" font-size="8" font-family="'DM Mono',monospace" fill="#555" text-anchor="middle">Fault-tolerant</text>
+    <text x="440" y="130" font-size="8" font-family="'DM Mono',monospace" fill="#444" text-anchor="middle">space systems</text>
+
+    <!-- MIMD -->
+    <rect x="535" y="20" width="175" height="150" rx="8" fill="#0d2040" stroke="#6eb5f8" stroke-width="1.5"/>
+    <text x="622" y="42" font-size="11" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle" font-weight="700">MIMD</text>
+    <text x="622" y="56" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">N instrs · N data</text>
+    <!-- cores -->
+    <rect x="548" y="65" width="60" height="30" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="578" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Core 0</text>
+    <rect x="620" y="65" width="60" height="30" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="650" y="83" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Core 1</text>
+    <rect x="548" y="102" width="60" height="30" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="578" y="120" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Core 2</text>
+    <rect x="620" y="102" width="60" height="30" rx="3" fill="#1a2030" stroke="#6eb5f8" stroke-width="1"/>
+    <text x="650" y="120" font-size="8" font-family="'DM Mono',monospace" fill="#6eb5f8" text-anchor="middle">Core 3</text>
+    <text x="622" y="155" font-size="8" font-family="'DM Mono',monospace" fill="#9aa0bb" text-anchor="middle">Multi-core, clusters</text>
+  </svg>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Class</th><th class="plain-def-header">Instruction streams / Data streams</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>SISD</td><td class="plain-def">1 instruction, 1 data</td><td>Classic single-core CPU</td></tr>
+<tr><td>SIMD</td><td class="plain-def">1 instruction, multiple data</td><td>ARM NEON/SVE, GPU shader cores, x86 AVX</td></tr>
+<tr><td>MISD</td><td class="plain-def">multiple instructions, 1 data</td><td>Rare; fault-tolerant systems</td></tr>
+<tr><td>MIMD</td><td class="plain-def">multiple instructions, multiple data</td><td>Multi-core CPUs, clusters, distributed systems</td></tr>
+</tbody>
+</table></div>
+
+<h3>Multiprocessor Terms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Term</th><th class="plain-def-header">Plain English</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>SMP</td><td class="plain-def">shared memory, equal access</td><td>Symmetric Multiprocessor; all cores share one physical memory with uniform access time</td></tr>
+<tr><td>NUMA</td><td class="plain-def">shared memory, non-uniform access</td><td>Non-Uniform Memory Access; memory access time depends on which socket owns it</td></tr>
+<tr><td>Cache Coherence</td><td class="plain-def">all cores see consistent data</td><td>Protocol ensuring all cached copies of a memory location are consistent across cores</td></tr>
+<tr><td>MESI Protocol</td><td class="plain-def">coherence state machine</td><td>Modified, Exclusive, Shared, Invalid — states for each cache line in a multi-core system</td></tr>
+<tr><td>False Sharing</td><td class="plain-def">unintended cache contention</td><td>Two cores write different variables that share the same cache line; causes repeated coherence traffic</td></tr>
+<tr><td>Snooping</td><td class="plain-def">caches monitor the bus</td><td>Each cache watches all memory transactions on shared bus; simpler; scales poorly</td></tr>
+<tr><td>Directory Protocol</td><td class="plain-def">central tracker of cache states</td><td>Directory entry per memory block tracks which caches hold copies; scalable for many cores</td></tr>
+<tr><td>Atomic Operation</td><td class="plain-def">indivisible read-modify-write</td><td>Executes as one transaction; basis of locks and synchronization (ARM: LDXR/STXR)</td></tr>
+<tr><td>LDXR / STXR</td><td class="plain-def">ARM load/store exclusive</td><td>Load-Exclusive marks a reservation; Store-Exclusive succeeds only if reservation still held</td></tr>
+<tr><td>Mutex / Lock</td><td class="plain-def">only one thread at a time</td><td>Mutual exclusion primitive; implemented via atomic operations</td></tr>
+<tr><td>Speedup (parallel)</td><td class="plain-def">how much faster on P processors</td><td>Speedup = Time_serial / Time_parallel; limited by Amdahl's Law</td></tr>
+<tr><td>Strong Scaling</td><td class="plain-def">same problem, more processors</td><td>Goal: linear speedup with processors; limited by serial fraction</td></tr>
+<tr><td>Weak Scaling</td><td class="plain-def">bigger problem, more processors</td><td>Goal: constant time as problem grows with processors</td></tr>
+</tbody>
+</table></div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 17 -->
+<section id="formulas">
+<div class="section-header"><span class="section-icon">🧮</span><h2>Key Formulas &amp; Quick Reference</h2></div>
+<h3>Performance</h3>
+<div class="formula-box">
+<div class="label">Iron Law</div>
+CPU Time = IC × CPI × (1 / Clock Rate)
+         = IC × CPI × Clock Cycle Time
+</div>
+<div class="formula-box">
+<div class="label">Speedup</div>
+Speedup = Performance_new / Performance_old
+        = Time_old / Time_new
+</div>
+<div class="formula-box">
+<div class="label">Amdahl's Law</div>
+Speedup_overall = 1 / [(1 − Fraction_enhanced) + (Fraction_enhanced / Speedup_enhanced)]
+</div>
+<div class="formula-box">
+<div class="label">MIPS</div>
+MIPS = IC / (CPU_Time × 10⁶) = Clock_Rate / (CPI × 10⁶)
+</div>
+<div class="formula-box">
+<div class="label">Dynamic Power (CMOS)</div>
+P = α × C × V² × f
+  where: α = activity factor, C = capacitance, V = supply voltage, f = frequency
+</div>
+
+<h3>Memory &amp; Cache</h3>
+<div class="formula-box">
+<div class="label">AMAT</div>
+AMAT = Hit_Time + Miss_Rate × Miss_Penalty
+     (for multi-level: AMAT_L1 + MissRate_L1 × AMAT_L2 + ...)
+</div>
+<div class="formula-box">
+<div class="label">Cache Address Decomposition</div>
+Offset bits  = log₂(block_size_in_bytes)
+Index bits   = log₂(number_of_sets)
+Tag bits     = address_bits − index_bits − offset_bits
+</div>
+<div class="formula-box">
+<div class="label">Cache Sizing</div>
+Cache size = number_of_sets × associativity × block_size
+</div>
+<div class="formula-box">
+<div class="label">Virtual Memory</div>
+Page Offset bits = log₂(page_size)
+VPN bits = virtual_address_bits − page_offset_bits
+Number of page table entries = 2^(VPN bits)
+</div>
+
+<h3>Pipelining</h3>
+<div class="formula-box">
+<div class="label">Pipeline Throughput (ideal)</div>
+CPI_ideal = 1
+CPI_actual = 1 + Stalls_per_instruction
+
+Pipeline Speedup ≈ pipeline_depth (ideal, all stages equal, no hazards)
+</div>
+<div class="formula-box">
+<div class="label">Branch Penalty</div>
+CPI_branch = CPI_base + Branch_frequency × Branch_penalty_cycles
+</div>
+
+<h3>Two's Complement Quick Reference</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Bits</th><th>Min (signed)</th><th>Max (signed)</th><th>Max (unsigned)</th></tr></thead>
+<tbody>
+<tr><td>8 bits</td><td>−128</td><td>127</td><td>255</td></tr>
+<tr><td>16 bits</td><td>−32,768</td><td>32,767</td><td>65,535</td></tr>
+<tr><td>32 bits</td><td>−2,147,483,648</td><td>2,147,483,647</td><td>4,294,967,295</td></tr>
+<tr><td>64 bits</td><td>−9.2 × 10¹⁸</td><td>9.2 × 10¹⁸</td><td>1.8 × 10¹⁹</td></tr>
+</tbody>
+</table></div>
+
+<h3>ARM Assembly Quick Reference</h3>
+<div class="code-block">// Array access: X1 = A[i] where A starts at X19, i in X20
+LSL  X10, X20, #3        // X10 = i × 8  (each element = 8 bytes)
+ADD  X11, X19, X10       // X11 = &A[i]
+LDUR X1,  [X11, #0]      // X1  = A[i]
+
+// Function call / return pattern
+BL   myFunction          // call; X30 = return address
+RET                      // return; PC = X30
+
+// Typical function prologue (save callee-saved regs)
+STP  X29, X30, [SP, #-16]!   // push frame pointer and link register
+MOV  X29, SP                 // set frame pointer
+
+// Typical function epilogue
+LDP  X29, X30, [SP], #16     // pop; SP += 16
+RET                          // return
+
+// Loop pattern (sum array)
+// X0 = sum, X1 = array base, X2 = n
+MOV  X0, XZR               // sum = 0
+MOV  X3, XZR               // i = 0
+loop:
+  CMP  X3, X2              // i == n?
+  B.EQ done
+  LSL  X4, X3, #3          // offset = i × 8
+  ADD  X5, X1, X4
+  LDUR X6, [X5, #0]        // X6 = A[i]
+  ADD  X0, X0, X6          // sum += A[i]
+  ADDI X3, X3, #1          // i++
+  B    loop
+done:
+  RET
+</div>
+<a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+
+<footer>
+  Computer Organization &amp; Architecture  ·  Patterson &amp; Hennessy ARM Edition  ·  2026
+</footer>
+</body>
+</html>

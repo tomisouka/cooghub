@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Python Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #19191f;
+    --surface2: #21212d;
+    --border: #2c2c44;
+    --accent: #f7c948;
+    --accent2: #79d4f7;
+    --accent3: #b19fff;
+    --text: #f0f0fa;
+    --text-dim: #9090b8;
+    --text-code: #f7e09a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 16, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(247, 201, 72, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(247, 201, 72, 0.04); }
+  tr:hover td:first-child { color: #ffe08a; text-shadow: 0 0 20px rgba(247, 201, 72, 0.45); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.03em;
+    border-right: 1px solid var(--border);
+    background: rgba(247, 201, 72, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(247, 201, 72, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.75;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.95rem; color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 140px;
+    font-size: 0.9rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ol.precedence { counter-reset: prec; list-style: none; padding: 0; }
+  ol.precedence li {
+    counter-increment: prec;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ol.precedence li:last-child { border-bottom: none; }
+  ol.precedence li::before {
+    content: counter(prec);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🐍 Py Ref</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#keywords">Keywords</a>
+    <a href="#operators">Operators</a>
+    <a href="#control">Control Flow</a>
+    <a href="#functions">Functions</a>
+    <a href="#classes">Classes/OOP</a>
+    <a href="#collections">Collections</a>
+    <a href="#comprehensions">Comprehensions</a>
+    <a href="#exceptions">Exceptions</a>
+    <a href="#modules">Modules</a>
+    <a href="#builtins">Builtins</a>
+    <a href="#fileio">File I/O</a>
+    <a href="#modern">Modern Python</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Scripting &amp; General Purpose  ·  Quick Reference</span>
+  <h1>Python<br/><span>Language Guide</span></h1>
+  <p class="subtitle">Keywords  ·  Types  ·  OOP  ·  Builtins  ·  Python 3.12+</p>
+</div>
+
+<main>
+<div class="toc" id="top">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#types"><span class="toc-num">02</span> Types &amp; Variables</a>
+  <a href="#keywords"><span class="toc-num">03</span> Keywords Reference</a>
+  <a href="#operators"><span class="toc-num">04</span> Operators</a>
+  <a href="#control"><span class="toc-num">05</span> Control Flow</a>
+  <a href="#functions"><span class="toc-num">06</span> Functions</a>
+  <a href="#classes"><span class="toc-num">07</span> Classes &amp; OOP</a>
+  <a href="#collections"><span class="toc-num">08</span> Collections</a>
+  <a href="#comprehensions"><span class="toc-num">09</span> Comprehensions</a>
+  <a href="#exceptions"><span class="toc-num">10</span> Exceptions</a>
+  <a href="#modules"><span class="toc-num">11</span> Modules &amp; Packages</a>
+  <a href="#builtins"><span class="toc-num">12</span> Built-in Functions</a>
+  <a href="#fileio"><span class="toc-num">13</span> File I/O &amp; Context Managers</a>
+  <a href="#modern"><span class="toc-num">14</span> Modern Python (3.8–3.12)</a>
+  <a href="#precedence"><span class="toc-num">15</span> Operator Precedence</a>
+  <a href="#tips"><span class="toc-num">16</span> Pro Tips</a>
+  <a href="#index"><span class="toc-num">17</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-icon">🧱</span><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">Python uses <strong>indentation</strong> (4 spaces) to define blocks — no curly braces. It's interpreted, dynamically typed, and garbage-collected.</p>
+
+  <div class="code-block"># Hello World
+print("Hello, World!")
+
+# Variables — no type declaration needed
+name = "Alice"
+age  = 30
+pi   = 3.14159
+
+# Multiple assignment
+x, y, z = 1, 2, 3
+a = b = c = 0   # all point to same 0</div>
+
+  <h3>Program Structure</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td># comment</td><td class="plain-def">human note, ignored</td><td>Single-line. Use <code>"""..."""</code> for multi-line docstrings</td></tr>
+      <tr><td>indentation</td><td class="plain-def">defines a code block</td><td>4 spaces (PEP 8). Mixing tabs/spaces = <code>TabError</code></td></tr>
+      <tr><td>if __name__ == "__main__":</td><td class="plain-def">run only if top-level</td><td>Guards code from running when file is imported</td></tr>
+      <tr><td>import</td><td class="plain-def">bring in a module</td><td><code>import math</code> or <code>from math import sqrt</code></td></tr>
+      <tr><td>pass</td><td class="plain-def">intentional no-op</td><td>Placeholder for empty blocks — required syntactically</td></tr>
+      <tr><td>...</td><td class="plain-def">ellipsis / placeholder</td><td><code>...</code> also works as <code>pass</code> in many contexts</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Python vs Other Languages</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Python way</th></tr></thead>
+    <tbody>
+      <tr><td>No semicolons</td><td class="plain-def">newline ends statement</td><td>One statement per line (mostly)</td></tr>
+      <tr><td>No braces</td><td class="plain-def">indent = block</td><td>Consistent 4-space indentation</td></tr>
+      <tr><td>No main()</td><td class="plain-def">top-level runs directly</td><td>Use <code>if __name__ == "__main__":</code> pattern</td></tr>
+      <tr><td>Dynamic typing</td><td class="plain-def">types checked at runtime</td><td>Same variable can hold any type</td></tr>
+      <tr><td>Everything is object</td><td class="plain-def">even functions &amp; types</td><td>Functions, classes, modules — all objects</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 Types -->
+<section id="types">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Types &amp; Variables</h2></div>
+  <p class="prose">Python is <strong>dynamically typed</strong> — variables hold references to objects, not the values directly. Use <code>type(x)</code> or <code>isinstance(x, T)</code> to check.</p>
+
+  <h3>Built-in Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>int</td><td class="plain-def">whole number</td><td><code>x = 42</code></td><td>Arbitrary precision — no overflow!</td></tr>
+      <tr><td>float</td><td class="plain-def">decimal number</td><td><code>pi = 3.14</code></td><td>64-bit IEEE 754 double</td></tr>
+      <tr><td>complex</td><td class="plain-def">real + imaginary</td><td><code>z = 3 + 4j</code></td><td><code>.real</code>, <code>.imag</code> attributes</td></tr>
+      <tr><td>bool</td><td class="plain-def">true or false</td><td><code>flag = True</code></td><td>Subclass of <code>int</code>: <code>True==1</code>, <code>False==0</code></td></tr>
+      <tr><td>str</td><td class="plain-def">text / characters</td><td><code>s = "hello"</code></td><td>Immutable, unicode by default</td></tr>
+      <tr><td>bytes</td><td class="plain-def">raw byte data</td><td><code>b = b"hello"</code></td><td>Immutable sequence of ints 0–255</td></tr>
+      <tr><td>bytearray</td><td class="plain-def">mutable byte data</td><td><code>ba = bytearray(5)</code></td><td>Mutable version of bytes</td></tr>
+      <tr><td>NoneType</td><td class="plain-def">absence of value</td><td><code>x = None</code></td><td>Singleton; check with <code>x is None</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Numeric Literals</h3>
+  <div class="code-block">x = 1_000_000    # underscores for readability (3.6+)
+b = 0b1010       # binary  → 10
+o = 0o17         # octal   → 15
+h = 0xFF         # hex     → 255
+f = 1.5e3        # sci notation → 1500.0
+c = 2 + 3j       # complex</div>
+
+  <h3>String Literals</h3>
+  <div class="code-block">s1 = 'single quotes'
+s2 = "double quotes"
+s3 = """triple quoted
+multi-line string"""
+s4 = r"raw \n string"         # r-string: backslashes literal
+s5 = f"Hello {name}!"        # f-string: interpolated (3.6+)
+s6 = b"bytes literal"        # bytes, not str
+s7 = f"{value:.2f}"          # f-string with format spec</div>
+
+  <h3>Type Conversion</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>int(x)</td><td class="plain-def">convert to integer</td><td><code>int("42") → 42</code>; truncates floats</td></tr>
+      <tr><td>float(x)</td><td class="plain-def">convert to float</td><td><code>float("3.14") → 3.14</code></td></tr>
+      <tr><td>str(x)</td><td class="plain-def">convert to string</td><td><code>str(42) → "42"</code></td></tr>
+      <tr><td>bool(x)</td><td class="plain-def">convert to bool</td><td>Falsy: <code>0, "", [], None, {}, ()</code></td></tr>
+      <tr><td>list(x)</td><td class="plain-def">convert to list</td><td><code>list("abc") → ['a','b','c']</code></td></tr>
+      <tr><td>tuple(x)</td><td class="plain-def">convert to tuple</td><td><code>tuple([1,2]) → (1,2)</code></td></tr>
+      <tr><td>set(x)</td><td class="plain-def">convert to set</td><td><code>set([1,1,2]) → {1,2}</code></td></tr>
+      <tr><td>dict(x)</td><td class="plain-def">convert to dict</td><td><code>dict(a=1, b=2) → {'a':1,'b':2}</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 Keywords -->
+<section id="keywords">
+  <div class="section-header"><span class="section-icon">🔑</span><h2>Keywords Reference</h2></div>
+  <p class="prose">Python has <strong>35 reserved keywords</strong> as of 3.12. You cannot use these as variable names.</p>
+
+  <h3>Value Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>True</td><td class="plain-def">boolean truth</td><td>Capital T; equals <code>1</code></td></tr>
+      <tr><td>False</td><td class="plain-def">boolean false</td><td>Capital F; equals <code>0</code></td></tr>
+      <tr><td>None</td><td class="plain-def">nothing / null</td><td>Singleton; use <code>is None</code> not <code>== None</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Operator Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>and</td><td class="plain-def">both must be truthy</td><td><code>x &gt; 0 and x &lt; 10</code> — short-circuits</td></tr>
+      <tr><td>or</td><td class="plain-def">at least one truthy</td><td><code>x or default</code> — short-circuits</td></tr>
+      <tr><td>not</td><td class="plain-def">flip truthiness</td><td><code>not flag</code></td></tr>
+      <tr><td>in</td><td class="plain-def">is it a member?</td><td><code>"a" in "apple"</code>, <code>5 in [1,5,9]</code></td></tr>
+      <tr><td>not in</td><td class="plain-def">is it absent?</td><td><code>7 not in myList</code></td></tr>
+      <tr><td>is</td><td class="plain-def">same object in memory?</td><td><code>x is None</code> — identity, not equality</td></tr>
+      <tr><td>is not</td><td class="plain-def">different objects?</td><td><code>x is not None</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Scope &amp; Variable Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>global</td><td class="plain-def">use the module-level var</td><td><code>global counter</code> — assigns to module scope, not local</td></tr>
+      <tr><td>nonlocal</td><td class="plain-def">use the enclosing scope var</td><td><code>nonlocal x</code> — for closures/nested functions</td></tr>
+      <tr><td>del</td><td class="plain-def">remove a variable/item</td><td><code>del x</code>, <code>del myList[2]</code>, <code>del d["key"]</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Definition Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>def</td><td class="plain-def">define a function</td><td><code>def my_func(x): ...</code></td></tr>
+      <tr><td>class</td><td class="plain-def">define a class</td><td><code>class MyClass: ...</code></td></tr>
+      <tr><td>lambda</td><td class="plain-def">inline anonymous function</td><td><code>lambda x: x * 2</code> — single expression only</td></tr>
+      <tr><td>return</td><td class="plain-def">send value back &amp; exit</td><td><code>return result</code>; bare <code>return</code> returns <code>None</code></td></tr>
+      <tr><td>yield</td><td class="plain-def">pause and produce value</td><td>Makes function a generator; remembers state</td></tr>
+      <tr><td>yield from</td><td class="plain-def">delegate to sub-generator</td><td><code>yield from iterable</code></td></tr>
+      <tr><td>async def</td><td class="plain-def">define async function</td><td>Returns a coroutine; use with <code>await</code></td></tr>
+      <tr><td>await</td><td class="plain-def">pause until async done</td><td><code>result = await coro()</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 Operators -->
+<section id="operators">
+  <div class="section-header"><span class="section-icon">⚙️</span><h2>Operators</h2></div>
+
+  <h3>Arithmetic</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>+</td><td class="plain-def">add / concatenate</td><td><code>3 + 4 → 7</code></td><td>Also concatenates strings &amp; lists</td></tr>
+      <tr><td>-</td><td class="plain-def">subtract / negate</td><td><code>10 - 3 → 7</code></td><td>Unary <code>-x</code> negates</td></tr>
+      <tr><td>*</td><td class="plain-def">multiply / repeat</td><td><code>"ha" * 3 → "hahaha"</code></td><td>Also repeats lists: <code>[0]*5</code></td></tr>
+      <tr><td>/</td><td class="plain-def">true division</td><td><code>7 / 2 → 3.5</code></td><td>Always returns float in Python 3</td></tr>
+      <tr><td>//</td><td class="plain-def">floor division</td><td><code>7 // 2 → 3</code></td><td>Rounds toward negative infinity</td></tr>
+      <tr><td>%</td><td class="plain-def">modulo / remainder</td><td><code>7 % 3 → 1</code></td><td>Sign follows divisor (unlike C)</td></tr>
+      <tr><td>**</td><td class="plain-def">exponentiation / power</td><td><code>2 ** 10 → 1024</code></td><td>Right-associative; works on floats</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comparison</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>==</td><td class="plain-def">equal value</td><td>Uses <code>__eq__</code>; can be chained: <code>1 &lt; x &lt; 10</code></td></tr>
+      <tr><td>!=</td><td class="plain-def">not equal</td><td>Uses <code>__ne__</code></td></tr>
+      <tr><td>&lt; / &gt;</td><td class="plain-def">less / greater than</td><td>Chainable: <code>a &lt; b &lt; c</code></td></tr>
+      <tr><td>&lt;= / &gt;=</td><td class="plain-def">at most / at least</td><td>Chainable comparisons</td></tr>
+      <tr><td>is</td><td class="plain-def">same object identity</td><td>Don't use <code>is</code> for value comparison</td></tr>
+      <tr><td>in</td><td class="plain-def">membership test</td><td>Works on lists, dicts, sets, strings</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Bitwise</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&amp;</td><td class="plain-def">both bits set</td><td><code>0b1100 &amp; 0b1010 == 0b1000</code></td></tr>
+      <tr><td>|</td><td class="plain-def">either bit set</td><td><code>0b1100 | 0b1010 == 0b1110</code></td></tr>
+      <tr><td>^</td><td class="plain-def">exactly one bit set (XOR)</td><td><code>0b1100 ^ 0b1010 == 0b0110</code></td></tr>
+      <tr><td>~</td><td class="plain-def">flip all bits</td><td><code>~5 == -6</code> (two's complement)</td></tr>
+      <tr><td>&lt;&lt;</td><td class="plain-def">shift bits left</td><td><code>1 &lt;&lt; 3 == 8</code></td></tr>
+      <tr><td>&gt;&gt;</td><td class="plain-def">shift bits right</td><td><code>8 &gt;&gt; 1 == 4</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Assignment Operators</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Equivalent to</th></tr></thead>
+    <tbody>
+      <tr><td>=</td><td class="plain-def">assign</td><td>—</td></tr>
+      <tr><td>+=</td><td class="plain-def">add and assign</td><td><code>x = x + y</code></td></tr>
+      <tr><td>-=</td><td class="plain-def">subtract and assign</td><td><code>x = x - y</code></td></tr>
+      <tr><td>*=</td><td class="plain-def">multiply and assign</td><td><code>x = x * y</code></td></tr>
+      <tr><td>/=</td><td class="plain-def">divide and assign</td><td><code>x = x / y</code></td></tr>
+      <tr><td>//=</td><td class="plain-def">floor divide and assign</td><td><code>x = x // y</code></td></tr>
+      <tr><td>**=</td><td class="plain-def">power and assign</td><td><code>x = x ** y</code></td></tr>
+      <tr><td>%=</td><td class="plain-def">modulo and assign</td><td><code>x = x % y</code></td></tr>
+      <tr><td>:=</td><td class="plain-def">walrus: assign &amp; return</td><td>3.8+: <code>if n := len(a): ...</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 Control Flow -->
+<section id="control">
+  <div class="section-header"><span class="section-icon">🔀</span><h2>Control Flow</h2></div>
+
+  <h3>Conditionals</h3>
+  <div class="code-block"># if / elif / else
+if x > 0:
+    print("positive")
+elif x < 0:
+    print("negative")
+else:
+    print("zero")
+
+# Ternary (conditional expression)
+result = "even" if x % 2 == 0 else "odd"
+
+# match / case (3.10+ — structural pattern matching)
+match command:
+    case "quit":
+        quit()
+    case "go" | "move":
+        do_move()
+    case {"action": action, "target": target}:
+        do_action(action, target)
+    case _:
+        print("unknown")</div>
+
+  <h3>Loops</h3>
+  <div class="code-block"># for — iterate over any iterable
+for i in range(10):        # 0 to 9
+    print(i)
+
+for item in my_list:      # each element
+    print(item)
+
+for i, item in enumerate(my_list):   # index + value
+    print(i, item)
+
+for k, v in my_dict.items():  # key + value
+    print(k, v)
+
+for a, b in zip(list1, list2):  # parallel iteration
+    print(a, b)
+
+# while — runs while condition is True
+while x > 0:
+    x -= 1
+
+# for / while with else — runs if NOT broken out of
+for item in collection:
+    if found(item):
+        break
+else:
+    print("not found")</div>
+
+  <h3>Jump Statements</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>break</td><td class="plain-def">exit the loop now</td><td>Exits nearest enclosing loop; skips <code>else</code> clause</td></tr>
+      <tr><td>continue</td><td class="plain-def">skip to next iteration</td><td>Jumps to loop's next iteration</td></tr>
+      <tr><td>pass</td><td class="plain-def">do nothing</td><td>Syntactic placeholder for empty block</td></tr>
+      <tr><td>return</td><td class="plain-def">exit function with value</td><td>Bare <code>return</code> or no return → <code>None</code></td></tr>
+      <tr><td>raise</td><td class="plain-def">throw an exception</td><td><code>raise ValueError("bad input")</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 Functions -->
+<section id="functions">
+  <div class="section-header"><span class="section-icon">🧩</span><h2>Functions</h2></div>
+  <p class="prose">Functions are <strong>first-class objects</strong> in Python — they can be passed, returned, and stored like any value.</p>
+
+  <div class="code-block"># Basic function
+def add(a, b):
+    """Docstring: describe the function here."""
+    return a + b
+
+# Default parameters
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+# *args — variable positional args (tuple)
+def total(*nums):
+    return sum(nums)
+
+# **kwargs — variable keyword args (dict)
+def config(**settings):
+    for k, v in settings.items():
+        print(k, "=", v)
+
+# Both together
+def func(required, *args, keyword_only, **kwargs):
+    pass
+
+# Type hints (optional, for readability & tooling)
+def power(base: int, exp: int = 2) -> int:
+    return base ** exp
+
+# Lambda — anonymous single-expression function
+square = lambda x: x ** 2
+sorted_list = sorted(items, key=lambda x: x[1])
+
+# Closures — inner function captures outer variables
+def make_multiplier(n):
+    def multiply(x):
+        return x * n   # n is captured from outer scope
+    return multiply
+
+# Decorators — wrap a function with extra behavior
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("before")
+        result = func(*args, **kwargs)
+        print("after")
+        return result
+    return wrapper
+
+@my_decorator
+def my_func():
+    print("hello")</div>
+
+  <h3>Function Parameter Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Syntax</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>param</td><td class="plain-def">normal positional arg</td><td><code>def f(x): ...</code></td></tr>
+      <tr><td>param=default</td><td class="plain-def">optional with default</td><td><code>def f(x=0): ...</code></td></tr>
+      <tr><td>*args</td><td class="plain-def">extra positional → tuple</td><td><code>def f(*nums): sum(nums)</code></td></tr>
+      <tr><td>**kwargs</td><td class="plain-def">extra keyword → dict</td><td><code>def f(**opts): opts["key"]</code></td></tr>
+      <tr><td>*, kwonly</td><td class="plain-def">keyword-only param</td><td><code>def f(*, verbose=False)</code></td></tr>
+      <tr><td>pos, /</td><td class="plain-def">positional-only param</td><td><code>def f(x, /)</code> — can't pass as keyword</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 Classes -->
+<section id="classes">
+  <div class="section-header"><span class="section-icon">🏛️</span><h2>Classes &amp; OOP</h2></div>
+  <p class="prose">Python supports full OOP. Everything is an object — classes are objects too. Default inheritance is from <code>object</code>.</p>
+
+  <div class="code-block">class Animal:
+    species = "Unknown"           # class variable (shared)
+
+    def __init__(self, name, age):
+        self.name = name          # instance variable
+        self.age  = age
+
+    def speak(self):              # instance method
+        return "..."
+
+    @classmethod
+    def from_dict(cls, d):        # class method — gets cls, not self
+        return cls(d["name"], d["age"])
+
+    @staticmethod
+    def is_mammal(cls_name):      # static method — no cls or self
+        return cls_name in ["Dog", "Cat"]
+
+    def __repr__(self):           # official string representation
+        return f"Animal({self.name!r})"
+
+    def __str__(self):            # human-readable string
+        return self.name
+
+
+class Dog(Animal):                # inherits from Animal
+    def __init__(self, name, age, breed):
+        super().__init__(name, age)  # call parent __init__
+        self.breed = breed
+
+    def speak(self):              # override parent method
+        return "Woof!"</div>
+
+  <h3>Magic / Dunder Methods</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Method</th><th class="plain-def-header">Plain English</th><th>Called when</th></tr></thead>
+    <tbody>
+      <tr><td>__init__</td><td class="plain-def">constructor / setup</td><td><code>MyClass()</code> — initialize instance</td></tr>
+      <tr><td>__repr__</td><td class="plain-def">debug string</td><td><code>repr(obj)</code> — unambiguous representation</td></tr>
+      <tr><td>__str__</td><td class="plain-def">human string</td><td><code>str(obj)</code>, <code>print(obj)</code></td></tr>
+      <tr><td>__len__</td><td class="plain-def">length of object</td><td><code>len(obj)</code></td></tr>
+      <tr><td>__getitem__</td><td class="plain-def">indexing / subscript</td><td><code>obj[key]</code></td></tr>
+      <tr><td>__setitem__</td><td class="plain-def">assign by index</td><td><code>obj[key] = val</code></td></tr>
+      <tr><td>__delitem__</td><td class="plain-def">delete by index</td><td><code>del obj[key]</code></td></tr>
+      <tr><td>__contains__</td><td class="plain-def">membership test</td><td><code>x in obj</code></td></tr>
+      <tr><td>__iter__</td><td class="plain-def">make iterable</td><td><code>for x in obj</code></td></tr>
+      <tr><td>__next__</td><td class="plain-def">iterator advance</td><td><code>next(obj)</code></td></tr>
+      <tr><td>__call__</td><td class="plain-def">callable object</td><td><code>obj(args)</code></td></tr>
+      <tr><td>__enter__ / __exit__</td><td class="plain-def">context manager</td><td><code>with obj as x:</code></td></tr>
+      <tr><td>__eq__ / __lt__ / __le__</td><td class="plain-def">comparisons</td><td><code>==</code>, <code>&lt;</code>, <code>&lt;=</code> operators</td></tr>
+      <tr><td>__add__ / __mul__</td><td class="plain-def">arithmetic operators</td><td><code>+</code>, <code>*</code> operators</td></tr>
+      <tr><td>__hash__</td><td class="plain-def">hash value</td><td>Used in dicts/sets; must match <code>__eq__</code></td></tr>
+      <tr><td>__del__</td><td class="plain-def">destructor</td><td>Object garbage collected (avoid relying on it)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>OOP Concepts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Python mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>Encapsulation</td><td class="plain-def">hide internals</td><td><code>_private</code> convention; <code>__dunder</code> name-mangling</td></tr>
+      <tr><td>Inheritance</td><td class="plain-def">extend a class</td><td><code>class Dog(Animal):</code></td></tr>
+      <tr><td>Multiple inheritance</td><td class="plain-def">extend several classes</td><td><code>class C(A, B):</code> — MRO via C3 linearization</td></tr>
+      <tr><td>Polymorphism</td><td class="plain-def">same call, different behavior</td><td>Duck typing + method overriding</td></tr>
+      <tr><td>Abstract class</td><td class="plain-def">must be subclassed</td><td><code>from abc import ABC, abstractmethod</code></td></tr>
+      <tr><td>dataclass</td><td class="plain-def">auto-generate boilerplate</td><td><code>@dataclass</code> — generates <code>__init__</code>, <code>__repr__</code>, etc.</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 Collections -->
+<section id="collections">
+  <div class="section-header"><span class="section-icon">📚</span><h2>Collections</h2></div>
+  <p class="prose">Python's four main built-in collection types: <strong>list, tuple, dict, set</strong>. Each has different mutability and ordering guarantees.</p>
+
+  <h3>List — ordered, mutable, allows duplicates</h3>
+  <div class="code-block">lst = [1, 2, 3, "mixed", True]
+lst.append(4)          # add to end
+lst.insert(1, 99)      # insert at index
+lst.extend([5, 6])     # add multiple items
+lst.remove(99)         # remove first occurrence of value
+lst.pop()              # remove &amp; return last item
+lst.pop(0)             # remove &amp; return by index
+lst.sort()             # sort in-place
+lst.reverse()          # reverse in-place
+lst.index(3)           # find index of value
+lst.count(1)           # count occurrences
+len(lst)               # length
+lst[0]                 # first item
+lst[-1]                # last item
+lst[1:4]               # slice [start:stop:step]
+lst[::-1]              # reversed copy</div>
+
+  <h3>Tuple — ordered, immutable</h3>
+  <div class="code-block">t = (1, 2, 3)
+t = 1, 2, 3            # parens optional
+single = (42,)         # comma needed for single-element tuple
+a, b, c = t            # unpacking
+a, *rest = t           # starred unpacking</div>
+
+  <h3>Dict — key-value pairs, ordered (3.7+), mutable</h3>
+  <div class="code-block">d = {"name": "Alice", "age": 30}
+d["email"] = "a@b.com" # add/update
+d.get("missing", None) # safe get with default
+d.pop("age")           # remove &amp; return
+d.keys()               # view of keys
+d.values()             # view of values
+d.items()              # view of (key, value) pairs
+d.update({"x": 1})     # merge another dict
+{**d, "extra": 99}     # merge via unpacking (3.5+)
+d | {"new": 1}         # merge operator (3.9+)</div>
+
+  <h3>Set — unordered, unique values, mutable</h3>
+  <div class="code-block">s = {1, 2, 3}
+s.add(4)
+s.remove(1)            # raises KeyError if missing
+s.discard(99)          # safe remove
+s | {4, 5}             # union
+s &amp; {2, 3, 9}         # intersection
+s - {2}                # difference
+s ^ {2, 4, 5}          # symmetric difference
+frozenset({1,2,3})     # immutable set</div>
+
+  <h3>Collections Module Extras</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>defaultdict</td><td class="plain-def">dict with default values</td><td><code>defaultdict(list)</code> — missing keys auto-initialized</td></tr>
+      <tr><td>Counter</td><td class="plain-def">count frequencies</td><td><code>Counter("hello")</code> → <code>{'l':2,'h':1,...}</code></td></tr>
+      <tr><td>deque</td><td class="plain-def">fast double-ended queue</td><td>O(1) append/pop from both ends</td></tr>
+      <tr><td>OrderedDict</td><td class="plain-def">dict remembering insertion order</td><td>Mostly superseded by regular dict (3.7+)</td></tr>
+      <tr><td>namedtuple</td><td class="plain-def">tuple with named fields</td><td><code>Point = namedtuple('Point', ['x', 'y'])</code></td></tr>
+      <tr><td>ChainMap</td><td class="plain-def">view over multiple dicts</td><td>Search multiple dicts as one</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 Comprehensions -->
+<section id="comprehensions">
+  <div class="section-header"><span class="section-icon">✨</span><h2>Comprehensions</h2></div>
+  <p class="prose">Comprehensions are Python's concise, readable way to create collections from iterables. They're usually faster than equivalent loops.</p>
+
+  <h3>List Comprehension</h3>
+  <div class="code-block"># [expression for item in iterable if condition]
+squares   = [x**2 for x in range(10)]
+evens     = [x for x in range(20) if x % 2 == 0]
+flat      = [x for row in matrix for x in row]   # nested
+pairs     = [(x, y) for x in [1,2] for y in [3,4]]</div>
+
+  <h3>Dict Comprehension</h3>
+  <div class="code-block"># {key: value for item in iterable if condition}
+squared_map = {x: x**2 for x in range(5)}
+flipped     = {v: k for k, v in original.items()}
+filtered    = {k: v for k, v in d.items() if v > 0}</div>
+
+  <h3>Set Comprehension</h3>
+  <div class="code-block"># {expression for item in iterable if condition}
+unique_lengths = {len(word) for word in words}</div>
+
+  <h3>Generator Expression</h3>
+  <div class="code-block"># (expression for item in iterable if condition)
+# Lazy — computes one item at a time, memory efficient
+gen  = (x**2 for x in range(1_000_000))  # no list built!
+total = sum(x**2 for x in range(100))    # no parens needed here</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Syntax</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>List comp</td><td class="plain-def">build a list</td><td><code>[expr for x in it]</code></td><td><code>list</code></td></tr>
+      <tr><td>Dict comp</td><td class="plain-def">build a dict</td><td><code>{k: v for x in it}</code></td><td><code>dict</code></td></tr>
+      <tr><td>Set comp</td><td class="plain-def">build a set</td><td><code>{expr for x in it}</code></td><td><code>set</code></td></tr>
+      <tr><td>Generator</td><td class="plain-def">lazy sequence</td><td><code>(expr for x in it)</code></td><td><code>generator</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 Exceptions -->
+<section id="exceptions">
+  <div class="section-header"><span class="section-icon">⚠️</span><h2>Exceptions</h2></div>
+  <p class="prose">Python uses <strong>EAFP style</strong> (Easier to Ask Forgiveness than Permission) — try it, catch errors. More Pythonic than checking conditions first.</p>
+
+  <div class="code-block">try:
+    result = 10 / x
+    value  = my_dict["key"]
+except ZeroDivisionError:
+    print("Can't divide by zero")
+except KeyError as e:
+    print(f"Missing key: {e}")
+except (TypeError, ValueError) as e:  # multiple exceptions
+    print(f"Type or Value error: {e}")
+except Exception as e:                 # catch-all (avoid if possible)
+    print(f"Unexpected: {e}")
+    raise                              # re-raise the same exception
+else:
+    print("No exception occurred!")   # runs only if no exception
+finally:
+    print("Always runs — cleanup here")  # always executes
+
+# Raising exceptions
+raise ValueError("x must be positive")
+raise RuntimeError("something went wrong") from original_err  # chaining
+
+# Custom exception
+class MyError(Exception):
+    def __init__(self, msg, code):
+        super().__init__(msg)
+        self.code = code</div>
+
+  <h3>Common Built-in Exceptions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Exception</th><th class="plain-def-header">Plain English</th><th>Triggered by</th></tr></thead>
+    <tbody>
+      <tr><td>Exception</td><td class="plain-def">base of user exceptions</td><td>Base class; catch-all for non-system errors</td></tr>
+      <tr><td>ValueError</td><td class="plain-def">right type, wrong value</td><td><code>int("abc")</code>, <code>math.sqrt(-1)</code></td></tr>
+      <tr><td>TypeError</td><td class="plain-def">wrong type entirely</td><td><code>"a" + 1</code>, passing wrong arg type</td></tr>
+      <tr><td>KeyError</td><td class="plain-def">missing dict key</td><td><code>d["missing"]</code></td></tr>
+      <tr><td>IndexError</td><td class="plain-def">list index out of range</td><td><code>lst[999]</code></td></tr>
+      <tr><td>AttributeError</td><td class="plain-def">no such attribute</td><td><code>None.name</code>, missing method</td></tr>
+      <tr><td>NameError</td><td class="plain-def">undefined variable</td><td>Using variable before assignment</td></tr>
+      <tr><td>ImportError</td><td class="plain-def">module not found/importable</td><td>Bad import; <code>ModuleNotFoundError</code> is subclass</td></tr>
+      <tr><td>FileNotFoundError</td><td class="plain-def">file doesn't exist</td><td>Opening non-existent file</td></tr>
+      <tr><td>StopIteration</td><td class="plain-def">iterator exhausted</td><td><code>next()</code> on empty iterator</td></tr>
+      <tr><td>RuntimeError</td><td class="plain-def">generic runtime problem</td><td>Catch-all for non-specific errors</td></tr>
+      <tr><td>NotImplementedError</td><td class="plain-def">abstract method not implemented</td><td>Subclass didn't override required method</td></tr>
+      <tr><td>AssertionError</td><td class="plain-def">assert statement failed</td><td><code>assert condition</code> was False</td></tr>
+      <tr><td>OverflowError</td><td class="plain-def">float too large</td><td>Extremely large float calculations</td></tr>
+      <tr><td>RecursionError</td><td class="plain-def">too deep recursion</td><td>Default limit ~1000; use <code>sys.setrecursionlimit</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 Modules -->
+<section id="modules">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Modules &amp; Packages</h2></div>
+  <p class="prose">A <strong>module</strong> is any <code>.py</code> file. A <strong>package</strong> is a directory with <code>__init__.py</code>. Use pip to install third-party packages.</p>
+
+  <div class="code-block">import math                   # import whole module
+import math as m              # alias
+from math import sqrt, pi    # import specific names
+from math import *            # import all (avoid — pollutes namespace)
+
+# Relative imports (inside packages)
+from . import sibling         # from same package
+from .. import parent_thing   # from parent package
+
+# Standard library highlights
+import os            # OS interface, file paths
+import sys           # interpreter, argv, path
+import re            # regular expressions
+import json          # JSON encode/decode
+import datetime      # dates and times
+import pathlib       # modern file paths (Path)
+import itertools     # infinite iterators, combinatorics
+import functools     # higher-order functions (partial, lru_cache)
+import collections   # Counter, defaultdict, deque, namedtuple
+import typing        # type hints (List, Dict, Optional, Union)
+import dataclasses   # @dataclass decorator
+import abc           # abstract base classes
+import threading     # threads
+import multiprocessing  # processes
+import asyncio       # async/await event loop
+import unittest      # testing
+import logging       # logging
+import argparse      # command-line argument parsing
+import csv           # CSV files
+import sqlite3       # SQLite database
+import urllib        # URL handling
+import http          # HTTP client/server</div>
+
+  <h3>Package Management</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>pip install pkg</td><td class="plain-def">download &amp; install</td><td>Use <code>pip3</code> if both Python 2/3 installed</td></tr>
+      <tr><td>pip install -r req.txt</td><td class="plain-def">install from requirements file</td><td>Standard project dependency file</td></tr>
+      <tr><td>pip list</td><td class="plain-def">show installed packages</td><td>Use <code>pip freeze</code> for requirements format</td></tr>
+      <tr><td>python -m venv env</td><td class="plain-def">create virtual environment</td><td>Isolates project dependencies</td></tr>
+      <tr><td>source env/bin/activate</td><td class="plain-def">activate virtual environment</td><td>Windows: <code>env\Scripts\activate</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 Builtins -->
+<section id="builtins">
+  <div class="section-header"><span class="section-icon">🔧</span><h2>Built-in Functions</h2></div>
+  <p class="prose">Always available — no import needed. Python has 71 built-in functions. Here are the most essential ones.</p>
+
+  <h3>I/O &amp; Type Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>print()</td><td class="plain-def">output to console</td><td><code>print("hi", end="\n", sep=" ")</code></td></tr>
+      <tr><td>input()</td><td class="plain-def">read line from user</td><td><code>name = input("Name: ")</code> — always returns str</td></tr>
+      <tr><td>type()</td><td class="plain-def">get the type</td><td><code>type(42) → &lt;class 'int'&gt;</code></td></tr>
+      <tr><td>isinstance()</td><td class="plain-def">check type membership</td><td><code>isinstance(x, (int, float))</code></td></tr>
+      <tr><td>id()</td><td class="plain-def">memory identity</td><td><code>id(x)</code> — unique integer for object</td></tr>
+      <tr><td>repr()</td><td class="plain-def">debug string</td><td><code>repr("hi") → "'hi'"</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Numeric Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>abs()</td><td class="plain-def">absolute value</td><td><code>abs(-5) → 5</code></td></tr>
+      <tr><td>round()</td><td class="plain-def">round to N decimals</td><td><code>round(3.14159, 2) → 3.14</code></td></tr>
+      <tr><td>min() / max()</td><td class="plain-def">smallest / largest</td><td><code>min([3,1,4]) → 1</code>; also takes <code>key=</code></td></tr>
+      <tr><td>sum()</td><td class="plain-def">total of iterable</td><td><code>sum([1,2,3]) → 6</code>; <code>sum([], start=10)</code></td></tr>
+      <tr><td>pow()</td><td class="plain-def">power (with optional mod)</td><td><code>pow(2, 10, 1000) → 24</code> (modular exponentiation)</td></tr>
+      <tr><td>divmod()</td><td class="plain-def">quotient and remainder</td><td><code>divmod(7, 2) → (3, 1)</code></td></tr>
+      <tr><td>bin() / oct() / hex()</td><td class="plain-def">integer to base string</td><td><code>bin(10) → '0b1010'</code></td></tr>
+      <tr><td>ord() / chr()</td><td class="plain-def">char ↔ unicode codepoint</td><td><code>ord('A') → 65</code>, <code>chr(65) → 'A'</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Iterable &amp; Sequence Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>len()</td><td class="plain-def">number of items</td><td><code>len("hello") → 5</code></td></tr>
+      <tr><td>range()</td><td class="plain-def">integer sequence</td><td><code>range(start, stop, step)</code> — lazy</td></tr>
+      <tr><td>enumerate()</td><td class="plain-def">index + value pairs</td><td><code>enumerate(lst, start=0)</code></td></tr>
+      <tr><td>zip()</td><td class="plain-def">pair up iterables</td><td><code>zip([1,2], ['a','b']) → (1,'a'),(2,'b')</code></td></tr>
+      <tr><td>map()</td><td class="plain-def">apply function to each</td><td><code>list(map(str, [1,2,3]))</code></td></tr>
+      <tr><td>filter()</td><td class="plain-def">keep matching items</td><td><code>list(filter(bool, [0,1,2,None]))</code></td></tr>
+      <tr><td>sorted()</td><td class="plain-def">return sorted copy</td><td><code>sorted(lst, key=len, reverse=True)</code></td></tr>
+      <tr><td>reversed()</td><td class="plain-def">reverse iterator</td><td><code>list(reversed([1,2,3]))</code></td></tr>
+      <tr><td>any() / all()</td><td class="plain-def">any / all truthy</td><td><code>any([False, True]) → True</code></td></tr>
+      <tr><td>iter() / next()</td><td class="plain-def">create / advance iterator</td><td><code>it = iter(lst); next(it)</code></td></tr>
+      <tr><td>vars() / dir()</td><td class="plain-def">list attributes/namespace</td><td><code>dir(obj)</code> shows methods &amp; attrs</td></tr>
+      <tr><td>getattr() / setattr()</td><td class="plain-def">dynamic attribute access</td><td><code>getattr(obj, "name", default)</code></td></tr>
+      <tr><td>hasattr()</td><td class="plain-def">check attribute exists</td><td><code>hasattr(obj, "method")</code></td></tr>
+      <tr><td>callable()</td><td class="plain-def">is it callable?</td><td><code>callable(print) → True</code></td></tr>
+      <tr><td>hash()</td><td class="plain-def">get hash value</td><td>Used for dict keys / set membership</td></tr>
+      <tr><td>open()</td><td class="plain-def">open a file</td><td><code>open("file.txt", "r", encoding="utf-8")</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 File I/O -->
+<section id="fileio">
+  <div class="section-header"><span class="section-icon">📄</span><h2>File I/O &amp; Context Managers</h2></div>
+  <p class="prose">Always use <strong>context managers</strong> (<code>with</code>) for files — they guarantee the file is closed even if an error occurs.</p>
+
+  <div class="code-block"># Reading files
+with open("file.txt", "r", encoding="utf-8") as f:
+    content   = f.read()          # entire file as string
+    lines     = f.readlines()     # list of lines (with \n)
+    line      = f.readline()      # one line at a time
+
+# Iterate line by line (memory efficient)
+with open("big.txt") as f:
+    for line in f:
+        process(line.strip())
+
+# Writing files
+with open("out.txt", "w") as f:  # "w" overwrites, "a" appends
+    f.write("Hello\n")
+    f.writelines(["line1\n", "line2\n"])
+
+# File modes
+# "r"  — read (default)
+# "w"  — write (truncates file)
+# "a"  — append
+# "rb" — read binary
+# "wb" — write binary
+# "r+" — read+write
+
+# pathlib (modern, preferred)
+from pathlib import Path
+p = Path("data") / "file.txt"   # path joining with /
+p.read_text(encoding="utf-8")
+p.write_text("content")
+p.exists()
+p.stem                           # filename without extension
+p.suffix                         # ".txt"
+list(p.parent.glob("*.csv"))     # glob patterns</div>
+
+  <h3>Context Managers</h3>
+  <div class="code-block"># with statement — __enter__ / __exit__
+with open("f.txt") as f:          # file auto-closed
+    data = f.read()
+
+with open("a.txt") as a, open("b.txt") as b:  # multiple
+    ...
+
+# Custom context manager via class
+class Managed:
+    def __enter__(self):
+        print("setup"); return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("cleanup")
+        return False  # don't suppress exceptions
+
+# Custom via contextlib
+from contextlib import contextmanager
+@contextmanager
+def managed():
+    print("setup")
+    yield
+    print("cleanup")</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 Modern Python -->
+<section id="modern">
+  <div class="section-header"><span class="section-icon">🚀</span><h2>Modern Python (3.8–3.12)</h2></div>
+  <p class="prose">Python evolves fast. These features are widely used in modern codebases.</p>
+
+  <h3>Type Hints (3.5+, widely used 3.9+)</h3>
+  <div class="code-block">from typing import Optional, Union, Any
+from collections.abc import Callable, Iterable
+
+def greet(name: str) -> str:
+    return f"Hello, {name}"
+
+def find(lst: list[int], val: int) -> int | None:  # 3.10+ union syntax
+    ...
+
+# TypeAlias (3.10+)
+type Vector = list[float]             # 3.12+
+
+# Generic (3.12+ simplified)
+def first[T](lst: list[T]) -> T:
+    return lst[0]</div>
+
+  <h3>3.8 — Walrus Operator &amp; f-string debugging</h3>
+  <div class="code-block">if n := len(data):                  # walrus — assign and test
+    print(f"Got {n} items")
+
+while chunk := f.read(1024):       # walrus in while
+    process(chunk)
+
+x = 42
+print(f"{x = }")                    # f-string debug: prints "x = 42"</div>
+
+  <h3>3.10 — Structural Pattern Matching</h3>
+  <div class="code-block">match point:
+    case (0, 0):      print("origin")
+    case (x, 0):      print(f"x-axis at {x}")
+    case (0, y):      print(f"y-axis at {y}")
+    case (x, y):      print(f"point at {x},{y}")
+    case _:           print("not a point")</div>
+
+  <h3>Feature Timeline</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Feature</th><th class="plain-def-header">Plain English</th><th>Version</th></tr></thead>
+    <tbody>
+      <tr><td>f-strings</td><td class="plain-def">inline string formatting</td><td>3.6: <code>f"Hello {name}"</code></td></tr>
+      <tr><td>dataclasses</td><td class="plain-def">auto class boilerplate</td><td>3.7: <code>@dataclass</code></td></tr>
+      <tr><td>walrus :=</td><td class="plain-def">assign-and-test</td><td>3.8</td></tr>
+      <tr><td>Positional-only /</td><td class="plain-def">positional-only params</td><td>3.8: <code>def f(x, /)</code></td></tr>
+      <tr><td>dict | merge</td><td class="plain-def">dict merge operator</td><td>3.9: <code>d1 | d2</code></td></tr>
+      <tr><td>list[int] hints</td><td class="plain-def">built-in generics</td><td>3.9: no more <code>from typing import List</code></td></tr>
+      <tr><td>X | Y union hints</td><td class="plain-def">cleaner union syntax</td><td>3.10: <code>int | None</code></td></tr>
+      <tr><td>match / case</td><td class="plain-def">structural pattern match</td><td>3.10</td></tr>
+      <tr><td>Exception groups</td><td class="plain-def">multiple exceptions</td><td>3.11: <code>except*</code></td></tr>
+      <tr><td>tomllib</td><td class="plain-def">TOML parsing</td><td>3.11: built-in</td></tr>
+      <tr><td>type statement</td><td class="plain-def">type alias</td><td>3.12: <code>type Point = tuple[int,int]</code></td></tr>
+      <tr><td>Generic syntax</td><td class="plain-def">simplified generics</td><td>3.12: <code>def f[T](x: T) -&gt; T</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 Precedence -->
+<section id="precedence">
+  <div class="section-header"><span class="section-icon">🏆</span><h2>Operator Precedence</h2></div>
+  <p class="prose">Higher = evaluated first. Comparisons can be chained: <code>1 &lt; x &lt; 10</code>. When in doubt, use parentheses.</p>
+  <ol class="precedence">
+    <li><span>Parentheses: <code>(expr)</code>, <code>[expr]</code>, <code>{expr}</code></span></li>
+    <li><span>Subscript / call / attribute: <code>x[i]</code>, <code>f()</code>, <code>x.attr</code></span></li>
+    <li><span>Exponentiation: <code>**</code> (right-associative)</span></li>
+    <li><span>Unary: <code>+x</code>, <code>-x</code>, <code>~x</code></span></li>
+    <li><span>Multiplicative: <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></span></li>
+    <li><span>Additive: <code>+</code>, <code>-</code></span></li>
+    <li><span>Bitwise shift: <code>&lt;&lt;</code>, <code>&gt;&gt;</code></span></li>
+    <li><span>Bitwise AND: <code>&amp;</code></span></li>
+    <li><span>Bitwise XOR: <code>^</code></span></li>
+    <li><span>Bitwise OR: <code>|</code></span></li>
+    <li><span>Comparisons: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>is</code>, <code>is not</code>, <code>in</code>, <code>not in</code></span></li>
+    <li><span>Boolean NOT: <code>not x</code></span></li>
+    <li><span>Boolean AND: <code>and</code></span></li>
+    <li><span>Boolean OR: <code>or</code></span></li>
+    <li><span>Walrus: <code>:=</code></span></li>
+    <li><span>Conditional: <code>x if C else y</code> (ternary)</span></li>
+    <li><span>Lambda: <code>lambda</code> (lowest non-assignment)</span></li>
+  </ol>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 16 Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">🎓</span><h2>Pro Tips</h2></div>
+  <h3>Common Pitfalls — Context Matters!</h3>
+  <ul class="tip-list">
+    <li><span class="tip-code">== vs is</span><span><code>x == y</code> compares values; <code>x is y</code> compares identity. Never write <code>x is 5</code> — use <code>==</code> for values. Only use <code>is</code> for <code>None</code>, <code>True</code>, <code>False</code>.</span></li>
+    <li><span class="tip-code">Mutable defaults</span><span>Never use mutable objects as default args! <code>def f(lst=[])</code> shares the same list across all calls. Use <code>def f(lst=None): lst = lst or []</code> instead.</span></li>
+    <li><span class="tip-code">7 / 2 vs 7 // 2</span><span>Python 3: <code>7/2 == 3.5</code> always. Use <code>//</code> for integer division: <code>7//2 == 3</code>.</span></li>
+    <li><span class="tip-code">list copy</span><span><code>b = a</code> makes b point to the same list. Use <code>b = a[:]</code> or <code>b = a.copy()</code> for shallow copy; <code>import copy; copy.deepcopy(a)</code> for deep.</span></li>
+    <li><span class="tip-code">String concat</span><span>Don't build strings with <code>+</code> in a loop — it's O(n²). Use <code>"".join(parts)</code> instead.</span></li>
+    <li><span class="tip-code">except Exception</span><span>Catch specific exceptions, not bare <code>except:</code> (catches SystemExit &amp; KeyboardInterrupt). At worst use <code>except Exception</code>.</span></li>
+    <li><span class="tip-code">for i in range</span><span>If you just need values, use <code>for x in lst:</code>. Only use <code>range(len(lst))</code> when you need the index — then prefer <code>enumerate(lst)</code>.</span></li>
+    <li><span class="tip-code">global / nonlocal</span><span>Reading a variable from outer scope is fine. You only need <code>global x</code> or <code>nonlocal x</code> if you want to <em>assign</em> to the outer variable.</span></li>
+    <li><span class="tip-code">Truthiness</span><span>Falsy: <code>0, 0.0, "", [], {}, set(), None, False</code>. Everything else is truthy. Write <code>if lst:</code> not <code>if len(lst) != 0:</code>.</span></li>
+    <li><span class="tip-code">f-strings</span><span>Prefer f-strings over <code>%</code> or <code>.format()</code>. Faster, more readable: <code>f"x = {x:.2f}"</code>. For debug: <code>f"{x = }"</code> (3.8+).</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 17 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All 35 Python keywords (3.12) listed alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Section</th></tr></thead>
+    <tbody>
+      <tr><td>False</td><td class="plain-def">boolean false value</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>None</td><td class="plain-def">absence of value</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>True</td><td class="plain-def">boolean true value</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>and</td><td class="plain-def">logical AND</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>as</td><td class="plain-def">alias for import or exception</td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr><td>assert</td><td class="plain-def">check condition or raise AssertionError</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>async</td><td class="plain-def">define async function</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>await</td><td class="plain-def">suspend until coroutine done</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop immediately</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>class</td><td class="plain-def">define a class</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>continue</td><td class="plain-def">next loop iteration</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>def</td><td class="plain-def">define a function</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>del</td><td class="plain-def">delete variable or item</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>elif</td><td class="plain-def">else-if branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>else</td><td class="plain-def">fallback branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>except</td><td class="plain-def">handle exception type</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>finally</td><td class="plain-def">always runs after try/except</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>for</td><td class="plain-def">iterate over sequence</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>from</td><td class="plain-def">import from specific module</td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr><td>global</td><td class="plain-def">use module-level variable</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>if</td><td class="plain-def">conditional branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>import</td><td class="plain-def">bring in a module</td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr><td>in</td><td class="plain-def">membership / iteration</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>is</td><td class="plain-def">identity comparison</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>lambda</td><td class="plain-def">anonymous function expression</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>nonlocal</td><td class="plain-def">assign to enclosing scope</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>not</td><td class="plain-def">logical NOT</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>or</td><td class="plain-def">logical OR</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>pass</td><td class="plain-def">do nothing placeholder</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>raise</td><td class="plain-def">throw an exception</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>return</td><td class="plain-def">exit function with value</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>try</td><td class="plain-def">guard against exceptions</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>type</td><td class="plain-def">define type alias (3.12)</td><td><a class="idx-link" href="#modern">Modern Python</a></td></tr>
+      <tr><td>while</td><td class="plain-def">loop while condition holds</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>with</td><td class="plain-def">context manager block</td><td><a class="idx-link" href="#fileio">File I/O</a></td></tr>
+      <tr><td>yield</td><td class="plain-def">produce value from generator</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  Python Language Quick Reference  ·  General Purpose Programming  ·  2026
+</footer>
+</body>
+</html>

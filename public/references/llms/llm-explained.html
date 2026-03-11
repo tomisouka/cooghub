@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLMs Explained — How Large Language Models Work</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f5f2eb;
+  --ink:      #1a1a1a;
+  --ink2:     #3a3a3a;
+  --ink3:     #6a6a6a;
+  --rule:     #d8d3c8;
+  --surface:  #ede9e0;
+  --surface2: #e4dfd5;
+  --accent:   #c8400a;
+  --accent2:  #1a5c8a;
+  --accent3:  #2a7a4a;
+  --gold:     #a07820;
+  --mono:     'JetBrains Mono', monospace;
+  --serif:    'Playfair Display', Georgia, serif;
+  --sans:     'Source Sans 3', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 52px;
+  backdrop-filter: blur(8px);
+}
+
+.nav-brand {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink3);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: var(--accent); }
+
+/* ── HERO ── */
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 40px 60px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 60px;
+  align-items: end;
+  border-bottom: 2px solid var(--ink);
+}
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-kicker::before { content: ''; width: 28px; height: 1px; background: var(--accent); display: inline-block; }
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5vw, 4.8rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-lead {
+  font-size: 1.15rem;
+  color: var(--ink2);
+  line-height: 1.65;
+  font-weight: 400;
+  max-width: 560px;
+}
+
+.hero-meta {
+  border-left: 3px solid var(--rule);
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero-stat { }
+.hero-stat .stat-num {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.hero-stat .stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink3);
+  line-height: 1.4;
+}
+
+/* ── LAYOUT ── */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ── SECTION ── */
+.section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink3);
+  margin-bottom: 6px;
+}
+
+.section h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+
+.section h2 em { font-style: italic; color: var(--accent2); }
+
+.prose {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: 700px;
+}
+
+.prose p { margin-bottom: 1.2em; }
+.prose strong { color: var(--ink); font-weight: 600; }
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+/* ── DIAGRAM BOXES ── */
+.diagram-box {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px;
+  position: relative;
+}
+
+.diagram-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink3);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* ── TOKEN ANIMATION ── */
+#tokenDemo {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px;
+  margin-top: 32px;
+}
+
+.token-input {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--ink2);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  min-height: 48px;
+}
+
+.token-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.token {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.token.show { opacity: 1; transform: translateY(0); }
+
+.token-colors {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.token-key {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink3);
+}
+.token-swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+.demo-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 18px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+.demo-btn:hover { background: var(--ink); color: var(--bg); }
+.demo-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── TRANSFORMER DIAGRAM ── */
+.transformer-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.transformer-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 32px 0;
+}
+
+.tf-block {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  position: relative;
+}
+
+.tf-block:hover { background: var(--surface2); border-color: var(--ink3); transform: translateY(-2px); }
+.tf-block.tf-active { background: var(--ink); border-color: var(--ink); }
+.tf-block.tf-active .tf-name { color: var(--bg); }
+.tf-block.tf-active .tf-sub { color: #aaa; }
+
+.tf-arrow {
+  width: 28px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--ink3);
+  font-size: 0.85rem;
+}
+
+.tf-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.tf-sub {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--ink3);
+  line-height: 1.3;
+}
+
+.tf-detail {
+  background: var(--surface2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent2);
+  border-radius: 0 4px 4px 0;
+  padding: 20px 24px;
+  margin-top: 8px;
+  min-height: 80px;
+  transition: border-left-color 0.25s;
+}
+
+.tf-detail h4 {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.tf-detail p {
+  font-size: 0.92rem;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+
+/* ── ATTENTION DEMO ── */
+.attention-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  margin: 16px 0;
+}
+
+.att-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.att-cell:hover { transform: scale(1.15); z-index: 2; }
+
+.att-words {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.att-word {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--surface);
+  color: var(--ink2);
+}
+.att-word:hover, .att-word.selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ── TRAINING vs INFERENCE ── */
+.phase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.phase-card {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.phase-header {
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.phase-train .phase-header { background: var(--accent); color: #fff; }
+.phase-infer .phase-header { background: var(--accent2); color: #fff; }
+
+.phase-body { padding: 20px; background: var(--surface); }
+
+.phase-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  color: var(--ink2);
+  line-height: 1.55;
+}
+
+.phase-item:last-child { margin-bottom: 0; }
+
+.phase-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── SCALE CHART ── */
+.scale-bar-wrap { margin-top: 24px; }
+
+.scale-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 90px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.scale-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink2);
+  text-align: right;
+}
+
+.scale-bar-bg {
+  height: 22px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.scale-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0;
+}
+
+.scale-value {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink3);
+}
+
+/* ── TEMPERATURE SLIDER ── */
+.temp-demo {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px;
+  margin-top: 32px;
+}
+
+.temp-slider-wrap {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.temp-slider-wrap input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--rule);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.temp-val {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 32px;
+}
+
+.temp-output {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--ink2);
+  line-height: 1.6;
+  min-height: 80px;
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+}
+
+.temp-word {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin: 2px;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── VOCAB CARD ── */
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.vocab-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.vocab-card:hover { border-color: var(--ink3); }
+
+.vocab-term {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vocab-def {
+  font-size: 0.9rem;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+
+/* ── NEXT TOKEN DEMO ── */
+.next-token-demo {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px;
+  margin-top: 32px;
+}
+
+.nt-prompt {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  color: var(--ink);
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  line-height: 1.6;
+}
+
+.nt-cursor { animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.nt-probs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nt-prob-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+}
+
+.nt-prob-word {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink2);
+  text-align: right;
+}
+
+.nt-prob-bar-bg {
+  height: 18px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.nt-prob-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nt-prob-pct {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink3);
+}
+
+/* ── CALLOUT ── */
+.callout {
+  border-left: 3px solid var(--accent);
+  padding: 16px 22px;
+  background: var(--surface);
+  border-radius: 0 4px 4px 0;
+  margin: 28px 0;
+}
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.callout p {
+  font-size: 0.95rem;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+
+.callout strong { color: var(--ink); font-weight: 600; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 2px solid var(--ink);
+  padding: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.footer-note {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink3);
+  text-align: right;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-meta { flex-direction: row; border-left: none; border-top: 1px solid var(--rule); padding: 20px 0 0; }
+  .two-col, .three-col, .phase-grid { grid-template-columns: 1fr; }
+  .transformer-flow { flex-wrap: wrap; }
+  nav { padding: 0 16px; gap: 16px; }
+  .page, .hero { padding: 40px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">LLMs Explained</span>
+  <ul class="nav-links">
+    <li><a href="#what">What they are</a></li>
+    <li><a href="#tokens">Tokens</a></li>
+    <li><a href="#transformer">Transformer</a></li>
+    <li><a href="#attention">Attention</a></li>
+    <li><a href="#training">Training</a></li>
+    <li><a href="#temperature">Temperature</a></li>
+    <li><a href="#limits">Limits</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero page">
+  <div>
+    <div class="hero-kicker">A Technical Primer</div>
+    <h1>How <em>Large Language Models</em> Actually Work</h1>
+    <p class="hero-lead">Not magic. Not sentience. A deep statistical machine trained to predict the next word — and it turns out that's a surprisingly powerful thing to be.</p>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-stat">
+      <div class="stat-num">~1T+</div>
+      <div class="stat-label">Parameters in frontier models</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">15T</div>
+      <div class="stat-label">Tokens in GPT-4's training data</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">2017</div>
+      <div class="stat-label">Year the Transformer was invented</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">~750</div>
+      <div class="stat-label">Words per 1,000 tokens</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ── 1. WHAT IS AN LLM ── -->
+<section class="section fade-in" id="what">
+  <div class="section-num">01 — What is an LLM?</div>
+  <h2>A model trained to <em>predict text</em>, at extraordinary scale</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>A Large Language Model is a neural network — a mathematical system of interconnected numbers — trained on a massive corpus of text to do one thing: <strong>predict the next token given what came before.</strong></p>
+      <p>That's it. There's no comprehension happening, no reasoning in the way humans reason. What emerges is something powerful: a system that has implicitly encoded grammar, facts, logical relationships, code syntax, storytelling patterns, and more — because all of these were needed to predict text well.</p>
+      <p>"Large" is the critical qualifier. Small language models exist and can't do much. As models scale — more parameters, more data, more compute — <strong>emergent capabilities appear</strong> that weren't present at smaller sizes: reasoning, multi-step problem solving, following complex instructions.</p>
+    </div>
+    <div>
+      <div class="diagram-box">
+        <div class="diagram-title">The core loop</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--surface2);border:1px solid var(--rule);border-radius:3px;padding:14px 16px;">
+            <div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:4px;">Input (Context)</div>
+            <div style="font-family:var(--mono);font-size:0.82rem;color:var(--ink2);">"The cat sat on the"</div>
+          </div>
+          <div style="text-align:center;color:var(--ink3);font-size:1.2rem;">↓</div>
+          <div style="background:var(--accent);border-radius:3px;padding:14px 16px;">
+            <div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.7);margin-bottom:4px;">Transformer</div>
+            <div style="font-family:var(--mono);font-size:0.82rem;color:#fff;">Probability distribution over all ~50,000 tokens</div>
+          </div>
+          <div style="text-align:center;color:var(--ink3);font-size:1.2rem;">↓</div>
+          <div style="background:var(--surface2);border:1px solid var(--rule);border-radius:3px;padding:14px 16px;">
+            <div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:4px;">Sampled Next Token</div>
+            <div style="font-family:var(--mono);font-size:0.82rem;color:var(--accent);">"mat" (p=0.38) / "floor" (p=0.21) / "chair" (p=0.14)…</div>
+          </div>
+          <div style="text-align:center;color:var(--ink3);font-size:0.75rem;font-family:var(--mono);letter-spacing:0.06em;">↓ append → repeat</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:32px;">
+    <div class="callout-label">Key Insight</div>
+    <p>LLMs do not retrieve answers from a database. They generate token by token, sampling from a probability distribution each time. The "knowledge" is baked into billions of parameters during training — there's no lookup table, no search index, no memory of individual conversations.</p>
+  </div>
+</section>
+
+<!-- ── 2. TOKENS ── -->
+<section class="section fade-in" id="tokens">
+  <div class="section-num">02 — Tokens</div>
+  <h2>The atom of language — <em>not words</em>, but pieces</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>LLMs don't process words — they process <strong>tokens</strong>. Tokens are sub-word units produced by a vocabulary built during training (commonly using the BPE algorithm — Byte Pair Encoding).</p>
+      <p>Common words are often a single token. Rare or long words are split into multiple. <strong>"unbelievable"</strong> might be 3 tokens: <em>un</em>, <em>believ</em>, <em>able</em>. Code is tokenized differently from prose. Spaces before words are often included in the token.</p>
+      <p>This matters because: model pricing is per token, context windows are measured in tokens, and the model "sees" tokens — not words. Roughly <strong>750 words ≈ 1,000 tokens</strong> in English prose.</p>
+    </div>
+    <div>
+      <div class="diagram-box">
+        <div class="diagram-title">Token types by color</div>
+        <div class="token-colors">
+          <span class="token-key"><span class="token-swatch" style="background:#dbeafe;border:1px solid #93c5fd"></span>Common word</span>
+          <span class="token-key"><span class="token-swatch" style="background:#fef9c3;border:1px solid #fde047"></span>Sub-word piece</span>
+          <span class="token-key"><span class="token-swatch" style="background:#dcfce7;border:1px solid #86efac"></span>Punctuation</span>
+          <span class="token-key"><span class="token-swatch" style="background:#fce7f3;border:1px solid #f9a8d4"></span>Number</span>
+          <span class="token-key"><span class="token-swatch" style="background:#ede9fe;border:1px solid #c4b5fd"></span>Space+word</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tokenDemo">
+    <div class="diagram-title">Interactive Tokenizer — click a sentence to see tokenization</div>
+    <div class="demo-controls" id="tokenBtns">
+      <button class="demo-btn active" data-idx="0">Sentence 1</button>
+      <button class="demo-btn" data-idx="1">Code</button>
+      <button class="demo-btn" data-idx="2">Rare words</button>
+      <button class="demo-btn" data-idx="3">Numbers</button>
+    </div>
+    <div class="token-input" id="tokenInput"></div>
+    <div class="token-track" id="tokenTrack"></div>
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--ink3);margin-top:8px;" id="tokenCount"></div>
+  </div>
+</section>
+
+<!-- ── 3. TRANSFORMER ── -->
+<section class="section fade-in" id="transformer">
+  <div class="section-num">03 — The Transformer</div>
+  <h2>The architecture that <em>changed everything</em> — introduced in 2017</h2>
+  <div class="prose">
+    <p>Before 2017, sequential models (RNNs, LSTMs) processed text one word at a time — slow, and bad at long-range dependencies. The <strong>Transformer</strong> ("Attention Is All You Need," Google, 2017) processes all tokens simultaneously, relating any token to any other via <em>attention</em>.</p>
+    <p>Click any block below to understand what it does.</p>
+  </div>
+
+  <div class="transformer-flow" id="tfFlow">
+    <div class="tf-block" data-key="embed">
+      <div class="tf-name">Embedding</div>
+      <div class="tf-sub">Tokens → vectors</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="pos">
+      <div class="tf-name">Positional<br>Encoding</div>
+      <div class="tf-sub">Where am I?</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="attn">
+      <div class="tf-name">Multi-Head<br>Attention</div>
+      <div class="tf-sub">What matters?</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="norm">
+      <div class="tf-name">Layer<br>Norm</div>
+      <div class="tf-sub">Stabilize</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="ff">
+      <div class="tf-name">Feed-Forward<br>Network</div>
+      <div class="tf-sub">Transform</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="repeat">
+      <div class="tf-name">×N Layers</div>
+      <div class="tf-sub">Repeat deep</div>
+    </div>
+    <div class="tf-arrow">→</div>
+    <div class="tf-block" data-key="head">
+      <div class="tf-name">LM Head</div>
+      <div class="tf-sub">→ probabilities</div>
+    </div>
+  </div>
+
+  <div class="tf-detail" id="tfDetail">
+    <h4>← Click a block to learn what it does</h4>
+    <p>Each stage in the Transformer pipeline transforms the token representations in a specific way. Together, they allow the model to understand relationships across the entire context window simultaneously.</p>
+  </div>
+
+  <div class="callout" style="margin-top:32px;border-left-color:var(--accent2);">
+    <div class="callout-label" style="color:var(--accent2);">Depth = Abstraction</div>
+    <p>GPT-2 had 48 layers. GPT-3 had 96. Each layer refines representations — early layers capture syntax, middle layers capture semantics, deep layers capture abstract reasoning. <strong>Stacking layers is how depth creates intelligence.</strong></p>
+  </div>
+</section>
+
+<!-- ── 4. ATTENTION ── -->
+<section class="section fade-in" id="attention">
+  <div class="section-num">04 — Attention</div>
+  <h2>How the model decides <em>what to focus on</em></h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>The attention mechanism lets every token look at every other token and decide how relevant it is. For each token, it computes a <strong>weighted sum</strong> of all other tokens' values — weighted by relevance scores (called attention weights).</p>
+      <p>This is how "it" in <em>"The animal didn't cross the street because it was tired"</em> gets connected to "animal" rather than "street" — the model learns that "it" should attend to the subject, not the obstacle.</p>
+      <p><strong>Multi-head attention</strong> runs this process in parallel across multiple "heads" — each learning a different type of relationship: syntactic, semantic, coreference, positional.</p>
+    </div>
+    <div>
+      <div class="diagram-box">
+        <div class="diagram-title">Attention Heatmap — click a word to see what it attends to</div>
+        <div class="att-words" id="attWords"></div>
+        <div id="attGridWrap">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--ink3);margin-bottom:6px;">Attention strength: dark = high, light = low</div>
+          <div class="attention-grid" id="attGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 5. NEXT TOKEN ── -->
+<section class="section fade-in" id="nexttok">
+  <div class="section-num">05 — Prediction</div>
+  <h2>Generating text, <em>one token at a time</em></h2>
+  <div class="prose">
+    <p>After the forward pass through all layers, the model's final layer (the LM Head) projects the hidden state into a probability distribution over the entire vocabulary — often ~50,000 tokens. The model then <strong>samples</strong> from this distribution to pick the next token.</p>
+    <p>This is then appended to the context, and the whole process runs again. This is called <strong>autoregressive generation</strong> — each new token depends on all previous tokens.</p>
+  </div>
+
+  <div class="next-token-demo">
+    <div class="diagram-title">Next Token Probabilities — click a prompt, watch predictions update</div>
+    <div class="demo-controls" id="ntBtns">
+      <button class="demo-btn active" data-idx="0">Sci-fi story</button>
+      <button class="demo-btn" data-idx="1">Python code</button>
+      <button class="demo-btn" data-idx="2">Recipe</button>
+    </div>
+    <div class="nt-prompt" id="ntPrompt"></div>
+    <div style="font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);margin-bottom:10px;">Top predicted next tokens</div>
+    <div class="nt-probs" id="ntProbs"></div>
+  </div>
+</section>
+
+<!-- ── 6. TRAINING ── -->
+<section class="section fade-in" id="training">
+  <div class="section-num">06 — Training vs Inference</div>
+  <h2>Building the model vs <em>using the model</em></h2>
+
+  <div class="prose">
+    <p>There are two entirely distinct phases in an LLM's life. Training is extraordinarily expensive — done once by the lab. Inference is what happens every time you send a message.</p>
+  </div>
+
+  <div class="phase-grid">
+    <div class="phase-card phase-train">
+      <div class="phase-header">Training — done by the lab</div>
+      <div class="phase-body">
+        <div class="phase-item"><span class="phase-icon">📚</span><span><strong>Massive corpus</strong> — trillions of tokens from web, books, code, scientific papers. Carefully filtered.</span></div>
+        <div class="phase-item"><span class="phase-icon">🎯</span><span><strong>Objective:</strong> predict the next token. Loss = how wrong the prediction was. Minimize loss across all tokens.</span></div>
+        <div class="phase-item"><span class="phase-icon">⬅️</span><span><strong>Backpropagation</strong> — errors flow backward through the network, adjusting every weight by a tiny amount.</span></div>
+        <div class="phase-item"><span class="phase-icon">🔄</span><span><strong>Billions of steps</strong> across the full dataset (multiple epochs). Takes weeks on thousands of GPUs.</span></div>
+        <div class="phase-item"><span class="phase-icon">💰</span><span><strong>Cost:</strong> Frontier models cost $50M–$500M+ to train. GPT-4 reportedly ~$100M.</span></div>
+      </div>
+    </div>
+    <div class="phase-card phase-infer">
+      <div class="phase-header">Inference — what happens when you chat</div>
+      <div class="phase-body">
+        <div class="phase-item"><span class="phase-icon">💬</span><span><strong>Your prompt</strong> is tokenized and fed into the frozen model (weights don't change during inference).</span></div>
+        <div class="phase-item"><span class="phase-icon">⚡</span><span><strong>Forward pass only</strong> — one pass through all layers, no backpropagation. Much faster than training.</span></div>
+        <div class="phase-item"><span class="phase-icon">🎲</span><span><strong>Token-by-token generation</strong> — each new token appended to context, then next pass begins.</span></div>
+        <div class="phase-item"><span class="phase-icon">📏</span><span><strong>Context window</strong> limits how much the model can see — from 4k tokens (GPT-3) to 200k (Claude).</span></div>
+        <div class="phase-item"><span class="phase-icon">💳</span><span><strong>Cost:</strong> priced per token. ~$0.003 per 1k tokens on GPT-4. Users pay for inference.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;">
+    <div class="section-num" style="margin-bottom:12px;">Fine-tuning and RLHF</div>
+    <div class="two-col">
+      <div class="prose">
+        <p>A base model trained only on next-token prediction is not yet a helpful assistant — it just continues text. To make it useful, labs apply two more stages:</p>
+        <p><strong>Supervised Fine-Tuning (SFT):</strong> The model is trained on curated examples of good conversations, written by human contractors. This teaches it the format of helpful responses.</p>
+        <p><strong>RLHF — Reinforcement Learning from Human Feedback:</strong> Humans compare pairs of model outputs and rank them. These rankings train a "reward model." Then RL (specifically PPO) is used to optimize the LLM against this reward model. This is how Claude and ChatGPT learned to be safe, honest, and helpful.</p>
+      </div>
+      <div class="diagram-box">
+        <div class="diagram-title">RLHF Pipeline</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem;">
+          <div style="background:var(--surface2);border:1px solid var(--rule);border-radius:3px;padding:12px 14px;">
+            <span style="font-family:var(--mono);font-size:0.65rem;color:var(--ink3);display:block;margin-bottom:3px;">STEP 1</span>
+            <strong>Base model</strong> — pretrained on text. Can continue any prompt but won't follow instructions safely.
+          </div>
+          <div style="text-align:center;color:var(--ink3);">↓</div>
+          <div style="background:var(--surface2);border:1px solid var(--rule);border-radius:3px;padding:12px 14px;">
+            <span style="font-family:var(--mono);font-size:0.65rem;color:var(--ink3);display:block;margin-bottom:3px;">STEP 2</span>
+            <strong>SFT</strong> — trained on curated human-written conversations. Learns format + tone of helpfulness.
+          </div>
+          <div style="text-align:center;color:var(--ink3);">↓</div>
+          <div style="background:var(--surface2);border:1px solid var(--rule);border-radius:3px;padding:12px 14px;">
+            <span style="font-family:var(--mono);font-size:0.65rem;color:var(--ink3);display:block;margin-bottom:3px;">STEP 3</span>
+            <strong>Reward model</strong> trained on human rankings of model outputs. Encodes human preferences.
+          </div>
+          <div style="text-align:center;color:var(--ink3);">↓</div>
+          <div style="background:var(--accent);border-radius:3px;padding:12px 14px;">
+            <span style="font-family:var(--mono);font-size:0.65rem;color:rgba(255,255,255,0.7);display:block;margin-bottom:3px;">STEP 4</span>
+            <span style="color:#fff;font-weight:600;">RL optimization</span><span style="color:rgba(255,255,255,0.85);"> — model learns to maximize reward score. Output: a helpful, harmless assistant.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scale chart -->
+  <div style="margin-top:40px;">
+    <div class="section-num" style="margin-bottom:12px;">Scale — How models have grown</div>
+    <div class="scale-bar-wrap" id="scaleChart"></div>
+  </div>
+</section>
+
+<!-- ── 7. TEMPERATURE ── -->
+<section class="section fade-in" id="temperature">
+  <div class="section-num">07 — Temperature & Sampling</div>
+  <h2>Controlling <em>randomness</em> in generation</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Every time the model generates a token, it produces a probability distribution. <strong>Temperature</strong> scales this distribution before sampling:</p>
+      <p><strong>Low temperature (0–0.3):</strong> Distribution becomes sharp — the most likely token almost always wins. Deterministic, repetitive, predictable. Good for code and factual Q&A.</p>
+      <p><strong>High temperature (0.8–1.5):</strong> Distribution flattens — rare tokens become more likely. Creative, varied, sometimes nonsensical. Good for brainstorming and creative writing.</p>
+      <p><strong>Temperature = 0</strong> is essentially greedy decoding — always pick the highest-probability token. Same input → same output every time.</p>
+    </div>
+    <div class="diagram-box">
+      <div class="diagram-title">Temperature at a glance</div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px;">
+        <div>
+          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--accent);font-weight:700;margin-bottom:6px;">Low temp (0.1) — Sharp distribution</div>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:50px;">
+            <div style="flex:1;background:var(--accent);height:100%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent);height:18%;opacity:0.5;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent);height:8%;opacity:0.3;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent);height:4%;opacity:0.2;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent);height:2%;opacity:0.1;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent);height:1%;opacity:0.1;border-radius:2px 2px 0 0;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--accent2);font-weight:700;margin-bottom:6px;">High temp (1.2) — Flat distribution</div>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:50px;">
+            <div style="flex:1;background:var(--accent2);height:40%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent2);height:30%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent2);height:25%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent2);height:20%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent2);height:18%;border-radius:2px 2px 0 0;"></div>
+            <div style="flex:1;background:var(--accent2);height:14%;border-radius:2px 2px 0 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="temp-demo">
+    <div class="diagram-title">Temperature slider — watch how output changes</div>
+    <div class="temp-slider-wrap">
+      <span style="font-family:var(--mono);font-size:0.72rem;color:var(--ink3);">0</span>
+      <input type="range" min="0" max="20" value="7" step="1" id="tempSlider">
+      <span style="font-family:var(--mono);font-size:0.72rem;color:var(--ink3);">2.0</span>
+      <span class="temp-val" id="tempVal">0.7</span>
+    </div>
+    <div class="temp-output" id="tempOutput"></div>
+  </div>
+</section>
+
+<!-- ── 8. LIMITS ── -->
+<section class="section fade-in" id="limits">
+  <div class="section-num">08 — Limits & Failure Modes</div>
+  <h2>What LLMs <em>cannot</em> do — and why</h2>
+  <div class="three-col">
+    <div class="vocab-card" style="border-top:3px solid var(--accent);">
+      <div class="vocab-term" style="color:var(--accent);">Hallucination</div>
+      <div class="vocab-def">LLMs generate plausible-sounding text even when the content is false. They have no truth-checking mechanism — they optimize for token probability, not factual accuracy. Confident wrongness is a fundamental property, not a bug to be patched.</div>
+    </div>
+    <div class="vocab-card" style="border-top:3px solid var(--accent);">
+      <div class="vocab-term" style="color:var(--accent);">No persistent memory</div>
+      <div class="vocab-def">Each conversation starts fresh. The model has no memory between sessions. "Memory" features in chat apps are implemented externally — relevant past conversations are injected into the context window, not stored in the model.</div>
+    </div>
+    <div class="vocab-card" style="border-top:3px solid var(--accent);">
+      <div class="vocab-term" style="color:var(--accent);">Knowledge cutoff</div>
+      <div class="vocab-def">Training data has an end date. Events after the cutoff are unknown to the model. RAG (retrieval-augmented generation) injects current information into the context at inference time to mitigate this.</div>
+    </div>
+    <div class="vocab-card" style="border-top:3px solid var(--accent2);">
+      <div class="vocab-term" style="color:var(--accent2);">Context window limit</div>
+      <div class="vocab-def">The model can only attend to what's in the current context window. Older Claude models had 8k tokens; Claude 3 supports 200k. Information beyond the window is simply invisible — the model cannot access it.</div>
+    </div>
+    <div class="vocab-card" style="border-top:3px solid var(--accent2);">
+      <div class="vocab-term" style="color:var(--accent2);">No real reasoning</div>
+      <div class="vocab-def">LLMs can mimic reasoning steps, but they don't reason in the formal sense. Chain-of-thought prompting improves performance by forcing the model to generate intermediate steps — but it's still next-token prediction, not logical deduction.</div>
+    </div>
+    <div class="vocab-card" style="border-top:3px solid var(--accent2);">
+      <div class="vocab-term" style="color:var(--accent2);">Prompt sensitivity</div>
+      <div class="vocab-def">The same question phrased differently can yield very different answers. Models are sensitive to framing, word order, and examples. This is why prompt engineering is a real skill — small changes in input can dramatically shift output quality.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 9. GLOSSARY ── -->
+<section class="section fade-in" id="glossary">
+  <div class="section-num">09 — Glossary</div>
+  <h2>The vocabulary — <em>defined precisely</em></h2>
+  <div class="vocab-grid" id="glossaryGrid"></div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-brand">LLMs Explained</div>
+  <div class="footer-note">Part of the AI Landscape series.<br>Concepts accurate as of 2025.</div>
+</footer>
+
+<script>
+/* ───────── DATA ───────── */
+
+const tokenExamples = [
+  {
+    label: "Sentence 1",
+    text: "The cat sat on the mat.",
+    tokens: [
+      { text: "The",    type: "word" },
+      { text: " cat",   type: "space" },
+      { text: " sat",   type: "space" },
+      { text: " on",    type: "space" },
+      { text: " the",   type: "space" },
+      { text: " mat",   type: "space" },
+      { text: ".",      type: "punct" },
+    ]
+  },
+  {
+    label: "Code",
+    text: "def fibonacci(n):\n    return n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)",
+    tokens: [
+      { text: "def",        type: "word" },
+      { text: " fib",       type: "space" },
+      { text: "on",         type: "sub" },
+      { text: "acci",       type: "sub" },
+      { text: "(n",         type: "word" },
+      { text: "):",         type: "punct" },
+      { text: "\n   ",      type: "word" },
+      { text: " return",    type: "space" },
+      { text: " n",         type: "space" },
+      { text: " if",        type: "space" },
+      { text: " n",         type: "space" },
+      { text: " <=",        type: "word" },
+      { text: " 1",         type: "num" },
+      { text: " else",      type: "space" },
+      { text: " fib",       type: "space" },
+      { text: "on",         type: "sub" },
+      { text: "acci",       type: "sub" },
+      { text: "(n",         type: "word" },
+      { text: "-",          type: "punct" },
+      { text: "1",          type: "num" },
+      { text: ")",          type: "punct" },
+    ]
+  },
+  {
+    label: "Rare words",
+    text: "The pneumonoultramicroscopicsilicovolcanoconiosis was uncharacteristically sesquipedalian.",
+    tokens: [
+      { text: "The",            type: "word" },
+      { text: " pneumon",       type: "space" },
+      { text: "o",              type: "sub" },
+      { text: "ultra",          type: "sub" },
+      { text: "micro",          type: "sub" },
+      { text: "sc",             type: "sub" },
+      { text: "opic",           type: "sub" },
+      { text: "sil",            type: "sub" },
+      { text: "ico",            type: "sub" },
+      { text: "vol",            type: "sub" },
+      { text: "can",            type: "sub" },
+      { text: "oco",            type: "sub" },
+      { text: "ni",             type: "sub" },
+      { text: "osis",           type: "sub" },
+      { text: " was",           type: "space" },
+      { text: " un",            type: "space" },
+      { text: "char",           type: "sub" },
+      { text: "acter",          type: "sub" },
+      { text: "istically",      type: "sub" },
+      { text: " ses",           type: "space" },
+      { text: "qui",            type: "sub" },
+      { text: "ped",            type: "sub" },
+      { text: "alian",          type: "sub" },
+      { text: ".",              type: "punct" },
+    ]
+  },
+  {
+    label: "Numbers",
+    text: "In 2024, GPT-4 has 1,800,000,000,000 parameters.",
+    tokens: [
+      { text: "In",       type: "word" },
+      { text: " 2024",    type: "num" },
+      { text: ",",        type: "punct" },
+      { text: " GPT",     type: "space" },
+      { text: "-",        type: "punct" },
+      { text: "4",        type: "num" },
+      { text: " has",     type: "space" },
+      { text: " 1",       type: "num" },
+      { text: ",",        type: "punct" },
+      { text: "800",      type: "num" },
+      { text: ",",        type: "punct" },
+      { text: "000",      type: "num" },
+      { text: ",",        type: "punct" },
+      { text: "000",      type: "num" },
+      { text: ",",        type: "punct" },
+      { text: "000",      type: "num" },
+      { text: " parameters", type: "space" },
+      { text: ".",        type: "punct" },
+    ]
+  }
+];
+
+const typeStyles = {
+  word:  { bg: '#dbeafe', border: '#93c5fd', color: '#1e40af' },
+  sub:   { bg: '#fef9c3', border: '#fde047', color: '#854d0e' },
+  punct: { bg: '#dcfce7', border: '#86efac', color: '#166534' },
+  num:   { bg: '#fce7f3', border: '#f9a8d4', color: '#9d174d' },
+  space: { bg: '#ede9fe', border: '#c4b5fd', color: '#5b21b6' },
+};
+
+/* Transformer details */
+const tfDetails = {
+  embed: {
+    title: "Token Embedding",
+    text: "Each token ID is looked up in an embedding matrix to get a dense vector (typically 768–12,288 dimensions). These vectors are randomly initialized, then learned during training. Similar tokens end up near each other in vector space — 'king' minus 'man' plus 'woman' ≈ 'queen'."
+  },
+  pos: {
+    title: "Positional Encoding",
+    text: "Transformers process all tokens simultaneously — unlike RNNs, there's no inherent notion of order. Positional encodings (sinusoidal or learned) are added to each token's embedding so the model knows token 1 from token 100. Without this, 'cat bites dog' and 'dog bites cat' would look identical."
+  },
+  attn: {
+    title: "Multi-Head Self-Attention",
+    text: "The heart of the Transformer. Each token computes a Query (what am I looking for?), Key (what do I represent?), and Value (what do I contain?). Attention scores = Q·K^T / √d, then softmax. The result is a weighted sum of Values. 'Multi-head' means this runs in parallel with different learned weights — each head captures different relationships (syntax, semantics, coreference)."
+  },
+  norm: {
+    title: "Layer Normalization",
+    text: "After each sub-layer (attention and feed-forward), the activations are normalized to have mean ~0 and variance ~1. This prevents values from exploding or vanishing deep in the network — a crucial stability technique that makes training of very deep models possible."
+  },
+  ff: {
+    title: "Feed-Forward Network",
+    text: "Two linear transformations with a non-linearity (typically GELU) between them: FFN(x) = max(0, xW₁+b₁)W₂+b₂. This is where most of the model's 'memory' is stored — individual neurons activate for specific concepts. The FFN is 4x wider than the attention dimension, making it the largest component in terms of parameters."
+  },
+  repeat: {
+    title: "Repeated Layers (Depth)",
+    text: "The attention + norm + FFN + norm block is repeated N times (GPT-3: 96 layers; Claude 3 Opus: ~80+). Each layer refines representations. Early layers: syntax and surface features. Middle layers: semantics and world knowledge. Late layers: abstract task-relevant reasoning. Depth is how LLMs build hierarchy."
+  },
+  head: {
+    title: "Language Model Head",
+    text: "A final linear layer projects the last hidden state (dim d_model) to vocabulary size (~50,000). Softmax converts these logits to probabilities. The token with the highest probability (or sampled based on temperature) is the next token. Training minimizes cross-entropy loss between predicted and actual next tokens."
+  }
+};
+
+/* Attention matrix data */
+const attSentence = ["The", "animal", "didn't", "cross", "the", "street", "because", "it"];
+const attMatrices = {
+  0: [0.6, 0.05, 0.03, 0.04, 0.15, 0.05, 0.03, 0.05],
+  1: [0.04, 0.5, 0.03, 0.04, 0.04, 0.05, 0.04, 0.26],
+  2: [0.05, 0.04, 0.6, 0.04, 0.04, 0.04, 0.12, 0.07],
+  3: [0.04, 0.04, 0.05, 0.5, 0.04, 0.15, 0.08, 0.1],
+  4: [0.5, 0.05, 0.03, 0.04, 0.25, 0.05, 0.04, 0.04],
+  5: [0.04, 0.04, 0.05, 0.2, 0.04, 0.5, 0.05, 0.08],
+  6: [0.03, 0.08, 0.15, 0.08, 0.03, 0.08, 0.5, 0.05],
+  7: [0.05, 0.35, 0.04, 0.06, 0.1, 0.15, 0.1, 0.15], // "it" attends to "animal"
+};
+
+/* Next token examples */
+const ntExamples = [
+  {
+    label: "Sci-fi story",
+    prompt: 'The spaceship entered the atmosphere of the alien planet, its hull glowing red with the heat of',
+    predictions: [
+      { word: "reentry",    pct: 34, color: "#c8400a" },
+      { word: "friction",   pct: 22, color: "#c8400a" },
+      { word: "descent",    pct: 14, color: "#a07820" },
+      { word: "the",        pct: 10, color: "#a07820" },
+      { word: "entry",      pct: 8,  color: "#1a5c8a" },
+      { word: "impact",     pct: 6,  color: "#1a5c8a" },
+      { word: "landing",    pct: 6,  color: "#2a7a4a" },
+    ]
+  },
+  {
+    label: "Python code",
+    prompt: "def calculate_average(numbers):\n    total = sum(numbers)\n    return total /",
+    predictions: [
+      { word: "len(numbers)", pct: 48, color: "#c8400a" },
+      { word: "len",          pct: 20, color: "#c8400a" },
+      { word: "total",        pct: 12, color: "#a07820" },
+      { word: "count",        pct: 8,  color: "#1a5c8a" },
+      { word: "max",          pct: 6,  color: "#1a5c8a" },
+      { word: "n",            pct: 6,  color: "#2a7a4a" },
+    ]
+  },
+  {
+    label: "Recipe",
+    prompt: "Preheat the oven to 375°F. Combine flour, butter, and sugar in a bowl. Mix until the dough is",
+    predictions: [
+      { word: "crumbly",   pct: 31, color: "#c8400a" },
+      { word: "smooth",    pct: 25, color: "#c8400a" },
+      { word: "soft",      pct: 18, color: "#a07820" },
+      { word: "well",      pct: 10, color: "#a07820" },
+      { word: "thick",     pct: 8,  color: "#1a5c8a" },
+      { word: "combined",  pct: 8,  color: "#2a7a4a" },
+    ]
+  }
+];
+
+/* Scale data */
+const scaleData = [
+  { label: "GPT-1 (2018)",    params: "0.1B",  pct: 1  },
+  { label: "GPT-2 (2019)",    params: "1.5B",  pct: 3  },
+  { label: "GPT-3 (2020)",    params: "175B",  pct: 18 },
+  { label: "PaLM (2022)",     params: "540B",  pct: 40 },
+  { label: "GPT-4 (2023)",    params: "~1.8T", pct: 80 },
+  { label: "Gemini U. (2023)",params: "~1T+",  pct: 70 },
+  { label: "Llama 3 (2024)",  params: "70B",   pct: 9  },
+];
+
+const barColors = ["#e4d0c0","#d4b89a","#c8400a","#a07820","#1a1a1a","#1a5c8a","#2a7a4a"];
+
+/* Temperature outputs */
+const tempOutputs = {
+  low: ["The", " capital", " of", " France", " is", " Paris", ".", " It", " is", " known", " for", " the", " Eiffel", " Tower", "."],
+  mid: ["The", " capital", " of", " France", " is", " Paris", ",", " a", " city", " renowned", " for", " its", " art", ",", " culture", ",", " and", " the", " iconic", " Eiffel", " Tower", "."],
+  high: ["France", "'s", " shimmering", " capital", " —", " Paris", " —", " sprawls", " along", " the", " Seine", " like", " an", " old", " song", " half", "-", "remembered", ",", " the", " Eiffel", " Tower", " piercing", " twilight", "."],
+};
+
+/* Glossary */
+const glossaryTerms = [
+  { term: "Parameters", def: "The learnable weights of a neural network — billions of floating-point numbers adjusted during training. More parameters = more capacity to learn." },
+  { term: "Backpropagation", def: "The algorithm for computing gradients. Errors flow backward from output to input, revealing how each weight contributed to the mistake. Then weights are updated via gradient descent." },
+  { term: "Context Window", def: "The maximum number of tokens an LLM can process at once (input + output combined). GPT-4: 128k. Claude 3: 200k. Anything outside this window is invisible to the model." },
+  { term: "Embedding", def: "A dense vector representation of a token. Similar tokens have similar vectors. Embeddings are learned during training and encode semantic and syntactic relationships." },
+  { term: "Perplexity", def: "A measure of how well an LLM predicts test data. Lower = better. Perplexity of N means the model was, on average, as uncertain as if choosing uniformly among N options." },
+  { term: "BPE", def: "Byte Pair Encoding — the algorithm used to build token vocabularies. Starts with characters, repeatedly merges the most frequent adjacent pairs into new tokens until vocabulary size is reached." },
+  { term: "Softmax", def: "A function that converts a vector of raw scores (logits) into a probability distribution that sums to 1. Applied after the final layer to get next-token probabilities." },
+  { term: "RAG", def: "Retrieval-Augmented Generation. External documents are retrieved (via semantic search) and injected into the LLM's context at inference time. Grounds the model in current, accurate information." },
+  { term: "In-context Learning", def: "The ability of LLMs to learn tasks from examples provided in the prompt, without updating weights. Few-shot prompting is the main technique. Emerged at GPT-3 scale." },
+  { term: "RLHF", def: "Reinforcement Learning from Human Feedback. Humans rank model outputs → rewards train a reward model → RL optimizes the LLM against it. How ChatGPT and Claude were made helpful." },
+  { term: "KV Cache", def: "A memory optimization that caches the Key and Value matrices computed during attention. Avoids recomputing them for all previous tokens on each new generation step. Critical for fast inference." },
+  { term: "Beam Search", def: "A decoding strategy that maintains K candidate sequences ('beams') at each step, expanding each and keeping the top K. More exhaustive than greedy, but slower. Often used for translation." },
+];
+
+
+/* ───────── RENDER FUNCTIONS ───────── */
+
+/* Tokenizer */
+let currentTokenIdx = 0;
+
+function renderTokens(idx) {
+  const ex = tokenExamples[idx];
+  const input = document.getElementById('tokenInput');
+  const track = document.getElementById('tokenTrack');
+  const count = document.getElementById('tokenCount');
+
+  input.textContent = ex.text;
+  track.innerHTML = '';
+  count.textContent = '';
+
+  const tokens = ex.tokens;
+  tokens.forEach((t, i) => {
+    const span = document.createElement('span');
+    const style = typeStyles[t.type];
+    span.className = 'token';
+    span.textContent = t.text === '\n   ' ? '↵···' : t.text;
+    span.style.background = style.bg;
+    span.style.borderColor = style.border;
+    span.style.color = style.color;
+    span.title = `Token ${i+1}: "${t.text}" [${t.type}]`;
+    track.appendChild(span);
+    setTimeout(() => span.classList.add('show'), i * 60);
+  });
+
+  setTimeout(() => {
+    count.textContent = `${tokens.length} tokens | ~${Math.round(tokens.length * 0.75)} words equivalent`;
+  }, tokens.length * 60 + 100);
+}
+
+document.querySelectorAll('#tokenBtns .demo-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#tokenBtns .demo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTokens(+btn.dataset.idx);
+  });
+});
+renderTokens(0);
+
+/* Transformer */
+const tfDetail = document.getElementById('tfDetail');
+document.querySelectorAll('#tfFlow .tf-block').forEach(block => {
+  block.addEventListener('click', () => {
+    document.querySelectorAll('#tfFlow .tf-block').forEach(b => b.classList.remove('tf-active'));
+    block.classList.add('tf-active');
+    const d = tfDetails[block.dataset.key];
+    tfDetail.style.borderLeftColor = 'var(--accent)';
+    tfDetail.innerHTML = `<h4>${d.title}</h4><p>${d.text}</p>`;
+  });
+});
+
+/* Attention */
+const attWords = document.getElementById('attWords');
+const attGrid = document.getElementById('attGrid');
+
+attSentence.forEach((w, i) => {
+  const span = document.createElement('span');
+  span.className = 'att-word';
+  span.textContent = w;
+  span.addEventListener('click', () => {
+    document.querySelectorAll('.att-word').forEach(s => s.classList.remove('selected'));
+    span.classList.add('selected');
+    renderAttGrid(i);
+  });
+  attWords.appendChild(span);
+});
+
+function renderAttGrid(rowIdx) {
+  attGrid.innerHTML = '';
+  const weights = attMatrices[rowIdx];
+  attSentence.forEach((w, ci) => {
+    const wt = weights[ci];
+    const alpha = Math.round(wt * 255);
+    const cell = document.createElement('div');
+    cell.className = 'att-cell';
+    cell.style.background = `rgba(200, 64, 10, ${wt * 1.1})`;
+    cell.style.color = wt > 0.3 ? '#fff' : '#666';
+    cell.textContent = wt > 0.1 ? w.slice(0,3) : '';
+    cell.title = `"${attSentence[rowIdx]}" → "${w}": ${(wt*100).toFixed(0)}%`;
+    attGrid.appendChild(cell);
+  });
+}
+// Default: click "it"
+setTimeout(() => {
+  document.querySelectorAll('.att-word')[7]?.click();
+}, 500);
+
+/* Next token */
+function renderNT(idx) {
+  const ex = ntExamples[idx];
+  const prompt = document.getElementById('ntPrompt');
+  const probs = document.getElementById('ntProbs');
+
+  prompt.innerHTML = ex.prompt + '<span class="nt-cursor">▌</span>';
+  probs.innerHTML = '';
+
+  ex.predictions.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'nt-prob-row';
+    row.innerHTML = `
+      <div class="nt-prob-word">${p.word}</div>
+      <div class="nt-prob-bar-bg">
+        <div class="nt-prob-bar-fill" style="background:${p.color};width:0%"></div>
+      </div>
+      <div class="nt-prob-pct">${p.pct}%</div>
+    `;
+    probs.appendChild(row);
+    setTimeout(() => {
+      row.querySelector('.nt-prob-bar-fill').style.width = p.pct + '%';
+    }, i * 80 + 100);
+  });
+}
+
+document.querySelectorAll('#ntBtns .demo-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#ntBtns .demo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderNT(+btn.dataset.idx);
+  });
+});
+renderNT(0);
+
+/* Scale chart */
+const scaleChart = document.getElementById('scaleChart');
+scaleData.forEach((m, i) => {
+  const row = document.createElement('div');
+  row.className = 'scale-row';
+  row.innerHTML = `
+    <div class="scale-label">${m.label}</div>
+    <div class="scale-bar-bg">
+      <div class="scale-bar-fill" style="background:${barColors[i]};width:0%"></div>
+    </div>
+    <div class="scale-value">${m.params}</div>
+  `;
+  scaleChart.appendChild(row);
+  setTimeout(() => {
+    row.querySelector('.scale-bar-fill').style.width = m.pct + '%';
+  }, i * 100 + 300);
+});
+
+/* Temperature */
+const slider = document.getElementById('tempSlider');
+const tempVal = document.getElementById('tempVal');
+const tempOutput = document.getElementById('tempOutput');
+
+function updateTemp() {
+  const v = slider.value / 10;
+  tempVal.textContent = v.toFixed(1);
+
+  let words, colorFn;
+  if (v <= 0.4) {
+    words = tempOutputs.low;
+    colorFn = (i) => `rgba(200,64,10,${0.15 + i*0.02})`;
+  } else if (v <= 1.0) {
+    words = tempOutputs.mid;
+    colorFn = (i) => 'transparent';
+  } else {
+    words = tempOutputs.high;
+    colorFn = (i) => `rgba(26,92,138,${0.08 + Math.random()*0.15})`;
+  }
+
+  tempOutput.innerHTML = words.map((w, i) =>
+    `<span class="temp-word" style="background:${colorFn(i)}">${w}</span>`
+  ).join('');
+}
+
+slider.addEventListener('input', updateTemp);
+updateTemp();
+
+/* Glossary */
+const glossGrid = document.getElementById('glossaryGrid');
+glossaryTerms.forEach(t => {
+  const card = document.createElement('div');
+  card.className = 'vocab-card';
+  card.innerHTML = `<div class="vocab-term">${t.term}</div><div class="vocab-def">${t.def}</div>`;
+  glossGrid.appendChild(card);
+});
+
+/* Intersection observer for fade-ins */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

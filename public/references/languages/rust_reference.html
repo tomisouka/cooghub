@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rust Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0908;
+    --surface: #13110f;
+    --surface2: #1c1916;
+    --surface3: #252118;
+    --border: #332e26;
+    --border2: #4a4035;
+    --rust: #c4581a;
+    --rust-light: #e8762e;
+    --rust-glow: rgba(196, 88, 26, 0.15);
+    --amber: #d4a843;
+    --green: #6db86d;
+    --blue: #5b9bd5;
+    --text: #f0ebe3;
+    --text-dim: #8a7f72;
+    --text-code: #e8c99a;
+    --ferric: #8c6a3c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(196, 88, 26, 0.07) 0%, transparent 60%);
+  }
+
+  /* Animated rust texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 9, 8, 0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border2);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    height: 54px;
+    gap: 0;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rust) 30%, var(--amber) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--rust-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-crab {
+    font-size: 1.1rem;
+    filter: sepia(1) saturate(3) hue-rotate(-10deg);
+  }
+
+  nav {
+    display: flex;
+    gap: 0.15rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 2rem;
+    flex: 1;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.28rem 0.55rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.03em;
+  }
+  nav a:hover { color: var(--rust-light); background: var(--rust-glow); }
+
+  .hero {
+    padding: 5rem 2rem 3.5rem;
+    max-width: 920px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--rust);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 2rem;
+    height: 1px;
+    background: var(--rust);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--text);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--rust-light);
+    font-weight: 700;
+  }
+
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    margin-top: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .hero-meta span::before {
+    content: '◆';
+    color: var(--rust);
+    font-size: 0.5rem;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 2rem 8rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.15rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .toc::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--rust), var(--amber));
+    border-radius: 3px 0 0 3px;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .toc a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.22rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: color 0.12s;
+  }
+  .toc a:hover { color: var(--rust-light); }
+  .toc-num { color: var(--border2); min-width: 1.6rem; font-size: 0.65rem; }
+
+  /* Sections */
+  section {
+    margin-bottom: 4.5rem;
+    scroll-margin-top: 70px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 60px; height: 1px;
+    background: var(--rust);
+  }
+
+  .section-icon {
+    font-size: 1rem;
+    width: 2rem; height: 2rem;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin: 2.25rem 0 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  h3::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+
+  thead {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 400;
+    font-size: 0.97rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(196, 88, 26, 0.04); }
+  tr:hover td:first-child {
+    color: var(--rust-light);
+    text-shadow: 0 0 24px rgba(196, 88, 26, 0.4);
+  }
+
+  td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--rust-light);
+    white-space: nowrap;
+    min-width: 130px;
+    padding: 0.7rem 1.25rem;
+    letter-spacing: 0.02em;
+    border-right: 1px solid var(--border);
+    background: rgba(196, 88, 26, 0.025);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    color: var(--text-code);
+    background: rgba(196, 88, 26, 0.1);
+    padding: 0.12em 0.38em;
+    border-radius: 3px;
+    border: 1px solid rgba(196, 88, 26, 0.15);
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--rust);
+    border-radius: 0 7px 7px 0;
+    padding: 1.1rem 1.35rem;
+    margin: 1rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.75;
+    tab-size: 4;
+  }
+
+  .code-block .cm  { color: var(--text-dim); font-style: italic; }
+  .code-block .kw  { color: #c792ea; }
+  .code-block .ty  { color: #82aaff; }
+  .code-block .fn  { color: #82e0aa; }
+  .code-block .st  { color: #c3e88d; }
+  .code-block .nm  { color: var(--rust-light); }
+  .code-block .lt  { color: var(--amber); }
+
+  .prose {
+    color: var(--text);
+    margin: 0.75rem 0;
+    line-height: 1.85;
+    font-size: 0.98rem;
+  }
+
+  .prose strong { color: var(--amber); font-weight: 600; }
+
+  .plain-def { color: var(--text-dim); font-style: italic; font-size: 0.93rem; }
+  .plain-def-header { color: var(--text-dim); font-size: 0.65rem; }
+
+  /* Callout boxes */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--rust);
+    border-radius: 0 7px 7px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--rust-light); }
+  .callout.green { border-left-color: var(--green); }
+  .callout.green strong { color: var(--green); }
+  .callout.blue { border-left-color: var(--blue); }
+  .callout.blue strong { color: var(--blue); }
+
+  /* Tips */
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .tips-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 0.93rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+    transition: border-color 0.15s;
+  }
+
+  .tips-list li:hover { border-color: var(--border2); }
+
+  .tip-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--rust-light);
+    background: var(--rust-glow);
+    border: 1px solid rgba(196, 88, 26, 0.2);
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .back-top:hover { color: var(--rust-light); border-color: var(--rust); }
+
+  .idx-link {
+    color: var(--rust-light);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .idx-link:hover { text-decoration: underline; }
+
+  /* Ownership diagram */
+  .ownership-diagram {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    overflow-x: auto;
+  }
+
+  .ownership-diagram .box {
+    display: inline-block;
+    border: 1px solid var(--rust);
+    border-radius: 4px;
+    padding: 0.2rem 0.6rem;
+    color: var(--rust-light);
+    background: var(--rust-glow);
+    margin: 0 0.2rem;
+  }
+
+  .ownership-diagram .arrow { color: var(--amber); margin: 0 0.3rem; }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+
+  footer span { color: var(--rust); }
+</style>
+</head>
+<body id="top">
+
+<header>
+  <span class="logo"><span class="logo-crab">🦀</span> rust · reference</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#ownership">Ownership</a>
+    <a href="#borrowing">Borrowing</a>
+    <a href="#keywords">Keywords</a>
+    <a href="#operators">Operators</a>
+    <a href="#control">Control Flow</a>
+    <a href="#functions">Functions</a>
+    <a href="#structs">Structs &amp; Enums</a>
+    <a href="#traits">Traits</a>
+    <a href="#generics">Generics</a>
+    <a href="#memory">Memory</a>
+    <a href="#errors">Error Handling</a>
+    <a href="#collections">Collections</a>
+    <a href="#closures">Closures</a>
+    <a href="#concurrency">Concurrency</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Systems Programming</div>
+  <h1>Rust Language<br><em>Quick Reference</em></h1>
+  <div class="hero-meta">
+    <span>Rust 2021 Edition</span>
+    <span>Memory Safety Without GC</span>
+    <span>Zero-Cost Abstractions</span>
+    <span>Fearless Concurrency</span>
+  </div>
+</div>
+
+<main>
+
+<div class="toc">
+  <div class="toc-title">// Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#types"><span class="toc-num">02</span> Types &amp; Variables</a>
+  <a href="#ownership"><span class="toc-num">03</span> Ownership</a>
+  <a href="#borrowing"><span class="toc-num">04</span> Borrowing &amp; Lifetimes</a>
+  <a href="#keywords"><span class="toc-num">05</span> Keywords Reference</a>
+  <a href="#operators"><span class="toc-num">06</span> Operators</a>
+  <a href="#control"><span class="toc-num">07</span> Control Flow</a>
+  <a href="#functions"><span class="toc-num">08</span> Functions &amp; Closures</a>
+  <a href="#structs"><span class="toc-num">09</span> Structs &amp; Enums</a>
+  <a href="#traits"><span class="toc-num">10</span> Traits</a>
+  <a href="#generics"><span class="toc-num">11</span> Generics</a>
+  <a href="#memory"><span class="toc-num">12</span> Memory &amp; Smart Pointers</a>
+  <a href="#errors"><span class="toc-num">13</span> Error Handling</a>
+  <a href="#collections"><span class="toc-num">14</span> Collections &amp; Iterators</a>
+  <a href="#concurrency"><span class="toc-num">15</span> Concurrency</a>
+  <a href="#tips"><span class="toc-num">16</span> Tips &amp; Gotchas</a>
+  <a href="#index"><span class="toc-num">17</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><div class="section-icon">🧱</div><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">Rust programs start with <code>fn main()</code>. Files end in <code>.rs</code>; packages are called <strong>crates</strong>, organized by <strong>Cargo</strong>. Rust enforces memory safety at compile time — no garbage collector, no runtime.</p>
+
+  <div class="code-block"><span class="cm">// Hello World</span>
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="fn">println!</span>(<span class="st">"Hello, {}!"</span>, <span class="st">"World"</span>);
+}</div>
+
+  <h3>Cargo Commands</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>cargo new name</td><td class="plain-def">create a new project</td><td>Creates directory with <code>Cargo.toml</code> and <code>src/main.rs</code></td></tr>
+      <tr><td>cargo build</td><td class="plain-def">compile the project</td><td>Debug build by default; output in <code>target/debug/</code></td></tr>
+      <tr><td>cargo build --release</td><td class="plain-def">optimized build</td><td>Output in <code>target/release/</code>; much faster binary</td></tr>
+      <tr><td>cargo run</td><td class="plain-def">build and run</td><td>Recompiles only if source changed</td></tr>
+      <tr><td>cargo test</td><td class="plain-def">run all tests</td><td>Runs <code>#[test]</code> functions and doc tests</td></tr>
+      <tr><td>cargo check</td><td class="plain-def">check without building</td><td>Fast type-check; no binary produced</td></tr>
+      <tr><td>cargo clippy</td><td class="plain-def">lint the code</td><td>Catches common mistakes and style issues</td></tr>
+      <tr><td>cargo add crate_name</td><td class="plain-def">add a dependency</td><td>Adds to <code>Cargo.toml</code>; fetches from crates.io</td></tr>
+      <tr><td>cargo doc --open</td><td class="plain-def">build &amp; open docs</td><td>Generates HTML docs from doc comments</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Program Structure</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>use</td><td class="plain-def">bring item into scope</td><td><code>use std::collections::HashMap;</code></td></tr>
+      <tr><td>mod</td><td class="plain-def">declare a module</td><td>Can be inline or a separate file</td></tr>
+      <tr><td>pub</td><td class="plain-def">make item public</td><td>Private by default; <code>pub</code> exposes to other modules</td></tr>
+      <tr><td>fn main()</td><td class="plain-def">entry point</td><td>No return type means returns <code>()</code>; can return <code>Result</code></td></tr>
+      <tr><td>// comment</td><td class="plain-def">human note, ignored</td><td><code>/// doc comment</code> for documentation; supports Markdown</td></tr>
+      <tr><td>macro!()</td><td class="plain-def">macro invocation</td><td>Macros are called with <code>!</code> — e.g. <code>println!</code>, <code>vec!</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 02 Types -->
+<section id="types">
+  <div class="section-header"><div class="section-icon">📦</div><h2>Types &amp; Variables</h2></div>
+  <p class="prose">Rust is <strong>statically typed</strong> with powerful type inference. Variables are <strong>immutable by default</strong> — use <code>mut</code> to allow mutation. Rust has no null; use <code>Option&lt;T&gt;</code> instead.</p>
+
+  <h3>Scalar Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Size</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>i8 / i16 / i32 / i64 / i128</td><td class="plain-def">signed integers</td><td>1/2/4/8/16 B</td><td><code>let x: i32 = -42;</code></td></tr>
+      <tr><td>u8 / u16 / u32 / u64 / u128</td><td class="plain-def">unsigned integers</td><td>1/2/4/8/16 B</td><td><code>let n: u8 = 255;</code></td></tr>
+      <tr><td>isize / usize</td><td class="plain-def">pointer-sized int</td><td>4 or 8 B</td><td><code>let i: usize = arr.len();</code></td></tr>
+      <tr><td>f32 / f64</td><td class="plain-def">floating point</td><td>4 / 8 B</td><td><code>let f: f64 = 3.14;</code></td></tr>
+      <tr><td>bool</td><td class="plain-def">true or false</td><td>1 B</td><td><code>let b: bool = true;</code></td></tr>
+      <tr><td>char</td><td class="plain-def">Unicode scalar value</td><td>4 B</td><td><code>let c: char = '🦀';</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Compound Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>( ) — unit</td><td class="plain-def">nothing / void</td><td><code>fn foo() { }</code></td><td>Functions returning nothing return <code>()</code></td></tr>
+      <tr><td>(T, U)</td><td class="plain-def">tuple</td><td><code>let t = (1, "hi", 3.0);</code></td><td>Fixed-size; access with <code>t.0</code>, <code>t.1</code>, or destructure</td></tr>
+      <tr><td>[T; N]</td><td class="plain-def">fixed-size array</td><td><code>let a = [1, 2, 3];</code></td><td>Size is part of the type; stack-allocated</td></tr>
+      <tr><td>&amp;[T]</td><td class="plain-def">slice (view into array)</td><td><code>let s = &amp;a[1..3];</code></td><td>Unsized; always behind a reference</td></tr>
+      <tr><td>str</td><td class="plain-def">string data (unsized)</td><td>—</td><td>Usually seen as <code>&amp;str</code> (borrowed) or <code>String</code> (owned)</td></tr>
+      <tr><td>String</td><td class="plain-def">owned, growable string</td><td><code>let s = String::from("hi");</code></td><td>Heap-allocated; can be mutated</td></tr>
+      <tr><td>&amp;str</td><td class="plain-def">borrowed string slice</td><td><code>let s: &amp;str = "hello";</code></td><td>Immutable view; string literals are <code>&amp;'static str</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Variable Binding</h3>
+  <div class="code-block"><span class="kw">let</span> x = <span class="nm">5</span>;                  <span class="cm">// immutable — cannot change</span>
+<span class="kw">let mut</span> y = <span class="nm">10</span>;              <span class="cm">// mutable — can be reassigned</span>
+<span class="kw">let</span> z: <span class="ty">i64</span> = <span class="nm">100</span>;            <span class="cm">// explicit type annotation</span>
+<span class="kw">let</span> _ = expensive_call();    <span class="cm">// _ ignores the value</span>
+
+<span class="cm">// Shadowing — re-bind same name with let</span>
+<span class="kw">let</span> x = x + <span class="nm">1</span>;               <span class="cm">// x is now 6 (new binding, not mutation)</span>
+<span class="kw">let</span> x = x.to_string();       <span class="cm">// can even change the type!</span>
+
+<span class="cm">// Destructuring</span>
+<span class="kw">let</span> (a, b, c) = (<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>);
+<span class="kw">let</span> [first, .., last] = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>];
+
+<span class="cm">// Constants and statics</span>
+<span class="kw">const</span> MAX_SCORE: <span class="ty">u32</span> = <span class="nm">100_000</span>;  <span class="cm">// type required; always immutable</span>
+<span class="kw">static</span> GREETING: &amp;<span class="ty">str</span> = <span class="st">"hello"</span>; <span class="cm">// 'static lifetime; single memory loc</span></div>
+
+  <h3>Type Conversion</h3>
+  <div class="code-block"><span class="kw">let</span> x: <span class="ty">i32</span> = <span class="nm">42</span>;
+<span class="kw">let</span> y = x <span class="kw">as</span> <span class="ty">f64</span>;           <span class="cm">// as cast — numeric types only; can truncate</span>
+<span class="kw">let</span> z = <span class="ty">i64</span>::from(x);      <span class="cm">// From/Into — lossless conversions</span>
+<span class="kw">let</span> s = x.to_string();      <span class="cm">// to_string() from Display trait</span>
+<span class="kw">let</span> n: <span class="ty">i32</span> = <span class="st">"42"</span>.<span class="fn">parse</span>().unwrap(); <span class="cm">// parse() from str</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 03 Ownership -->
+<section id="ownership">
+  <div class="section-header"><div class="section-icon">🔐</div><h2>Ownership</h2></div>
+  <p class="prose">Ownership is Rust's most unique feature — a set of rules that the compiler enforces to manage memory <strong>without a garbage collector</strong>. Violating these rules causes a compile error, not a runtime crash.</p>
+
+  <div class="callout"><strong>The Three Rules of Ownership:</strong><br>
+  1. Each value in Rust has exactly one <em>owner</em>.<br>
+  2. There can only be one owner at a time.<br>
+  3. When the owner goes out of scope, the value is <em>dropped</em> (memory freed).
+  </div>
+
+  <div class="code-block"><span class="cm">// Move semantics — ownership transfers</span>
+<span class="kw">let</span> s1 = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="kw">let</span> s2 = s1;       <span class="cm">// s1 is MOVED to s2. s1 is no longer valid!</span>
+<span class="cm">// println!("{}", s1); // ← COMPILE ERROR: value used after move</span>
+
+<span class="cm">// Clone — deep copy when you need two owners</span>
+<span class="kw">let</span> s1 = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="kw">let</span> s2 = s1.<span class="fn">clone</span>();  <span class="cm">// s1 AND s2 are valid; heap data is copied</span>
+
+<span class="cm">// Copy types — stack-only, cheap to copy, no move semantics</span>
+<span class="kw">let</span> x: <span class="ty">i32</span> = <span class="nm">5</span>;
+<span class="kw">let</span> y = x;         <span class="cm">// x is COPIED, not moved. Both x and y are valid.</span>
+<span class="cm">// Copy types: all integers, floats, bool, char, tuples of Copy types</span>
+
+<span class="cm">// Ownership and functions</span>
+<span class="kw">fn</span> <span class="fn">takes_ownership</span>(s: <span class="ty">String</span>) {  <span class="cm">// s is moved in</span>
+    <span class="fn">println!</span>(<span class="st">"{}"</span>, s);
+}   <span class="cm">// s is dropped here</span>
+
+<span class="kw">let</span> s = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="fn">takes_ownership</span>(s);    <span class="cm">// s is moved — no longer valid here</span>
+<span class="cm">// println!("{}", s);  // ← COMPILE ERROR</span></div>
+
+  <h3>The Drop Trait</h3>
+  <p class="prose">When a value goes out of scope, Rust automatically calls its <code>drop</code> method. This is how memory, file handles, and other resources are automatically released — this is RAII in Rust.</p>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 04 Borrowing -->
+<section id="borrowing">
+  <div class="section-header"><div class="section-icon">🔗</div><h2>Borrowing &amp; Lifetimes</h2></div>
+  <p class="prose">Instead of transferring ownership, you can <strong>borrow</strong> a reference to a value. The borrow checker ensures references are always valid.</p>
+
+  <div class="callout class"><strong>The Borrowing Rules:</strong><br>
+  At any given time, you can have <em>either</em>:<br>
+  &nbsp;&nbsp;• <strong>One mutable reference</strong> (<code>&amp;mut T</code>), <em>or</em><br>
+  &nbsp;&nbsp;• <strong>Any number of immutable references</strong> (<code>&amp;T</code>)<br>
+  but never both at the same time. References must always be valid.
+  </div>
+
+  <div class="code-block"><span class="cm">// Immutable borrow — read-only, many allowed at once</span>
+<span class="kw">let</span> s = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="kw">let</span> r1 = &amp;s;       <span class="cm">// borrow s</span>
+<span class="kw">let</span> r2 = &amp;s;       <span class="cm">// borrow again — fine!</span>
+<span class="fn">println!</span>(<span class="st">"{} {}"</span>, r1, r2);  <span class="cm">// s still valid here</span>
+
+<span class="cm">// Mutable borrow — only ONE at a time</span>
+<span class="kw">let mut</span> s = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="kw">let</span> r = &amp;<span class="kw">mut</span> s;    <span class="cm">// mutable borrow</span>
+r.<span class="fn">push_str</span>(<span class="st">" world"</span>);
+<span class="cm">// let r2 = &amp;mut s; // ← COMPILE ERROR: cannot borrow twice as mutable</span>
+
+<span class="cm">// Dangling references are impossible in Rust</span>
+<span class="cm">// fn dangle() -&gt; &amp;String {</span>
+<span class="cm">//   let s = String::from("hi");  // s created</span>
+<span class="cm">//   &amp;s                           // ← COMPILE ERROR: s dropped here!</span>
+<span class="cm">// }</span></div>
+
+  <h3>Lifetimes</h3>
+  <p class="prose">Lifetimes are how Rust tracks <strong>how long references are valid</strong>. The compiler infers most lifetimes automatically — you only need to annotate when it can't figure it out (usually with multiple references in function signatures).</p>
+
+  <div class="code-block"><span class="cm">// Lifetime annotation: 'a means "reference lives at least as long as 'a"</span>
+<span class="kw">fn</span> <span class="fn">longest</span>&lt;<span class="lt">'a</span>&gt;(x: &amp;<span class="lt">'a</span> <span class="ty">str</span>, y: &amp;<span class="lt">'a</span> <span class="ty">str</span>) -&gt; &amp;<span class="lt">'a</span> <span class="ty">str</span> {
+    <span class="kw">if</span> x.<span class="fn">len</span>() &gt; y.<span class="fn">len</span>() { x } <span class="kw">else</span> { y }
+}
+<span class="cm">// Both inputs and the output must live at least as long as 'a</span>
+
+<span class="cm">// 'static lifetime — lives for the entire program duration</span>
+<span class="kw">let</span> s: &amp;<span class="lt">'static</span> <span class="ty">str</span> = <span class="st">"I live forever"</span>;
+
+<span class="cm">// Lifetime in structs</span>
+<span class="kw">struct</span> <span class="ty">Excerpt</span>&lt;<span class="lt">'a</span>&gt; {
+    part: &amp;<span class="lt">'a</span> <span class="ty">str</span>,   <span class="cm">// struct cannot outlive the string it borrows</span>
+}</div>
+
+  <h3>Borrow vs. Move at a Glance</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Operation</th><th class="plain-def-header">Plain English</th><th>Ownership</th><th>Syntax</th></tr></thead>
+    <tbody>
+      <tr><td>Move</td><td class="plain-def">transfer ownership</td><td>Caller loses access</td><td><code>let y = x;</code></td></tr>
+      <tr><td>Clone</td><td class="plain-def">deep copy</td><td>Both are valid owners</td><td><code>let y = x.clone();</code></td></tr>
+      <tr><td>Immutable borrow</td><td class="plain-def">shared read-only view</td><td>Owner keeps it; many borrows ok</td><td><code>let r = &amp;x;</code></td></tr>
+      <tr><td>Mutable borrow</td><td class="plain-def">exclusive read-write view</td><td>Owner temporarily gives access</td><td><code>let r = &amp;mut x;</code></td></tr>
+      <tr><td>Copy</td><td class="plain-def">implicit bitwise copy</td><td>Both valid; for cheap types only</td><td><code>let y = x;</code> (if Copy)</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 05 Keywords -->
+<section id="keywords">
+  <div class="section-header"><div class="section-icon">🔑</div><h2>Keywords Reference</h2></div>
+  <p class="prose">Rust has <strong>39 reserved keywords</strong> in the 2021 edition, plus reserved words for future use. None may be used as identifiers.</p>
+
+  <h3>Declaration Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>let</td><td class="plain-def">bind a value to a name</td><td>Immutable by default; add <code>mut</code> for mutability</td></tr>
+      <tr><td>let mut</td><td class="plain-def">mutable binding</td><td>Allows reassignment and in-place mutation</td></tr>
+      <tr><td>const</td><td class="plain-def">compile-time constant</td><td>Must have type annotation; evaluated at compile time; SCREAMING_SNAKE_CASE</td></tr>
+      <tr><td>static</td><td class="plain-def">global variable</td><td>Lives entire program; <code>'static</code> lifetime; <code>static mut</code> is unsafe</td></tr>
+      <tr><td>fn</td><td class="plain-def">define a function</td><td><code>fn name(param: Type) -&gt; RetType { }</code></td></tr>
+      <tr><td>struct</td><td class="plain-def">custom data type</td><td>Named fields; implements no methods unless you add <code>impl</code></td></tr>
+      <tr><td>enum</td><td class="plain-def">sum type / tagged union</td><td>Variants can hold data; pattern matched with <code>match</code></td></tr>
+      <tr><td>trait</td><td class="plain-def">interface / shared behavior</td><td>Defines methods a type must implement</td></tr>
+      <tr><td>impl</td><td class="plain-def">implementation block</td><td>Add methods to a struct/enum; implement a trait</td></tr>
+      <tr><td>type</td><td class="plain-def">type alias</td><td><code>type Result&lt;T&gt; = std::result::Result&lt;T, Error&gt;;</code></td></tr>
+      <tr><td>mod</td><td class="plain-def">declare a module</td><td>Inline or file; controls namespace</td></tr>
+      <tr><td>use</td><td class="plain-def">bring path into scope</td><td><code>use std::io::{self, Write};</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Visibility &amp; Linking</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>pub</td><td class="plain-def">public — visible outside</td><td>Default is private to module; <code>pub(crate)</code> for crate-wide access</td></tr>
+      <tr><td>pub(crate)</td><td class="plain-def">visible within crate only</td><td>Not exported as part of public API</td></tr>
+      <tr><td>pub(super)</td><td class="plain-def">visible to parent module</td><td>Like protected in other languages</td></tr>
+      <tr><td>extern</td><td class="plain-def">foreign code / ABI</td><td><code>extern "C" { }</code> for C interop; <code>extern crate</code> (old style)</td></tr>
+      <tr><td>crate</td><td class="plain-def">refer to current crate root</td><td>Absolute path: <code>crate::module::item</code></td></tr>
+      <tr><td>super</td><td class="plain-def">parent module</td><td><code>super::function()</code> goes up one level</td></tr>
+      <tr><td>self</td><td class="plain-def">current module / receiver</td><td>In methods: <code>self</code>, <code>&amp;self</code>, <code>&amp;mut self</code></td></tr>
+      <tr><td>Self</td><td class="plain-def">the implementing type</td><td>In impl blocks: refers to the type being implemented</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Control &amp; Type Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>if / else</td><td class="plain-def">conditional branch</td><td>Also an expression: <code>let x = if cond { 1 } else { 2 };</code></td></tr>
+      <tr><td>match</td><td class="plain-def">pattern matching</td><td>Must be exhaustive; patterns can destructure</td></tr>
+      <tr><td>loop</td><td class="plain-def">infinite loop</td><td>Use <code>break value</code> to return a value from loop</td></tr>
+      <tr><td>while</td><td class="plain-def">loop while condition true</td><td>Also <code>while let Some(x) = iter.next()</code></td></tr>
+      <tr><td>for</td><td class="plain-def">iterate over iterable</td><td><code>for item in collection { }</code> — calls <code>into_iter()</code></td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop</td><td>Can return a value: <code>break 42;</code>; can target a label</td></tr>
+      <tr><td>continue</td><td class="plain-def">next iteration</td><td>Can target a label: <code>continue 'outer;</code></td></tr>
+      <tr><td>return</td><td class="plain-def">exit function early</td><td>Last expression is implicit return; <code>return</code> for early exit</td></tr>
+      <tr><td>as</td><td class="plain-def">type cast</td><td>Numeric casts: <code>x as f64</code>; trait object coercions</td></tr>
+      <tr><td>where</td><td class="plain-def">trait bound clause</td><td><code>fn f&lt;T&gt;(x: T) where T: Display + Clone</code></td></tr>
+      <tr><td>dyn</td><td class="plain-def">dynamic dispatch</td><td><code>&amp;dyn Trait</code> — trait object; resolved at runtime</td></tr>
+      <tr><td>impl Trait</td><td class="plain-def">static dispatch / return type</td><td>In params: <code>fn f(x: impl Trait)</code>; in return: <code>-&gt; impl Trait</code></td></tr>
+      <tr><td>unsafe</td><td class="plain-def">opt out of safety checks</td><td>Required for raw pointers, FFI, global mutable statics</td></tr>
+      <tr><td>move</td><td class="plain-def">force closure to capture by move</td><td><code>move || { }</code> — takes ownership of captured vars</td></tr>
+      <tr><td>ref</td><td class="plain-def">borrow in a pattern</td><td><code>let ref x = value;</code> same as <code>let x = &amp;value;</code></td></tr>
+      <tr><td>async</td><td class="plain-def">make function async</td><td>Returns a <code>Future</code>; must be <code>.await</code>ed</td></tr>
+      <tr><td>await</td><td class="plain-def">suspend until future completes</td><td><code>let result = future.await;</code> — only in async context</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 06 Operators -->
+<section id="operators">
+  <div class="section-header"><div class="section-icon">⚙️</div><h2>Operators</h2></div>
+
+  <h3>Arithmetic &amp; Comparison</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>+ - * / %</td><td class="plain-def">arithmetic</td><td>Integer overflow panics in debug, wraps in release. Use <code>wrapping_add</code> etc. for explicit behavior</td></tr>
+      <tr><td>== != &lt; &gt; &lt;= &gt;=</td><td class="plain-def">comparison</td><td>Returns <code>bool</code>; types must implement <code>PartialEq</code> / <code>PartialOrd</code></td></tr>
+      <tr><td>&amp;&amp; ||</td><td class="plain-def">logical AND / OR</td><td>Short-circuit; only for <code>bool</code> (not 0/1)</td></tr>
+      <tr><td>!</td><td class="plain-def">logical NOT / bitwise NOT</td><td>For booleans: <code>!true</code>. For integers: bitwise NOT</td></tr>
+      <tr><td>&amp; | ^ &lt;&lt; &gt;&gt;</td><td class="plain-def">bitwise ops</td><td>Work on integer types; all implement corresponding traits</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Reference &amp; Special Operators</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&amp;</td><td class="plain-def">borrow / reference</td><td><code>&amp;x</code> — shared reference; <code>&amp;mut x</code> — mutable reference</td></tr>
+      <tr><td>*</td><td class="plain-def">dereference</td><td><code>*ref_val</code> — follow the reference to the value</td></tr>
+      <tr><td>?</td><td class="plain-def">propagate error</td><td><code>file.read_to_string(&amp;mut s)?</code> — returns Err early if error</td></tr>
+      <tr><td>..</td><td class="plain-def">range (exclusive)</td><td><code>0..10</code> → 0,1…9; <code>0..=10</code> inclusive</td></tr>
+      <tr><td>..x</td><td class="plain-def">range to (exclusive)</td><td><code>..5</code> → everything up to (not including) 5</td></tr>
+      <tr><td>..</td><td class="plain-def">struct update / fill rest</td><td><code>Point { x: 1, ..other }</code></td></tr>
+      <tr><td>::</td><td class="plain-def">path separator</td><td><code>std::collections::HashMap</code>; also <code>Type::method()</code></td></tr>
+      <tr><td>-&gt;</td><td class="plain-def">function return type</td><td><code>fn add(a: i32, b: i32) -&gt; i32</code></td></tr>
+      <tr><td>=&gt;</td><td class="plain-def">match arm separator</td><td><code>Some(x) =&gt; x + 1</code></td></tr>
+      <tr><td>|</td><td class="plain-def">closure parameter / pattern OR</td><td><code>|x| x + 1</code> or <code>1 | 2 | 3 =&gt; ...</code></td></tr>
+      <tr><td>@</td><td class="plain-def">bind pattern to name</td><td><code>n @ 1..=10 =&gt; println!("{n}")</code></td></tr>
+      <tr><td>_</td><td class="plain-def">ignore / wildcard</td><td>In patterns; <code>let _ = value;</code> to suppress unused warning</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 07 Control Flow -->
+<section id="control">
+  <div class="section-header"><div class="section-icon">🔀</div><h2>Control Flow</h2></div>
+  <p class="prose">In Rust, <strong>everything is an expression</strong> — <code>if</code>, <code>match</code>, <code>loop</code>, and blocks all return values. The last expression in a block is its value (no semicolon!).</p>
+
+  <div class="code-block"><span class="cm">// if is an expression</span>
+<span class="kw">let</span> abs = <span class="kw">if</span> x &lt; <span class="nm">0</span> { -x } <span class="kw">else</span> { x };
+
+<span class="cm">// match — exhaustive pattern matching</span>
+<span class="kw">let</span> msg = <span class="kw">match</span> score {
+    <span class="nm">90</span>..=<span class="nm">100</span> =&gt; <span class="st">"A"</span>,
+    <span class="nm">80</span>..=<span class="nm">89</span>  =&gt; <span class="st">"B"</span>,
+    <span class="nm">70</span>..=<span class="nm">79</span>  =&gt; <span class="st">"C"</span>,
+    _         =&gt; <span class="st">"F"</span>,  <span class="cm">// wildcard — must cover all cases</span>
+};
+
+<span class="cm">// Matching on enum</span>
+<span class="kw">match</span> coin {
+    <span class="ty">Coin</span>::Penny            =&gt; <span class="nm">1</span>,
+    <span class="ty">Coin</span>::Nickel           =&gt; <span class="nm">5</span>,
+    <span class="ty">Coin</span>::Quarter(state)   =&gt; { <span class="fn">println!</span>(<span class="st">"{:?}"</span>, state); <span class="nm">25</span> }
+}
+
+<span class="cm">// if let — match one pattern, ignore the rest</span>
+<span class="kw">if let</span> <span class="ty">Some</span>(val) = maybe_value {
+    <span class="fn">println!</span>(<span class="st">"Got: {}"</span>, val);
+}
+
+<span class="cm">// while let — loop while pattern matches</span>
+<span class="kw">while let</span> <span class="ty">Some</span>(top) = stack.<span class="fn">pop</span>() {
+    <span class="fn">println!</span>(<span class="st">"{}"</span>, top);
+}
+
+<span class="cm">// loop — infinite, can return a value</span>
+<span class="kw">let</span> result = <span class="kw">loop</span> {
+    counter += <span class="nm">1</span>;
+    <span class="kw">if</span> counter == <span class="nm">10</span> { <span class="kw">break</span> counter * <span class="nm">2</span>; }
+};
+
+<span class="cm">// for — iterators</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">5</span> { <span class="fn">print!</span>(<span class="st">"{} "</span>, i); }   <span class="cm">// 0 1 2 3 4</span>
+<span class="kw">for</span> item <span class="kw">in</span> &amp;collection { <span class="cm">/* borrows */</span> }
+<span class="kw">for</span> item <span class="kw">in</span> collection { <span class="cm">/* consumes (moves) */</span> }
+
+<span class="cm">// Loop labels for nested break/continue</span>
+<span class="lt">'outer:</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">5</span> {
+    <span class="kw">for</span> y <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">5</span> {
+        <span class="kw">if</span> x == y { <span class="kw">break</span> <span class="lt">'outer</span>; }
+    }
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 08 Functions -->
+<section id="functions">
+  <div class="section-header"><div class="section-icon">🧩</div><h2>Functions &amp; Closures</h2></div>
+
+  <div class="code-block"><span class="cm">// Basic function</span>
+<span class="kw">fn</span> <span class="fn">add</span>(a: <span class="ty">i32</span>, b: <span class="ty">i32</span>) -&gt; <span class="ty">i32</span> {
+    a + b    <span class="cm">// no semicolon = implicit return</span>
+}
+
+<span class="cm">// Multiple return values via tuple</span>
+<span class="kw">fn</span> <span class="fn">min_max</span>(v: &amp;[<span class="ty">i32</span>]) -&gt; (<span class="ty">i32</span>, <span class="ty">i32</span>) {
+    (<span class="cm">/* min */</span>, <span class="cm">/* max */</span>)
+}
+<span class="kw">let</span> (lo, hi) = <span class="fn">min_max</span>(&amp;data);
+
+<span class="cm">// Methods — fn inside impl block</span>
+<span class="kw">struct</span> <span class="ty">Circle</span> { radius: <span class="ty">f64</span> }
+
+<span class="kw">impl</span> <span class="ty">Circle</span> {
+    <span class="cm">// Associated function (no self) — called as Circle::new()</span>
+    <span class="kw">pub fn</span> <span class="fn">new</span>(r: <span class="ty">f64</span>) -&gt; <span class="ty">Self</span> { <span class="ty">Circle</span> { radius: r } }
+
+    <span class="cm">// Method — called as circle.area()</span>
+    <span class="kw">pub fn</span> <span class="fn">area</span>(&amp;<span class="kw">self</span>) -&gt; <span class="ty">f64</span> { std::f64::consts::PI * <span class="kw">self</span>.radius.powi(<span class="nm">2</span>) }
+
+    <span class="cm">// Mutable method</span>
+    <span class="kw">pub fn</span> <span class="fn">scale</span>(&amp;<span class="kw">mut self</span>, factor: <span class="ty">f64</span>) { <span class="kw">self</span>.radius *= factor; }
+
+    <span class="cm">// Consuming method (takes ownership)</span>
+    <span class="kw">pub fn</span> <span class="fn">into_radius</span>(<span class="kw">self</span>) -&gt; <span class="ty">f64</span> { <span class="kw">self</span>.radius }
+}
+
+<span class="cm">// Closures — anonymous functions that capture their environment</span>
+<span class="kw">let</span> square = |x: <span class="ty">i32</span>| x * x;
+<span class="kw">let</span> five = square(<span class="nm">5</span>);  <span class="cm">// 25</span>
+
+<span class="cm">// Closure capturing by reference</span>
+<span class="kw">let</span> offset = <span class="nm">10</span>;
+<span class="kw">let</span> add_offset = |x| x + offset;   <span class="cm">// borrows offset</span>
+
+<span class="cm">// Closure capturing by move</span>
+<span class="kw">let</span> s = <span class="ty">String</span>::from(<span class="st">"hello"</span>);
+<span class="kw">let</span> greet = <span class="kw">move</span> || <span class="fn">println!</span>(<span class="st">"{}"</span>, s);  <span class="cm">// s is moved into closure</span>
+
+<span class="cm">// Higher-order functions — passing / returning closures</span>
+<span class="kw">fn</span> <span class="fn">apply</span>&lt;F: <span class="ty">Fn</span>(<span class="ty">i32</span>) -&gt; <span class="ty">i32</span>&gt;(f: F, x: <span class="ty">i32</span>) -&gt; <span class="ty">i32</span> { f(x) }
+<span class="kw">fn</span> <span class="fn">make_adder</span>(n: <span class="ty">i32</span>) -&gt; <span class="kw">impl</span> <span class="ty">Fn</span>(<span class="ty">i32</span>) -&gt; <span class="ty">i32</span> { <span class="kw">move</span> |x| x + n }</div>
+
+  <h3>Closure Traits</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Trait</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Fn</td><td class="plain-def">callable by shared reference</td><td>Can be called many times; only borrows captured vars</td></tr>
+      <tr><td>FnMut</td><td class="plain-def">callable by mutable reference</td><td>Can be called many times; mutably borrows captured vars</td></tr>
+      <tr><td>FnOnce</td><td class="plain-def">callable once (consumes)</td><td>Moves captured vars out; can only be called once</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 09 Structs & Enums -->
+<section id="structs">
+  <div class="section-header"><div class="section-icon">🏗️</div><h2>Structs &amp; Enums</h2></div>
+
+  <div class="code-block"><span class="cm">// Named-field struct</span>
+<span class="kw">struct</span> <span class="ty">User</span> {
+    username: <span class="ty">String</span>,
+    email: <span class="ty">String</span>,
+    sign_in_count: <span class="ty">u64</span>,
+    active: <span class="ty">bool</span>,
+}
+
+<span class="kw">let</span> user1 = <span class="ty">User</span> {
+    email: <span class="ty">String</span>::from(<span class="st">"alice@example.com"</span>),
+    username: <span class="ty">String</span>::from(<span class="st">"alice"</span>),
+    active: <span class="kw">true</span>,
+    sign_in_count: <span class="nm">1</span>,
+};
+
+<span class="cm">// Struct update syntax</span>
+<span class="kw">let</span> user2 = <span class="ty">User</span> {
+    email: <span class="ty">String</span>::from(<span class="st">"bob@example.com"</span>),
+    ..user1  <span class="cm">// NOTE: moves fields from user1!</span>
+};
+
+<span class="cm">// Tuple struct</span>
+<span class="kw">struct</span> <span class="ty">Point</span>(<span class="ty">f64</span>, <span class="ty">f64</span>);
+<span class="kw">let</span> p = <span class="ty">Point</span>(<span class="nm">1.0</span>, <span class="nm">2.0</span>);
+<span class="fn">println!</span>(<span class="st">"{} {}"</span>, p.<span class="nm">0</span>, p.<span class="nm">1</span>);
+
+<span class="cm">// Unit struct (no fields)</span>
+<span class="kw">struct</span> <span class="ty">Marker</span>;
+
+<span class="cm">// Enum — each variant can hold different data</span>
+<span class="kw">enum</span> <span class="ty">Shape</span> {
+    Circle(<span class="ty">f64</span>),              <span class="cm">// tuple variant</span>
+    Rectangle(<span class="ty">f64</span>, <span class="ty">f64</span>),     <span class="cm">// tuple variant</span>
+    Triangle { base: <span class="ty">f64</span>, height: <span class="ty">f64</span> }, <span class="cm">// struct variant</span>
+    Dot,                       <span class="cm">// unit variant</span>
+}
+
+<span class="kw">let</span> area = <span class="kw">match</span> shape {
+    <span class="ty">Shape</span>::Circle(r)          =&gt; std::f64::consts::PI * r * r,
+    <span class="ty">Shape</span>::Rectangle(w, h)    =&gt; w * h,
+    <span class="ty">Shape</span>::Triangle { base: b, height: h } =&gt; <span class="nm">0.5</span> * b * h,
+    <span class="ty">Shape</span>::Dot                =&gt; <span class="nm">0.0</span>,
+};
+
+<span class="cm">// Option&lt;T&gt; — the null-safe alternative</span>
+<span class="kw">let</span> some: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; = <span class="ty">Some</span>(<span class="nm">42</span>);
+<span class="kw">let</span> none: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; = <span class="ty">None</span>;
+<span class="kw">let</span> val = some.unwrap_or(<span class="nm">0</span>);      <span class="cm">// 42, or 0 if None</span>
+<span class="kw">let</span> doubled = some.map(|x| x * <span class="nm">2</span>); <span class="cm">// Some(84)</span></div>
+
+  <h3>Derive Macros</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Derive</th><th class="plain-def-header">Plain English</th><th>Adds</th></tr></thead>
+    <tbody>
+      <tr><td>#[derive(Debug)]</td><td class="plain-def">make printable with {:?}</td><td>Implements <code>fmt::Debug</code>; use <code>{:?}</code> or <code>{:#?}</code></td></tr>
+      <tr><td>#[derive(Clone)]</td><td class="plain-def">enable .clone()</td><td>Implements <code>Clone</code>; deep copies all fields</td></tr>
+      <tr><td>#[derive(Copy)]</td><td class="plain-def">implicit copy semantics</td><td>Requires <code>Clone</code>; all fields must be <code>Copy</code></td></tr>
+      <tr><td>#[derive(PartialEq)]</td><td class="plain-def">enable == and !=</td><td>Compares all fields</td></tr>
+      <tr><td>#[derive(Eq)]</td><td class="plain-def">full equality</td><td>Marker that == is reflexive; requires <code>PartialEq</code></td></tr>
+      <tr><td>#[derive(Hash)]</td><td class="plain-def">usable as HashMap key</td><td>Requires <code>Eq</code></td></tr>
+      <tr><td>#[derive(Default)]</td><td class="plain-def">enable T::default()</td><td>Zero/empty values for all fields</td></tr>
+      <tr><td>#[derive(Serialize, Deserialize)]</td><td class="plain-def">JSON / binary serialization</td><td>From <code>serde</code> crate; most popular serialization library</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 10 Traits -->
+<section id="traits">
+  <div class="section-header"><div class="section-icon">🎭</div><h2>Traits</h2></div>
+  <p class="prose">Traits define <strong>shared behavior</strong> — like interfaces in other languages, but more powerful. A type can implement multiple traits. Trait bounds specify what types a generic can accept.</p>
+
+  <div class="code-block"><span class="cm">// Define a trait</span>
+<span class="kw">trait</span> <span class="ty">Speak</span> {
+    <span class="kw">fn</span> <span class="fn">speak</span>(&amp;<span class="kw">self</span>) -&gt; <span class="ty">String</span>;    <span class="cm">// required method</span>
+    <span class="kw">fn</span> <span class="fn">shout</span>(&amp;<span class="kw">self</span>) -&gt; <span class="ty">String</span> {  <span class="cm">// default method</span>
+        <span class="kw">self</span>.<span class="fn">speak</span>().<span class="fn">to_uppercase</span>()
+    }
+}
+
+<span class="cm">// Implement a trait for a type</span>
+<span class="kw">struct</span> <span class="ty">Dog</span>;
+<span class="kw">impl</span> <span class="ty">Speak</span> <span class="kw">for</span> <span class="ty">Dog</span> {
+    <span class="kw">fn</span> <span class="fn">speak</span>(&amp;<span class="kw">self</span>) -&gt; <span class="ty">String</span> { <span class="ty">String</span>::from(<span class="st">"Woof!"</span>) }
+}
+
+<span class="cm">// Trait bounds — require a type to implement a trait</span>
+<span class="kw">fn</span> <span class="fn">make_noise</span>&lt;T: <span class="ty">Speak</span>&gt;(animal: &amp;T) { <span class="fn">println!</span>(<span class="st">"{}"</span>, animal.<span class="fn">speak</span>()); }
+<span class="kw">fn</span> <span class="fn">make_noise</span>(animal: &amp;<span class="kw">impl</span> <span class="ty">Speak</span>) { <span class="cm">// same, shorter syntax</span> }
+
+<span class="cm">// Multiple trait bounds</span>
+<span class="kw">fn</span> <span class="fn">display_and_debug</span>&lt;T: <span class="ty">Display</span> + <span class="ty">Debug</span>&gt;(val: &amp;T) { }
+<span class="kw">fn</span> <span class="fn">display_and_debug</span>&lt;T&gt;(val: &amp;T) <span class="kw">where</span> T: <span class="ty">Display</span> + <span class="ty">Debug</span> { } <span class="cm">// where clause</span>
+
+<span class="cm">// Trait objects — dynamic dispatch, different types at runtime</span>
+<span class="kw">let</span> animals: <span class="ty">Vec</span>&lt;<span class="ty">Box</span>&lt;<span class="kw">dyn</span> <span class="ty">Speak</span>&gt;&gt; = <span class="fn">vec!</span>[<span class="ty">Box</span>::new(<span class="ty">Dog</span>), <span class="ty">Box</span>::new(<span class="ty">Cat</span>)];
+<span class="kw">for</span> a <span class="kw">in</span> &amp;animals { <span class="fn">println!</span>(<span class="st">"{}"</span>, a.<span class="fn">speak</span>()); }</div>
+
+  <h3>Important Standard Traits</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Trait</th><th class="plain-def-header">Plain English</th><th>Key Method / Use</th></tr></thead>
+    <tbody>
+      <tr><td>Display</td><td class="plain-def">pretty printing with {}</td><td><code>fmt::Display</code> — implement for user-facing output</td></tr>
+      <tr><td>Debug</td><td class="plain-def">debug printing with {:?}</td><td>Usually derived; for developer output</td></tr>
+      <tr><td>Clone</td><td class="plain-def">explicit duplication</td><td><code>.clone()</code> — deep copy</td></tr>
+      <tr><td>Copy</td><td class="plain-def">implicit bitwise copy</td><td>Marker trait; overrides move semantics</td></tr>
+      <tr><td>Iterator</td><td class="plain-def">lazily produce values</td><td><code>fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;</code></td></tr>
+      <tr><td>From / Into</td><td class="plain-def">infallible conversion</td><td><code>String::from("x")</code>; impl <code>From</code>, get <code>Into</code> free</td></tr>
+      <tr><td>TryFrom / TryInto</td><td class="plain-def">fallible conversion</td><td>Returns <code>Result</code>; for conversions that can fail</td></tr>
+      <tr><td>Default</td><td class="plain-def">a sensible zero value</td><td><code>T::default()</code>; 0, "", false, vec![] etc.</td></tr>
+      <tr><td>Drop</td><td class="plain-def">custom destructor</td><td><code>fn drop(&amp;mut self)</code> — called when value is dropped</td></tr>
+      <tr><td>Deref / DerefMut</td><td class="plain-def">overload * operator</td><td>Enables "deref coercions" — e.g. <code>Box&lt;T&gt;</code> → <code>&amp;T</code></td></tr>
+      <tr><td>PartialEq / Eq</td><td class="plain-def">equality comparison</td><td><code>==</code> and <code>!=</code></td></tr>
+      <tr><td>PartialOrd / Ord</td><td class="plain-def">ordering comparison</td><td><code>&lt; &gt; &lt;= &gt;=</code>; <code>sort()</code> requires <code>Ord</code></td></tr>
+      <tr><td>Hash</td><td class="plain-def">hashable for HashMap keys</td><td>Required for use as <code>HashMap</code> key</td></tr>
+      <tr><td>Send / Sync</td><td class="plain-def">safe across threads</td><td>Marker traits; auto-implemented; required by Mutex etc.</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 11 Generics -->
+<section id="generics">
+  <div class="section-header"><div class="section-icon">🧬</div><h2>Generics</h2></div>
+  <p class="prose">Generics enable <strong>zero-cost abstractions</strong> — code works for any type satisfying the constraints. Unlike dynamic dispatch (<code>dyn Trait</code>), generics are <strong>monomorphized</strong> at compile time: no runtime overhead.</p>
+
+  <div class="code-block"><span class="cm">// Generic function</span>
+<span class="kw">fn</span> <span class="fn">largest</span>&lt;T: <span class="ty">PartialOrd</span>&gt;(a: T, b: T) -&gt; T {
+    <span class="kw">if</span> a &gt; b { a } <span class="kw">else</span> { b }
+}
+
+<span class="cm">// Generic struct</span>
+<span class="kw">struct</span> <span class="ty">Pair</span>&lt;T&gt; {
+    first: T,
+    second: T,
+}
+
+<span class="kw">impl</span>&lt;T: <span class="ty">Display</span> + <span class="ty">PartialOrd</span>&gt; <span class="ty">Pair</span>&lt;T&gt; {
+    <span class="kw">fn</span> <span class="fn">cmp_display</span>(&amp;<span class="kw">self</span>) {
+        <span class="kw">if</span> <span class="kw">self</span>.first &gt;= <span class="kw">self</span>.second {
+            <span class="fn">println!</span>(<span class="st">"first: {}"</span>, <span class="kw">self</span>.first);
+        } <span class="kw">else</span> {
+            <span class="fn">println!</span>(<span class="st">"second: {}"</span>, <span class="kw">self</span>.second);
+        }
+    }
+}
+
+<span class="cm">// Associated types in traits</span>
+<span class="kw">trait</span> <span class="ty">Container</span> {
+    <span class="kw">type</span> <span class="ty">Item</span>;           <span class="cm">// associated type</span>
+    <span class="kw">fn</span> <span class="fn">first</span>(&amp;<span class="kw">self</span>) -&gt; <span class="ty">Option</span>&lt;&amp;<span class="ty">Self</span>::<span class="ty">Item</span>&gt;;
+}
+
+<span class="cm">// const generics (Rust 1.51+)</span>
+<span class="kw">struct</span> <span class="ty">Matrix</span>&lt;<span class="kw">const</span> ROWS: <span class="ty">usize</span>, <span class="kw">const</span> COLS: <span class="ty">usize</span>&gt; {
+    data: [[<span class="ty">f64</span>; COLS]; ROWS],
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 12 Memory -->
+<section id="memory">
+  <div class="section-header"><div class="section-icon">🧠</div><h2>Memory &amp; Smart Pointers</h2></div>
+  <p class="prose">Rust has <strong>no garbage collector</strong> and <strong>no manual free()</strong>. Memory is freed when the owner goes out of scope. Smart pointers extend ownership semantics for special cases.</p>
+
+  <h3>Memory Layout</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Region</th><th class="plain-def-header">Plain English</th><th>Lifetime</th></tr></thead>
+    <tbody>
+      <tr><td>Stack</td><td class="plain-def">fast local storage</td><td>Automatic; freed when scope exits. All local variables</td></tr>
+      <tr><td>Heap</td><td class="plain-def">dynamic allocation</td><td>Freed when owner drops: <code>Box</code>, <code>Vec</code>, <code>String</code>, etc.</td></tr>
+      <tr><td>Static</td><td class="plain-def">global memory</td><td>Lives entire program; <code>&amp;'static str</code>, string literals</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Smart Pointers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td>Box&lt;T&gt;</td><td class="plain-def">heap allocation</td><td>Size unknown at compile time; recursive types; large data to avoid stack copy</td></tr>
+      <tr><td>Rc&lt;T&gt;</td><td class="plain-def">shared ownership (single-thread)</td><td>Multiple owners; reference-counted; freed when last Rc drops</td></tr>
+      <tr><td>Arc&lt;T&gt;</td><td class="plain-def">shared ownership (multi-thread)</td><td>Like Rc but atomically ref-counted; safe across threads</td></tr>
+      <tr><td>Cell&lt;T&gt;</td><td class="plain-def">interior mutability (Copy types)</td><td>Mutate data through shared reference; single-threaded</td></tr>
+      <tr><td>RefCell&lt;T&gt;</td><td class="plain-def">interior mutability (runtime checked)</td><td>Moves borrow checks to runtime; panics on violation</td></tr>
+      <tr><td>Mutex&lt;T&gt;</td><td class="plain-def">mutual exclusion lock</td><td>Shared mutable state across threads; blocks until lock available</td></tr>
+      <tr><td>RwLock&lt;T&gt;</td><td class="plain-def">reader-writer lock</td><td>Many readers or one writer; more granular than Mutex</td></tr>
+      <tr><td>Cow&lt;'a, B&gt;</td><td class="plain-def">clone on write</td><td>Borrow until mutation needed; then clone. Avoids unnecessary allocations</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"><span class="cm">// Box — simple heap allocation</span>
+<span class="kw">let</span> b = <span class="ty">Box</span>::new(<span class="nm">5</span>);
+<span class="fn">println!</span>(<span class="st">"b = {}"</span>, b);  <span class="cm">// auto-derefs</span>
+
+<span class="cm">// Recursive type needs Box (size must be known at compile time)</span>
+<span class="kw">enum</span> <span class="ty">List</span> {
+    Cons(<span class="ty">i32</span>, <span class="ty">Box</span>&lt;<span class="ty">List</span>&gt;),
+    Nil,
+}
+
+<span class="cm">// Rc — multiple owners in single thread</span>
+<span class="kw">use</span> std::rc::<span class="ty">Rc</span>;
+<span class="kw">let</span> a = <span class="ty">Rc</span>::new(<span class="ty">String</span>::from(<span class="st">"shared"</span>));
+<span class="kw">let</span> b = <span class="ty">Rc</span>::clone(&amp;a);  <span class="cm">// ref count = 2</span>
+<span class="fn">println!</span>(<span class="st">"refs: {}"</span>, <span class="ty">Rc</span>::strong_count(&amp;a));
+
+<span class="cm">// RefCell — interior mutability</span>
+<span class="kw">use</span> std::cell::<span class="ty">RefCell</span>;
+<span class="kw">let</span> data = <span class="ty">RefCell</span>::new(<span class="fn">vec!</span>[<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]);
+data.<span class="fn">borrow_mut</span>().<span class="fn">push</span>(<span class="nm">4</span>);  <span class="cm">// runtime borrow check</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 13 Errors -->
+<section id="errors">
+  <div class="section-header"><div class="section-icon">⚠️</div><h2>Error Handling</h2></div>
+  <p class="prose">Rust has no exceptions. Errors are values. Use <code>Result&lt;T, E&gt;</code> for recoverable errors and <code>panic!</code> for unrecoverable ones. The <code>?</code> operator makes error propagation ergonomic.</p>
+
+  <div class="code-block"><span class="cm">// Result&lt;T, E&gt; — either Ok(value) or Err(error)</span>
+<span class="kw">use</span> std::fs;
+<span class="kw">use</span> std::io;
+
+<span class="kw">fn</span> <span class="fn">read_username</span>() -&gt; <span class="ty">Result</span>&lt;<span class="ty">String</span>, <span class="ty">io</span>::<span class="ty">Error</span>&gt; {
+    <span class="kw">let</span> s = fs::<span class="fn">read_to_string</span>(<span class="st">"username.txt"</span>)?;  <span class="cm">// ? propagates Err</span>
+    <span class="ty">Ok</span>(s)
+}
+
+<span class="cm">// Handling results</span>
+<span class="kw">match</span> <span class="fn">read_username</span>() {
+    <span class="ty">Ok</span>(name)  =&gt; <span class="fn">println!</span>(<span class="st">"Hello, {}!"</span>, name),
+    <span class="ty">Err</span>(e)   =&gt; <span class="fn">eprintln!</span>(<span class="st">"Error: {}"</span>, e),
+}
+
+<span class="cm">// Combinators — transform Result without unwrapping</span>
+<span class="kw">let</span> n: <span class="ty">Result</span>&lt;<span class="ty">i32</span>, _&gt; = <span class="st">"42"</span>.<span class="fn">parse</span>();
+<span class="kw">let</span> doubled = n.<span class="fn">map</span>(|x| x * <span class="nm">2</span>);           <span class="cm">// Ok(84)</span>
+<span class="kw">let</span> val = n.<span class="fn">unwrap_or</span>(<span class="nm">0</span>);               <span class="cm">// 42, or 0 on Err</span>
+<span class="kw">let</span> val = n.<span class="fn">unwrap_or_else</span>(|_| <span class="fn">default</span>());
+
+<span class="cm">// ? operator expands to:</span>
+<span class="cm">// match result { Ok(v) => v, Err(e) => return Err(e.into()) }</span>
+
+<span class="cm">// panic! — unrecoverable; unwinds the stack</span>
+<span class="kw">let</span> v = <span class="fn">vec!</span>[<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+<span class="cm">// v[99];                   // ← panics: index out of bounds</span>
+<span class="kw">let</span> x: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; = <span class="ty">None</span>;
+<span class="cm">// x.unwrap();              // ← panics: called unwrap on None</span>
+x.<span class="fn">expect</span>(<span class="st">"Expected a value!"</span>); <span class="cm">// panics with custom message</span>
+
+<span class="cm">// Custom error type (with thiserror crate)</span>
+<span class="cm">// #[derive(Debug, thiserror::Error)]</span>
+<span class="cm">// enum AppError {</span>
+<span class="cm">//     #[error("IO error: {0}")]  IoError(#[from] io::Error),</span>
+<span class="cm">//     #[error("Parse failed")]   ParseError,</span>
+<span class="cm">// }</span></div>
+
+  <h3>Result Methods</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Method</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>.unwrap()</td><td class="plain-def">get value or panic</td><td>Use only when you're certain it's <code>Ok</code></td></tr>
+      <tr><td>.expect("msg")</td><td class="plain-def">get value or panic with message</td><td>Better than unwrap — explains why you expect success</td></tr>
+      <tr><td>.unwrap_or(val)</td><td class="plain-def">get value or a default</td><td>No panic; returns default on error</td></tr>
+      <tr><td>.unwrap_or_else(f)</td><td class="plain-def">get value or compute default</td><td>Calls closure on error</td></tr>
+      <tr><td>.map(f)</td><td class="plain-def">transform Ok value</td><td>Leaves Err unchanged</td></tr>
+      <tr><td>.map_err(f)</td><td class="plain-def">transform Err value</td><td>Leaves Ok unchanged</td></tr>
+      <tr><td>.and_then(f)</td><td class="plain-def">chain fallible operations</td><td>f returns another Result; flattens nested Results</td></tr>
+      <tr><td>.ok()</td><td class="plain-def">convert to Option</td><td><code>Ok(v)</code> → <code>Some(v)</code>; <code>Err(_)</code> → <code>None</code></td></tr>
+      <tr><td>.is_ok() / .is_err()</td><td class="plain-def">check variant</td><td>Returns <code>bool</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 14 Collections -->
+<section id="collections">
+  <div class="section-header"><div class="section-icon">📚</div><h2>Collections &amp; Iterators</h2></div>
+
+  <h3>Common Collections</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Key Operations</th></tr></thead>
+    <tbody>
+      <tr><td>Vec&lt;T&gt;</td><td class="plain-def">growable array</td><td><code>push</code>, <code>pop</code>, <code>len</code>, <code>iter</code>, <code>sort</code>, <code>dedup</code></td></tr>
+      <tr><td>VecDeque&lt;T&gt;</td><td class="plain-def">double-ended queue</td><td><code>push_front</code>, <code>push_back</code>, <code>pop_front</code>, <code>pop_back</code></td></tr>
+      <tr><td>HashMap&lt;K, V&gt;</td><td class="plain-def">hash table</td><td><code>insert</code>, <code>get</code>, <code>contains_key</code>, <code>entry</code>, <code>remove</code></td></tr>
+      <tr><td>BTreeMap&lt;K, V&gt;</td><td class="plain-def">sorted hash table</td><td>Like HashMap but iterates in key order; keys must be Ord</td></tr>
+      <tr><td>HashSet&lt;T&gt;</td><td class="plain-def">unique values</td><td><code>insert</code>, <code>contains</code>, <code>union</code>, <code>intersection</code></td></tr>
+      <tr><td>BTreeSet&lt;T&gt;</td><td class="plain-def">sorted unique values</td><td>Like HashSet but maintains order</td></tr>
+      <tr><td>String</td><td class="plain-def">owned UTF-8 text</td><td><code>push_str</code>, <code>push</code>, <code>len</code>, <code>chars</code>, <code>contains</code></td></tr>
+      <tr><td>BinaryHeap&lt;T&gt;</td><td class="plain-def">max-heap / priority queue</td><td><code>push</code>, <code>pop</code> (returns largest)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"><span class="cm">// Vec basics</span>
+<span class="kw">let mut</span> v: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = <span class="ty">Vec</span>::new();
+<span class="kw">let mut</span> v = <span class="fn">vec!</span>[<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];  <span class="cm">// vec! macro</span>
+v.<span class="fn">push</span>(<span class="nm">4</span>);
+<span class="kw">let</span> third = v[<span class="nm">2</span>];       <span class="cm">// panics if out of bounds</span>
+<span class="kw">let</span> third = v.<span class="fn">get</span>(<span class="nm">2</span>);  <span class="cm">// returns Option&lt;&amp;T&gt; — safe</span>
+
+<span class="cm">// HashMap</span>
+<span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+<span class="kw">let mut</span> scores: <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, <span class="ty">i32</span>&gt; = <span class="ty">HashMap</span>::new();
+scores.<span class="fn">insert</span>(<span class="ty">String</span>::from(<span class="st">"Alice"</span>), <span class="nm">100</span>);
+<span class="kw">let</span> score = scores.<span class="fn">get</span>(<span class="st">"Alice"</span>);  <span class="cm">// Option&lt;&amp;i32&gt;</span>
+
+<span class="cm">// entry API — insert if missing</span>
+scores.<span class="fn">entry</span>(<span class="ty">String</span>::from(<span class="st">"Bob"</span>)).<span class="fn">or_insert</span>(<span class="nm">50</span>);
+
+<span class="cm">// Iterators — lazy, composable, zero-cost</span>
+<span class="kw">let</span> sum: <span class="ty">i32</span> = (<span class="nm">1</span>..<span class="nm">=</span><span class="nm">100</span>).<span class="fn">sum</span>();
+<span class="kw">let</span> evens: <span class="ty">Vec</span>&lt;_&gt; = (<span class="nm">0</span>..<span class="nm">20</span>).<span class="fn">filter</span>(|x| x % <span class="nm">2</span> == <span class="nm">0</span>).<span class="fn">collect</span>();
+<span class="kw">let</span> squares: <span class="ty">Vec</span>&lt;_&gt; = v.<span class="fn">iter</span>().<span class="fn">map</span>(|x| x * x).<span class="fn">collect</span>();
+
+<span class="cm">// Iterator adaptors</span>
+v.<span class="fn">iter</span>()
+ .<span class="fn">filter</span>(|&amp;&amp;x| x &gt; <span class="nm">2</span>)
+ .<span class="fn">map</span>(|&amp;x| x * <span class="nm">2</span>)
+ .<span class="fn">take</span>(<span class="nm">3</span>)
+ .<span class="fn">for_each</span>(|x| <span class="fn">println!</span>(<span class="st">"{}"</span>, x));
+
+<span class="cm">// into_iter() vs iter() vs iter_mut()</span>
+<span class="kw">for</span> x <span class="kw">in</span> v.<span class="fn">iter</span>()      { <span class="cm">/* &amp;T — borrows */</span>      }
+<span class="kw">for</span> x <span class="kw">in</span> v.<span class="fn">iter_mut</span>() { <span class="cm">/* &amp;mut T — mut borrow */</span> }
+<span class="kw">for</span> x <span class="kw">in</span> v.<span class="fn">into_iter</span>(){ <span class="cm">/* T — consumes v */</span>     }</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 15 Concurrency -->
+<section id="concurrency">
+  <div class="section-header"><div class="section-icon">⚡</div><h2>Concurrency</h2></div>
+  <p class="prose">Rust's ownership system makes concurrency <strong>fearless</strong> — the compiler prevents data races at compile time. The <code>Send</code> and <code>Sync</code> marker traits encode thread-safety in the type system.</p>
+
+  <div class="code-block"><span class="kw">use</span> std::thread;
+<span class="kw">use</span> std::sync::{Arc, Mutex};
+
+<span class="cm">// Spawning threads</span>
+<span class="kw">let</span> handle = thread::<span class="fn">spawn</span>(|| {
+    <span class="fn">println!</span>(<span class="st">"Hello from a thread!"</span>);
+});
+handle.<span class="fn">join</span>().<span class="fn">unwrap</span>();  <span class="cm">// wait for thread to finish</span>
+
+<span class="cm">// move closure — transfer ownership into thread</span>
+<span class="kw">let</span> v = <span class="fn">vec!</span>[<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+<span class="kw">let</span> handle = thread::<span class="fn">spawn</span>(<span class="kw">move</span> || {
+    <span class="fn">println!</span>(<span class="st">"{:?}"</span>, v);  <span class="cm">// v moved into thread</span>
+});
+
+<span class="cm">// Mutex — shared mutable state</span>
+<span class="kw">let</span> counter = <span class="ty">Arc</span>::new(<span class="ty">Mutex</span>::new(<span class="nm">0</span>));
+<span class="kw">let mut</span> handles = <span class="fn">vec!</span>[];
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">10</span> {
+    <span class="kw">let</span> counter = <span class="ty">Arc</span>::clone(&amp;counter);
+    handles.<span class="fn">push</span>(thread::<span class="fn">spawn</span>(<span class="kw">move</span> || {
+        <span class="kw">let mut</span> num = counter.<span class="fn">lock</span>().<span class="fn">unwrap</span>();
+        *num += <span class="nm">1</span>;
+    }));
+}
+
+<span class="kw">for</span> h <span class="kw">in</span> handles { h.<span class="fn">join</span>().<span class="fn">unwrap</span>(); }
+<span class="fn">println!</span>(<span class="st">"Result: {}"</span>, *counter.<span class="fn">lock</span>().<span class="fn">unwrap</span>());  <span class="cm">// 10</span>
+
+<span class="cm">// Message passing with channels</span>
+<span class="kw">use</span> std::sync::mpsc;
+<span class="kw">let</span> (tx, rx) = mpsc::<span class="fn">channel</span>();
+thread::<span class="fn">spawn</span>(<span class="kw">move</span> || {
+    tx.<span class="fn">send</span>(<span class="st">"hello from thread"</span>).<span class="fn">unwrap</span>();
+});
+<span class="kw">let</span> msg = rx.<span class="fn">recv</span>().<span class="fn">unwrap</span>();
+<span class="fn">println!</span>(<span class="st">"{}"</span>, msg);</div>
+
+  <h3>Async / Await</h3>
+  <div class="code-block"><span class="cm">// Async functions return a Future; must be driven by a runtime</span>
+<span class="cm">// Popular runtimes: tokio, async-std</span>
+
+<span class="kw">use</span> tokio;
+
+<span class="kw">#[tokio::main]</span>
+<span class="kw">async fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> result = <span class="fn">fetch_data</span>().<span class="kw">await</span>;
+    <span class="fn">println!</span>(<span class="st">"{}"</span>, result);
+}
+
+<span class="kw">async fn</span> <span class="fn">fetch_data</span>() -&gt; <span class="ty">String</span> {
+    <span class="cm">// tokio::time::sleep is async — doesn't block the thread</span>
+    tokio::time::<span class="fn">sleep</span>(std::time::<span class="ty">Duration</span>::from_secs(<span class="nm">1</span>)).<span class="kw">await</span>;
+    <span class="ty">String</span>::from(<span class="st">"data"</span>)
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 16 Tips -->
+<section id="tips">
+  <div class="section-header"><div class="section-icon">💡</div><h2>Tips &amp; Gotchas</h2></div>
+  <ul class="tips-list">
+    <li><span class="tip-code">semicolons</span><span>A line ending with <code>;</code> is a <em>statement</em> that returns <code>()</code>. A line without <code>;</code> is an <em>expression</em> that returns its value. This is how implicit returns work in functions.</span></li>
+    <li><span class="tip-code">move semantics</span><span>Types that don't implement <code>Copy</code> are <em>moved</em>, not copied, on assignment. After a move, the original variable is unusable. This is checked at compile time, not runtime.</span></li>
+    <li><span class="tip-code">String vs &amp;str</span><span>Use <code>&amp;str</code> for function parameters that just need to read a string — it's more flexible (accepts both <code>&amp;String</code> and string literals). Use <code>String</code> when you need to own or build a string.</span></li>
+    <li><span class="tip-code">unwrap in prod</span><span>Avoid <code>.unwrap()</code> in production code — use <code>?</code>, <code>.unwrap_or()</code>, or proper error handling. <code>.expect("message")</code> is better when you're certain but want a clear panic message.</span></li>
+    <li><span class="tip-code">clone sparingly</span><span>Reaching for <code>.clone()</code> to fix borrow checker errors often means there's a better design. It's not wrong, but think first: can you restructure to avoid the clone?</span></li>
+    <li><span class="tip-code">iter flavors</span><span><code>.iter()</code> borrows (<code>&amp;T</code>), <code>.iter_mut()</code> mutably borrows (<code>&amp;mut T</code>), <code>.into_iter()</code> consumes the collection (gives <code>T</code>). For loops on <code>&amp;vec</code> use <code>.iter()</code> implicitly.</span></li>
+    <li><span class="tip-code">collect()</span><span><code>.collect()</code> needs to know what type to collect into — either annotate the variable type or use the turbofish: <code>.collect::&lt;Vec&lt;_&gt;&gt;()</code>. The <code>_</code> lets the compiler infer the inner type.</span></li>
+    <li><span class="tip-code">Box for recursion</span><span>Recursive types (<code>enum List { Cons(i32, List) }</code>) don't compile because the size is infinite. Wrap the recursive field in <code>Box&lt;&gt;</code> to give it a known pointer size.</span></li>
+    <li><span class="tip-code">NLL</span><span>Non-Lexical Lifetimes (NLL, stable since 2018) mean borrows end as soon as they're last used, not at the end of the block. This makes many "borrow checker fights" a thing of the past.</span></li>
+    <li><span class="tip-code">derive Debug</span><span>Always add <code>#[derive(Debug)]</code> to your structs and enums during development. It lets you use <code>println!("{:?}", val)</code> for debugging without effort.</span></li>
+    <li><span class="tip-code">entry API</span><span>Don't do <code>if !map.contains_key(k) { map.insert(k, v) }</code> — use <code>map.entry(k).or_insert(v)</code>. It's one lookup instead of two, and avoids borrow checker headaches.</span></li>
+    <li><span class="tip-code">panic vs Result</span><span>Use <code>panic!</code> for bugs (things that should never happen). Use <code>Result</code> for expected failures (file not found, network error, invalid input). Never use panic for normal control flow.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 17 Index -->
+<section id="index">
+  <div class="section-header"><div class="section-icon">🗂</div><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">Rust 2021 edition keywords, listed alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>as</td><td class="plain-def">type cast or rename import</td><td><a class="idx-link" href="#operators">Operators</a></td></tr>
+      <tr><td>async</td><td class="plain-def">declare async function</td><td><a class="idx-link" href="#concurrency">Concurrency</a></td></tr>
+      <tr><td>await</td><td class="plain-def">wait on a Future</td><td><a class="idx-link" href="#concurrency">Concurrency</a></td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop (optionally with value)</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>const</td><td class="plain-def">compile-time constant</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>continue</td><td class="plain-def">next loop iteration</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>crate</td><td class="plain-def">current crate root path</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>dyn</td><td class="plain-def">dynamic dispatch trait object</td><td><a class="idx-link" href="#traits">Traits</a></td></tr>
+      <tr><td>else</td><td class="plain-def">otherwise branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>enum</td><td class="plain-def">sum type with variants</td><td><a class="idx-link" href="#structs">Structs &amp; Enums</a></td></tr>
+      <tr><td>extern</td><td class="plain-def">foreign ABI / external crate</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>false</td><td class="plain-def">boolean false literal</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>fn</td><td class="plain-def">define a function</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>for</td><td class="plain-def">iterate / trait impl</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>if</td><td class="plain-def">conditional expression</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>impl</td><td class="plain-def">implement methods or trait</td><td><a class="idx-link" href="#structs">Structs &amp; Enums</a></td></tr>
+      <tr><td>in</td><td class="plain-def">part of for-in syntax</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>let</td><td class="plain-def">variable binding</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>loop</td><td class="plain-def">infinite loop</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>match</td><td class="plain-def">exhaustive pattern match</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>mod</td><td class="plain-def">module declaration</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>move</td><td class="plain-def">force capture by move in closure</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>mut</td><td class="plain-def">allow mutation</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>pub</td><td class="plain-def">make item public</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>ref</td><td class="plain-def">borrow in a pattern</td><td><a class="idx-link" href="#borrowing">Borrowing</a></td></tr>
+      <tr><td>return</td><td class="plain-def">early return from function</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>Self</td><td class="plain-def">the type being implemented</td><td><a class="idx-link" href="#structs">Structs &amp; Enums</a></td></tr>
+      <tr><td>self</td><td class="plain-def">method receiver / current module</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>static</td><td class="plain-def">global variable / lifetime</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>struct</td><td class="plain-def">custom named-field type</td><td><a class="idx-link" href="#structs">Structs &amp; Enums</a></td></tr>
+      <tr><td>super</td><td class="plain-def">parent module path</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>trait</td><td class="plain-def">define shared behavior</td><td><a class="idx-link" href="#traits">Traits</a></td></tr>
+      <tr><td>true</td><td class="plain-def">boolean true literal</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>type</td><td class="plain-def">type alias</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>union</td><td class="plain-def">unsafe memory union</td><td><a class="idx-link" href="#structs">Structs &amp; Enums</a></td></tr>
+      <tr><td>unsafe</td><td class="plain-def">opt out of safety guarantees</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>use</td><td class="plain-def">bring path into scope</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>where</td><td class="plain-def">trait bound clause</td><td><a class="idx-link" href="#generics">Generics</a></td></tr>
+      <tr><td>while</td><td class="plain-def">loop while condition holds</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+</main>
+
+<footer>
+  Rust Language Quick Reference &nbsp;·&nbsp; <span>🦀</span> &nbsp;·&nbsp; 2021 Edition &nbsp;·&nbsp; 2026
+</footer>
+</body>
+</html>

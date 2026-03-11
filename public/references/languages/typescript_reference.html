@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TypeScript Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #181820;
+    --surface2: #202030;
+    --border: #2e2e48;
+    --accent: #c084fc;       /* TypeScript purple */
+    --accent-js: #f7df1e;    /* JavaScript yellow */
+    --accent2: #f5c06a;
+    --accent3: #a8c8f8;
+    --text: #eeeeff;
+    --text-dim: #9090b8;
+    --text-code: #e8c8ff;
+    --js-bg: rgba(247, 223, 30, 0.06);
+    --js-border: rgba(247, 223, 30, 0.3);
+    --ts-bg: rgba(192, 132, 252, 0.06);
+    --ts-border: rgba(192, 132, 252, 0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 18, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-js {
+    color: var(--accent-js);
+    font-size: 0.72rem;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(192, 132, 252, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+  h1 .js-in-h1 { color: var(--accent-js); font-style: italic; font-size: 0.6em; vertical-align: middle; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  /* === Legend badges === */
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .badge-js {
+    background: var(--js-bg);
+    border: 1px solid var(--js-border);
+    color: var(--accent-js);
+  }
+  .badge-ts {
+    background: var(--ts-bg);
+    border: 1px solid var(--ts-border);
+    color: var(--accent);
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(192, 132, 252, 0.05); }
+  tr:hover td:first-child { color: #e8c8ff; text-shadow: 0 0 20px rgba(192, 132, 252, 0.5); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+    border-right: 1px solid var(--border);
+    background: rgba(192, 132, 252, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  /* JS-origin rows get a subtle yellow tint */
+  tr.js-row td:first-child {
+    color: var(--accent-js);
+    background: rgba(247, 223, 30, 0.03);
+  }
+  tr.js-row:hover td { background: rgba(247, 223, 30, 0.04); }
+  tr.js-row:hover td:first-child { color: #fff8a0; text-shadow: 0 0 20px rgba(247, 223, 30, 0.4); }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(192, 132, 252, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  code.js { color: var(--accent-js); background: rgba(247, 223, 30, 0.08); }
+
+  /* Code blocks — JS = yellow left border, TS = purple */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .code-block.js {
+    border-left-color: var(--accent-js);
+    color: #fff3a0;
+  }
+
+  /* Split code block: shows JS vs TS side by side */
+  .code-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .code-compare .col { display: flex; flex-direction: column; gap: 0; }
+  .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+  }
+  .code-label.js { background: var(--js-bg); border: 1px solid var(--js-border); border-bottom: none; color: var(--accent-js); }
+  .code-label.ts { background: var(--ts-bg); border: 1px solid var(--ts-border); border-bottom: none; color: var(--accent); }
+  .code-compare .code-block { margin: 0; border-radius: 0 8px 8px 8px; }
+  .code-compare .col.js-col .code-block { border-left-color: var(--accent-js); color: #fff3a0; }
+  .code-compare .col.ts-col .code-block { border-left-color: var(--accent); }
+
+  @media (max-width: 700px) {
+    .code-compare { grid-template-columns: 1fr; }
+  }
+
+  /* Inline annotation blocks */
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+  .prose .js { color: var(--accent-js); font-weight: 700; }
+  .prose .ts { color: var(--accent); font-weight: 700; }
+
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-js);
+    border-radius: 0 8px 8px 0;
+    padding: 0.85rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+  .callout strong { color: var(--accent-js); }
+  .callout.ts { border-left-color: var(--accent); }
+  .callout.ts strong { color: var(--accent); }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    font-size: 0.88rem;
+  }
+  .tip-code.js { color: var(--accent-js); }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ol.precedence { counter-reset: prec; list-style: none; padding: 0; }
+  ol.precedence li {
+    counter-increment: prec;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ol.precedence li:last-child { border-bottom: none; }
+  ol.precedence li::before {
+    content: counter(prec);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">TS Ref <span class="logo-js">⊃ JS</span></span>
+  <nav>
+    <a href="#superset">JS ⊂ TS</a>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#interfaces">Interfaces</a>
+    <a href="#functions">Functions</a>
+    <a href="#classes">Classes</a>
+    <a href="#generics">Generics</a>
+    <a href="#advanced">Advanced Types</a>
+    <a href="#narrowing">Narrowing</a>
+    <a href="#modules">Modules</a>
+    <a href="#async">Async / JS</a>
+    <a href="#decorators">Decorators</a>
+    <a href="#config">tsconfig</a>
+    <a href="#tips">Pro Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Web &amp; Node.js  ·  Quick Reference</span>
+  <h1>Type<span>Script</span><br/><span class="js-in-h1">⊃ JavaScript</span></h1>
+  <p class="subtitle">Types  ·  Interfaces  ·  Generics  ·  JS Runtime  ·  Modern TS 5+</p>
+</div>
+
+<main>
+<div class="toc" id="top">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#superset"><span class="toc-num">01</span> TypeScript ⊃ JavaScript</a>
+  <a href="#basics"><span class="toc-num">02</span> Basics &amp; Variables</a>
+  <a href="#types"><span class="toc-num">03</span> Type System</a>
+  <a href="#interfaces"><span class="toc-num">04</span> Interfaces &amp; Type Aliases</a>
+  <a href="#functions"><span class="toc-num">05</span> Functions</a>
+  <a href="#classes"><span class="toc-num">06</span> Classes &amp; OOP</a>
+  <a href="#generics"><span class="toc-num">07</span> Generics</a>
+  <a href="#advanced"><span class="toc-num">08</span> Advanced Types</a>
+  <a href="#narrowing"><span class="toc-num">09</span> Narrowing &amp; Guards</a>
+  <a href="#modules"><span class="toc-num">10</span> Modules &amp; Imports</a>
+  <a href="#async"><span class="toc-num">11</span> Async / Promises (JS)</a>
+  <a href="#jsruntime"><span class="toc-num">12</span> JS Runtime Concepts</a>
+  <a href="#decorators"><span class="toc-num">13</span> Decorators</a>
+  <a href="#config"><span class="toc-num">14</span> tsconfig Options</a>
+  <a href="#tips"><span class="toc-num">15</span> Pro Tips</a>
+  <a href="#index"><span class="toc-num">16</span> Keyword Index</a>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><span class="badge badge-js">JS</span> <span style="color:var(--text-dim)">JavaScript — works in plain .js files</span></div>
+  <div class="legend-item"><span class="badge badge-ts">TS</span> <span style="color:var(--text-dim)">TypeScript only — compiled away, zero runtime cost</span></div>
+</div>
+
+<!-- 01 Superset -->
+<section id="superset">
+  <div class="section-header"><span class="section-icon">🧩</span><h2>TypeScript ⊃ JavaScript</h2></div>
+  <p class="prose"><span class="ts">TypeScript</span> is a <strong>strict superset of JavaScript</strong>. Every valid <span class="js">.js</span> file is also a valid <span class="ts">.ts</span> file. TypeScript adds a <strong>type layer on top</strong> — that layer is entirely erased at compile time, producing plain JavaScript that runs in any browser or Node.js environment.</p>
+
+  <div class="callout">
+    <strong>Key insight:</strong> TypeScript has zero runtime — it only exists during development. The types you write are checked by the compiler, then stripped out. What actually runs is plain JavaScript.
+  </div>
+
+  <h3>The Relationship</h3>
+  <div class="code-block">// This is valid JavaScript — and also valid TypeScript
+const greet = (name) => "Hello, " + name;
+
+// This is TypeScript — adds a type annotation
+const greet = (name: string): string => "Hello, " + name;
+//                   ^^^^^^   ^^^^^^  ← TS only, erased at compile time
+
+// After tsc compiles it, you get back:
+const greet = (name) => "Hello, " + name;
+// Identical to the JS — types are gone!</div>
+
+  <h3>What TypeScript Adds to JavaScript</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Feature</th><th class="plain-def-header">Plain English</th><th>JS or TS?</th></tr></thead>
+    <tbody>
+      <tr class="js-row"><td>Variables, loops, functions</td><td class="plain-def">core programming</td><td><span class="badge badge-js">JS</span> TypeScript inherits all of this</td></tr>
+      <tr class="js-row"><td>Classes, modules, arrow fns</td><td class="plain-def">modern JS syntax</td><td><span class="badge badge-js">JS</span> ES6+ features, TS just types them</td></tr>
+      <tr class="js-row"><td>Promises, async/await</td><td class="plain-def">async programming</td><td><span class="badge badge-js">JS</span> Runtime feature, TS adds types on top</td></tr>
+      <tr><td>Type annotations</td><td class="plain-def">declare what type a value is</td><td><span class="badge badge-ts">TS</span></td></tr>
+      <tr><td>Interfaces</td><td class="plain-def">shape contracts for objects</td><td><span class="badge badge-ts">TS</span></td></tr>
+      <tr><td>Generics</td><td class="plain-def">reusable typed code</td><td><span class="badge badge-ts">TS</span></td></tr>
+      <tr><td>Enums</td><td class="plain-def">named constants with types</td><td><span class="badge badge-ts">TS</span> (compiles to JS object)</td></tr>
+      <tr><td>Type narrowing / guards</td><td class="plain-def">refine types at runtime checks</td><td><span class="badge badge-ts">TS</span></td></tr>
+      <tr><td>Access modifiers</td><td class="plain-def">public/private/protected</td><td><span class="badge badge-ts">TS</span> (erased at compile)</td></tr>
+      <tr><td>Decorators</td><td class="plain-def">metadata / class annotations</td><td><span class="badge badge-ts">TS</span> (experimental JS proposal)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Compilation Pipeline</h3>
+  <div class="code-block">TypeScript (.ts)  →  tsc (compiler)  →  JavaScript (.js)  →  Node / Browser
+     ↑ types live here                       ↑ types erased here       ↑ runs here
+
+# Compile a file
+tsc app.ts              → produces app.js
+
+# Compile project (uses tsconfig.json)
+tsc
+
+# Watch mode — recompile on save
+tsc --watch
+
+# Run TypeScript directly (no separate compile step)
+npx ts-node app.ts      # via ts-node
+npx tsx app.ts          # via tsx (faster, recommended)</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-icon">🧱</span><h2>Basics &amp; Variables</h2></div>
+
+  <div class="callout">
+    <strong>Remember:</strong> <code>var</code>, <code>let</code>, <code>const</code>, and all variable scoping rules come from JavaScript. TypeScript simply adds type annotations on top.
+  </div>
+
+  <h3>Variable Declarations</h3>
+  <div class="code-compare">
+    <div class="col js-col">
+      <div class="code-label js">JS</div>
+      <div class="code-block">// No types — inferred at runtime
+let count = 0;
+const name = "Alice";
+var legacy = true; // avoid var
+
+// Reassign freely (no type check)
+count = "oops";  // allowed in JS!
+</div>
+    </div>
+    <div class="col ts-col">
+      <div class="code-label ts">TS</div>
+      <div class="code-block">// Types — checked at compile time
+let count: number = 0;
+const name: string = "Alice";
+
+// Type inferred — no annotation needed
+let score = 42;       // TypeScript infers: number
+
+// Reassign blocked if wrong type
+count = "oops";  // ❌ Error: string not assignable to number</div>
+    </div>
+  </div>
+
+  <h3>var vs let vs const <span class="badge badge-js">JS</span></h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Scope</th><th>Reassignable</th></tr></thead>
+    <tbody>
+      <tr class="js-row"><td>var</td><td class="plain-def">old-style variable</td><td>Function scope; hoisted to top — avoid it</td><td>Yes</td></tr>
+      <tr class="js-row"><td>let</td><td class="plain-def">mutable variable</td><td>Block scope <code>{ }</code> — preferred for values that change</td><td>Yes</td></tr>
+      <tr class="js-row"><td>const</td><td class="plain-def">binding that can't change</td><td>Block scope — object contents can still mutate!</td><td>No (binding)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Primitive Types</h3>
+  <div class="code-block">// JavaScript primitives — TypeScript adds annotations
+let age: number = 30;            // int AND float — JS has one number type
+let name: string = "Alice";      // single or double or template quotes
+let active: boolean = true;
+let nothing: null = null;        // intentional empty
+let missing: undefined = undefined; // value not set
+let sym: symbol = Symbol("id");  // unique identity
+let big: bigint = 9007199254740993n; // arbitrary precision int
+
+// TypeScript-only
+let anyVal: any = "could be anything"; // ← escape hatch, avoid!
+let unknown: unknown = getData();       // safer than any; must narrow first
+let never: never;                       // type that never occurs (exhaustive checks)</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 Type System -->
+<section id="types">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Type System</h2></div>
+  <p class="prose">TypeScript's type system lives entirely at compile time. All annotations are <span class="ts">TypeScript-only</span> and are erased before any JavaScript runs.</p>
+
+  <h3>Core Type Annotations <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Primitives
+let n: number;
+let s: string;
+let b: boolean;
+
+// Arrays
+let nums: number[] = [1, 2, 3];
+let strs: Array&lt;string&gt; = ["a", "b"];  // generic form
+
+// Tuples — fixed-length, typed array
+let point: [number, number] = [10, 20];
+let entry: [string, number] = ["age", 30];
+
+// Object literal type
+let user: { name: string; age: number } = { name: "Alice", age: 30 };
+
+// Union — one of these types
+let id: number | string = 42;
+id = "abc";  // also valid
+
+// Intersection — must satisfy both
+type AdminUser = User & Admin;
+
+// Literal types — exact value
+let direction: "north" | "south" | "east" | "west" = "north";
+let statusCode: 200 | 400 | 404 | 500 = 200;
+
+// Optional property
+let config: { timeout?: number; retries: number } = { retries: 3 };
+
+// Readonly
+let point: { readonly x: number; readonly y: number } = { x: 0, y: 0 };
+
+// Type assertion (you know better than TS)
+const el = document.getElementById("btn") as HTMLButtonElement;</div>
+
+  <h3>Special Types <span class="badge badge-ts">TS</span></h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>When to Use</th></tr></thead>
+    <tbody>
+      <tr><td>any</td><td class="plain-def">opt out of type checking</td><td>Last resort; disables all TS checks — avoid</td></tr>
+      <tr><td>unknown</td><td class="plain-def">could be anything, but check first</td><td>Safe version of <code>any</code>; must narrow before use</td></tr>
+      <tr><td>never</td><td class="plain-def">this code path can't happen</td><td>Exhaustive switch, functions that always throw</td></tr>
+      <tr><td>void</td><td class="plain-def">function returns nothing</td><td>Return type for functions with no <code>return</code></td></tr>
+      <tr><td>object</td><td class="plain-def">any non-primitive</td><td>Rarely useful; prefer specific shapes</td></tr>
+      <tr><td>T | null</td><td class="plain-def">might be null</td><td>With <code>strictNullChecks</code> on, null is separate</td></tr>
+      <tr><td>T | undefined</td><td class="plain-def">might not exist</td><td>Optional return values; params with <code>?</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Type Inference <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// TypeScript infers types — you rarely need to annotate everything
+const x = 42;           // inferred: number
+const name = "Alice";   // inferred: string
+const arr = [1, 2, 3];  // inferred: number[]
+
+// TS infers return type from function body
+function add(a: number, b: number) {
+    return a + b;   // return type inferred: number
+}
+
+// Annotate when inference can't help
+let data: string[];     // empty array — TS can't infer element type
+data = ["a", "b"];</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 Interfaces & Type Aliases -->
+<section id="interfaces">
+  <div class="section-header"><span class="section-icon">📐</span><h2>Interfaces &amp; Type Aliases</h2></div>
+  <p class="prose">Both define the <strong>shape of objects</strong>. <span class="ts">interfaces</span> are extendable and best for objects/classes. <span class="ts">type aliases</span> are more flexible — they can describe unions, primitives, and computed types too.</p>
+
+  <h3>Interface <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">interface User {
+    id: number;
+    name: string;
+    email?: string;          // optional property
+    readonly createdAt: Date; // can't be changed after creation
+}
+
+// Extending interfaces
+interface Admin extends User {
+    role: "admin" | "superadmin";
+    permissions: string[];
+}
+
+// Interfaces can be merged (declaration merging)
+interface Window {
+    myCustomProp: string;  // extends the global Window type
+}
+
+// Implementing an interface in a class
+class UserService implements User {
+    id = 1;
+    name = "Alice";
+}</div>
+
+  <h3>Type Aliases <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Object shape (like interface)
+type Point = { x: number; y: number };
+
+// Union type
+type ID = number | string;
+type Status = "active" | "inactive" | "pending";
+
+// Intersection type
+type AdminUser = User & { permissions: string[] };
+
+// Tuple
+type Pair = [string, number];
+
+// Function signature
+type Handler = (event: MouseEvent) => void;
+
+// Generic type alias
+type Maybe&lt;T&gt; = T | null | undefined;
+type Result&lt;T, E&gt; = { ok: true; value: T } | { ok: false; error: E };</div>
+
+  <h3>Interface vs Type Alias</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Feature</th><th class="plain-def-header">interface</th><th>type alias</th></tr></thead>
+    <tbody>
+      <tr><td>Object shapes</td><td class="plain-def">✅ primary use</td><td>✅ works too</td></tr>
+      <tr><td>Extends / inherits</td><td class="plain-def">✅ <code>extends</code></td><td>✅ intersection <code>&amp;</code></td></tr>
+      <tr><td>Declaration merging</td><td class="plain-def">✅ yes (can re-open)</td><td>❌ no</td></tr>
+      <tr><td>Union types</td><td class="plain-def">❌ no</td><td>✅ <code>A | B</code></td></tr>
+      <tr><td>Primitives, tuples, fns</td><td class="plain-def">❌ no</td><td>✅ yes</td></tr>
+      <tr><td>Recommendation</td><td class="plain-def">use for classes/public API</td><td>use for unions, computed, utilities</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 Functions -->
+<section id="functions">
+  <div class="section-header"><span class="section-icon">🔧</span><h2>Functions</h2></div>
+
+  <div class="callout">
+    <strong>JS foundation:</strong> Function declarations, arrow functions, default params, rest params, and destructuring all come from JavaScript. TypeScript adds parameter and return type annotations.
+  </div>
+
+  <h3>Function Syntax</h3>
+  <div class="code-compare">
+    <div class="col js-col">
+      <div class="code-label js">JS</div>
+      <div class="code-block">// Named function
+function add(a, b) {
+  return a + b;
+}
+
+// Arrow function
+const double = (x) => x * 2;
+
+// Default parameter
+function greet(name = "World") {
+  return "Hello, " + name;
+}
+
+// Rest parameters
+function sum(...nums) {
+  return nums.reduce((a, b) => a + b, 0);
+}
+</div>
+    </div>
+    <div class="col ts-col">
+      <div class="code-label ts">TS</div>
+      <div class="code-block">// Named function — typed params + return
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Arrow function with types
+const double = (x: number): number => x * 2;
+
+// Default parameter
+function greet(name: string = "World"): string {
+  return "Hello, " + name;
+}
+
+// Rest parameters
+function sum(...nums: number[]): number {
+  return nums.reduce((a, b) => a + b, 0);
+}</div>
+    </div>
+  </div>
+
+  <h3>TypeScript Function Features <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Optional parameter (must come after required)
+function log(msg: string, level?: "info" | "warn" | "error"): void {
+    console.log(`[${level ?? "info"}] ${msg}`);
+}
+
+// Function overloads — multiple signatures, one implementation
+function format(value: string): string;
+function format(value: number, decimals: number): string;
+function format(value: string | number, decimals = 2): string {
+    if (typeof value === "string") return value.trim();
+    return value.toFixed(decimals);
+}
+
+// Function type
+type Predicate&lt;T&gt; = (item: T) => boolean;
+const isEven: Predicate&lt;number&gt; = (n) => n % 2 === 0;
+
+// Void vs never
+function log(msg: string): void { console.log(msg); }  // returns undefined
+function fail(msg: string): never { throw new Error(msg); } // never returns</div>
+
+  <h3>Destructuring &amp; Spread <span class="badge badge-js">JS</span></h3>
+  <div class="code-block">// Object destructuring — JS feature, TS adds types
+const { name, age }: { name: string; age: number } = user;
+const { name, age = 0 } = user;  // default value
+
+// Array destructuring
+const [first, second, ...rest]: number[] = [1, 2, 3, 4, 5];
+
+// Spread — copy/merge objects and arrays
+const merged = { ...defaults, ...overrides };
+const combined = [...arr1, ...arr2];
+
+// Function param destructuring
+function greet({ name, age }: User): string {
+    return `${name} is ${age}`;
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 Classes -->
+<section id="classes">
+  <div class="section-header"><span class="section-icon">🏛️</span><h2>Classes &amp; OOP</h2></div>
+
+  <div class="callout">
+    <strong>JS foundation:</strong> Classes, constructors, inheritance (<code>extends</code>), <code>super()</code>, static methods, and getters/setters are all <span class="badge badge-js" style="font-size:0.6rem">JS</span> features from ES6+. TypeScript adds access modifiers, <code>implements</code>, abstract classes, and parameter properties.
+  </div>
+
+  <h3>Class Anatomy</h3>
+  <div class="code-compare">
+    <div class="col js-col">
+      <div class="code-label js">JS</div>
+      <div class="code-block">class Animal {
+  // No field declarations needed
+  constructor(name, sound) {
+    this.name = name;
+    this.sound = sound;
+  }
+
+  speak() {
+    return `${this.name}: ${this.sound}`;
+  }
+
+  static create(name) {
+    return new Animal(name, "...");
+  }
+
+  get label() { return this.name.toUpperCase(); }
+}
+</div>
+    </div>
+    <div class="col ts-col">
+      <div class="code-label ts">TS</div>
+      <div class="code-block">class Animal {
+  // Typed field declarations
+  name: string;
+  private sound: string;   // TS only
+
+  constructor(name: string, sound: string) {
+    this.name = name;
+    this.sound = sound;
+  }
+
+  speak(): string {
+    return `${this.name}: ${this.sound}`;
+  }
+
+  static create(name: string): Animal {
+    return new Animal(name, "...");
+  }
+
+  get label(): string { return this.name.toUpperCase(); }
+}</div>
+    </div>
+  </div>
+
+  <h3>TypeScript-Only Class Features <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Parameter properties — shorthand to declare AND assign in constructor
+class Point {
+    constructor(
+        public x: number,       // declares this.x and assigns
+        public y: number,
+        private label?: string  // optional private field
+    ) {}
+}
+// Equivalent to: declaring fields + assigning in constructor body
+
+// Access modifiers
+class BankAccount {
+    public owner: string;      // anyone can access
+    private balance: number;   // class only
+    protected accountNo: string; // class + subclasses
+    readonly id: string;       // can't be changed after construction
+
+    constructor(owner: string, balance: number) {
+        this.owner = owner;
+        this.balance = balance;
+        this.id = crypto.randomUUID();
+    }
+}
+
+// Abstract class — cannot be instantiated directly
+abstract class Shape {
+    abstract area(): number;          // subclass must implement
+    describe(): string {              // concrete method
+        return `Area: ${this.area()}`;
+    }
+}
+
+class Circle extends Shape {
+    constructor(private radius: number) { super(); }
+    area(): number { return Math.PI * this.radius ** 2; }
+}
+
+// Implementing interfaces
+interface Printable { print(): void; }
+interface Serializable { serialize(): string; }
+
+class Report implements Printable, Serializable {
+    print(): void { console.log(this.serialize()); }
+    serialize(): string { return JSON.stringify(this); }
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 Generics -->
+<section id="generics">
+  <div class="section-header"><span class="section-icon">🧬</span><h2>Generics</h2></div>
+  <p class="prose"><span class="badge badge-ts">TS</span> Generics let you write code that works with <strong>any type while still being type-safe</strong>. The type parameter is filled in by the caller. Think of it as a type-level placeholder.</p>
+
+  <h3>Generic Functions, Classes &amp; Interfaces</h3>
+  <div class="code-block">// Generic function — T is inferred from argument
+function identity&lt;T&gt;(value: T): T { return value; }
+identity(42);       // T inferred as number
+identity("hello");  // T inferred as string
+
+// Generic with constraint
+function getProperty&lt;T, K extends keyof T&gt;(obj: T, key: K): T[K] {
+    return obj[key];
+}
+getProperty({ name: "Alice", age: 30 }, "name"); // → "Alice"
+
+// Generic interface
+interface Repository&lt;T&gt; {
+    findById(id: number): T | null;
+    save(item: T): void;
+    delete(id: number): void;
+}
+
+// Generic class
+class Stack&lt;T&gt; {
+    private items: T[] = [];
+    push(item: T): void { this.items.push(item); }
+    pop(): T | undefined { return this.items.pop(); }
+    peek(): T | undefined { return this.items[this.items.length - 1]; }
+}
+
+const numStack = new Stack&lt;number&gt;();
+numStack.push(1);
+numStack.push("oops"); // ❌ Error: string not assignable to number</div>
+
+  <h3>Generic Constraints</h3>
+  <div class="code-block">// extends — constrain what T can be
+function longest&lt;T extends { length: number }&gt;(a: T, b: T): T {
+    return a.length >= b.length ? a : b;
+}
+longest("hello", "hi");     // string has .length ✅
+longest([1,2,3], [1,2]);    // array has .length ✅
+longest(10, 20);             // ❌ number has no .length
+
+// Multiple constraints
+function merge&lt;T extends object, U extends object&gt;(a: T, b: U): T & U {
+    return { ...a, ...b };
+}
+
+// Default type parameter (TS 2.3+)
+interface Container&lt;T = string&gt; { value: T; }
+const box: Container = { value: "hello" }; // T defaults to string</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 Advanced Types -->
+<section id="advanced">
+  <div class="section-header"><span class="section-icon">🔬</span><h2>Advanced Types</h2></div>
+  <p class="prose"><span class="badge badge-ts">TS</span> TypeScript has a powerful type algebra — types can be computed, mapped, and transformed from other types without writing any runtime code.</p>
+
+  <h3>Utility Types (Built-in) <span class="badge badge-ts">TS</span></h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Utility Type</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Partial&lt;T&gt;</td><td class="plain-def">all props optional</td><td><code>Partial&lt;User&gt;</code> — every field becomes <code>?</code></td></tr>
+      <tr><td>Required&lt;T&gt;</td><td class="plain-def">all props required</td><td>Removes <code>?</code> from all fields</td></tr>
+      <tr><td>Readonly&lt;T&gt;</td><td class="plain-def">all props read-only</td><td>Prevents mutation after creation</td></tr>
+      <tr><td>Pick&lt;T, K&gt;</td><td class="plain-def">keep only these keys</td><td><code>Pick&lt;User, "id" | "name"&gt;</code></td></tr>
+      <tr><td>Omit&lt;T, K&gt;</td><td class="plain-def">drop these keys</td><td><code>Omit&lt;User, "password"&gt;</code></td></tr>
+      <tr><td>Record&lt;K, V&gt;</td><td class="plain-def">object with key-value types</td><td><code>Record&lt;string, number&gt;</code> — dict/map</td></tr>
+      <tr><td>Exclude&lt;T, U&gt;</td><td class="plain-def">remove from union</td><td><code>Exclude&lt;"a"|"b"|"c", "a"&gt;</code> → <code>"b"|"c"</code></td></tr>
+      <tr><td>Extract&lt;T, U&gt;</td><td class="plain-def">keep overlap of unions</td><td><code>Extract&lt;string|number, string&gt;</code> → <code>string</code></td></tr>
+      <tr><td>NonNullable&lt;T&gt;</td><td class="plain-def">remove null/undefined</td><td><code>NonNullable&lt;string|null&gt;</code> → <code>string</code></td></tr>
+      <tr><td>ReturnType&lt;T&gt;</td><td class="plain-def">infer a function's return type</td><td><code>ReturnType&lt;typeof fetch&gt;</code></td></tr>
+      <tr><td>Parameters&lt;T&gt;</td><td class="plain-def">infer function param types</td><td><code>Parameters&lt;typeof fn&gt;</code> → tuple</td></tr>
+      <tr><td>Awaited&lt;T&gt;</td><td class="plain-def">unwrap a Promise type</td><td><code>Awaited&lt;Promise&lt;string&gt;&gt;</code> → <code>string</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Mapped &amp; Conditional Types <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Mapped type — transform every property
+type Flags&lt;T&gt; = { [K in keyof T]: boolean };
+// Flags&lt;User&gt; = { id: boolean; name: boolean; email: boolean }
+
+// Conditional type
+type IsString&lt;T&gt; = T extends string ? "yes" : "no";
+type A = IsString&lt;string&gt;;  // "yes"
+type B = IsString&lt;number&gt;;  // "no"
+
+// Infer keyword — extract parts of a type
+type UnpackPromise&lt;T&gt; = T extends Promise&lt;infer U&gt; ? U : T;
+type Resolved = UnpackPromise&lt;Promise&lt;string&gt;&gt;;  // string
+
+// Template literal types
+type EventName = `on${Capitalize&lt;string&gt;}`;
+type CssValue = `${number}px` | `${number}em` | `${number}rem`;</div>
+
+  <h3>Enums <span class="badge badge-ts">TS</span></h3>
+  <div class="code-block">// Numeric enum (default)
+enum Direction { Up, Down, Left, Right }
+// Up=0, Down=1, Left=2, Right=3
+
+// String enum (preferred — readable in debug)
+enum Status {
+    Active   = "ACTIVE",
+    Inactive = "INACTIVE",
+    Pending  = "PENDING",
+}
+
+// Const enum — fully erased at compile time (no JS object)
+const enum Color { Red, Green, Blue }
+// Color.Red compiles to just 0
+
+// Union of string literals (often better than enum)
+type Direction = "up" | "down" | "left" | "right";</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 Narrowing -->
+<section id="narrowing">
+  <div class="section-header"><span class="section-icon">🔭</span><h2>Narrowing &amp; Type Guards</h2></div>
+  <p class="prose">TypeScript tracks which types are possible at each point in your code. When you check a type at runtime (using JavaScript constructs), TypeScript <strong>narrows</strong> the type in that branch automatically.</p>
+
+  <div class="callout">
+    <strong>JS runtime:</strong> All narrowing checks (<code>typeof</code>, <code>instanceof</code>, truthiness, <code>in</code>) are plain JavaScript — they execute at runtime. TypeScript just uses them to understand the type better.
+  </div>
+
+  <h3>Narrowing Techniques</h3>
+  <div class="code-block">function process(value: string | number) {
+
+    // typeof narrowing (JS) — TS narrows type in each branch
+    if (typeof value === "string") {
+        console.log(value.toUpperCase()); // TS knows: string here
+    } else {
+        console.log(value.toFixed(2));    // TS knows: number here
+    }
+}
+
+// instanceof narrowing (JS)
+function formatError(err: unknown) {
+    if (err instanceof Error) {
+        return err.message;   // TS knows: Error here
+    }
+    return String(err);
+}
+
+// in operator narrowing (JS)
+interface Dog { bark(): void }
+interface Cat { meow(): void }
+function speak(pet: Dog | Cat) {
+    if ("bark" in pet) {
+        pet.bark();   // TS knows: Dog here
+    } else {
+        pet.meow();   // TS knows: Cat here
+    }
+}
+
+// Truthiness narrowing (JS)
+function print(value: string | null | undefined) {
+    if (value) {
+        console.log(value.length); // TS knows: non-null string here
+    }
+}
+
+// Custom type guard (TS) — function that asserts a type
+function isString(value: unknown): value is string {
+    return typeof value === "string";
+}
+
+// Discriminated union — TS narrows by a shared literal field
+type Shape =
+    | { kind: "circle"; radius: number }
+    | { kind: "rect"; width: number; height: number };
+
+function area(s: Shape): number {
+    switch (s.kind) {
+        case "circle": return Math.PI * s.radius ** 2;
+        case "rect":   return s.width * s.height;
+    }
+}
+
+// Exhaustiveness check with never
+function assertNever(x: never): never {
+    throw new Error("Unhandled case: " + x);
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 Modules -->
+<section id="modules">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Modules &amp; Imports</h2></div>
+
+  <div class="callout">
+    <strong>JS foundation:</strong> ES Modules (<code>import</code>/<code>export</code>) are a JavaScript feature. TypeScript adds the ability to import/export types in addition to values.
+  </div>
+
+  <h3>Exports &amp; Imports</h3>
+  <div class="code-compare">
+    <div class="col js-col">
+      <div class="code-label js">JS</div>
+      <div class="code-block">// Named exports
+export const PI = 3.14159;
+export function add(a, b) { return a + b; }
+export class Vector2 { ... }
+
+// Default export
+export default class App { ... }
+
+// Named imports
+import { PI, add } from "./math.js";
+
+// Default import
+import App from "./App.js";
+
+// Rename on import
+import { add as sum } from "./math.js";
+
+// Import everything
+import * as Math from "./math.js";
+Math.add(1, 2);
+</div>
+    </div>
+    <div class="col ts-col">
+      <div class="code-label ts">TS</div>
+      <div class="code-block">// Named exports (same as JS + types)
+export const PI: number = 3.14159;
+export function add(a: number, b: number): number { ... }
+export interface Vector { x: number; y: number }
+
+// Export types explicitly (TS 3.8+)
+export type { Vector };
+export type { User } from "./types";
+
+// Type-only import (erased completely)
+import type { User } from "./types";
+
+// Mixing value and type imports
+import { createUser, type User } from "./user";
+
+// Re-export
+export { add, PI } from "./math";
+export * from "./helpers";</div>
+    </div>
+  </div>
+
+  <h3>Module Resolution</h3>
+  <div class="code-block">// Path aliases (configured in tsconfig.json)
+import { UserService } from "@/services/user";  // @ → src/
+import { config } from "@config/app";
+
+// Importing JSON (with resolveJsonModule: true)
+import data from "./data.json";
+
+// Importing non-TS files
+import styles from "./app.module.css";   // needs type declaration
+import logo from "./logo.png";            // needs type declaration
+
+// Dynamic import — JS feature, typed by TS
+const module = await import("./heavyModule");
+
+// Namespace import (legacy / declaration files)
+/// &lt;reference types="node" /&gt;</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 Async / Promises -->
+<section id="async">
+  <div class="section-header"><span class="section-icon">⏳</span><h2>Async / Promises (JS Runtime)</h2></div>
+
+  <div class="callout">
+    <strong>All JS:</strong> Promises, <code>async</code>/<code>await</code>, <code>fetch</code>, <code>setTimeout</code>, and the event loop are <strong>JavaScript runtime</strong> features. TypeScript adds return type annotations and better error typing. Nothing here is erased by the compiler.
+  </div>
+
+  <h3>Promises &amp; Async/Await</h3>
+  <div class="code-compare">
+    <div class="col js-col">
+      <div class="code-label js">JS</div>
+      <div class="code-block">// Promise chain
+fetch("/api/user")
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => console.error(err));
+
+// async/await
+async function getUser(id) {
+  try {
+    const res = await fetch(`/api/user/${id}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Parallel
+const [a, b] = await Promise.all([
+  fetchUser(1),
+  fetchUser(2),
+]);
+</div>
+    </div>
+    <div class="col ts-col">
+      <div class="code-label ts">TS</div>
+      <div class="code-block">// Promise with typed result
+function fetchUser(id: number): Promise&lt;User&gt; {
+  return fetch(`/api/user/${id}`).then(r => r.json());
+}
+
+// async function — return type is always Promise&lt;T&gt;
+async function getUser(id: number): Promise&lt;User | null&gt; {
+  try {
+    const res = await fetch(`/api/user/${id}`);
+    if (!res.ok) return null;
+    return await res.json() as User;  // type assertion
+  } catch (err: unknown) {  // err typed as unknown
+    if (err instanceof Error) console.error(err.message);
+    return null;
+  }
+}
+
+// Parallel with typed results
+const [user, posts]: [User, Post[]] = await Promise.all([
+  fetchUser(1),
+  fetchPosts(1),
+]);</div>
+    </div>
+  </div>
+
+  <h3>Event Loop Essentials <span class="badge badge-js">JS</span></h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="js-row"><td>Call Stack</td><td class="plain-def">current execution</td><td>Synchronous code runs here; one thing at a time</td></tr>
+      <tr class="js-row"><td>Web APIs / Node APIs</td><td class="plain-def">timer &amp; I/O handling</td><td><code>setTimeout</code>, <code>fetch</code>, file I/O — run outside stack</td></tr>
+      <tr class="js-row"><td>Callback Queue</td><td class="plain-def">macro tasks waiting</td><td><code>setTimeout</code> callbacks go here</td></tr>
+      <tr class="js-row"><td>Microtask Queue</td><td class="plain-def">high priority callbacks</td><td>Promise <code>.then()</code> and <code>await</code> resumes go here — runs before macro tasks</td></tr>
+      <tr class="js-row"><td>Event Loop</td><td class="plain-def">traffic controller</td><td>When stack is empty: drain microtasks, then one macro task, repeat</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Common Async Patterns</h3>
+  <div class="code-block">// Promise.all — all resolve, or reject if any fail
+const results = await Promise.all([p1, p2, p3]);
+
+// Promise.allSettled — wait for all, get outcomes regardless
+const results = await Promise.allSettled([p1, p2]);
+results.forEach(r => {
+    if (r.status === "fulfilled") console.log(r.value);
+    else console.error(r.reason);
+});
+
+// Promise.race — first to settle wins
+const first = await Promise.race([p1, p2]);
+
+// Promise.any — first to RESOLVE wins (ignores rejections)
+const first = await Promise.any([p1, p2]);
+
+// AbortController — cancel a fetch (JS)
+const controller = new AbortController();
+const res = await fetch("/api/data", { signal: controller.signal });
+controller.abort(); // cancel in-flight request</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 JS Runtime Concepts -->
+<section id="jsruntime">
+  <div class="section-header"><span class="section-icon">⚙️</span><h2>JS Runtime Concepts</h2></div>
+  <p class="prose">These are <span class="badge badge-js">JS</span> features that TypeScript simply types — they exist at runtime and are never erased by the compiler.</p>
+
+  <h3>Closures &amp; Scope <span class="badge badge-js">JS</span></h3>
+  <div class="code-block">// Closure: inner function remembers outer scope
+function makeCounter() {
+    let count = 0;                    // captured by closure
+    return {
+        increment: () => ++count,
+        decrement: () => --count,
+        value: () => count,
+    };
+}
+const counter = makeCounter();
+counter.increment(); // 1
+counter.increment(); // 2
+counter.value();     // 2</div>
+
+  <h3>Prototypes &amp; this <span class="badge badge-js">JS</span></h3>
+  <div class="code-block">// 'this' depends on how function is CALLED, not defined
+const obj = {
+    name: "Alice",
+    greet() { return "Hi, " + this.name; },               // this = obj ✅
+    greetArrow: () => "Hi, " + this?.name,               // this = outer scope ❌
+};
+
+// Arrow functions capture 'this' from enclosing scope
+class Timer {
+    count = 0;
+    start() {
+        setInterval(() => {
+            this.count++;  // 'this' = Timer instance ✅ (arrow captures it)
+        }, 1000);
+    }
+}
+
+// TypeScript can type 'this' explicitly
+function greet(this: User): string {
+    return `Hello, ${this.name}`;
+}</div>
+
+  <h3>Iterators &amp; Generators <span class="badge badge-js">JS</span></h3>
+  <div class="code-block">// Generator function — yields values lazily
+function* range(start: number, end: number): Generator&lt;number&gt; {
+    for (let i = start; i &lt; end; i++) yield i;
+}
+for (const n of range(0, 5)) console.log(n); // 0 1 2 3 4
+
+// Iterable object — works with for...of, spread, destructuring
+const iterable = {
+    [Symbol.iterator](): Iterator&lt;number&gt; {
+        let n = 0;
+        return { next: () => ({ value: n++, done: n > 3 }) };
+    }
+};
+
+// Async generator
+async function* streamLines(url: string): AsyncGenerator&lt;string&gt; {
+    const res = await fetch(url);
+    for await (const chunk of res.body!) yield chunk.toString();
+}</div>
+
+  <h3>Proxies &amp; Reflect <span class="badge badge-js">JS</span></h3>
+  <div class="code-block">// Proxy — intercept object operations
+const handler: ProxyHandler&lt;Record&lt;string, number&gt;&gt; = {
+    get(target, key) {
+        return key in target ? target[key as string] : 0; // default 0
+    },
+    set(target, key, value) {
+        if (typeof value !== "number") throw new TypeError("Numbers only");
+        target[key as string] = value;
+        return true;
+    }
+};
+const scores = new Proxy({} as Record&lt;string, number&gt;, handler);</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 Decorators -->
+<section id="decorators">
+  <div class="section-header"><span class="section-icon">🎨</span><h2>Decorators</h2></div>
+  <p class="prose"><span class="badge badge-ts">TS</span> Decorators are special annotations that modify classes, methods, properties, or parameters. They're heavily used in frameworks like Angular, NestJS, and TypeORM. Enable with <code>"experimentalDecorators": true</code> in tsconfig.</p>
+
+  <div class="code-block">// Class decorator — modifies or wraps the class
+function Sealed(constructor: Function) {
+    Object.seal(constructor);
+    Object.seal(constructor.prototype);
+}
+
+@Sealed
+class BankAccount { ... }
+
+// Method decorator — intercept method calls
+function Log(target: any, key: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+    descriptor.value = function (...args: any[]) {
+        console.log(`Calling ${key} with`, args);
+        return original.apply(this, args);
+    };
+    return descriptor;
+}
+
+class UserService {
+    @Log
+    createUser(name: string) { ... }  // logs every call
+}
+
+// Property decorator
+function MinLength(min: number) {
+    return function (target: any, key: string) {
+        // use Reflect.metadata or similar
+    };
+}
+
+// Parameter decorator
+function Validate(target: any, key: string, index: number) {
+    // mark parameter for validation at runtime
+}
+
+// NestJS example — decorators in the wild
+@Controller("/users")
+export class UsersController {
+    @Get("/:id")
+    async getUser(@Param("id") id: string): Promise&lt;User&gt; { ... }
+
+    @Post("/")
+    @UseGuards(AuthGuard)
+    async createUser(@Body() dto: CreateUserDto): Promise&lt;User&gt; { ... }
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 tsconfig -->
+<section id="config">
+  <div class="section-header"><span class="section-icon">⚙️</span><h2>tsconfig.json Options</h2></div>
+  <p class="prose">The <code>tsconfig.json</code> file at your project root controls what TypeScript compiles and how strictly it type-checks.</p>
+
+  <div class="code-block">{
+  "compilerOptions": {
+    // Output
+    "target": "ES2022",            // JS version to compile to
+    "module": "ESNext",            // module system (ESNext, CommonJS, NodeNext)
+    "outDir": "./dist",            // where to put compiled .js files
+    "rootDir": "./src",            // where your .ts sources live
+    "declaration": true,           // generate .d.ts type definition files
+    "sourceMap": true,             // generate .js.map for debugging
+
+    // Module resolution
+    "moduleResolution": "bundler", // how to find modules (bundler | NodeNext | node)
+    "paths": { "@/*": ["./src/*"] }, // path aliases
+    "resolveJsonModule": true,     // allow importing .json files
+    "esModuleInterop": true,       // smoother default imports from CommonJS
+
+    // Strictness (recommended: all true)
+    "strict": true,                // enables all strict options below
+    "strictNullChecks": true,      // null and undefined are separate types
+    "noImplicitAny": true,         // error on implicit 'any'
+    "noImplicitThis": true,        // error on implicit 'this' type
+    "strictFunctionTypes": true,   // stricter function compatibility
+    "strictPropertyInitialization": true, // class fields must be initialized
+
+    // Extra checks
+    "noUnusedLocals": true,        // error on unused variables
+    "noUnusedParameters": true,    // error on unused parameters
+    "noImplicitReturns": true,     // all code paths must return
+    "noFallthroughCasesInSwitch": true, // no accidental switch fallthrough
+
+    // Libs
+    "lib": ["ES2022", "DOM"],      // built-in type definitions to include
+    "types": ["node", "jest"]      // @types packages to include
+  },
+  "include": ["src/**/*"],         // files to compile
+  "exclude": ["node_modules", "dist"]
+}</div>
+
+  <h3>Common tsconfig Options</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Option</th><th class="plain-def-header">Plain English</th><th>Recommended</th></tr></thead>
+    <tbody>
+      <tr><td>strict</td><td class="plain-def">enable all strictness checks</td><td><code>true</code> — always</td></tr>
+      <tr><td>strictNullChecks</td><td class="plain-def">null is not a value</td><td><code>true</code> — catches most bugs</td></tr>
+      <tr><td>noImplicitAny</td><td class="plain-def">no sneaky any types</td><td><code>true</code> — forces you to type everything</td></tr>
+      <tr><td>target</td><td class="plain-def">which JS version to output</td><td><code>"ES2022"</code> for modern Node/browsers</td></tr>
+      <tr><td>module</td><td class="plain-def">import/export style</td><td><code>"ESNext"</code> for bundlers, <code>"NodeNext"</code> for Node</td></tr>
+      <tr><td>esModuleInterop</td><td class="plain-def">fix CommonJS default imports</td><td><code>true</code> — allows <code>import fs from "fs"</code></td></tr>
+      <tr><td>sourceMap</td><td class="plain-def">enable debugging in original .ts</td><td><code>true</code> for all non-production</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 Pro Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">💡</span><h2>Pro Tips</h2></div>
+  <ul class="tip-list">
+    <li><span class="tip-code">avoid any</span><span>Using <code>any</code> turns off TypeScript for that value. Use <code>unknown</code> instead — it forces you to narrow the type before using it. Reserve <code>any</code> for true escape hatches like migrating old JS code.</span></li>
+    <li><span class="tip-code js">== vs ===</span><span><span class="badge badge-js">JS</span> Always use <code>===</code> (strict equality) not <code>==</code> (loose equality). Loose equality coerces types: <code>0 == false</code> is true, <code>"1" == 1</code> is true. TypeScript can't always catch this — train the habit.</span></li>
+    <li><span class="tip-code">type vs interface</span><span>Prefer <code>interface</code> for object shapes that represent things (User, Config, Request) — they support declaration merging and read more naturally. Use <code>type</code> for unions, intersections, mapped types, and anything non-object.</span></li>
+    <li><span class="tip-code">as const</span><span><code>const colors = ["red", "green", "blue"] as const</code> makes TypeScript infer the narrowest possible type — <code>readonly ["red", "green", "blue"]</code> instead of <code>string[]</code>. Essential for deriving union types from arrays.</span></li>
+    <li><span class="tip-code js">optional chaining</span><span><span class="badge badge-js">JS</span> <code>user?.address?.city</code> short-circuits to <code>undefined</code> instead of throwing if any link is null/undefined. Combine with <code>??</code> (nullish coalescing) for defaults: <code>user?.name ?? "Guest"</code>.</span></li>
+    <tr><span class="tip-code">non-null assertion</span><span><code>el!</code> tells TypeScript "trust me, this isn't null." It's a compile-time lie — if you're wrong, you get a runtime crash. Prefer a real null check or <code>if (!el) return</code>.</span></li>
+    <li><span class="tip-code">discriminated unions</span><span>Instead of optional properties (<code>{ type: "circle", radius?: number }</code>), use discriminated unions: <code>{ type: "circle", radius: number } | { type: "rect", w: number; h: number }</code>. TypeScript's switch narrowing then gives you perfect type safety.</span></li>
+    <li><span class="tip-code js">var hoisting</span><span><span class="badge badge-js">JS</span> <code>var</code> declarations are hoisted to the top of their function. That means you can reference a <code>var</code> before its line — it's <code>undefined</code>, not an error. This is one of the main reasons <code>let</code> and <code>const</code> replaced <code>var</code>.</span></li>
+    <li><span class="tip-code">satisfies operator</span><span><code>const config = { ... } satisfies Config</code> (TS 4.9+) validates that a value matches a type without widening it. You keep the narrow inferred type for use in the file, but TS checks the shape. Better than <code>: Config</code> for local objects.</span></li>
+    <li><span class="tip-code">strict mode</span><span>Always enable <code>"strict": true</code> in tsconfig. It catches null errors, implicit any, and dozens of subtle bugs. Starting without it is technical debt — retrofitting strict mode onto a large codebase is painful.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 16 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂️</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All major TypeScript and JavaScript keywords alphabetically. <span class="badge badge-js">JS</span> = JavaScript runtime · <span class="badge badge-ts">TS</span> = TypeScript only.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Origin</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr class="js-row"><td>async / await</td><td class="plain-def">async sugar for Promises</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#async">Async</a></td></tr>
+      <tr><td>abstract</td><td class="plain-def">class can't be instantiated</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>as</td><td class="plain-def">type assertion</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>as const</td><td class="plain-def">narrow to literal types</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr class="js-row"><td>break / continue</td><td class="plain-def">loop control</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr class="js-row"><td>class</td><td class="plain-def">define a class</td><td><span class="badge badge-js">JS</span> + <span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr class="js-row"><td>const</td><td class="plain-def">block-scoped binding</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>declare</td><td class="plain-def">ambient declaration (no emit)</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr><td>enum</td><td class="plain-def">named constants</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#advanced">Advanced Types</a></td></tr>
+      <tr class="js-row"><td>export</td><td class="plain-def">expose from module</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr class="js-row"><td>extends</td><td class="plain-def">inherit / constrain</td><td><span class="badge badge-js">JS</span> + <span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr class="js-row"><td>false / true</td><td class="plain-def">boolean literals</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr class="js-row"><td>for / for...of / for...in</td><td class="plain-def">loop variants</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr class="js-row"><td>function</td><td class="plain-def">define a function</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr class="js-row"><td>if / else</td><td class="plain-def">conditional branch</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>implements</td><td class="plain-def">fulfill interface contract</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>infer</td><td class="plain-def">extract type in conditional</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#advanced">Advanced Types</a></td></tr>
+      <tr class="js-row"><td>import</td><td class="plain-def">bring in a module</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr><td>import type</td><td class="plain-def">import types only (erased)</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr class="js-row"><td>instanceof</td><td class="plain-def">runtime type check</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#narrowing">Narrowing</a></td></tr>
+      <tr><td>interface</td><td class="plain-def">object shape contract</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#interfaces">Interfaces</a></td></tr>
+      <tr class="js-row"><td>let</td><td class="plain-def">block-scoped mutable var</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>keyof</td><td class="plain-def">get all keys of a type</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#advanced">Advanced Types</a></td></tr>
+      <tr><td>namespace</td><td class="plain-def">logical grouping of types</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#modules">Modules</a></td></tr>
+      <tr class="js-row"><td>new</td><td class="plain-def">create object instance</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr class="js-row"><td>null / undefined</td><td class="plain-def">no value / not set</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>never</td><td class="plain-def">impossible type</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>override</td><td class="plain-def">explicitly override method</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>private / protected / public</td><td class="plain-def">access modifiers</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>readonly</td><td class="plain-def">can't be mutated</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr class="js-row"><td>return</td><td class="plain-def">exit function with value</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>satisfies</td><td class="plain-def">validate type without widening</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr class="js-row"><td>static</td><td class="plain-def">belongs to class not instance</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr class="js-row"><td>super</td><td class="plain-def">parent class reference</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr class="js-row"><td>switch / case</td><td class="plain-def">multi-way branch</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#narrowing">Narrowing</a></td></tr>
+      <tr class="js-row"><td>this</td><td class="plain-def">current object</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#jsruntime">JS Runtime</a></td></tr>
+      <tr class="js-row"><td>throw / try / catch</td><td class="plain-def">error handling</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#async">Async</a></td></tr>
+      <tr><td>type</td><td class="plain-def">define a type alias</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#interfaces">Interfaces</a></td></tr>
+      <tr class="js-row"><td>typeof</td><td class="plain-def">get runtime type string</td><td><span class="badge badge-js">JS</span> + <span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#narrowing">Narrowing</a></td></tr>
+      <tr><td>unknown</td><td class="plain-def">safe alternative to any</td><td><span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr class="js-row"><td>var</td><td class="plain-def">function-scoped variable</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr class="js-row"><td>void</td><td class="plain-def">no return value</td><td><span class="badge badge-js">JS</span> + <span class="badge badge-ts">TS</span></td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr class="js-row"><td>while / do</td><td class="plain-def">loop constructs</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr class="js-row"><td>yield</td><td class="plain-def">pause generator</td><td><span class="badge badge-js">JS</span></td><td><a class="idx-link" href="#jsruntime">JS Runtime</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  TypeScript ⊃ JavaScript  ·  Quick Reference  ·  2026
+</footer>
+</body>
+</html>

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Git Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --text: #d4d8e0;
+    --text-dim: #7a8090;
+    --text-code: #fb923c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 12, 15, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 52px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: #fb923c;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.15rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: #fb923c; background: rgba(251,146,60,0.08); }
+
+  #search-wrap {
+    padding: 1.5rem 2rem 0;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  #search {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #search::placeholder { color: #3a4052; }
+  #search:focus { border-color: #fb923c; }
+
+  .hero {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(40px, 6vw, 80px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: var(--text);
+  }
+  .hero h1 span { color: #fb923c; }
+  .hero p {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+  .hero-stat {
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .hero-stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: #fb923c;
+    line-height: 1;
+  }
+  .hero-stat .label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 2px;
+  }
+
+  .category {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 22px 22px 26px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .category::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--cat-color);
+  }
+  .category:hover { background: var(--surface2); border-color: #2a2e38; }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .cat-index {
+    font-size: 10px;
+    color: var(--cat-color);
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+  .cat-name {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .cat-count {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-dim);
+    background: var(--border);
+    padding: 2px 7px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  ul { list-style: none; }
+
+  li.sub-label {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: var(--cat-color);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    padding: 0;
+    border: none;
+    display: block;
+  }
+  li.sub-label::before { display: none; }
+
+  ul li {
+    padding: 5px 0;
+    border-bottom: 1px solid #151820;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 0 8px;
+    transition: background 0.1s;
+  }
+  ul li:last-child { border-bottom: none; }
+
+  .sym {
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--cat-color);
+    grid-row: 1;
+    grid-column: 1 / -1;
+    word-break: break-all;
+  }
+  .plain {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: #e8c547;
+    grid-row: 2;
+    grid-column: 1;
+    white-space: nowrap;
+    opacity: 0.85;
+  }
+  .desc {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    grid-row: 2;
+    grid-column: 2;
+    line-height: 1.45;
+  }
+
+  .hidden { display: none !important; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2a2e38; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">() Git</div>
+  <nav>
+<a href="#setup_config">Setup & Config</a>
+<a href="#init_clone">Init & Clone</a>
+<a href="#staging_committing">Staging & Committing</a>
+<a href="#branches">Branches</a>
+<a href="#merging_rebasing">Merging & Rebasing</a>
+<a href="#remote">Remote</a>
+<a href="#log_history">Log & History</a>
+<a href="#undoing_changes">Undoing Changes</a>
+<a href="#stash">Stash</a>
+<a href="#tags">Tags</a>
+<a href="#worktree_submodules">Worktree & Submodules</a>
+<a href="#useful_inspection">Useful Inspection</a>
+<a href="#dotgitignore">.gitignore</a>
+<a href="#concepts">Concepts</a>
+<a href="#github_workflow">GitHub Workflow</a>
+<a href="#common_flags">Common Flags</a>
+  </nav>
+</header>
+
+<div id="search-wrap">
+  <input id="search" type="text" placeholder="Search commands, concepts…" oninput="filterEntries(this.value)" />
+</div>
+
+<div class="hero">
+  <div>
+    <h1>Git <span>Ref</span></h1>
+    <p>Command Reference · 16 Sections</p>
+  </div>
+  <div class="hero-stat">
+    <div class="num">115</div>
+    <div class="label">Entries</div>
+  </div>
+</div>
+
+<div class="container">
+<div class="category" style="--cat-color:#fb923c">
+  <div class="cat-header">
+    <span class="cat-index">01</span>
+    <span class="cat-name" id="setup_config">Setup & Config</span>
+    <span class="cat-count">5 entries</span>
+  </div>
+  <ul><li class="sub-label">Identity</li>
+<li>
+  <span class="sym">git config --global user.name "Name"</span>
+  <span class="plain">set your identity</span>
+  <span class="desc">Sets the name attached to all your commits</span>
+</li>
+<li>
+  <span class="sym">git config --global user.email "email"</span>
+  <span class="plain">set your email</span>
+  <span class="desc">Sets the email attached to all your commits</span>
+</li>
+<li>
+  <span class="sym">git config --list</span>
+  <span class="plain">show all config</span>
+  <span class="desc">Prints all current git config values</span>
+</li>
+<li>
+  <span class="sym">git config --global core.editor "code --wait"</span>
+  <span class="plain">set default editor</span>
+  <span class="desc">Use VS Code (or vim, nano, etc.) for commit messages</span>
+</li>
+<li class="sub-label">Aliases</li>
+<li>
+  <span class="sym">git config --global alias.st status</span>
+  <span class="plain">create a shortcut</span>
+  <span class="desc">git st now runs git status — define any alias you want</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#e8c547">
+  <div class="cat-header">
+    <span class="cat-index">02</span>
+    <span class="cat-name" id="init_clone">Init & Clone</span>
+    <span class="cat-count">4 entries</span>
+  </div>
+  <ul><li class="sub-label">Starting a Repo</li>
+<li>
+  <span class="sym">git init</span>
+  <span class="plain">create a new repo here</span>
+  <span class="desc">Initializes a .git folder in the current directory</span>
+</li>
+<li>
+  <span class="sym">git init &lt;name&gt;</span>
+  <span class="plain">create new repo in folder</span>
+  <span class="desc">Creates a new directory and initializes a repo inside it</span>
+</li>
+<li>
+  <span class="sym">git clone &lt;url&gt;</span>
+  <span class="plain">copy a remote repo</span>
+  <span class="desc">Downloads the full repo history into a new local directory</span>
+</li>
+<li>
+  <span class="sym">git clone &lt;url&gt; &lt;name&gt;</span>
+  <span class="plain">clone into custom folder</span>
+  <span class="desc">Same as clone but names the local directory</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#6bde84">
+  <div class="cat-header">
+    <span class="cat-index">03</span>
+    <span class="cat-name" id="staging_committing">Staging & Committing</span>
+    <span class="cat-count">12 entries</span>
+  </div>
+  <ul><li class="sub-label">Checking State</li>
+<li>
+  <span class="sym">git status</span>
+  <span class="plain">what's changed?</span>
+  <span class="desc">Shows working tree status — staged, unstaged, and untracked files</span>
+</li>
+<li>
+  <span class="sym">git status -s</span>
+  <span class="plain">compact status</span>
+  <span class="desc">Short format — M=modified, A=added, ??=untracked</span>
+</li>
+<li class="sub-label">Staging</li>
+<li>
+  <span class="sym">git add &lt;file&gt;</span>
+  <span class="plain">stage one file</span>
+  <span class="desc">Adds a specific file to the staging area (index)</span>
+</li>
+<li>
+  <span class="sym">git add .</span>
+  <span class="plain">stage everything</span>
+  <span class="desc">Stages all modified and new files in the current directory</span>
+</li>
+<li>
+  <span class="sym">git add -p</span>
+  <span class="plain">stage interactively</span>
+  <span class="desc">Walk through each change hunk — choose y/n to stage piece by piece</span>
+</li>
+<li>
+  <span class="sym">git restore --staged &lt;file&gt;</span>
+  <span class="plain">unstage a file</span>
+  <span class="desc">Removes file from staging area — keeps your changes in working dir</span>
+</li>
+<li class="sub-label">Committing</li>
+<li>
+  <span class="sym">git commit -m "message"</span>
+  <span class="plain">save a snapshot</span>
+  <span class="desc">Commits staged changes with an inline message</span>
+</li>
+<li>
+  <span class="sym">git commit --amend</span>
+  <span class="plain">fix the last commit</span>
+  <span class="desc">Edit the last commit's message or add forgotten staged changes — rewrites history</span>
+</li>
+<li>
+  <span class="sym">git commit -am "message"</span>
+  <span class="plain">stage tracked + commit</span>
+  <span class="desc">Stages all tracked modified files and commits in one step</span>
+</li>
+<li class="sub-label">Diffing</li>
+<li>
+  <span class="sym">git diff</span>
+  <span class="plain">what changed (unstaged)?</span>
+  <span class="desc">Shows diff between working directory and staging area</span>
+</li>
+<li>
+  <span class="sym">git diff --staged</span>
+  <span class="plain">what's about to be committed?</span>
+  <span class="desc">Shows diff between staging area and last commit</span>
+</li>
+<li>
+  <span class="sym">git diff &lt;c1&gt; &lt;c2&gt;</span>
+  <span class="plain">diff two commits</span>
+  <span class="desc">Shows all changes between any two commits — use SHA hashes</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#60a5fa">
+  <div class="cat-header">
+    <span class="cat-index">04</span>
+    <span class="cat-name" id="branches">Branches</span>
+    <span class="cat-count">8 entries</span>
+  </div>
+  <ul><li class="sub-label">Listing</li>
+<li>
+  <span class="sym">git branch</span>
+  <span class="plain">list local branches</span>
+  <span class="desc">Lists all local branches — * marks the current one</span>
+</li>
+<li>
+  <span class="sym">git branch -a</span>
+  <span class="plain">list all branches</span>
+  <span class="desc">Lists local AND remote-tracking branches</span>
+</li>
+<li class="sub-label">Creating</li>
+<li>
+  <span class="sym">git branch &lt;name&gt;</span>
+  <span class="plain">create a branch</span>
+  <span class="desc">Creates a new branch at the current commit — does NOT switch to it</span>
+</li>
+<li class="sub-label">Switching</li>
+<li>
+  <span class="sym">git switch &lt;name&gt;</span>
+  <span class="plain">switch to branch</span>
+  <span class="desc">Moves HEAD to branch — modern replacement for git checkout</span>
+</li>
+<li>
+  <span class="sym">git switch -c &lt;name&gt;</span>
+  <span class="plain">create and switch</span>
+  <span class="desc">Creates a new branch and immediately checks it out</span>
+</li>
+<li class="sub-label">Deleting</li>
+<li>
+  <span class="sym">git branch -d &lt;name&gt;</span>
+  <span class="plain">delete merged branch</span>
+  <span class="desc">Deletes branch only if it's fully merged — safe delete</span>
+</li>
+<li>
+  <span class="sym">git branch -D &lt;name&gt;</span>
+  <span class="plain">force delete branch</span>
+  <span class="desc">Deletes branch regardless of merge status — data loss if unmerged</span>
+</li>
+<li class="sub-label">Renaming</li>
+<li>
+  <span class="sym">git branch -m &lt;old&gt; &lt;new&gt;</span>
+  <span class="plain">rename a branch</span>
+  <span class="desc">Renames a branch locally</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#a78bfa">
+  <div class="cat-header">
+    <span class="cat-index">05</span>
+    <span class="cat-name" id="merging_rebasing">Merging & Rebasing</span>
+    <span class="cat-count">9 entries</span>
+  </div>
+  <ul><li class="sub-label">Merging</li>
+<li>
+  <span class="sym">git merge &lt;branch&gt;</span>
+  <span class="plain">merge branch in</span>
+  <span class="desc">Merges branch into the current branch — creates a merge commit if diverged</span>
+</li>
+<li>
+  <span class="sym">git merge --ff-only &lt;branch&gt;</span>
+  <span class="plain">fast-forward only</span>
+  <span class="desc">Merges only if possible via fast-forward — fails otherwise</span>
+</li>
+<li>
+  <span class="sym">git merge --no-ff &lt;branch&gt;</span>
+  <span class="plain">always make a merge commit</span>
+  <span class="desc">Forces a merge commit even for fast-forwardable branches</span>
+</li>
+<li>
+  <span class="sym">git merge --abort</span>
+  <span class="plain">cancel a merge</span>
+  <span class="desc">Aborts an in-progress merge and restores pre-merge state</span>
+</li>
+<li class="sub-label">Rebasing</li>
+<li>
+  <span class="sym">git rebase &lt;branch&gt;</span>
+  <span class="plain">replay commits on top</span>
+  <span class="desc">Replays current branch commits on top of branch — linear history</span>
+</li>
+<li>
+  <span class="sym">git rebase -i HEAD~N</span>
+  <span class="plain">edit last N commits</span>
+  <span class="desc">Interactive rebase — squash, reorder, drop, or edit commits</span>
+</li>
+<li>
+  <span class="sym">git rebase --abort</span>
+  <span class="plain">cancel a rebase</span>
+  <span class="desc">Stops and restores to pre-rebase state</span>
+</li>
+<li>
+  <span class="sym">git rebase --continue</span>
+  <span class="plain">resume after conflict</span>
+  <span class="desc">After resolving a conflict, stages the fix and continues rebasing</span>
+</li>
+<li class="sub-label">Cherry-pick</li>
+<li>
+  <span class="sym">git cherry-pick &lt;SHA&gt;</span>
+  <span class="plain">grab one commit</span>
+  <span class="desc">Applies a specific commit from another branch onto the current branch</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#f56b9a">
+  <div class="cat-header">
+    <span class="cat-index">06</span>
+    <span class="cat-name" id="remote">Remote</span>
+    <span class="cat-count">12 entries</span>
+  </div>
+  <ul><li class="sub-label">Managing Remotes</li>
+<li>
+  <span class="sym">git remote -v</span>
+  <span class="plain">list remotes</span>
+  <span class="desc">Shows all remote connections with their fetch/push URLs</span>
+</li>
+<li>
+  <span class="sym">git remote add &lt;name&gt; &lt;url&gt;</span>
+  <span class="plain">connect to a remote</span>
+  <span class="desc">Adds a remote — conventionally named 'origin'</span>
+</li>
+<li>
+  <span class="sym">git remote remove &lt;name&gt;</span>
+  <span class="plain">disconnect a remote</span>
+  <span class="desc">Removes the remote connection (doesn't delete the remote repo)</span>
+</li>
+<li class="sub-label">Fetching & Pulling</li>
+<li>
+  <span class="sym">git fetch</span>
+  <span class="plain">download without merging</span>
+  <span class="desc">Downloads all remote changes — does NOT update working dir</span>
+</li>
+<li>
+  <span class="sym">git fetch origin</span>
+  <span class="plain">fetch from origin</span>
+  <span class="desc">Explicitly fetches from the 'origin' remote</span>
+</li>
+<li>
+  <span class="sym">git pull</span>
+  <span class="plain">fetch + merge</span>
+  <span class="desc">Fetches and merges remote branch into current branch</span>
+</li>
+<li>
+  <span class="sym">git pull --rebase</span>
+  <span class="plain">fetch + rebase</span>
+  <span class="desc">Fetches and rebases instead of merge — keeps history linear</span>
+</li>
+<li class="sub-label">Pushing</li>
+<li>
+  <span class="sym">git push</span>
+  <span class="plain">upload commits</span>
+  <span class="desc">Pushes current branch to its tracked remote branch</span>
+</li>
+<li>
+  <span class="sym">git push origin &lt;branch&gt;</span>
+  <span class="plain">push specific branch</span>
+  <span class="desc">Pushes branch to origin explicitly</span>
+</li>
+<li>
+  <span class="sym">git push -u origin &lt;branch&gt;</span>
+  <span class="plain">push and track</span>
+  <span class="desc">Pushes and sets the upstream — future push/pull work without arguments</span>
+</li>
+<li>
+  <span class="sym">git push --force-with-lease</span>
+  <span class="plain">safe force push</span>
+  <span class="desc">Force pushes only if no one else pushed since your last fetch</span>
+</li>
+<li>
+  <span class="sym">git push origin --delete &lt;branch&gt;</span>
+  <span class="plain">delete remote branch</span>
+  <span class="desc">Removes the branch from the remote repository</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#34d399">
+  <div class="cat-header">
+    <span class="cat-index">07</span>
+    <span class="cat-name" id="log_history">Log & History</span>
+    <span class="cat-count">9 entries</span>
+  </div>
+  <ul><li class="sub-label">Viewing Log</li>
+<li>
+  <span class="sym">git log</span>
+  <span class="plain">show commit history</span>
+  <span class="desc">Full log — SHA, author, date, message for each commit</span>
+</li>
+<li>
+  <span class="sym">git log --oneline</span>
+  <span class="plain">compact log</span>
+  <span class="desc">One line per commit — short SHA + message</span>
+</li>
+<li>
+  <span class="sym">git log --oneline --graph --all</span>
+  <span class="plain">visual branch graph</span>
+  <span class="desc">ASCII art graph of all branches and merges</span>
+</li>
+<li>
+  <span class="sym">git log -n 5</span>
+  <span class="plain">last N commits</span>
+  <span class="desc">Limits log output to the last N commits</span>
+</li>
+<li>
+  <span class="sym">git log --author="name"</span>
+  <span class="plain">filter by author</span>
+  <span class="desc">Shows only commits by a specific author</span>
+</li>
+<li>
+  <span class="sym">git log -- &lt;file&gt;</span>
+  <span class="plain">history of one file</span>
+  <span class="desc">Shows only commits that touched a specific file</span>
+</li>
+<li class="sub-label">Inspecting</li>
+<li>
+  <span class="sym">git show &lt;SHA&gt;</span>
+  <span class="plain">inspect a commit</span>
+  <span class="desc">Shows full diff and metadata for a specific commit</span>
+</li>
+<li>
+  <span class="sym">git blame &lt;file&gt;</span>
+  <span class="plain">who wrote each line?</span>
+  <span class="desc">Annotates each line with the commit and author that last changed it</span>
+</li>
+<li>
+  <span class="sym">git shortlog -sn</span>
+  <span class="plain">commit count by author</span>
+  <span class="desc">Summarizes commits per contributor — sorted by count</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#f87171">
+  <div class="cat-header">
+    <span class="cat-index">08</span>
+    <span class="cat-name" id="undoing_changes">Undoing Changes</span>
+    <span class="cat-count">8 entries</span>
+  </div>
+  <ul><li class="sub-label">Working Directory</li>
+<li>
+  <span class="sym">git restore &lt;file&gt;</span>
+  <span class="plain">discard working dir changes</span>
+  <span class="desc">Reverts file to last committed state — CANNOT be undone</span>
+</li>
+<li>
+  <span class="sym">git restore .</span>
+  <span class="plain">discard all unstaged changes</span>
+  <span class="desc">Reverts everything in working dir to last commit — destructive</span>
+</li>
+<li class="sub-label">Reset</li>
+<li>
+  <span class="sym">git reset --soft HEAD~1</span>
+  <span class="plain">undo commit, keep staged</span>
+  <span class="desc">Moves HEAD back one commit — changes stay staged</span>
+</li>
+<li>
+  <span class="sym">git reset HEAD~1</span>
+  <span class="plain">undo commit, keep files</span>
+  <span class="desc">Default reset — unstages changes, keeps files in working dir</span>
+</li>
+<li>
+  <span class="sym">git reset --hard HEAD~1</span>
+  <span class="plain">undo commit and changes</span>
+  <span class="desc">Moves HEAD back and DELETES all changes — truly destructive</span>
+</li>
+<li class="sub-label">Revert</li>
+<li>
+  <span class="sym">git revert &lt;SHA&gt;</span>
+  <span class="plain">undo safely (new commit)</span>
+  <span class="desc">Creates a new commit that undoes a previous one — safe for shared branches</span>
+</li>
+<li class="sub-label">Cleanup</li>
+<li>
+  <span class="sym">git clean -fd</span>
+  <span class="plain">delete untracked files</span>
+  <span class="desc">Removes untracked files (-f) and directories (-d) — cannot be undone</span>
+</li>
+<li>
+  <span class="sym">git clean -nfd</span>
+  <span class="plain">preview clean</span>
+  <span class="desc">Dry run — shows what would be deleted without actually deleting</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#42d4f5">
+  <div class="cat-header">
+    <span class="cat-index">09</span>
+    <span class="cat-name" id="stash">Stash</span>
+    <span class="cat-count">8 entries</span>
+  </div>
+  <ul><li class="sub-label">Basic Stash</li>
+<li>
+  <span class="sym">git stash</span>
+  <span class="plain">save work temporarily</span>
+  <span class="desc">Stashes all staged and unstaged changes — working dir goes clean</span>
+</li>
+<li>
+  <span class="sym">git stash push -m "message"</span>
+  <span class="plain">stash with a label</span>
+  <span class="desc">Saves stash with a descriptive name — easier to identify later</span>
+</li>
+<li>
+  <span class="sym">git stash -u</span>
+  <span class="plain">stash including untracked</span>
+  <span class="desc">Also stashes new untracked files</span>
+</li>
+<li class="sub-label">Managing Stashes</li>
+<li>
+  <span class="sym">git stash list</span>
+  <span class="plain">see all stashes</span>
+  <span class="desc">Lists all stashes — stash@{0} is the most recent</span>
+</li>
+<li>
+  <span class="sym">git stash pop</span>
+  <span class="plain">restore and remove stash</span>
+  <span class="desc">Applies the top stash and removes it from the stash list</span>
+</li>
+<li>
+  <span class="sym">git stash apply stash@{N}</span>
+  <span class="plain">restore without removing</span>
+  <span class="desc">Applies a specific stash but keeps it in the list</span>
+</li>
+<li>
+  <span class="sym">git stash drop stash@{N}</span>
+  <span class="plain">delete a stash</span>
+  <span class="desc">Removes a specific stash from the list without applying it</span>
+</li>
+<li>
+  <span class="sym">git stash clear</span>
+  <span class="plain">delete all stashes</span>
+  <span class="desc">Removes all stashes permanently</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#e879f9">
+  <div class="cat-header">
+    <span class="cat-index">10</span>
+    <span class="cat-name" id="tags">Tags</span>
+    <span class="cat-count">5 entries</span>
+  </div>
+  <ul><li class="sub-label">Listing</li>
+<li>
+  <span class="sym">git tag</span>
+  <span class="plain">list tags</span>
+  <span class="desc">Lists all tags in alphabetical order</span>
+</li>
+<li class="sub-label">Creating</li>
+<li>
+  <span class="sym">git tag &lt;name&gt;</span>
+  <span class="plain">create lightweight tag</span>
+  <span class="desc">Tags current commit — a named pointer, no extra metadata</span>
+</li>
+<li>
+  <span class="sym">git tag -a &lt;name&gt; -m "msg"</span>
+  <span class="plain">create annotated tag</span>
+  <span class="desc">Stores tagger name, date, message — preferred for releases</span>
+</li>
+<li class="sub-label">Pushing</li>
+<li>
+  <span class="sym">git push origin --tags</span>
+  <span class="plain">push all tags</span>
+  <span class="desc">Tags are not pushed by default — this sends them all to remote</span>
+</li>
+<li class="sub-label">Deleting</li>
+<li>
+  <span class="sym">git tag -d &lt;name&gt;</span>
+  <span class="plain">delete a local tag</span>
+  <span class="desc">Removes a tag locally — does not affect remote</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#fb923c">
+  <div class="cat-header">
+    <span class="cat-index">11</span>
+    <span class="cat-name" id="worktree_submodules">Worktree & Submodules</span>
+    <span class="cat-count">4 entries</span>
+  </div>
+  <ul><li class="sub-label">Worktree</li>
+<li>
+  <span class="sym">git worktree add &lt;path&gt; &lt;branch&gt;</span>
+  <span class="plain">check out another branch simultaneously</span>
+  <span class="desc">Creates a linked working tree — work on two branches at once</span>
+</li>
+<li>
+  <span class="sym">git worktree list</span>
+  <span class="plain">list all worktrees</span>
+  <span class="desc">Shows all active working trees linked to this repo</span>
+</li>
+<li class="sub-label">Submodules</li>
+<li>
+  <span class="sym">git submodule add &lt;url&gt;</span>
+  <span class="plain">embed another repo</span>
+  <span class="desc">Adds a git repo as a subdirectory — tracked at a specific commit</span>
+</li>
+<li>
+  <span class="sym">git submodule update --init --recursive</span>
+  <span class="plain">initialize submodules after clone</span>
+  <span class="desc">Run this after cloning a repo that has submodules</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#e8c547">
+  <div class="cat-header">
+    <span class="cat-index">12</span>
+    <span class="cat-name" id="useful_inspection">Useful Inspection</span>
+    <span class="cat-count">6 entries</span>
+  </div>
+  <ul><li class="sub-label">Reflog</li>
+<li>
+  <span class="sym">git reflog</span>
+  <span class="plain">history of HEAD movements</span>
+  <span class="desc">Shows every place HEAD has pointed — safety net for recovering lost commits</span>
+</li>
+<li class="sub-label">Bisect</li>
+<li>
+  <span class="sym">git bisect start</span>
+  <span class="plain">start a bug hunt</span>
+  <span class="desc">Begins binary search through commits to find when a bug was introduced</span>
+</li>
+<li>
+  <span class="sym">git bisect bad / good &lt;SHA&gt;</span>
+  <span class="plain">mark commits in bisect</span>
+  <span class="desc">Tell git which commits are broken vs working — it narrows down automatically</span>
+</li>
+<li class="sub-label">Search</li>
+<li>
+  <span class="sym">git grep "pattern"</span>
+  <span class="plain">search tracked files</span>
+  <span class="desc">Searches all tracked files for a pattern — faster than grep for git repos</span>
+</li>
+<li>
+  <span class="sym">git ls-files</span>
+  <span class="plain">list all tracked files</span>
+  <span class="desc">Shows every file currently tracked by git in the index</span>
+</li>
+<li>
+  <span class="sym">git rev-parse HEAD</span>
+  <span class="plain">get current commit SHA</span>
+  <span class="desc">Prints the full SHA of the current HEAD commit</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#6bde84">
+  <div class="cat-header">
+    <span class="cat-index">13</span>
+    <span class="cat-name" id="dotgitignore">.gitignore</span>
+    <span class="cat-count">5 entries</span>
+  </div>
+  <ul><li class="sub-label">Basics</li>
+<li>
+  <span class="sym">.gitignore</span>
+  <span class="plain">tell git what to skip</span>
+  <span class="desc">File listing patterns git should never track — one pattern per line</span>
+</li>
+<li>
+  <span class="sym">git rm --cached &lt;file&gt;</span>
+  <span class="plain">untrack without deleting</span>
+  <span class="desc">Removes file from index but keeps it on disk — use after adding to .gitignore</span>
+</li>
+<li class="sub-label">Patterns</li>
+<li>
+  <span class="sym">node_modules/</span>
+  <span class="plain">ignore a whole folder</span>
+  <span class="desc">Trailing slash = ignore this directory</span>
+</li>
+<li>
+  <span class="sym">*.log</span>
+  <span class="plain">ignore by extension</span>
+  <span class="desc">Wildcard — ignores all .log files anywhere in the repo</span>
+</li>
+<li>
+  <span class="sym">!important.log</span>
+  <span class="plain">un-ignore a specific file</span>
+  <span class="desc">! negates a pattern — tracks this file even if *.log is ignored</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#60a5fa">
+  <div class="cat-header">
+    <span class="cat-index">14</span>
+    <span class="cat-name" id="concepts">Concepts</span>
+    <span class="cat-count">10 entries</span>
+  </div>
+  <ul><li class="sub-label">Core Concepts</li>
+<li>
+  <span class="sym">SHA / commit hash</span>
+  <span class="plain">a commit's unique ID</span>
+  <span class="desc">40-char hex string identifying a commit — first 7 chars usually enough</span>
+</li>
+<li>
+  <span class="sym">HEAD</span>
+  <span class="plain">where you are now</span>
+  <span class="desc">A pointer to the current commit — usually the tip of the current branch</span>
+</li>
+<li>
+  <span class="sym">detached HEAD</span>
+  <span class="plain">HEAD points to a commit, not a branch</span>
+  <span class="desc">Happens when you check out a SHA directly — new commits won't be on any branch</span>
+</li>
+<li>
+  <span class="sym">index / staging area</span>
+  <span class="plain">what will go into next commit</span>
+  <span class="desc">The intermediate area between working directory and commit</span>
+</li>
+<li>
+  <span class="sym">origin</span>
+  <span class="plain">default remote name</span>
+  <span class="desc">Convention — the remote your repo was cloned from. Just a name, not special to git</span>
+</li>
+<li>
+  <span class="sym">upstream</span>
+  <span class="plain">what your branch tracks</span>
+  <span class="desc">The remote branch a local branch is linked to for push/pull</span>
+</li>
+<li class="sub-label">Merge Concepts</li>
+<li>
+  <span class="sym">fast-forward merge</span>
+  <span class="plain">no divergence, just move pointer</span>
+  <span class="desc">When target branch has no new commits — git just moves the pointer forward</span>
+</li>
+<li>
+  <span class="sym">3-way merge</span>
+  <span class="plain">branches diverged, need merge commit</span>
+  <span class="desc">When both branches have new commits — git finds common ancestor and creates a merge commit</span>
+</li>
+<li>
+  <span class="sym">rebase vs merge</span>
+  <span class="plain">linear vs preserved history</span>
+  <span class="desc">Rebase = linear history, rewrites SHAs. Merge = preserves history, safe for shared branches</span>
+</li>
+<li>
+  <span class="sym">merge conflict</span>
+  <span class="plain">two branches changed the same line</span>
+  <span class="desc">Git can't auto-merge — marks conflict with &lt;&lt;&lt;, ===, &gt;&gt;&gt; markers. Resolve manually</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#a78bfa">
+  <div class="cat-header">
+    <span class="cat-index">15</span>
+    <span class="cat-name" id="github_workflow">GitHub Workflow</span>
+    <span class="cat-count">5 entries</span>
+  </div>
+  <ul><li class="sub-label">Collaboration</li>
+<li>
+  <span class="sym">fork</span>
+  <span class="plain">your own copy of a repo</span>
+  <span class="desc">GitHub feature — copies a repo to your account so you can make changes</span>
+</li>
+<li>
+  <span class="sym">pull request (PR)</span>
+  <span class="plain">propose your changes</span>
+  <span class="desc">Requests that your branch be merged into another branch, with review</span>
+</li>
+<li>
+  <span class="sym">git remote add upstream &lt;url&gt;</span>
+  <span class="plain">track the original repo</span>
+  <span class="desc">When working from a fork — adds the original repo as 'upstream'</span>
+</li>
+<li>
+  <span class="sym">git fetch upstream &amp;&amp; git merge upstream/main</span>
+  <span class="plain">sync fork with original</span>
+  <span class="desc">Pulls in changes from the original repo into your local fork</span>
+</li>
+<li>
+  <span class="sym">squash and merge</span>
+  <span class="plain">combine PR commits into one</span>
+  <span class="desc">GitHub merge option — collapses all PR commits into a single commit on main</span>
+</li>
+</ul>
+</div>
+<div class="category" style="--cat-color:#34d399">
+  <div class="cat-header">
+    <span class="cat-index">16</span>
+    <span class="cat-name" id="common_flags">Common Flags</span>
+    <span class="cat-count">5 entries</span>
+  </div>
+  <ul><li class="sub-label">Flags</li>
+<li>
+  <span class="sym">-v / --verbose</span>
+  <span class="plain">show more detail</span>
+  <span class="desc">Works on many commands — e.g. git branch -v shows last commit on each branch</span>
+</li>
+<li>
+  <span class="sym">--dry-run</span>
+  <span class="plain">preview without doing</span>
+  <span class="desc">Available on git clean, git push, etc. — shows what would happen</span>
+</li>
+<li>
+  <span class="sym">-f / --force</span>
+  <span class="plain">override safety checks</span>
+  <span class="desc">Skips protections — use with caution. Prefer --force-with-lease for remote pushes</span>
+</li>
+<li>
+  <span class="sym">--all / -a</span>
+  <span class="plain">include everything</span>
+  <span class="desc">Context-dependent — git branch -a (all branches), git fetch --all (all remotes)</span>
+</li>
+<li>
+  <span class="sym">git --no-pager log</span>
+  <span class="plain">skip the scroll viewer</span>
+  <span class="desc">Prints output directly to terminal instead of opening the pager</span>
+</li>
+</ul>
+</div>
+
+</div>
+
+<script>
+function filterEntries(q) {
+  const query = q.trim().toLowerCase();
+  document.querySelectorAll('.category').forEach(el => {
+    if (!query) { el.classList.remove('hidden'); return; }
+    el.classList.toggle('hidden', !el.textContent.toLowerCase().includes(query));
+  });
+}
+</script>
+</body>
+</html>

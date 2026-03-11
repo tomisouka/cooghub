@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculus I — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0e1016;--panel:#13161e;--border:#1f2330;
+    --accent:#e0a060;--accent2:#7ec8a4;--accent3:#7aaccc;
+    --text:#d0d6e8;--muted:#6a7290;--code-bg:#0a0d14;
+    --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;}
+  body{padding:32px 40px 80px;max-width:960px;margin:0 auto;}
+  h1{font-size:26px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:12px;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+  h2{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px;margin:36px 0 16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .card-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 10px;border-bottom:1px solid var(--border);}
+  td{padding:7px 10px;border-bottom:1px solid #181c26;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
+  pre{font-family:var(--mono);font-size:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.9;color:#b0bcd8;margin:10px 0;}
+  .formula{font-family:var(--mono);font-size:13px;background:var(--code-bg);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;color:var(--text);}
+  .formula .label{color:var(--muted);font-size:11px;display:block;margin-bottom:4px;}
+  .row{display:flex;gap:14px;margin-bottom:14px;}
+  .row .card{flex:1;}
+</style>
+</head>
+<body>
+
+<h1>Calculus I</h1>
+<div class="subtitle">MATH 2413 · Reference Sheet</div>
+
+<!-- LIMITS -->
+<h2>Limits</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Limit Laws</div>
+    <table>
+      <tr><th>Law</th><th>Formula</th></tr>
+      <tr><td>Sum</td><td>lim[f+g] = lim f + lim g</td></tr>
+      <tr><td>Product</td><td>lim[f·g] = lim f · lim g</td></tr>
+      <tr><td>Quotient</td><td>lim[f/g] = lim f / lim g  (lim g ≠ 0)</td></tr>
+      <tr><td>Power</td><td>lim[f(x)ⁿ] = (lim f(x))ⁿ</td></tr>
+      <tr><td>Const</td><td>lim c = c</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Special Limits</div>
+    <div class="formula"><span class="label">Squeeze Theorem</span>g≤f≤h and lim g = lim h = L  →  lim f = L</div>
+    <div class="formula"><span class="label">Fundamental trig limits</span>lim_{x→0} sinx/x = 1
+lim_{x→0} (1−cosx)/x = 0</div>
+    <div class="formula"><span class="label">e definition</span>lim_{n→∞} (1+1/n)ⁿ = e</div>
+  </div>
+</div>
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">L'Hôpital's Rule — for 0/0 or ∞/∞ indeterminate forms</div>
+  <div class="formula">If lim f/g is 0/0 or ∞/∞ → lim f(x)/g(x) = lim f'(x)/g'(x)</div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">Other forms: 0·∞, ∞−∞, 0⁰, 1^∞, ∞⁰ — rewrite first, then apply.</p>
+</div>
+
+<!-- DERIVATIVES -->
+<h2>Derivatives</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Definition &amp; Rules</div>
+    <div class="formula"><span class="label">Limit definition</span>f'(x) = lim_{h→0} [f(x+h)−f(x)] / h</div>
+    <table style="margin-top:10px">
+      <tr><th>Rule</th><th>Formula</th></tr>
+      <tr><td>Power</td><td>d/dx[xⁿ] = nxⁿ⁻¹</td></tr>
+      <tr><td>Constant</td><td>d/dx[c] = 0</td></tr>
+      <tr><td>Sum</td><td>(f±g)' = f'±g'</td></tr>
+      <tr><td>Product</td><td>(fg)' = f'g + fg'</td></tr>
+      <tr><td>Quotient</td><td>(f/g)' = (f'g−fg')/g²</td></tr>
+      <tr><td>Chain</td><td>(f∘g)' = f'(g(x))·g'(x)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Common Derivatives</div>
+    <table>
+      <tr><th>f(x)</th><th>f'(x)</th></tr>
+      <tr><td>sin x</td><td>cos x</td></tr>
+      <tr><td>cos x</td><td>−sin x</td></tr>
+      <tr><td>tan x</td><td>sec² x</td></tr>
+      <tr><td>sec x</td><td>sec x tan x</td></tr>
+      <tr><td>csc x</td><td>−csc x cot x</td></tr>
+      <tr><td>cot x</td><td>−csc² x</td></tr>
+      <tr><td>eˣ</td><td>eˣ</td></tr>
+      <tr><td>aˣ</td><td>aˣ ln a</td></tr>
+      <tr><td>ln x</td><td>1/x</td></tr>
+      <tr><td>arcsin x</td><td>1/√(1−x²)</td></tr>
+      <tr><td>arccos x</td><td>−1/√(1−x²)</td></tr>
+      <tr><td>arctan x</td><td>1/(1+x²)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- APPLICATIONS -->
+<h2>Derivative Applications</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Critical Points &amp; Extrema</div>
+    <table>
+      <tr><th>Step</th><th>Action</th></tr>
+      <tr><td>Find crit pts</td><td>solve f'(x) = 0 or f' undefined</td></tr>
+      <tr><td>1st Deriv Test</td><td>f' changes + to − → local max; − to + → local min</td></tr>
+      <tr><td>2nd Deriv Test</td><td>f''(c)&lt;0 → max; f''(c)&gt;0 → min; =0 → inconclusive</td></tr>
+      <tr><td>Abs extrema</td><td>check critical pts + endpoints on [a,b]</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Curve Sketching Checklist</div>
+    <pre>1. Domain
+2. Intercepts (x,y)
+3. Symmetry (even/odd)
+4. Asymptotes (H, V, slant)
+5. Intervals of increase/decrease (f')
+6. Local extrema
+7. Concavity (f'')
+8. Inflection points (f'' changes sign)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Mean Value &amp; Rolle's</div>
+    <div class="formula"><span class="label">Mean Value Theorem</span>∃ c ∈ (a,b): f'(c) = [f(b)−f(a)] / (b−a)</div>
+    <div class="formula"><span class="label">Rolle's Theorem</span>f(a)=f(b) → ∃ c: f'(c) = 0</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Related Rates &amp; Optimization</div>
+    <pre>Related Rates:
+  Differentiate both sides w.r.t. t
+  Plug in known values last
+
+Optimization:
+  1. Identify objective function
+  2. Find constraint equation
+  3. Substitute to get single-var function
+  4. Find critical points, check endpoints</pre>
+  </div>
+</div>
+
+<!-- INTEGRALS -->
+<h2>Integrals</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Fundamental Theorem of Calculus</div>
+    <div class="formula"><span class="label">FTC Part 1 — Derivative of integral</span>d/dx ∫ₐˣ f(t) dt = f(x)</div>
+    <div class="formula"><span class="label">FTC Part 2 — Evaluation</span>∫ₐᵇ f(x) dx = F(b) − F(a)  where F'=f</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Common Antiderivatives</div>
+    <table>
+      <tr><th>f(x)</th><th>∫f(x) dx</th></tr>
+      <tr><td>xⁿ  (n≠−1)</td><td>xⁿ⁺¹/(n+1) + C</td></tr>
+      <tr><td>1/x</td><td>ln|x| + C</td></tr>
+      <tr><td>eˣ</td><td>eˣ + C</td></tr>
+      <tr><td>aˣ</td><td>aˣ/ln a + C</td></tr>
+      <tr><td>sin x</td><td>−cos x + C</td></tr>
+      <tr><td>cos x</td><td>sin x + C</td></tr>
+      <tr><td>sec² x</td><td>tan x + C</td></tr>
+      <tr><td>1/√(1−x²)</td><td>arcsin x + C</td></tr>
+      <tr><td>1/(1+x²)</td><td>arctan x + C</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-title">u-Substitution</div>
+    <pre>1. Choose u = g(x)
+2. Find du = g'(x) dx
+3. Rewrite integral in terms of u
+4. Integrate
+5. Substitute back
+
+∫f(g(x))g'(x)dx = ∫f(u)du</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Riemann Sum &amp; Area</div>
+    <div class="formula"><span class="label">Left / Right / Midpoint sum</span>Σf(xᵢ*)·Δx  where Δx = (b−a)/n</div>
+    <div class="formula"><span class="label">Area between curves</span>∫ₐᵇ [f(x) − g(x)] dx  (f ≥ g on [a,b])</div>
+    <div class="formula"><span class="label">Net displacement vs distance</span>∫v(t)dt = displacement
+∫|v(t)|dt = total distance</div>
+  </div>
+</div>
+
+</body>
+</html>

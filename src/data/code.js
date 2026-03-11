@@ -1,0 +1,31 @@
+export const CODE_FILES = [
+  // simplyDS
+  { id: "arrays", label: "arrays.cpp", category: "Data Structures", path: "./content/code/simplyDS/arrays.cpp" },
+  { id: "singly", label: "singly.cpp", category: "Data Structures", path: "./content/code/simplyDS/singly.cpp" },
+  { id: "doubly", label: "doubly.cpp", category: "Data Structures", path: "./content/code/simplyDS/doubly.cpp" },
+  { id: "circular", label: "circular.cpp", category: "Data Structures", path: "./content/code/simplyDS/circular.cpp" },
+  { id: "basicTrees", label: "basicTrees.cpp", category: "Data Structures", path: "./content/code/simplyDS/basicTrees.cpp" },
+  { id: "specialTrees", label: "specialTrees.cpp", category: "Data Structures", path: "./content/code/simplyDS/specialTrees.cpp" },
+  { id: "specialPurposeTrees", label: "specialPurposeTrees.cpp", category: "Data Structures", path: "./content/code/simplyDS/specialPurposeTrees.cpp" },
+  { id: "selfBalancing", label: "selfBalancingTrees.cpp", category: "Data Structures", path: "./content/code/simplyDS/selfBalancingTrees.cpp" },
+  { id: "hash_ds", label: "hash.cpp", category: "Data Structures", path: "./content/code/simplyDS/hash.cpp" },
+  { id: "pureGraphs", label: "pureGraphs.cpp", category: "Data Structures", path: "./content/code/simplyDS/pureGraphs.cpp" },
+  { id: "compositeGraphs", label: "compositeGraphs.cpp", category: "Data Structures", path: "./content/code/simplyDS/compositeGraphs.cpp" },
+  { id: "unique_ds", label: "unique.cpp", category: "Data Structures", path: "./content/code/simplyDS/unique.cpp" },
+  { id: "everythingArrays", label: "everythingArrays.cpp", category: "Data Structures", path: "./content/code/simplyDS/everythingArrays.cpp" },
+  // simplyAlgos
+  { id: "sorting", label: "sorting.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/sorting.cpp" },
+  { id: "searching", label: "searching.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/searching.cpp" },
+  { id: "dc", label: "divideConquer.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/divideConquer.cpp" },
+  { id: "dp", label: "dynamicProgramming.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/dynamicProgramming.cpp" },
+  { id: "greedy", label: "greedy.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/greedy.cpp" },
+  { id: "backtrack", label: "backtracking.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/backtracking.cpp" },
+  { id: "graph_algo", label: "graph.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/graph.cpp" },
+  { id: "tree_algo", label: "tree.cpp", category: "Algorithms", path: "./content/code/simplyAlgos/tree.cpp" },
+  // simplyADT
+  { id: "linear_adt", label: "linear.cpp", category: "ADTs", path: "./content/code/simplyADT/linear.cpp" },
+  { id: "trees_adt", label: "trees.cpp", category: "ADTs", path: "./content/code/simplyADT/trees.cpp" },
+  { id: "graph_adt", label: "graph.cpp", category: "ADTs", path: "./content/code/simplyADT/graph.cpp" },
+  { id: "hash_adt", label: "hash.cpp", category: "ADTs", path: "./content/code/simplyADT/hash.cpp" },
+  { id: "special_adt", label: "special.cpp", category: "ADTs", path: "./content/code/simplyADT/special.cpp" },
+];

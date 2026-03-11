@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Precalculus — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0e1016; --panel:#13161e; --border:#1f2330;
+    --accent:#b87fc4; --accent2:#7ec8a4; --accent3:#d4895b;
+    --text:#d0d6e8; --muted:#6a7290; --code-bg:#0a0d14;
+    --mono:'JetBrains Mono',monospace; --sans:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;}
+  body{padding:32px 40px 80px;max-width:960px;margin:0 auto;}
+  h1{font-size:26px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:12px;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+  h2{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px;margin:36px 0 16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .card-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 10px;border-bottom:1px solid var(--border);}
+  td{padding:7px 10px;border-bottom:1px solid #181c26;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
+  pre{font-family:var(--mono);font-size:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.9;color:#b0bcd8;margin:10px 0;}
+  .formula{font-family:var(--mono);font-size:13px;background:var(--code-bg);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;color:var(--text);}
+  .formula .label{color:var(--muted);font-size:11px;display:block;margin-bottom:4px;}
+  .row{display:flex;gap:14px;margin-bottom:14px;}
+  .row .card{flex:1;}
+</style>
+</head>
+<body>
+
+<h1>Precalculus</h1>
+<div class="subtitle">MATH 2312 · Reference Sheet</div>
+
+<!-- ALGEBRA FUNDAMENTALS -->
+<h2>Algebra Fundamentals</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">Factoring Patterns</div>
+    <table>
+      <tr><th>Pattern</th><th>Factored Form</th></tr>
+      <tr><td>a²−b²</td><td>(a+b)(a−b)</td></tr>
+      <tr><td>a²+2ab+b²</td><td>(a+b)²</td></tr>
+      <tr><td>a²−2ab+b²</td><td>(a−b)²</td></tr>
+      <tr><td>a³+b³</td><td>(a+b)(a²−ab+b²)</td></tr>
+      <tr><td>a³−b³</td><td>(a−b)(a²+ab+b²)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Exponent &amp; Log Rules</div>
+    <table>
+      <tr><th>Rule</th><th>Formula</th></tr>
+      <tr><td>Product</td><td>aᵐ·aⁿ = aᵐ⁺ⁿ</td></tr>
+      <tr><td>Quotient</td><td>aᵐ/aⁿ = aᵐ⁻ⁿ</td></tr>
+      <tr><td>Power</td><td>(aᵐ)ⁿ = aᵐⁿ</td></tr>
+      <tr><td>log(xy)</td><td>log x + log y</td></tr>
+      <tr><td>log(x/y)</td><td>log x − log y</td></tr>
+      <tr><td>log(xⁿ)</td><td>n log x</td></tr>
+      <tr><td>Change of base</td><td>log_a(b) = ln b / ln a</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- FUNCTIONS -->
+<h2>Functions</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Transformations of f(x)</div>
+    <table>
+      <tr><th>Form</th><th>Effect</th></tr>
+      <tr><td>f(x) + k</td><td>shift up k</td></tr>
+      <tr><td>f(x) − k</td><td>shift down k</td></tr>
+      <tr><td>f(x + h)</td><td>shift left h</td></tr>
+      <tr><td>f(x − h)</td><td>shift right h</td></tr>
+      <tr><td>a·f(x)</td><td>vertical stretch/compress</td></tr>
+      <tr><td>f(bx)</td><td>horizontal compress/stretch</td></tr>
+      <tr><td>−f(x)</td><td>reflect over x-axis</td></tr>
+      <tr><td>f(−x)</td><td>reflect over y-axis</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Common Functions</div>
+    <table>
+      <tr><th>Function</th><th>Domain / Key Features</th></tr>
+      <tr><td>√x</td><td>x ≥ 0, range [0,∞)</td></tr>
+      <tr><td>|x|</td><td>all ℝ, vertex at (0,0)</td></tr>
+      <tr><td>1/x</td><td>x ≠ 0, asymptotes x=0,y=0</td></tr>
+      <tr><td>eˣ</td><td>all ℝ, range (0,∞), y-int=1</td></tr>
+      <tr><td>ln x</td><td>x > 0, range all ℝ, x-int=1</td></tr>
+      <tr><td>⌊x⌋</td><td>floor — greatest integer ≤ x</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Inverse Functions</div>
+    <div class="formula"><span class="label">Inverse exists iff f is 1-to-1 (passes horizontal line test)</span>f⁻¹(f(x)) = x  and  f(f⁻¹(x)) = x</div>
+    <div class="formula"><span class="label">To find f⁻¹</span>Swap x and y, then solve for y</div>
+    <div class="formula"><span class="label">Graph of f⁻¹</span>Reflection of f over y = x</div>
+  </div>
+</div>
+
+<!-- POLYNOMIALS -->
+<h2>Polynomials &amp; Rational Functions</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">Polynomial Theorems</div>
+    <table>
+      <tr><th>Theorem</th><th>Statement</th></tr>
+      <tr><td>Factor</td><td>(x−c) is factor ↔ f(c) = 0</td></tr>
+      <tr><td>Remainder</td><td>f(x)÷(x−c) has remainder f(c)</td></tr>
+      <tr><td>Rational Root</td><td>p/q where p|aₙ, q|a₀</td></tr>
+      <tr><td>Fundamental</td><td>degree-n poly has exactly n roots (ℂ)</td></tr>
+      <tr><td>Conjugate Pairs</td><td>complex roots come in a±bi pairs</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Rational Function Asymptotes</div>
+    <table>
+      <tr><th>Type</th><th>How to Find</th></tr>
+      <tr><td>Vertical</td><td>x values where denom = 0 (cancel first)</td></tr>
+      <tr><td>Horizontal</td><td>compare degrees of num vs denom</td></tr>
+      <tr><td>Slant/Oblique</td><td>deg(num) = deg(denom)+1: do long div</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px">
+      deg num &lt; denom → y=0<br>
+      deg num = denom → y = leading coeff ratio<br>
+      deg num &gt; denom → no horiz asymptote
+    </div>
+  </div>
+</div>
+
+<!-- TRIGONOMETRY -->
+<h2>Trigonometry</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Unit Circle — Key Values</div>
+    <table>
+      <tr><th>θ (deg)</th><th>θ (rad)</th><th>sin θ</th><th>cos θ</th><th>tan θ</th></tr>
+      <tr><td>0°</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+      <tr><td>30°</td><td>π/6</td><td>1/2</td><td>√3/2</td><td>1/√3</td></tr>
+      <tr><td>45°</td><td>π/4</td><td>√2/2</td><td>√2/2</td><td>1</td></tr>
+      <tr><td>60°</td><td>π/3</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+      <tr><td>90°</td><td>π/2</td><td>1</td><td>0</td><td>undef</td></tr>
+      <tr><td>180°</td><td>π</td><td>0</td><td>−1</td><td>0</td></tr>
+      <tr><td>270°</td><td>3π/2</td><td>−1</td><td>0</td><td>undef</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Trig Identities</div>
+    <div class="formula"><span class="label">Pythagorean</span>sin²θ + cos²θ = 1
+1 + tan²θ = sec²θ
+cot²θ + 1 = csc²θ</div>
+    <div class="formula"><span class="label">Sum / Difference</span>sin(A±B) = sinA cosB ± cosA sinB
+cos(A±B) = cosA cosB ∓ sinA sinB</div>
+    <div class="formula"><span class="label">Double Angle</span>sin(2θ) = 2 sinθ cosθ
+cos(2θ) = cos²θ − sin²θ = 1 − 2sin²θ</div>
+    <div class="formula"><span class="label">Half Angle</span>sin²θ = (1 − cos 2θ)/2
+cos²θ = (1 + cos 2θ)/2</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Sinusoidal Form  y = A sin(Bx + C) + D</div>
+    <table>
+      <tr><th>Parameter</th><th>Effect</th></tr>
+      <tr><td>|A|</td><td>amplitude</td></tr>
+      <tr><td>2π/|B|</td><td>period</td></tr>
+      <tr><td>−C/B</td><td>phase shift (horizontal)</td></tr>
+      <tr><td>D</td><td>vertical shift (midline)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Inverse Trig Ranges</div>
+    <table>
+      <tr><th>Function</th><th>Domain</th><th>Range</th></tr>
+      <tr><td>arcsin</td><td>[−1, 1]</td><td>[−π/2, π/2]</td></tr>
+      <tr><td>arccos</td><td>[−1, 1]</td><td>[0, π]</td></tr>
+      <tr><td>arctan</td><td>all ℝ</td><td>(−π/2, π/2)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Law of Sines &amp; Cosines</div>
+    <div class="formula"><span class="label">Law of Sines</span>a/sinA = b/sinB = c/sinC</div>
+    <div class="formula"><span class="label">Law of Cosines</span>c² = a² + b² − 2ab cosC</div>
+    <div class="formula"><span class="label">Area of Triangle</span>Area = (1/2)ab sinC</div>
+  </div>
+</div>
+
+<!-- CONICS -->
+<h2>Conic Sections</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Circle</div>
+    <div class="formula"><span class="label">Standard form (center h,k)</span>(x−h)² + (y−k)² = r²</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Parabola</div>
+    <div class="formula"><span class="label">Vertical axis</span>y = a(x−h)² + k  (vertex h,k)</div>
+    <div class="formula"><span class="label">Horizontal axis</span>x = a(y−k)² + h</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Ellipse</div>
+    <div class="formula"><span class="label">Horizontal major axis</span>(x−h)²/a² + (y−k)²/b² = 1  (a &gt; b)</div>
+    <div class="formula"><span class="label">Foci at (h ± c, k)</span>c² = a² − b²</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Hyperbola</div>
+    <div class="formula"><span class="label">Horizontal transverse</span>(x−h)²/a² − (y−k)²/b² = 1</div>
+    <div class="formula"><span class="label">Foci / Asymptotes</span>c² = a²+b²  &nbsp;  y−k = ±(b/a)(x−h)</div>
+  </div>
+</div>
+
+</body>
+</html>

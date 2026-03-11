@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Array — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --accent: #e8c547;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 56px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -3px;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+  .big-o-row { font-size: 12px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 600; }
+  .on { color: var(--red);   font-weight: 600; }
+
+  .label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .annotation { font-size: 11px; color: var(--dim); margin-bottom: 20px; line-height: 1.6; }
+  .annotation span { color: var(--accent); }
+
+  .diagram-section { margin-bottom: 52px; }
+
+  /* Array cells */
+  .array-diagram {
+    display: flex;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+
+  .cell { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+  .cell-box {
+    width: 68px;
+    height: 60px;
+    border: 1.5px solid var(--border);
+    border-right: none;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .cell:last-child .cell-box { border-right: 1.5px solid var(--border); }
+
+  .cell-addr {
+    font-size: 9px;
+    color: var(--blue);
+    padding: 3px 0;
+    background: #60a5fa0e;
+    border: 1px solid #60a5fa1a;
+    border-top: none;
+    border-right: none;
+    width: 68px;
+    text-align: center;
+  }
+  .cell:last-child .cell-addr { border-right: 1px solid #60a5fa1a; }
+
+  .cell-index { font-size: 10px; color: var(--dim); margin-top: 7px; text-align: center; }
+
+  /* Color variants */
+  .cell.yellow .cell-box  { background: #e8c54718; border-color: var(--accent); color: var(--accent); }
+  .cell.yellow .cell-addr { background: #e8c54710; border-color: #e8c54728; color: var(--accent); }
+  .cell.green  .cell-box  { background: #6bde8418; border-color: var(--green);  color: var(--green);  }
+  .cell.green  .cell-addr { background: #6bde8410; border-color: #6bde8428; color: var(--green); }
+  .cell.red    .cell-box  { background: #f8717118; border-color: var(--red);    color: var(--red);    }
+  .cell.red    .cell-addr { background: #f8717110; border-color: #f8717128; color: var(--red); }
+  .cell.orange .cell-box  { background: #fb923c18; border-color: var(--orange); color: var(--orange); }
+  .cell.orange .cell-addr { background: #fb923c10; border-color: #fb923c28; color: var(--orange); }
+  .cell.dim    .cell-box  { background: #16192080; border-color: #2a2e3850; color: #3a4052; border-style: dashed; }
+  .cell.dim    .cell-addr { background: transparent; border-color: #2a2e3840; color: #3a4052; border-style: dashed; }
+
+  .caption { font-size: 11px; color: var(--dim); line-height: 1.6; }
+  .caption strong { color: var(--text); }
+
+  .shift-diagram { display: flex; flex-direction: column; gap: 20px; margin-bottom: 10px; }
+  .shift-row { display: flex; align-items: center; gap: 20px; }
+  .shift-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; width: 64px; flex-shrink: 0; text-transform: uppercase; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    border-top: 2px solid var(--accent);
+  }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--red); }
+  .card:nth-child(4) { border-top-color: var(--blue); }
+  .card-title { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 11px; color: var(--dim); line-height: 1.65; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Array<span>.</span></h1>
+    <div class="subtitle">Array-Based List · Data Structures</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">access</span>     <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert end</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert mid</span> <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">remove end</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">remove mid</span> <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">search</span>     <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. Memory layout -->
+<div class="diagram-section">
+  <div class="label">1 — Contiguous Memory Layout</div>
+  <div class="annotation">Elements stored side by side. Each address is <span>base + i × size</span>. Size = 6, Capacity = 8.</div>
+  <div class="array-diagram">
+    <div class="cell"><div class="cell-box">12</div><div class="cell-addr">0x100</div><div class="cell-index">[0]</div></div>
+    <div class="cell"><div class="cell-box">35</div><div class="cell-addr">0x104</div><div class="cell-index">[1]</div></div>
+    <div class="cell"><div class="cell-box">7</div> <div class="cell-addr">0x108</div><div class="cell-index">[2]</div></div>
+    <div class="cell"><div class="cell-box">48</div><div class="cell-addr">0x10C</div><div class="cell-index">[3]</div></div>
+    <div class="cell"><div class="cell-box">21</div><div class="cell-addr">0x110</div><div class="cell-index">[4]</div></div>
+    <div class="cell"><div class="cell-box">9</div> <div class="cell-addr">0x114</div><div class="cell-index">[5]</div></div>
+    <div class="cell dim"><div class="cell-box">—</div><div class="cell-addr">0x118</div><div class="cell-index">[6]</div></div>
+    <div class="cell dim"><div class="cell-box">—</div><div class="cell-addr">0x11C</div><div class="cell-index">[7]</div></div>
+  </div>
+  <div class="caption">Dashed cells are allocated but unused — the array has room to grow without resizing.</div>
+</div>
+
+<hr>
+
+<!-- 2. Direct access -->
+<div class="diagram-section">
+  <div class="label">2 — Direct Access — O(1)</div>
+  <div class="annotation"><span>arr[3]</span> computes address <span>0x100 + 3×4 = 0x10C</span> and jumps directly. No traversal needed.</div>
+  <div class="array-diagram">
+    <div class="cell">       <div class="cell-box">12</div><div class="cell-addr">0x100</div><div class="cell-index">[0]</div></div>
+    <div class="cell">       <div class="cell-box">35</div><div class="cell-addr">0x104</div><div class="cell-index">[1]</div></div>
+    <div class="cell">       <div class="cell-box">7</div> <div class="cell-addr">0x108</div><div class="cell-index">[2]</div></div>
+    <div class="cell yellow"><div class="cell-box">48</div><div class="cell-addr">0x10C</div><div class="cell-index">[3] ← arr[3]</div></div>
+    <div class="cell">       <div class="cell-box">21</div><div class="cell-addr">0x110</div><div class="cell-index">[4]</div></div>
+    <div class="cell">       <div class="cell-box">9</div> <div class="cell-addr">0x114</div><div class="cell-index">[5]</div></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Insert at end -->
+<div class="diagram-section">
+  <div class="label">3 — Insert at End — O(1)</div>
+  <div class="annotation">No shifting needed. Write to <span>arr[size]</span> and increment size.</div>
+  <div class="array-diagram">
+    <div class="cell">      <div class="cell-box">12</div><div class="cell-addr">0x100</div><div class="cell-index">[0]</div></div>
+    <div class="cell">      <div class="cell-box">35</div><div class="cell-addr">0x104</div><div class="cell-index">[1]</div></div>
+    <div class="cell">      <div class="cell-box">7</div> <div class="cell-addr">0x108</div><div class="cell-index">[2]</div></div>
+    <div class="cell">      <div class="cell-box">48</div><div class="cell-addr">0x10C</div><div class="cell-index">[3]</div></div>
+    <div class="cell">      <div class="cell-box">21</div><div class="cell-addr">0x110</div><div class="cell-index">[4]</div></div>
+    <div class="cell">      <div class="cell-box">9</div> <div class="cell-addr">0x114</div><div class="cell-index">[5]</div></div>
+    <div class="cell green"><div class="cell-box">99</div><div class="cell-addr">0x118</div><div class="cell-index">[6] ← new</div></div>
+    <div class="cell dim">  <div class="cell-box">—</div> <div class="cell-addr">0x11C</div><div class="cell-index">[7]</div></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Insert at middle -->
+<div class="diagram-section">
+  <div class="label">4 — Insert at Middle — O(n)</div>
+  <div class="annotation">Inserting 99 at index 2. Elements at [2]→[5] must shift right before the new value can be placed.</div>
+  <div class="shift-diagram">
+    <div class="shift-row">
+      <div class="shift-label">Before</div>
+      <div class="array-diagram" style="margin-bottom:0">
+        <div class="cell">       <div class="cell-box">12</div><div class="cell-index">[0]</div></div>
+        <div class="cell">       <div class="cell-box">35</div><div class="cell-index">[1]</div></div>
+        <div class="cell orange"><div class="cell-box">7</div> <div class="cell-index">[2] →</div></div>
+        <div class="cell orange"><div class="cell-box">48</div><div class="cell-index">[3] →</div></div>
+        <div class="cell orange"><div class="cell-box">21</div><div class="cell-index">[4] →</div></div>
+        <div class="cell orange"><div class="cell-box">9</div> <div class="cell-index">[5] →</div></div>
+        <div class="cell dim">   <div class="cell-box">—</div> <div class="cell-index">[6]</div></div>
+      </div>
+    </div>
+    <div class="shift-row">
+      <div class="shift-label">After</div>
+      <div class="array-diagram" style="margin-bottom:0">
+        <div class="cell">        <div class="cell-box">12</div><div class="cell-index">[0]</div></div>
+        <div class="cell">        <div class="cell-box">35</div><div class="cell-index">[1]</div></div>
+        <div class="cell green">  <div class="cell-box">99</div><div class="cell-index">[2] ← new</div></div>
+        <div class="cell orange"> <div class="cell-box">7</div> <div class="cell-index">[3]</div></div>
+        <div class="cell orange"> <div class="cell-box">48</div><div class="cell-index">[4]</div></div>
+        <div class="cell orange"> <div class="cell-box">21</div><div class="cell-index">[5]</div></div>
+        <div class="cell orange"> <div class="cell-box">9</div> <div class="cell-index">[6]</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption"><strong style="color:var(--orange)">4 elements shifted.</strong> Insert at index 0 is the worst case — shifts everything.</div>
+</div>
+
+<hr>
+
+<!-- 5. Remove at middle -->
+<div class="diagram-section">
+  <div class="label">5 — Remove at Middle — O(n)</div>
+  <div class="annotation">Removing index 2. Everything after it slides left to close the gap.</div>
+  <div class="shift-diagram">
+    <div class="shift-row">
+      <div class="shift-label">Before</div>
+      <div class="array-diagram" style="margin-bottom:0">
+        <div class="cell">       <div class="cell-box">12</div><div class="cell-index">[0]</div></div>
+        <div class="cell">       <div class="cell-box">35</div><div class="cell-index">[1]</div></div>
+        <div class="cell red">   <div class="cell-box">7</div> <div class="cell-index">[2] ✕</div></div>
+        <div class="cell orange"><div class="cell-box">48</div><div class="cell-index">[3] ←</div></div>
+        <div class="cell orange"><div class="cell-box">21</div><div class="cell-index">[4] ←</div></div>
+        <div class="cell orange"><div class="cell-box">9</div> <div class="cell-index">[5] ←</div></div>
+      </div>
+    </div>
+    <div class="shift-row">
+      <div class="shift-label">After</div>
+      <div class="array-diagram" style="margin-bottom:0">
+        <div class="cell">       <div class="cell-box">12</div><div class="cell-index">[0]</div></div>
+        <div class="cell">       <div class="cell-box">35</div><div class="cell-index">[1]</div></div>
+        <div class="cell orange"><div class="cell-box">48</div><div class="cell-index">[2]</div></div>
+        <div class="cell orange"><div class="cell-box">21</div><div class="cell-index">[3]</div></div>
+        <div class="cell orange"><div class="cell-box">9</div> <div class="cell-index">[4]</div></div>
+        <div class="cell dim">   <div class="cell-box">—</div> <div class="cell-index">[5]</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption"><strong style="color:var(--orange)">3 elements shifted.</strong> Remove at index 0 is worst case.</div>
+</div>
+
+<hr>
+
+<!-- Concept cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Direct Access</div>
+    <div class="card-body">Index maps to memory: <code>base + i × size</code>. Jump to any element instantly.</div>
+    <div class="card-o" style="color:var(--green)">O(1)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Insert / Remove End</div>
+    <div class="card-body">Nothing needs to move. Write to last slot, update size.</div>
+    <div class="card-o" style="color:var(--green)">O(1)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Insert / Remove Middle</div>
+    <div class="card-body">Every element after the target must shift. Worst case is index 0.</div>
+    <div class="card-o" style="color:var(--red)">O(n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Fixed Capacity</div>
+    <div class="card-body">When full, allocate a new larger array and copy all elements. Typically doubles in size.</div>
+    <div class="card-o" style="color:var(--blue)">O(n) resize</div>
+  </div>
+</div>
+
+</body>
+</html>

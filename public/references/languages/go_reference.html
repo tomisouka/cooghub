@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Go Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #f5f7f2;
+    --surface: #ffffff;
+    --surface2: #edf0ea;
+    --surface3: #e2e6dd;
+    --border: #d0d6c8;
+    --border2: #b8c2ae;
+    --go: #00add8;
+    --go-dark: #0090b8;
+    --go-dim: rgba(0, 173, 216, 0.1);
+    --go-dim2: rgba(0, 173, 216, 0.18);
+    --gopher: #6db8c4;
+    --text: #1a2018;
+    --text-mid: #3d4a38;
+    --text-dim: #7a8a72;
+    --text-code: #1a4a5a;
+    --green: #2e7d32;
+    --red: #b71c1c;
+    --amber: #e65100;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grid lines background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245, 247, 242, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--text);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    height: 52px;
+    gap: 0;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-go {
+    background: var(--go);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  nav {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 2rem;
+    flex: 1;
+    border-left: 2px solid var(--border2);
+    padding-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.28rem 0.6rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.12s, background 0.12s;
+    letter-spacing: 0.02em;
+  }
+  nav a:hover { color: var(--go-dark); background: var(--go-dim); }
+
+  .hero {
+    padding: 5rem 2rem 3.5rem;
+    max-width: 960px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 2rem;
+  }
+
+  .hero-left {}
+
+  .hero-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--go-dark);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-tag::after {
+    content: '';
+    display: inline-block;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--go);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    color: var(--text);
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
+  }
+
+  h1 span {
+    color: var(--go);
+    display: block;
+  }
+
+  .hero-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+  }
+
+  .hero-meta span::before {
+    content: '// ';
+    color: var(--border2);
+  }
+
+  .hero-gopher {
+    font-size: 7rem;
+    line-height: 1;
+    opacity: 0.15;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 2rem 8rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 2px solid var(--text);
+    border-radius: 0;
+    padding: 1.75rem 2rem;
+    margin-bottom: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.15rem 2rem;
+    position: relative;
+  }
+
+  .toc::before {
+    content: 'package reference';
+    position: absolute;
+    top: -0.65rem;
+    left: 1rem;
+    background: var(--bg);
+    padding: 0 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--go-dark);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .toc a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--text-mid);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: color 0.1s;
+    border-left: 2px solid transparent;
+    padding-left: 0.5rem;
+  }
+  .toc a:hover { color: var(--go-dark); border-left-color: var(--go); }
+  .toc-num { color: var(--border2); min-width: 1.6rem; font-size: 0.62rem; }
+
+  /* Sections */
+  section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 65px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--text);
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    color: var(--go-dark);
+    text-transform: uppercase;
+    margin: 2rem 0 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  h3::before { content: '//'; color: var(--border2); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border: 2px solid var(--text);
+    border-radius: 0;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.96rem; }
+
+  thead { background: var(--text); }
+
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bg);
+    text-align: left;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.8rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-mid);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: var(--go-dim); }
+  tr:hover td:first-child { color: var(--go-dark); }
+
+  td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--go-dark);
+    white-space: nowrap;
+    min-width: 130px;
+    padding: 0.65rem 1.25rem;
+    border-right: 1px solid var(--border);
+    background: rgba(0, 173, 216, 0.03);
+    transition: color 0.15s;
+    font-weight: 500;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82em;
+    color: var(--text-code);
+    background: var(--go-dim);
+    padding: 0.1em 0.38em;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 173, 216, 0.2);
+  }
+
+  .code-block {
+    background: var(--text);
+    border: 2px solid var(--text);
+    border-radius: 0;
+    padding: 1.1rem 1.35rem;
+    margin: 1rem 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83rem;
+    color: #a8d8a8;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.8;
+    tab-size: 4;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: 'go';
+    position: absolute;
+    top: 0.5rem; right: 0.75rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(168, 216, 168, 0.3);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Syntax colors on dark bg */
+  .code-block .cm  { color: #5c7a5c; font-style: italic; }
+  .code-block .kw  { color: #7ec8e3; font-weight: 600; }
+  .code-block .ty  { color: #a8d8a8; font-weight: 500; }
+  .code-block .fn  { color: #ffd580; }
+  .code-block .st  { color: #c8e6a8; }
+  .code-block .nm  { color: #e8d5b0; }
+  .code-block .pk  { color: #7ec8e3; }
+  .code-block .bi  { color: #f0b8a8; }  /* builtins */
+
+  .prose {
+    color: var(--text-mid);
+    margin: 0.75rem 0;
+    line-height: 1.85;
+    font-size: 0.97rem;
+  }
+
+  .prose strong { color: var(--text); font-weight: 600; }
+
+  .plain-def { color: var(--text-dim); font-style: italic; font-size: 0.91rem; }
+  .plain-def-header { color: var(--bg); font-size: 0.62rem; }
+
+  /* Callout */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--go);
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.93rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .callout strong { color: var(--go-dark); }
+  .callout.warn { border-left-color: var(--amber); }
+  .callout.warn strong { color: var(--amber); }
+  .callout.good { border-left-color: var(--green); }
+  .callout.good strong { color: var(--green); }
+
+  /* Tips */
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .tips-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--go);
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    color: var(--text-mid);
+    line-height: 1.65;
+    transition: border-color 0.12s;
+  }
+
+  .tips-list li:hover { border-color: var(--go); }
+
+  .tip-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--go-dark);
+    background: var(--go-dim);
+    border: 1px solid rgba(0, 173, 216, 0.2);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    transition: color 0.12s, border-color 0.12s, background 0.12s;
+    letter-spacing: 0.04em;
+  }
+  .back-top:hover { color: var(--go-dark); border-color: var(--go); background: var(--go-dim); }
+
+  .idx-link {
+    color: var(--go-dark);
+    text-decoration: none;
+    font-size: 0.76rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .idx-link:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    border-top: 2px solid var(--text);
+    letter-spacing: 0.06em;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer span { color: var(--go); }
+
+  @media (max-width: 640px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-gopher { display: none; }
+  }
+</style>
+</head>
+<body id="top">
+
+<header>
+  <span class="logo"><span class="logo-go">Go</span> Quick Reference</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#variables">Variables</a>
+    <a href="#keywords">Keywords</a>
+    <a href="#operators">Operators</a>
+    <a href="#control">Control Flow</a>
+    <a href="#functions">Functions</a>
+    <a href="#pointers">Pointers</a>
+    <a href="#structs">Structs</a>
+    <a href="#interfaces">Interfaces</a>
+    <a href="#errors">Errors</a>
+    <a href="#goroutines">Goroutines</a>
+    <a href="#channels">Channels</a>
+    <a href="#collections">Collections</a>
+    <a href="#packages">Packages</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Systems / Cloud / Tooling</div>
+    <h1>Go<span>Reference</span></h1>
+    <div class="hero-meta">
+      <span>Go 1.21+</span>
+      <span>Concurrency Built-in</span>
+      <span>Fast Compilation</span>
+      <span>Garbage Collected</span>
+    </div>
+  </div>
+  <div class="hero-gopher">🐹</div>
+</div>
+
+<main>
+
+<div class="toc">
+  <div class="toc-title">// Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#types"><span class="toc-num">02</span> Types</a>
+  <a href="#variables"><span class="toc-num">03</span> Variables &amp; Constants</a>
+  <a href="#keywords"><span class="toc-num">04</span> Keywords Reference</a>
+  <a href="#operators"><span class="toc-num">05</span> Operators</a>
+  <a href="#control"><span class="toc-num">06</span> Control Flow</a>
+  <a href="#functions"><span class="toc-num">07</span> Functions</a>
+  <a href="#pointers"><span class="toc-num">08</span> Pointers</a>
+  <a href="#structs"><span class="toc-num">09</span> Structs &amp; Methods</a>
+  <a href="#interfaces"><span class="toc-num">10</span> Interfaces</a>
+  <a href="#errors"><span class="toc-num">11</span> Error Handling</a>
+  <a href="#goroutines"><span class="toc-num">12</span> Goroutines</a>
+  <a href="#channels"><span class="toc-num">13</span> Channels</a>
+  <a href="#collections"><span class="toc-num">14</span> Collections</a>
+  <a href="#packages"><span class="toc-num">15</span> Packages &amp; Modules</a>
+  <a href="#tips"><span class="toc-num">16</span> Tips &amp; Gotchas</a>
+  <a href="#index"><span class="toc-num">17</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-num">01</span><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">Every Go file belongs to a <strong>package</strong>. The <code>main</code> package with a <code>main()</code> function is the program entry point. Go uses <strong>static typing</strong>, compiles to native binaries, and has a garbage collector. No classes, no inheritance — just types, functions, and interfaces.</p>
+
+  <div class="code-block"><span class="pk">package</span> <span class="ty">main</span>
+
+<span class="kw">import</span> <span class="st">"fmt"</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="pk">fmt</span>.<span class="fn">Println</span>(<span class="st">"Hello, World!"</span>)
+}</div>
+
+  <h3>Program Structure</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>package name</td><td class="plain-def">declare which package this is</td><td>First non-comment line in every file; <code>package main</code> for executables</td></tr>
+      <tr><td>import "path"</td><td class="plain-def">bring in a package</td><td>Standard library: <code>"fmt"</code>, <code>"os"</code>; external: module path</td></tr>
+      <tr><td>func main()</td><td class="plain-def">program entry point</td><td>Only in <code>package main</code>; no arguments, no return value</td></tr>
+      <tr><td>// comment</td><td class="plain-def">human note, ignored</td><td>Also <code>/* block */</code>; doc comments on exported names start with the name</td></tr>
+      <tr><td>init()</td><td class="plain-def">package initialization</td><td>Runs before <code>main()</code>; multiple allowed per file; cannot be called</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Go Tooling</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>go run file.go</td><td class="plain-def">compile and run</td><td>Temporary binary; great for quick tests</td></tr>
+      <tr><td>go build</td><td class="plain-def">compile to binary</td><td>Outputs executable in current dir; <code>-o name</code> to name it</td></tr>
+      <tr><td>go test ./...</td><td class="plain-def">run all tests</td><td>Tests in <code>_test.go</code> files; <code>-v</code> for verbose, <code>-race</code> for race detector</td></tr>
+      <tr><td>go get pkg</td><td class="plain-def">add a dependency</td><td>Updates <code>go.mod</code> and <code>go.sum</code></td></tr>
+      <tr><td>go mod init name</td><td class="plain-def">create a new module</td><td>Creates <code>go.mod</code>; name is usually <code>github.com/user/repo</code></td></tr>
+      <tr><td>go mod tidy</td><td class="plain-def">clean up dependencies</td><td>Adds missing, removes unused</td></tr>
+      <tr><td>go fmt ./...</td><td class="plain-def">auto-format all code</td><td>Non-negotiable in Go — always run it</td></tr>
+      <tr><td>go vet ./...</td><td class="plain-def">lint for common mistakes</td><td>Catches bugs gofmt can't</td></tr>
+      <tr><td>go doc pkg</td><td class="plain-def">read package docs</td><td><code>go doc fmt.Println</code> for specific symbol</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 02 Types -->
+<section id="types">
+  <div class="section-header"><span class="section-num">02</span><h2>Types</h2></div>
+  <p class="prose">Go has a rich set of built-in types. Types are <strong>static and explicit</strong>, but short variable declarations (<code>:=</code>) let the compiler infer the type most of the time.</p>
+
+  <h3>Numeric Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Size</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>int</td><td class="plain-def">signed integer</td><td>32 or 64-bit</td><td>Platform-sized; use for most integers</td></tr>
+      <tr><td>int8 / int16 / int32 / int64</td><td class="plain-def">fixed-size signed integers</td><td>1/2/4/8 B</td><td>Use when exact size matters; <code>int32</code> = rune alias</td></tr>
+      <tr><td>uint / uint8 / uint16 / uint32 / uint64</td><td class="plain-def">unsigned integers</td><td>varies</td><td><code>uint8</code> = <code>byte</code> alias; commonly used for raw bytes</td></tr>
+      <tr><td>uintptr</td><td class="plain-def">pointer-sized unsigned int</td><td>4 or 8 B</td><td>For low-level pointer arithmetic (unsafe)</td></tr>
+      <tr><td>float32 / float64</td><td class="plain-def">floating point</td><td>4 / 8 B</td><td><code>float64</code> is the default; prefer it over <code>float32</code></td></tr>
+      <tr><td>complex64 / complex128</td><td class="plain-def">complex numbers</td><td>8 / 16 B</td><td><code>complex(r, i)</code>, <code>real(c)</code>, <code>imag(c)</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Other Built-in Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>bool</td><td class="plain-def">true or false</td><td>Not an integer — can't use 0/1 for bool in Go</td></tr>
+      <tr><td>string</td><td class="plain-def">immutable UTF-8 text</td><td>Sequence of bytes; <code>len(s)</code> = bytes; <code>[]rune(s)</code> for Unicode chars</td></tr>
+      <tr><td>byte</td><td class="plain-def">alias for uint8</td><td>For raw binary data; <code>[]byte</code> is mutable byte buffer</td></tr>
+      <tr><td>rune</td><td class="plain-def">alias for int32</td><td>Represents a Unicode code point; use for character iteration</td></tr>
+      <tr><td>error</td><td class="plain-def">built-in error interface</td><td><code>errors.New("msg")</code> or <code>fmt.Errorf("...")</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Composite Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>[N]T</td><td class="plain-def">fixed-size array</td><td>Size is part of the type: <code>[3]int ≠ [4]int</code>; value type (copied)</td></tr>
+      <tr><td>[]T</td><td class="plain-def">slice — dynamic array view</td><td>Reference to underlying array; has len and cap; most common collection</td></tr>
+      <tr><td>map[K]V</td><td class="plain-def">hash table</td><td>Must be initialized with <code>make</code> or literal before use</td></tr>
+      <tr><td>struct { … }</td><td class="plain-def">named group of fields</td><td>Value type; aggregates multiple values</td></tr>
+      <tr><td>*T</td><td class="plain-def">pointer to T</td><td>Zero value is <code>nil</code>; use <code>&amp;x</code> to get pointer, <code>*p</code> to dereference</td></tr>
+      <tr><td>func(…) …</td><td class="plain-def">function type</td><td>First-class values; can be stored, passed, returned</td></tr>
+      <tr><td>chan T</td><td class="plain-def">channel for goroutine comms</td><td>Typed pipe; <code>make(chan T)</code> or <code>make(chan T, N)</code> for buffered</td></tr>
+      <tr><td>interface { … }</td><td class="plain-def">set of method signatures</td><td>Satisfied implicitly; <code>any</code> = <code>interface{}</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 03 Variables -->
+<section id="variables">
+  <div class="section-header"><span class="section-num">03</span><h2>Variables &amp; Constants</h2></div>
+
+  <div class="code-block"><span class="cm">// var declaration — explicit type</span>
+<span class="kw">var</span> x <span class="ty">int</span>           <span class="cm">// zero value: 0</span>
+<span class="kw">var</span> s <span class="ty">string</span>        <span class="cm">// zero value: ""</span>
+<span class="kw">var</span> b <span class="ty">bool</span>          <span class="cm">// zero value: false</span>
+<span class="kw">var</span> p *<span class="ty">int</span>          <span class="cm">// zero value: nil</span>
+
+<span class="cm">// Short variable declaration (inside functions only)</span>
+x := <span class="nm">42</span>             <span class="cm">// type inferred as int</span>
+s := <span class="st">"hello"</span>        <span class="cm">// type inferred as string</span>
+a, b := <span class="nm">1</span>, <span class="nm">2</span>        <span class="cm">// multiple assignment</span>
+i, err := <span class="fn">doThing</span>() <span class="cm">// common pattern with error</span>
+
+<span class="cm">// var block</span>
+<span class="kw">var</span> (
+    name  <span class="ty">string</span> = <span class="st">"Alice"</span>
+    age   <span class="ty">int</span>    = <span class="nm">30</span>
+    score <span class="ty">float64</span>
+)
+
+<span class="cm">// Constants — evaluated at compile time</span>
+<span class="kw">const</span> Pi = <span class="nm">3.14159</span>
+<span class="kw">const</span> MaxSize <span class="ty">int</span> = <span class="nm">100</span>
+<span class="kw">const</span> (
+    StatusOK    = <span class="nm">200</span>
+    StatusNotFound = <span class="nm">404</span>
+)
+
+<span class="cm">// iota — auto-incrementing const enumerator</span>
+<span class="kw">type</span> <span class="ty">Weekday</span> <span class="ty">int</span>
+<span class="kw">const</span> (
+    Sunday <span class="ty">Weekday</span> = <span class="bi">iota</span> <span class="cm">// 0</span>
+    Monday                  <span class="cm">// 1</span>
+    Tuesday                 <span class="cm">// 2</span>
+    <span class="cm">// ...</span>
+)
+
+<span class="cm">// Blank identifier — discard a value</span>
+_, err = <span class="fn">fmt.Println</span>(<span class="st">"hi"</span>)  <span class="cm">// ignore return value</span></div>
+
+  <h3>Zero Values</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Zero Value</th></tr></thead>
+    <tbody>
+      <tr><td>int, float64…</td><td class="plain-def">numeric types</td><td><code>0</code></td></tr>
+      <tr><td>bool</td><td class="plain-def">boolean</td><td><code>false</code></td></tr>
+      <tr><td>string</td><td class="plain-def">string</td><td><code>""</code> (empty string)</td></tr>
+      <tr><td>pointers, slices, maps, channels, funcs, interfaces</td><td class="plain-def">reference types</td><td><code>nil</code></td></tr>
+      <tr><td>struct</td><td class="plain-def">struct</td><td>Each field set to its zero value</td></tr>
+      <tr><td>array</td><td class="plain-def">array</td><td>Each element set to its zero value</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 04 Keywords -->
+<section id="keywords">
+  <div class="section-header"><span class="section-num">04</span><h2>Keywords Reference</h2></div>
+  <p class="prose">Go has just <strong>25 keywords</strong> — one of the smallest sets of any modern language. Simplicity is a core design goal.</p>
+
+  <h3>Declaration Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>var</td><td class="plain-def">declare a variable</td><td>Package or function scope; explicit type or inferred from init value</td></tr>
+      <tr><td>const</td><td class="plain-def">declare a constant</td><td>Compile-time only; untyped by default unless explicit type given</td></tr>
+      <tr><td>type</td><td class="plain-def">declare a new type</td><td><code>type Celsius float64</code>; creates distinct type, not just alias</td></tr>
+      <tr><td>func</td><td class="plain-def">declare a function</td><td><code>func name(params) returnType { }</code></td></tr>
+      <tr><td>package</td><td class="plain-def">declare the package</td><td>Must be first statement; <code>main</code> for executables</td></tr>
+      <tr><td>import</td><td class="plain-def">import packages</td><td>Unused imports are compile errors; use <code>_</code> to import for side effects</td></tr>
+      <tr><td>struct</td><td class="plain-def">define a struct type</td><td><code>type Point struct { X, Y float64 }</code></td></tr>
+      <tr><td>interface</td><td class="plain-def">define an interface type</td><td><code>type Writer interface { Write([]byte) (int, error) }</code></td></tr>
+      <tr><td>map</td><td class="plain-def">hash map type</td><td><code>map[string]int</code>; must be made with <code>make</code> or literal</td></tr>
+      <tr><td>chan</td><td class="plain-def">channel type</td><td><code>chan int</code>; <code>&lt;-chan</code> (receive-only); <code>chan&lt;-</code> (send-only)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Control Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>if / else</td><td class="plain-def">conditional</td><td>Init statement allowed: <code>if v, err := f(); err != nil { }</code></td></tr>
+      <tr><td>for</td><td class="plain-def">the only loop keyword</td><td>Classic, while-style, range-style, and infinite forms</td></tr>
+      <tr><td>range</td><td class="plain-def">iterate over a collection</td><td>Works on slices, arrays, maps, strings, channels</td></tr>
+      <tr><td>switch</td><td class="plain-def">multi-way conditional</td><td>No fall-through by default; cases are exhaustive; no parens needed</td></tr>
+      <tr><td>case</td><td class="plain-def">match arm in switch/select</td><td>Can list multiple values: <code>case 1, 2, 3:</code></td></tr>
+      <tr><td>default</td><td class="plain-def">fallback in switch/select</td><td>Optional; runs if no case matches</td></tr>
+      <tr><td>fallthrough</td><td class="plain-def">fall to next case</td><td>Explicit; must be last statement in a case</td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop or switch</td><td>Can target a label: <code>break outer</code></td></tr>
+      <tr><td>continue</td><td class="plain-def">next loop iteration</td><td>Can target a label: <code>continue outer</code></td></tr>
+      <tr><td>goto</td><td class="plain-def">jump to label</td><td>Rare; can't jump over variable declarations</td></tr>
+      <tr><td>return</td><td class="plain-def">exit function</td><td>Named return values: <code>func f() (n int, err error)</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Concurrency &amp; Special Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>go</td><td class="plain-def">launch a goroutine</td><td><code>go f()</code> — starts f concurrently; returns immediately</td></tr>
+      <tr><td>select</td><td class="plain-def">wait on multiple channels</td><td>Like switch, but for channel operations; picks ready case randomly</td></tr>
+      <tr><td>defer</td><td class="plain-def">run at function exit</td><td>LIFO order; runs even if panic; essential for cleanup</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 05 Operators -->
+<section id="operators">
+  <div class="section-header"><span class="section-num">05</span><h2>Operators</h2></div>
+
+  <h3>Arithmetic &amp; Assignment</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>+ - * / %</td><td class="plain-def">arithmetic</td><td>Integer division truncates; <code>+</code> also concatenates strings</td></tr>
+      <tr><td>++ --</td><td class="plain-def">increment / decrement</td><td>Statement only — not an expression: <code>i++</code> ok, <code>x = i++</code> not ok</td></tr>
+      <tr><td>= += -= *= /= %=</td><td class="plain-def">assignment operators</td><td>Standard compound assignments</td></tr>
+      <tr><td>&amp;= |= ^= &lt;&lt;= &gt;&gt;= &amp;^=</td><td class="plain-def">bitwise assignments</td><td><code>&amp;^=</code> is bit-clear (AND NOT)</td></tr>
+      <tr><td>:=</td><td class="plain-def">short variable declaration</td><td>Declares AND assigns; at least one new variable on left</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comparison &amp; Logical</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>== !=</td><td class="plain-def">equal / not equal</td><td>Structs comparable if all fields are; slices/maps not directly comparable</td></tr>
+      <tr><td>&lt; &gt; &lt;= &gt;=</td><td class="plain-def">ordered comparison</td><td>Works on numerics and strings</td></tr>
+      <tr><td>&amp;&amp; ||</td><td class="plain-def">logical AND / OR</td><td>Short-circuit; only for <code>bool</code></td></tr>
+      <tr><td>!</td><td class="plain-def">logical NOT</td><td>Only for <code>bool</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Bitwise &amp; Special</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&amp;</td><td class="plain-def">bitwise AND / address-of</td><td><code>a &amp; b</code> or <code>&amp;x</code> (pointer to x)</td></tr>
+      <tr><td>|</td><td class="plain-def">bitwise OR</td><td><code>a | b</code></td></tr>
+      <tr><td>^</td><td class="plain-def">bitwise XOR / complement</td><td><code>a ^ b</code> or unary <code>^x</code> (bitwise NOT)</td></tr>
+      <tr><td>&amp;^</td><td class="plain-def">bit clear (AND NOT)</td><td><code>a &amp;^ b</code> — clears bits in a where b has 1s</td></tr>
+      <tr><td>&lt;&lt; &gt;&gt;</td><td class="plain-def">bit shift</td><td><code>1 &lt;&lt; 10 == 1024</code></td></tr>
+      <tr><td>*</td><td class="plain-def">dereference / multiply</td><td><code>*p</code> = value at pointer; <code>a * b</code> = multiply</td></tr>
+      <tr><td>&lt;-</td><td class="plain-def">channel send / receive</td><td><code>ch &lt;- v</code> (send); <code>v := &lt;-ch</code> (receive)</td></tr>
+      <tr><td>...</td><td class="plain-def">variadic / spread</td><td><code>func f(args ...int)</code>; <code>f(s...)</code> to spread a slice</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 06 Control Flow -->
+<section id="control">
+  <div class="section-header"><span class="section-num">06</span><h2>Control Flow</h2></div>
+  <p class="prose">Go has <strong>one loop keyword</strong> (<code>for</code>), no while/do-while. Switch cases don't fall through by default. Curly braces are always required.</p>
+
+  <div class="code-block"><span class="cm">// if — parens not required, braces always required</span>
+<span class="kw">if</span> x > <span class="nm">0</span> {
+    <span class="fn">fmt.Println</span>(<span class="st">"positive"</span>)
+} <span class="kw">else if</span> x < <span class="nm">0</span> {
+    <span class="fn">fmt.Println</span>(<span class="st">"negative"</span>)
+} <span class="kw">else</span> {
+    <span class="fn">fmt.Println</span>(<span class="st">"zero"</span>)
+}
+
+<span class="cm">// if with init statement — v scoped to the if block</span>
+<span class="kw">if</span> v, err := <span class="fn">strconv.Atoi</span>(<span class="st">"42"</span>); err == <span class="bi">nil</span> {
+    <span class="fn">fmt.Println</span>(v)
+}
+
+<span class="cm">// switch — no fallthrough by default; cases are NOT exclusive integers</span>
+<span class="kw">switch</span> os {
+<span class="kw">case</span> <span class="st">"darwin"</span>:
+    <span class="fn">fmt.Println</span>(<span class="st">"macOS"</span>)
+<span class="kw">case</span> <span class="st">"linux"</span>, <span class="st">"freebsd"</span>:  <span class="cm">// multiple values in one case</span>
+    <span class="fn">fmt.Println</span>(<span class="st">"Unix-like"</span>)
+<span class="kw">default</span>:
+    <span class="fn">fmt.Println</span>(<span class="st">"other"</span>)
+}
+
+<span class="cm">// switch with no condition — like if-else chain</span>
+<span class="kw">switch</span> {
+<span class="kw">case</span> t.Hour() < <span class="nm">12</span>:  <span class="fn">fmt.Println</span>(<span class="st">"morning"</span>)
+<span class="kw">case</span> t.Hour() < <span class="nm">17</span>:  <span class="fn">fmt.Println</span>(<span class="st">"afternoon"</span>)
+<span class="kw">default</span>:              <span class="fn">fmt.Println</span>(<span class="st">"evening"</span>)
+}
+
+<span class="cm">// for — the only loop. Classic form:</span>
+<span class="kw">for</span> i := <span class="nm">0</span>; i < <span class="nm">10</span>; i++ { }
+
+<span class="cm">// while-style (condition only)</span>
+<span class="kw">for</span> n < <span class="nm">100</span> { n *= <span class="nm">2</span> }
+
+<span class="cm">// infinite loop</span>
+<span class="kw">for</span> { <span class="cm">/* break to exit */</span> }
+
+<span class="cm">// range — iterate over slice, array, map, string, or channel</span>
+<span class="kw">for</span> i, v := <span class="kw">range</span> mySlice  { <span class="cm">/* index, value */</span> }
+<span class="kw">for</span> k, v := <span class="kw">range</span> myMap    { <span class="cm">/* key, value */</span>   }
+<span class="kw">for</span> i, ch := <span class="kw">range</span> <span class="st">"hello"</span> { <span class="cm">/* index, rune */</span>  }
+<span class="kw">for</span> v := <span class="kw">range</span> myChan      { <span class="cm">/* value from channel (blocks until close) */</span> }
+<span class="kw">for</span> _, v := <span class="kw">range</span> mySlice  { <span class="cm">/* value only (ignore index) */</span> }
+
+<span class="cm">// Labels for nested loops</span>
+<span class="fn">outer:</span>
+    <span class="kw">for</span> i := <span class="nm">0</span>; i < <span class="nm">5</span>; i++ {
+        <span class="kw">for</span> j := <span class="nm">0</span>; j < <span class="nm">5</span>; j++ {
+            <span class="kw">if</span> i == j { <span class="kw">break</span> outer }
+        }
+    }</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 07 Functions -->
+<section id="functions">
+  <div class="section-header"><span class="section-num">07</span><h2>Functions</h2></div>
+  <p class="prose">Functions are <strong>first-class values</strong> in Go. They can return multiple values — conventionally used to return a result and an error. Deferred calls run in LIFO order when the function exits.</p>
+
+  <div class="code-block"><span class="cm">// Basic function</span>
+<span class="kw">func</span> <span class="fn">add</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">return</span> a + b
+}
+
+<span class="cm">// Multiple return values — very idiomatic Go</span>
+<span class="kw">func</span> <span class="fn">divide</span>(a, b <span class="ty">float64</span>) (<span class="ty">float64</span>, <span class="ty">error</span>) {
+    <span class="kw">if</span> b == <span class="nm">0</span> {
+        <span class="kw">return</span> <span class="nm">0</span>, <span class="fn">fmt.Errorf</span>(<span class="st">"division by zero"</span>)
+    }
+    <span class="kw">return</span> a / b, <span class="bi">nil</span>
+}
+
+result, err := <span class="fn">divide</span>(<span class="nm">10</span>, <span class="nm">2</span>)
+<span class="kw">if</span> err != <span class="bi">nil</span> { <span class="fn">log.Fatal</span>(err) }
+
+<span class="cm">// Named return values — useful for documentation; defer can modify them</span>
+<span class="kw">func</span> <span class="fn">minMax</span>(arr []<span class="ty">int</span>) (min, max <span class="ty">int</span>) {
+    min, max = arr[<span class="nm">0</span>], arr[<span class="nm">0</span>]
+    <span class="kw">for</span> _, v := <span class="kw">range</span> arr {
+        <span class="kw">if</span> v < min { min = v }
+        <span class="kw">if</span> v > max { max = v }
+    }
+    <span class="kw">return</span>  <span class="cm">// bare return — returns min and max</span>
+}
+
+<span class="cm">// Variadic function</span>
+<span class="kw">func</span> <span class="fn">sum</span>(nums ...<span class="ty">int</span>) <span class="ty">int</span> {
+    total := <span class="nm">0</span>
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums { total += n }
+    <span class="kw">return</span> total
+}
+<span class="fn">sum</span>(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>)
+s := []<span class="ty">int</span>{<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>}
+<span class="fn">sum</span>(s...)   <span class="cm">// spread slice into variadic</span>
+
+<span class="cm">// First-class functions and closures</span>
+<span class="fn">apply</span> := <span class="kw">func</span>(f <span class="kw">func</span>(<span class="ty">int</span>) <span class="ty">int</span>, x <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> f(x) }
+
+<span class="kw">func</span> <span class="fn">makeCounter</span>() <span class="kw">func</span>() <span class="ty">int</span> {
+    n := <span class="nm">0</span>
+    <span class="kw">return func</span>() <span class="ty">int</span> { n++; <span class="kw">return</span> n }  <span class="cm">// closes over n</span>
+}
+
+<span class="cm">// defer — runs at function exit, LIFO order</span>
+<span class="kw">func</span> <span class="fn">readFile</span>(path <span class="ty">string</span>) <span class="ty">error</span> {
+    f, err := <span class="fn">os.Open</span>(path)
+    <span class="kw">if</span> err != <span class="bi">nil</span> { <span class="kw">return</span> err }
+    <span class="kw">defer</span> f.<span class="fn">Close</span>()  <span class="cm">// guaranteed to run, even on early return</span>
+    <span class="cm">// ... read f ...</span>
+    <span class="kw">return nil</span>
+}
+
+<span class="cm">// panic and recover</span>
+<span class="kw">func</span> <span class="fn">safeDiv</span>(a, b <span class="ty">int</span>) (<span class="ty">result int</span>, err <span class="ty">error</span>) {
+    <span class="kw">defer func</span>() {
+        <span class="kw">if</span> r := <span class="bi">recover</span>(); r != <span class="bi">nil</span> {
+            err = <span class="fn">fmt.Errorf</span>(<span class="st">"panic: %v"</span>, r)
+        }
+    }()
+    <span class="kw">return</span> a / b, <span class="bi">nil</span>
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 08 Pointers -->
+<section id="pointers">
+  <div class="section-header"><span class="section-num">08</span><h2>Pointers</h2></div>
+  <p class="prose">Go has pointers but <strong>no pointer arithmetic</strong>. Pointers are simpler than C — you mostly use them to allow functions to mutate a value or to avoid copying large structs.</p>
+
+  <div class="code-block"><span class="kw">var</span> x <span class="ty">int</span> = <span class="nm">42</span>
+p := &x          <span class="cm">// p is *int — pointer to x</span>
+<span class="fn">fmt.Println</span>(*p)  <span class="cm">// 42 — dereference</span>
+*p = <span class="nm">100</span>         <span class="cm">// x is now 100</span>
+
+<span class="cm">// new — allocate zeroed value, return pointer</span>
+p2 := <span class="bi">new</span>(<span class="ty">int</span>)  <span class="cm">// *int pointing to 0</span>
+*p2 = <span class="nm">7</span>
+
+<span class="cm">// Pointer to struct — Go auto-dereferences fields</span>
+<span class="kw">type</span> <span class="ty">Point</span> <span class="kw">struct</span> { X, Y <span class="ty">int</span> }
+p3 := &<span class="ty">Point</span>{<span class="nm">1</span>, <span class="nm">2</span>}
+p3.X = <span class="nm">10</span>         <span class="cm">// same as (*p3).X = 10 — auto-deref</span>
+
+<span class="cm">// Pointer method receiver — allows mutation</span>
+<span class="kw">func</span> (pt *<span class="ty">Point</span>) <span class="fn">Scale</span>(factor <span class="ty">int</span>) {
+    pt.X *= factor
+    pt.Y *= factor
+}
+
+<span class="cm">// nil pointer — check before dereferencing!</span>
+<span class="kw">var</span> ptr *<span class="ty">int</span>       <span class="cm">// nil</span>
+<span class="kw">if</span> ptr != <span class="bi">nil</span> {
+    <span class="fn">fmt.Println</span>(*ptr)
+}</div>
+
+  <div class="callout warn"><strong>No pointer arithmetic:</strong> Go deliberately omits pointer arithmetic. If you need it, you're likely in <code>unsafe</code> territory. Use slices instead of pointer + offset patterns.</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 09 Structs -->
+<section id="structs">
+  <div class="section-header"><span class="section-num">09</span><h2>Structs &amp; Methods</h2></div>
+  <p class="prose">Go has no classes. <strong>Methods are functions with a receiver</strong> attached to a type. Composition over inheritance — embed types to reuse behavior.</p>
+
+  <div class="code-block"><span class="cm">// Struct definition</span>
+<span class="kw">type</span> <span class="ty">Person</span> <span class="kw">struct</span> {
+    Name string
+    Age  <span class="ty">int</span>
+    addr <span class="ty">address</span>   <span class="cm">// unexported field (lowercase)</span>
+}
+
+<span class="cm">// Struct literals</span>
+p1 := <span class="ty">Person</span>{Name: <span class="st">"Alice"</span>, Age: <span class="nm">30</span>}  <span class="cm">// named — preferred</span>
+p2 := <span class="ty">Person</span>{<span class="st">"Bob"</span>, <span class="nm">25</span>, <span class="ty">address</span>{}}    <span class="cm">// positional — fragile</span>
+
+<span class="cm">// Methods — value receiver (gets copy)</span>
+<span class="kw">func</span> (p <span class="ty">Person</span>) <span class="fn">Greet</span>() <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="fn">fmt.Sprintf</span>(<span class="st">"Hi, I'm %s"</span>, p.Name)
+}
+
+<span class="cm">// Methods — pointer receiver (can mutate)</span>
+<span class="kw">func</span> (p *<span class="ty">Person</span>) <span class="fn">Birthday</span>() {
+    p.Age++
+}
+
+<span class="cm">// Embedding — compose behavior</span>
+<span class="kw">type</span> <span class="ty">Employee</span> <span class="kw">struct</span> {
+    <span class="ty">Person</span>          <span class="cm">// embedded — Employee inherits Person's methods</span>
+    Company <span class="ty">string</span>
+}
+
+e := <span class="ty">Employee</span>{Person: <span class="ty">Person</span>{Name: <span class="st">"Carol"</span>, Age: <span class="nm">28</span>}, Company: <span class="st">"Acme"</span>}
+e.<span class="fn">Greet</span>()  <span class="cm">// promoted from Person</span>
+e.<span class="fn">Birthday</span>()
+
+<span class="cm">// Anonymous struct — great for one-off shapes</span>
+point := <span class="kw">struct</span>{ X, Y <span class="ty">int</span> }{X: <span class="nm">1</span>, Y: <span class="nm">2</span>}
+
+<span class="cm">// Struct tags — metadata used by encoding/json, etc.</span>
+<span class="kw">type</span> <span class="ty">User</span> <span class="kw">struct</span> {
+    ID    <span class="ty">int</span>    `json:"id"`
+    Email <span class="ty">string</span> `json:"email,omitempty"`
+    pass  <span class="ty">string</span>  <span class="cm">// no tag; unexported — won't be serialized</span>
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 10 Interfaces -->
+<section id="interfaces">
+  <div class="section-header"><span class="section-num">10</span><h2>Interfaces</h2></div>
+  <p class="prose">Interfaces in Go are <strong>satisfied implicitly</strong> — a type implements an interface by having the required methods, no declaration needed. This enables duck typing with static safety.</p>
+
+  <div class="code-block"><span class="cm">// Define an interface</span>
+<span class="kw">type</span> <span class="ty">Animal</span> <span class="kw">interface</span> {
+    <span class="fn">Sound</span>() <span class="ty">string</span>
+    <span class="fn">Name</span>()  <span class="ty">string</span>
+}
+
+<span class="cm">// Types implicitly satisfy the interface (no "implements" keyword)</span>
+<span class="kw">type</span> <span class="ty">Dog</span> <span class="kw">struct</span>{}
+<span class="kw">func</span> (d <span class="ty">Dog</span>) <span class="fn">Sound</span>() <span class="ty">string</span> { <span class="kw">return</span> <span class="st">"Woof"</span> }
+<span class="kw">func</span> (d <span class="ty">Dog</span>) <span class="fn">Name</span>()  <span class="ty">string</span> { <span class="kw">return</span> <span class="st">"Dog"</span>  }
+<span class="cm">// Dog now satisfies Animal — no explicit declaration</span>
+
+<span class="cm">// Use the interface</span>
+<span class="kw">func</span> <span class="fn">describe</span>(a <span class="ty">Animal</span>) {
+    <span class="fn">fmt.Printf</span>(<span class="st">"%s says %s\n"</span>, a.<span class="fn">Name</span>(), a.<span class="fn">Sound</span>())
+}
+<span class="fn">describe</span>(<span class="ty">Dog</span>{})
+
+<span class="cm">// Type assertion — extract the concrete type</span>
+<span class="kw">var</span> a <span class="ty">Animal</span> = <span class="ty">Dog</span>{}
+d, ok := a.(<span class="ty">Dog</span>)   <span class="cm">// ok = true; d is Dog</span>
+<span class="kw">if</span> !ok { <span class="cm">/* a is not a Dog */</span> }
+
+<span class="cm">// Type switch — dispatch on concrete type</span>
+<span class="kw">switch</span> v := val.(<span class="kw">type</span>) {
+<span class="kw">case</span> <span class="ty">int</span>:     <span class="fn">fmt.Println</span>(<span class="st">"int:"</span>, v)
+<span class="kw">case</span> <span class="ty">string</span>:  <span class="fn">fmt.Println</span>(<span class="st">"string:"</span>, v)
+<span class="kw">case</span> <span class="ty">Dog</span>:     <span class="fn">fmt.Println</span>(<span class="st">"Dog:"</span>, v.<span class="fn">Name</span>())
+<span class="kw">default</span>:       <span class="fn">fmt.Println</span>(<span class="st">"unknown"</span>)
+}
+
+<span class="cm">// Empty interface — holds any value (pre-generics: any = interface{})</span>
+<span class="kw">var</span> anything <span class="ty">any</span> = <span class="nm">42</span>
+anything = <span class="st">"now a string"</span>
+
+<span class="cm">// Key standard interfaces</span>
+<span class="cm">// error:       Error() string</span>
+<span class="cm">// fmt.Stringer: String() string  (used by fmt.Println etc.)</span>
+<span class="cm">// io.Reader:   Read([]byte) (int, error)</span>
+<span class="cm">// io.Writer:   Write([]byte) (int, error)</span>
+<span class="cm">// io.Closer:   Close() error</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 11 Errors -->
+<section id="errors">
+  <div class="section-header"><span class="section-num">11</span><h2>Error Handling</h2></div>
+  <p class="prose">Errors are <strong>values</strong> in Go — just a type implementing the <code>error</code> interface. There are no exceptions. Functions return errors as the last return value; callers check explicitly.</p>
+
+  <div class="code-block"><span class="cm">// The error interface: type error interface { Error() string }</span>
+
+<span class="cm">// Creating errors</span>
+err1 := <span class="pk">errors</span>.<span class="fn">New</span>(<span class="st">"something went wrong"</span>)
+err2 := <span class="fn">fmt.Errorf</span>(<span class="st">"file %s: %w"</span>, path, err1)  <span class="cm">// %w wraps the error</span>
+
+<span class="cm">// Checking errors</span>
+result, err := <span class="fn">someOperation</span>()
+<span class="kw">if</span> err != <span class="bi">nil</span> {
+    <span class="kw">return</span> <span class="fn">fmt.Errorf</span>(<span class="st">"operation failed: %w"</span>, err)
+}
+
+<span class="cm">// Custom error type</span>
+<span class="kw">type</span> <span class="ty">ValidationError</span> <span class="kw">struct</span> {
+    Field   <span class="ty">string</span>
+    Message <span class="ty">string</span>
+}
+<span class="kw">func</span> (e *<span class="ty">ValidationError</span>) <span class="fn">Error</span>() <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="fn">fmt.Sprintf</span>(<span class="st">"%s: %s"</span>, e.Field, e.Message)
+}
+
+<span class="cm">// errors.Is — check error chain</span>
+<span class="kw">if</span> <span class="pk">errors</span>.<span class="fn">Is</span>(err, <span class="pk">os</span>.<span class="fn">ErrNotExist</span>) {
+    <span class="fn">fmt.Println</span>(<span class="st">"file not found"</span>)
+}
+
+<span class="cm">// errors.As — extract concrete error type from chain</span>
+<span class="kw">var</span> ve *<span class="ty">ValidationError</span>
+<span class="kw">if</span> <span class="pk">errors</span>.<span class="fn">As</span>(err, &ve) {
+    <span class="fn">fmt.Println</span>(<span class="st">"invalid field:"</span>, ve.Field)
+}
+
+<span class="cm">// panic — for unrecoverable programmer errors</span>
+<span class="kw">if</span> len(args) == <span class="nm">0</span> {
+    <span class="bi">panic</span>(<span class="st">"args must not be empty"</span>)
+}
+
+<span class="cm">// recover — catch panics in deferred functions</span>
+<span class="kw">defer func</span>() {
+    <span class="kw">if</span> r := <span class="bi">recover</span>(); r != <span class="bi">nil</span> {
+        <span class="fn">log.Printf</span>(<span class="st">"recovered: %v"</span>, r)
+    }
+}()</div>
+
+  <div class="callout good"><strong>Convention:</strong> Always handle errors. The compiler won't force you — but leaving <code>err</code> unchecked is how bugs happen. Use <code>errors.Is</code> / <code>errors.As</code> instead of string comparisons. Wrap errors with <code>%w</code> to preserve the chain.</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 12 Goroutines -->
+<section id="goroutines">
+  <div class="section-header"><span class="section-num">12</span><h2>Goroutines</h2></div>
+  <p class="prose">Goroutines are Go's lightweight threads — <strong>not OS threads</strong>. Starting one costs just ~2–8KB of stack. The Go runtime multiplexes them onto OS threads. Launch with <code>go</code>; coordinate with channels or <code>sync</code>.</p>
+
+  <div class="code-block"><span class="kw">import</span> (
+    <span class="st">"sync"</span>
+    <span class="st">"time"</span>
+)
+
+<span class="cm">// Launch a goroutine</span>
+<span class="kw">go</span> <span class="fn">fmt.Println</span>(<span class="st">"concurrent!"</span>)   <span class="cm">// fire and forget</span>
+<span class="kw">go</span> <span class="kw">func</span>() {                      <span class="cm">// anonymous goroutine</span>
+    <span class="fn">doWork</span>()
+}()
+
+<span class="cm">// WaitGroup — wait for multiple goroutines to finish</span>
+<span class="kw">var</span> wg <span class="pk">sync</span>.<span class="ty">WaitGroup</span>
+
+<span class="kw">for</span> i := <span class="nm">0</span>; i < <span class="nm">5</span>; i++ {
+    wg.<span class="fn">Add</span>(<span class="nm">1</span>)
+    <span class="kw">go func</span>(id <span class="ty">int</span>) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+        <span class="fn">fmt.Printf</span>(<span class="st">"worker %d done\n"</span>, id)
+    }(i)  <span class="cm">// pass i as arg to avoid closure capture bug!</span>
+}
+
+wg.<span class="fn">Wait</span>()  <span class="cm">// block until all Done() calls received</span>
+
+<span class="cm">// Mutex — protect shared state</span>
+<span class="kw">var</span> mu    <span class="pk">sync</span>.<span class="ty">Mutex</span>
+<span class="kw">var</span> count <span class="ty">int</span>
+
+<span class="kw">go func</span>() {
+    mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> mu.<span class="fn">Unlock</span>()
+    count++
+}()
+
+<span class="cm">// sync.Once — run something exactly once</span>
+<span class="kw">var</span> once <span class="pk">sync</span>.<span class="ty">Once</span>
+once.<span class="fn">Do</span>(<span class="kw">func</span>() { <span class="fn">initDB</span>() })  <span class="cm">// safe for concurrent calls</span>
+
+<span class="cm">// sync.Map — concurrent-safe map (for high contention)</span>
+<span class="kw">var</span> m <span class="pk">sync</span>.<span class="ty">Map</span>
+m.<span class="fn">Store</span>(<span class="st">"key"</span>, <span class="nm">42</span>)
+v, ok := m.<span class="fn">Load</span>(<span class="st">"key"</span>)</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 13 Channels -->
+<section id="channels">
+  <div class="section-header"><span class="section-num">13</span><h2>Channels</h2></div>
+  <p class="prose"><em>"Don't communicate by sharing memory; share memory by communicating."</em> Channels are Go's primary mechanism for goroutine coordination and data transfer.</p>
+
+  <div class="code-block"><span class="cm">// Unbuffered channel — sender blocks until receiver is ready</span>
+ch := <span class="bi">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+
+<span class="kw">go func</span>() { ch <- <span class="nm">42</span> }()   <span class="cm">// send (blocks until received)</span>
+v := <-ch                    <span class="cm">// receive (blocks until sent)</span>
+
+<span class="cm">// Buffered channel — sender blocks only when buffer is full</span>
+bch := <span class="bi">make</span>(<span class="kw">chan</span> <span class="ty">string</span>, <span class="nm">3</span>)
+bch <- <span class="st">"a"</span>    <span class="cm">// doesn't block (buffer has room)</span>
+bch <- <span class="st">"b"</span>
+bch <- <span class="st">"c"</span>
+<span class="cm">// bch <- "d"  // would block — buffer full</span>
+
+<span class="cm">// close — signal no more values; receivers drain then get zero value</span>
+<span class="bi">close</span>(ch)
+v, ok := <-ch   <span class="cm">// ok = false means channel closed and drained</span>
+
+<span class="cm">// Range over channel — receives until closed</span>
+<span class="kw">for</span> v := <span class="kw">range</span> ch { <span class="fn">fmt.Println</span>(v) }
+
+<span class="cm">// Directional channels — restrict to send-only or receive-only</span>
+<span class="kw">func</span> <span class="fn">producer</span>(out <span class="kw">chan</span><- <span class="ty">int</span>) {  <span class="cm">// send-only</span>
+    <span class="kw">for</span> i := <span class="nm">0</span>; i < <span class="nm">5</span>; i++ { out <- i }
+    <span class="bi">close</span>(out)
+}
+<span class="kw">func</span> <span class="fn">consumer</span>(in <-<span class="kw">chan</span> <span class="ty">int</span>) {   <span class="cm">// receive-only</span>
+    <span class="kw">for</span> v := <span class="kw">range</span> in { <span class="fn">fmt.Println</span>(v) }
+}
+
+<span class="cm">// select — wait on multiple channels simultaneously</span>
+<span class="kw">select</span> {
+<span class="kw">case</span> msg := <-ch1:
+    <span class="fn">fmt.Println</span>(<span class="st">"ch1:"</span>, msg)
+<span class="kw">case</span> msg := <-ch2:
+    <span class="fn">fmt.Println</span>(<span class="st">"ch2:"</span>, msg)
+<span class="kw">case</span> ch3 <- <span class="st">"hello"</span>:
+    <span class="fn">fmt.Println</span>(<span class="st">"sent to ch3"</span>)
+<span class="kw">case</span> <-<span class="pk">time</span>.<span class="fn">After</span>(<span class="nm">1</span> * <span class="pk">time</span>.Second):
+    <span class="fn">fmt.Println</span>(<span class="st">"timeout"</span>)
+<span class="kw">default</span>:  <span class="cm">// non-blocking — runs immediately if no case ready</span>
+    <span class="fn">fmt.Println</span>(<span class="st">"nothing ready"</span>)
+}</div>
+
+  <h3>Channel Patterns</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pattern</th><th class="plain-def-header">Plain English</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td>Done channel</td><td class="plain-def">signal cancellation</td><td><code>done := make(chan struct{})</code>; close to broadcast stop</td></tr>
+      <tr><td>Fan-out</td><td class="plain-def">one input, many workers</td><td>Multiple goroutines reading from same channel</td></tr>
+      <tr><td>Fan-in</td><td class="plain-def">many inputs, one output</td><td>Merge multiple channels into one with goroutines</td></tr>
+      <tr><td>Pipeline</td><td class="plain-def">chain processing stages</td><td>Each stage: receive from in-chan, process, send to out-chan</td></tr>
+      <tr><td>Semaphore</td><td class="plain-def">limit concurrency</td><td>Buffered channel: <code>sem := make(chan struct{}, N)</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 14 Collections -->
+<section id="collections">
+  <div class="section-header"><span class="section-num">14</span><h2>Collections</h2></div>
+
+  <div class="code-block"><span class="cm">// Arrays — fixed size, value type</span>
+<span class="kw">var</span> a [5]<span class="ty">int</span>                 <span class="cm">// [0 0 0 0 0]</span>
+b := [3]<span class="ty">string</span>{<span class="st">"a"</span>,<span class="st">"b"</span>,<span class="st">"c"</span>}
+c := [...]<span class="ty">int</span>{<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>}        <span class="cm">// size inferred</span>
+
+<span class="cm">// Slices — the workhorse collection</span>
+s := []<span class="ty">int</span>{<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>}
+s = <span class="bi">append</span>(s, <span class="nm">4</span>, <span class="nm">5</span>)        <span class="cm">// append; may allocate new array</span>
+s = <span class="bi">append</span>(s, other...)    <span class="cm">// append another slice</span>
+<span class="fn">fmt.Println</span>(<span class="bi">len</span>(s), <span class="bi">cap</span>(s)) <span class="cm">// length and capacity</span>
+
+<span class="cm">// Slice operations</span>
+sub := s[<span class="nm">1</span>:<span class="nm">4</span>]   <span class="cm">// elements 1,2,3 — shares underlying array!</span>
+head := s[:<span class="nm">3</span>]   <span class="cm">// first 3</span>
+tail := s[<span class="nm">2</span>:]   <span class="cm">// from index 2 to end</span>
+copy := s[:]     <span class="cm">// all — still a view, not a copy!</span>
+
+<span class="cm">// Deep copy a slice</span>
+dst := <span class="bi">make</span>([]<span class="ty">int</span>, <span class="bi">len</span>(s))
+<span class="bi">copy</span>(dst, s)
+
+<span class="cm">// 2D slice</span>
+matrix := <span class="bi">make</span>([][]<span class="ty">int</span>, rows)
+<span class="kw">for</span> i := <span class="kw">range</span> matrix {
+    matrix[i] = <span class="bi">make</span>([]<span class="ty">int</span>, cols)
+}
+
+<span class="cm">// Maps</span>
+m := <span class="bi">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>)
+m[<span class="st">"alice"</span>] = <span class="nm">100</span>
+
+<span class="cm">// Map literal</span>
+scores := <span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>{
+    <span class="st">"alice"</span>: <span class="nm">100</span>,
+    <span class="st">"bob"</span>:   <span class="nm">85</span>,
+}
+
+<span class="cm">// Check if key exists — always use two-value form!</span>
+v, ok := scores[<span class="st">"alice"</span>]  <span class="cm">// ok = false if key missing</span>
+<span class="kw">if</span> !ok { <span class="cm">/* key not found */</span> }
+
+<span class="cm">// Delete a key</span>
+<span class="bi">delete</span>(scores, <span class="st">"bob"</span>)
+
+<span class="cm">// Iterate maps (order is random!)</span>
+<span class="kw">for</span> k, v := <span class="kw">range</span> scores {
+    <span class="fn">fmt.Printf</span>(<span class="st">"%s: %d\n"</span>, k, v)
+}</div>
+
+  <h3>Built-in Functions for Collections</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Works on</th></tr></thead>
+    <tbody>
+      <tr><td>make(T, args)</td><td class="plain-def">allocate and init</td><td>Slices, maps, channels — use instead of new for these</td></tr>
+      <tr><td>new(T)</td><td class="plain-def">allocate zeroed value</td><td>Any type — returns pointer; rarely needed</td></tr>
+      <tr><td>len(v)</td><td class="plain-def">number of elements</td><td>Arrays, slices, maps, strings, channels</td></tr>
+      <tr><td>cap(v)</td><td class="plain-def">underlying capacity</td><td>Slices and channels</td></tr>
+      <tr><td>append(s, elems...)</td><td class="plain-def">add to slice</td><td>Slices only; returns new slice</td></tr>
+      <tr><td>copy(dst, src)</td><td class="plain-def">copy slice elements</td><td>Slices; returns number copied</td></tr>
+      <tr><td>delete(m, k)</td><td class="plain-def">remove map entry</td><td>Maps; no-op if key missing</td></tr>
+      <tr><td>close(ch)</td><td class="plain-def">close a channel</td><td>Channels; only sender should close</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 15 Packages -->
+<section id="packages">
+  <div class="section-header"><span class="section-num">15</span><h2>Packages &amp; Modules</h2></div>
+  <p class="prose">Go code is organized into <strong>packages</strong>. A module is a collection of packages with a shared <code>go.mod</code> file. Exported names start with a <strong>capital letter</strong>.</p>
+
+  <h3>Visibility Rules</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th class="plain-def-header">Plain English</th><th>Accessible from</th></tr></thead>
+    <tbody>
+      <tr><td>Uppercase</td><td class="plain-def">exported (public)</td><td>Any package that imports this one</td></tr>
+      <tr><td>lowercase</td><td class="plain-def">unexported (private)</td><td>Only within the same package</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Essential Standard Library Packages</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Package</th><th class="plain-def-header">Plain English</th><th>Key Items</th></tr></thead>
+    <tbody>
+      <tr><td>fmt</td><td class="plain-def">formatted I/O</td><td>Printf, Println, Sprintf, Errorf, Sscanf</td></tr>
+      <tr><td>os</td><td class="plain-def">operating system interface</td><td>Open, Create, Exit, Args, Getenv, Stat</td></tr>
+      <tr><td>io</td><td class="plain-def">I/O primitives</td><td>Reader, Writer, Closer interfaces; Copy, ReadAll</td></tr>
+      <tr><td>bufio</td><td class="plain-def">buffered I/O</td><td>Scanner (line reading), Writer, NewReader</td></tr>
+      <tr><td>strings</td><td class="plain-def">string manipulation</td><td>Contains, Split, Join, TrimSpace, Replace, Builder</td></tr>
+      <tr><td>strconv</td><td class="plain-def">string conversions</td><td>Atoi, Itoa, ParseFloat, FormatInt, ParseBool</td></tr>
+      <tr><td>errors</td><td class="plain-def">error creation &amp; inspection</td><td>New, Is, As, Unwrap</td></tr>
+      <tr><td>log</td><td class="plain-def">simple logging</td><td>Print, Fatal, Panic; use log/slog for structured logs</td></tr>
+      <tr><td>math</td><td class="plain-def">math functions</td><td>Sqrt, Abs, Floor, Ceil, Min, Max; math/rand for random</td></tr>
+      <tr><td>sort</td><td class="plain-def">sorting</td><td>Slice, Ints, Strings, Search; sort.Slice with custom less</td></tr>
+      <tr><td>time</td><td class="plain-def">date and time</td><td>Now, Since, Sleep, Duration, Format, Parse</td></tr>
+      <tr><td>context</td><td class="plain-def">cancellation &amp; deadlines</td><td>Background, WithCancel, WithTimeout, WithDeadline</td></tr>
+      <tr><td>sync</td><td class="plain-def">concurrency primitives</td><td>Mutex, RWMutex, WaitGroup, Once, Map</td></tr>
+      <tr><td>encoding/json</td><td class="plain-def">JSON encode/decode</td><td>Marshal, Unmarshal, NewEncoder, NewDecoder</td></tr>
+      <tr><td>net/http</td><td class="plain-def">HTTP client &amp; server</td><td>Get, Post, ListenAndServe, Handle, HandleFunc</td></tr>
+      <tr><td>testing</td><td class="plain-def">testing framework</td><td>T.Error, T.Fatal, T.Run; go test; benchmarks</td></tr>
+      <tr><td>path/filepath</td><td class="plain-def">file path operations</td><td>Join, Dir, Base, Ext, Walk, Glob</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 16 Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-num">16</span><h2>Tips &amp; Gotchas</h2></div>
+  <ul class="tips-list">
+    <li><span class="tip-code">unused imports</span><span>Unused imports and unused variables are <strong>compile errors</strong> in Go. If you need to import for side effects only, use <code>import _ "pkg/path"</code>. Remove unused vars or assign to <code>_</code>.</span></li>
+    <li><span class="tip-code">slice sharing</span><span>Slicing a slice (<code>s[1:3]</code>) doesn't copy — both slices share the underlying array. Mutations through one affect the other. Use <code>copy()</code> to make an independent copy.</span></li>
+    <li><span class="tip-code">nil map write</span><span>Reading from a nil map returns the zero value safely. But writing to a nil map <strong>panics</strong>. Always initialize: <code>m := make(map[K]V)</code> or use a literal.</span></li>
+    <li><span class="tip-code">map key exists</span><span>Don't test <code>if m["key"] != ""</code> — the zero value could be a valid value. Always use the two-value form: <code>v, ok := m["key"]</code> and check <code>ok</code>.</span></li>
+    <li><span class="tip-code">goroutine loop var</span><span>Capturing a loop variable in a goroutine closure is a classic bug — by the time the goroutine runs, the loop has advanced. Pass <code>i</code> as a parameter: <code>go func(i int) { ... }(i)</code>. (Fixed in Go 1.22!)</span></li>
+    <li><span class="tip-code">defer + loops</span><span><code>defer</code> runs when the <em>function</em> exits, not the loop iteration. Don't defer inside hot loops — the deferred calls accumulate. Extract the loop body to a helper function instead.</span></li>
+    <li><span class="tip-code">error wrapping</span><span>Wrap errors with <code>fmt.Errorf("context: %w", err)</code>. Then use <code>errors.Is</code> and <code>errors.As</code> to inspect the chain. Never compare error strings.</span></li>
+    <li><span class="tip-code">value vs pointer receiver</span><span>Use pointer receivers (<code>*T</code>) when the method needs to modify the struct, or when the struct is large. Be consistent — if any method is pointer, make them all pointer.</span></li>
+    <li><span class="tip-code">interface nil</span><span>A non-nil interface holding a nil pointer is not <code>== nil</code>. <code>var p *MyType = nil; var i MyInterface = p; i == nil</code> is <strong>false</strong>. This surprises everyone at least once.</span></li>
+    <li><span class="tip-code">go fmt</span><span>Run <code>go fmt</code> religiously. Go has a single canonical style — there's no debate about braces, spacing, or tabs. CI will reject non-formatted code in most serious projects.</span></li>
+    <li><span class="tip-code">close channels</span><span>Only the <em>sender</em> should close a channel. Closing a nil channel panics. Sending to a closed channel panics. Use a <code>sync.WaitGroup</code> or a done channel to coordinate shutdown.</span></li>
+    <li><span class="tip-code">context</span><span>Pass <code>context.Context</code> as the first argument to any function that may block, do I/O, or call external services. Never store context in a struct. This enables cancellation and deadline propagation.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 17 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-num">17</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All 25 Go keywords, alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>break</td><td class="plain-def">exit loop or switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>case</td><td class="plain-def">match arm in switch or select</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>chan</td><td class="plain-def">channel type</td><td><a class="idx-link" href="#channels">Channels</a></td></tr>
+      <tr><td>const</td><td class="plain-def">compile-time constant</td><td><a class="idx-link" href="#variables">Variables</a></td></tr>
+      <tr><td>continue</td><td class="plain-def">skip to next loop iteration</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>default</td><td class="plain-def">fallback in switch or select</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>defer</td><td class="plain-def">run at function exit</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>else</td><td class="plain-def">otherwise branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>fallthrough</td><td class="plain-def">explicit fall to next case</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>for</td><td class="plain-def">the only loop</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>func</td><td class="plain-def">declare a function</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>go</td><td class="plain-def">launch a goroutine</td><td><a class="idx-link" href="#goroutines">Goroutines</a></td></tr>
+      <tr><td>goto</td><td class="plain-def">jump to label (rare)</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>if</td><td class="plain-def">conditional branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>import</td><td class="plain-def">bring in a package</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>interface</td><td class="plain-def">set of method signatures</td><td><a class="idx-link" href="#interfaces">Interfaces</a></td></tr>
+      <tr><td>map</td><td class="plain-def">hash table type</td><td><a class="idx-link" href="#collections">Collections</a></td></tr>
+      <tr><td>package</td><td class="plain-def">declare the package</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>range</td><td class="plain-def">iterate over a collection</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>return</td><td class="plain-def">exit function with value(s)</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>select</td><td class="plain-def">wait on multiple channels</td><td><a class="idx-link" href="#channels">Channels</a></td></tr>
+      <tr><td>struct</td><td class="plain-def">custom named-field type</td><td><a class="idx-link" href="#structs">Structs</a></td></tr>
+      <tr><td>switch</td><td class="plain-def">multi-way conditional</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>type</td><td class="plain-def">declare a new type or alias</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>var</td><td class="plain-def">declare a variable</td><td><a class="idx-link" href="#variables">Variables</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+</main>
+
+<footer>
+  Go Language Quick Reference &nbsp;·&nbsp; <span>Go 1.21+</span> &nbsp;·&nbsp; 2026
+</footer>
+</body>
+</html>

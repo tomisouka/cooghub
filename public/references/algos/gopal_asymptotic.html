@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asymptotic Notation — Gopal Ch.1</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;
+    --accent:#4a9eff;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--orange:#fb923c;
+    --text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;
+    --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(74,158,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}
+  .sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}
+  .kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}
+  .kv-v.y{color:var(--yellow)}.kv-v.g{color:var(--green)}.kv-v.r{color:var(--red)}.kv-v.p{color:var(--purple)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  .def-block{background:var(--card2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin-bottom:.5rem}
+  .def-title{font-family:var(--mono);font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+  .def-body{font-size: .95rem;color:var(--sub);line-height:1.65}
+  .def-block.g{border-color:var(--green)}.def-block.g .def-title{color:var(--green)}
+  .def-block.y{border-color:var(--yellow)}.def-block.y .def-title{color:var(--yellow)}
+  .def-block.p{border-color:var(--purple)}.def-block.p .def-title{color:var(--purple)}
+  .def-block.o{border-color:var(--orange)}.def-block.o .def-title{color:var(--orange)}
+  .runtime-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(8rem,1fr));gap:.5rem;margin-top:.5rem}
+  .rt-cell{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:.6rem .75rem;text-align:center}
+  .rt-name{font-family:var(--mono);font-size: 1rem;color:var(--accent);margin-bottom:.2rem}
+  .rt-label{font-size: .85rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Gopal Ch. 1 · Foundations</div>
+  <h1>Asymptotic Notation</h1>
+  <div class="sub">Big-O, Big-Ω, Big-Θ, little-o, little-ω — the language of algorithm analysis. We care about growth rate, not constants.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">The Five Notations</div>
+      <div class="def-block">
+        <div class="def-title">Big-O — Upper Bound</div>
+        <div class="def-body">f(n) = O(g(n)) if f(n) ≤ c·g(n) for all n ≥ n₀<br><span style="color:var(--muted);font-size: .85rem;">Limit: lim f(n)/g(n) &lt; ∞</span></div>
+      </div>
+      <div class="def-block g">
+        <div class="def-title">Big-Ω — Lower Bound</div>
+        <div class="def-body">f(n) = Ω(g(n)) if f(n) ≥ c·g(n) for all n ≥ n₀<br><span style="color:var(--muted);font-size: .85rem;">Limit: lim f(n)/g(n) &gt; 0</span></div>
+      </div>
+      <div class="def-block y">
+        <div class="def-title">Big-Θ — Tight Bound</div>
+        <div class="def-body">f(n) = Θ(g(n)) if c₁g(n) ≤ f(n) ≤ c₂g(n)<br><span style="color:var(--muted);font-size: .85rem;">Limit: 0 &lt; lim f(n)/g(n) &lt; ∞</span></div>
+      </div>
+      <div class="def-block p">
+        <div class="def-title">little-o — Strictly Slower</div>
+        <div class="def-body">f(n) = o(g(n)) if for ALL c &gt; 0, f(n) &lt; c·g(n)<br><span style="color:var(--muted);font-size: .85rem;">Limit: lim f(n)/g(n) = 0</span></div>
+      </div>
+      <div class="def-block o">
+        <div class="def-title">little-ω — Strictly Faster</div>
+        <div class="def-body">f(n) = ω(g(n)) if for ALL c &gt; 0, f(n) &gt; c·g(n)<br><span style="color:var(--muted);font-size: .85rem;">Limit: lim f(n)/g(n) = ∞</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Summary Table (Gopal Table 1.1)</div>
+      <table>
+        <tr><th>Notation</th><th>Meaning</th><th>Limit</th></tr>
+        <tr><td>O(g)</td><td>f grows at most as fast as g</td><td style="color:var(--accent);">≤ c</td></tr>
+        <tr><td>Ω(g)</td><td>f grows at least as fast as g</td><td style="color:var(--green);">≥ c</td></tr>
+        <tr><td>Θ(g)</td><td>f and g grow at the same rate</td><td style="color:var(--yellow);">= c</td></tr>
+        <tr><td>o(g)</td><td>f grows strictly slower than g</td><td style="color:var(--purple);">= 0</td></tr>
+        <tr><td>ω(g)</td><td>f grows strictly faster than g</td><td style="color:var(--orange);">= ∞</td></tr>
+      </table>
+      <div style="margin-top:1rem">
+        <div class="card-title">Key Rules</div>
+        <div class="kv"><span class="kv-k">Constants ignored</span><span class="kv-v y">2n = O(n) = Θ(n)</span></div>
+        <div class="kv"><span class="kv-k">Polynomials</span><span class="kv-v y">p(n) of degree d = Θ(nᵈ)</span></div>
+        <div class="kv"><span class="kv-k">Log vs linear</span><span class="kv-v g">log n = O(n)</span></div>
+        <div class="kv"><span class="kv-k">Poly vs exponential</span><span class="kv-v g">n¹⁰⁰⁰ = O(2ⁿ)</span></div>
+        <div class="kv"><span class="kv-k">L'Hôpital's rule</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">For ∞/∞ or 0/0 forms</span></div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Common Runtimes (Gopal Table 1.2)</div>
+      <div class="runtime-grid">
+        <div class="rt-cell"><div class="rt-name" style="color:var(--green);">O(1)</div><div class="rt-label">Constant</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--green);">O(log n)</div><div class="rt-label">Logarithmic</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--green);">O(n)</div><div class="rt-label">Linear</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--yellow);">O(n log n)</div><div class="rt-label">Linearithmic</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--yellow);">O(n²)</div><div class="rt-label">Quadratic</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--orange);">O(nᶜ)</div><div class="rt-label">Polynomial</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--red);">O(cⁿ)</div><div class="rt-label">Exponential</div></div>
+        <div class="rt-cell"><div class="rt-name" style="color:var(--red);">O(n!)</div><div class="rt-label">Factorial</div></div>
+      </div>
+      <div style="margin-top:.75rem;font-size: .95rem;color:var(--sub);">Polynomial time = efficient. Exponential = not efficient — though a n¹⁰ algorithm may be slower than 1.1ⁿ in practice for small n.</div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Worked Examples (Gopal Example 1.1 & 1.2)</div>
+      <table>
+        <tr><th>Claim</th><th>Notation</th><th>Why</th></tr>
+        <tr><td>2n</td><td style="color:var(--yellow);">Θ(n)</td><td style="color:var(--sub);">Constants hidden — same order</td></tr>
+        <tr><td>n³ + 2¹⁰⁰⁰n²</td><td style="color:var(--yellow);">Θ(n³)</td><td style="color:var(--sub);">Leading term dominates</td></tr>
+        <tr><td>log n</td><td style="color:var(--green);">O(n)</td><td style="color:var(--sub);">lim (log n)/n = 0 by L'Hôpital</td></tr>
+        <tr><td>n¹⁰⁰⁰ vs 2ⁿ</td><td style="color:var(--accent);">n¹⁰⁰⁰ = O(2ⁿ), not Θ</td><td style="color:var(--sub);">Exponential eventually beats any polynomial</td></tr>
+        <tr><td>1/n</td><td style="color:var(--purple);">o(1)</td><td style="color:var(--sub);">lim (1/n)/1 = 0</td></div></tr>
+        <tr><td>n²</td><td style="color:var(--orange);">ω(n)</td><td style="color:var(--sub);">lim n²/n = ∞</td></tr>
+        <tr><td>Growth order</td><td colspan="2" style="color:var(--yellow);">1 &lt; log n &lt; √n &lt; n &lt; n log n &lt; n² &lt; 2ⁿ &lt; n!</td></tr>
+      </table>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Comparing Functions — Limit Trick</div>
+      <pre>// To compare f(n) and g(n), compute lim f(n)/g(n):
+//
+//   limit = 0    →  f = o(g)   (f strictly slower)
+//   limit = c>0  →  f = Θ(g)  (same order)
+//   limit = ∞    →  f = ω(g)  (f strictly faster)
+//   limit ≤ c    →  f = O(g)  (f at most as fast)
+//   limit ≥ c    →  f = Ω(g)  (f at least as fast)
+//
+// L'Hôpital: if lim f/g → ∞/∞ or 0/0, take derivatives
+//   lim f(n)/g(n) = lim f'(n)/g'(n)
+//
+// Log trick: if log f(n) ≤ c·log g(n), then f(n) = O(g(n)ᶜ)</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discrete Math — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:      #0e1016;
+    --panel:   #13161e;
+    --border:  #1f2330;
+    --accent:  #7ec8a4;
+    --accent2: #5ba3d4;
+    --accent3: #d4895b;
+    --text:    #d0d6e8;
+    --muted:   #6a7290;
+    --code-bg: #0a0d14;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.7; }
+  body { padding: 32px 40px 80px; max-width: 960px; margin: 0 auto; }
+
+  h1 { font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 12px; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+
+  h2 { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 3px; text-transform: uppercase;
+       border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 36px 0 16px; }
+  h3 { font-size: 14px; font-weight: 700; color: var(--accent2); margin: 20px 0 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 7px 10px; border-bottom: 1px solid #181c26; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-family: var(--mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+
+  code { font-family: var(--mono); font-size: 12px; background: var(--code-bg); color: var(--accent3); padding: 1px 6px; border-radius: 4px; }
+  pre { font-family: var(--mono); font-size: 12px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+        padding: 14px 16px; overflow-x: auto; line-height: 1.8; color: #b0bcd8; margin: 10px 0; }
+  pre .kw  { color: #7aaccc; }
+  pre .str { color: #96bc78; }
+  pre .cm  { color: #606878; font-style: italic; }
+  pre .num { color: var(--accent3); }
+
+  .pill { display: inline-block; font-size: 10px; font-family: var(--mono); font-weight: 700; padding: 2px 8px;
+          border-radius: 20px; border: 1px solid; margin: 2px 3px 2px 0; }
+  .pill-g { color: var(--accent);  border-color: #7ec8a433; background: #7ec8a408; }
+  .pill-b { color: var(--accent2); border-color: #5ba3d433; background: #5ba3d408; }
+  .pill-o { color: var(--accent3); border-color: #d4895b33; background: #d4895b08; }
+
+  .formula { font-family: var(--mono); font-size: 13px; background: var(--code-bg); border-left: 3px solid var(--accent);
+             padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 8px 0; color: var(--text); }
+  .formula .label { color: var(--muted); font-size: 11px; display: block; margin-bottom: 4px; }
+
+  .row { display: flex; gap: 14px; margin-bottom: 14px; }
+  .row .card { flex: 1; }
+
+  .tag { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<h1>Discrete Mathematics</h1>
+<div class="subtitle">MATH 2305 · Reference Sheet</div>
+
+<!-- LOGIC -->
+<h2>Propositional Logic</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">Connectives</div>
+    <table>
+      <tr><th>Symbol</th><th>Name</th><th>Read as</th></tr>
+      <tr><td>¬ p</td><td>Negation</td><td>not p</td></tr>
+      <tr><td>p ∧ q</td><td>Conjunction</td><td>p and q</td></tr>
+      <tr><td>p ∨ q</td><td>Disjunction</td><td>p or q</td></tr>
+      <tr><td>p ⊕ q</td><td>XOR</td><td>p xor q</td></tr>
+      <tr><td>p → q</td><td>Implication</td><td>if p then q</td></tr>
+      <tr><td>p ↔ q</td><td>Biconditional</td><td>p iff q</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Truth Table — Key Rows</div>
+    <table>
+      <tr><th>p</th><th>q</th><th>p→q</th><th>p↔q</th><th>p⊕q</th></tr>
+      <tr><td>T</td><td>T</td><td>T</td><td>T</td><td>F</td></tr>
+      <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>T</td></tr>
+      <tr><td>F</td><td>T</td><td>T</td><td>F</td><td>T</td></tr>
+      <tr><td>F</td><td>F</td><td>T</td><td>T</td><td>F</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">Logical Equivalences</div>
+  <table>
+    <tr><th>Law</th><th>Equivalence</th></tr>
+    <tr><td>De Morgan</td><td>¬(p∧q) ≡ ¬p∨¬q &nbsp;|&nbsp; ¬(p∨q) ≡ ¬p∧¬q</td></tr>
+    <tr><td>Implication</td><td>p→q ≡ ¬p∨q</td></tr>
+    <tr><td>Contrapositive</td><td>p→q ≡ ¬q→¬p</td></tr>
+    <tr><td>Absorption</td><td>p∨(p∧q) ≡ p &nbsp;|&nbsp; p∧(p∨q) ≡ p</td></tr>
+    <tr><td>Distributive</td><td>p∧(q∨r) ≡ (p∧q)∨(p∧r)</td></tr>
+    <tr><td>Double Negation</td><td>¬¬p ≡ p</td></tr>
+  </table>
+</div>
+
+<!-- SET THEORY -->
+<h2>Set Theory</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Operations</div>
+    <table>
+      <tr><th>Op</th><th>Definition</th></tr>
+      <tr><td>A ∪ B</td><td>x ∈ A or x ∈ B</td></tr>
+      <tr><td>A ∩ B</td><td>x ∈ A and x ∈ B</td></tr>
+      <tr><td>A − B</td><td>x ∈ A and x ∉ B</td></tr>
+      <tr><td>Ā</td><td>U − A (complement)</td></tr>
+      <tr><td>A × B</td><td>ordered pairs (a,b)</td></tr>
+      <tr><td>𝒫(A)</td><td>all subsets of A</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Key Identities</div>
+    <table>
+      <tr><th>Name</th><th>Identity</th></tr>
+      <tr><td>De Morgan</td><td>(A∪B)ᶜ = Aᶜ∩Bᶜ</td></tr>
+      <tr><td>Inclusion-Excl</td><td>|A∪B| = |A|+|B|−|A∩B|</td></tr>
+      <tr><td>Power Set</td><td>|𝒫(A)| = 2^|A|</td></tr>
+      <tr><td>Cartesian</td><td>|A×B| = |A|·|B|</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Subset Rules</div>
+    <table>
+      <tr><th>Fact</th><th>Note</th></tr>
+      <tr><td>∅ ⊆ A</td><td>empty set ⊆ everything</td></tr>
+      <tr><td>A ⊆ A</td><td>every set ⊆ itself</td></tr>
+      <tr><td>A⊆B, B⊆C → A⊆C</td><td>transitivity</td></tr>
+      <tr><td>A⊆B, B⊆A → A=B</td><td>antisymmetry</td></tr>
+      <tr><td>A⊂B ↔ A⊆B, A≠B</td><td>proper subset</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PROOF TECHNIQUES -->
+<h2>Proof Techniques</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Direct Proof</div>
+    <pre><span class="cm">-- Prove P → Q</span>
+<span class="kw">Assume</span> P is true
+  ... logical steps ...
+<span class="kw">Conclude</span> Q is true  ∎</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Proof by Contradiction</div>
+    <pre><span class="cm">-- Prove Q</span>
+<span class="kw">Assume</span> ¬Q
+  ... derive contradiction ...
+<span class="kw">Conclude</span> Q must be true  ∎</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Contrapositive</div>
+    <pre><span class="cm">-- Prove P → Q via ¬Q → ¬P</span>
+<span class="kw">Assume</span> ¬Q is true
+  ... logical steps ...
+<span class="kw">Conclude</span> ¬P is true  ∎</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Mathematical Induction</div>
+    <pre><span class="cm">-- Prove P(n) for all n ≥ 1</span>
+<span class="kw">Base</span>: show P(1) is true
+<span class="kw">IH</span>:   assume P(k) is true
+<span class="kw">Step</span>: show P(k) → P(k+1)
+<span class="kw">∴</span> P(n) holds for all n ≥ 1  ∎</pre>
+  </div>
+</div>
+
+<!-- COMBINATORICS -->
+<h2>Combinatorics</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Counting Formulas</div>
+    <table>
+      <tr><th>Formula</th><th>When to use</th></tr>
+      <tr><td>n!</td><td>arrange all n objects</td></tr>
+      <tr><td>P(n,r) = n!/(n−r)!</td><td>ordered r-subsets</td></tr>
+      <tr><td>C(n,r) = n!/r!(n−r)!</td><td>unordered r-subsets</td></tr>
+      <tr><td>nʳ</td><td>ordered, with repetition</td></tr>
+      <tr><td>C(n+r−1,r)</td><td>unordered, with repetition</td></tr>
+      <tr><td>n!/k₁!k₂!...kₘ!</td><td>multinomial (multisets)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Binomial Theorem</div>
+    <div class="formula">
+      <span class="label">Expansion</span>
+      (x+y)ⁿ = Σₖ₌₀ⁿ C(n,k) xⁿ⁻ᵏ yᵏ
+    </div>
+    <div class="formula">
+      <span class="label">Pascal's Identity</span>
+      C(n,k) = C(n−1,k−1) + C(n−1,k)
+    </div>
+    <div class="formula">
+      <span class="label">Sum Identity</span>
+      Σₖ₌₀ⁿ C(n,k) = 2ⁿ
+    </div>
+    <div class="formula">
+      <span class="label">Inclusion-Exclusion (3 sets)</span>
+      |A∪B∪C| = |A|+|B|+|C|−|A∩B|−|A∩C|−|B∩C|+|A∩B∩C|
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">Pigeonhole Principle</div>
+  <table>
+    <tr><th>Form</th><th>Statement</th></tr>
+    <tr><td>Basic</td><td>n+1 objects in n boxes → some box has ≥ 2 objects</td></tr>
+    <tr><td>Generalized</td><td>kn+1 objects in n boxes → some box has ≥ k+1 objects</td></tr>
+    <tr><td>Ceiling form</td><td>N objects in k boxes → some box has ≥ ⌈N/k⌉ objects</td></tr>
+  </table>
+</div>
+
+<!-- RELATIONS & FUNCTIONS -->
+<h2>Relations &amp; Functions</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Relation Properties</div>
+    <table>
+      <tr><th>Property</th><th>Definition</th></tr>
+      <tr><td>Reflexive</td><td>∀a: (a,a) ∈ R</td></tr>
+      <tr><td>Symmetric</td><td>(a,b)∈R → (b,a)∈R</td></tr>
+      <tr><td>Antisymmetric</td><td>(a,b)∈R ∧ (b,a)∈R → a=b</td></tr>
+      <tr><td>Transitive</td><td>(a,b)∈R ∧ (b,c)∈R → (a,c)∈R</td></tr>
+    </table>
+    <div style="margin-top:10px;font-size:12px;color:var(--muted)">
+      Equiv relation = Refl + Symm + Trans<br>
+      Partial order = Refl + Anti + Trans
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Function Types</div>
+    <table>
+      <tr><th>Type</th><th>Condition</th></tr>
+      <tr><td>Injective (1-1)</td><td>f(a)=f(b) → a=b</td></tr>
+      <tr><td>Surjective (onto)</td><td>∀y ∃x: f(x)=y</td></tr>
+      <tr><td>Bijective</td><td>injective + surjective</td></tr>
+      <tr><td>Inverse f⁻¹</td><td>exists iff f is bijective</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Equivalence Classes</div>
+    <table>
+      <tr><th>Concept</th><th>Meaning</th></tr>
+      <tr><td>[a]</td><td>{b | a R b} — class of a</td></tr>
+      <tr><td>Partition</td><td>equiv classes partition A</td></tr>
+      <tr><td>Disjoint</td><td>[a]=[b] or [a]∩[b]=∅</td></tr>
+      <tr><td>ℤₙ</td><td>integers mod n, n classes</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- GRAPH THEORY -->
+<h2>Graph Theory</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Definitions</div>
+    <table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td>G = (V,E)</td><td>vertices and edges</td></tr>
+      <tr><td>deg(v)</td><td>edges incident to v</td></tr>
+      <tr><td>Path</td><td>sequence of distinct vertices</td></tr>
+      <tr><td>Cycle</td><td>path that returns to start</td></tr>
+      <tr><td>Connected</td><td>path exists between any two v</td></tr>
+      <tr><td>Tree</td><td>connected + no cycles</td></tr>
+      <tr><td>Bipartite</td><td>V split into two independent sets</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Key Theorems</div>
+    <div class="formula"><span class="label">Handshake Lemma</span>Σ deg(v) = 2|E|</div>
+    <div class="formula"><span class="label">Tree with n vertices</span>has exactly n−1 edges</div>
+    <div class="formula"><span class="label">Euler Circuit exists iff</span>connected + all degrees even</div>
+    <div class="formula"><span class="label">Euler Path exists iff</span>exactly 0 or 2 vertices with odd degree</div>
+    <div class="formula"><span class="label">Planar — Euler's Formula</span>V − E + F = 2</div>
+  </div>
+</div>
+
+<!-- NUMBER THEORY -->
+<h2>Number Theory &amp; Modular Arithmetic</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Divisibility</div>
+    <table>
+      <tr><th>Notation</th><th>Meaning</th></tr>
+      <tr><td>a | b</td><td>a divides b (b = ka)</td></tr>
+      <tr><td>gcd(a,b)</td><td>greatest common divisor</td></tr>
+      <tr><td>lcm(a,b)</td><td>least common multiple</td></tr>
+      <tr><td>gcd·lcm</td><td>= |a·b|</td></tr>
+    </table>
+    <div class="formula"><span class="label">Euclidean Algorithm</span>gcd(a,b) = gcd(b, a mod b)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Modular Arithmetic</div>
+    <table>
+      <tr><th>Rule</th><th>Formula</th></tr>
+      <tr><td>Addition</td><td>(a+b) mod n = ((a mod n)+(b mod n)) mod n</td></tr>
+      <tr><td>Multiplication</td><td>(ab) mod n = ((a mod n)(b mod n)) mod n</td></tr>
+      <tr><td>Fermat's Little</td><td>aᵖ ≡ a (mod p), p prime</td></tr>
+    </table>
+    <div class="formula"><span class="label">Chinese Remainder Theorem</span>System x≡aᵢ (mod nᵢ) has unique solution mod (n₁n₂…) when nᵢ pairwise coprime</div>
+  </div>
+</div>
+
+</body>
+</html>

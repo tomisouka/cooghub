@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>C# Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #07091a;
+    --surface: #0d1024;
+    --surface2: #121530;
+    --surface3: #181e3a;
+    --border: #1e2545;
+    --border2: #2a3460;
+    --violet: #7c5cbf;
+    --violet-light: #a07de8;
+    --violet-glow: rgba(124, 92, 191, 0.15);
+    --violet-glow2: rgba(124, 92, 191, 0.08);
+    --cyan: #38bdf8;
+    --cyan-dim: rgba(56, 189, 248, 0.1);
+    --green: #6ee7b7;
+    --gold: #f0c060;
+    --text: #e8eaf6;
+    --text-mid: #9ba4c8;
+    --text-dim: #5a6490;
+    --text-code: #c5d0f0;
+    --sharp: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.72;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse 100% 60% at 20% 0%, rgba(124, 92, 191, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(56, 189, 248, 0.06) 0%, transparent 50%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%237c5cbf' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7, 9, 26, 0.94);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border2);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    height: 56px;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--violet) 25%, var(--violet-light) 50%, var(--cyan) 75%, transparent);
+    opacity: 0.5;
+  }
+
+  .logo {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--violet-light);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .logo-badge {
+    background: linear-gradient(135deg, var(--violet), var(--violet-light));
+    color: white;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  nav {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 2rem;
+    flex: 1;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.66rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.28rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.02em;
+  }
+  nav a:hover { color: var(--violet-light); background: var(--violet-glow); }
+
+  /* Hero */
+  .hero {
+    padding: 5.5rem 2.5rem 4rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.68rem;
+    color: var(--violet-light);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .hero-label::before, .hero-label::after {
+    content: '';
+    flex: 1;
+    max-width: 3rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--violet));
+  }
+  .hero-label::after {
+    background: linear-gradient(270deg, transparent, var(--violet));
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--sharp);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 .accent {
+    display: block;
+    background: linear-gradient(135deg, var(--violet-light) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .hero-meta {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 2rem;
+    margin-top: 0.5rem;
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hero-meta span::before {
+    content: '◈';
+    color: var(--violet);
+    font-size: 0.55rem;
+  }
+
+  /* Main */
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2.5rem 8rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 2rem 2.25rem;
+    margin-bottom: 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .toc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--violet-glow2), transparent 60%);
+    pointer-events: none;
+  }
+
+  .toc-label {
+    grid-column: 1 / -1;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.2em;
+    color: var(--violet-light);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .toc a {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.22rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: color 0.12s;
+  }
+  .toc a:hover { color: var(--violet-light); }
+  .toc-num { color: var(--border2); min-width: 1.6rem; font-size: 0.62rem; }
+
+  /* Sections */
+  section {
+    margin-bottom: 4.5rem;
+    scroll-margin-top: 68px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border2);
+    position: relative;
+  }
+
+  .section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 80px; height: 1px;
+    background: linear-gradient(90deg, var(--violet), transparent);
+  }
+
+  .section-pill {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    color: var(--violet-light);
+    background: var(--violet-glow);
+    border: 1px solid var(--violet);
+    border-radius: 20px;
+    padding: 0.15rem 0.6rem;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.85rem;
+    font-weight: 600;
+    color: var(--sharp);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin: 2.25rem 0 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  h3::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+
+  thead {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  th {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.7rem 1.1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-mid);
+    font-size: 0.93rem;
+    line-height: 1.55;
+  }
+
+  tr:hover td { background: var(--violet-glow2); }
+  tr:hover td:first-child {
+    color: var(--violet-light);
+  }
+
+  td:first-child {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.87rem;
+    color: var(--violet-light);
+    white-space: nowrap;
+    min-width: 140px;
+    padding: 0.7rem 1.25rem;
+    border-right: 1px solid var(--border);
+    background: rgba(124, 92, 191, 0.03);
+    transition: color 0.15s;
+    font-weight: 500;
+  }
+
+  code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.81em;
+    color: var(--text-code);
+    background: rgba(124, 92, 191, 0.12);
+    padding: 0.12em 0.4em;
+    border-radius: 4px;
+    border: 1px solid rgba(124, 92, 191, 0.18);
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--violet);
+    border-radius: 0 10px 10px 0;
+    padding: 1.15rem 1.4rem;
+    margin: 1rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.8;
+    tab-size: 4;
+  }
+
+  /* Syntax highlight tokens */
+  .code-block .cm  { color: var(--text-dim); font-style: italic; }
+  .code-block .kw  { color: #c792ea; font-weight: 500; }
+  .code-block .ty  { color: #82aaff; }
+  .code-block .fn  { color: #82e0aa; }
+  .code-block .st  { color: #c3e88d; }
+  .code-block .nm  { color: var(--gold); }
+  .code-block .at  { color: #ffcb6b; }  /* attributes */
+  .code-block .kw2 { color: var(--cyan); font-weight: 500; } /* contextual kw */
+
+  .prose {
+    color: var(--text-mid);
+    margin: 0.75rem 0;
+    line-height: 1.88;
+    font-size: 0.97rem;
+  }
+
+  .prose strong { color: var(--gold); font-weight: 600; }
+
+  .plain-def { color: var(--text-dim); font-style: italic; font-size: 0.9rem; }
+  .plain-def-header { color: var(--text-dim); font-size: 0.6rem; }
+
+  /* Callouts */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--violet);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .callout strong { color: var(--violet-light); }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout.gold strong { color: var(--gold); }
+  .callout.cyan { border-left-color: var(--cyan); }
+  .callout.cyan strong { color: var(--cyan); }
+
+  /* Tips */
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .tips-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.15rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    color: var(--text-mid);
+    line-height: 1.65;
+    transition: border-color 0.15s;
+  }
+  .tips-list li:hover { border-color: var(--border2); }
+
+  .tip-code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--violet-light);
+    background: var(--violet-glow);
+    border: 1px solid rgba(124, 92, 191, 0.25);
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .back-top:hover { color: var(--violet-light); border-color: var(--violet); background: var(--violet-glow); }
+
+  .idx-link {
+    color: var(--violet-light);
+    text-decoration: none;
+    font-size: 0.76rem;
+    font-family: 'Fira Code', monospace;
+  }
+  .idx-link:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.66rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border2);
+    letter-spacing: 0.08em;
+    position: relative;
+    z-index: 1;
+  }
+  footer span { color: var(--violet-light); }
+</style>
+</head>
+<body id="top">
+
+<header>
+  <span class="logo"><span class="logo-badge">C#</span> Quick Reference</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#variables">Variables</a>
+    <a href="#keywords">Keywords</a>
+    <a href="#operators">Operators</a>
+    <a href="#control">Control Flow</a>
+    <a href="#functions">Methods</a>
+    <a href="#classes">Classes &amp; OOP</a>
+    <a href="#interfaces">Interfaces</a>
+    <a href="#generics">Generics</a>
+    <a href="#exceptions">Exceptions</a>
+    <a href="#linq">LINQ</a>
+    <a href="#async">Async/Await</a>
+    <a href="#collections">Collections</a>
+    <a href="#modern">Modern C#</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-label">Enterprise · Web · Cloud · Games</div>
+  <h1>C Sharp<br><span class="accent">Quick Reference</span></h1>
+  <div class="hero-meta">
+    <span>C# 12 / .NET 8</span>
+    <span>Object-Oriented</span>
+    <span>Strongly Typed</span>
+    <span>Garbage Collected</span>
+    <span>Cross-Platform</span>
+  </div>
+</div>
+
+<main>
+
+<div class="toc">
+  <div class="toc-label">// Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#types"><span class="toc-num">02</span> Types &amp; Type System</a>
+  <a href="#variables"><span class="toc-num">03</span> Variables &amp; Constants</a>
+  <a href="#keywords"><span class="toc-num">04</span> Keywords Reference</a>
+  <a href="#operators"><span class="toc-num">05</span> Operators</a>
+  <a href="#control"><span class="toc-num">06</span> Control Flow</a>
+  <a href="#functions"><span class="toc-num">07</span> Methods &amp; Parameters</a>
+  <a href="#classes"><span class="toc-num">08</span> Classes &amp; OOP</a>
+  <a href="#interfaces"><span class="toc-num">09</span> Interfaces &amp; Abstract</a>
+  <a href="#generics"><span class="toc-num">10</span> Generics</a>
+  <a href="#exceptions"><span class="toc-num">11</span> Exceptions</a>
+  <a href="#linq"><span class="toc-num">12</span> LINQ</a>
+  <a href="#async"><span class="toc-num">13</span> Async / Await</a>
+  <a href="#collections"><span class="toc-num">14</span> Collections</a>
+  <a href="#modern"><span class="toc-num">15</span> Modern C# Features</a>
+  <a href="#tips"><span class="toc-num">16</span> Tips &amp; Gotchas</a>
+  <a href="#index"><span class="toc-num">17</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-pill">01</span><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">C# is a <strong>statically typed, object-oriented language</strong> running on the .NET runtime. Every program lives inside a namespace, class, and method. C# 9+ supports top-level statements — no class boilerplate needed for simple programs.</p>
+
+  <div class="code-block"><span class="cm">// Classic program structure</span>
+<span class="kw">using</span> System;
+
+<span class="kw">namespace</span> <span class="ty">MyApp</span>
+{
+    <span class="kw">class</span> <span class="ty">Program</span>
+    {
+        <span class="kw">static void</span> <span class="fn">Main</span>(<span class="ty">string</span>[] args)
+        {
+            Console.<span class="fn">WriteLine</span>(<span class="st">"Hello, World!"</span>);
+        }
+    }
+}
+
+<span class="cm">// C# 9+ top-level statements — same result, no ceremony</span>
+Console.<span class="fn">WriteLine</span>(<span class="st">"Hello, World!"</span>);</div>
+
+  <h3>Program Structure</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>using Namespace;</td><td class="plain-def">import a namespace</td><td>Grants access to types without full qualification</td></tr>
+      <tr><td>namespace Name { }</td><td class="plain-def">logical grouping of types</td><td>File-scoped: <code>namespace Name;</code> (C# 10+)</td></tr>
+      <tr><td>class Name { }</td><td class="plain-def">blueprint for objects</td><td>Reference type; contains fields, properties, methods</td></tr>
+      <tr><td>static void Main()</td><td class="plain-def">program entry point</td><td>Or <code>static async Task Main()</code> for async entry</td></tr>
+      <tr><td>// comment</td><td class="plain-def">human note, ignored</td><td><code>/// XML doc comment</code> for IntelliSense documentation</td></tr>
+      <tr><td>#region / #endregion</td><td class="plain-def">collapsible code block</td><td>IDE hint only; no runtime effect</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>dotnet CLI</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>dotnet new console -n Name</td><td class="plain-def">create a new console project</td><td>Other templates: <code>webapi</code>, <code>classlib</code>, <code>mvc</code>, <code>blazor</code></td></tr>
+      <tr><td>dotnet build</td><td class="plain-def">compile the project</td><td>Outputs to <code>bin/Debug/</code>; add <code>-c Release</code> for optimized</td></tr>
+      <tr><td>dotnet run</td><td class="plain-def">build and execute</td><td>Recompiles if source changed; pass args after <code>--</code></td></tr>
+      <tr><td>dotnet test</td><td class="plain-def">run all unit tests</td><td>Works with xUnit, NUnit, MSTest</td></tr>
+      <tr><td>dotnet add package Name</td><td class="plain-def">add a NuGet package</td><td>Updates <code>.csproj</code>; fetches from nuget.org</td></tr>
+      <tr><td>dotnet publish -c Release</td><td class="plain-def">create deployment artifact</td><td>Add <code>--self-contained</code> to bundle the runtime</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 02 Types -->
+<section id="types">
+  <div class="section-header"><span class="section-pill">02</span><h2>Types &amp; Type System</h2></div>
+  <p class="prose">C# has two categories of types: <strong>value types</strong> (stored on the stack, copied on assignment) and <strong>reference types</strong> (stored on the heap, assignment copies the reference). All types ultimately derive from <code>object</code>.</p>
+
+  <h3>Value Types — Built-in</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Size</th><th>Range / Notes</th></tr></thead>
+    <tbody>
+      <tr><td>bool</td><td class="plain-def">true or false</td><td>1 byte</td><td><code>true</code> / <code>false</code></td></tr>
+      <tr><td>byte / sbyte</td><td class="plain-def">tiny int</td><td>1 byte</td><td>0–255 / −128–127</td></tr>
+      <tr><td>short / ushort</td><td class="plain-def">small int</td><td>2 bytes</td><td>±32,767 / 0–65,535</td></tr>
+      <tr><td>int / uint</td><td class="plain-def">standard int</td><td>4 bytes</td><td>±2.1B / 0–4.3B; default integer type</td></tr>
+      <tr><td>long / ulong</td><td class="plain-def">large int</td><td>8 bytes</td><td>±9.2×10¹⁸; suffix <code>L</code></td></tr>
+      <tr><td>float</td><td class="plain-def">32-bit decimal</td><td>4 bytes</td><td>~7 significant digits; suffix <code>f</code></td></tr>
+      <tr><td>double</td><td class="plain-def">64-bit decimal</td><td>8 bytes</td><td>~15–17 digits; default floating-point type</td></tr>
+      <tr><td>decimal</td><td class="plain-def">financial decimal</td><td>16 bytes</td><td>28–29 digits; no rounding errors; suffix <code>m</code></td></tr>
+      <tr><td>char</td><td class="plain-def">single Unicode character</td><td>2 bytes</td><td>UTF-16 code unit; single quotes: <code>'A'</code></td></tr>
+      <tr><td>nint / nuint</td><td class="plain-def">native-sized int</td><td>4 or 8 bytes</td><td>Platform pointer-sized (C# 9+)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Reference Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>string</td><td class="plain-def">immutable text</td><td>Unicode; <code>string.Empty</code> or <code>""</code>; interpolation: <code>$"Hello {name}"</code></td></tr>
+      <tr><td>object</td><td class="plain-def">root of all types</td><td>Every type inherits from <code>object</code>; boxing converts value → reference</td></tr>
+      <tr><td>dynamic</td><td class="plain-def">type resolved at runtime</td><td>Bypasses compile-time type checking; use sparingly</td></tr>
+      <tr><td>T[]</td><td class="plain-def">fixed-size array</td><td>Zero-indexed; <code>new int[5]</code>; multi-dim: <code>int[,]</code></td></tr>
+      <tr><td>class</td><td class="plain-def">user-defined reference type</td><td>Heap-allocated; supports inheritance</td></tr>
+      <tr><td>record</td><td class="plain-def">immutable data type</td><td>Value equality; <code>with</code> expressions; C# 9+</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Nullable Types</h3>
+  <div class="code-block"><span class="cm">// Value types cannot be null by default — use ? to allow it</span>
+<span class="ty">int</span>? age = <span class="kw">null</span>;
+<span class="ty">double</span>? price = <span class="nm">9.99</span>;
+
+age.<span class="fn">HasValue</span>   <span class="cm">// false</span>
+age.<span class="fn">Value</span>      <span class="cm">// throws if null — use GetValueOrDefault()</span>
+age ?? <span class="nm">0</span>        <span class="cm">// null-coalescing: returns 0 if age is null</span>
+
+<span class="cm">// Nullable reference types (C# 8+, enabled in .csproj)</span>
+<span class="cm">// &lt;Nullable&gt;enable&lt;/Nullable&gt;</span>
+<span class="ty">string</span>? maybeNull = <span class="kw">null</span>;   <span class="cm">// compiler warns if you dereference without check</span>
+<span class="ty">string</span> notNull = <span class="st">"hello"</span>;   <span class="cm">// guaranteed non-null</span>
+
+<span class="cm">// Null-conditional operator</span>
+<span class="ty">int</span>? len = maybeNull?.<span class="fn">Length</span>;  <span class="cm">// null if maybeNull is null; no exception</span>
+maybeNull?.<span class="fn">ToUpper</span>();          <span class="cm">// safe call — does nothing if null</span>
+list?[<span class="nm">0</span>];                       <span class="cm">// null-conditional indexer</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 03 Variables -->
+<section id="variables">
+  <div class="section-header"><span class="section-pill">03</span><h2>Variables &amp; Constants</h2></div>
+
+  <div class="code-block"><span class="cm">// Explicit type declaration</span>
+<span class="ty">int</span> x = <span class="nm">42</span>;
+<span class="ty">string</span> name = <span class="st">"Alice"</span>;
+
+<span class="cm">// var — type inferred at compile time (not dynamic!)</span>
+<span class="kw">var</span> count = <span class="nm">10</span>;         <span class="cm">// int</span>
+<span class="kw">var</span> text = <span class="st">"hello"</span>;    <span class="cm">// string</span>
+<span class="kw">var</span> pi = <span class="nm">3.14</span>;         <span class="cm">// double</span>
+
+<span class="cm">// Constants — evaluated at compile time</span>
+<span class="kw">const int</span> MaxSize = <span class="nm">100</span>;
+<span class="kw">const string</span> AppName = <span class="st">"MyApp"</span>;
+
+<span class="cm">// readonly — set once, at declaration or in constructor</span>
+<span class="kw">readonly int</span> _id = <span class="nm">42</span>;
+
+<span class="cm">// Type conversion</span>
+<span class="ty">int</span> i = (<span class="ty">int</span>)<span class="nm">3.99</span>;            <span class="cm">// explicit cast — truncates to 3</span>
+<span class="ty">double</span> d = i;                  <span class="cm">// implicit widening conversion</span>
+<span class="ty">string</span> s = i.<span class="fn">ToString</span>();      <span class="cm">// to string</span>
+<span class="ty">int</span> n = <span class="ty">int</span>.<span class="fn">Parse</span>(<span class="st">"42"</span>);      <span class="cm">// parse (throws on failure)</span>
+<span class="kw">bool</span> ok = <span class="ty">int</span>.<span class="fn">TryParse</span>(<span class="st">"42"</span>, <span class="kw">out int</span> result); <span class="cm">// safe parse</span>
+<span class="kw">var</span> obj = (<span class="ty">MyClass</span>)someObj;    <span class="cm">// cast reference type (throws on failure)</span>
+<span class="kw">var</span> obj = someObj <span class="kw">as</span> <span class="ty">MyClass</span>;  <span class="cm">// safe cast — returns null on failure</span>
+
+<span class="cm">// String literals</span>
+<span class="kw">var</span> basic = <span class="st">"Hello\nWorld"</span>;     <span class="cm">// escape sequences</span>
+<span class="kw">var</span> verbatim = <span class="st">@"C:\Users\Bob"</span>;  <span class="cm">// raw string — backslash is literal</span>
+<span class="kw">var</span> interp = <span class="st">$"Name: {name}"</span>;   <span class="cm">// interpolated</span>
+<span class="kw">var</span> both = <span class="st">$@"Path: {dir}\file"</span>; <span class="cm">// both combined</span>
+<span class="kw">var</span> raw = <span class="st">"""</span>                     <span class="cm">// raw string literal (C# 11)</span>
+<span class="st">    No escaping needed: {braces} \ backslash</span>
+<span class="st">    """</span>;</div>
+
+  <h3>Deconstruction &amp; Patterns</h3>
+  <div class="code-block"><span class="cm">// Tuple deconstruction</span>
+(<span class="ty">int</span> x, <span class="ty">int</span> y) = <span class="fn">GetPoint</span>();
+<span class="kw">var</span> (first, second) = (<span class="st">"a"</span>, <span class="st">"b"</span>);
+
+<span class="cm">// Discard with _</span>
+<span class="kw">var</span> (_, lastName) = <span class="fn">GetName</span>();   <span class="cm">// ignore first value</span>
+
+<span class="cm">// is pattern matching</span>
+<span class="kw">if</span> (obj <span class="kw">is</span> <span class="ty">string</span> s) { <span class="cm">/* s is typed string */</span> }
+<span class="kw">if</span> (obj <span class="kw">is</span> <span class="ty">int</span> n <span class="kw">and</span> > <span class="nm">0</span>) { <span class="cm">/* positive int */</span> }</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 04 Keywords -->
+<section id="keywords">
+  <div class="section-header"><span class="section-pill">04</span><h2>Keywords Reference</h2></div>
+  <p class="prose">C# has <strong>79 reserved keywords</strong> plus contextual keywords used only in certain positions. They cannot be used as identifiers — unless prefixed with <code>@</code> (e.g., <code>@class</code>).</p>
+
+  <h3>Type Declaration Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>class</td><td class="plain-def">reference type blueprint</td><td>Heap-allocated; supports inheritance; default access is internal</td></tr>
+      <tr><td>struct</td><td class="plain-def">value type blueprint</td><td>Stack-allocated by default; copied on assignment; no inheritance</td></tr>
+      <tr><td>record</td><td class="plain-def">immutable data object</td><td>Value equality; init-only properties; <code>with</code> for mutation (C# 9+)</td></tr>
+      <tr><td>record struct</td><td class="plain-def">value-type record</td><td>Like record but value semantics; C# 10+</td></tr>
+      <tr><td>interface</td><td class="plain-def">contract of members</td><td>No fields (C# 7); default implementations allowed in C# 8+</td></tr>
+      <tr><td>enum</td><td class="plain-def">named integer constants</td><td>Underlying type is <code>int</code> by default; can specify: <code>enum E : byte</code></td></tr>
+      <tr><td>delegate</td><td class="plain-def">type-safe function pointer</td><td>Foundation for events and lambdas; prefer <code>Func&lt;&gt;</code>/<code>Action&lt;&gt;</code></td></tr>
+      <tr><td>namespace</td><td class="plain-def">logical grouping of types</td><td>File-scoped shorthand: <code>namespace Foo;</code> (C# 10)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Access Modifiers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Modifier</th><th class="plain-def-header">Plain English</th><th>Accessible from</th></tr></thead>
+    <tbody>
+      <tr><td>public</td><td class="plain-def">anyone</td><td>Any code in any assembly</td></tr>
+      <tr><td>private</td><td class="plain-def">only me</td><td>Only within the declaring class/struct; default for members</td></tr>
+      <tr><td>protected</td><td class="plain-def">me and my children</td><td>Declaring class + all derived classes</td></tr>
+      <tr><td>internal</td><td class="plain-def">same assembly only</td><td>Within the same <code>.dll</code> / project; default for types</td></tr>
+      <tr><td>protected internal</td><td class="plain-def">assembly or derived</td><td>Either internal OR protected — whichever is more permissive</td></tr>
+      <tr><td>private protected</td><td class="plain-def">derived within assembly</td><td>Derived classes only AND same assembly — most restrictive combo</td></tr>
+      <tr><td>file</td><td class="plain-def">this file only (C# 11)</td><td>Top-level type visible only in the file it is declared</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Member Modifiers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Modifier</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>static</td><td class="plain-def">belongs to type, not instance</td><td>No <code>this</code>; call on type: <code>Math.Sqrt()</code></td></tr>
+      <tr><td>readonly</td><td class="plain-def">set once in ctor or init</td><td>Field only; cannot change after initialization</td></tr>
+      <tr><td>const</td><td class="plain-def">compile-time constant</td><td>Implicitly static; type must be simple (no object)</td></tr>
+      <tr><td>virtual</td><td class="plain-def">overridable in derived class</td><td>Enables runtime polymorphism</td></tr>
+      <tr><td>override</td><td class="plain-def">redefine virtual member</td><td>Must override a <code>virtual</code> or <code>abstract</code> member</td></tr>
+      <tr><td>abstract</td><td class="plain-def">must be overridden</td><td>On class: cannot instantiate. On member: no implementation</td></tr>
+      <tr><td>sealed</td><td class="plain-def">cannot inherit or override</td><td>On class: no subclasses. On member: stop override chain</td></tr>
+      <tr><td>new</td><td class="plain-def">hide base member</td><td>Hides (not overrides) a base member; use <code>override</code> for polymorphism</td></tr>
+      <tr><td>partial</td><td class="plain-def">split definition across files</td><td>Both halves compile together; common with code-gen</td></tr>
+      <tr><td>extern</td><td class="plain-def">implemented outside .NET</td><td>With DllImport for P/Invoke to native code</td></tr>
+      <tr><td>volatile</td><td class="plain-def">don't optimize access</td><td>Ensures fresh read; for multi-threaded fields</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Special Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>this</td><td class="plain-def">current instance</td><td>Disambiguate fields; chain constructors: <code>this(arg)</code></td></tr>
+      <tr><td>base</td><td class="plain-def">parent class</td><td>Call base constructor: <code>base(arg)</code>; call base method: <code>base.Method()</code></td></tr>
+      <tr><td>new</td><td class="plain-def">create an object</td><td><code>new MyClass()</code>; target-typed: <code>MyClass obj = new();</code></td></tr>
+      <tr><td>typeof</td><td class="plain-def">get the Type object</td><td><code>typeof(int)</code> → compile-time; use <code>obj.GetType()</code> at runtime</td></tr>
+      <tr><td>sizeof</td><td class="plain-def">size in bytes</td><td>Only for unmanaged types; compile-time for primitives</td></tr>
+      <tr><td>is</td><td class="plain-def">type test / pattern match</td><td><code>x is int n</code>; <code>x is null</code>; <code>x is { Prop: val }</code></td></tr>
+      <tr><td>as</td><td class="plain-def">safe cast</td><td>Returns <code>null</code> on failure rather than throwing</td></tr>
+      <tr><td>in</td><td class="plain-def">foreach iteration / read-only ref param</td><td><code>foreach (var x in list)</code>; method param: <code>void F(in int x)</code></td></tr>
+      <tr><td>ref</td><td class="plain-def">reference parameter / ref return</td><td>Pass by reference; <code>ref int x</code>; <code>ref return</code></td></tr>
+      <tr><td>out</td><td class="plain-def">output parameter</td><td>Must be assigned inside method: <code>bool TryParse(string s, out int n)</code></td></tr>
+      <tr><td>params</td><td class="plain-def">variable argument list</td><td><code>void Log(params string[] msgs)</code> — call with any number of args</td></tr>
+      <tr><td>nameof</td><td class="plain-def">get name as string at compile time</td><td><code>nameof(MyProp)</code> → <code>"MyProp"</code>; refactor-safe</td></tr>
+      <tr><td>checked / unchecked</td><td class="plain-def">overflow behavior</td><td><code>checked</code> throws on overflow; <code>unchecked</code> wraps silently</td></tr>
+      <tr><td>unsafe</td><td class="plain-def">allow pointer operations</td><td>Requires <code>&lt;AllowUnsafeBlocks&gt;true&lt;/AllowUnsafeBlocks&gt;</code></td></tr>
+      <tr><td>lock</td><td class="plain-def">mutual exclusion block</td><td><code>lock (syncObj) { }</code> — prevents concurrent access</td></tr>
+      <tr><td>using</td><td class="plain-def">import / auto-dispose</td><td>Statement: <code>using var f = File.Open(...);</code> disposes at scope end</td></tr>
+      <tr><td>await</td><td class="plain-def">wait on async operation</td><td>Suspends method; only in <code>async</code> methods</td></tr>
+      <tr><td>yield</td><td class="plain-def">lazy sequence element</td><td><code>yield return x</code> in iterator; <code>yield break</code> to stop</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 05 Operators -->
+<section id="operators">
+  <div class="section-header"><span class="section-pill">05</span><h2>Operators</h2></div>
+
+  <h3>Arithmetic &amp; Assignment</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>+ - * / %</td><td class="plain-def">arithmetic</td><td><code>/</code> on integers truncates; <code>%</code> sign follows dividend</td></tr>
+      <tr><td>++ --</td><td class="plain-def">increment / decrement</td><td>Pre and post forms; both expression and statement</td></tr>
+      <tr><td>+= -= *= /= %=</td><td class="plain-def">compound assignment</td><td>Standard; also <code>&amp;= |= ^= &lt;&lt;= &gt;&gt;=</code></td></tr>
+      <tr><td>??=</td><td class="plain-def">assign if null</td><td><code>x ??= defaultValue</code> — C# 8+</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comparison, Logical &amp; Special</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>== !=</td><td class="plain-def">equal / not equal</td><td>Value equality for value types; reference equality for objects (unless overloaded)</td></tr>
+      <tr><td>&lt; &gt; &lt;= &gt;=</td><td class="plain-def">ordered comparison</td><td>Works on numerics, strings (lexicographic), any IComparable</td></tr>
+      <tr><td>&amp;&amp; ||</td><td class="plain-def">logical AND / OR</td><td>Short-circuit; <code>&amp;</code> and <code>|</code> are non-short-circuit bitwise/logical</td></tr>
+      <tr><td>!</td><td class="plain-def">logical NOT</td><td></td></tr>
+      <tr><td>&amp; | ^ ~ &lt;&lt; &gt;&gt; &gt;&gt;&gt;</td><td class="plain-def">bitwise operators</td><td><code>&gt;&gt;&gt;</code> is unsigned right shift (C# 11)</td></tr>
+      <tr><td>? :</td><td class="plain-def">ternary conditional</td><td><code>cond ? trueVal : falseVal</code></td></tr>
+      <tr><td>??</td><td class="plain-def">null coalescing</td><td><code>x ?? defaultVal</code> — returns right side if left is null</td></tr>
+      <tr><td>?.</td><td class="plain-def">null-conditional member</td><td><code>obj?.Property</code> — null if obj is null; no exception</td></tr>
+      <tr><td>?[ ]</td><td class="plain-def">null-conditional indexer</td><td><code>list?[0]</code> — null if list is null</td></tr>
+      <tr><td>=&gt;</td><td class="plain-def">lambda / expression body</td><td><code>x =&gt; x * 2</code>; also <code>void M() =&gt; DoWork();</code></td></tr>
+      <tr><td>is</td><td class="plain-def">type test / pattern</td><td><code>x is int n</code> declares and binds <code>n</code></td></tr>
+      <tr><td>as</td><td class="plain-def">safe cast</td><td>Returns null rather than throwing; only reference/nullable types</td></tr>
+      <tr><td>.. / ^</td><td class="plain-def">range / index from end</td><td><code>^1</code> = last item; <code>1..4</code> = slice; C# 8+</td></tr>
+      <tr><td>switch expression</td><td class="plain-def">expression-form switch</td><td><code>x switch { 1 =&gt; "one", _ =&gt; "other" }</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 06 Control Flow -->
+<section id="control">
+  <div class="section-header"><span class="section-pill">06</span><h2>Control Flow</h2></div>
+
+  <div class="code-block"><span class="cm">// if / else if / else</span>
+<span class="kw">if</span> (score >= <span class="nm">90</span>) grade = <span class="st">"A"</span>;
+<span class="kw">else if</span> (score >= <span class="nm">80</span>) grade = <span class="st">"B"</span>;
+<span class="kw">else</span> grade = <span class="st">"C"</span>;
+
+<span class="cm">// switch statement — falls through to next case if omitted... wait, no.</span>
+<span class="cm">// C# switch does NOT fall through unless the case is empty</span>
+<span class="kw">switch</span> (day)
+{
+    <span class="kw">case</span> <span class="st">"Mon"</span>:
+    <span class="kw">case</span> <span class="st">"Tue"</span>:  Console.<span class="fn">WriteLine</span>(<span class="st">"Weekday"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="st">"Sat"</span>:  Console.<span class="fn">WriteLine</span>(<span class="st">"Saturday"</span>); <span class="kw">break</span>;
+    <span class="kw">default</span>:    Console.<span class="fn">WriteLine</span>(<span class="st">"Other"</span>); <span class="kw">break</span>;
+}
+
+<span class="cm">// switch expression (C# 8+) — concise, returns a value</span>
+<span class="kw">string</span> label = day <span class="kw">switch</span>
+{
+    <span class="st">"Mon"</span> or <span class="st">"Tue"</span> or <span class="st">"Wed"</span> or <span class="st">"Thu"</span> or <span class="st">"Fri"</span> => <span class="st">"Weekday"</span>,
+    <span class="st">"Sat"</span> or <span class="st">"Sun"</span>                               => <span class="st">"Weekend"</span>,
+    _                                              => <span class="kw">throw new</span> <span class="ty">ArgumentException</span>()
+};
+
+<span class="cm">// Pattern matching in switch</span>
+<span class="kw">string</span> describe = shape <span class="kw">switch</span>
+{
+    <span class="ty">Circle</span> { Radius: > <span class="nm">10</span> }        => <span class="st">"large circle"</span>,
+    <span class="ty">Circle</span> c                        => <span class="st">$"circle r={c.Radius}"</span>,
+    <span class="ty">Rectangle</span> { Width: <span class="kw">var</span> w, Height: <span class="kw">var</span> h } => <span class="st">$"{w}x{h} rect"</span>,
+    <span class="kw">null</span>                             => <span class="st">"null shape"</span>,
+    _                                => <span class="st">"unknown"</span>
+};
+
+<span class="cm">// Loops</span>
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">0</span>; i < <span class="nm">10</span>; i++) { }
+<span class="kw">while</span> (running) { }
+<span class="kw">do</span> { } <span class="kw">while</span> (condition);
+<span class="kw">foreach</span> (<span class="kw">var</span> item <span class="kw">in</span> collection) { }
+
+<span class="cm">// Jump statements</span>
+<span class="kw">break</span>;     <span class="cm">// exit loop or switch</span>
+<span class="kw">continue</span>;  <span class="cm">// next iteration</span>
+<span class="kw">return</span>;    <span class="cm">// exit method</span>
+<span class="kw">goto</span> label; <span class="cm">// jump to label (rare; useful in switch fall-through)</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 07 Methods -->
+<section id="functions">
+  <div class="section-header"><span class="section-pill">07</span><h2>Methods &amp; Parameters</h2></div>
+
+  <div class="code-block"><span class="cm">// Basic method</span>
+<span class="kw">public int</span> <span class="fn">Add</span>(<span class="ty">int</span> a, <span class="ty">int</span> b) => a + b;   <span class="cm">// expression-bodied</span>
+
+<span class="kw">public string</span> <span class="fn">Format</span>(<span class="ty">string</span> s)           <span class="cm">// block body</span>
+{
+    <span class="kw">return</span> s.<span class="fn">Trim</span>().<span class="fn">ToUpper</span>();
+}
+
+<span class="cm">// Optional parameters (must be last)</span>
+<span class="kw">void</span> <span class="fn">Log</span>(<span class="ty">string</span> msg, <span class="ty">bool</span> timestamp = <span class="kw">true</span>) { }
+
+<span class="cm">// Named arguments — pass in any order</span>
+<span class="fn">Log</span>(timestamp: <span class="kw">false</span>, msg: <span class="st">"hello"</span>);
+
+<span class="cm">// params — variable argument list</span>
+<span class="kw">void</span> <span class="fn">Print</span>(<span class="kw">params string</span>[] items) { }
+<span class="fn">Print</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>);
+
+<span class="cm">// out — must be assigned inside method</span>
+<span class="kw">bool</span> <span class="fn">TryGetAge</span>(<span class="ty">string</span> input, <span class="kw">out int</span> age)
+{
+    <span class="kw">return int</span>.<span class="fn">TryParse</span>(input, <span class="kw">out</span> age);
+}
+<span class="kw">if</span> (<span class="fn">TryGetAge</span>(<span class="st">"30"</span>, <span class="kw">out int</span> myAge)) { }   <span class="cm">// inline out declaration</span>
+
+<span class="cm">// ref — passes reference; must be initialized before calling</span>
+<span class="kw">void</span> <span class="fn">Double</span>(<span class="kw">ref int</span> n) { n *= <span class="nm">2</span>; }
+<span class="fn">Double</span>(<span class="kw">ref</span> myNum);
+
+<span class="cm">// in — read-only reference (avoids copy of large struct)</span>
+<span class="kw">void</span> <span class="fn">Process</span>(<span class="kw">in</span> <span class="ty">LargeStruct</span> data) { <span class="cm">/* data cannot be modified */</span> }
+
+<span class="cm">// Extension methods — add methods to existing types</span>
+<span class="kw">public static class</span> <span class="ty">StringExtensions</span>
+{
+    <span class="kw">public static bool</span> <span class="fn">IsNullOrEmpty</span>(<span class="kw">this string</span> s) => <span class="ty">string</span>.<span class="fn">IsNullOrEmpty</span>(s);
+}
+<span class="st">"hello"</span>.<span class="fn">IsNullOrEmpty</span>();  <span class="cm">// called as if it's a string method!</span>
+
+<span class="cm">// Local functions (C# 7+)</span>
+<span class="kw">int</span> <span class="fn">Compute</span>(<span class="ty">int</span> x)
+{
+    <span class="kw">return</span> <span class="fn">Helper</span>(x) * <span class="nm">2</span>;
+    <span class="kw">int</span> <span class="fn">Helper</span>(<span class="ty">int</span> n) => n + <span class="nm">1</span>;  <span class="cm">// local function — only visible here</span>
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 08 Classes -->
+<section id="classes">
+  <div class="section-header"><span class="section-pill">08</span><h2>Classes &amp; OOP</h2></div>
+
+  <div class="code-block"><span class="kw">public class</span> <span class="ty">Animal</span>
+{
+    <span class="cm">// Fields</span>
+    <span class="kw">private string</span> _name;
+    <span class="kw">private static int</span> _count = <span class="nm">0</span>;
+
+    <span class="cm">// Auto-property (C# 3+)</span>
+    <span class="kw">public string</span> Name { <span class="kw">get</span>; <span class="kw">set</span>; }
+    <span class="kw">public int</span> Age  { <span class="kw">get</span>; <span class="kw">init</span>; }  <span class="cm">// init-only (C# 9+)</span>
+
+    <span class="cm">// Property with backing field</span>
+    <span class="kw">public string</span> Species
+    {
+        <span class="kw">get</span> => _name;
+        <span class="kw">set</span> => _name = value?.<span class="fn">Trim</span>() ?? <span class="kw">throw new</span> <span class="ty">ArgumentNullException</span>();
+    }
+
+    <span class="cm">// Constructor</span>
+    <span class="kw">public</span> <span class="fn">Animal</span>(<span class="ty">string</span> name, <span class="ty">int</span> age)
+    {
+        Name = name;
+        Age = age;
+        _count++;
+    }
+
+    <span class="cm">// Static constructor — runs once per type</span>
+    <span class="kw">static</span> <span class="fn">Animal</span>() { Console.<span class="fn">WriteLine</span>(<span class="st">"Animal type loaded"</span>); }
+
+    <span class="cm">// Virtual method — can be overridden</span>
+    <span class="kw">public virtual string</span> <span class="fn">Speak</span>() => <span class="st">"..."</span>;
+
+    <span class="cm">// Static method</span>
+    <span class="kw">public static int</span> <span class="fn">GetCount</span>() => _count;
+}
+
+<span class="kw">public class</span> <span class="ty">Dog</span> : <span class="ty">Animal</span>   <span class="cm">// inheritance</span>
+{
+    <span class="kw">public</span> <span class="fn">Dog</span>(<span class="ty">string</span> name) : <span class="kw">base</span>(name, <span class="nm">0</span>) { }   <span class="cm">// call base ctor</span>
+
+    <span class="kw">public override string</span> <span class="fn">Speak</span>() => <span class="st">"Woof!"</span>;    <span class="cm">// override virtual</span>
+}
+
+<span class="cm">// Record — immutable value-equality type</span>
+<span class="kw">public record</span> <span class="ty">Point</span>(<span class="ty">double</span> X, <span class="ty">double</span> Y);  <span class="cm">// positional record</span>
+<span class="kw">var</span> p1 = <span class="kw">new</span> <span class="ty">Point</span>(<span class="nm">1.0</span>, <span class="nm">2.0</span>);
+<span class="kw">var</span> p2 = p1 <span class="kw">with</span> { X = <span class="nm">5.0</span> };   <span class="cm">// non-destructive mutation</span>
+p1 == p2;   <span class="cm">// false (value equality)</span>
+
+<span class="cm">// Object initializer</span>
+<span class="kw">var</span> dog = <span class="kw">new</span> <span class="ty">Dog</span>(<span class="st">"Rex"</span>) { Age = <span class="nm">5</span> };
+
+<span class="cm">// Struct — value type, no heap allocation, no inheritance</span>
+<span class="kw">public struct</span> <span class="ty">Color</span>
+{
+    <span class="kw">public byte</span> R, G, B;
+    <span class="kw">public</span> <span class="fn">Color</span>(<span class="ty">byte</span> r, <span class="ty">byte</span> g, <span class="ty">byte</span> b) { R=r; G=g; B=b; }
+}</div>
+
+  <h3>Properties Deep Dive</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Form</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>{ get; set; }</td><td class="plain-def">read and write</td><td>Auto-property; compiler generates backing field</td></tr>
+      <tr><td>{ get; }</td><td class="plain-def">read-only</td><td>Can be set in constructor or field initializer</td></tr>
+      <tr><td>{ get; init; }</td><td class="plain-def">set during construction only</td><td>C# 9+; works with object initializers</td></tr>
+      <tr><td>{ get; private set; }</td><td class="plain-def">public read, private write</td><td>Controlled mutation</td></tr>
+      <tr><td>{ get =&gt; ...; }</td><td class="plain-def">computed property</td><td>No backing field; recomputed each access</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 09 Interfaces -->
+<section id="interfaces">
+  <div class="section-header"><span class="section-pill">09</span><h2>Interfaces &amp; Abstract Classes</h2></div>
+
+  <div class="code-block"><span class="cm">// Interface — contract; no state (usually)</span>
+<span class="kw">public interface</span> <span class="ty">IShape</span>
+{
+    <span class="ty">double</span> <span class="fn">Area</span>();          <span class="cm">// must implement</span>
+    <span class="ty">double</span> <span class="fn">Perimeter</span>();    <span class="cm">// must implement</span>
+    <span class="ty">string</span> Describe() => <span class="st">$"Area={Area():F2}"</span>;  <span class="cm">// default impl (C# 8+)</span>
+}
+
+<span class="cm">// Implement interface — explicit contract</span>
+<span class="kw">public class</span> <span class="ty">Circle</span> : <span class="ty">IShape</span>
+{
+    <span class="kw">public double</span> Radius { <span class="kw">get</span>; }
+    <span class="kw">public</span> <span class="fn">Circle</span>(<span class="ty">double</span> r) { Radius = r; }
+    <span class="kw">public double</span> <span class="fn">Area</span>()      => Math.PI * Radius * Radius;
+    <span class="kw">public double</span> <span class="fn">Perimeter</span>() => <span class="nm">2</span> * Math.PI * Radius;
+}
+
+<span class="cm">// Multiple interfaces (no multiple class inheritance)</span>
+<span class="kw">public class</span> <span class="ty">Square</span> : <span class="ty">IShape</span>, <span class="ty">IComparable</span>&lt;<span class="ty">Square</span>&gt;
+{
+    <span class="kw">public double</span> Side { <span class="kw">get</span>; }
+    <span class="kw">public double</span> <span class="fn">Area</span>()      => Side * Side;
+    <span class="kw">public double</span> <span class="fn">Perimeter</span>() => <span class="nm">4</span> * Side;
+    <span class="kw">public int</span> <span class="fn">CompareTo</span>(<span class="ty">Square</span>? other) => Side.<span class="fn">CompareTo</span>(other?.Side);
+}
+
+<span class="cm">// Abstract class — partial implementation, cannot instantiate</span>
+<span class="kw">public abstract class</span> <span class="ty">Vehicle</span>
+{
+    <span class="kw">public string</span> Make { <span class="kw">get</span>; }
+    <span class="kw">protected</span> <span class="fn">Vehicle</span>(<span class="ty">string</span> make) { Make = make; }
+
+    <span class="kw">public abstract void</span> <span class="fn">Start</span>();        <span class="cm">// no body; must override</span>
+    <span class="kw">public virtual void</span> <span class="fn">Stop</span>() =>        <span class="cm">// has body; may override</span>
+        Console.<span class="fn">WriteLine</span>(<span class="st">"Stopping"</span>);
+}
+
+<span class="kw">public class</span> <span class="ty">Car</span> : <span class="ty">Vehicle</span>
+{
+    <span class="kw">public</span> <span class="fn">Car</span>(<span class="ty">string</span> make) : <span class="kw">base</span>(make) { }
+    <span class="kw">public override void</span> <span class="fn">Start</span>() => Console.<span class="fn">WriteLine</span>(<span class="st">$"{Make}: Vroom!"</span>);
+}</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 10 Generics -->
+<section id="generics">
+  <div class="section-header"><span class="section-pill">10</span><h2>Generics</h2></div>
+
+  <div class="code-block"><span class="cm">// Generic class</span>
+<span class="kw">public class</span> <span class="ty">Stack</span>&lt;T&gt;
+{
+    <span class="kw">private</span> <span class="ty">List</span>&lt;T&gt; _items = <span class="kw">new</span>();
+    <span class="kw">public void</span> <span class="fn">Push</span>(T item) => _items.<span class="fn">Add</span>(item);
+    <span class="kw">public</span> T <span class="fn">Pop</span>()          => _items[^<span class="nm">1</span>];  <span class="cm">// index from end</span>
+}
+
+<span class="kw">var</span> stack = <span class="kw">new</span> <span class="ty">Stack</span>&lt;<span class="ty">int</span>&gt;();
+
+<span class="cm">// Generic method</span>
+<span class="kw">public</span> T <span class="fn">Max</span>&lt;T&gt;(T a, T b) <span class="kw">where</span> T : <span class="ty">IComparable</span>&lt;T&gt;
+    => a.<span class="fn">CompareTo</span>(b) > <span class="nm">0</span> ? a : b;
+
+<span class="cm">// Generic constraints</span>
+<span class="kw">where</span> T : <span class="kw">class</span>             <span class="cm">// reference type</span>
+<span class="kw">where</span> T : <span class="kw">struct</span>            <span class="cm">// value type (non-nullable)</span>
+<span class="kw">where</span> T : <span class="kw">new</span>()             <span class="cm">// has parameterless constructor</span>
+<span class="kw">where</span> T : <span class="ty">BaseClass</span>         <span class="cm">// derives from BaseClass</span>
+<span class="kw">where</span> T : <span class="ty">IInterface</span>        <span class="cm">// implements interface</span>
+<span class="kw">where</span> T : <span class="kw">notnull</span>           <span class="cm">// non-nullable type (C# 8+)</span>
+<span class="kw">where</span> T : <span class="kw">unmanaged</span>         <span class="cm">// primitive or struct of primitives</span>
+
+<span class="cm">// Covariance (out) and Contravariance (in) on interfaces</span>
+<span class="kw">interface</span> <span class="ty">IProducer</span>&lt;<span class="kw">out</span> T&gt;   { T <span class="fn">Get</span>(); }      <span class="cm">// covariant</span>
+<span class="kw">interface</span> <span class="ty">IConsumer</span>&lt;<span class="kw">in</span>  T&gt;   { <span class="kw">void</span> <span class="fn">Use</span>(T t); } <span class="cm">// contravariant</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 11 Exceptions -->
+<section id="exceptions">
+  <div class="section-header"><span class="section-pill">11</span><h2>Exceptions</h2></div>
+  <p class="prose">C# uses exceptions for error handling. Exceptions are objects that inherit from <code>Exception</code>. Use <code>try/catch/finally</code> to handle them; <code>throw</code> to raise them.</p>
+
+  <div class="code-block"><span class="cm">// try / catch / finally</span>
+<span class="kw">try</span>
+{
+    <span class="kw">var</span> data = File.<span class="fn">ReadAllText</span>(<span class="st">"data.txt"</span>);
+    <span class="kw">int</span> n = <span class="ty">int</span>.<span class="fn">Parse</span>(data);
+}
+<span class="kw">catch</span> (<span class="ty">FileNotFoundException</span> ex)
+{
+    Console.<span class="fn">WriteLine</span>(<span class="st">$"File missing: {ex.Message}"</span>);
+}
+<span class="kw">catch</span> (<span class="ty">FormatException</span>)
+{
+    Console.<span class="fn">WriteLine</span>(<span class="st">"Not a valid number"</span>);
+}
+<span class="kw">catch</span> (<span class="ty">Exception</span> ex) <span class="kw">when</span> (ex.Message.<span class="fn">Contains</span>(<span class="st">"timeout"</span>))  <span class="cm">// exception filter</span>
+{
+    Console.<span class="fn">WriteLine</span>(<span class="st">"Timed out"</span>);
+}
+<span class="kw">finally</span>
+{
+    Console.<span class="fn">WriteLine</span>(<span class="st">"Always runs"</span>);   <span class="cm">// cleanup here</span>
+}
+
+<span class="cm">// Throwing</span>
+<span class="kw">throw new</span> <span class="ty">ArgumentNullException</span>(<span class="kw">nameof</span>(param));
+<span class="kw">throw new</span> <span class="ty">InvalidOperationException</span>(<span class="st">"Not ready"</span>);
+<span class="kw">throw</span>;   <span class="cm">// re-throw preserving stack trace (inside catch only)</span>
+
+<span class="cm">// Custom exception</span>
+<span class="kw">public class</span> <span class="ty">ValidationException</span> : <span class="ty">Exception</span>
+{
+    <span class="kw">public string</span> Field { <span class="kw">get</span>; }
+    <span class="kw">public</span> <span class="fn">ValidationException</span>(<span class="ty">string</span> field, <span class="ty">string</span> msg) : <span class="kw">base</span>(msg)
+        => Field = field;
+}
+
+<span class="cm">// using — auto-dispose at scope end (IDisposable)</span>
+<span class="kw">using var</span> conn = <span class="kw">new</span> <span class="ty">SqlConnection</span>(connStr);  <span class="cm">// Dispose() called automatically</span>
+<span class="kw">await using var</span> stream = <span class="kw">new</span> <span class="ty">FileStream</span>(...);  <span class="cm">// async dispose (C# 8+)</span></div>
+
+  <h3>Common Exception Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Exception</th><th class="plain-def-header">Plain English</th><th>When thrown</th></tr></thead>
+    <tbody>
+      <tr><td>ArgumentNullException</td><td class="plain-def">null where it shouldn't be</td><td>Method receives null for non-nullable param</td></tr>
+      <tr><td>ArgumentException</td><td class="plain-def">bad argument value</td><td>Argument is invalid (not null, but wrong)</td></tr>
+      <tr><td>ArgumentOutOfRangeException</td><td class="plain-def">value out of allowed range</td><td>Index negative, value exceeds bounds</td></tr>
+      <tr><td>InvalidOperationException</td><td class="plain-def">wrong time to call this</td><td>Object not in valid state for operation</td></tr>
+      <tr><td>NullReferenceException</td><td class="plain-def">used null reference</td><td>Dereferencing null — usually a bug</td></tr>
+      <tr><td>IndexOutOfRangeException</td><td class="plain-def">array index past end</td><td>Access beyond array bounds</td></tr>
+      <tr><td>NotImplementedException</td><td class="plain-def">not written yet</td><td>Placeholder for unfinished code</td></tr>
+      <tr><td>IOException</td><td class="plain-def">I/O failed</td><td>File not found, disk full, permissions</td></tr>
+      <tr><td>OverflowException</td><td class="plain-def">arithmetic overflow</td><td>In <code>checked</code> context; too large for type</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 12 LINQ -->
+<section id="linq">
+  <div class="section-header"><span class="section-pill">12</span><h2>LINQ</h2></div>
+  <p class="prose">LINQ (Language Integrated Query) provides <strong>unified query syntax</strong> over any <code>IEnumerable&lt;T&gt;</code> or <code>IQueryable&lt;T&gt;</code> — collections, XML, databases, and more. Queries are lazy; execution happens when you enumerate.</p>
+
+  <div class="code-block"><span class="kw">using</span> System.Linq;
+
+<span class="kw">var</span> numbers = <span class="kw">new</span>[] { <span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>, <span class="nm">6</span>, <span class="nm">7</span>, <span class="nm">8</span>, <span class="nm">9</span>, <span class="nm">10</span> };
+
+<span class="cm">// Method syntax (most common)</span>
+<span class="kw">var</span> evens   = numbers.<span class="fn">Where</span>(n => n % <span class="nm">2</span> == <span class="nm">0</span>);
+<span class="kw">var</span> squared = numbers.<span class="fn">Select</span>(n => n * n);
+<span class="kw">var</span> sum     = numbers.<span class="fn">Sum</span>();
+<span class="kw">var</span> top3    = numbers.<span class="fn">OrderByDescending</span>(n => n).<span class="fn">Take</span>(<span class="nm">3</span>);
+
+<span class="cm">// Query syntax (SQL-like)</span>
+<span class="kw">var</span> query =
+    <span class="kw">from</span> n <span class="kw">in</span> numbers
+    <span class="kw">where</span> n > <span class="nm">3</span>
+    <span class="kw">orderby</span> n <span class="kw">descending</span>
+    <span class="kw">select</span> n * <span class="nm">2</span>;
+
+<span class="cm">// Common LINQ methods</span>
+numbers.<span class="fn">Any</span>(n => n > <span class="nm">5</span>)        <span class="cm">// true if any match</span>
+numbers.<span class="fn">All</span>(n => n > <span class="nm">0</span>)        <span class="cm">// true if all match</span>
+numbers.<span class="fn">Count</span>(n => n % <span class="nm">2</span> == <span class="nm">0</span>) <span class="cm">// count of evens</span>
+numbers.<span class="fn">First</span>()                 <span class="cm">// throws if empty</span>
+numbers.<span class="fn">FirstOrDefault</span>()       <span class="cm">// null/0 if empty</span>
+numbers.<span class="fn">Single</span>(n => n == <span class="nm">5</span>)   <span class="cm">// throws if not exactly one</span>
+numbers.<span class="fn">Min</span>() / numbers.<span class="fn">Max</span>()
+numbers.<span class="fn">Average</span>()
+numbers.<span class="fn">Distinct</span>()
+numbers.<span class="fn">Skip</span>(<span class="nm">3</span>).<span class="fn">Take</span>(<span class="nm">4</span>)        <span class="cm">// paging: skip 3, take 4</span>
+numbers.<span class="fn">ToList</span>()               <span class="cm">// force execution, store as List</span>
+numbers.<span class="fn">ToArray</span>()              <span class="cm">// force execution, store as array</span>
+
+<span class="cm">// Grouping</span>
+<span class="kw">var</span> grouped = people.<span class="fn">GroupBy</span>(p => p.Department);
+<span class="kw">foreach</span> (<span class="kw">var</span> group <span class="kw">in</span> grouped)
+    Console.<span class="fn">WriteLine</span>(<span class="st">$"{group.Key}: {group.Count()} people"</span>);
+
+<span class="cm">// Joining</span>
+<span class="kw">var</span> joined = orders.<span class="fn">Join</span>(customers,
+    o => o.CustomerId,
+    c => c.Id,
+    (o, c) => <span class="kw">new</span> { Order = o, Customer = c });
+
+<span class="cm">// Flatten nested collections</span>
+<span class="kw">var</span> allTags = posts.<span class="fn">SelectMany</span>(p => p.Tags).<span class="fn">Distinct</span>();</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 13 Async -->
+<section id="async">
+  <div class="section-header"><span class="section-pill">13</span><h2>Async / Await</h2></div>
+  <p class="prose">C#'s <code>async</code>/<code>await</code> makes asynchronous code readable. An <code>async</code> method returns a <code>Task</code> or <code>Task&lt;T&gt;</code>. <code>await</code> suspends the method without blocking the thread.</p>
+
+  <div class="code-block"><span class="kw">using</span> System.Threading.Tasks;
+
+<span class="cm">// Basic async method</span>
+<span class="kw">public async</span> <span class="ty">Task</span>&lt;<span class="ty">string</span>&gt; <span class="fn">FetchDataAsync</span>(<span class="ty">string</span> url)
+{
+    <span class="kw">using var</span> client = <span class="kw">new</span> <span class="ty">HttpClient</span>();
+    <span class="ty">string</span> data = <span class="kw">await</span> client.<span class="fn">GetStringAsync</span>(url);  <span class="cm">// non-blocking</span>
+    <span class="kw">return</span> data.<span class="fn">Trim</span>();
+}
+
+<span class="cm">// void async — fire-and-forget (event handlers only; exceptions swallowed!)</span>
+<span class="kw">public async void</span> <span class="fn">Button_Click</span>(<span class="ty">object</span> s, <span class="ty">EventArgs</span> e)
+    => <span class="kw">await</span> <span class="fn">DoWorkAsync</span>();
+
+<span class="cm">// Awaiting multiple tasks concurrently</span>
+<span class="kw">var</span> t1 = <span class="fn">FetchAsync</span>(<span class="st">"url1"</span>);
+<span class="kw">var</span> t2 = <span class="fn">FetchAsync</span>(<span class="st">"url2"</span>);
+<span class="ty">string</span>[] results = <span class="kw">await</span> <span class="ty">Task</span>.<span class="fn">WhenAll</span>(t1, t2);   <span class="cm">// both run in parallel</span>
+
+<span class="cm">// WhenAny — take the first to complete</span>
+<span class="ty">Task</span>&lt;<span class="ty">string</span>&gt; winner = <span class="kw">await</span> <span class="ty">Task</span>.<span class="fn">WhenAny</span>(t1, t2);
+
+<span class="cm">// ConfigureAwait(false) — don't resume on original context (library code)</span>
+<span class="kw">var</span> result = <span class="kw">await</span> <span class="fn">SomeAsync</span>().<span class="fn">ConfigureAwait</span>(<span class="kw">false</span>);
+
+<span class="cm">// CancellationToken — cooperative cancellation</span>
+<span class="kw">public async</span> <span class="ty">Task</span> <span class="fn">DoWorkAsync</span>(<span class="ty">CancellationToken</span> ct = <span class="kw">default</span>)
+{
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">0</span>; i < <span class="nm">100</span>; i++)
+    {
+        ct.<span class="fn">ThrowIfCancellationRequested</span>();
+        <span class="kw">await</span> <span class="ty">Task</span>.<span class="fn">Delay</span>(<span class="nm">100</span>, ct);
+    }
+}
+
+<span class="kw">var</span> cts = <span class="kw">new</span> <span class="ty">CancellationTokenSource</span>(<span class="fn">TimeSpan.FromSeconds</span>(<span class="nm">5</span>));
+<span class="kw">await</span> <span class="fn">DoWorkAsync</span>(cts.Token);
+
+<span class="cm">// IAsyncEnumerable — async streams (C# 8+)</span>
+<span class="kw">public async</span> <span class="ty">IAsyncEnumerable</span>&lt;<span class="ty">int</span>&gt; <span class="fn">GenerateAsync</span>()
+{
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">0</span>; i < <span class="nm">10</span>; i++)
+    {
+        <span class="kw">await</span> <span class="ty">Task</span>.<span class="fn">Delay</span>(<span class="nm">100</span>);
+        <span class="kw">yield return</span> i;
+    }
+}
+
+<span class="kw">await foreach</span> (<span class="kw">var</span> n <span class="kw">in</span> <span class="fn">GenerateAsync</span>()) Console.<span class="fn">WriteLine</span>(n);</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 14 Collections -->
+<section id="collections">
+  <div class="section-header"><span class="section-pill">14</span><h2>Collections</h2></div>
+
+  <h3>Common Collection Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Key Operations</th></tr></thead>
+    <tbody>
+      <tr><td>T[]</td><td class="plain-def">fixed-size array</td><td>Fast indexed access; fixed length; <code>Array.Sort</code>, <code>Array.Copy</code></td></tr>
+      <tr><td>List&lt;T&gt;</td><td class="plain-def">growable array</td><td><code>Add</code>, <code>Remove</code>, <code>Contains</code>, <code>Sort</code>, <code>IndexOf</code>; most used collection</td></tr>
+      <tr><td>Dictionary&lt;K,V&gt;</td><td class="plain-def">hash table</td><td><code>Add</code>, <code>ContainsKey</code>, <code>TryGetValue</code>, <code>Remove</code>, <code>Keys</code>, <code>Values</code></td></tr>
+      <tr><td>HashSet&lt;T&gt;</td><td class="plain-def">unique values</td><td><code>Add</code>, <code>Contains</code>, <code>UnionWith</code>, <code>IntersectWith</code>, O(1) lookup</td></tr>
+      <tr><td>Queue&lt;T&gt;</td><td class="plain-def">first-in, first-out</td><td><code>Enqueue</code>, <code>Dequeue</code>, <code>Peek</code></td></tr>
+      <tr><td>Stack&lt;T&gt;</td><td class="plain-def">last-in, first-out</td><td><code>Push</code>, <code>Pop</code>, <code>Peek</code></td></tr>
+      <tr><td>LinkedList&lt;T&gt;</td><td class="plain-def">doubly linked list</td><td>O(1) insert/remove if you have the node; AddFirst, AddLast</td></tr>
+      <tr><td>SortedDictionary&lt;K,V&gt;</td><td class="plain-def">sorted by key</td><td>Like Dictionary but iterates in key order; O(log n) ops</td></tr>
+      <tr><td>SortedSet&lt;T&gt;</td><td class="plain-def">sorted unique values</td><td>Like HashSet but sorted; <code>GetViewBetween</code></td></tr>
+      <tr><td>ConcurrentDictionary&lt;K,V&gt;</td><td class="plain-def">thread-safe dictionary</td><td><code>TryAdd</code>, <code>TryUpdate</code>, <code>AddOrUpdate</code>, <code>GetOrAdd</code></td></tr>
+      <tr><td>ImmutableList&lt;T&gt;</td><td class="plain-def">thread-safe immutable list</td><td>Returns new collection on modification; System.Collections.Immutable</td></tr>
+      <tr><td>Span&lt;T&gt; / Memory&lt;T&gt;</td><td class="plain-def">slice over existing buffer</td><td>Zero-allocation; high-perf slicing; Span is stack-only</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"><span class="cm">// Collection expressions (C# 12)</span>
+<span class="ty">int</span>[]         arr  = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+<span class="ty">List</span>&lt;<span class="ty">string</span>&gt; list = [<span class="st">"a"</span>, <span class="st">"b"</span>];
+<span class="ty">Span</span>&lt;<span class="ty">int</span>&gt;     span = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+
+<span class="cm">// Spread operator in collection expressions</span>
+<span class="ty">int</span>[] combined = [..arr, <span class="nm">4</span>, <span class="nm">5</span>];
+
+<span class="cm">// Dictionary — key checking pattern</span>
+<span class="kw">var</span> d = <span class="kw">new</span> <span class="ty">Dictionary</span>&lt;<span class="ty">string</span>, <span class="ty">int</span>&gt;();
+d[<span class="st">"key"</span>] = <span class="nm">42</span>;
+<span class="kw">if</span> (d.<span class="fn">TryGetValue</span>(<span class="st">"key"</span>, <span class="kw">out int</span> val)) { <span class="cm">/* safe access */</span> }
+<span class="kw">var</span> orDefault = d.<span class="fn">GetValueOrDefault</span>(<span class="st">"key"</span>, <span class="nm">0</span>);
+
+<span class="cm">// Index and Range (C# 8+)</span>
+<span class="kw">var</span> last   = arr[^<span class="nm">1</span>];       <span class="cm">// last element</span>
+<span class="kw">var</span> slice  = arr[<span class="nm">1</span>..<span class="nm">3</span>];     <span class="cm">// elements at index 1, 2 (exclusive end)</span>
+<span class="kw">var</span> last2  = arr[^<span class="nm">2</span>..];    <span class="cm">// last 2 elements</span></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 15 Modern C# -->
+<section id="modern">
+  <div class="section-header"><span class="section-pill">15</span><h2>Modern C# Features</h2></div>
+
+  <div class="code-block"><span class="cm">// Pattern matching — C# 8-12 progressive improvements</span>
+<span class="kw">bool</span> isLong = text.<span class="fn">Length</span> <span class="kw">is</span> > <span class="nm">100</span>;
+<span class="kw">bool</span> inRange = n <span class="kw">is</span> >= <span class="nm">1</span> <span class="kw">and</span> <= <span class="nm">10</span>;
+<span class="kw">bool</span> either  = x <span class="kw">is</span> <span class="st">"foo"</span> <span class="kw">or</span> <span class="st">"bar"</span>;
+<span class="kw">bool</span> notNull = obj <span class="kw">is not null</span>;
+
+<span class="cm">// Property pattern</span>
+<span class="kw">if</span> (person <span class="kw">is</span> { Name: <span class="st">"Alice"</span>, Age: > <span class="nm">18</span> }) { }
+
+<span class="cm">// List pattern (C# 11)</span>
+<span class="kw">if</span> (arr <span class="kw">is</span> [<span class="nm">1</span>, <span class="nm">2</span>, ..]) { <span class="cm">/* starts with 1,2 */</span> }
+<span class="kw">if</span> (arr <span class="kw">is</span> [<span class="kw">var</span> first, .., <span class="kw">var</span> last]) { <span class="cm">/* bind first and last */</span> }
+
+<span class="cm">// Target-typed new (C# 9+)</span>
+<span class="ty">List</span>&lt;<span class="ty">string</span>&gt; items = <span class="kw">new</span>();     <span class="cm">// type inferred from left-hand side</span>
+<span class="ty">Dictionary</span>&lt;<span class="ty">string</span>, <span class="ty">int</span>&gt; map = <span class="kw">new</span>();
+
+<span class="cm">// Records (C# 9+)</span>
+<span class="kw">record</span> <span class="ty">Person</span>(<span class="ty">string</span> Name, <span class="ty">int</span> Age);         <span class="cm">// positional record</span>
+<span class="kw">record struct</span> <span class="ty">Point3D</span>(<span class="ty">double</span> X, <span class="ty">double</span> Y, <span class="ty">double</span> Z); <span class="cm">// C# 10</span>
+<span class="kw">var</span> p = <span class="kw">new</span> <span class="ty">Person</span>(<span class="st">"Alice"</span>, <span class="nm">30</span>);
+<span class="kw">var</span> p2 = p <span class="kw">with</span> { Age = <span class="nm">31</span> };               <span class="cm">// non-destructive mutation</span>
+
+<span class="cm">// Global usings (C# 10+)</span>
+<span class="cm">// In one file or auto-generated: global using System.Linq;</span>
+
+<span class="cm">// Required members (C# 11)</span>
+<span class="kw">public class</span> <span class="ty">Config</span>
+{
+    <span class="kw">public required string</span> ConnectionString { <span class="kw">get</span>; <span class="kw">init</span>; }
+}
+<span class="kw">var</span> c = <span class="kw">new</span> <span class="ty">Config</span> { ConnectionString = <span class="st">"..."</span> };  <span class="cm">// must be set</span>
+
+<span class="cm">// Primary constructors (C# 12)</span>
+<span class="kw">public class</span> <span class="ty">Service</span>(<span class="ty">ILogger</span> logger, <span class="ty">string</span> name)
+{
+    <span class="kw">public void</span> <span class="fn">Run</span>() => logger.<span class="fn">Log</span>(name);
+}
+
+<span class="cm">// Interpolated string handlers and raw strings (C# 11)</span>
+<span class="kw">string</span> json = <span class="st">"""</span>
+<span class="st">    { "name": "Alice", "age": 30 }</span>
+<span class="st">    """</span>;   <span class="cm">// no escaping needed</span>
+
+<span class="cm">// Attributes (Metadata)</span>
+[<span class="at">Obsolete</span>(<span class="st">"Use NewMethod instead"</span>)]
+<span class="kw">public void</span> <span class="fn">OldMethod</span>() { }
+
+[<span class="at">Serializable</span>]
+<span class="kw">public class</span> <span class="ty">DataModel</span> { }
+
+<span class="cm">// Caller info attributes</span>
+<span class="kw">void</span> <span class="fn">Log</span>(<span class="ty">string</span> msg,
+    [<span class="at">CallerMemberName</span>] <span class="ty">string</span> caller = <span class="st">""</span>,
+    [<span class="at">CallerLineNumber</span>] <span class="ty">int</span> line = <span class="nm">0</span>) { }</div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 16 Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-pill">16</span><h2>Tips &amp; Gotchas</h2></div>
+  <ul class="tips-list">
+    <li><span class="tip-code">async void</span><span>Never use <code>async void</code> except for event handlers. Exceptions thrown inside are silently swallowed and crash your process. Always return <code>Task</code> or <code>Task&lt;T&gt;</code> so callers can await and handle errors.</span></li>
+    <li><span class="tip-code">== on strings</span><span><code>==</code> works correctly for string comparison in C# (unlike Java). It compares content, not reference. Use <code>string.Equals(a, b, StringComparison.OrdinalIgnoreCase)</code> when you need case-insensitive comparison.</span></li>
+    <li><span class="tip-code">NullReferenceException</span><span>Enable nullable reference types in your project (<code>&lt;Nullable&gt;enable&lt;/Nullable&gt;</code>) to get compile-time warnings for potential null dereferences. Catch the bug at design time, not production.</span></li>
+    <li><span class="tip-code">LINQ deferred</span><span>LINQ queries are lazy — they don't run until iterated. If you iterate twice, the query runs twice. If the source can change, call <code>.ToList()</code> or <code>.ToArray()</code> to materialize and snapshot it.</span></li>
+    <li><span class="tip-code">struct copies</span><span>Structs are value types — they are copied on assignment. Passing a large struct to a method copies all its data. Use <code>in</code> parameter modifier or <code>ref</code> to avoid copies when performance matters.</span></li>
+    <li><span class="tip-code">IDisposable</span><span>Anything implementing <code>IDisposable</code> (file handles, connections, streams) must be disposed. Always use <code>using var x = ...</code> or <code>using (...) { }</code> — never rely on the garbage collector for cleanup.</span></li>
+    <li><span class="tip-code">ConfigureAwait</span><span>In library code, add <code>.ConfigureAwait(false)</code> to awaits to avoid deadlocks in synchronization-context-heavy environments like ASP.NET Framework or WPF. In app code (ASP.NET Core), it's less critical.</span></li>
+    <li><span class="tip-code">record equality</span><span>Records implement value equality automatically — two records with the same property values are <code>==</code>. Classes use reference equality by default. Don't mix up which you're using.</span></li>
+    <li><span class="tip-code">nameof</span><span>Use <code>nameof(SomeProperty)</code> instead of hard-coded strings when referencing member names in error messages, property change notifications, or logging. It's refactor-safe and doesn't break at runtime.</span></li>
+    <li><span class="tip-code">throw expressions</span><span>Since C# 7, <code>throw</code> is an expression: <code>string name = input ?? throw new ArgumentNullException(nameof(input));</code> Great for compact null checks in constructors and properties.</span></li>
+    <li><span class="tip-code">catch ordering</span><span>Catch blocks are evaluated top-to-bottom. Always catch more specific exceptions before more general ones. Catching <code>Exception</code> first makes all other catch blocks unreachable — a compile error in C#.</span></li>
+    <li><span class="tip-code">var is not dynamic</span><span><code>var</code> is strongly typed — the type is inferred at compile time and cannot change. It's not <code>dynamic</code>. Use it freely; it improves readability especially with generic types and LINQ.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+<!-- 17 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-pill">17</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.87rem;">C# 12 reserved keywords, alphabetically. Contextual keywords (like <code>async</code>, <code>var</code>, <code>nameof</code>) are also included.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>abstract</td><td class="plain-def">must be overridden; can't instantiate</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>as</td><td class="plain-def">safe cast (null on failure)</td><td><a class="idx-link" href="#operators">Operators</a></td></tr>
+      <tr><td>async</td><td class="plain-def">declare async method</td><td><a class="idx-link" href="#async">Async</a></td></tr>
+      <tr><td>await</td><td class="plain-def">wait on a Task</td><td><a class="idx-link" href="#async">Async</a></td></tr>
+      <tr><td>base</td><td class="plain-def">access parent class</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>bool</td><td class="plain-def">true or false</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop or switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>byte</td><td class="plain-def">unsigned 8-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>case</td><td class="plain-def">match arm in switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>catch</td><td class="plain-def">handle an exception</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>char</td><td class="plain-def">single Unicode character</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>checked</td><td class="plain-def">overflow throws exception</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>class</td><td class="plain-def">reference type declaration</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>const</td><td class="plain-def">compile-time constant</td><td><a class="idx-link" href="#variables">Variables</a></td></tr>
+      <tr><td>continue</td><td class="plain-def">skip to next loop iteration</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>decimal</td><td class="plain-def">high-precision decimal</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>default</td><td class="plain-def">fallback case / default value</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>delegate</td><td class="plain-def">typed function reference</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>do</td><td class="plain-def">do-while loop</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>double</td><td class="plain-def">64-bit floating point</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>else</td><td class="plain-def">otherwise branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>enum</td><td class="plain-def">named integer constants</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>event</td><td class="plain-def">publisher-subscriber pattern</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>explicit</td><td class="plain-def">explicit cast operator</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>extern</td><td class="plain-def">external native method</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>false</td><td class="plain-def">boolean false</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>finally</td><td class="plain-def">always-runs cleanup block</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>fixed</td><td class="plain-def">pin managed memory</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>float</td><td class="plain-def">32-bit floating point</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>for</td><td class="plain-def">counted loop</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>foreach</td><td class="plain-def">iterate over collection</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>goto</td><td class="plain-def">jump to label</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>if</td><td class="plain-def">conditional branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>implicit</td><td class="plain-def">implicit cast operator</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>in</td><td class="plain-def">foreach / read-only ref param</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>int</td><td class="plain-def">32-bit signed integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>interface</td><td class="plain-def">contract of members</td><td><a class="idx-link" href="#interfaces">Interfaces</a></td></tr>
+      <tr><td>internal</td><td class="plain-def">visible within assembly</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>is</td><td class="plain-def">type test / pattern match</td><td><a class="idx-link" href="#operators">Operators</a></td></tr>
+      <tr><td>lock</td><td class="plain-def">mutual exclusion block</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>long</td><td class="plain-def">64-bit signed integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>namespace</td><td class="plain-def">logical grouping of types</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>nameof</td><td class="plain-def">get member name as string</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>new</td><td class="plain-def">create object / hide member</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>null</td><td class="plain-def">no object reference</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>object</td><td class="plain-def">root type of all types</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>operator</td><td class="plain-def">overload an operator</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>out</td><td class="plain-def">output parameter</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>override</td><td class="plain-def">redefine virtual member</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>params</td><td class="plain-def">variable argument list</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>partial</td><td class="plain-def">split type across files</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>private</td><td class="plain-def">accessible within class only</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>protected</td><td class="plain-def">accessible to derived classes</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>public</td><td class="plain-def">accessible everywhere</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>readonly</td><td class="plain-def">set once in constructor</td><td><a class="idx-link" href="#variables">Variables</a></td></tr>
+      <tr><td>record</td><td class="plain-def">immutable value-equality type</td><td><a class="idx-link" href="#modern">Modern C#</a></td></tr>
+      <tr><td>ref</td><td class="plain-def">pass by reference</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>return</td><td class="plain-def">exit method with value</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>sbyte</td><td class="plain-def">signed 8-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>sealed</td><td class="plain-def">cannot inherit or override</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>short</td><td class="plain-def">16-bit signed integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>sizeof</td><td class="plain-def">size of type in bytes</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>stackalloc</td><td class="plain-def">allocate on stack</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>static</td><td class="plain-def">belongs to type, not instance</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>string</td><td class="plain-def">immutable Unicode text</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>struct</td><td class="plain-def">value type declaration</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>switch</td><td class="plain-def">multi-way branch / expression</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>this</td><td class="plain-def">current instance reference</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>throw</td><td class="plain-def">raise an exception</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>true</td><td class="plain-def">boolean true</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>try</td><td class="plain-def">guard exception-prone code</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>typeof</td><td class="plain-def">get compile-time Type object</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>uint</td><td class="plain-def">unsigned 32-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>ulong</td><td class="plain-def">unsigned 64-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>unchecked</td><td class="plain-def">overflow wraps silently</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>unsafe</td><td class="plain-def">allow pointer operations</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>ushort</td><td class="plain-def">unsigned 16-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>using</td><td class="plain-def">import namespace / auto-dispose</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>var</td><td class="plain-def">infer type at compile time</td><td><a class="idx-link" href="#variables">Variables</a></td></tr>
+      <tr><td>virtual</td><td class="plain-def">overridable member</td><td><a class="idx-link" href="#classes">Classes</a></td></tr>
+      <tr><td>void</td><td class="plain-def">no return value</td><td><a class="idx-link" href="#functions">Methods</a></td></tr>
+      <tr><td>volatile</td><td class="plain-def">always read fresh from memory</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>when</td><td class="plain-def">exception filter / case guard</td><td><a class="idx-link" href="#exceptions">Exceptions</a></td></tr>
+      <tr><td>where</td><td class="plain-def">generic type constraint</td><td><a class="idx-link" href="#generics">Generics</a></td></tr>
+      <tr><td>while</td><td class="plain-def">loop while condition holds</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>with</td><td class="plain-def">non-destructive record mutation</td><td><a class="idx-link" href="#modern">Modern C#</a></td></tr>
+      <tr><td>yield</td><td class="plain-def">lazy iterator value</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ back to top</a>
+</section>
+
+</main>
+
+<footer>
+  C# Language Quick Reference &nbsp;·&nbsp; <span>C# 12 / .NET 8</span> &nbsp;·&nbsp; 2026
+</footer>
+</body>
+</html>

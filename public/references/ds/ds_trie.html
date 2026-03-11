@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trie — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #4ecdc4;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --yellow: #e8c547;
+    --orange: #fb923c;
+    --pink: #f472b6;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .ok { color: var(--green); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 16px; }
+  .caption strong { color: var(--text); }
+
+  .tree-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+  /* node anatomy */
+  .node-struct { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 24px; border-left: 3px solid var(--accent); width: fit-content; }
+  .ns-row { font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; }
+  .ns-row:last-child { border-bottom: none; }
+  .ns-type { color: var(--blue); font-family: monospace; font-weight: 700; width: 120px; flex-shrink: 0; }
+  .ns-name { color: var(--accent); font-family: monospace; font-weight: 700; }
+  .ns-desc { color: var(--dim); font-size: 11px; }
+
+  /* op steps */
+  .op-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .op-step { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; }
+  .step-n { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #0a0c0f; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-n.search { background: var(--blue); }
+  .step-n.prefix { background: var(--yellow); color: #0a0c0f; }
+  .step-t { color: var(--dim); line-height: 1.6; }
+  .step-t strong { color: var(--text); }
+  .step-t .ch { color: var(--accent); font-weight: 700; font-family: monospace; }
+  .step-t .end { color: var(--green); font-weight: 700; }
+  .step-t .miss { color: var(--red); font-weight: 700; }
+
+  /* comparison table */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); font-weight: 700; }
+  .vs-table .bad  { color: var(--red);   font-weight: 700; }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--blue); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Trie<span>.</span></h1>
+    <div class="subtitle">Prefix Tree · String Data Structure</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">insert</span>        <span class="ok">O(m) — m = word length</span></div>
+    <div class="big-o-row"><span class="op">search</span>        <span class="ok">O(m)</span></div>
+    <div class="big-o-row"><span class="op">prefix search</span> <span class="ok">O(m)</span></div>
+    <div class="big-o-row"><span class="op">space</span>         <span class="ok">O(n × m) total</span></div>
+  </div>
+</div>
+
+<!-- 1. The idea -->
+<div class="diagram-section">
+  <div class="label">1 — One Character Per Node</div>
+  <div class="annotation">A trie stores strings by breaking them into characters. Each node is one character. Words that share a prefix <span>share the same path</span> — no duplication. The root is always empty.</div>
+
+  <div class="node-struct">
+    <div class="ns-row"><span class="ns-type">char</span>       <span class="ns-name">character</span> <span class="ns-desc">the letter this node represents</span></div>
+    <div class="ns-row"><span class="ns-type">Node[26]</span>  <span class="ns-name">children</span>  <span class="ns-desc">one slot per letter a–z (or a hash map)</span></div>
+    <div class="ns-row"><span class="ns-type">bool</span>       <span class="ns-name">isEnd</span>     <span class="ns-desc">true if a complete word ends here</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. Full trie with words -->
+<div class="diagram-section">
+  <div class="label">2 — Trie Containing: cat, car, card, care, cart, bat, bad</div>
+  <div class="annotation">Shared prefixes share nodes. <span>"cat"</span>, <span>"car"</span>, <span>"card"</span>, <span>"care"</span>, <span>"cart"</span> all share c→a. End-of-word nodes are highlighted.</div>
+
+  <div class="tree-wrap">
+    <svg width="640" height="380" viewBox="0 0 640 380">
+
+      <!-- ROOT -->
+      <circle cx="320" cy="28" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="320" y="34" text-anchor="middle" font-size="12" fill="#7a8090">root</text>
+
+      <!-- root → c -->
+      <line x1="320" y1="48" x2="200" y2="98" stroke="#2a2e38" stroke-width="1.5"/>
+      <!-- root → b -->
+      <line x1="320" y1="48" x2="500" y2="98" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- edge labels -->
+      <text x="250" y="78" text-anchor="middle" font-size="11" fill="#4ecdc4" font-weight="700">c</text>
+      <text x="416" y="78" text-anchor="middle" font-size="11" fill="#4ecdc4" font-weight="700">b</text>
+
+      <!-- c node -->
+      <circle cx="200" cy="110" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="200" y="116" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">c</text>
+
+      <!-- b node -->
+      <circle cx="500" cy="110" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="500" y="116" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">b</text>
+
+      <!-- c → a -->
+      <line x1="200" y1="130" x2="200" y2="170" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="213" y="158" font-size="11" fill="#4ecdc4" font-weight="700">a</text>
+
+      <!-- b → a, b → a(bad) -->
+      <line x1="500" y1="130" x2="500" y2="170" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="513" y="158" font-size="11" fill="#4ecdc4" font-weight="700">a</text>
+
+      <!-- ca node -->
+      <circle cx="200" cy="184" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="200" y="190" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">a</text>
+
+      <!-- ba node -->
+      <circle cx="500" cy="184" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="500" y="190" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">a</text>
+
+      <!-- ca → t, ca → r -->
+      <line x1="200" y1="204" x2="110" y2="254" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="200" y1="204" x2="290" y2="254" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="146" y="234" font-size="11" fill="#4ecdc4" font-weight="700">t</text>
+      <text x="252" y="234" font-size="11" fill="#4ecdc4" font-weight="700">r</text>
+
+      <!-- ba → t, ba → d -->
+      <line x1="500" y1="204" x2="450" y2="254" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="500" y1="204" x2="550" y2="254" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="468" y="234" font-size="11" fill="#4ecdc4" font-weight="700">t</text>
+      <text x="533" y="234" font-size="11" fill="#4ecdc4" font-weight="700">d</text>
+
+      <!-- cat — end of word -->
+      <circle cx="110" cy="268" r="20" fill="#6bde8418" stroke="#6bde84" stroke-width="2"/>
+      <text x="110" y="274" text-anchor="middle" font-size="14" font-weight="700" fill="#6bde84">t</text>
+      <text x="110" y="296" text-anchor="middle" font-size="8" fill="#6bde84" font-weight="700">✓ cat</text>
+
+      <!-- car node -->
+      <circle cx="290" cy="268" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="290" y="274" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">r</text>
+
+      <!-- bat — end -->
+      <circle cx="450" cy="268" r="20" fill="#6bde8418" stroke="#6bde84" stroke-width="2"/>
+      <text x="450" y="274" text-anchor="middle" font-size="14" font-weight="700" fill="#6bde84">t</text>
+      <text x="450" y="296" text-anchor="middle" font-size="8" fill="#6bde84" font-weight="700">✓ bat</text>
+
+      <!-- bad — end -->
+      <circle cx="550" cy="268" r="20" fill="#6bde8418" stroke="#6bde84" stroke-width="2"/>
+      <text x="550" y="274" text-anchor="middle" font-size="14" font-weight="700" fill="#6bde84">d</text>
+      <text x="550" y="296" text-anchor="middle" font-size="8" fill="#6bde84" font-weight="700">✓ bad</text>
+
+      <!-- car → also end, plus d, e, t children -->
+      <!-- car is also end of word (car itself) -->
+      <!-- mark car with end ring -->
+      <circle cx="290" cy="268" r="20" fill="#6bde8410" stroke="#6bde84" stroke-width="2"/>
+      <text x="290" y="274" text-anchor="middle" font-size="14" font-weight="700" fill="#6bde84">r</text>
+      <text x="290" y="296" text-anchor="middle" font-size="8" fill="#6bde84" font-weight="700">✓ car</text>
+
+      <!-- car → d, e, t -->
+      <line x1="290" y1="288" x2="220" y2="338" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="290" y1="288" x2="290" y2="338" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="290" y1="288" x2="360" y2="338" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <text x="246" y="322" font-size="11" fill="#4ecdc4" font-weight="700">d</text>
+      <text x="296" y="322" font-size="11" fill="#4ecdc4" font-weight="700">e</text>
+      <text x="332" y="322" font-size="11" fill="#4ecdc4" font-weight="700">t</text>
+
+      <!-- card end -->
+      <circle cx="220" cy="352" r="18" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="220" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">d</text>
+      <text x="220" y="376" text-anchor="middle" font-size="8" fill="#6bde84">✓ card</text>
+
+      <!-- care end -->
+      <circle cx="290" cy="352" r="18" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="290" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">e</text>
+      <text x="290" y="376" text-anchor="middle" font-size="8" fill="#6bde84">✓ care</text>
+
+      <!-- cart end -->
+      <circle cx="360" cy="352" r="18" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="360" y="358" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">t</text>
+      <text x="360" y="376" text-anchor="middle" font-size="8" fill="#6bde84">✓ cart</text>
+    </svg>
+  </div>
+  <div class="caption">
+    <strong style="color:var(--green)">Green nodes</strong> = end of word marker. <strong>car</strong>, <strong>card</strong>, <strong>care</strong>, <strong>cart</strong> all share c→a→r before branching.
+    7 words stored, paths shared wherever prefixes overlap.
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Three operations -->
+<div class="diagram-section">
+  <div class="label">3 — Insert, Search, Prefix Search</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:8px;">
+
+    <!-- Insert -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;border-top:2px solid var(--accent);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">Insert("care")</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Walk character by character. Create nodes that don't exist.</div>
+      <div class="op-steps">
+        <div class="op-step"><span class="step-n">1</span><span class="step-t">At root — does child <span class="ch">'c'</span> exist? <strong>Yes</strong> — move to it.</span></div>
+        <div class="op-step"><span class="step-n">2</span><span class="step-t">At c — does child <span class="ch">'a'</span> exist? <strong>Yes</strong> — move to it.</span></div>
+        <div class="op-step"><span class="step-n">3</span><span class="step-t">At a — does child <span class="ch">'r'</span> exist? <strong>Yes</strong> — move to it.</span></div>
+        <div class="op-step"><span class="step-n">4</span><span class="step-t">At r — does child <span class="ch">'e'</span> exist? <strong>No</strong> — create it.</span></div>
+        <div class="op-step"><span class="step-n">5</span><span class="step-t">Mark new 'e' node as <span class="end">isEnd = true</span>.</span></div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;border-top:2px solid var(--blue);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">Search("card")</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Walk the path. Return true only if path exists AND final node is end-of-word.</div>
+      <div class="op-steps">
+        <div class="op-step"><span class="step-n search">1</span><span class="step-t">Root → <span class="ch">'c'</span> exists ✓</span></div>
+        <div class="op-step"><span class="step-n search">2</span><span class="step-t">c → <span class="ch">'a'</span> exists ✓</span></div>
+        <div class="op-step"><span class="step-n search">3</span><span class="step-t">a → <span class="ch">'r'</span> exists ✓</span></div>
+        <div class="op-step"><span class="step-n search">4</span><span class="step-t">r → <span class="ch">'d'</span> exists ✓</span></div>
+        <div class="op-step"><span class="step-n search">5</span><span class="step-t">d → <span class="end">isEnd = true</span> → return <strong>true</strong></span></div>
+      </div>
+    </div>
+
+    <!-- Prefix search -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;border-top:2px solid var(--yellow);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">Prefix("car") → autocomplete</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Walk to end of prefix. Don't need isEnd. Then collect all words below.</div>
+      <div class="op-steps">
+        <div class="op-step"><span class="step-n prefix">1</span><span class="step-t">Walk c → a → r ✓</span></div>
+        <div class="op-step"><span class="step-n prefix">2</span><span class="step-t">Reached 'r' node — prefix found.</span></div>
+        <div class="op-step"><span class="step-n prefix">3</span><span class="step-t">DFS from 'r' collecting all <span class="end">isEnd</span> nodes below.</span></div>
+        <div class="op-step"><span class="step-n prefix">4</span><span class="step-t">Returns: <strong>car, card, care, cart</strong></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Trie vs Hash Table for strings -->
+<div class="diagram-section">
+  <div class="label">4 — Trie vs Hash Table for Strings</div>
+  <table class="vs-table">
+    <tr><th>Feature</th><th>Trie</th><th>Hash Table</th></tr>
+    <tr>
+      <td>Exact search</td>
+      <td class="good">O(m)</td>
+      <td class="good">O(m) — hash computation</td>
+    </tr>
+    <tr>
+      <td>Prefix search</td>
+      <td class="good">O(m) — built in</td>
+      <td class="bad">O(n × m) — must scan all keys</td>
+    </tr>
+    <tr>
+      <td>Autocomplete</td>
+      <td class="good">natural — just DFS from prefix node</td>
+      <td class="bad">not supported efficiently</td>
+    </tr>
+    <tr>
+      <td>Sorted output</td>
+      <td class="good">inorder traversal gives alphabetical order</td>
+      <td class="bad">unordered</td>
+    </tr>
+    <tr>
+      <td>Memory</td>
+      <td class="bad">high — 26 child pointers per node</td>
+      <td class="good">compact</td>
+    </tr>
+    <tr>
+      <td>Best for</td>
+      <td style="color:var(--accent);font-weight:700;">autocomplete, spell check, IP routing</td>
+      <td style="color:var(--blue);font-weight:700;">exact lookups, counting</td>
+    </tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Character Per Node</div>
+    <div class="card-body">Each node holds one character. Words are spelled out along paths from root to an end-of-word marker.</div>
+    <div class="card-o" style="color:var(--accent)">one char per node</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Shared Prefixes</div>
+    <div class="card-body">"cat", "car", "card" all share c→a. No duplication of common prefixes — efficient for large dictionaries.</div>
+    <div class="card-o" style="color:var(--green)">prefix compression</div>
+  </div>
+  <div class="card">
+    <div class="card-title">O(m) Everything</div>
+    <div class="card-body">Insert, search, and prefix search all run in O(m) where m is the length of the string — independent of how many words are stored.</div>
+    <div class="card-o" style="color:var(--blue)">O(m) not O(n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">isEnd Marker</div>
+    <div class="card-body">"car" and "card" share c→a→r. The 'r' node has isEnd=true for "car". A 'd' child exists for "card".</div>
+    <div class="card-o" style="color:var(--yellow)">marks word boundary</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Autocomplete, spell checkers, search suggestions, IP routing tables, DNA sequence matching.</div>
+    <div class="card-o" style="color:var(--orange)">string-heavy problems</div>
+  </div>
+</div>
+
+</body>
+</html>

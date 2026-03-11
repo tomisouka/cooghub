@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Linear Algebra — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:      #0e1016; --panel: #13161e; --border: #1f2330;
+    --accent:  #7aaccc; --accent2: #96bc78; --accent3: #c8a96e;
+    --text:    #d0d6e8; --muted: #6a7290; --code-bg: #0a0d14;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.7; }
+  body { padding: 32px 40px 80px; max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 12px; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
+  h2 { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 36px 0 16px; }
+  h3 { font-size: 14px; font-weight: 700; color: var(--accent2); margin: 20px 0 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 7px 10px; border-bottom: 1px solid #181c26; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-family: var(--mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--code-bg); color: var(--accent3); padding: 1px 6px; border-radius: 4px; }
+  pre { font-family: var(--mono); font-size: 12px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; line-height: 1.9; color: #b0bcd8; margin: 10px 0; }
+  .formula { font-family: var(--mono); font-size: 13px; background: var(--code-bg); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 8px 0; color: var(--text); }
+  .formula .label { color: var(--muted); font-size: 11px; display: block; margin-bottom: 4px; }
+  .row { display: flex; gap: 14px; margin-bottom: 14px; }
+  .row .card { flex: 1; }
+</style>
+</head>
+<body>
+
+<h1>Linear Algebra</h1>
+<div class="subtitle">MATH 2318 · Reference Sheet</div>
+
+<!-- VECTORS -->
+<h2>Vectors &amp; Operations</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">Core Operations</div>
+    <table>
+      <tr><th>Op</th><th>Definition</th></tr>
+      <tr><td>u + v</td><td>[u₁+v₁, u₂+v₂, ..., uₙ+vₙ]</td></tr>
+      <tr><td>cu</td><td>[cu₁, cu₂, ..., cuₙ]</td></tr>
+      <tr><td>u · v</td><td>u₁v₁ + u₂v₂ + ... + uₙvₙ</td></tr>
+      <tr><td>‖v‖</td><td>√(v₁²+v₂²+...+vₙ²)</td></tr>
+      <tr><td>û</td><td>v / ‖v‖  (unit vector)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Dot Product Properties</div>
+    <div class="formula"><span class="label">Angle</span>u·v = ‖u‖‖v‖ cos θ</div>
+    <div class="formula"><span class="label">Orthogonal</span>u⊥v  ↔  u·v = 0</div>
+    <div class="formula"><span class="label">Projection of v onto u</span>proj_u(v) = (v·u / u·u) u</div>
+  </div>
+</div>
+
+<!-- MATRICES -->
+<h2>Matrices</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Matrix Algebra Rules</div>
+    <table>
+      <tr><th>Identity</th><th>Note</th></tr>
+      <tr><td>(AB)ᵀ = BᵀAᵀ</td><td>order reverses</td></tr>
+      <tr><td>(AB)⁻¹ = B⁻¹A⁻¹</td><td>order reverses</td></tr>
+      <tr><td>det(AB) = det(A)det(B)</td><td></td></tr>
+      <tr><td>det(Aᵀ) = det(A)</td><td></td></tr>
+      <tr><td>det(cA) = cⁿ det(A)</td><td>n×n matrix</td></tr>
+      <tr><td>tr(AB) = tr(BA)</td><td>trace cyclic</td></tr>
+      <tr><td>A invertible ↔ det(A)≠0</td><td></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Row Operations (Gaussian Elim)</div>
+    <table>
+      <tr><th>Op</th><th>Effect on det</th></tr>
+      <tr><td>Rᵢ ↔ Rⱼ  (swap)</td><td>det changes sign</td></tr>
+      <tr><td>Rᵢ → cRᵢ  (scale)</td><td>det × c</td></tr>
+      <tr><td>Rᵢ → Rᵢ+cRⱼ  (add)</td><td>det unchanged</td></tr>
+    </table>
+    <div class="formula" style="margin-top:12px"><span class="label">Find inverse via augmented matrix</span>[A | I]  →  row reduce  →  [I | A⁻¹]</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="card-title">Invertible Matrix Theorem — All Equivalent for n×n A</div>
+  <table>
+    <tr>
+      <td style="color:var(--accent2)">A is invertible</td>
+      <td>det(A) ≠ 0</td>
+      <td>rank(A) = n</td>
+      <td>null(A) = {0}</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent2)">Ax=0 only trivial</td>
+      <td>Ax=b has unique solution</td>
+      <td>cols linearly independent</td>
+      <td>cols span ℝⁿ</td>
+    </tr>
+  </table>
+</div>
+
+<!-- VECTOR SPACES -->
+<h2>Vector Spaces &amp; Subspaces</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Key Subspaces of A</div>
+    <table>
+      <tr><th>Space</th><th>Definition</th></tr>
+      <tr><td>col(A)</td><td>span of columns of A</td></tr>
+      <tr><td>row(A)</td><td>span of rows of A</td></tr>
+      <tr><td>null(A)</td><td>{x | Ax = 0}</td></tr>
+      <tr><td>null(Aᵀ)</td><td>left null space</td></tr>
+    </table>
+    <div class="formula" style="margin-top:10px"><span class="label">Rank-Nullity Theorem</span>rank(A) + nullity(A) = n</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Basis &amp; Dimension</div>
+    <table>
+      <tr><th>Concept</th><th>Meaning</th></tr>
+      <tr><td>Basis</td><td>linearly indep + spans V</td></tr>
+      <tr><td>dim(V)</td><td># vectors in any basis</td></tr>
+      <tr><td>rank(A)</td><td>dim(col(A)) = # pivots</td></tr>
+      <tr><td>nullity(A)</td><td>dim(null(A)) = # free vars</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Linear Independence Test</div>
+    <pre>Form A = [v₁ v₂ ... vₖ]
+Row reduce A
+rank(A) = k  →  independent
+rank(A) &lt; k  →  dependent</pre>
+  </div>
+</div>
+
+<!-- DETERMINANTS -->
+<h2>Determinants</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">2×2 and 3×3</div>
+    <div class="formula"><span class="label">2×2</span>det([a b; c d]) = ad − bc</div>
+    <div class="formula"><span class="label">3×3 cofactor expansion along row 1</span>det = a·M₁₁ − b·M₁₂ + c·M₁₃</div>
+    <div class="formula"><span class="label">Triangular matrix</span>det = product of diagonal entries</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Cofactor &amp; Adjugate</div>
+    <table>
+      <tr><th>Term</th><th>Definition</th></tr>
+      <tr><td>Mᵢⱼ</td><td>det of matrix with row i, col j deleted</td></tr>
+      <tr><td>Cᵢⱼ</td><td>(−1)^(i+j) Mᵢⱼ</td></tr>
+      <tr><td>adj(A)</td><td>transpose of cofactor matrix</td></tr>
+      <tr><td>A⁻¹</td><td>(1/det(A)) · adj(A)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- EIGENVALUES -->
+<h2>Eigenvalues &amp; Eigenvectors</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Finding Eigenvalues</div>
+    <pre>1. Solve det(A − λI) = 0
+   → characteristic polynomial
+2. Roots λ₁, λ₂, ... are eigenvalues
+3. For each λ: solve (A−λI)v = 0
+   → eigenvectors span eigenspace Eλ</pre>
+    <div class="formula" style="margin-top:8px"><span class="label">Properties</span>tr(A) = Σλᵢ  &nbsp;&nbsp; det(A) = Πλᵢ</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Diagonalization</div>
+    <table>
+      <tr><th>Concept</th><th>Meaning</th></tr>
+      <tr><td>A = PDP⁻¹</td><td>D diagonal, P = eigenvectors as cols</td></tr>
+      <tr><td>Diagonalizable?</td><td>need n linearly indep eigenvectors</td></tr>
+      <tr><td>Aᵏ</td><td>PD^k P⁻¹ — fast powers</td></tr>
+      <tr><td>Symmetric A</td><td>always diagonalizable, real eigenvalues</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ORTHOGONALITY -->
+<h2>Orthogonality &amp; Gram-Schmidt</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Orthogonal Matrix Q</div>
+    <table>
+      <tr><th>Property</th><th>Note</th></tr>
+      <tr><td>QᵀQ = I</td><td>Qᵀ = Q⁻¹</td></tr>
+      <tr><td>‖Qx‖ = ‖x‖</td><td>preserves length</td></tr>
+      <tr><td>det(Q) = ±1</td><td></td></tr>
+      <tr><td>Eigenvalues |λ|=1</td><td></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Gram-Schmidt</div>
+    <pre>u₁ = v₁
+u₂ = v₂ − proj_{u₁}(v₂)
+u₃ = v₃ − proj_{u₁}(v₃) − proj_{u₂}(v₃)
+...
+normalize: êₖ = uₖ/‖uₖ‖</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Spectral Theorem</div>
+    <div class="formula"><span class="label">For real symmetric A</span>A = QDQᵀ</div>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Q orthogonal, D diagonal. Eigenvectors for distinct eigenvalues are orthogonal. Always fully diagonalizable.</p>
+    <div class="formula" style="margin-top:8px"><span class="label">Schur Decomposition (any A)</span>A = QTQ*  (T upper triangular, Q unitary)</div>
+  </div>
+</div>
+
+</body>
+</html>

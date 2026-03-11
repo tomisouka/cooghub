@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recursion vs Top-Down DP vs Bottom-Up DP</title>
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,300;0,400;0,700;1,300&family=Unbounded:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #06080f;
+  --ink:     #090c18;
+  --surface: #0d1020;
+  --surface2:#121525;
+  --border:  #1a2035;
+  --border2: #22293d;
+
+  --rec:  #ff6b35;
+  --memo: #f0b429;
+  --bu:   #00d4aa;
+  --both: #a78bfa;
+
+  --text: #c8d0e8;
+  --dim:  #3d4a6a;
+  --dim2: #5a6a90;
+  --mono: 'Azeret Mono', monospace;
+  --sans: 'Unbounded', sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.007) 2px,rgba(255,255,255,.007) 4px);
+}
+
+/* ─── HEADER ─── */
+header{
+  position:sticky;top:0;z-index:200;
+  background:rgba(6,8,15,.97);
+  border-bottom:1px solid var(--border);
+  padding:0 1.25rem;height:50px;
+  display:flex;align-items:center;gap:1rem;
+  backdrop-filter:blur(12px);
+}
+.logo{
+  font-family:var(--sans);font-size:.6rem;font-weight:900;
+  letter-spacing:.06em;color:var(--text);white-space:nowrap;flex-shrink:0;
+}
+.logo .s{color:var(--dim2);margin:0 3px;}
+
+.prob-tabs{
+  display:flex;gap:2px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:3px;
+}
+.prob-tab{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;
+  background:none;border:none;color:var(--dim2);
+  padding:.28rem .65rem;border-radius:4px;cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.prob-tab:hover{color:var(--text);}
+.prob-tab.active{background:var(--surface2);color:var(--text);}
+
+.n-ctl{
+  display:flex;align-items:center;gap:.4rem;
+  margin-left:auto;font-size:.62rem;color:var(--dim2);white-space:nowrap;
+}
+.n-ctl input{width:72px;accent-color:var(--both);}
+.n-num{
+  font-family:var(--sans);font-size:.78rem;font-weight:700;
+  color:var(--both);min-width:1.4rem;text-align:center;
+}
+
+/* ─── HERO ─── */
+.hero{
+  position:relative;z-index:1;
+  padding:2rem 1.5rem 1.5rem;
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:1.5rem;flex-wrap:wrap;
+}
+.hero-left{}
+.eyebrow{font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim2);margin-bottom:.4rem;}
+h1{
+  font-family:var(--sans);font-size:clamp(1.2rem,2.8vw,1.9rem);
+  font-weight:900;line-height:1.05;color:var(--text);letter-spacing:-.02em;
+}
+h1 .r{color:var(--rec);} h1 .m{color:var(--memo);} h1 .b{color:var(--bu);}
+
+.hero-badges{display:flex;gap:.4rem;margin-top:.75rem;flex-wrap:wrap;}
+.bdg{
+  font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:100px;border:1px solid;
+}
+.bdg-r{color:var(--rec); border-color:rgba(255,107,53,.3); background:rgba(255,107,53,.07);}
+.bdg-m{color:var(--memo);border-color:rgba(240,180,41,.3); background:rgba(240,180,41,.07);}
+.bdg-b{color:var(--bu);  border-color:rgba(0,212,170,.3);  background:rgba(0,212,170,.07);}
+
+.hero-right{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
+.cbtn{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;
+  border-radius:6px;padding:.45rem 1rem;cursor:pointer;border:1px solid;transition:all .15s;white-space:nowrap;
+}
+.cbtn-all{ background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.35);color:var(--both);}
+.cbtn-all:hover{background:rgba(167,139,250,.22);}
+.cbtn-r{  background:rgba(255,107,53,.08); border-color:rgba(255,107,53,.3); color:var(--rec);}
+.cbtn-r:hover{background:rgba(255,107,53,.18);}
+.cbtn-m{  background:rgba(240,180,41,.08); border-color:rgba(240,180,41,.3); color:var(--memo);}
+.cbtn-m:hover{background:rgba(240,180,41,.18);}
+.cbtn-b{  background:rgba(0,212,170,.08);  border-color:rgba(0,212,170,.3);  color:var(--bu);}
+.cbtn-b:hover{background:rgba(0,212,170,.18);}
+.cbtn-rst{background:none;border-color:var(--border2);color:var(--dim2);}
+.cbtn-rst:hover{color:var(--text);border-color:var(--dim2);}
+.spd-ctl{display:flex;align-items:center;gap:.35rem;font-size:.58rem;color:var(--dim2);}
+.spd-ctl input{width:65px;accent-color:var(--both);}
+
+/* ─── STAGE: 3 columns ─── */
+.stage{
+  position:relative;z-index:1;
+  max-width:1400px;margin:0 auto;
+  padding:0 1.25rem 5rem;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:.75rem;
+}
+@media(max-width:960px){.stage{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.stage{grid-template-columns:1fr;}}
+
+/* ─── PANEL ─── */
+.panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.panel-r{border-top:2px solid var(--rec);}
+.panel-m{border-top:2px solid var(--memo);}
+.panel-b{border-top:2px solid var(--bu);}
+
+.ph{
+  padding:.85rem 1.1rem .7rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.6rem;
+}
+.picon{
+  width:28px;height:28px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;flex-shrink:0;
+}
+.picon-r{background:rgba(255,107,53,.14);color:var(--rec);border:1px solid rgba(255,107,53,.22);}
+.picon-m{background:rgba(240,180,41,.14);color:var(--memo);border:1px solid rgba(240,180,41,.22);}
+.picon-b{background:rgba(0,212,170,.14); color:var(--bu); border:1px solid rgba(0,212,170,.22);}
+
+.ptitle{font-family:var(--sans);font-size:.68rem;font-weight:700;color:var(--text);}
+.psub{font-size:.57rem;color:var(--dim2);letter-spacing:.04em;margin-top:1px;}
+.pchips{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.chip{
+  font-size:.55rem;letter-spacing:.07em;padding:1px 6px;
+  border-radius:100px;border:1px solid;white-space:nowrap;
+}
+.chip-r{color:var(--rec); border-color:rgba(255,107,53,.28);}
+.chip-m{color:var(--memo);border-color:rgba(240,180,41,.28);}
+.chip-b{color:var(--bu);  border-color:rgba(0,212,170,.28);}
+
+/* ─── CODE ─── */
+.codeblock{
+  background:var(--ink);border-bottom:1px solid var(--border);
+  padding:.8rem 1rem;font-size:.72rem;line-height:1.9;
+  flex-shrink:0;overflow-x:auto;
+}
+.codeblock pre{white-space:pre;}
+.cl{display:block;padding:0 5px;margin:0 -5px;border-radius:3px;transition:background .15s,opacity .15s;}
+.cl.hi-r{background:rgba(255,107,53,.18);}
+.cl.hi-m{background:rgba(240,180,41,.18);}
+.cl.hi-b{background:rgba(0,212,170,.18);}
+.cl.faded{opacity:.3;}
+
+.kw{color:#7dd3fc;} .fn{color:#a78bfa;} .num{color:#fbbf24;}
+.cm{color:var(--dim2);font-style:italic;} .vr{color:#86efac;}
+.op{color:#f9a8d4;} .rv{color:var(--rec);}
+.mv{color:var(--memo);} .bv{color:var(--bu);}
+
+/* ─── VIZ AREA ─── */
+.va{padding:.9rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.75rem;}
+.vlbl{font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);}
+
+/* ─── CALL STACK ─── */
+.stack-wrap{min-height:160px;display:flex;flex-direction:column;gap:3px;}
+.sframe{
+  border-radius:5px;padding:.38rem .75rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--border2);background:var(--surface2);
+  font-size:.68rem;transition:all .22s ease;
+}
+.sframe.sf-enter{animation:sfIn .22s ease forwards;}
+.sframe.sf-leave{animation:sfOut .28s ease forwards;}
+.sframe.sf-active-r{border-color:var(--rec);background:rgba(255,107,53,.11);box-shadow:0 0 10px rgba(255,107,53,.18);}
+.sframe.sf-active-m{border-color:var(--memo);background:rgba(240,180,41,.11);box-shadow:0 0 10px rgba(240,180,41,.18);}
+.sframe.sf-resolved{opacity:.5;background:var(--surface);border-color:var(--border);}
+.sfn{font-weight:700;} .sfn-r{color:var(--rec);} .sfn-m{color:var(--memo);}
+.sfret{font-size:.6rem;color:var(--dim2);}
+.sfval{color:#fbbf24;font-weight:700;font-size:.72rem;}
+@keyframes sfIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:none;}}
+@keyframes sfOut{from{opacity:1;transform:none;}to{opacity:0;transform:translateX(10px);height:0;padding:0;margin:0;border:0;}}
+
+.depth-bar{display:flex;align-items:center;gap:.4rem;}
+.dtrack{flex:1;height:3px;background:var(--border2);border-radius:100px;overflow:hidden;}
+.dfill{height:100%;border-radius:100px;transition:width .22s ease;}
+.dfill-r{background:var(--rec);}
+.dfill-m{background:var(--memo);}
+.dlbl{font-size:.58rem;color:var(--dim2);}
+.dval-r{font-size:.6rem;color:var(--rec);font-weight:700;}
+.dval-m{font-size:.6rem;color:var(--memo);font-weight:700;}
+
+/* ─── MEMO CACHE ─── */
+.cache-grid{display:flex;flex-wrap:wrap;gap:3px;}
+.ckey{
+  border-radius:5px;border:1px solid var(--border2);
+  background:var(--surface2);
+  min-width:40px;height:40px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:all .2s ease;flex-shrink:0;
+}
+.ckey .cidx{font-size:.5rem;color:var(--dim2);line-height:1;}
+.ckey .cval{font-size:.75rem;font-weight:700;color:var(--dim2);line-height:1.3;transition:color .2s;}
+.ckey.ck-miss{border-color:rgba(255,107,53,.4);background:rgba(255,107,53,.08);}
+.ckey.ck-computing{border-color:var(--memo);background:rgba(240,180,41,.2);box-shadow:0 0 8px rgba(240,180,41,.3);}
+.ckey.ck-computing .cval{color:#fff;}
+.ckey.ck-hit{border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.12);}
+.ckey.ck-hit .cval{color:var(--both);}
+.ckey.ck-filled{border-color:rgba(240,180,41,.3);background:rgba(240,180,41,.07);}
+.ckey.ck-filled .cval{color:var(--memo);}
+
+/* ─── DP TABLE ─── */
+.dptable-wrap{overflow-x:auto;}
+.dptable-row{display:flex;gap:3px;flex-wrap:nowrap;}
+.dpcell{
+  border-radius:5px;border:1px solid var(--border2);
+  min-width:40px;height:40px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:all .2s ease;flex-shrink:0;
+}
+.dpcell .didx{font-size:.5rem;color:var(--dim2);line-height:1;}
+.dpcell .dval{font-size:.75rem;font-weight:700;color:var(--dim2);line-height:1.3;transition:color .2s;}
+.dpcell.dp-empty{background:var(--surface2);}
+.dpcell.dp-base{border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.1);}
+.dpcell.dp-base .dval{color:var(--bu);}
+.dpcell.dp-reading{border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.15);box-shadow:0 0 7px rgba(167,139,250,.25);}
+.dpcell.dp-reading .dval{color:var(--both);}
+.dpcell.dp-computing{border-color:var(--bu);background:rgba(0,212,170,.22);box-shadow:0 0 10px rgba(0,212,170,.3);}
+.dpcell.dp-computing .dval{color:#fff;}
+.dpcell.dp-filled{border-color:rgba(0,212,170,.3);background:rgba(0,212,170,.07);}
+.dpcell.dp-filled .dval{color:var(--bu);}
+
+/* ─── STATS ─── */
+.stats-row{display:flex;gap:.75rem;flex-wrap:wrap;}
+.stat{display:flex;flex-direction:column;gap:1px;}
+.slbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);}
+.sval{font-family:var(--sans);font-size:1rem;font-weight:700;line-height:1;transition:color .2s;}
+.sval-r{color:var(--rec);}  .sval-m{color:var(--memo);} .sval-b{color:var(--bu);}
+.sval-a{color:var(--both);}
+.sval.flash{color:#fff!important;}
+
+/* ─── INFO ─── */
+.infobox{
+  background:var(--ink);border:1px solid var(--border);
+  border-radius:6px;padding:.6rem .85rem;
+  font-size:.68rem;color:var(--dim2);line-height:1.75;min-height:48px;
+}
+.infobox strong{color:var(--text);}
+.hi-r{color:var(--rec);} .hi-m{color:var(--memo);} .hi-b{color:var(--bu);}
+.hi-a{color:var(--both);}
+
+/* ─── COMPARE TABLE ─── */
+.cmp-wrap{
+  position:relative;z-index:1;
+  max-width:1400px;margin:0 auto;padding:0 1.25rem 5rem;
+}
+.cmp-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+.cmp-hdr{
+  padding:.8rem 1.1rem;border-bottom:1px solid var(--border);
+  font-family:var(--sans);font-size:.65rem;font-weight:700;
+  color:var(--text);letter-spacing:.03em;
+  display:flex;align-items:center;gap:.5rem;
+}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr;}}
+.cmpcol{padding:1rem 1.1rem;border-right:1px solid var(--border);}
+.cmpcol:last-child{border-right:none;}
+.cmpcol-hdr{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
+.cmpcol-hdr-r{color:var(--rec);} .cmpcol-hdr-m{color:var(--memo);} .cmpcol-hdr-b{color:var(--bu);}
+.cmprow{display:flex;flex-direction:column;gap:.5rem;}
+.cmpitem{display:grid;grid-template-columns:80px 1fr;gap:.4rem;font-size:.68rem;}
+.cmpk{color:var(--dim2);}
+.cmpv{color:var(--text);}
+.cmpv.bad{color:var(--rec);} .cmpv.good{color:var(--bu);}
+.cmpv code{font-family:var(--mono);font-size:.65rem;background:var(--surface2);padding:.05em .3em;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="logo">rec <span class="s">/</span> memo <span class="s">/</span> dp</div>
+  <div class="prob-tabs">
+    <button class="prob-tab active" onclick="setProblem('factorial')">Factorial</button>
+    <button class="prob-tab" onclick="setProblem('sum')">Sum 1…n</button>
+    <button class="prob-tab" onclick="setProblem('fib')">Fibonacci</button>
+  </div>
+  <div class="n-ctl">
+    n=<span class="n-num" id="ndisp">6</span>
+    <input type="range" id="nslider" min="3" max="8" value="6" oninput="setN(this.value)">
+  </div>
+</header>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">Discrete Math · Three Approaches</div>
+    <h1><span class="r">Recurse</span>, <span class="m">Memo</span>,<br><span class="b">Build Up</span></h1>
+    <div class="hero-badges">
+      <span class="bdg bdg-r">Recursion · no cache · repeated work</span>
+      <span class="bdg bdg-m">Top-Down DP · memoize · cache hits</span>
+      <span class="bdg bdg-b">Bottom-Up DP · table · no stack</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <button class="cbtn cbtn-all" id="btn-all" onclick="runAll()">▶▶▶ All Three</button>
+    <button class="cbtn cbtn-r"   id="btn-r"   onclick="runOne('r')">▶ Rec</button>
+    <button class="cbtn cbtn-m"   id="btn-m"   onclick="runOne('m')">▶ Memo</button>
+    <button class="cbtn cbtn-b"   id="btn-b"   onclick="runOne('b')">▶ DP</button>
+    <button class="cbtn cbtn-rst" onclick="hardReset()">↺ Reset</button>
+    <div class="spd-ctl">spd <input type="range" id="gspd" min="100" max="900" value="500"></div>
+  </div>
+</div>
+
+<!-- ─── STAGE ─── -->
+<div class="stage">
+
+  <!-- COL 1: Plain Recursion -->
+  <div class="panel panel-r">
+    <div class="ph">
+      <div class="picon picon-r">R</div>
+      <div>
+        <div class="ptitle" id="r-title">Factorial — Recursion</div>
+        <div class="psub" id="r-sub">f(n) = n × f(n-1) · no cache</div>
+      </div>
+      <div class="pchips">
+        <span class="chip chip-r" id="r-tchip">Time: O(n)</span>
+        <span class="chip chip-r" id="r-schip">Space: O(n) stack</span>
+      </div>
+    </div>
+    <div class="codeblock"><pre id="r-code"></pre></div>
+    <div class="va">
+      <div class="vlbl">Call Stack</div>
+      <div class="stack-wrap" id="r-stack"></div>
+      <div class="depth-bar">
+        <span class="dlbl">depth</span>
+        <div class="dtrack"><div class="dfill dfill-r" id="r-dfill" style="width:0%"></div></div>
+        <span class="dval-r" id="r-dval">0</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="slbl">Calls</div><div class="sval sval-r" id="r-calls">0</div></div>
+        <div class="stat"><div class="slbl">Returns</div><div class="sval sval-r" id="r-rets">0</div></div>
+        <div class="stat"><div class="slbl">Answer</div><div class="sval sval-a" id="r-ans">—</div></div>
+      </div>
+      <div class="infobox" id="r-info">Plain recursion. No cache — each subproblem computed from scratch. Stack grows to depth n.</div>
+    </div>
+  </div>
+
+  <!-- COL 2: Top-Down DP (Memoization) -->
+  <div class="panel panel-m">
+    <div class="ph">
+      <div class="picon picon-m">TD</div>
+      <div>
+        <div class="ptitle" id="m-title">Factorial — Top-Down DP</div>
+        <div class="psub" id="m-sub">memoize results · cache hits skip work</div>
+      </div>
+      <div class="pchips">
+        <span class="chip chip-m" id="m-tchip">Time: O(n)</span>
+        <span class="chip chip-m" id="m-schip">Space: O(n) stack+cache</span>
+      </div>
+    </div>
+    <div class="codeblock"><pre id="m-code"></pre></div>
+    <div class="va">
+      <div class="vlbl">Call Stack + Memo Cache</div>
+      <div class="stack-wrap" id="m-stack"></div>
+      <div class="depth-bar">
+        <span class="dlbl">depth</span>
+        <div class="dtrack"><div class="dfill dfill-m" id="m-dfill" style="width:0%"></div></div>
+        <span class="dval-m" id="m-dval">0</span>
+      </div>
+      <div class="vlbl" style="margin-top:.25rem">memo[ ] cache</div>
+      <div class="cache-grid" id="m-cache"></div>
+      <div class="stats-row">
+        <div class="stat"><div class="slbl">Calls</div><div class="sval sval-m" id="m-calls">0</div></div>
+        <div class="stat"><div class="slbl">Cache hits</div><div class="sval sval-m" id="m-hits">0</div></div>
+        <div class="stat"><div class="slbl">Answer</div><div class="sval sval-a" id="m-ans">—</div></div>
+      </div>
+      <div class="infobox" id="m-info">Top-down DP. Same recursive structure, but <strong>results stored in memo[]</strong>. On a cache hit, return instantly — no further recursion needed.</div>
+    </div>
+  </div>
+
+  <!-- COL 3: Bottom-Up DP -->
+  <div class="panel panel-b">
+    <div class="ph">
+      <div class="picon picon-b">BU</div>
+      <div>
+        <div class="ptitle" id="b-title">Factorial — Bottom-Up DP</div>
+        <div class="psub" id="b-sub">fill table 0→n · no recursion</div>
+      </div>
+      <div class="pchips">
+        <span class="chip chip-b" id="b-tchip">Time: O(n)</span>
+        <span class="chip chip-b" id="b-schip">Space: O(n) table</span>
+      </div>
+    </div>
+    <div class="codeblock"><pre id="b-code"></pre></div>
+    <div class="va">
+      <div class="vlbl">DP Table dp[0…n]</div>
+      <div class="dptable-wrap">
+        <div class="dptable-row" id="b-cells"></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="slbl">Filled</div><div class="sval sval-b" id="b-filled">0</div></div>
+        <div class="stat"><div class="slbl">Lookups</div><div class="sval sval-b" id="b-looks">0</div></div>
+        <div class="stat"><div class="slbl">Answer</div><div class="sval sval-a" id="b-ans">—</div></div>
+      </div>
+      <div class="infobox" id="b-info">Bottom-up DP. <strong>No recursion, no stack.</strong> Iterate 0→n, fill each cell once using prior cells. Cleanest time and space.</div>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- ─── COMPARE TABLE ─── -->
+<div class="cmp-wrap">
+  <div class="cmp-card">
+    <div class="cmp-hdr">⟷ All Three Approaches Compared</div>
+    <div class="cmp-grid">
+      <div class="cmpcol">
+        <div class="cmpcol-hdr cmpcol-hdr-r">Recursion (no cache)</div>
+        <div class="cmprow" id="cmp-r"></div>
+      </div>
+      <div class="cmpcol">
+        <div class="cmpcol-hdr cmpcol-hdr-m">Top-Down DP (Memoization)</div>
+        <div class="cmprow" id="cmp-m"></div>
+      </div>
+      <div class="cmpcol">
+        <div class="cmpcol-hdr cmpcol-hdr-b">Bottom-Up DP (Tabulation)</div>
+        <div class="cmprow" id="cmp-b"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  PROBLEM DEFINITIONS
+// ════════════════════════════════════════════════════════
+const PROBS = {
+  factorial: {
+    name: 'Factorial',
+    rTitle:'Factorial — Recursion',     mTitle:'Factorial — Top-Down DP',    bTitle:'Factorial — Bottom-Up DP',
+    rSub:'f(n) = n × f(n-1) · no cache', mSub:'memoize · cache hits skip work', bSub:'fill dp[0…n] iteratively',
+    rTchip:'Time: O(n)', rSchip:'Space: O(n) stack',
+    mTchip:'Time: O(n)', mSchip:'Space: O(n) stack+cache',
+    bTchip:'Time: O(n)', bSchip:'Space: O(n) table',
+    rCode:[
+      {id:'r0',c:'<span class="kw">def</span> <span class="fn">factorial</span>(<span class="vr">n</span>):'},
+      {id:'r1',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">==</span> <span class="num">0</span>:                <span class="cm"># base case</span>'},
+      {id:'r2',c:'        <span class="kw">return</span> <span class="num">1</span>'},
+      {id:'r3',c:'    <span class="kw">return</span> <span class="vr">n</span> <span class="op">*</span> <span class="fn">factorial</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>)  <span class="cm"># recurse</span>'},
+    ],
+    mCode:[
+      {id:'m0',c:'<span class="mv">memo</span> <span class="op">=</span> {}'},
+      {id:'m1',c:'<span class="kw">def</span> <span class="fn">factorial</span>(<span class="vr">n</span>):'},
+      {id:'m2',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">in</span> <span class="mv">memo</span>: <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]  <span class="cm"># cache hit!</span>'},
+      {id:'m3',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">==</span> <span class="num">0</span>: <span class="kw">return</span> <span class="num">1</span>             <span class="cm"># base case</span>'},
+      {id:'m4',c:'    <span class="mv">memo</span>[<span class="vr">n</span>] <span class="op">=</span> <span class="vr">n</span> <span class="op">*</span> <span class="fn">factorial</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>)  <span class="cm"># store result</span>'},
+      {id:'m5',c:'    <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]'},
+    ],
+    bCode:[
+      {id:'b0',c:'<span class="kw">def</span> <span class="fn">factorial_dp</span>(<span class="vr">n</span>):'},
+      {id:'b1',c:'    <span class="bv">dp</span> <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> (<span class="vr">n</span><span class="op">+</span><span class="num">1</span>)'},
+      {id:'b2',c:'    <span class="bv">dp</span>[<span class="num">0</span>] <span class="op">=</span> <span class="num">1</span>                    <span class="cm"># base</span>'},
+      {id:'b3',c:'    <span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="kw">range</span>(<span class="num">1</span>, <span class="vr">n</span><span class="op">+</span><span class="num">1</span>):'},
+      {id:'b4',c:'        <span class="bv">dp</span>[<span class="vr">i</span>] <span class="op">=</span> <span class="vr">i</span> <span class="op">*</span> <span class="bv">dp</span>[<span class="vr">i</span><span class="op">-</span><span class="num">1</span>]  <span class="cm"># use prev</span>'},
+      {id:'b5',c:'    <span class="kw">return</span> <span class="bv">dp</span>[<span class="vr">n</span>]'},
+    ],
+    vals: n => { let v=1; for(let i=1;i<=n;i++) v*=i; return v; },
+    tableVals: n => { const a=[1]; for(let i=1;i<=n;i++) a.push(i*a[i-1]); return a; },
+    fnLabel: k => `factorial(${k})`,
+    baseVal: 1, startI: 1,
+    dp2prev: false,
+    compare:{
+      r:[['Direction','top→down n→0'],['Cache','none'],['Base','f(0)=1'],['Step','f(n)=n×f(n-1)'],['Time','O(n)'],['Stack','O(n) depth'],['Repeats','no (but no savings either)']],
+      m:[['Direction','top→down n→0'],['Cache','memo[n]'],['Base','f(0)=1'],['Cache hit','return memo[n]'],['Time','O(n)'],['Stack','O(n) depth'],['Benefit','instant return on hit']],
+      b:[['Direction','bottom→up 0→n'],['Cache','dp[] table'],['Base','dp[0]=1'],['Step','dp[i]=i×dp[i-1]'],['Time','O(n)'],['Stack','O(1) — none!'],['Benefit','no recursion overhead']],
+    }
+  },
+  sum:{
+    name:'Sum 1…n',
+    rTitle:'Sum — Recursion',mTitle:'Sum — Top-Down DP',bTitle:'Sum — Bottom-Up DP',
+    rSub:'S(n)=n+S(n-1) · no cache',mSub:'memoize · cache hits',bSub:'fill dp[0…n] iteratively',
+    rTchip:'Time: O(n)',rSchip:'Space: O(n) stack',
+    mTchip:'Time: O(n)',mSchip:'Space: O(n) stack+cache',
+    bTchip:'Time: O(n)',bSchip:'Space: O(n) table',
+    rCode:[
+      {id:'r0',c:'<span class="kw">def</span> <span class="fn">sum_n</span>(<span class="vr">n</span>):'},
+      {id:'r1',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">==</span> <span class="num">0</span>: <span class="kw">return</span> <span class="num">0</span>      <span class="cm"># base case</span>'},
+      {id:'r2',c:'    <span class="kw">return</span> <span class="vr">n</span> <span class="op">+</span> <span class="fn">sum_n</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>)  <span class="cm"># recurse</span>'},
+    ],
+    mCode:[
+      {id:'m0',c:'<span class="mv">memo</span> <span class="op">=</span> {}'},
+      {id:'m1',c:'<span class="kw">def</span> <span class="fn">sum_n</span>(<span class="vr">n</span>):'},
+      {id:'m2',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">in</span> <span class="mv">memo</span>: <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]'},
+      {id:'m3',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">==</span> <span class="num">0</span>: <span class="kw">return</span> <span class="num">0</span>'},
+      {id:'m4',c:'    <span class="mv">memo</span>[<span class="vr">n</span>] <span class="op">=</span> <span class="vr">n</span> <span class="op">+</span> <span class="fn">sum_n</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>)'},
+      {id:'m5',c:'    <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]'},
+    ],
+    bCode:[
+      {id:'b0',c:'<span class="kw">def</span> <span class="fn">sum_dp</span>(<span class="vr">n</span>):'},
+      {id:'b1',c:'    <span class="bv">dp</span> <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> (<span class="vr">n</span><span class="op">+</span><span class="num">1</span>)'},
+      {id:'b2',c:'    <span class="bv">dp</span>[<span class="num">0</span>] <span class="op">=</span> <span class="num">0</span>'},
+      {id:'b3',c:'    <span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="kw">range</span>(<span class="num">1</span>, <span class="vr">n</span><span class="op">+</span><span class="num">1</span>):'},
+      {id:'b4',c:'        <span class="bv">dp</span>[<span class="vr">i</span>] <span class="op">=</span> <span class="vr">i</span> <span class="op">+</span> <span class="bv">dp</span>[<span class="vr">i</span><span class="op">-</span><span class="num">1</span>]'},
+      {id:'b5',c:'    <span class="kw">return</span> <span class="bv">dp</span>[<span class="vr">n</span>]'},
+    ],
+    vals: n=>n*(n+1)/2,
+    tableVals: n=>{ const a=[0]; for(let i=1;i<=n;i++) a.push(a[i-1]+i); return a; },
+    fnLabel: k=>`sum_n(${k})`,
+    baseVal:0, startI:1, dp2prev:false,
+    compare:{
+      r:[['Direction','top→down'],['Cache','none'],['Base','S(0)=0'],['Step','S(n)=n+S(n-1)'],['Time','O(n)'],['Stack','O(n)'],['Alt','S(n)=n(n+1)/2 → O(1)!']],
+      m:[['Direction','top→down'],['Cache','memo[n]'],['Base','S(0)=0'],['Cache hit','O(1) return'],['Time','O(n)'],['Stack','O(n)'],['Benefit','instant on repeat calls']],
+      b:[['Direction','bottom→up'],['Cache','dp[] table'],['Base','dp[0]=0'],['Step','dp[i]=i+dp[i-1]'],['Time','O(n)'],['Stack','O(1)'],['Benefit','no recursion, no stack']],
+    }
+  },
+  fib:{
+    name:'Fibonacci',
+    rTitle:'Fibonacci — Recursion',mTitle:'Fibonacci — Top-Down DP',bTitle:'Fibonacci — Bottom-Up DP',
+    rSub:'f(n)=f(n-1)+f(n-2) · exponential!',mSub:'memoize · O(n) with cache',bSub:'fill dp[0…n] · O(n)',
+    rTchip:'Time: O(2ⁿ)  ⚠',rSchip:'Space: O(n) stack',
+    mTchip:'Time: O(n) ✓',mSchip:'Space: O(n) stack+cache',
+    bTchip:'Time: O(n) ✓',bSchip:'Space: O(n) table',
+    rCode:[
+      {id:'r0',c:'<span class="kw">def</span> <span class="fn">fib</span>(<span class="vr">n</span>):'},
+      {id:'r1',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op"><=</span> <span class="num">1</span>: <span class="kw">return</span> <span class="vr">n</span>  <span class="cm"># base</span>'},
+      {id:'r2',c:'    <span class="rv">↳ two recursive calls</span>'},
+      {id:'r3',c:'    <span class="kw">return</span> <span class="fn">fib</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>) <span class="op">+</span> <span class="fn">fib</span>(<span class="vr">n</span><span class="op">-</span><span class="num">2</span>)'},
+    ],
+    mCode:[
+      {id:'m0',c:'<span class="mv">memo</span> <span class="op">=</span> {}'},
+      {id:'m1',c:'<span class="kw">def</span> <span class="fn">fib</span>(<span class="vr">n</span>):'},
+      {id:'m2',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op">in</span> <span class="mv">memo</span>: <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]  <span class="cm"># hit!</span>'},
+      {id:'m3',c:'    <span class="kw">if</span> <span class="vr">n</span> <span class="op"><=</span> <span class="num">1</span>: <span class="kw">return</span> <span class="vr">n</span>'},
+      {id:'m4',c:'    <span class="mv">memo</span>[<span class="vr">n</span>] <span class="op">=</span> <span class="fn">fib</span>(<span class="vr">n</span><span class="op">-</span><span class="num">1</span>) <span class="op">+</span> <span class="fn">fib</span>(<span class="vr">n</span><span class="op">-</span><span class="num">2</span>)'},
+      {id:'m5',c:'    <span class="kw">return</span> <span class="mv">memo</span>[<span class="vr">n</span>]'},
+    ],
+    bCode:[
+      {id:'b0',c:'<span class="kw">def</span> <span class="fn">fib_dp</span>(<span class="vr">n</span>):'},
+      {id:'b1',c:'    <span class="bv">dp</span> <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> (<span class="vr">n</span><span class="op">+</span><span class="num">1</span>)'},
+      {id:'b2',c:'    <span class="bv">dp</span>[<span class="num">0</span>], <span class="bv">dp</span>[<span class="num">1</span>] <span class="op">=</span> <span class="num">0</span>, <span class="num">1</span>        <span class="cm"># bases</span>'},
+      {id:'b3',c:'    <span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="kw">range</span>(<span class="num">2</span>, <span class="vr">n</span><span class="op">+</span><span class="num">1</span>):'},
+      {id:'b4',c:'        <span class="bv">dp</span>[<span class="vr">i</span>] <span class="op">=</span> <span class="bv">dp</span>[<span class="vr">i</span><span class="op">-</span><span class="num">1</span>] <span class="op">+</span> <span class="bv">dp</span>[<span class="vr">i</span><span class="op">-</span><span class="num">2</span>]'},
+      {id:'b5',c:'    <span class="kw">return</span> <span class="bv">dp</span>[<span class="vr">n</span>]'},
+    ],
+    vals: n=>{ let a=0,b=1; if(n===0) return 0; for(let i=2;i<=n;i++){let c=a+b;a=b;b=c;} return b; },
+    tableVals: n=>{ const a=[0,1]; for(let i=2;i<=n;i++) a.push(a[i-1]+a[i-2]); return a; },
+    fnLabel: k=>`fib(${k})`,
+    baseVal:0, startI:2, dp2prev:true,
+    compare:{
+      r:[['Direction','top→down'],['Cache','NONE'],['Base','f(0)=0,f(1)=1'],['Step','f(n-1)+f(n-2)'],['Time','O(2ⁿ) ← BAD'],['Stack','O(n)'],['Problem','f(k) recomputed many times']],
+      m:[['Direction','top→down'],['Cache','memo[n]'],['Base','f(0)=0,f(1)=1'],['Cache hit','O(1) skip'],['Time','O(n) ← FIXED'],['Stack','O(n)'],['Key insight','overlapping subproblems solved once']],
+      b:[['Direction','bottom→up'],['Cache','dp[] table'],['Base','dp[0]=0,dp[1]=1'],['Step','dp[i-1]+dp[i-2]'],['Time','O(n)'],['Stack','O(1) — none!'],['Key insight','no recursion needed at all']],
+    }
+  }
+};
+
+// ════════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ════════════════════════════════════════════════════════
+let prob = 'factorial';
+let N    = 6;
+let anims = { r:null, m:null, b:null };  // { running, timer }
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r,ms));
+const spd = () => 1001 - parseInt($('gspd').value);
+
+function flash(el){ if(!el) return; el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),200); }
+
+// ════════════════════════════════════════════════════════
+//  CODE HIGHLIGHTING
+// ════════════════════════════════════════════════════════
+function hl(preId, activeId, doneIds=[], cls='hi-r'){
+  const pre = $(preId); if(!pre) return;
+  pre.querySelectorAll('.cl').forEach(cl=>{
+    cl.classList.remove('hi-r','hi-m','hi-b','faded');
+    if(cl.id === activeId) cl.classList.add(cls);
+    else if(doneIds.includes(cl.id)) cl.classList.add('faded');
+  });
+}
+function clr(preId){ const p=$(preId); if(p) p.querySelectorAll('.cl').forEach(c=>c.classList.remove('hi-r','hi-m','hi-b','faded')); }
+
+// ════════════════════════════════════════════════════════
+//  BUILD UI
+// ════════════════════════════════════════════════════════
+function buildUI(){
+  const P = PROBS[prob];
+  // titles / chips
+  ['r','m','b'].forEach(k=>{
+    $(`${k}-title`).textContent = P[`${k}Title`];
+    $(`${k}-sub`).textContent   = P[`${k}Sub`];
+  });
+  $('r-tchip').textContent=P.rTchip; $('r-schip').textContent=P.rSchip;
+  $('m-tchip').textContent=P.mTchip; $('m-schip').textContent=P.mSchip;
+  $('b-tchip').textContent=P.bTchip; $('b-schip').textContent=P.bSchip;
+
+  // code
+  $('r-code').innerHTML = P.rCode.map(l=>`<span class="cl" id="${l.id}">${l.c}</span>`).join('\n');
+  $('m-code').innerHTML = P.mCode.map(l=>`<span class="cl" id="${l.id}">${l.c}</span>`).join('\n');
+  $('b-code').innerHTML = P.bCode.map(l=>`<span class="cl" id="${l.id}">${l.c}</span>`).join('\n');
+
+  // stack
+  $('r-stack').innerHTML=''; $('m-stack').innerHTML='';
+  $('r-dfill').style.width='0%'; $('m-dfill').style.width='0%';
+  $('r-dval').textContent='0';   $('m-dval').textContent='0';
+
+  // memo cache
+  const mc = $('m-cache'); mc.innerHTML='';
+  for(let i=0;i<=N;i++){
+    const c=document.createElement('div');
+    c.className='ckey'; c.id=`ck-${i}`;
+    c.innerHTML=`<span class="cidx">[${i}]</span><span class="cval">—</span>`;
+    mc.appendChild(c);
+  }
+
+  // dp table
+  const bc=$('b-cells'); bc.innerHTML='';
+  for(let i=0;i<=N;i++){
+    const c=document.createElement('div');
+    c.className='dpcell dp-empty'; c.id=`dp-${i}`;
+    c.innerHTML=`<span class="didx">dp[${i}]</span><span class="dval">?</span>`;
+    bc.appendChild(c);
+  }
+
+  // stats reset
+  ['r-calls','r-rets','m-calls','m-hits','b-filled','b-looks'].forEach(id=>$(id).textContent='0');
+  ['r-ans','m-ans','b-ans'].forEach(id=>$(id).textContent='—');
+
+  // info reset
+  $('r-info').innerHTML='Plain recursion descends to base case, then unwinds. Watch the stack grow and shrink.';
+  $('m-info').innerHTML='Top-down DP: same recursion but results stored in <strong>memo[]</strong>. <span class="hi-m">Yellow = being computed</span>, <span class="hi-a">purple = cache hit</span>.';
+  $('b-info').innerHTML='Bottom-up DP: no recursion at all. Fill dp[0…n] left to right. <span class="hi-b">Each cell used once, filled once.</span>';
+
+  buildCompare();
+}
+
+function buildCompare(){
+  const P=PROBS[prob];
+  const badK=['Time','Problem','Stack space','Repeats','Repeated','Alt'];
+  const goodK=['Key insight','Benefit','Cache hit'];
+
+  ['r','m','b'].forEach(k=>{
+    $(`cmp-${k}`).innerHTML = P.compare[k].map(([key,val])=>{
+      const isBad = badK.some(bk=>key.includes(bk)) && (val.includes('BAD')||val.includes('recomputed')||val.includes('⚠'));
+      const isGood= goodK.some(gk=>key.includes(gk)) || val.includes('✓')||val.includes('NONE')||val.includes('none')||val.includes('FIXED');
+      return `<div class="cmpitem"><span class="cmpk">${key}</span><span class="cmpv${isBad?' bad':isGood?' good':''}">${val}</span></div>`;
+    }).join('');
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  RECURSION ANIMATION (plain)
+// ════════════════════════════════════════════════════════
+async function animateR(){
+  const P=PROBS[prob];
+  const tvs=P.tableVals(N); // precomputed values
+  let calls=0,rets=0;
+  const activeFrames=[];
+  const container=$('r-stack');
+
+  // push phase n→0
+  for(let k=N;k>=0;k--){
+    if(!anims.r?.running) break;
+    hl('r-code','r3',[],       'hi-r');
+    calls++;
+    $('r-calls').textContent=calls; flash($('r-calls'));
+
+    const fid=`rf-${k}`;
+    const fr=document.createElement('div');
+    fr.className='sframe sf-enter sf-active-r'; fr.id=fid;
+    const waiting = k===0 ? 'base case' : `waiting for ${P.fnLabel(k-1)}`;
+    fr.innerHTML=`<span class="sfn sfn-r">${P.fnLabel(k)}</span><span class="sfret">${waiting}</span>`;
+    container.appendChild(fr);
+    activeFrames.push(fid);
+
+    // de-activate prev
+    if(activeFrames.length>1){
+      $(activeFrames[activeFrames.length-2])?.classList.replace('sf-active-r','sf-resolved');
+    }
+    const d=activeFrames.length;
+    $('r-dfill').style.width=Math.min(d/(N+1)*100,100)+'%';
+    $('r-dval').textContent=d;
+    $('r-info').innerHTML=`<span class="hi-r">Calling <strong>${P.fnLabel(k)}</strong></span> — stack depth now ${d}`;
+    await sleep(spd()*.75);
+  }
+
+  // base case flash
+  if(anims.r?.running){
+    hl('r-code','r1',[],'hi-r'); await sleep(spd()*.4);
+    hl('r-code','r2',['r1'],'hi-r');
+    const bf=$(`rf-0`);
+    if(bf){ bf.querySelector('.sfret').textContent=`= ${tvs[0]}`; }
+    $('r-info').innerHTML=`<span class="hi-r"><strong>Base case</strong></span> — returning ${tvs[0]}. Now unwinding up.`;
+    await sleep(spd());
+  }
+
+  // pop phase 0→N
+  for(let k=1;k<=N;k++){
+    if(!anims.r?.running) break;
+    rets++;
+    $('r-rets').textContent=rets; flash($('r-rets'));
+
+    // remove top
+    const topId=activeFrames.pop();
+    const topEl=$(topId);
+    if(topEl){ topEl.classList.add('sf-leave'); setTimeout(()=>topEl.remove(),260); }
+    await sleep(spd()*.45);
+
+    // update new top
+    if(activeFrames.length>0){
+      const newTopId=activeFrames[activeFrames.length-1];
+      const nt=$(newTopId);
+      if(nt){
+        nt.classList.add('sf-active-r'); nt.classList.remove('sf-resolved');
+        nt.querySelector('.sfret').textContent=`= ${tvs[k]}`;
+      }
+    }
+    const d=activeFrames.length;
+    $('r-dfill').style.width=Math.min(d/(N+1)*100,100)+'%';
+    $('r-dval').textContent=d;
+    hl('r-code','r3',['r1','r2'],'hi-r');
+    $('r-info').innerHTML=`<span class="hi-r">Returning <strong>${P.fnLabel(k)} = ${tvs[k]}</strong></span> — stack depth ${d}`;
+    await sleep(spd()*.75);
+  }
+
+  if(!anims.r?.running) return;
+  clr('r-code');
+  $('r-ans').textContent=tvs[N]; flash($('r-ans'));
+  $('r-dfill').style.width='0%'; $('r-dval').textContent='0';
+  $('r-info').innerHTML=`<strong>Done!</strong> ${P.fnLabel(N)} = <span class="hi-r"><strong>${tvs[N]}</strong></span>. Made ${calls} calls, ${rets} returns.`;
+  anims.r.running=false;
+  syncBtns();
+}
+
+// ════════════════════════════════════════════════════════
+//  TOP-DOWN MEMO ANIMATION
+// ════════════════════════════════════════════════════════
+async function animateM(){
+  const P=PROBS[prob];
+  const tvs=P.tableVals(N);
+  let calls=0,hits=0;
+  const activeFrames=[];
+  const container=$('m-stack');
+  const memoCache={}; // track what's computed
+
+  // For factorial/sum, memo is built exactly like recursion — n→0 push, then pop
+  // For fib, same path (top-down only goes n-1 path first, memoizes, then n-2 is a hit)
+  // We'll simulate the exact top-down path
+
+  const pushOrder = [];
+  if(prob==='fib'){
+    // fib top-down goes n, n-1, n-2, n-3... 1, 0 on first path (n-1 chain)
+    // then n-2 queries are all cache hits
+    for(let k=N;k>=0;k--) pushOrder.push({type:'push',k});
+    pushOrder.push({type:'base',k:0,val:tvs[0]});
+    if(N>=1){ pushOrder.push({type:'base-1',k:1,val:tvs[1]}); }
+    for(let k=1;k<=N;k++) pushOrder.push({type:'pop',k,val:tvs[k],hit:false});
+  } else {
+    for(let k=N;k>=0;k--) pushOrder.push({type:'push',k});
+    pushOrder.push({type:'base',k:0,val:tvs[0]});
+    for(let k=1;k<=N;k++) pushOrder.push({type:'pop',k,val:tvs[k],hit:false});
+  }
+
+  for(const s of pushOrder){
+    if(!anims.m?.running) break;
+    const sd=spd();
+
+    if(s.type==='push'){
+      calls++;
+      $('m-calls').textContent=calls; flash($('m-calls'));
+      hl('m-code','m2',[],'hi-m'); // check cache
+      await sleep(sd*.3);
+
+      // mark cache miss
+      const ck=$(`ck-${s.k}`);
+      if(ck) ck.className='ckey ck-miss';
+
+      hl('m-code','m4',['m2','m3'],'hi-m');
+      const fid=`mf-${s.k}`;
+      const fr=document.createElement('div');
+      fr.className='sframe sf-enter sf-active-m'; fr.id=fid;
+      const waiting = s.k===0 ? (prob==='fib'&&N>=1?'base: return 0':'base case') : `waiting for ${P.fnLabel(s.k-1)}`;
+      fr.innerHTML=`<span class="sfn sfn-m">${P.fnLabel(s.k)}</span><span class="sfret">${waiting}</span>`;
+      container.appendChild(fr);
+      activeFrames.push(fid);
+
+      if(activeFrames.length>1){
+        $(activeFrames[activeFrames.length-2])?.classList.replace('sf-active-m','sf-resolved');
+      }
+      const d=activeFrames.length;
+      $('m-dfill').style.width=Math.min(d/(N+1)*100,100)+'%';
+      $('m-dval').textContent=d;
+      $('m-info').innerHTML=`<span class="hi-m">Cache miss for <strong>${P.fnLabel(s.k)}</strong></span> — computing. Stack depth: ${d}`;
+      await sleep(sd*.7);
+
+    } else if(s.type==='base'||s.type==='base-1'){
+      hl('m-code','m3',['m2'],'hi-m');
+      memoCache[s.k]=s.val;
+      const ck=$(`ck-${s.k}`);
+      if(ck){ ck.className='ckey ck-computing'; ck.querySelector('.cval').textContent=s.val; }
+      await sleep(sd*.4);
+      if(ck) ck.className='ckey ck-filled';
+      const bf=activeFrames[activeFrames.length-1]&&$(activeFrames[activeFrames.length-1]);
+      if(bf) bf.querySelector('.sfret').textContent=`= ${s.val}`;
+      $('m-info').innerHTML=`<span class="hi-m"><strong>Base case</strong></span> — memo[${s.k}] = ${s.val}. Returning.`;
+      await sleep(sd*.8);
+
+    } else if(s.type==='pop'){
+      hl('m-code','m4',['m2','m3'],'hi-m');
+      // store in memo
+      memoCache[s.k]=s.val;
+      const ck=$(`ck-${s.k}`);
+      if(ck){ ck.className='ckey ck-computing'; ck.querySelector('.cval').textContent=s.val; }
+      await sleep(sd*.35);
+      if(ck) ck.className='ckey ck-filled';
+      hl('m-code','m5',['m2','m3','m4'],'hi-m');
+
+      // pop frame
+      const topId=activeFrames.pop();
+      const topEl=$(topId);
+      if(topEl){ topEl.classList.add('sf-leave'); setTimeout(()=>topEl.remove(),260); }
+      await sleep(sd*.4);
+
+      if(activeFrames.length>0){
+        const newTopId=activeFrames[activeFrames.length-1];
+        const nt=$(newTopId);
+        if(nt){ nt.classList.add('sf-active-m'); nt.classList.remove('sf-resolved'); nt.querySelector('.sfret').textContent=`= ${s.val}`; }
+      }
+      const d=activeFrames.length;
+      $('m-dfill').style.width=Math.min(d/(N+1)*100,100)+'%';
+      $('m-dval').textContent=d;
+      $('m-info').innerHTML=`<span class="hi-m">Stored memo[${s.k}]=${s.val}</span> and returned. Stack depth ${d}`;
+      await sleep(sd*.7);
+    }
+  }
+
+  if(!anims.m?.running) return;
+
+  // Fib special: show cache hits for n-2 lookups
+  if(prob==='fib'){
+    $('m-info').innerHTML=`<span class="hi-a"><strong>Fib n-2 lookups are all cache hits!</strong></span> Flashing each…`;
+    for(let k=0;k<N-1;k++){
+      if(!anims.m?.running) break;
+      hits++;
+      $('m-hits').textContent=hits; flash($('m-hits'));
+      hl('m-code','m2',[],'hi-m');
+      const ck=$(`ck-${k}`);
+      if(ck){ ck.className='ckey ck-hit'; }
+      await sleep(spd()*.5);
+      if(ck) ck.className='ckey ck-filled';
+    }
+  }
+
+  if(!anims.m?.running) return;
+  clr('m-code');
+  $('m-ans').textContent=tvs[N]; flash($('m-ans'));
+  $('m-dfill').style.width='0%'; $('m-dval').textContent='0';
+  const hitWord=prob==='fib'?`<br><span class="hi-a">${hits} cache hits</span> — fib(n-2) calls all returned instantly!`:'';
+  $('m-info').innerHTML=`<strong>Done!</strong> ${P.fnLabel(N)} = <span class="hi-m"><strong>${tvs[N]}</strong></span>. ${calls} calls, ${hits} cache hits.${hitWord}`;
+  anims.m.running=false;
+  syncBtns();
+}
+
+// ════════════════════════════════════════════════════════
+//  BOTTOM-UP DP ANIMATION
+// ════════════════════════════════════════════════════════
+async function animateB(){
+  const P=PROBS[prob];
+  const tvs=P.tableVals(N);
+  let filled=0,looks=0;
+
+  // allocate
+  hl('b-code','b1',[],'hi-b');
+  $('b-info').innerHTML=`Allocating table dp[0…${N}], all zeros.`;
+  await sleep(spd()*.5);
+
+  // base case(s)
+  hl('b-code','b2',['b1'],'hi-b');
+  setDPCell(0,tvs[0],'dp-base'); filled++;
+  if(prob==='fib'&&N>=1){ setDPCell(1,tvs[1],'dp-base'); filled++; }
+  $('b-filled').textContent=filled; flash($('b-filled'));
+  const baseStr=prob==='fib'?`dp[0]=0, dp[1]=1`:`dp[0]=${tvs[0]}`;
+  $('b-info').innerHTML=`Base case(s) set: <span class="hi-b"><strong>${baseStr}</strong></span>. Now filling left→right.`;
+  await sleep(spd()*.9);
+
+  // fill loop
+  const startI=prob==='fib'?2:1;
+  for(let i=startI;i<=N;i++){
+    if(!anims.b?.running) break;
+    const sd=spd();
+    hl('b-code','b3',['b1','b2'],'hi-b');
+    await sleep(sd*.25);
+
+    // reading prev cells
+    hl('b-code','b4',['b1','b2','b3'],'hi-b');
+    setDPCell(i-1,tvs[i-1],'dp-reading'); looks++;
+    if(prob==='fib'&&i>=2){ setDPCell(i-2,tvs[i-2],'dp-reading'); looks++; }
+    $('b-looks').textContent=looks; flash($('b-looks'));
+    $('b-info').innerHTML=`Reading dp[${i-1}]${prob==='fib'?` and dp[${i-2}]`:''}… computing dp[${i}]`;
+    await sleep(sd*.55);
+
+    // restore prev
+    setDPCell(i-1,tvs[i-1],'dp-filled');
+    if(prob==='fib'&&i>=2) setDPCell(i-2,tvs[i-2],'dp-filled');
+
+    // write current
+    setDPCell(i,tvs[i],'dp-computing'); filled++;
+    $('b-filled').textContent=filled; flash($('b-filled'));
+    $('b-info').innerHTML=`<span class="hi-b"><strong>dp[${i}] = ${tvs[i]}</strong></span> computed and stored. ${filled}/${N+1} cells filled.`;
+    await sleep(sd*.55);
+    setDPCell(i,tvs[i],'dp-filled');
+    await sleep(sd*.3);
+  }
+
+  if(!anims.b?.running) return;
+  hl('b-code','b5',['b1','b2','b3','b4'],'hi-b');
+  $('b-ans').textContent=tvs[N]; flash($('b-ans'));
+  $('b-info').innerHTML=`<strong>Done!</strong> dp[${N}] = <span class="hi-b"><strong>${tvs[N]}</strong></span>. Filled ${filled} cells, ${looks} lookups. <strong>Zero stack frames ever used.</strong>`;
+  anims.b.running=false;
+  syncBtns();
+}
+
+function setDPCell(i,val,cls){
+  const c=$(`dp-${i}`); if(!c) return;
+  c.className=`dpcell ${cls}`;
+  c.innerHTML=`<span class="didx">dp[${i}]</span><span class="dval">${val!==undefined?val:'?'}</span>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  RUN CONTROLS
+// ════════════════════════════════════════════════════════
+function syncBtns(){
+  const allDone=!anims.r?.running&&!anims.m?.running&&!anims.b?.running;
+  if(allDone){
+    $('btn-all').textContent='▶▶▶ All Three'; $('btn-all').classList.remove('running');
+    $('btn-r').textContent='▶ Rec';   $('btn-r').classList.remove('running');
+    $('btn-m').textContent='▶ Memo';  $('btn-m').classList.remove('running');
+    $('btn-b').textContent='▶ DP';    $('btn-b').classList.remove('running');
+  }
+}
+
+async function runOne(key){
+  if(anims[key]?.running){
+    anims[key].running=false;
+    syncBtns(); return;
+  }
+  hardReset();
+  await sleep(60);
+  anims[key]={running:true,timer:null};
+  const labels={r:'⏸ Rec',m:'⏸ Memo',b:'⏸ DP'};
+  $(`btn-${key}`).textContent=labels[key]; $(`btn-${key}`).classList.add('running');
+  if(key==='r') await animateR();
+  else if(key==='m') await animateM();
+  else await animateB();
+  syncBtns();
+}
+
+async function runAll(){
+  if(anims.r?.running||anims.m?.running||anims.b?.running){
+    ['r','m','b'].forEach(k=>{ if(anims[k]) anims[k].running=false; });
+    syncBtns(); return;
+  }
+  hardReset();
+  await sleep(60);
+  anims={r:{running:true},m:{running:true},b:{running:true}};
+  $('btn-all').textContent='⏸ Pause All'; $('btn-all').classList.add('running');
+  $('btn-r').textContent='⏸ Rec';  $('btn-r').classList.add('running');
+  $('btn-m').textContent='⏸ Memo'; $('btn-m').classList.add('running');
+  $('btn-b').textContent='⏸ DP';   $('btn-b').classList.add('running');
+  await Promise.all([animateR(),animateM(),animateB()]);
+  syncBtns();
+}
+
+function hardReset(){
+  ['r','m','b'].forEach(k=>{ if(anims[k]) anims[k].running=false; });
+  anims={r:null,m:null,b:null};
+  buildUI(); syncBtns();
+}
+
+function setProblem(key){
+  prob=key;
+  document.querySelectorAll('.prob-tab').forEach((t,i)=>{
+    t.classList.toggle('active',['factorial','sum','fib'][i]===key);
+  });
+  hardReset();
+}
+
+function setN(val){
+  N=parseInt(val); $('ndisp').textContent=N;
+  hardReset();
+}
+
+// ── BOOT ──
+buildUI();
+</script>
+</body>
+</html>

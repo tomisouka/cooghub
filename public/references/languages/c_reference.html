@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>C Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #181820;
+    --surface2: #202030;
+    --border: #2e2e48;
+    --accent: #f7b97e;
+    --accent2: #f5c06a;
+    --accent3: #a8e6a3;
+    --text: #eeeeff;
+    --text-dim: #9090b8;
+    --text-code: #ffd8b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 18, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(247, 185, 126, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    margin-top: 0.5rem;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(247, 185, 126, 0.05); }
+  tr:hover td:first-child { color: #ffd8b8; text-shadow: 0 0 20px rgba(247, 185, 126, 0.5); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 120px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+    border-right: 1px solid var(--border);
+    background: rgba(247, 185, 126, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(247, 185, 126, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  .plain-def { color: var(--text-dim); font-style: italic; font-size: 0.97rem; }
+  .plain-def-header { color: var(--text-dim); font-size: 0.72rem; }
+
+  .back-top {
+    display: inline-block;
+    margin-top: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); border-color: var(--accent); }
+
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .tips-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 0.97rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    background: rgba(247, 185, 126, 0.08);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .idx-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .idx-link:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body id="top">
+
+<header>
+  <span class="logo">C · Reference</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#types">Types</a>
+    <a href="#keywords">Keywords</a>
+    <a href="#operators">Operators</a>
+    <a href="#control">Control Flow</a>
+    <a href="#functions">Functions</a>
+    <a href="#pointers">Pointers</a>
+    <a href="#structs">Structs</a>
+    <a href="#memory">Memory</a>
+    <a href="#strings">Strings</a>
+    <a href="#io">I/O</a>
+    <a href="#preprocessor">Preprocessor</a>
+    <a href="#stdlib">Stdlib</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Systems Programming</span>
+  <h1>C Language<br><span>Quick Reference</span></h1>
+  <p class="subtitle">// C89 · C99 · C11 · C17 — the language underneath everything</p>
+</div>
+
+<main>
+
+<div class="toc">
+  <div class="toc-title">// Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#types"><span class="toc-num">02</span> Types &amp; Variables</a>
+  <a href="#keywords"><span class="toc-num">03</span> Keywords Reference</a>
+  <a href="#operators"><span class="toc-num">04</span> Operators</a>
+  <a href="#control"><span class="toc-num">05</span> Control Flow</a>
+  <a href="#functions"><span class="toc-num">06</span> Functions</a>
+  <a href="#pointers"><span class="toc-num">07</span> Pointers &amp; Arrays</a>
+  <a href="#structs"><span class="toc-num">08</span> Structs, Unions &amp; Enums</a>
+  <a href="#memory"><span class="toc-num">09</span> Memory Management</a>
+  <a href="#strings"><span class="toc-num">10</span> Strings</a>
+  <a href="#io"><span class="toc-num">11</span> Input / Output</a>
+  <a href="#preprocessor"><span class="toc-num">12</span> Preprocessor</a>
+  <a href="#stdlib"><span class="toc-num">13</span> Standard Library</a>
+  <a href="#tips"><span class="toc-num">14</span> Tips &amp; Gotchas</a>
+  <a href="#index"><span class="toc-num">15</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-icon">🧱</span><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">Every C program starts with <code>main()</code>. Source files end in <code>.c</code>; headers in <code>.h</code>. C is a <strong>compiled, procedural language</strong> — close to the metal, no runtime overhead.</p>
+
+  <div class="code-block">/* Hello World — the C classic */
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;   /* 0 = success */
+}</div>
+
+  <h3>Program Structure</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Element</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>#include</td><td class="plain-def">bring in a header file</td><td>Pastes header contents before compilation; use <code>&lt;&gt;</code> for system, <code>""</code> for local</td></tr>
+      <tr><td>main()</td><td class="plain-def">program entry point</td><td>Returns <code>int</code>; use <code>int main(void)</code> or <code>int main(int argc, char *argv[])</code></td></tr>
+      <tr><td>{ }</td><td class="plain-def">a block of code</td><td>Defines scope; local variables live only in their block</td></tr>
+      <tr><td>;</td><td class="plain-def">end of statement</td><td>Required after every statement and declaration, not after <code>{ }</code></td></tr>
+      <tr><td>/* comment */</td><td class="plain-def">human note, ignored</td><td>Multi-line; C99+ also supports <code>//</code> single-line comments</td></tr>
+      <tr><td>#define</td><td class="plain-def">text substitution macro</td><td>No type safety; evaluated by preprocessor before compilation</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Compilation Pipeline</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Stage</th><th class="plain-def-header">What it does</th><th>Output</th></tr></thead>
+    <tbody>
+      <tr><td>Preprocessor</td><td class="plain-def">expands macros &amp; includes</td><td>Translation unit (.i file)</td></tr>
+      <tr><td>Compiler</td><td class="plain-def">converts C to assembly</td><td>Object file (.o / .obj)</td></tr>
+      <tr><td>Linker</td><td class="plain-def">combines object files</td><td>Executable binary</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Common Compiler Flags (gcc / clang)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Flag</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>-Wall -Wextra</td><td class="plain-def">show all warnings</td><td>Always use these — catches many bugs</td></tr>
+      <tr><td>-std=c11</td><td class="plain-def">use C11 standard</td><td>Specify language version explicitly</td></tr>
+      <tr><td>-g</td><td class="plain-def">add debug info</td><td>Required for gdb / lldb debugging</td></tr>
+      <tr><td>-O2</td><td class="plain-def">optimize the binary</td><td>Level 2 optimization; use for production builds</td></tr>
+      <tr><td>-o name</td><td class="plain-def">name the output</td><td><code>gcc main.c -o myprog</code></td></tr>
+      <tr><td>-fsanitize=address</td><td class="plain-def">detect memory errors</td><td>AddressSanitizer — catches use-after-free, overflows</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 Types -->
+<section id="types">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Types &amp; Variables</h2></div>
+  <p class="prose">C is <strong>statically typed</strong> — every variable must have a declared type. Sizes are platform-dependent; use <code>&lt;stdint.h&gt;</code> for guaranteed widths.</p>
+
+  <h3>Fundamental Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Typical Size</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>char</td><td class="plain-def">one character / small int</td><td>1 byte</td><td><code>char c = 'A';</code></td></tr>
+      <tr><td>int</td><td class="plain-def">whole number</td><td>4 bytes</td><td><code>int x = 42;</code></td></tr>
+      <tr><td>short</td><td class="plain-def">smaller whole number</td><td>2 bytes</td><td><code>short s = 1000;</code></td></tr>
+      <tr><td>long</td><td class="plain-def">bigger whole number</td><td>4–8 bytes</td><td><code>long n = 1000000L;</code></td></tr>
+      <tr><td>long long</td><td class="plain-def">very big whole number (C99)</td><td>8 bytes</td><td><code>long long big = 9e18;</code></td></tr>
+      <tr><td>float</td><td class="plain-def">decimal (less precise)</td><td>4 bytes</td><td><code>float f = 3.14f;</code></td></tr>
+      <tr><td>double</td><td class="plain-def">decimal (more precise)</td><td>8 bytes</td><td><code>double d = 3.14159;</code></td></tr>
+      <tr><td>void</td><td class="plain-def">no value / nothing</td><td>—</td><td><code>void myFunc(void) { }</code></td></tr>
+      <tr><td>_Bool</td><td class="plain-def">true or false (C99)</td><td>1 byte</td><td><code>#include &lt;stdbool.h&gt;</code> for <code>bool</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Fixed-Width Types (C99, &lt;stdint.h&gt;)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Width</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>int8_t / uint8_t</td><td class="plain-def">8-bit signed / unsigned</td><td>1 byte</td><td>Exact width guaranteed</td></tr>
+      <tr><td>int16_t / uint16_t</td><td class="plain-def">16-bit signed / unsigned</td><td>2 bytes</td><td>Use when exact size matters</td></tr>
+      <tr><td>int32_t / uint32_t</td><td class="plain-def">32-bit signed / unsigned</td><td>4 bytes</td><td>Most common for portable int</td></tr>
+      <tr><td>int64_t / uint64_t</td><td class="plain-def">64-bit signed / unsigned</td><td>8 bytes</td><td>Large counters, timestamps</td></tr>
+      <tr><td>size_t</td><td class="plain-def">sizeof result / array size</td><td>4 or 8 bytes</td><td>Always use for sizes and indices</td></tr>
+      <tr><td>ptrdiff_t</td><td class="plain-def">pointer difference</td><td>4 or 8 bytes</td><td>Result of subtracting two pointers</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Type Modifiers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Modifier</th><th class="plain-def-header">Plain English</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>unsigned</td><td class="plain-def">only positive</td><td>Doubles positive range; no negatives. <code>unsigned int</code>: 0 to ~4B</td></tr>
+      <tr><td>signed</td><td class="plain-def">positive and negative</td><td>Default for <code>int</code>; half range used for negatives</td></tr>
+      <tr><td>const</td><td class="plain-def">can't be changed</td><td>Value fixed after initialization; compiler enforces</td></tr>
+      <tr><td>volatile</td><td class="plain-def">may change unexpectedly</td><td>Prevents compiler optimization; used for hardware registers</td></tr>
+      <tr><td>restrict</td><td class="plain-def">only pointer to this memory (C99)</td><td>Enables compiler aliasing optimizations</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Variable Declaration</h3>
+  <div class="code-block">int x;                  /* declared, uninitialized — GARBAGE VALUE! */
+int y = 10;             /* initialized */
+const int MAX = 100;    /* constant — cannot change */
+int arr[5] = {1,2,3,4,5};  /* fixed-size array */
+int mat[3][3];          /* 2D array */
+
+/* C99: declare anywhere in a block (not just top) */
+for (int i = 0; i &lt; 10; i++) { /* i declared in loop */ }
+
+/* typedef — give a type an alias */
+typedef unsigned long ulong;
+ulong big = 1000000UL;</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 Keywords -->
+<section id="keywords">
+  <div class="section-header"><span class="section-icon">🔑</span><h2>Keywords Reference</h2></div>
+  <p class="prose">C has <strong>32 reserved keywords</strong> (C89) — one of the smallest keyword sets of any language. You cannot use these as identifiers.</p>
+
+  <h3>Storage Class Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>auto</td><td class="plain-def">local variable (default)</td><td>Almost never written explicitly — all local vars are auto by default</td></tr>
+      <tr><td>static</td><td class="plain-def">persists / file-local</td><td>Inside function: retains value across calls. At file scope: internal linkage only</td></tr>
+      <tr><td>extern</td><td class="plain-def">defined elsewhere</td><td>Declares a variable/function defined in another translation unit</td></tr>
+      <tr><td>register</td><td class="plain-def">hint: store in CPU register</td><td>Obsolete; compiler ignores it. Cannot take address of register variable</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Type Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>typedef</td><td class="plain-def">give a type a new name</td><td><code>typedef struct Node Node;</code> — cleaner struct usage</td></tr>
+      <tr><td>sizeof</td><td class="plain-def">how many bytes?</td><td><code>sizeof(int)</code> → 4; evaluated at compile time; returns <code>size_t</code></td></tr>
+      <tr><td>struct</td><td class="plain-def">group of named fields</td><td>Aggregates multiple values under one name</td></tr>
+      <tr><td>union</td><td class="plain-def">overlapping storage</td><td>All members share same memory; only one valid at a time</td></tr>
+      <tr><td>enum</td><td class="plain-def">named integer constants</td><td>Enumerates integer values with readable names</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Type Qualifier Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>const</td><td class="plain-def">read-only</td><td>Cannot assign after init; <code>const int *p</code> vs <code>int * const p</code> — placement matters!</td></tr>
+      <tr><td>volatile</td><td class="plain-def">don't optimize me</td><td>Tells compiler to always re-read from memory; used in embedded/ISR code</td></tr>
+      <tr><td>restrict</td><td class="plain-def">unique pointer (C99)</td><td><code>void memcpy(void * restrict dst, const void * restrict src, size_t n)</code></td></tr>
+      <tr><td>inline</td><td class="plain-def">suggest inlining (C99)</td><td>Hint to compiler to expand function at call site; no call overhead</td></tr>
+      <tr><td>_Noreturn</td><td class="plain-def">never returns (C11)</td><td>Use for functions like <code>exit()</code>, <code>abort()</code>; <code>&lt;stdnoreturn.h&gt;</code> adds <code>noreturn</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 Operators -->
+<section id="operators">
+  <div class="section-header"><span class="section-icon">⚙️</span><h2>Operators</h2></div>
+
+  <h3>Arithmetic</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>+</td><td class="plain-def">add</td><td><code>a + b</code></td><td>Also pointer arithmetic when used with pointers</td></tr>
+      <tr><td>-</td><td class="plain-def">subtract</td><td><code>a - b</code></td><td>Unary <code>-a</code> negates; pointer subtraction gives ptrdiff_t</td></tr>
+      <tr><td>*</td><td class="plain-def">multiply</td><td><code>a * b</code></td><td>Unary <code>*p</code> dereferences a pointer</td></tr>
+      <tr><td>/</td><td class="plain-def">divide</td><td><code>a / b</code></td><td>Integer division truncates toward zero: <code>7/2 == 3</code></td></tr>
+      <tr><td>%</td><td class="plain-def">remainder</td><td><code>7 % 3 == 1</code></td><td>Only for integers; sign follows dividend in C99+</td></tr>
+      <tr><td>++</td><td class="plain-def">add one</td><td><code>x++</code> / <code>++x</code></td><td>Post: return then increment. Pre: increment then return</td></tr>
+      <tr><td>--</td><td class="plain-def">subtract one</td><td><code>x--</code> / <code>--x</code></td><td>Same pre/post logic as <code>++</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comparison &amp; Logical</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>==</td><td class="plain-def">equal to</td><td>Returns 1 (true) or 0 (false) — C has no bool before C99</td></tr>
+      <tr><td>!=</td><td class="plain-def">not equal to</td><td></td></tr>
+      <tr><td>&lt;</td><td class="plain-def">less than</td><td></td></tr>
+      <tr><td>&gt;</td><td class="plain-def">greater than</td><td></td></tr>
+      <tr><td>&lt;=</td><td class="plain-def">at most</td><td></td></tr>
+      <tr><td>&gt;=</td><td class="plain-def">at least</td><td></td></tr>
+      <tr><td>&amp;&amp;</td><td class="plain-def">both true</td><td>Short-circuits: if left is 0, right is not evaluated</td></tr>
+      <tr><td>||</td><td class="plain-def">at least one true</td><td>Short-circuits: if left is non-zero, right is not evaluated</td></tr>
+      <tr><td>!</td><td class="plain-def">flip it</td><td><code>!0 == 1</code>, <code>!nonzero == 0</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Bitwise</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&amp;</td><td class="plain-def">both bits set (AND)</td><td><code>0b1100 &amp; 0b1010 == 0b1000</code></td></tr>
+      <tr><td>|</td><td class="plain-def">either bit set (OR)</td><td><code>0b1100 | 0b1010 == 0b1110</code></td></tr>
+      <tr><td>^</td><td class="plain-def">exactly one bit set (XOR)</td><td><code>0b1100 ^ 0b1010 == 0b0110</code></td></tr>
+      <tr><td>~</td><td class="plain-def">flip all bits (NOT)</td><td><code>~0 == -1</code> (all ones in two's complement)</td></tr>
+      <tr><td>&lt;&lt;</td><td class="plain-def">shift bits left</td><td><code>1 &lt;&lt; 3 == 8</code> (multiply by 2³)</td></tr>
+      <tr><td>&gt;&gt;</td><td class="plain-def">shift bits right</td><td><code>8 &gt;&gt; 1 == 4</code>; sign extension is implementation-defined for signed types</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Pointer &amp; Special Operators</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>&amp;x</td><td class="plain-def">address of x</td><td><code>int *p = &amp;x;</code> — p holds x's memory address</td></tr>
+      <tr><td>*p</td><td class="plain-def">value at address p</td><td><code>*p = 5;</code> — changes what p points to</td></tr>
+      <tr><td>-&gt;</td><td class="plain-def">member via pointer</td><td><code>p-&gt;field</code> same as <code>(*p).field</code></td></tr>
+      <tr><td>.</td><td class="plain-def">member of struct</td><td><code>s.field</code></td></tr>
+      <tr><td>[]</td><td class="plain-def">array subscript</td><td><code>arr[i]</code> same as <code>*(arr + i)</code></td></tr>
+      <tr><td>(type)</td><td class="plain-def">cast to another type</td><td><code>(int)3.7 == 3</code>; <code>(void *)ptr</code></td></tr>
+      <tr><td>? :</td><td class="plain-def">pick one of two values</td><td><code>int abs = (x &lt; 0) ? -x : x;</code></td></tr>
+      <tr><td>,</td><td class="plain-def">sequence operator</td><td>Evaluates both; result is right-hand value. Common in <code>for</code> init</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Assignment</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Op</th><th class="plain-def-header">Plain English</th><th>Equivalent to</th></tr></thead>
+    <tbody>
+      <tr><td>x = y</td><td class="plain-def">assign</td><td>—</td></tr>
+      <tr><td>x += y</td><td class="plain-def">add and assign</td><td><code>x = x + y</code></td></tr>
+      <tr><td>x -= y</td><td class="plain-def">subtract and assign</td><td><code>x = x - y</code></td></tr>
+      <tr><td>x *= y</td><td class="plain-def">multiply and assign</td><td><code>x = x * y</code></td></tr>
+      <tr><td>x /= y</td><td class="plain-def">divide and assign</td><td><code>x = x / y</code></td></tr>
+      <tr><td>x %= y</td><td class="plain-def">remainder and assign</td><td><code>x = x % y</code></td></tr>
+      <tr><td>x &amp;= y</td><td class="plain-def">bitwise AND and assign</td><td><code>x = x &amp; y</code></td></tr>
+      <tr><td>x |= y</td><td class="plain-def">bitwise OR and assign</td><td><code>x = x | y</code></td></tr>
+      <tr><td>x ^= y</td><td class="plain-def">bitwise XOR and assign</td><td><code>x = x ^ y</code></td></tr>
+      <tr><td>x &lt;&lt;= y</td><td class="plain-def">left shift and assign</td><td><code>x = x &lt;&lt; y</code></td></tr>
+      <tr><td>x &gt;&gt;= y</td><td class="plain-def">right shift and assign</td><td><code>x = x &gt;&gt; y</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 Control Flow -->
+<section id="control">
+  <div class="section-header"><span class="section-icon">🔀</span><h2>Control Flow</h2></div>
+
+  <h3>Conditionals</h3>
+  <div class="code-block">/* if / else if / else */
+if (x &gt; 0) {
+    /* positive */
+} else if (x &lt; 0) {
+    /* negative */
+} else {
+    /* zero */
+}
+
+/* switch — jump table on integer or char */
+switch (day) {
+    case 1: printf("Mon"); break;
+    case 2: printf("Tue"); break;
+    default: printf("Other"); break;
+    /* omitting break causes fall-through — often a bug! */
+}
+
+/* ternary operator */
+int abs_x = (x &lt; 0) ? -x : x;</div>
+
+  <h3>Loops</h3>
+  <div class="code-block">/* for loop — classic counter */
+for (int i = 0; i &lt; 10; i++) { /* runs 10 times */ }
+
+/* iterate over array */
+int arr[5] = {1, 2, 3, 4, 5};
+for (int i = 0; i &lt; 5; i++) { printf("%d ", arr[i]); }
+
+/* while — check before each iteration */
+while (x &gt; 0) { x--; }
+
+/* do-while — runs body at least once */
+do {
+    /* body executes, then condition checked */
+} while (condition);</div>
+
+  <h3>Jump Statements</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>break</td><td class="plain-def">exit the loop now</td><td>Exits nearest enclosing loop or switch immediately</td></tr>
+      <tr><td>continue</td><td class="plain-def">skip to next iteration</td><td>Jumps to loop's condition/update without finishing the body</td></tr>
+      <tr><td>return</td><td class="plain-def">leave this function</td><td><code>return value;</code> exits function; <code>return;</code> for void functions</td></tr>
+      <tr><td>goto</td><td class="plain-def">jump to a label</td><td>Can jump within a function; avoid — but useful for cleanup in C (no exceptions)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">/* goto for error cleanup — one of its few accepted uses in C */
+int process(void) {
+    FILE *f = fopen("data.txt", "r");
+    if (!f) goto err_f;
+
+    char *buf = malloc(1024);
+    if (!buf) goto err_buf;
+
+    /* ... do work ... */
+
+    free(buf);
+    fclose(f);
+    return 0;
+
+err_buf:
+    fclose(f);
+err_f:
+    return -1;
+}</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 Functions -->
+<section id="functions">
+  <div class="section-header"><span class="section-icon">🧩</span><h2>Functions</h2></div>
+  <p class="prose">Functions must be <strong>declared before use</strong>. Use a prototype in a header file or at the top of the source file. C does not support overloading — each function name must be unique.</p>
+
+  <div class="code-block">/* Prototype (declaration) — tells compiler about the function */
+int add(int a, int b);
+
+/* Definition — the actual code */
+int add(int a, int b) {
+    return a + b;
+}
+
+/* Pass by value — caller's variable is NOT changed */
+void byValue(int x) { x = 99; }
+
+/* Pass by pointer — caller's variable IS changed */
+void byPointer(int *x) { *x = 99; }
+/* call: byPointer(&amp;myVar); */
+
+/* Returning multiple values via pointers */
+void minmax(int *arr, int n, int *out_min, int *out_max) {
+    *out_min = *out_max = arr[0];
+    for (int i = 1; i &lt; n; i++) {
+        if (arr[i] &lt; *out_min) *out_min = arr[i];
+        if (arr[i] &gt; *out_max) *out_max = arr[i];
+    }
+}
+
+/* Variadic function (any number of args) */
+#include &lt;stdarg.h&gt;
+double average(int count, ...) {
+    va_list ap;
+    va_start(ap, count);
+    double sum = 0;
+    for (int i = 0; i &lt; count; i++)
+        sum += va_arg(ap, double);
+    va_end(ap);
+    return sum / count;
+}
+
+/* Function pointer */
+int (*fp)(int, int) = add;   /* fp points to add */
+int result = fp(3, 4);       /* call through pointer */</div>
+
+  <h3>Function Features</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Feature</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Prototype</td><td class="plain-def">declare before defining</td><td><code>int add(int, int);</code> — parameter names optional in prototype</td></tr>
+      <tr><td>Pass by pointer</td><td class="plain-def">simulate pass-by-reference</td><td>C has no references; use pointers to modify caller's data</td></tr>
+      <tr><td>Variadic</td><td class="plain-def">any number of args</td><td><code>void f(int n, ...)</code> — use <code>&lt;stdarg.h&gt;</code> macros</td></tr>
+      <tr><td>Function pointer</td><td class="plain-def">store function as value</td><td><code>int (*fp)(int,int);</code> — callbacks, dispatch tables</td></tr>
+      <tr><td>Recursion</td><td class="plain-def">function calling itself</td><td>Must have a base case; stack depth is limited</td></tr>
+      <tr><td>inline (C99)</td><td class="plain-def">expand at call site</td><td><code>static inline int sq(int x) { return x*x; }</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 Pointers -->
+<section id="pointers">
+  <div class="section-header"><span class="section-icon">🎯</span><h2>Pointers &amp; Arrays</h2></div>
+  <p class="prose">Pointers are one of C's most powerful — and dangerous — features. A pointer holds a <strong>memory address</strong>. Arrays and pointers are deeply related: an array name decays to a pointer to its first element.</p>
+
+  <div class="code-block">int x = 42;
+int *p = &amp;x;    /* p points to x */
+*p = 99;         /* x is now 99 */
+
+/* Pointer arithmetic */
+int arr[5] = {10, 20, 30, 40, 50};
+int *q = arr;    /* q points to arr[0] */
+q++;             /* now points to arr[1] */
+printf("%d\n", *q);  /* prints 20 */
+
+/* Array indexing == pointer arithmetic */
+arr[2] == *(arr + 2)  /* exactly equivalent */
+
+/* NULL pointer — points to nothing */
+int *ptr = NULL;
+if (ptr != NULL) { /* always check before dereferencing */ }
+
+/* Pointer to pointer */
+int **pp = &amp;p;
+**pp = 7;        /* changes x to 7 */
+
+/* const pointer varieties */
+const int *cp = &amp;x;    /* can't change value through cp */
+int * const pc = &amp;x;   /* can't change what pc points to */
+const int * const cpc = &amp;x; /* can't change either */
+
+/* void pointer — generic pointer, no type */
+void *vp = &amp;x;
+int *ip = (int *)vp;  /* must cast to use */</div>
+
+  <h3>Pointer Concepts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Concept</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Dereference</td><td class="plain-def">follow the address</td><td><code>*p</code> gives the value at the address p holds</td></tr>
+      <tr><td>Address-of</td><td class="plain-def">get the address</td><td><code>&amp;x</code> gives the address where x lives in memory</td></tr>
+      <tr><td>Pointer arithmetic</td><td class="plain-def">move through memory</td><td><code>p + n</code> advances by <code>n * sizeof(*p)</code> bytes</td></tr>
+      <tr><td>Array decay</td><td class="plain-def">array becomes pointer</td><td><code>int arr[10]</code> → <code>int *</code> when passed to a function; size info is lost</td></tr>
+      <tr><td>NULL pointer</td><td class="plain-def">points to nothing</td><td>Dereferencing NULL is undefined behavior (usually a crash)</td></tr>
+      <tr><td>Dangling pointer</td><td class="plain-def">points to freed memory</td><td>Using after free is UB — set to NULL after freeing</td></tr>
+      <tr><td>void *</td><td class="plain-def">untyped pointer</td><td>Used by malloc/memcpy; must cast before arithmetic</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Arrays</h3>
+  <div class="code-block">/* Stack arrays — fixed size at compile time */
+int arr[10];               /* 10 ints; indices 0..9 */
+int mat[3][4];             /* 3 rows, 4 columns */
+char str[] = "hello";     /* size inferred: 6 (includes \0) */
+
+/* Variable-length arrays (VLA) — C99, optional in C11 */
+int n = 10;
+int vla[n];  /* size determined at runtime; lives on stack */
+
+/* Passing arrays to functions — always pass size separately! */
+void print_arr(int *arr, int n) {
+    for (int i = 0; i &lt; n; i++)
+        printf("%d ", arr[i]);
+}
+/* arr[n] decays to int*, sizeof(arr) inside function is wrong! */</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 Structs -->
+<section id="structs">
+  <div class="section-header"><span class="section-icon">🏗️</span><h2>Structs, Unions &amp; Enums</h2></div>
+  <p class="prose">Structs group related data under one name — C's primary way to build custom data types. Unions share memory between members. Enums name integer constants.</p>
+
+  <div class="code-block">/* Struct definition */
+struct Point {
+    double x;
+    double y;
+};
+
+/* typedef to avoid writing 'struct' every time */
+typedef struct {
+    char name[64];
+    int  age;
+    float score;
+} Person;
+
+Person p = {"Alice", 30, 95.5f};  /* designated or positional init */
+Person q = {.name = "Bob", .age = 25, .score = 88.0f}; /* C99 designated */
+
+printf("%s is %d years old\n", p.name, p.age);
+
+/* Pointer to struct — use -> */
+Person *ptr = &amp;p;
+printf("%s\n", ptr-&gt;name);
+
+/* Nested struct */
+typedef struct {
+    struct Point origin;
+    struct Point corner;
+} Rect;
+
+/* Self-referential struct (linked list node) */
+typedef struct Node {
+    int value;
+    struct Node *next;  /* must use 'struct Node' here, not just Node */
+} Node;</div>
+
+  <h3>Union</h3>
+  <div class="code-block">/* All members share the same memory address */
+union Data {
+    int   i;
+    float f;
+    char  bytes[4];
+};
+
+union Data d;
+d.f = 3.14f;
+/* d.i and d.bytes now contain raw bits of 3.14f — only d.f is valid! */
+printf("%zu bytes\n", sizeof(union Data));  /* 4 — max of members */</div>
+
+  <h3>Enum</h3>
+  <div class="code-block">/* Enum — named integer constants */
+enum Direction { NORTH, SOUTH, EAST, WEST };  /* 0, 1, 2, 3 */
+enum Color { RED = 1, GREEN = 2, BLUE = 4 };  /* custom values */
+
+enum Direction dir = NORTH;
+if (dir == NORTH) printf("Heading north!\n");</div>
+
+  <h3>Bit Fields</h3>
+  <div class="code-block">/* Pack multiple small values into a struct */
+typedef struct {
+    unsigned int is_active : 1;   /* 1 bit */
+    unsigned int priority  : 3;   /* 3 bits (0-7) */
+    unsigned int flags     : 4;   /* 4 bits */
+} Control;
+
+Control c = {1, 5, 0b1010};
+printf("active=%d priority=%d\n", c.is_active, c.priority);</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 Memory -->
+<section id="memory">
+  <div class="section-header"><span class="section-icon">🧠</span><h2>Memory Management</h2></div>
+  <p class="prose">C gives you <strong>complete manual control</strong> over memory. You allocate with <code>malloc</code> and release with <code>free</code>. Every allocation must be freed exactly once. No garbage collector, no safety net.</p>
+
+  <h3>Memory Regions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Region</th><th class="plain-def-header">Plain English</th><th>Lifetime</th></tr></thead>
+    <tbody>
+      <tr><td>Stack</td><td class="plain-def">fast local storage</td><td>Automatic; freed when scope exits. Typically 1–8 MB limit</td></tr>
+      <tr><td>Heap</td><td class="plain-def">big dynamic storage</td><td>Manual: <code>malloc</code> / <code>free</code>. You must free what you allocate</td></tr>
+      <tr><td>Static / Global</td><td class="plain-def">lives whole program</td><td>Initialized to zero at startup; freed at exit</td></tr>
+      <tr><td>Code (Text)</td><td class="plain-def">your compiled instructions</td><td>Read-only; lives for the whole program</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Heap Allocation Functions (&lt;stdlib.h&gt;)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>malloc(size)</td><td class="plain-def">allocate n bytes</td><td>Returns <code>void *</code> or <code>NULL</code> on failure; memory is uninitialized</td></tr>
+      <tr><td>calloc(n, size)</td><td class="plain-def">allocate n items, zero them</td><td>Zero-initializes; safer for arrays</td></tr>
+      <tr><td>realloc(ptr, size)</td><td class="plain-def">resize an allocation</td><td>May move pointer; old pointer invalid after call</td></tr>
+      <tr><td>free(ptr)</td><td class="plain-def">release the memory</td><td>Must free exactly once; <code>free(NULL)</code> is safe</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">/* Allocate a single int on heap */
+int *p = malloc(sizeof(int));
+if (p == NULL) { /* ALWAYS check for NULL! */ exit(1); }
+*p = 42;
+free(p);
+p = NULL;  /* good habit: null the pointer after free */
+
+/* Dynamic array */
+int n = 100;
+int *arr = malloc(n * sizeof(int));
+if (!arr) exit(1);
+
+for (int i = 0; i &lt; n; i++) arr[i] = i;
+
+/* Grow the array */
+arr = realloc(arr, 200 * sizeof(int));
+/* Note: realloc can return NULL — use temp pointer! */
+
+free(arr);
+
+/* Zero-initialized array */
+int *zeroed = calloc(n, sizeof(int));  /* all zeros */
+free(zeroed);
+
+/* 2D dynamic array (array of pointers) */
+int rows = 4, cols = 5;
+int **mat = malloc(rows * sizeof(int *));
+for (int i = 0; i &lt; rows; i++)
+    mat[i] = malloc(cols * sizeof(int));
+/* ... use mat[i][j] ... */
+for (int i = 0; i &lt; rows; i++) free(mat[i]);
+free(mat);</div>
+
+  <h3>Common Memory Errors</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Error</th><th class="plain-def-header">Plain English</th><th>How to avoid</th></tr></thead>
+    <tbody>
+      <tr><td>Memory leak</td><td class="plain-def">forgot to free</td><td>Every malloc must have a matching free; use valgrind to detect</td></tr>
+      <tr><td>Use-after-free</td><td class="plain-def">using freed memory</td><td>Set pointer to NULL after free; use AddressSanitizer</td></tr>
+      <tr><td>Double free</td><td class="plain-def">freeing twice</td><td>Set pointer to NULL after free; <code>free(NULL)</code> is safe</td></tr>
+      <tr><td>Buffer overflow</td><td class="plain-def">writing past the end</td><td>Always bounds-check; prefer <code>strncpy</code>, <code>snprintf</code></td></tr>
+      <tr><td>Null deref</td><td class="plain-def">using a NULL pointer</td><td>Always check malloc return; check pointer before dereferencing</td></tr>
+      <tr><td>Stack overflow</td><td class="plain-def">too much on the stack</td><td>Avoid huge local arrays; use heap for large data</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 Strings -->
+<section id="strings">
+  <div class="section-header"><span class="section-icon">📝</span><h2>Strings</h2></div>
+  <p class="prose">C strings are <strong>null-terminated arrays of <code>char</code></strong>. There is no built-in string type. The null terminator <code>'\0'</code> marks the end — always account for it when sizing buffers.</p>
+
+  <div class="code-block">/* String literals live in read-only memory */
+char *s1 = "hello";       /* pointer to literal — do not modify! */
+char s2[] = "hello";      /* copy on stack — modifiable, size = 6 */
+char s3[10] = "hello";    /* buffer of 10, first 6 chars set */
+
+printf("Length: %zu\n", strlen(s2));  /* 5, not 6 — excludes \0 */
+
+/* Character access */
+s2[0] = 'H';    /* s2 is now "Hello" */
+
+/* String as pointer */
+char *p = s2;
+while (*p != '\0') { printf("%c", *p); p++; }</div>
+
+  <h3>String Functions (&lt;string.h&gt;)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>strlen(s)</td><td class="plain-def">length of string</td><td>Excludes the null terminator; returns <code>size_t</code></td></tr>
+      <tr><td>strcpy(dst, src)</td><td class="plain-def">copy string</td><td>Unsafe if dst too small; prefer <code>strncpy</code></td></tr>
+      <tr><td>strncpy(dst, src, n)</td><td class="plain-def">copy at most n chars</td><td>May not null-terminate; always do <code>dst[n-1] = '\0'</code></td></tr>
+      <tr><td>strcat(dst, src)</td><td class="plain-def">append string</td><td>Unsafe; prefer <code>strncat</code></td></tr>
+      <tr><td>strcmp(a, b)</td><td class="plain-def">compare strings</td><td>Returns 0 if equal, &lt;0 or &gt;0 otherwise. Don't use <code>==</code>!</td></tr>
+      <tr><td>strncmp(a, b, n)</td><td class="plain-def">compare first n chars</td><td>Safe variant of strcmp</td></tr>
+      <tr><td>strchr(s, c)</td><td class="plain-def">find char in string</td><td>Returns pointer to first occurrence, or NULL</td></tr>
+      <tr><td>strstr(hay, ndl)</td><td class="plain-def">find substring</td><td>Returns pointer to first occurrence, or NULL</td></tr>
+      <tr><td>strtok(s, delim)</td><td class="plain-def">split string by delimiter</td><td>Modifies the string! Not thread-safe; prefer <code>strtok_r</code></td></tr>
+      <tr><td>sprintf / snprintf</td><td class="plain-def">format into string</td><td>Always use <code>snprintf(buf, size, ...)</code> — never <code>sprintf</code></td></tr>
+      <tr><td>atoi / strtol</td><td class="plain-def">string to integer</td><td>Prefer <code>strtol</code>: has error checking; <code>atoi</code> is unsafe</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">/* Safe string copy pattern */
+char buf[64];
+snprintf(buf, sizeof(buf), "Hello, %s!", name);
+
+/* String comparison — NEVER use == for strings */
+if (strcmp(a, b) == 0) { /* equal */ }
+
+/* Building a dynamic string */
+char *result = malloc(100);
+snprintf(result, 100, "%s %s", first, last);
+/* ... use result ... */
+free(result);</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 I/O -->
+<section id="io">
+  <div class="section-header"><span class="section-icon">📡</span><h2>Input / Output</h2></div>
+  <p class="prose">C I/O is handled via the <code>&lt;stdio.h&gt;</code> library. Everything is either a file or a stream — stdin, stdout, and stderr are all <code>FILE *</code> streams.</p>
+
+  <h3>printf Format Specifiers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Specifier</th><th class="plain-def-header">Plain English</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td>%d / %i</td><td class="plain-def">signed integer</td><td><code>int</code></td></tr>
+      <tr><td>%u</td><td class="plain-def">unsigned integer</td><td><code>unsigned int</code></td></tr>
+      <tr><td>%ld / %lu</td><td class="plain-def">long / unsigned long</td><td><code>long</code></td></tr>
+      <tr><td>%lld / %llu</td><td class="plain-def">long long / unsigned long long</td><td><code>long long</code></td></tr>
+      <tr><td>%f</td><td class="plain-def">float / double decimal</td><td><code>double</code></td></tr>
+      <tr><td>%e</td><td class="plain-def">scientific notation</td><td><code>double</code></td></tr>
+      <tr><td>%g</td><td class="plain-def">shorter of %f or %e</td><td><code>double</code></td></tr>
+      <tr><td>%c</td><td class="plain-def">single character</td><td><code>char</code> (passed as int)</td></tr>
+      <tr><td>%s</td><td class="plain-def">string (char array)</td><td><code>char *</code></td></tr>
+      <tr><td>%p</td><td class="plain-def">pointer address</td><td><code>void *</code></td></tr>
+      <tr><td>%x / %X</td><td class="plain-def">hexadecimal</td><td><code>unsigned int</code></td></tr>
+      <tr><td>%o</td><td class="plain-def">octal</td><td><code>unsigned int</code></td></tr>
+      <tr><td>%zu</td><td class="plain-def">size_t value</td><td><code>size_t</code></td></tr>
+      <tr><td>%%</td><td class="plain-def">literal percent sign</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Console I/O</h3>
+  <div class="code-block">/* Output */
+printf("Hello, %s! You are %d years old.\n", name, age);
+fprintf(stderr, "Error: %s\n", strerror(errno));  /* to stderr */
+
+/* Input — use scanf carefully */
+int n;
+scanf("%d", &amp;n);  /* note: &amp; before n — passes pointer! */
+
+char buf[256];
+scanf("%255s", buf);  /* reads one word; limit size! */
+
+/* Read a whole line safely */
+if (fgets(buf, sizeof(buf), stdin) != NULL) {
+    buf[strcspn(buf, "\n")] = '\0';  /* strip trailing newline */
+}</div>
+
+  <h3>File I/O</h3>
+  <div class="code-block">FILE *f = fopen("data.txt", "r");  /* "r", "w", "a", "rb", "wb" */
+if (f == NULL) {
+    perror("fopen");  /* prints system error message */
+    return 1;
+}
+
+/* Read line by line */
+char line[256];
+while (fgets(line, sizeof(line), f) != NULL) {
+    printf("Line: %s", line);
+}
+
+/* Or read binary */
+int val;
+fread(&amp;val, sizeof(int), 1, f);   /* read 1 int */
+fwrite(&amp;val, sizeof(int), 1, f);  /* write 1 int */
+
+/* File position */
+fseek(f, 0, SEEK_SET);   /* go to start */
+fseek(f, 0, SEEK_END);   /* go to end */
+long pos = ftell(f);     /* get current position */
+
+fclose(f);  /* always close! */</div>
+
+  <h3>I/O Functions Overview</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>printf / fprintf</td><td class="plain-def">formatted print</td><td><code>fprintf(stderr, ...)</code> for error output</td></tr>
+      <tr><td>scanf / fscanf</td><td class="plain-def">formatted scan</td><td>Avoid for user input; use <code>fgets</code> + <code>sscanf</code> instead</td></tr>
+      <tr><td>fgets</td><td class="plain-def">read a line</td><td>Safe; always specify buffer size; keeps newline</td></tr>
+      <tr><td>fputs / puts</td><td class="plain-def">write a string</td><td><code>puts</code> adds newline; <code>fputs</code> does not</td></tr>
+      <tr><td>getchar / putchar</td><td class="plain-def">read / write one char</td><td>Returns <code>int</code> — use int variable to detect EOF</td></tr>
+      <tr><td>sscanf / snprintf</td><td class="plain-def">parse / format in memory</td><td>Work on strings instead of files</td></tr>
+      <tr><td>fopen / fclose</td><td class="plain-def">open / close file</td><td>Always close; check fopen result for NULL</td></tr>
+      <tr><td>fread / fwrite</td><td class="plain-def">binary read / write</td><td>Fastest for bulk binary data</td></tr>
+      <tr><td>perror</td><td class="plain-def">print system error</td><td>Uses <code>errno</code> to print meaningful error message</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 Preprocessor -->
+<section id="preprocessor">
+  <div class="section-header"><span class="section-icon">⚗️</span><h2>Preprocessor</h2></div>
+  <p class="prose">The preprocessor runs <strong>before compilation</strong>, performing text substitution. All preprocessor directives start with <code>#</code>. No types, no scoping — just text.</p>
+
+  <h3>Directives</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Directive</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>#include &lt;x&gt;</td><td class="plain-def">insert system header</td><td>Searches compiler's include path</td></tr>
+      <tr><td>#include "x"</td><td class="plain-def">insert local header</td><td>Searches current directory first</td></tr>
+      <tr><td>#define NAME val</td><td class="plain-def">replace NAME with val</td><td>No type; no semicolon; avoid complex macros</td></tr>
+      <tr><td>#define MACRO(x)</td><td class="plain-def">function-like macro</td><td>Always parenthesize args: <code>#define SQ(x) ((x)*(x))</code></td></tr>
+      <tr><td>#undef NAME</td><td class="plain-def">remove a define</td><td>Useful to redefine later</td></tr>
+      <tr><td>#ifdef / #ifndef</td><td class="plain-def">if defined / if not defined</td><td>Used for header guards and platform checks</td></tr>
+      <tr><td>#if / #elif / #else / #endif</td><td class="plain-def">conditional compilation</td><td>Compile different code based on conditions</td></tr>
+      <tr><td>#pragma once</td><td class="plain-def">include this file only once</td><td>Non-standard but universally supported alternative to header guard</td></tr>
+      <tr><td>#error "msg"</td><td class="plain-def">abort with message</td><td>Compile-time assertion</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">/* Header guard — prevents double-inclusion */
+#ifndef MYHEADER_H
+#define MYHEADER_H
+
+/* ... header contents ... */
+
+#endif /* MYHEADER_H */
+
+/* Or simply: */
+#pragma once
+
+/* Macro with parentheses — always parenthesize! */
+#define MAX(a, b) ((a) &gt; (b) ? (a) : (b))
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+/* Platform detection */
+#ifdef _WIN32
+    #define PATH_SEP '\\'
+#else
+    #define PATH_SEP '/'
+#endif
+
+/* Stringification and token pasting */
+#define STR(x) #x         /* converts x to "x" */
+#define PASTE(a,b) a##b   /* concatenates tokens: PASTE(foo,bar) → foobar */
+
+/* Debug macro that disappears in release builds */
+#ifdef NDEBUG
+    #define DBG(fmt, ...) /* nothing */
+#else
+    #define DBG(fmt, ...) fprintf(stderr, "DEBUG: " fmt "\n", ##__VA_ARGS__)
+#endif</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 Stdlib -->
+<section id="stdlib">
+  <div class="section-header"><span class="section-icon">📚</span><h2>Standard Library</h2></div>
+  <p class="prose">The C standard library is small but powerful. Include the relevant header to access each module.</p>
+
+  <h3>Common Headers</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Header</th><th class="plain-def-header">Plain English</th><th>Key Functions</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;stdio.h&gt;</td><td class="plain-def">input/output</td><td>printf, scanf, fopen, fclose, fgets, fprintf</td></tr>
+      <tr><td>&lt;stdlib.h&gt;</td><td class="plain-def">general utilities</td><td>malloc, free, exit, atoi, strtol, qsort, rand</td></tr>
+      <tr><td>&lt;string.h&gt;</td><td class="plain-def">string operations</td><td>strlen, strcpy, strcmp, memcpy, memset, strstr</td></tr>
+      <tr><td>&lt;math.h&gt;</td><td class="plain-def">math functions</td><td>sqrt, pow, sin, cos, floor, ceil, fabs — link with <code>-lm</code></td></tr>
+      <tr><td>&lt;stdint.h&gt;</td><td class="plain-def">fixed-width types</td><td>int8_t, uint32_t, int64_t, size_t, etc.</td></tr>
+      <tr><td>&lt;stdbool.h&gt;</td><td class="plain-def">bool type (C99)</td><td>Defines <code>bool</code>, <code>true</code>, <code>false</code></td></tr>
+      <tr><td>&lt;stdarg.h&gt;</td><td class="plain-def">variadic functions</td><td>va_list, va_start, va_arg, va_end</td></tr>
+      <tr><td>&lt;errno.h&gt;</td><td class="plain-def">error codes</td><td>errno global, ENOENT, ENOMEM, EINVAL, etc.</td></tr>
+      <tr><td>&lt;assert.h&gt;</td><td class="plain-def">debug assertions</td><td><code>assert(cond)</code> — aborts if false; disabled by NDEBUG</td></tr>
+      <tr><td>&lt;time.h&gt;</td><td class="plain-def">date and time</td><td>time, clock, difftime, strftime, localtime</td></tr>
+      <tr><td>&lt;limits.h&gt;</td><td class="plain-def">type limits</td><td>INT_MAX, INT_MIN, CHAR_MAX, LONG_MAX, etc.</td></tr>
+      <tr><td>&lt;ctype.h&gt;</td><td class="plain-def">character classification</td><td>isdigit, isalpha, isupper, tolower, toupper</td></tr>
+      <tr><td>&lt;signal.h&gt;</td><td class="plain-def">signal handling</td><td>signal, raise, SIGINT, SIGTERM, SIGSEGV</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Useful Functions</h3>
+  <div class="code-block">/* Sorting — qsort from &lt;stdlib.h&gt; */
+int cmp_int(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+int arr[] = {5, 2, 8, 1, 9};
+qsort(arr, 5, sizeof(int), cmp_int);
+
+/* Binary search — bsearch (array must be sorted) */
+int key = 8;
+int *found = bsearch(&amp;key, arr, 5, sizeof(int), cmp_int);
+
+/* Random numbers */
+srand(time(NULL));           /* seed once */
+int r = rand() % 100;        /* 0..99 — biased; use better RNG for crypto */
+
+/* Program exit codes */
+exit(EXIT_SUCCESS);  /* = exit(0) */
+exit(EXIT_FAILURE);  /* = exit(1) */
+abort();             /* immediate abnormal termination */
+
+/* Environment */
+char *home = getenv("HOME");  /* get env variable; returns NULL if unset */</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">💡</span><h2>Tips &amp; Gotchas</h2></div>
+  <ul class="tips-list">
+    <li><span class="tip-code">= vs ==</span><span>The classic bug: <code>if (x = 0)</code> assigns 0 and is always false. Use <code>if (x == 0)</code>. Enable warnings to catch this.</span></li>
+    <li><span class="tip-code">integer overflow</span><span>Signed integer overflow is <strong>undefined behavior</strong>. Use unsigned types or check bounds before arithmetic. <code>INT_MAX + 1</code> is not defined.</span></li>
+    <li><span class="tip-code">sizeof array</span><span><code>sizeof(arr)</code> gives total bytes in the array — but only in the scope where the array is declared. Once passed to a function, it decays to a pointer and <code>sizeof</code> gives pointer size, not array size.</span></li>
+    <li><span class="tip-code">strcmp not ==</span><span>Never compare strings with <code>==</code> — that compares pointer addresses. Use <code>strcmp(a, b) == 0</code> to compare content.</span></li>
+    <li><span class="tip-code">null terminator</span><span>C strings end with <code>'\0'</code>. Always allocate <code>strlen(s) + 1</code> bytes. <code>strncpy</code> may not add it — always terminate manually.</span></li>
+    <li><span class="tip-code">check malloc</span><span>Always check the return value of <code>malloc</code>. On failure it returns <code>NULL</code>; dereferencing it is undefined behavior (usually a crash).</span></li>
+    <li><span class="tip-code">free once</span><span>Every <code>malloc</code> must be paired with exactly one <code>free</code>. Double-free is UB. Set pointer to <code>NULL</code> after freeing to prevent accidental reuse.</span></li>
+    <li><span class="tip-code">switch fallthrough</span><span>Forgetting <code>break</code> in a <code>switch</code> case causes fall-through to the next case — almost always a bug. Always write <code>break</code> or explicitly comment <code>/* fall through */</code>.</span></li>
+    <li><span class="tip-code">use -Wall</span><span>Always compile with <code>-Wall -Wextra -pedantic</code>. C will happily compile dangerous code without warnings unless you ask for them.</span></li>
+    <li><span class="tip-code">snprintf not sprintf</span><span><code>sprintf</code> does not check buffer size — it will overflow. Always use <code>snprintf(buf, sizeof(buf), ...)</code> instead.</span></li>
+    <li><span class="tip-code">UB</span><span>Undefined Behavior (signed overflow, null deref, out-of-bounds, use-after-free) lets the compiler do anything. Use ASan (<code>-fsanitize=address</code>) and UBSan (<code>-fsanitize=undefined</code>) to catch it.</span></li>
+    <li><span class="tip-code">const correctness</span><span>Use <code>const</code> for pointer parameters that shouldn't be modified: <code>void print(const char *s)</code>. It documents intent and helps the compiler.</span></li>
+    <li><span class="tip-code">realloc safety</span><span>Never do <code>p = realloc(p, size)</code> — if it returns NULL, you've lost the original pointer and leaked memory. Use a temp: <code>void *tmp = realloc(p, size); if (tmp) p = tmp;</code></span></li>
+    <li><span class="tip-code">int vs size_t</span><span>Use <code>size_t</code> (not <code>int</code>) for array indices and sizes. Mixing signed and unsigned can cause subtle comparison bugs.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All 32 C keywords listed alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>auto</td><td class="plain-def">local variable (default storage)</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>break</td><td class="plain-def">exit loop or switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>case</td><td class="plain-def">match arm in switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>char</td><td class="plain-def">single character / small int</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>const</td><td class="plain-def">read-only value</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>continue</td><td class="plain-def">next loop iteration</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>default</td><td class="plain-def">fallback case in switch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>do</td><td class="plain-def">do-while loop start</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>double</td><td class="plain-def">64-bit floating point</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>else</td><td class="plain-def">otherwise branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>enum</td><td class="plain-def">named integer constants</td><td><a class="idx-link" href="#structs">Structs</a></td></tr>
+      <tr><td>extern</td><td class="plain-def">defined in another file</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>float</td><td class="plain-def">32-bit floating point</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>for</td><td class="plain-def">counted loop</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>goto</td><td class="plain-def">jump to label</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>if</td><td class="plain-def">conditional branch</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>inline</td><td class="plain-def">hint to expand at call site (C99)</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>int</td><td class="plain-def">whole number</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>long</td><td class="plain-def">larger integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>register</td><td class="plain-def">suggest CPU register storage (obsolete)</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>restrict</td><td class="plain-def">non-aliased pointer hint (C99)</td><td><a class="idx-link" href="#pointers">Pointers</a></td></tr>
+      <tr><td>return</td><td class="plain-def">exit function with value</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>short</td><td class="plain-def">16-bit integer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>signed</td><td class="plain-def">positive and negative integers</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>sizeof</td><td class="plain-def">byte size of type or variable</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>static</td><td class="plain-def">persists across calls / file-local</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>struct</td><td class="plain-def">group of named fields</td><td><a class="idx-link" href="#structs">Structs</a></td></tr>
+      <tr><td>switch</td><td class="plain-def">multi-way branch on integer</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>typedef</td><td class="plain-def">give a type a new name</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>union</td><td class="plain-def">overlapping memory for fields</td><td><a class="idx-link" href="#structs">Structs</a></td></tr>
+      <tr><td>unsigned</td><td class="plain-def">non-negative integers only</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>void</td><td class="plain-def">no value / untyped pointer</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>volatile</td><td class="plain-def">may change outside compiler's view</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+      <tr><td>while</td><td class="plain-def">loop while condition holds</td><td><a class="idx-link" href="#control">Control Flow</a></td></tr>
+      <tr><td>_Bool</td><td class="plain-def">boolean type (C99)</td><td><a class="idx-link" href="#types">Types</a></td></tr>
+      <tr><td>_Noreturn</td><td class="plain-def">function never returns (C11)</td><td><a class="idx-link" href="#keywords">Keywords</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  C Language Quick Reference  ·  Systems Programming  ·  2026
+</footer>
+</body>
+</html>

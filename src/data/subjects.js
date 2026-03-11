@@ -1,0 +1,499 @@
+// src/data/subjects.js
+export const LANG_REFS = [
+  { file: "languages/c_reference.html",         label: "C",          color: "#34d399" },
+  { file: "languages/java_reference.html",      label: "Java",       color: "#e8c547" },
+  { file: "languages/csharp_reference.html",    label: "C#",         color: "#a78bfa" },
+  { file: "languages/typescript_reference.html",label: "TypeScript", color: "#4ecdc4" },
+  { file: "languages/rust_reference.html",      label: "Rust",       color: "#ff6b9d" },
+  { file: "languages/go_reference.html",        label: "Go",         color: "#34d399" },
+  { file: "languages/sql_reference.html",       label: "SQL",        color: "#e8c547" },
+  { file: "languages/htmlcss_reference.html",   label: "HTML/CSS",   color: "#fb923c" },
+  // ── Operating Systems / Systems ────────────────────────────────
+  { file: "languages/comp_org_arm_reference.html", label: "ARM",     color: "#34d399" },
+  { file: "linux_reference.html",               label: "Linux",      color: "#a78bfa" },
+  { file: "git_reference.html",                 label: "Git",        color: "#fb923c" },
+  // ── Primary languages (pinned last) ────────────────────────────
+  { file: "languages/cpp_reference.html",       label: "C++",        color: "#fb923c" },
+  { file: "languages/python_reference.html",    label: "Python",     color: "#4ecdc4" },
+];
+
+export const DEPARTMENTS = [
+  // ── COSC ────────────────────────────────────────────────────────
+  {
+    id: "cosc",
+    label: "COSC",
+    color: "#4ecdc4",
+    icon: "◈",
+    courses: [
+      {
+        id: "datastruct",
+        label: "Data Structures",
+        courseCode: "COSC 2436",
+        color: "#e8c547",
+        icon: "⬡",
+        notes: [
+          { file: "./content/subjects/datastruct/ds.md",        label: "Data Structures Reference" },
+          { file: "./content/subjects/datastruct/algos.md",     label: "Algorithm Complexity" },
+          { file: "./content/subjects/datastruct/listbrief.md", label: "Brief Reference" },
+          { file: "./content/subjects/datastruct/listquick.md", label: "Quick Reference" },
+          { file: "./content/subjects/datastruct/zydsa.md",     label: "Zybook Notes" },
+        ],
+        references: [
+          // ── Overview ─────────────────────────────────────────────
+          { file: "ds_reference.html",  label: "DS History & Reference",   type: "iframe" },
+          { file: "data-structures.html",  label: "Data Structures Guide",    type: "iframe" },
+
+          // ── Visuals ──────────────────────────────────────────────
+          { type: "group", label: "Linear Structures", children: [
+            { file: "ds/ds_array.html",    label: "Array Visual",         type: "iframe" },
+            { file: "ds/ds_singly.html",   label: "Singly Linked List",   type: "iframe" },
+            { file: "ds/ds_doubly.html",   label: "Doubly Linked List",   type: "iframe" },
+            { file: "ds/ds_circular.html", label: "Circular List",        type: "iframe" },
+            { file: "ds/ds_stack.html",    label: "Stack",                type: "iframe" },
+            { file: "ds/ds_queue.html",    label: "Queue",                type: "iframe" },
+            { file: "ds/ds_deque.html",    label: "Deque",                type: "iframe" },
+            { file: "ds/ds_hashtable.html",label: "Hash Table",           type: "iframe" },
+          ]},
+          { type: "group", label: "Trees & Graphs", children: [
+            { file: "ds/ds_binarytree.html", label: "Binary Tree",        type: "iframe" },
+            { file: "ds/ds_bst.html",        label: "BST",                type: "iframe" },
+            { file: "ds/ds_avl.html",        label: "AVL Tree",           type: "iframe" },
+            { file: "ds/ds_redblack.html",   label: "Red-Black Tree",     type: "iframe" },
+            { file: "ds/ds_heap.html",       label: "Heap",               type: "iframe" },
+            { file: "ds/ds_trie.html",       label: "Trie",               type: "iframe" },
+            { file: "ds/ds_graph.html",      label: "Graph",              type: "iframe" },
+            { file: "ds/ds_btree.html",      label: "B-Tree",             type: "iframe" },
+          ]},
+        ],
+        assignments: [],
+        code: [
+          { path: "./content/code/simplyDS/arrays.cpp",              label: "arrays.cpp" },
+          { path: "./content/code/simplyDS/singly.cpp",              label: "singly.cpp" },
+          { path: "./content/code/simplyDS/doubly.cpp",              label: "doubly.cpp" },
+          { path: "./content/code/simplyDS/circular.cpp",            label: "circular.cpp" },
+          { path: "./content/code/simplyDS/basicTrees.cpp",          label: "basicTrees.cpp" },
+          { path: "./content/code/simplyDS/specialTrees.cpp",        label: "specialTrees.cpp" },
+          { path: "./content/code/simplyDS/specialPurposeTrees.cpp", label: "specialPurposeTrees.cpp" },
+          { path: "./content/code/simplyDS/selfBalancingTrees.cpp",  label: "selfBalancingTrees.cpp" },
+          { path: "./content/code/simplyDS/hash.cpp",                label: "hash.cpp" },
+          { path: "./content/code/simplyDS/pureGraphs.cpp",          label: "pureGraphs.cpp" },
+          { path: "./content/code/simplyDS/compositeGraphs.cpp",     label: "compositeGraphs.cpp" },
+          { path: "./content/code/simplyDS/unique.cpp",              label: "unique.cpp" },
+          { path: "./content/code/simplyDS/everythingArrays.cpp",    label: "everythingArrays.cpp" },
+          { path: "./content/code/simplyADT/linear.cpp",             label: "ADT — linear.cpp" },
+          { path: "./content/code/simplyADT/trees.cpp",              label: "ADT — trees.cpp" },
+          { path: "./content/code/simplyADT/graph.cpp",              label: "ADT — graph.cpp" },
+          { path: "./content/code/simplyADT/hash.cpp",               label: "ADT — hash.cpp" },
+          { path: "./content/code/simplyADT/special.cpp",            label: "ADT — special.cpp" },
+        ],
+        flashcards: "dsa_basics",
+        pdfs: [
+          { file: "zybookdsa.pdf", label: "Zybook DSA Textbook" },
+        ],
+        langRefs: true,
+      },
+
+      {
+        id: "algos",
+        label: "Algorithms",
+        courseCode: "COSC 3320",
+        color: "#4ecdc4",
+        icon: "∿",
+        notes: [
+          { file: "./content/notes/algos/list.md",          label: "Main Notes" },
+          { file: "./content/notes/algos/hw1questions.md",  label: "HW1 Questions" },
+          { file: "./content/imp/algoinfo.md",              label: "Algorithm Categories Guide" },
+          { file: "./content/imp/ashort.md",                label: "Algorithm Categories (Short)" },
+          { file: "./content/notes/practice/3320Eintro.md", label: "Intro Exam Practice" },
+          { file: "./content/subjects/discrete/proofs/algoproofs.md", label: "Algo Proofs" },
+        ],
+        references: [
+          // ── Overview ─────────────────────────────────────────────
+          { file: "algorithms_reference.html", label: "Algorithms History & Reference", type: "iframe" },
+          { file: "algorithms.html",              label: "Algorithms Guide",               type: "iframe" },
+          { file: "side/recursion-memo-dp.html",  label: "Recursion / Memo / DP",          type: "iframe" },
+          { file: "side/algorithms_toc.html",     label: "Algorithms TOC",                 type: "iframe" },
+
+          // ── Visuals ──────────────────────────────────────────────
+          { type: "group", label: "Searching", children: [
+            { file: "algos/search_linear.html",  label: "Linear Search",  type: "iframe" },
+            { file: "algos/search_binary.html",  label: "Binary Search",  type: "iframe" },
+            { file: "algos/search_jump.html",    label: "Jump Search",    type: "iframe" },
+            { file: "algos/search_ternary.html", label: "Ternary Search", type: "iframe" },
+          ]},
+          { type: "group", label: "Sorting", children: [
+            { file: "algos/sort_bubble.html",    label: "Bubble Sort",    type: "iframe" },
+            { file: "algos/sort_selection.html", label: "Selection Sort", type: "iframe" },
+            { file: "algos/sort_insertion.html", label: "Insertion Sort", type: "iframe" },
+            { file: "algos/sort_merge.html",     label: "Merge Sort",     type: "iframe" },
+            { file: "algos/sort_quick.html",     label: "Quick Sort",     type: "iframe" },
+            { file: "algos/sort_heap.html",      label: "Heap Sort",      type: "iframe" },
+            { file: "algos/sort_shell.html",     label: "Shell Sort",     type: "iframe" },
+            { file: "algos/sort_counting.html",  label: "Counting Sort",  type: "iframe" },
+            { file: "algos/sort_radix.html",     label: "Radix Sort",     type: "iframe" },
+            { file: "algos/sort_bucket.html",    label: "Bucket Sort",    type: "iframe" },
+            { file: "algos/sort_tim.html",       label: "Tim Sort",       type: "iframe" },
+          ]},
+          { type: "group", label: "Graph", children: [
+            { file: "algos/graph_bfs.html",           label: "BFS",              type: "iframe" },
+            { file: "algos/graph_dfs.html",           label: "DFS",              type: "iframe" },
+            { file: "algos/graph_dijkstra.html",      label: "Dijkstra",         type: "iframe" },
+            { file: "algos/graph_bellmanford.html",   label: "Bellman-Ford",     type: "iframe" },
+            { file: "algos/graph_floydwarshall.html", label: "Floyd-Warshall",   type: "iframe" },
+            { file: "algos/graph_mst.html",           label: "Kruskal & Prim",   type: "iframe" },
+            { file: "algos/graph_toposort.html",      label: "Topological Sort", type: "iframe" },
+          ]},
+          { type: "group", label: "Tree Algorithms", children: [
+            { file: "algos/tree_traversals.html", label: "Traversals (Pre/In/Post/Level)", type: "iframe" },
+            { file: "algos/tree_queries.html",    label: "Height, LCA, Diameter",          type: "iframe" },
+          ]},
+          { type: "group", label: "Divide & Conquer", children: [
+            { file: "algos/dc_overview.html", label: "D&C Overview + Master Theorem", type: "iframe" },
+          ]},
+          { type: "group", label: "Dynamic Programming", children: [
+            { file: "algos/dp_overview.html", label: "DP Overview + Classic Problems", type: "iframe" },
+          ]},
+          { type: "group", label: "Greedy", children: [
+            { file: "algos/greedy_overview.html", label: "Greedy Overview + Problems", type: "iframe" },
+          ]},
+          { type: "group", label: "Backtracking", children: [
+            { file: "algos/backtracking_overview.html", label: "Backtracking Overview + Problems", type: "iframe" },
+          ]},
+        ],
+        gopal: [
+          { type: "group", label: "Foundations", children: [
+            { file: "algos/gopal_asymptotic.html", label: "Asymptotic Notation (Big-O/Ω/Θ)", type: "iframe" },
+            { file: "algos/gopal_ram_model.html",  label: "RAM Model of Computation",         type: "iframe" },
+            { file: "algos/gopal_primality.html",  label: "Primality Checking",                type: "iframe" },
+            { file: "algos/gopal_induction.html",  label: "Mathematical Induction",            type: "iframe" },
+            { file: "algos/gopal_gcd.html",        label: "GCD & Euclidean Algorithm",         type: "iframe" },
+            { file: "algos/gopal_recurrences.html",label: "Recurrences & Master Theorem",      type: "iframe" },
+          ]},
+          { type: "group", label: "Algorithms", children: [
+            { file: "algos/gopal_selection.html",    label: "Selection — Median of Medians",  type: "iframe" },
+            { file: "algos/gopal_closest_pair.html", label: "Closest Pair of Points",         type: "iframe" },
+            { file: "algos/gopal_fft.html",          label: "FFT & DFT",                      type: "iframe" },
+            { file: "algos/gopal_maxsum.html",       label: "Max Subarray / Kadane's",        type: "iframe" },
+            { file: "algos/gopal_matrix_chain.html", label: "Matrix Chain Multiplication",    type: "iframe" },
+            { file: "algos/gopal_seq_align.html",    label: "Sequence Alignment",             type: "iframe" },
+            { file: "algos/gopal_caching.html",      label: "Optimal Caching / LFD",          type: "iframe" },
+            { file: "algos/gopal_astar.html",        label: "A* Algorithm",                   type: "iframe" },
+          ]},
+          { type: "group", label: "Appendices", children: [
+            { file: "algos/gopal_union_find.html",    label: "Union-Find / Disjoint Sets",    type: "iframe" },
+            { file: "algos/gopal_math_formulas.html", label: "Math Formulas for Algorithms",  type: "iframe" },
+          ]},
+        ],
+        assignments: [
+          { file: "./content/assignments/algos_intro_exam_review.html", label: "Intro Exam Review",   type: "content" },
+          { file: "./content/practice/3320Eintro.html",                 label: "Intro Exam Practice", type: "content" },
+        ],
+        code: [
+          { path: "./content/code/simplyAlgos/sorting.cpp",            label: "sorting.cpp" },
+          { path: "./content/code/simplyAlgos/searching.cpp",          label: "searching.cpp" },
+          { path: "./content/code/simplyAlgos/divideConquer.cpp",      label: "divideConquer.cpp" },
+          { path: "./content/code/simplyAlgos/dynamicProgramming.cpp", label: "dynamicProgramming.cpp" },
+          { path: "./content/code/simplyAlgos/greedy.cpp",             label: "greedy.cpp" },
+          { path: "./content/code/simplyAlgos/backtracking.cpp",       label: "backtracking.cpp" },
+          { path: "./content/code/simplyAlgos/graph.cpp",              label: "graph.cpp" },
+          { path: "./content/code/simplyAlgos/tree.cpp",               label: "tree.cpp" },
+        ],
+        flashcards: null,
+        pdfs: [
+          { file: "algos_gopalbook_v2.pdf", label: "Gopal Algorithms Textbook" },
+        ],
+        langRefs: true,
+      },
+
+      {
+        id: "automata",
+        label: "Automata",
+        courseCode: "COSC 3340",
+        color: "#ff6b9d",
+        icon: "◎",
+        notes: [
+          { file: "./content/notes/automata/list.md",                            label: "Main Notes" },
+          { file: "./content/notes/automata/oldlist.md",                         label: "Previous Notes" },
+          { file: "./content/notes/assignments/problems_extractedAutomata.md",   label: "Extracted Problems" },
+          { file: "./content/notes/assignments/solutionsAutomatahw1to2q1pq2.md", label: "HW1-2 Solutions" },
+          { file: "./content/notes/practice/3340Q1.md",                          label: "Quiz 1 Practice" },
+          { file: "./content/subjects/discrete/proofs/automataproofs.md",        label: "Automata Proofs" },
+        ],
+        references: [
+          { file: "automata-sisper-reference.html", label: "Sipser Reference",       type: "iframe" },
+          { file: "reading-sets-automata.html",     label: "Reading Sets & Automata", type: "iframe" },
+          { file: "jflap-demo.html",                label: "JFLAP Demo",              type: "iframe" },
+        ],
+        assignments: [
+          { file: "./content/assignments/hw1_problems_solutionsAutomata.html",   label: "HW1 Solutions",   type: "content" },
+          { file: "./content/assignments/hw2_problems_solutionsAutomata.html",   label: "HW2 Solutions",   type: "content" },
+          { file: "./content/assignments/quiz1_review_solutionsAutomata.html",   label: "Quiz 1 Review",   type: "content" },
+          { file: "./content/assignments/practice_quiz2_solutionsAutomata.html", label: "Practice Quiz 2", type: "content" },
+          { file: "./content/practice/3340Q1.html",                              label: "Q1 Practice",     type: "content" },
+        ],
+        code: [],
+        flashcards: "automata_basics",
+        pdfs: [
+          { file: "automataVarem.pdf", label: "Automata Textbook (Varem)" },
+        ],
+        langRefs: true,
+      },
+
+      {
+        id: "comporg",
+        label: "Comp Org",
+        courseCode: "COSC 2425",
+        color: "#34d399",
+        icon: "⚙",
+        notes: [],
+        references: [
+          { file: "comporg_reference.html",              label: "Comp Org History & Reference", type: "iframe" },
+          { file: "languages/comp_org_arm_reference.html",  label: "ARM / Comp Org Reference",     type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [
+          { file: "ARMedition2425.pdf",      label: "ARM Architecture Textbook" },
+          { file: "comporg_merged.pdf",      label: "Comp Org Merged Notes" },
+          { file: "comporg_merged_labs.pdf", label: "Comp Org Labs" },
+        ],
+        langRefs: true,
+      },
+
+      {
+        id: "databases",
+        label: "Databases",
+        courseCode: "COSC 3380",
+        color: "#f472b6",
+        icon: "⊗",
+        notes: [],
+        references: [
+          { file: "databases_prep.html",           label: "⚡ Fall Prep Guide",          type: "iframe" },
+          { file: "databases_reference.html",   label: "DB History, Models & Migration", type: "iframe" },
+          { file: "languages/sql_reference.html",  label: "SQL Reference",              type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+        langRefs: true,
+      },
+
+      {
+        id: "opsystems",
+        label: "Operating Systems",
+        courseCode: "COSC 3360",
+        color: "#fb923c",
+        icon: "⚙",
+        notes: [],
+        references: [
+          { file: "opsystems_prep.html",           label: "⚡ Fall Prep Guide",          type: "iframe" },
+          { file: "opsystems_reference.html",   label: "OS History & Reference",      type: "iframe" },
+          { file: "linux_reference.html",          label: "Linux Reference",             type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [
+          { file: "OperatingSystems_TextbookRincon.pdf", label: "Operating Systems — Rincon Textbook" },
+        ],
+        langRefs: true,
+      },
+
+      // ── Pinned last (before Lang+) ──────────────────────────
+      {
+        id: "cpp",
+        label: "C++",
+        courseCode: "COSC 1437",
+        color: "#fb923c",
+        icon: "{}",
+        notes: [
+          { file: "./content/subjects/cpp/listcpp.md",   label: "Notes I" },
+          { file: "./content/subjects/cpp/listcpp_2.md", label: "Notes II" },
+          { file: "./content/subjects/cpp/listcpp_3.md", label: "Notes III" },
+          { file: "./content/subjects/cpp/zycpp.md",     label: "Zybook Notes" },
+        ],
+        references: [
+          { file: "cpp_reference.html",        label: "C++ History & Reference", type: "iframe" },
+          { file: "languages/cpp_reference.html", label: "C++ Quick Reference",     type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: "prog_fundamentals",
+        pdfs: [
+          { file: "mergedcpp.pdf",       label: "C++ Merged Textbook" },
+          { file: "cpp_RPG_PROJECT.pdf", label: "RPG Project" },
+        ],
+        langRefs: true,
+      },
+
+      {
+        id: "python",
+        label: "Python",
+        courseCode: null,
+        color: "#4ecdc4",
+        icon: "𝜆",
+        notes: [],
+        references: [
+          { file: "python_reference.html",        label: "Python History & Reference", type: "iframe" },
+          { file: "languages/python_reference.html", label: "Python Quick Reference",     type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+        langRefs: true,
+      },
+    ],
+  },
+  {
+    id: "math",
+    label: "MATH",
+    color: "#f472b6",
+    icon: "∑",
+    courses: [
+      {
+        id: "algebra",
+        label: "Algebra",
+        courseCode: null,
+        color: "#e8c547",
+        icon: "x²",
+        notes: [],
+        references: [{ file: "math_science_ref.html", label: "Math & Science Ref", type: "iframe" }],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+      },
+      {
+        id: "precalc",
+        label: "Pre-Calculus",
+        courseCode: null,
+        color: "#fb923c",
+        icon: "∠",
+        notes: [],
+        references: [{ file: "math_science_ref.html", label: "Math & Science Ref", type: "iframe" }],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+      },
+      {
+        id: "calc1",
+        label: "Calculus I",
+        courseCode: null,
+        color: "#4ecdc4",
+        icon: "∫",
+        notes: [],
+        references: [{ file: "math_science_ref.html", label: "Math & Science Ref", type: "iframe" }],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+      },
+      {
+        id: "calc2",
+        label: "Calculus II",
+        courseCode: null,
+        color: "#4ecdc4",
+        icon: "∬",
+        notes: [],
+        references: [{ file: "math_science_ref.html", label: "Math & Science Ref", type: "iframe" }],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
+      },
+      {
+        id: "discrete",
+        label: "Discrete Math",
+        courseCode: "COSC 2303",
+        color: "#a78bfa",
+        icon: "∑",
+        notes: [
+          { file: "./content/subjects/discrete/list.md",             label: "Main Notes" },
+          { file: "./content/subjects/discrete/asymptotic.md",       label: "Asymptotic Notation" },
+          { file: "./content/subjects/discrete/combperm.md",         label: "Combinatorics & Permutations" },
+          { file: "./content/subjects/discrete/proofs/proofs.md",    label: "Proofs" },
+        ],
+        references: [
+          { file: "discrete-math-guide.html",   label: "Discrete Math Guide", type: "iframe" },
+          { file: "mathnotation_enhanced.html", label: "Math Notation",        type: "iframe" },
+          { file: "math_science_ref.html",      label: "Math & Science Ref",   type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [
+          { file: "DISCRETE.pdf",       label: "Discrete Math Textbook" },
+          { file: "discrete-notes.pdf", label: "Discrete Notes" },
+          { file: "discrete-exam1.pdf", label: "Exam 1" },
+          { file: "discrete-exam2.pdf", label: "Exam 2" },
+        ],
+      },
+      {
+        id: "linear",
+        label: "Linear Algebra",
+        courseCode: "MATH 2318",
+        color: "#f472b6",
+        icon: "[]",
+        notes: [
+          { file: "./content/notes/linear/list.md",          label: "Main Notes" },
+          { file: "./content/notes/practice/2318E1.md",      label: "Exam 1 Practice" },
+          { file: "./content/notes/practice/linearhwto5.md", label: "HW1-5 Reference" },
+        ],
+        references: [
+          { file: "linear-algebra-guide.html",  label: "Linear Algebra Guide", type: "iframe" },
+          { file: "mathnotation_enhanced.html", label: "Math Notation",         type: "iframe" },
+        ],
+        assignments: [
+          { file: "./content/assignments/linear/linear_algebra_hw1.html",    label: "HW1",                    type: "content" },
+          { file: "./content/assignments/linear/linear_algebra_hw2.html",    label: "HW2",                    type: "content" },
+          { file: "./content/assignments/linear/linear_algebra_hw3.html",    label: "HW3",                    type: "content" },
+          { file: "./content/assignments/linear/hw4_vector_spaces.html",     label: "HW4 — Vector Spaces",    type: "content" },
+          { file: "./content/assignments/linear/hw5_linear_operators.html",  label: "HW5 — Linear Operators", type: "content" },
+          { file: "./content/assignments/linear/linAlg_exam1_review.html",   label: "Exam 1 Review",          type: "content" },
+          { file: "./content/assignments/linear/linear-exam-checklist.html", label: "Exam Checklist",         type: "content" },
+          { file: "./content/practice/2318E1.html",                          label: "Exam 1 Practice",        type: "content" },
+        ],
+        code: [],
+        flashcards: null,
+        pdfs: [
+          { file: "lineartextbook.pdf", label: "Linear Algebra Textbook" },
+        ],
+      },
+      {
+        id: "stats",
+        label: "Statistics",
+        courseCode: null,
+        color: "#a78bfa",
+        icon: "σ",
+        notes: [],
+        references: [],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [
+          { file: "stats-alllectures.pdf", label: "All Lectures" },
+        ],
+      },
+    ],
+  },
+];
+
+export const ALL_COURSES = DEPARTMENTS.flatMap(dept =>
+  dept.courses.map(course => ({ ...course, dept: dept.id, deptLabel: dept.label }))
+);
+
+export const getCourse  = (courseId) => ALL_COURSES.find(c => c.id === courseId) || null;
+export const getDept    = (deptId)   => DEPARTMENTS.find(d => d.id === deptId)   || null;
+
+export const courseContentCount = (course) =>
+  course.notes.length +
+  course.references.length +
+  course.assignments.length +
+  course.code.length +
+  course.pdfs.length +
+  (course.flashcards ? 1 : 0) +
+  (course.langRefs   ? 1 : 0);

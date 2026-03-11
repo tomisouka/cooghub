@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequence Alignment — Gopal Ch.5</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;--accent:#ff6b9d;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--orange:#fb923c;--text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;--mono:"JetBrains Mono",monospace;--sans:"Space Grotesk",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(0,0,0,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}.sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}.kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}.kv-v.g{color:var(--green)}.kv-v.y{color:var(--yellow)}.kv-v.r{color:var(--red)}.kv-v.p{color:var(--purple)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  .kw{color:var(--purple)}.fn{color:var(--accent)}.cm{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  .box{background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem}
+  .box-title{font-family:var(--mono);font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+  .warn{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:6px;padding:.75rem 1rem;font-size: .95rem;color:var(--red);margin-top:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Gopal Ch. 5 · Section 5.5</div>
+  <h1>Sequence Alignment</h1>
+  <div class="sub">Find the best alignment of two strings s (length m) and t (length n). Foundational in bioinformatics (DNA/protein comparison). DP: O(mn).</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time</span><span class="kv-v y">O(mn)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v y">O(mn) table, O(min(m,n)) optimized</span></div>
+      <div class="kv"><span class="kv-k">Subproblems</span><span class="kv-v y">O(mn) — all (i,j) pairs</span></div>
+      <div class="kv"><span class="kv-k">Brute force</span><span class="kv-v r">O(2ⁿ) — exponential gap insertions</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scoring</div>
+      <div class="kv"><span class="kv-k">Match (same char)</span><span class="kv-v g">+1 (or score[x,x])</span></div>
+      <div class="kv"><span class="kv-k">Mismatch (diff chars)</span><span class="kv-v y">0 (or score[x,y])</span></div>
+      <div class="kv"><span class="kv-k">Gap (char vs space)</span><span class="kv-v r">-1</span></div>
+      <div style="margin-top:.5rem;font-size: .95rem;color:var(--sub);">Goal: maximize total alignment score (similarity).</div>
+    </div>
+    <div class="card full">
+      <div class="card-title">Example — s=GACGGATTAG, t=GATCGGAATAG</div>
+      <pre>s = GA_CGGATTAG
+t = GATCGGAATAG
+Score: 1+1-1+1+1+1+1+0+1+1+1 = 8  (best alignment)</pre>
+    </div>
+    <div class="card full">
+      <div class="card-title">Recurrence — sim(s[1..i], t[1..j])</div>
+      <pre>Base cases:
+  sim(s[1..i], "")  = -i     (align all of s with gaps)
+  sim("", t[1..j])  = -j     (align all of t with gaps)
+  sim("", "")       = 0
+
+Recursive case (three choices for last character):
+  sim(i, j) = max(
+    score[s[i], t[j]] + sim(i-1, j-1),   // align s[i] with t[j]
+    -1 + sim(i-1, j),                      // gap in t (skip s[i])
+    -1 + sim(i, j-1)                       // gap in s (skip t[j])
+  )</pre>
+    </div>
+    <div class="card">
+      <div class="card-title">DP Table (Bottom-Up)</div>
+      <div style="font-size: .95rem;color:var(--sub);line-height:1.8;">
+        Fill a (m+1) × (n+1) table row by row (or column by column).<br>
+        Base row/column: sim(i,0) = -i, sim(0,j) = -j.<br>
+        Each cell computed in O(1) from neighbors.<br>
+        Traceback from sim(m,n) to reconstruct alignment.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Related Problems</div>
+      <div class="kv"><span class="kv-k">Edit Distance</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">Min ops (ins/del/sub) to transform s→t</span></div>
+      <div class="kv"><span class="kv-k">LCS</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">Longest Common Subsequence</span></div>
+      <div class="kv"><span class="kv-k">Needleman-Wunsch</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">Global alignment (this algorithm)</span></div>
+      <div class="kv"><span class="kv-k">Smith-Waterman</span><span class="kv-v" style="color:var(--sub);font-size: .85rem;">Local alignment variant</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

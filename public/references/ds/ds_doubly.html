@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doubly Linked List — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --accent: #a78bfa;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 56px;
+  }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+  .big-o-row { font-size: 12px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 600; }
+  .on { color: var(--red);   font-weight: 600; }
+
+  .label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .annotation { font-size: 11px; color: var(--dim); margin-bottom: 24px; line-height: 1.6; }
+  .annotation span { color: var(--accent); }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 11px; color: var(--dim); line-height: 1.6; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ── Node ── */
+  .list-diagram {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    gap: 0;
+  }
+
+  .node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .node-label {
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-align: center;
+    min-height: 14px;
+  }
+  .node-label.hi { color: var(--accent); }
+
+  .node-box {
+    display: flex;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .node-prev {
+    width: 36px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--orange);
+    font-weight: 600;
+    background: #fb923c0e;
+    border-right: 1.5px solid var(--border);
+  }
+
+  .node-data {
+    width: 52px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    border-right: 1.5px solid var(--border);
+  }
+
+  .node-next {
+    width: 36px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    background: #a78bfa0e;
+  }
+
+  .node-parts {
+    display: flex;
+    font-size: 9px;
+    color: var(--dim);
+    margin-top: 5px;
+    width: 100%;
+    text-align: center;
+  }
+  .part-prev { width: 36px; color: var(--orange); }
+  .part-data { width: 52px; }
+  .part-next { width: 36px; color: var(--accent); }
+
+  /* color variants */
+  .node.green  .node-box  { border-color: var(--green); }
+  .node.green  .node-data { color: var(--green);  background: #6bde8412; }
+  .node.red    .node-box  { border-color: var(--red); }
+  .node.red    .node-data { color: var(--red);    background: #f8717112; }
+  .node.orange .node-box  { border-color: var(--orange); }
+  .node.orange .node-data { color: var(--orange); background: #fb923c12; }
+  .node.yellow .node-box  { border-color: var(--yellow); }
+  .node.yellow .node-data { color: var(--yellow); background: #e8c54712; }
+  .node.accent .node-box  { border-color: var(--accent); }
+  .node.accent .node-data { color: var(--accent); background: #a78bfa12; }
+
+  /* bidirectional arrows */
+  .bidir {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 2px;
+    padding-bottom: 26px;
+    flex-shrink: 0;
+  }
+  .bidir .fwd  { font-size: 14px; color: var(--accent); }
+  .bidir .bwd  { font-size: 14px; color: var(--orange); }
+  .bidir.green .fwd { color: var(--green); }
+  .bidir.green .bwd { color: var(--green); }
+  .bidir.red   .fwd { color: var(--red); }
+  .bidir.red   .bwd { color: var(--red); }
+
+  /* head/tail pointers */
+  .endpoint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding-bottom: 26px;
+  }
+  .endpoint-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+  .endpoint-arrow { font-size: 18px; }
+  .head-ep .endpoint-label { color: var(--yellow); }
+  .head-ep .endpoint-arrow { color: var(--yellow); }
+  .tail-ep .endpoint-label { color: var(--teal); }
+  .tail-ep .endpoint-arrow { color: var(--teal); }
+
+  .null-node {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding-bottom: 26px;
+  }
+  .null-box {
+    height: 56px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px dashed #2a2e38;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #3a4052;
+  }
+
+  /* steps */
+  .steps { display: flex; flex-direction: column; gap: 24px; margin-bottom: 8px; }
+  .step  { display: flex; align-items: center; gap: 20px; }
+  .step-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; width: 72px; flex-shrink: 0; text-transform: uppercase; line-height: 1.4; }
+
+  /* vs table */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); }
+  .vs-table .bad  { color: var(--red); }
+  .vs-table .mid  { color: var(--orange); }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--orange); }
+  .card:nth-child(4) { border-top-color: var(--red); }
+  .card:nth-child(5) { border-top-color: var(--teal); }
+  .card-title { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 11px; color: var(--dim); line-height: 1.65; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Doubly<span>⇄</span></h1>
+    <div class="subtitle">Doubly Linked List · Data Structures</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">access</span>       <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">insert head</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert tail</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert mid</span>   <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">remove head</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">remove tail</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">remove mid</span>   <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. Node anatomy -->
+<div class="diagram-section">
+  <div class="label">1 — Node Anatomy</div>
+  <div class="annotation">Three fields: <span>prev</span> pointer to the previous node, <span>data</span>, and <span>next</span> pointer to the next node.</div>
+
+  <div class="list-diagram">
+    <div class="node accent">
+      <div class="node-label hi">node</div>
+      <div class="node-box">
+        <div class="node-prev">←</div>
+        <div class="node-data">42</div>
+        <div class="node-next">→</div>
+      </div>
+      <div class="node-parts">
+        <div class="part-prev">prev</div>
+        <div class="part-data">data</div>
+        <div class="part-next">next</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption"><strong style="color:var(--orange)">prev</strong> — points backward. <strong>data</strong> — the value. <strong style="color:var(--accent)">next</strong> — points forward. Head's prev = null, tail's next = null.</div>
+</div>
+
+<hr>
+
+<!-- 2. Full list -->
+<div class="diagram-section">
+  <div class="label">2 — A Full List</div>
+  <div class="annotation">Both <span>head</span> and <span>tail</span> pointers are maintained. Every node knows its neighbors in both directions.</div>
+
+  <div class="list-diagram">
+    <div class="endpoint head-ep" style="margin-right:8px">
+      <div class="endpoint-label">HEAD</div>
+      <div class="endpoint-arrow">→</div>
+    </div>
+    <div class="null-node"><div class="null-box">null</div></div>
+    <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+    <div class="node">
+      <div class="node-label">&nbsp;</div>
+      <div class="node-box"><div class="node-prev">←</div><div class="node-data">12</div><div class="node-next">→</div></div>
+      <div class="node-parts"><div class="part-prev">null</div><div class="part-data">data</div><div class="part-next">next</div></div>
+    </div>
+    <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+    <div class="node">
+      <div class="node-label">&nbsp;</div>
+      <div class="node-box"><div class="node-prev">←</div><div class="node-data">35</div><div class="node-next">→</div></div>
+      <div class="node-parts"><div class="part-prev">prev</div><div class="part-data">data</div><div class="part-next">next</div></div>
+    </div>
+    <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+    <div class="node">
+      <div class="node-label">&nbsp;</div>
+      <div class="node-box"><div class="node-prev">←</div><div class="node-data">7</div><div class="node-next">→</div></div>
+      <div class="node-parts"><div class="part-prev">prev</div><div class="part-data">data</div><div class="part-next">next</div></div>
+    </div>
+    <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+    <div class="node">
+      <div class="node-label">&nbsp;</div>
+      <div class="node-box"><div class="node-prev">←</div><div class="node-data">48</div><div class="node-next">→</div></div>
+      <div class="node-parts"><div class="part-prev">prev</div><div class="part-data">data</div><div class="part-next">null</div></div>
+    </div>
+    <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+    <div class="null-node"><div class="null-box">null</div></div>
+    <div class="endpoint tail-ep" style="margin-left:8px">
+      <div class="endpoint-label">TAIL</div>
+      <div class="endpoint-arrow">←</div>
+    </div>
+  </div>
+  <div class="caption">Head's <strong>prev = null</strong>. Tail's <strong>next = null</strong>. Every other node points both ways.</div>
+</div>
+
+<hr>
+
+<!-- 3. Remove — no prev tracking needed -->
+<div class="diagram-section">
+  <div class="label">3 — Remove — O(n) walk, O(1) rewire</div>
+  <div class="annotation">Removing node 35. In a singly list you'd need to track a separate prev pointer while walking. Here the node <span>already knows its predecessor</span> — just rewire both neighbors.</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-label">Before</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node red"><div class="node-label hi" style="color:var(--red)">remove</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">7</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">48</div><div class="node-next">→</div></div></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-label">After</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="bidir green"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">7</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">48</div><div class="node-next">→</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>target.prev.next = target.next</strong><br>
+    <strong>target.next.prev = target.prev</strong><br>
+    Two assignments. No need to carry a separate prev variable during the walk.
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Insert at tail O(1) -->
+<div class="diagram-section">
+  <div class="label">4 — Insert at Tail — O(1)</div>
+  <div class="annotation">Because we hold a <span>tail</span> pointer, appending never requires traversal. Wire the new node into both the tail and the list in 3 steps.</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-label">Before</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="endpoint head-ep" style="margin-right:6px"><div class="endpoint-label">HEAD</div><div class="endpoint-arrow">→</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node yellow"><div class="node-label hi" style="color:var(--teal)">tail</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">7</div><div class="node-next">→</div></div></div>
+        <div class="null-node" style="margin-left:4px"><div class="null-box">null</div></div>
+        <div class="endpoint tail-ep" style="margin-left:6px"><div class="endpoint-label">TAIL</div><div class="endpoint-arrow">←</div></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-label">After</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="endpoint head-ep" style="margin-right:6px"><div class="endpoint-label">HEAD</div><div class="endpoint-arrow">→</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="bidir"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">7</div><div class="node-next">→</div></div></div>
+        <div class="bidir green"><div class="fwd">→</div><div class="bwd">←</div></div>
+        <div class="node green"><div class="node-label hi">new tail</div><div class="node-box"><div class="node-prev">←</div><div class="node-data">99</div><div class="node-next">→</div></div></div>
+        <div class="null-node" style="margin-left:4px"><div class="null-box">null</div></div>
+        <div class="endpoint tail-ep" style="margin-left:6px"><div class="endpoint-label">TAIL</div><div class="endpoint-arrow">←</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>newNode.prev = tail</strong> — wire back<br>
+    <strong>tail.next = newNode</strong> — wire forward<br>
+    <strong>tail = newNode</strong> — update tail pointer
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. vs singly -->
+<div class="diagram-section">
+  <div class="label">Singly vs Doubly</div>
+  <table class="vs-table">
+    <tr><th>Operation</th><th>Singly</th><th>Doubly</th></tr>
+    <tr><td>Traverse forward</td><td class="good">O(n)</td><td class="good">O(n)</td></tr>
+    <tr><td>Traverse backward</td><td class="bad">✕ not possible</td><td class="good">O(n)</td></tr>
+    <tr><td>Remove (given node)</td><td class="mid">O(n) — need prev</td><td class="good">O(1) — has prev</td></tr>
+    <tr><td>Insert at tail</td><td class="mid">O(1) with tail ptr</td><td class="good">O(1)</td></tr>
+    <tr><td>Remove at tail</td><td class="bad">O(n) — must walk</td><td class="good">O(1) — use tail.prev</td></tr>
+    <tr><td>Memory per node</td><td class="good">1 pointer</td><td class="mid">2 pointers</td></tr>
+  </table>
+  <div class="caption" style="margin-top:10px">Doubly wins on tail operations and removal. Costs one extra pointer per node.</div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">3-Field Node</div>
+    <div class="card-body"><code>prev</code> | <code>data</code> | <code>next</code>. Each node knows both its predecessor and successor.</div>
+    <div class="card-o" style="color:var(--accent)">3 fields</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Head + Tail Pointers</div>
+    <div class="card-body">Maintains both ends. O(1) insert and remove at head or tail without any traversal.</div>
+    <div class="card-o" style="color:var(--green)">O(1) both ends</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Clean Removal</div>
+    <div class="card-body">Given a node reference, remove it in O(1) — no need to walk to find the predecessor.</div>
+    <div class="card-o" style="color:var(--orange)">O(1) if you have ref</div>
+  </div>
+  <div class="card">
+    <div class="card-title">No Random Access</div>
+    <div class="card-body">Still must walk from head or tail to reach index N. Just now you can walk from whichever end is closer.</div>
+    <div class="card-o" style="color:var(--red)">O(n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Browser history (back/forward), undo/redo stacks, LRU cache, deque implementation.</div>
+    <div class="card-o" style="color:var(--teal)">real world</div>
+  </div>
+</div>
+
+</body>
+</html>

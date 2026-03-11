@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFS — Depth-First Search</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --surface: #080c12; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #c084fc; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --cyan: #00e5ff;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(192,132,252,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(192,132,252,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; align-items: baseline; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--accent); } .fn { color: var(--blue); } .comment { color: var(--muted); }
+  .steps { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; padding: 0.5rem 0 0.5rem 2.5rem; position: relative; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: 0.5rem; width: 1.6rem; height: 1.6rem; background: var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: var(--accent); }
+  .trace { font-family: var(--mono); font-size: 1rem; line-height: 2; }
+  .trace-step { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; }
+  .trace-depth { color: var(--muted); min-width: 4rem; }
+  .trace-node { background: rgba(192,132,252,0.15); border: 1px solid rgba(192,132,252,0.3); color: var(--accent); padding: 0.1rem 0.5rem; border-radius: 4px; }
+  .trace-action { color: var(--sub); font-size: 0.7rem; }
+  .stack-vis { display: flex; flex-direction: column-reverse; gap: 0.3rem; align-items: flex-start; }
+  .stack-item { background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.25); color: var(--accent); font-family: var(--mono); font-size: 1rem; padding: 0.25rem 0.75rem; border-radius: 4px; }
+  .stack-top { background: rgba(192,132,252,0.25); border-color: var(--accent); }
+  .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .use-case { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.82rem; }
+  .uc-icon { font-size: 1rem; margin-bottom: 0.25rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Graph Algorithms · DFS</div>
+  <h1>Depth-First Search</h1>
+  <div class="sub">Go as deep as possible down one branch before backtracking to explore others.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time</span><span class="kv-v yellow">O(V + E)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(V) stack depth</span></div>
+      <div class="kv"><span class="kv-k">Data structure</span><span class="kv-v">Stack (or recursion)</span></div>
+      <div class="kv"><span class="kv-k">Shortest path?</span><span class="kv-v red">✗ Not guaranteed</span></div>
+      <div class="kv"><span class="kv-k">Complete?</span><span class="kv-v green">✓ Finite graphs</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Properties</div>
+      <div class="kv"><span class="kv-k">Graph type</span><span class="kv-v">Directed or Undirected</span></div>
+      <div class="kv"><span class="kv-k">Recursion depth</span><span class="kv-v red">⚠ Stack overflow risk</span></div>
+      <div class="kv"><span class="kv-k">Traversal</span><span class="kv-v">Pre/In/Post-order</span></div>
+      <div class="kv"><span class="kv-k">Cycle detection</span><span class="kv-v green">✓ Track back-edges</span></div>
+      <div class="kv"><span class="kv-k">Topo sort</span><span class="kv-v green">✓ Post-order DFS</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Algorithm Steps</div>
+      <ol class="steps">
+        <li>Push/call source node, mark visited</li>
+        <li>Explore first unvisited neighbor (recurse/push)</li>
+        <li>If no unvisited neighbors → backtrack</li>
+        <li>Repeat until all reachable nodes visited</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="card-title">Use Cases</div>
+      <div class="use-cases">
+        <div class="use-case"><div class="uc-icon">🔄</div>Cycle detection</div>
+        <div class="use-case"><div class="uc-icon">📋</div>Topological sort</div>
+        <div class="use-case"><div class="uc-icon">🧩</div>Maze solving</div>
+        <div class="use-case"><div class="uc-icon">🌲</div>Connected components</div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Trace: Graph A→B,C / B→D,E / C→F</div>
+      <div class="trace">
+        <div class="trace-step"><span class="trace-depth">depth 0</span><span class="trace-node">A</span><span class="trace-action">visit</span></div>
+        <div class="trace-step"><span class="trace-depth">depth 1</span><span class="trace-node">B</span><span class="trace-action">visit (first neighbor of A)</span></div>
+        <div class="trace-step"><span class="trace-depth">depth 2</span><span class="trace-node">D</span><span class="trace-action">visit (first neighbor of B)</span></div>
+        <div class="trace-step"><span class="trace-depth">depth 2</span><span class="trace-node">E</span><span class="trace-action">backtrack → visit next of B</span></div>
+        <div class="trace-step"><span class="trace-depth">depth 1</span><span class="trace-node">C</span><span class="trace-action">backtrack → visit next of A</span></div>
+        <div class="trace-step"><span class="trace-depth">depth 2</span><span class="trace-node">F</span><span class="trace-action">visit (first neighbor of C)</span></div>
+      </div>
+      <div style="margin-top:0.75rem; font-family:var(--mono); font-size:0.75rem; color:var(--accent);">
+        Order: A → B → D → E → C → F
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Pseudocode (Recursive)</div>
+      <pre><span class="fn">DFS</span>(graph, node, visited):
+  visited.<span class="fn">add</span>(node)
+  <span class="fn">process</span>(node)
+
+  <span class="keyword">for</span> neighbor <span class="keyword">in</span> graph[node]:
+    <span class="keyword">if</span> neighbor <span class="keyword">not in</span> visited:
+      <span class="fn">DFS</span>(graph, neighbor, visited)
+
+<span class="comment">// Iterative (explicit stack):</span>
+<span class="fn">DFS_iter</span>(graph, start):
+  stack ← [start]
+  visited ← {}
+  <span class="keyword">while</span> stack:
+    node ← stack.<span class="fn">pop</span>()
+    <span class="keyword">if</span> node <span class="keyword">not in</span> visited:
+      visited.<span class="fn">add</span>(node)
+      <span class="keyword">for</span> neighbor <span class="keyword">in</span> graph[node]:
+        stack.<span class="fn">push</span>(neighbor)</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

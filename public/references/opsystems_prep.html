@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>COSC 3360 — OS Prep Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#0e1014;--surface:#161920;--elevated:#1e222c;--border:#2a2e38;--accent:#f472b6;--gold:#e8c547;--teal:#4ecdc4;--purple:#a78bfa;--orange:#fb923c;--blue:#60a5fa;--green:#34d399;--text:#d4d8e0;--muted:#8a90a0;--dim:#3a4052}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:500;line-height:1.7;-webkit-font-smoothing:antialiased;font-size:16px}
+  header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  header h1{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700}
+  header h1 span{color:var(--accent)}
+  .badge{background:var(--elevated);border:1px solid var(--border);border-radius:6px;font-size:0.75rem;font-weight:700;padding:3px 9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.5px}
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  nav a{color:var(--muted);font-size:0.8rem;font-weight:600;text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid transparent;transition:all 0.15s}
+  nav a:hover{color:var(--text);border-color:var(--border);background:var(--elevated)}
+  main{max-width:1100px;margin:0 auto;padding:40px 32px 80px}
+
+  /* hero */
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:40px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .hero-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.2}
+  .hero-title span{color:var(--accent)}
+  .hero-sub{color:var(--muted);font-size:0.93rem;margin-bottom:16px}
+  .hero-meta{display:flex;flex-direction:column;gap:7px}
+  .meta-row{display:flex;align-items:center;gap:8px;font-size:0.88rem}
+  .meta-row .label{color:var(--muted);width:100px;flex-shrink:0}
+  .meta-row .val{color:var(--text);font-weight:600}
+  .grade-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grade-item{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+  .grade-item .name{font-size:0.85rem;color:var(--muted)}
+  .grade-item .pct{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;color:var(--accent)}
+
+  /* section header */
+  .section-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin:52px 0 6px;letter-spacing:-0.3px}
+  .section-sub{color:var(--muted);font-size:0.9rem;margin-bottom:22px}
+
+  /* unit cards */
+  .unit{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--unit-color,var(--accent));border-radius:0 12px 12px 0;padding:20px 24px;margin-bottom:16px}
+  .unit-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .unit-num{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--unit-color,var(--accent));font-weight:500;letter-spacing:1px;text-transform:uppercase}
+  .unit-title{font-weight:700;font-size:1.05rem;color:var(--text)}
+  .exam-pill{font-size:0.75rem;font-weight:700;padding:2px 9px;border-radius:20px;background:color-mix(in srgb,var(--unit-color,var(--accent)) 15%,transparent);color:var(--unit-color,var(--accent));font-family:'DM Mono',monospace;letter-spacing:0.3px;margin-left:auto}
+  .topic-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+  .topic{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:0.9rem;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+  .topic::before{content:'›';color:var(--unit-color,var(--accent));font-weight:700;margin-top:1px;flex-shrink:0}
+  .topic strong{color:var(--text)}
+
+  /* checklist */
+  .check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-bottom:12px}
+  .check-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 15px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:border-color 0.15s}
+  .check-item:hover{border-color:var(--accent)}
+  .check-item.done{border-color:var(--green);background:color-mix(in srgb,var(--green) 6%,var(--surface))}
+  .check-item.done .check-label{text-decoration:line-through;color:var(--dim)}
+  .checkbox{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all 0.15s}
+  .check-item.done .checkbox{background:var(--green);border-color:var(--green)}
+  .checkbox svg{display:none;width:11px;height:11px}
+  .check-item.done .checkbox svg{display:block}
+  .check-label{font-size:0.92rem;color:var(--text);font-weight:500;line-height:1.5}
+  .check-sub{font-size:0.82rem;color:var(--muted);margin-top:3px}
+
+  /* code */
+  pre.code-block{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:18px 20px;font-family:'DM Mono',monospace;font-size:1rem;color:#c8d0e0;line-height:1.9;overflow-x:auto;margin:10px 0}
+  pre.code-block .kw{color:var(--purple)} pre.code-block .fn{color:var(--teal)} pre.code-block .cmt{color:var(--dim);font-style:italic} pre.code-block .num{color:var(--gold)} pre.code-block .str{color:var(--green)}
+  code{font-family:'DM Mono',monospace;background:var(--elevated);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:0.95rem;color:var(--gold)}
+
+  /* prog assignment */
+  .prog-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+  .prog-header{background:var(--elevated);padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+  .prog-num{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--orange);font-weight:500;letter-spacing:1px}
+  .prog-title{font-weight:700;color:var(--text)}
+  .prog-due{margin-left:auto;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted)}
+  .prog-body{padding:14px 18px}
+  .prog-body p{color:var(--muted);font-size:0.92rem;line-height:1.6;margin-bottom:10px}
+  .prog-body ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:5px}
+  .prog-body li{color:var(--muted);font-size:0.9rem;padding-left:16px;position:relative}
+  .prog-body li::before{content:'•';position:absolute;left:0;color:var(--orange)}
+  .prog-body li strong{color:var(--text)}
+
+  /* progress bar */
+  .progress-wrap{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:24px}
+  .prog-bar-label{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:8px}
+  .prog-bar-label span:first-child{color:var(--muted)}
+  .prog-bar-label span:last-child{font-family:'DM Mono',monospace;color:var(--accent)}
+  .prog-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+  .prog-bar-fill{height:100%;background:var(--accent);border-radius:4px;width:0%;transition:width 1s ease}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .unit,.check-item,.prog-card{animation:fadeIn 0.3s ease both}
+</style>
+</head>
+<body>
+<header>
+  <h1>OS <span>Prep Guide</span></h1>
+  <span class="badge">COSC 3360</span>
+  <span class="badge">Fall Prep</span>
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#units">Units</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#assignments">Assignments</a>
+    <a href="#code">Code Patterns</a>
+  </nav>
+</header>
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div>
+      <div class="hero-title">Operating Systems<br><span>COSC 3360</span></div>
+      <div class="hero-sub">Instructor: Carlos Alberto Rincon Castro · TuTh 2:30–4:00 PM · SEC 103</div>
+      <div class="hero-meta">
+        <div class="meta-row"><span class="label">Textbook</span><span class="val">Stallings, OS: Internals & Design, 7th Ed.</span></div>
+        <div class="meta-row"><span class="label">Language</span><span class="val">C or C++ under Linux</span></div>
+        <div class="meta-row"><span class="label">Submission</span><span class="val">Moodle server only</span></div>
+        <div class="meta-row"><span class="label">Notes allowed</span><span class="val">1 letter-size sheet (front + back)</span></div>
+        <div class="meta-row"><span class="label">Exams</span><span class="val">3 unit exams — in-class only</span></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;font-family:'DM Mono',monospace">Grading</div>
+      <div class="grade-grid">
+        <div class="grade-item"><span class="name">Exam 1</span><span class="pct" style="color:var(--orange)">20%</span></div>
+        <div class="grade-item"><span class="name">Exam 2</span><span class="pct" style="color:var(--orange)">20%</span></div>
+        <div class="grade-item"><span class="name">Exam 3</span><span class="pct" style="color:var(--orange)">20%</span></div>
+        <div class="grade-item"><span class="name">PA 1</span><span class="pct" style="color:var(--teal)">10%</span></div>
+        <div class="grade-item"><span class="name">PA 2</span><span class="pct" style="color:var(--teal)">15%</span></div>
+        <div class="grade-item"><span class="name">PA 3</span><span class="pct" style="color:var(--teal)">15%</span></div>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:color-mix(in srgb,var(--accent) 8%,var(--elevated));border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:8px;font-size:0.88rem;color:var(--muted)">
+        <strong style="color:var(--accent)">A ≥ 92.5</strong> · A- ≥ 89.5 · B+ ≥ 86.5 · B ≥ 83.5 · B- ≥ 79.5 · C ≥ 72.5
+      </div>
+    </div>
+  </div>
+
+  <!-- Units -->
+  <div id="units">
+    <div class="section-title">Course Units</div>
+    <div class="section-sub">3 units — each ends with an in-class exam</div>
+
+    <div class="unit" style="--unit-color:#fb923c">
+      <div class="unit-header">
+        <span class="unit-num">Unit 1 · Weeks 1–4</span>
+        <span class="unit-title">Computer Systems Overview & Processes</span>
+        <span class="exam-pill">Exam 2/13</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic"><strong>OS Overview</strong> — what an OS does, kernel vs user space</div>
+        <div class="topic"><strong>Process Description</strong> — PCB, states, context switching</div>
+        <div class="topic"><strong>Process Control</strong> — fork(), exec(), wait(), zombie/orphan</div>
+        <div class="topic"><strong>Threads</strong> — user-level vs kernel-level, POSIX pthreads</div>
+        <div class="topic"><strong>CPU execution model</strong> — how a program runs at processor level</div>
+        <div class="topic"><strong>Memory hierarchy</strong> — registers → cache → RAM → disk</div>
+        <div class="topic"><strong>I/O techniques</strong> — programmed I/O, interrupt-driven, DMA</div>
+        <div class="topic"><strong>OS design aspects</strong> — monolithic, microkernel, layered</div>
+      </div>
+    </div>
+
+    <div class="unit" style="--unit-color:#a78bfa">
+      <div class="unit-header">
+        <span class="unit-num">Unit 2 · Weeks 6–9</span>
+        <span class="unit-title">IPC, Concurrency, Deadlock</span>
+        <span class="exam-pill">Exam 3/25</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic"><strong>Pipes</strong> — anonymous and named pipes</div>
+        <div class="topic"><strong>Shared memory</strong> — shmget, shmat, shmdt</div>
+        <div class="topic"><strong>Message passing</strong> — msgget, msgsnd, msgrcv</div>
+        <div class="topic"><strong>Sockets</strong> — TCP/UDP socket IPC</div>
+        <div class="topic"><strong>Remote Procedure Calls</strong> — RPC basics</div>
+        <div class="topic"><strong>Mutual exclusion</strong> — semaphores, mutex, condition vars</div>
+        <div class="topic"><strong>Synchronization</strong> — producer-consumer, readers-writers, dining philosophers</div>
+        <div class="topic"><strong>Deadlock</strong> — Coffman conditions, prevention, avoidance (Banker's), detection</div>
+      </div>
+    </div>
+
+    <div class="unit" style="--unit-color:#4ecdc4">
+      <div class="unit-header">
+        <span class="unit-num">Unit 3 · Weeks 11–15</span>
+        <span class="unit-title">Scheduling · Memory · I/O · File Systems</span>
+        <span class="exam-pill">Exam 4/24</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic"><strong>Uniprocessor scheduling</strong> — FCFS, Round Robin, SPN, SRPN, HRRN</div>
+        <div class="topic"><strong>Multiprocessor scheduling</strong> — load balancing, affinity</div>
+        <div class="topic"><strong>Real-time scheduling</strong> — EDF (Earliest Deadline First), Rate Monotonic</div>
+        <div class="topic"><strong>Memory mgmt</strong> — static/dynamic partitioning, buddy system</div>
+        <div class="topic"><strong>Paging & segmentation</strong> — page tables, TLB, segfaults</div>
+        <div class="topic"><strong>Virtual memory</strong> — demand paging, page replacement (FIFO, LRU, CLOCK)</div>
+        <div class="topic"><strong>Disk scheduling</strong> — FIFO, SSTF, SCAN, C-SCAN</div>
+        <div class="topic"><strong>RAID</strong> — levels 0, 1, 5, 6, 10</div>
+        <div class="topic"><strong>File systems</strong> — inodes, FAT, ext4, directory structure</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div id="checklist">
+    <div class="section-title">Pre-Semester Checklist</div>
+    <div class="section-sub">Things to know cold before day one — click to check off</div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace">C / Linux fundamentals</div>
+    <div class="check-grid" id="checks">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Compile & run C programs with gcc</div><div class="check-sub"><code>gcc -o prog prog.c && ./prog</code></div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Understand pointers — <code>*</code>, <code>&</code>, pointer arithmetic</div><div class="check-sub">Core skill — used everywhere in OS code</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Know basic Linux shell commands</div><div class="check-sub">ls, cd, grep, ps, kill, man, chmod</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Makefiles — compile multi-file projects</div><div class="check-sub">PA submissions will need this</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Understand structs in C</div><div class="check-sub">PCB, message structs will be C structs</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Read man pages comfortably</div><div class="check-sub"><code>man 2 fork</code>, <code>man 3 pthread_create</code></div></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:18px 0 10px;font-family:'DM Mono',monospace">Concepts to review from CompOrg</div>
+    <div class="check-grid">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Fetch-Decode-Execute cycle</div><div class="check-sub">How the CPU runs a single instruction</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Memory hierarchy layers and their speeds</div><div class="check-sub">Register → L1 → L2 → RAM → Disk</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Interrupts — what triggers them, how CPU responds</div><div class="check-sub">Basis for I/O, context switching, system calls</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">DMA — how it works, why it's faster</div><div class="check-sub">Directly tested in Unit 1</div></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin:18px 0 10px;font-family:'DM Mono',monospace">PA-specific skills</div>
+    <div class="check-grid">
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">fork() — process trees, parent/child logic</div><div class="check-sub">PA1 — understand return values</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">POSIX pthreads — create, join, mutex</div><div class="check-sub">PA1 — multithreading</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Pipes — anonymous pipes with pipe()</div><div class="check-sub">PA2 — IPC</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">POSIX semaphores — sem_init, sem_wait, sem_post</div><div class="check-sub">PA3 — synchronization</div></div>
+      </div>
+      <div class="check-item" onclick="toggle(this)">
+        <div class="checkbox"><svg viewBox="0 0 12 12" fill="none"><polyline points="1,6 4,9 11,2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="check-label">Condition variables — pthread_cond_wait/signal</div><div class="check-sub">PA3 — synchronization</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Programming Assignments -->
+  <div id="assignments">
+    <div class="section-title">Programming Assignments</div>
+    <div class="section-sub">All in C or C++, submitted to Moodle. Assignments posted a month early — start early.</div>
+
+    <div class="prog-card">
+      <div class="prog-header">
+        <span class="prog-num">PA 1 · 10%</span>
+        <span class="prog-title">Processes and Threads</span>
+        <span class="prog-due">Due 2/16</span>
+      </div>
+      <div class="prog-body">
+        <p>Building process trees with fork() and creating multithreaded programs with POSIX pthreads. Expect parent-child process coordination and basic thread synchronization.</p>
+        <ul>
+          <li><strong>fork()</strong> — returns PID to parent, 0 to child, -1 on error</li>
+          <li><strong>exec()</strong> family — replace process image</li>
+          <li><strong>wait() / waitpid()</strong> — reap child processes</li>
+          <li><strong>pthread_create / join</strong> — thread lifecycle</li>
+          <li><strong>pthread_mutex</strong> — protect shared data between threads</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-header">
+        <span class="prog-num">PA 2 · 15%</span>
+        <span class="prog-title">Interprocess Communication</span>
+        <span class="prog-due">Due 3/30</span>
+      </div>
+      <div class="prog-body">
+        <p>Implementing communication between processes using the Unix IPC toolkit. Expect multiple IPC mechanisms — likely pipes + shared memory or message queues.</p>
+        <ul>
+          <li><strong>pipe()</strong> — anonymous pipes for parent-child comm</li>
+          <li><strong>mkfifo()</strong> — named pipes for unrelated processes</li>
+          <li><strong>shmget / shmat / shmdt</strong> — shared memory segments</li>
+          <li><strong>msgget / msgsnd / msgrcv</strong> — message queues</li>
+          <li><strong>Sockets</strong> — possibly TCP sockets for IPC</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-header">
+        <span class="prog-num">PA 3 · 15%</span>
+        <span class="prog-title">Interprocess Synchronization</span>
+        <span class="prog-due">Due 4/27</span>
+      </div>
+      <div class="prog-body">
+        <p>Classic synchronization problems implemented with semaphores, mutexes, and condition variables. Likely producer-consumer or readers-writers.</p>
+        <ul>
+          <li><strong>sem_init / sem_wait / sem_post / sem_destroy</strong> — POSIX semaphores</li>
+          <li><strong>pthread_cond_wait / pthread_cond_signal</strong> — condition variables</li>
+          <li><strong>Bounded buffer pattern</strong> — producer-consumer with semaphores</li>
+          <li><strong>Deadlock avoidance</strong> — lock ordering, no circular wait</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Patterns -->
+  <div id="code">
+    <div class="section-title">Essential Code Patterns</div>
+    <div class="section-sub">Memorize these — they show up in every PA</div>
+
+    <pre class="code-block"><span class="cmt">/* PA1 Pattern: fork() + exec() */</span>
+<span class="kw">#include</span> <span class="str">&lt;unistd.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;sys/wait.h&gt;</span>
+
+pid_t pid = <span class="fn">fork</span>();
+<span class="kw">if</span> (pid == <span class="num">-1</span>) { <span class="cmt">/* error */</span> }
+<span class="kw">else if</span> (pid == <span class="num">0</span>) {
+    <span class="cmt">/* child process */</span>
+    <span class="fn">execl</span>(<span class="str">"/bin/ls"</span>, <span class="str">"ls"</span>, <span class="str">"-l"</span>, NULL);
+} <span class="kw">else</span> {
+    <span class="cmt">/* parent — wait for child */</span>
+    <span class="fn">waitpid</span>(pid, NULL, <span class="num">0</span>);
+}</pre>
+
+    <pre class="code-block"><span class="cmt">/* PA1 Pattern: POSIX thread + mutex */</span>
+<span class="kw">#include</span> <span class="str">&lt;pthread.h&gt;</span>
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+<span class="kw">int</span> shared = <span class="num">0</span>;
+
+<span class="kw">void</span>* <span class="fn">worker</span>(<span class="kw">void</span>* arg) {
+    <span class="fn">pthread_mutex_lock</span>(&lock);
+    shared++;                        <span class="cmt">/* critical section */</span>
+    <span class="fn">pthread_mutex_unlock</span>(&lock);
+    <span class="kw">return</span> NULL;
+}
+
+<span class="cmt">// In main:</span>
+pthread_t t;
+<span class="fn">pthread_create</span>(&t, NULL, worker, NULL);
+<span class="fn">pthread_join</span>(t, NULL);</pre>
+
+    <pre class="code-block"><span class="cmt">/* PA2 Pattern: anonymous pipe */</span>
+<span class="kw">int</span> pipefd[<span class="num">2</span>];
+<span class="fn">pipe</span>(pipefd);  <span class="cmt">/* pipefd[0]=read end, pipefd[1]=write end */</span>
+
+<span class="kw">if</span> (<span class="fn">fork</span>() == <span class="num">0</span>) {
+    <span class="fn">close</span>(pipefd[<span class="num">1</span>]);              <span class="cmt">/* child: close write end */</span>
+    <span class="kw">char</span> buf[<span class="num">128</span>];
+    <span class="fn">read</span>(pipefd[<span class="num">0</span>], buf, <span class="kw">sizeof</span>(buf));
+} <span class="kw">else</span> {
+    <span class="fn">close</span>(pipefd[<span class="num">0</span>]);              <span class="cmt">/* parent: close read end */</span>
+    <span class="fn">write</span>(pipefd[<span class="num">1</span>], <span class="str">"hello"</span>, <span class="num">5</span>);
+}</pre>
+
+    <pre class="code-block"><span class="cmt">/* PA3 Pattern: semaphore producer-consumer */</span>
+<span class="kw">#include</span> <span class="str">&lt;semaphore.h&gt;</span>
+
+sem_t empty, full;
+pthread_mutex_t mutex;
+
+<span class="fn">sem_init</span>(&empty, <span class="num">0</span>, BUFFER_SIZE);  <span class="cmt">/* N empty slots */</span>
+<span class="fn">sem_init</span>(&full,  <span class="num">0</span>, <span class="num">0</span>);             <span class="cmt">/* 0 full slots */</span>
+
+<span class="kw">void</span>* <span class="fn">producer</span>(<span class="kw">void</span>* arg) {
+    <span class="fn">sem_wait</span>(&empty);               <span class="cmt">/* wait for space */</span>
+    <span class="fn">pthread_mutex_lock</span>(&mutex);
+    <span class="cmt">/* insert item */</span>
+    <span class="fn">pthread_mutex_unlock</span>(&mutex);
+    <span class="fn">sem_post</span>(&full);                <span class="cmt">/* signal item ready */</span>
+}</pre>
+  </div>
+
+</main>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('done');
+  const key = el.querySelector('.check-label').textContent.trim().slice(0,30);
+  const done = el.classList.contains('done');
+  try { localStorage.setItem('os_check_' + key, done); } catch(e) {}
+}
+</script>
+</body></html>
