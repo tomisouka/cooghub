@@ -1,6 +1,6 @@
 # Coogs Hub — Session Handoff Doc
 > Paste this into a new chat to resume exactly where we left off.
-> Last updated: Session 16 — March 2026
+> Last updated: Session 17 — March 2026
 
 ---
 
@@ -127,6 +127,18 @@ export const LANG_REFS = [
 - **#004** knowledge/index.js still re-exports language files that moved
 - **#005** Talk2Me search navigation (dest props not wired)
 - **#006** Empty courses need content
+
+## Recent Changes (Session 17)
+- `src/data/subjects.js` — COSC course order: Comp Org → Databases → OS → C++ → Python → Lang+. LANG_REFS reordered to match (OS group, then C++/Python pinned last). OS textbook PDF wired.
+- `src/data/languages/index.js` — export order updated to match LANG_REFS
+- `src/pages/CoursePage.jsx` — fixed section collapse bug (collapsed state lifted to parent). Mobile single-pane mode added.
+- `src/App.jsx` — bottom nav bar on mobile, left sidebar on desktop
+- `src/pages/DeptPage.jsx` — 2-col grid on mobile, responsive padding
+- `src/hooks/useIsMobile.js` — new hook, breakpoint 768px
+- `dev-log/apk.md` — new file, APK build log
+- Git repo initialized and pushed to `git@github.com:tomisouka/cooguh.git`
+- APK v1 built and installed on Samsung (debug build)
+- APK v2 built with mobile responsive pass
 
 ---
 

@@ -5,6 +5,7 @@ import MarkdownViewer from "../components/MarkdownViewer";
 import CodeViewer     from "../components/CodeViewer";
 import HtmlViewer     from "../components/HtmlViewer";
 import PDFViewer      from "../components/PDFViewer";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const BASE = "/references";
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -45,7 +46,9 @@ export default function CoursePage({ courseId, dest, onBack }) {
   const [collapsed,    setCollapsed]    = useState({});
   const [flipped,      setFlipped]      = useState(false);
   const [cardIdx,      setCardIdx]      = useState(0);
-  const scrollContainerRef          = useRef(null);
+  const isMobile                        = useIsMobile();
+  const [showList,     setShowList]     = useState(true);
+  const scrollContainerRef              = useRef(null);
 
   // Re-sync when dest changes (e.g. clicking a second search result for the same course)
   const prevDestRef  = useRef(dest);
@@ -147,7 +150,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
                   const key = child[pathKey] || child.path || child.file;
                   const isActive = activeFile === key;
                   return (
-                    <button key={j} onClick={() => { setActiveFile(key); setCodeHighlight(null); }} style={{
+                    <button key={j} onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
                       width: "100%", padding: "9px 16px 9px 24px",
                       background: isActive ? "#21252e" : "transparent",
                       border: "none",
@@ -171,7 +174,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
           const key = item[pathKey] || item.path || item.file;
           const isActive = activeFile === key;
           return (
-            <button key={i} onClick={() => { setActiveFile(key); setCodeHighlight(null); }} style={{
+            <button key={i} onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
               width: "100%", padding: "10px 16px",
               background: isActive ? "#21252e" : "transparent",
               border: "none",
@@ -256,35 +259,49 @@ export default function CoursePage({ courseId, dest, onBack }) {
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 24px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
-        <button onClick={onBack} style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1, transition: "color 0.15s" }}
-          onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"} onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}>←</button>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 14, padding: isMobile ? "0 12px" : "0 24px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
+        {/* On mobile in content view, back arrow goes back to file list */}
+        <button onClick={isMobile && !showList ? () => setShowList(true) : onBack}
+          style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1, transition: "color 0.15s" }}
+          onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
+          onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}>←</button>
         <span style={{ fontSize: 18 }}>{course.icon}</span>
-        <span style={{ color: "#d4d8e0", fontSize: 15, fontWeight: 600, fontFamily: FONT }}>{course.label}</span>
-        {course.courseCode && <span style={{ color: "#7a8090", fontSize: 12, fontFamily: FONT, fontWeight: 500 }}>{course.courseCode}</span>}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+        <span style={{ color: "#d4d8e0", fontSize: isMobile ? 13 : 15, fontWeight: 600, fontFamily: FONT }}>{course.label}</span>
+        {course.courseCode && !isMobile && <span style={{ color: "#7a8090", fontSize: 12, fontFamily: FONT, fontWeight: 500 }}>{course.courseCode}</span>}
+        {/* Tab bar */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 2, overflowX: "auto", maxWidth: isMobile ? "55vw" : "unset" }}>
           {availableTabs.map(t => (
             <button key={t.id} onClick={() => switchTab(t.id)} style={{
-              padding: "5px 14px", border: "none", borderRadius: 6,
+              padding: isMobile ? "5px 8px" : "5px 14px", border: "none", borderRadius: 6,
               background: tab === t.id ? "#21252e" : "transparent",
               color: tab === t.id ? course.color : "#8a90a0",
-              fontSize: 12, cursor: "pointer", fontFamily: FONT, fontWeight: 600,
+              fontSize: isMobile ? 11 : 12, cursor: "pointer", fontFamily: FONT, fontWeight: 600,
               borderBottom: tab === t.id ? `2px solid ${course.color}` : "2px solid transparent",
-              transition: "all 0.15s",
+              transition: "all 0.15s", whiteSpace: "nowrap", flexShrink: 0,
             }}
               onMouseEnter={e => { if (tab !== t.id) e.currentTarget.style.color = "#b0b8c8"; }}
               onMouseLeave={e => { if (tab !== t.id) e.currentTarget.style.color = "#8a90a0"; }}
             >
-              {t.icon} {t.label}
+              {t.icon}{!isMobile && ` ${t.label}`}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Body */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {tab === "flashcards" ? <Flashcards /> :
-         <><FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} /><Viewer /></>
-        }
+        {tab === "flashcards" ? <Flashcards /> : (
+          <>
+            {/* FileList — hidden on mobile when content is showing */}
+            {(!isMobile || showList) && (
+              <FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} />
+            )}
+            {/* Viewer — hidden on mobile when list is showing */}
+            {(!isMobile || !showList) && <Viewer />}
+          </>
+        )}
       </div>
     </div>
   );

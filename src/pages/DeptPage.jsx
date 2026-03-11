@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getDept, courseContentCount, LANG_REFS } from "../data/subjects";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
@@ -24,8 +25,9 @@ export default function DeptPage({ deptId, goTo }) {
   const dept = getDept(deptId);
   if (!dept) return null;
 
-  const [view, setView]         = useState("courses"); // "courses" | "langs"
+  const [view, setView]           = useState("courses");
   const [activeRef, setActiveRef] = useState(null);
+  const isMobile = useIsMobile();
   const isMath = deptId === "math";
 
   // ── Lang+ panel ───────────────────────────────────────────────────
@@ -139,12 +141,12 @@ export default function DeptPage({ deptId, goTo }) {
   // ── COSC: course grid + Lang+ card ────────────────────────────────
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-      <div style={{ padding: "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
+      <div style={{ padding: isMobile ? "16px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>department</div>
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
+        <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 52px 64px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "16px 12px 80px" : "28px 52px 64px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fill, minmax(260px, 1fr))", gap: isMobile ? 10 : 14 }}>
 
           {/* Course cards */}
           {dept.courses.map(course => {
@@ -163,7 +165,7 @@ export default function DeptPage({ deptId, goTo }) {
               <button key={course.id} onClick={() => !empty && goTo(deptId, course.id)}
                 style={{
                   background: "#1a1d24", border: `1px solid ${empty ? "#1e2128" : "#2a2e38"}`,
-                  borderRadius: 12, padding: "20px 18px",
+                  borderRadius: 12, padding: isMobile ? "14px 12px" : "20px 18px",
                   cursor: empty ? "default" : "pointer", textAlign: "left",
                   opacity: empty ? 0.35 : 1, transition: "border-color 0.15s, background 0.15s", fontFamily: FONT,
                 }}

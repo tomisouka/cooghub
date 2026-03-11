@@ -446,3 +446,80 @@ Reasons:
 - Confirm no hardcoded machine paths in source
 
 Full checklist added to roadmap Phase 9.
+
+---
+
+## Session 17 (cont.) — Git Setup + PDF Storage Decision
+
+### Git Repo Initialized
+First-time git setup for the project:
+```bash
+git init
+git add .
+git commit -m "initial commit"
+git remote add origin git@github.com:tomisouka/cooguh.git
+git branch -M main
+git push -u origin main
+```
+Push came in at 1.46 MiB — clean, no PDFs. `.gitignore` correctly excluded `public/pdfs/`.
+
+### PDF Storage Decision
+`public/pdfs/` is 467MB — too large for Git LFS free tier (burns bandwidth fast) and overkill for a solo personal app.
+
+**Decision: keep PDFs local only.**
+- Repo stays pure code
+- PDFs backed up to Google Drive / external drive
+- For Android: transfer via USB when Capacitor APK is ready
+
+### PDF + Database Architecture (future)
+PDFs are binary files — they don't go *in* a database. The right pattern is:
+
+- **Files** stay on-device (local filesystem or USB-transferred to Android)
+- **Database** stores metadata only: filename, course, last read page, highlights, bookmarks, notes
+
+This means Phase 7 (database) will track PDF *state* (where you left off, what you highlighted) without needing to move the actual files anywhere. Keeps the app offline-first and avoids putting personal textbooks on third-party servers.
+
+Future options if remote access is ever needed:
+- Self-hosted Express/NAS on home network
+- Cloudflare R2 or Backblaze B2 (object storage) — but adds a privacy tradeoff
+
+---
+
+## Session 17 (cont.) — Mobile Responsive Pass (v2 APK)
+
+### Goal
+Make the app minimally usable on Android before stopping. Quick pass — no full rewrite.
+
+### Approach
+Added a `useIsMobile()` hook (breakpoint 768px) as the single source of truth for layout switching. Used it in 3 components to conditionally swap layouts. Desktop behavior completely unchanged.
+
+### useIsMobile hook
+New file: `src/hooks/useIsMobile.js`
+- Listens to `window.resize`
+- Returns `true` if `window.innerWidth < 768`
+- Cleans up listener on unmount
+
+### App.jsx — Bottom Nav Bar
+- On mobile: left sidebar hidden, `<main>` height is `calc(100vh - 60px)` to account for nav bar
+- Bottom nav bar fixed at bottom — same NAV items, icons + labels, amber active indicator on top border
+- On desktop: unchanged — left sidebar, full height main
+
+### CoursePage.jsx — Single Pane Mode
+Biggest UX win. On mobile:
+- Tapping a file collapses the FileList and goes fullscreen content
+- Back arrow (←) in header returns to the file list instead of leaving the course
+- On desktop: unchanged 3-pane layout
+- Tab bar: icons only on mobile (no label text), horizontally scrollable, `whiteSpace: nowrap` prevents wrapping
+
+### DeptPage.jsx — Responsive Grid
+- Course card grid: `1fr 1fr` (2 columns) on mobile vs `repeat(auto-fill, minmax(260px, 1fr))` on desktop
+- Header padding reduced on mobile: `16px 16px` vs `28px 52px`
+- Card padding reduced: `14px 12px` vs `20px 18px`
+- Grid gap: 10px vs 14px
+- Bottom padding bumped to 80px on mobile to clear the nav bar
+
+### Files Changed
+- `src/hooks/useIsMobile.js` — new file
+- `src/App.jsx` — bottom nav, conditional sidebar
+- `src/pages/CoursePage.jsx` — single pane mode, scrollable tabs
+- `src/pages/DeptPage.jsx` — 2-col grid, responsive padding

@@ -125,6 +125,8 @@ Wire subject textbooks and lecture PDFs into the app.
 ## Phase 7 — Database
 Replace hardcoded JS constants with a real database.
 
+**PDF architecture decision:** PDFs stay on-device as files. DB stores metadata only (last read page, highlights, bookmarks). No PDFs in the DB, no third-party storage — offline-first, privacy preserved.
+
 | Task | Status |
 |------|--------|
 | Choose DB (SQLite local vs Supabase hosted) | ⬜ |
@@ -132,6 +134,8 @@ Replace hardcoded JS constants with a real database.
 | Migrate all data constants | ⬜ |
 | Add/edit content via UI | ⬜ |
 | Track flashcard progress in DB | ⬜ |
+| Track PDF last-read page per file | ⬜ |
+| Track PDF highlights/bookmarks | ⬜ |
 
 ---
 
@@ -139,8 +143,12 @@ Replace hardcoded JS constants with a real database.
 
 | Task | Status |
 |------|--------|
+| `useIsMobile()` hook | ✅ |
+| Bottom nav bar on mobile | ✅ |
+| CoursePage single-pane mode on mobile | ✅ |
+| DeptPage 2-col grid on mobile | ✅ |
 | Design system / CSS vars | ⬜ |
-| Responsive layout | ⬜ |
+| Full Tailwind migration (replace inline styles) | ⬜ |
 | Loading skeletons | ⬜ |
 | Home page stats dynamic | ⬜ |
 | Flashcard shuffle mode | ⬜ |

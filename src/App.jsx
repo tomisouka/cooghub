@@ -7,12 +7,15 @@ import DeptPage     from "./pages/DeptPage";
 import CoursePage   from "./pages/CoursePage";
 import Talk2MePage  from "./pages/Talk2MePage";
 import TicketsPage  from "./pages/TicketsPage";
+import { useIsMobile } from "./hooks/useIsMobile";
+import { NAV } from "./data/nav";
 
 export default function App() {
   const [nav, setNav]           = useState("home");
   const [course, setCourse]     = useState(null);
   const [dest, setDest]         = useState(null);
   const [showDrop, setShowDrop] = useState(false);
+  const isMobile                = useIsMobile();
 
   function goTo(navId, courseId = null, destination = null) {
     setNav(navId);
@@ -40,24 +43,24 @@ export default function App() {
     }
   }
 
+  const FONT = "'Inter', 'Segoe UI', sans-serif";
+
   return (
     <div style={{
       background: "#111318", minHeight: "100vh",
-      color: "#d4d8e0", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+      color: "#d4d8e0", fontFamily: FONT,
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Global readability — no thin weights anywhere */
         body, button, input, textarea, select {
           font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
           font-weight: 500;
           -webkit-font-smoothing: antialiased;
         }
 
-        /* Bump up all dim/muted text so it's actually readable */
         * { min-color: inherit; }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -65,13 +68,54 @@ export default function App() {
         ::-webkit-scrollbar-thumb { background: #2a2e38; border-radius: 2px; }
         button:focus { outline: none; }
 
-        /* Kill any inherited font-weight: 300 or 400 from component inline styles */
         h1, h2, h3, h4, h5, h6 { font-weight: 600; }
       `}</style>
-      <Sidebar active={nav} setActive={(id) => { setCourse(null); setDest(null); setNav(id); }} />
-      <main style={{ marginLeft: 72, height: "100vh", overflow: "hidden" }}>
+
+      {/* Desktop: left sidebar */}
+      {!isMobile && (
+        <Sidebar active={nav} setActive={(id) => { setCourse(null); setDest(null); setNav(id); }} />
+      )}
+
+      {/* Main content */}
+      <main style={{
+        marginLeft: isMobile ? 0 : 72,
+        height: isMobile ? "calc(100vh - 60px)" : "100vh",
+        overflow: "hidden",
+      }}>
         {renderPage()}
       </main>
+
+      {/* Mobile: bottom nav bar */}
+      {isMobile && (
+        <nav style={{
+          position: "fixed", bottom: 0, left: 0, right: 0, height: 60,
+          background: "#1a1d24", borderTop: "1px solid #2a2e38",
+          display: "flex", alignItems: "center", justifyContent: "space-around",
+          zIndex: 100,
+        }}>
+          {NAV.map(item => (
+            <button
+              key={item.id}
+              onClick={() => { setCourse(null); setDest(null); setNav(item.id); }}
+              style={{
+                flex: 1, height: "100%", border: "none",
+                background: "transparent",
+                color: nav === item.id ? "#e8c547" : "#7a8090",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 3,
+                cursor: "pointer",
+                borderTop: `2px solid ${nav === item.id ? "#e8c547" : "transparent"}`,
+              }}
+            >
+              <span style={{ fontSize: 20 }}>{item.icon}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, fontFamily: FONT, letterSpacing: "0.3px" }}>
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </nav>
+      )}
+
       <DropZone
         open={showDrop}
         onOpen={() => setShowDrop(true)}
