@@ -37,4 +37,7 @@ Thumbs.db
 
 # Env
 .env
-.env.localandroid/app/build/
+.env.local
+
+# Android build output
+android/app/build/
