@@ -105,7 +105,7 @@ async function findInPdf(pdfDoc, query) {
   return hits;
 }
 
-export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
+export default function PDFViewer({ file, initialPage = 1, highlight = null, highlightKey = null }) {
   const [pdf,         setPdf]         = useState(null);
   const [numPages,    setNumPages]    = useState(0);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -192,7 +192,15 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null }) {
       setSearchRan(true);
       runSearch(highlight, pdf);
     }
-  }, [pdf, highlight]);
+  }, [pdf, highlight, highlightKey]);
+
+  // When highlight prop changes (new search nav), reset state so it re-triggers
+  useEffect(() => {
+    if (!highlight) return;
+    setSearchQuery(highlight);
+    activeQueryRef.current = highlight;
+    setSearchRan(false);
+  }, [highlight, highlightKey]);
 
   useEffect(() => {
     if (!pdf) return;

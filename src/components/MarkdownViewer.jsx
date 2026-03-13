@@ -18,23 +18,30 @@ function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollC
     loader().then(setContent).catch(() => setError(true));
   }, [filePath]);
 
-  // Highlight + scroll — waits for ReactMarkdown to fully stabilize before highlighting
+  // Highlight + scroll — polls until ReactMarkdown finishes rendering the full document,
+  // then highlights all matches and scrolls to the first via IntersectionObserver.
+  // Polling on textContent length is more reliable than MutationObserver which fires
+  // on partial renders and disconnects too early on large documents.
   useEffect(() => {
     if (!content || !highlight || !bodyRef.current) return;
     const q = highlight.toLowerCase();
-    let debounceTimer = null;
+    let cancelled = false;
+    let lastLen = 0;
+    let stableCount = 0;
+    const STABLE_NEEDED = 3; // must be stable for N consecutive checks
+    const POLL_MS = 50;
 
-    function doHighlight() {
+    function applyHighlight() {
       const el = bodyRef.current;
-      if (!el) return;
+      if (!el || cancelled) return;
 
-      // Remove any previous highlights first
+      // Clear previous highlights
       el.querySelectorAll("mark.search-hl").forEach(m => {
         m.replaceWith(document.createTextNode(m.textContent));
       });
       el.normalize();
 
-      // Walk all text nodes and wrap matches
+      // Walk text nodes and wrap matches
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       const nodes = [];
       let node;
@@ -63,50 +70,55 @@ function MarkdownViewer({ filePath, color = "#e8c547", highlight = null, scrollC
         textNode.parentNode.replaceChild(frag, textNode);
       }
 
-      // Scroll to first match using IntersectionObserver — avoids layout-timing bugs
+      // Scroll to first match via IntersectionObserver — fires after layout commit,
+      // no manual rect math needed
       if (firstMark) {
         const scroller = scrollContainer?.current || null;
-        // If already visible, just scroll it into view immediately
-        firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
-
-        // For custom scroll containers (the CoursePage ref), also adjust the
-        // container's own scrollTop so the mark lands in the center
-        if (scroller) {
-          // Use rAF to let the browser finish layout before reading rects
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              if (!firstMark.isConnected) return;
-              const markRect   = firstMark.getBoundingClientRect();
-              const scrollRect = scroller.getBoundingClientRect();
-              const offset     = markRect.top - scrollRect.top - (scroller.clientHeight / 2);
-              scroller.scrollBy({ top: offset, behavior: "smooth" });
-            });
-          });
-        }
+        const io = new IntersectionObserver(([entry], obs) => {
+          obs.disconnect();
+          if (cancelled) return;
+          if (entry.isIntersecting) return; // already visible
+          if (scroller) {
+            const markRect   = firstMark.getBoundingClientRect();
+            const scrollRect = scroller.getBoundingClientRect();
+            scroller.scrollBy({ top: markRect.top - scrollRect.top - scroller.clientHeight / 2, behavior: "smooth" });
+          } else {
+            firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, { root: scroller, threshold: 1.0 });
+        io.observe(firstMark);
+        // Fallback: if IO never fires (element not in DOM yet), scroll after rAF
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (cancelled || !firstMark.isConnected) return;
+          io.disconnect();
+          if (scroller) {
+            const markRect   = firstMark.getBoundingClientRect();
+            const scrollRect = scroller.getBoundingClientRect();
+            scroller.scrollBy({ top: markRect.top - scrollRect.top - scroller.clientHeight / 2, behavior: "smooth" });
+          } else {
+            firstMark.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }));
       }
     }
 
-    // Watch for DOM mutations — debounce so we only run AFTER React finishes rendering
-    const observer = new MutationObserver(() => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        observer.disconnect();
-        doHighlight();
-      }, 80);
-    });
-
-    observer.observe(bodyRef.current, { childList: true, subtree: true });
-
-    // Also try immediately in case content is already rendered (e.g. cached)
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      if (bodyRef.current?.textContent.trim().length > 10) {
-        observer.disconnect();
-        doHighlight();
+    function poll() {
+      if (cancelled) return;
+      const el = bodyRef.current;
+      if (!el) return;
+      const len = el.textContent.length;
+      if (len > 0 && len === lastLen) {
+        stableCount++;
+        if (stableCount >= STABLE_NEEDED) { applyHighlight(); return; }
+      } else {
+        stableCount = 0;
+        lastLen = len;
       }
-    }, 80);
+      setTimeout(poll, POLL_MS);
+    }
 
-    return () => { observer.disconnect(); clearTimeout(debounceTimer); };
+    poll();
+    return () => { cancelled = true; };
   }, [content, highlight, highlightKey]);
 
   if (error) return (

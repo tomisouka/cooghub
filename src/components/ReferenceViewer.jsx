@@ -10,6 +10,33 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// BlobIframe — loads HTML via a data: URI so Vite's HMR WebSocket client
+// (running in the parent page) cannot reach into this iframe's browsing context.
+// srcDoc iframes share enough context with the parent that Chrome allows Vite's
+// devtools/HMR bridge to inject @vite/client into them, causing CORS errors.
+// A data: URI iframe is a fully opaque origin — no parent access possible.
+// Anchor clicks are handled by an injected script since fragment nav doesn't
+// work across opaque origins.
+function BlobIframe({ html, file, bg }) {
+  // data: URIs work in all browsers and aren't subject to Chrome's
+  // "not allowed to load local resource: blob:" restriction
+  const src = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+  return (
+    <iframe
+      src={src}
+      style={{ flex: 1, width: "100%", height: "100%", border: "none", background: bg, colorScheme: "dark", display: "block" }}
+      sandbox="allow-scripts"
+      title={file}
+    />
+  );
+}
+
+// Module-level cache — survives React Fast Refresh HMR remounts (unlike useState).
+// Keys are "basePath/file", values are the processed HTML string.
+// This prevents re-fetching on every HMR cycle, which was causing a fresh srcdoc
+// to be built each time — and during that window Vite could inject @vite/client.
+const _htmlCache = new Map();
+
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 const C = {
   bg:      "#111318",
@@ -75,7 +102,7 @@ function highlightAndScroll(containerEl, query, scrollerEl) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function ReferenceViewer({ file, color = C.accent, highlight = null, highlightKey = null }) {
+export default function ReferenceViewer({ file, color = C.accent, highlight = null, highlightKey = null, basePath = "/references" }) {
   const [html,    setHtml]    = useState(null);
   const [error,   setError]   = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,24 +112,47 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
 
   useEffect(() => {
     if (!file) return;
+
+    const cacheKey = `${basePath}/${file}`;
+
+    // If we already have this file cached (e.g. after HMR remount), use it directly.
+    if (_htmlCache.has(cacheKey)) {
+      setHtml(_htmlCache.get(cacheKey));
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setHtml(null);
     setError(null);
 
-    fetch(`/references/${file}`)
+    // Append ?raw so our Vite middleware serves the file directly from disk,
+    // bypassing transformIndexHtml which would inject @vite/client, @react-refresh etc.
+    fetch(`${cacheKey}?raw`)
       .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.text(); })
       .then(raw => {
         const id = uid.current;
 
+
         // Strip Google Fonts <link> — this was blocking onLoad in the APK WebView
         let processed = raw.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>/gi, "");
+
+        // Strip ALL Vite dev-server injected scripts — nuclear: remove every
+        // <script src> whose src contains /@vite, /@react-refresh, or /src/
+        // Also strip the inline react-refresh preamble block.
+        processed = processed.replace(/<script\b[^>]*\bsrc="[^"]*(?:\/@vite|\/@react-refresh|\/src\/)[^"]*"[^>]*>\s*<\/script>/gi, "");
+        processed = processed.replace(/<script\b[^>]*\bsrc='[^']*(?:\/@vite|\/@react-refresh|\/src\/)[^']*'[^>]*>\s*<\/script>/gi, "");
+        processed = processed.replace(/<script[^>]*>[\s\S]*?__vite_plugin_react_preamble[\s\S]*?<\/script>/gi, "");
+
 
         // If the file has <script> tags, render via srcdoc iframe so scripts execute.
         // dangerouslySetInnerHTML intentionally doesn't run scripts, so interactive
         // pages (DFA simulator, DP visualizer, inline search filters) need a real context.
         const hasScripts = /<script[\s>]/i.test(processed);
         if (hasScripts) {
-          setHtml({ id, srcdoc: processed });
+          const val = { id, srcdoc: processed };
+          _htmlCache.set(cacheKey, val);
+          setHtml(val);
           setLoading(false);
           return;
         }
@@ -125,11 +175,13 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
         const bodyMatch = processed.match(/<body[^>]*>([\s\S]*)<\/body>/i);
         const bodyHtml  = bodyMatch ? bodyMatch[1] : processed;
 
-        setHtml({ id, styles: styles.join("\n"), body: bodyHtml });
+        const val = { id, styles: styles.join("\n"), body: bodyHtml };
+        _htmlCache.set(cacheKey, val);
+        setHtml(val);
         setLoading(false);
       })
       .catch(e => { setError(e.message); setLoading(false); });
-  }, [file]);
+  }, [file, basePath]);
 
   useEffect(() => {
     if (!html || !highlight) return;
@@ -182,25 +234,23 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
 
   if (!html) return null;
 
-  // Scripted files — render via srcdoc iframe so JS executes correctly.
-  // Google Fonts link is already stripped so onLoad fires immediately.
+  // Scripted files — render via srcDoc iframe so JS executes correctly.
+  // The fetch uses ?raw to bypass Vite's transformIndexHtml, so the HTML arrives
+  // clean — no @vite/client, @react-refresh, or /src/main.jsx injected.
   if (html.srcdoc) {
-    // Inject color-scheme meta so browser renders dark scrollbars + no white flash
-    const srcdoc = html.srcdoc.replace(
+    const injected = html.srcdoc.replace(
       /<head([^>]*)>/i,
-      `<head$1><meta name="color-scheme" content="dark">`
+      `<head$1>` +
+      `<meta name="color-scheme" content="dark"><style>` +
+      `html, body { min-height: unset !important; height: auto !important; }` +
+      `body { overflow-y: auto !important; }` +
+      `nav, header, .section-strip, [class*="strip"], [class*="nav"] { position: relative !important; top: auto !important; }` +
+      // Intercept anchor clicks and scroll to target — needed because blob: URL iframes
+      // can't use fragment navigation the same way as same-origin iframes.
+      `</style><script>document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();var t=document.getElementById(a.getAttribute('href').slice(1));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});</script>`
     );
     return (
-      <iframe
-        srcDoc={srcdoc}
-        style={{
-          flex: 1, width: "100%", border: "none",
-          background: C.bg, colorScheme: "dark",
-          display: "block",
-        }}
-        sandbox="allow-scripts allow-same-origin"
-        title={file}
-      />
+      <BlobIframe key={html.id} html={injected} file={file} bg={C.bg} />
     );
   }
 

@@ -1,0 +1,4 @@
+ rm -r coogs-hub-clean.zip 
+cd rabbit/root/projects/onit/coogs-hub/
+zip -r coogs-hub-clean.zip . \
+-x "*.git*" "*node_modules*" "*dist*" "*build*" "*pdfs*" "*.zip"

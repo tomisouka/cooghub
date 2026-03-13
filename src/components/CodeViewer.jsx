@@ -5,7 +5,7 @@ import { cppFiles } from "../globs";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
-function CodeViewer({ filePath, highlight = null }) {
+function CodeViewer({ filePath, highlight = null, highlightKey = null }) {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(false);
   const [matchLines, setMatchLines] = useState([]);
@@ -21,7 +21,7 @@ function CodeViewer({ filePath, highlight = null }) {
     loader().then(setContent).catch(() => setError(true));
   }, [filePath]);
 
-  // Build match line list whenever content or query changes
+  // Build match line list whenever content, query, or key changes
   useEffect(() => {
     if (!content || !highlight) { setMatchLines([]); return; }
     const q = highlight.toLowerCase();
@@ -32,7 +32,7 @@ function CodeViewer({ filePath, highlight = null }) {
     }, []);
     setMatchLines(hits);
     setMatchIdx(0);
-  }, [content, highlight]);
+  }, [content, highlight, highlightKey]);
 
   // Scroll to current match + inject inline word highlights
   useEffect(() => {

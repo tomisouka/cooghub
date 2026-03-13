@@ -1,5 +1,5 @@
 // src/search.js
-// Unified search across notes, talk2me, code, PDFs, references, and knowledge base.
+// Unified search across notes, talk2me, code, PDFs, and references.
 // PDF results come from /pdf-index.json built by scripts/index-pdfs.js
 
 import { mdFiles, txtFiles, cppFiles } from "./globs";
@@ -9,89 +9,6 @@ import { TALK2ME }                      from "./data/talk2me";
 // ── Knowledge base — lazy loaded on first search, then cached ─────────────────
 // All 21 JS arrays are large; importing them eagerly delays app startup by ~10s.
 // We dynamic-import them once, build ALL_KNOWLEDGE, then cache it.
-
-const DOMAIN_NAV = {
-  cpp:            { courseId: "cpp",        tab: "references", sourceFile: "languages/cpp_reference.html"             },
-  c:              { courseId: null,          tab: "langref",    sourceFile: "languages/c_reference.html"               },
-  python:         { courseId: "python",      tab: "references", sourceFile: "languages/python_reference.html"          },
-  java:           { courseId: null,          tab: "langref",    sourceFile: "languages/java_reference.html"            },
-  csharp:         { courseId: null,          tab: "langref",    sourceFile: "languages/csharp_reference.html"          },
-  typescript:     { courseId: null,          tab: "langref",    sourceFile: "languages/typescript_reference.html"      },
-  rust:           { courseId: null,          tab: "langref",    sourceFile: "languages/rust_reference.html"            },
-  go:             { courseId: null,          tab: "langref",    sourceFile: "languages/go_reference.html"              },
-  sql:            { courseId: null,          tab: "langref",    sourceFile: "languages/sql_reference.html"             },
-  htmlcss:        { courseId: null,          tab: "langref",    sourceFile: "languages/htmlcss_reference.html"         },
-  comp_org:       { courseId: "comporg",     tab: "references", sourceFile: "languages/comp_org_arm_reference.html"   },
-  linux:          { courseId: null,          tab: "langref",    sourceFile: "linux_reference.html"                     },
-  git:            { courseId: null,          tab: "langref",    sourceFile: "git_reference.html"                       },
-  math_sci:       { courseId: "discrete",    tab: "references", sourceFile: "math_science_ref.html"                   },
-  sets_automata:  { courseId: "automata",    tab: "references", sourceFile: "reading-sets-automata.html"              },
-  algorithms:     { courseId: "algos",       tab: "references", sourceFile: "algorithms.html"                         },
-  automata:       { courseId: "automata",    tab: "references", sourceFile: "automata-sipser-reference.html"          },
-  data_structures:{ courseId: "datastruct",  tab: "references", sourceFile: "data-structures.html"                    },
-  discrete_math:  { courseId: "discrete",    tab: "references", sourceFile: "discrete-math-guide.html"                },
-  linear_algebra: { courseId: "linear",      tab: "references", sourceFile: "linear-algebra-guide.html"               },
-  math_notation:  { courseId: "discrete",    tab: "references", sourceFile: "mathnotation_enhanced.html"              },
-};
-
-let knowledgeCache = null;
-
-async function loadKnowledge() {
-  if (knowledgeCache) return knowledgeCache;
-  const [
-    { CPP }, { C }, { PYTHON }, { JAVA }, { CSHARP }, { TYPESCRIPT },
-    { RUST }, { GO }, { SQL }, { HTMLCSS }, { COMP_ORG }, { LINUX }, { GIT },
-    { MATH_SCIENCE }, { SETS_AUTOMATA },
-    { ALGORITHMS }, { AUTOMATA }, { DATA_STRUCTURES },
-    { DISCRETE_MATH }, { LINEAR_ALGEBRA }, { MATH_NOTATION },
-  ] = await Promise.all([
-    import("./data/languages/cpp"),
-    import("./data/languages/c"),
-    import("./data/languages/python"),
-    import("./data/languages/java"),
-    import("./data/languages/csharp"),
-    import("./data/languages/typescript"),
-    import("./data/languages/rust"),
-    import("./data/languages/go"),
-    import("./data/languages/sql"),
-    import("./data/languages/htmlcss"),
-    import("./data/languages/comp_org"),
-    import("./data/languages/linux"),
-    import("./data/languages/git"),
-    import("./data/languages/math_science"),
-    import("./data/languages/sets_automata"),
-    import("./data/knowledge/algorithms"),
-    import("./data/knowledge/automata"),
-    import("./data/knowledge/data_structures"),
-    import("./data/knowledge/discrete_math"),
-    import("./data/knowledge/linear_algebra"),
-    import("./data/knowledge/math_notation"),
-  ]);
-  knowledgeCache = [
-    ...CPP.map(e => ({ ...e, domain: "cpp" })),
-    ...C.map(e => ({ ...e, domain: "c" })),
-    ...PYTHON.map(e => ({ ...e, domain: "python" })),
-    ...JAVA.map(e => ({ ...e, domain: "java" })),
-    ...CSHARP.map(e => ({ ...e, domain: "csharp" })),
-    ...TYPESCRIPT.map(e => ({ ...e, domain: "typescript" })),
-    ...RUST.map(e => ({ ...e, domain: "rust" })),
-    ...GO.map(e => ({ ...e, domain: "go" })),
-    ...SQL.map(e => ({ ...e, domain: "sql" })),
-    ...HTMLCSS.map(e => ({ ...e, domain: "htmlcss" })),
-    ...COMP_ORG.map(e => ({ ...e, domain: "comp_org" })),
-    ...LINUX.map(e => ({ ...e, domain: "linux" })),
-    ...GIT.map(e => ({ ...e, domain: "git" })),
-    ...MATH_SCIENCE.map(e => ({ ...e, domain: "math_sci" })),
-    ...SETS_AUTOMATA.map(e => ({ ...e, domain: "sets_automata" })),
-    ...ALGORITHMS.map(e => ({ ...e, domain: "algorithms" })),
-    ...AUTOMATA.map(e => ({ ...e, domain: "automata" })),
-    ...DATA_STRUCTURES.map(e => ({ ...e, domain: "data_structures" })),
-    ...DISCRETE_MATH.map(e => ({ ...e, domain: "discrete_math" })),
-    ...LINEAR_ALGEBRA.map(e => ({ ...e, domain: "linear_algebra" })),
-    ...MATH_NOTATION.map(e => ({ ...e, domain: "math_notation" })),
-  ];
-  return knowledgeCache;
-}
 
 // ── Meta lookup: filePath → { label, courseId, section, color, type } ────────
 
@@ -276,7 +193,7 @@ export async function buildRefTextIndex(refIndex) {
   const results = await Promise.allSettled(
     refIndex.map(async entry => {
       try {
-        const res = await fetch(`/references/${entry.file}`);
+        const res = await fetch(`/references/${entry.file}?raw`);
         if (!res.ok) return null;
         const html = await res.text();
         const div = document.createElement("div");
@@ -359,61 +276,6 @@ export function searchReferenceIndex(refIndex, query) {
   return results.slice(0, 15);
 }
 
-// ── Search knowledge base entries ─────────────────────────────────────────────
-// Searches symbol, plain, name, meaning fields across all ~4,500 entries.
-// Knowledge files are lazy-loaded on first call, then cached.
-
-export async function searchKnowledgeIndex(query) {
-  if (!query || query.trim().length < 2) return [];
-  const q = query.trim().toLowerCase();
-  const all = await loadKnowledge();
-  const results = [];
-
-  for (const entry of all) {
-    const nav = DOMAIN_NAV[entry.domain];
-    if (!nav) continue;
-
-    const symbol  = (entry.symbol  || "").toLowerCase();
-    const plain   = (entry.plain   || "").toLowerCase();
-    const name    = (entry.name    || "").toLowerCase();
-    const meaning = (entry.meaning || entry.definition || "").toLowerCase();
-    const section = (entry.section || "").toLowerCase();
-
-    const inSymbol = symbol.includes(q);
-    const inPlain  = plain.includes(q);
-    const inName   = name.includes(q);
-    const inMeaning = meaning.includes(q);
-    const inSection = section.includes(q);
-
-    if (!inSymbol && !inPlain && !inName && !inMeaning && !inSection) continue;
-
-    // Build snippet from the most useful fields
-    const snippetParts = [];
-    if (entry.plain)   snippetParts.push(entry.plain);
-    if (entry.name && entry.name !== entry.plain) snippetParts.push(entry.name);
-    const snippet = snippetParts.join(" — ").slice(0, 120);
-
-    const domainLabel = entry.domain.replace(/_/g, " ");
-    const sectionLabel = entry.section ? `${domainLabel} / ${entry.section}` : domainLabel;
-
-    results.push({
-      id:       entry.id,
-      type:     "knowledge",
-      label:    entry.symbol || entry.name || entry.term || entry.id,
-      snippet,
-      courseId: nav.courseId,
-      file:     nav.sourceFile,
-      tab:      nav.tab,
-      section:  sectionLabel,
-      color:    "#a78bfa",
-      matchInLabel: inSymbol || inPlain,
-      entry,                   // raw entry — passed to CoursePage for the knowledge viewer
-    });
-  }
-
-  results.sort((a, b) => (b.matchInLabel ? 1 : 0) - (a.matchInLabel ? 1 : 0));
-  return results.slice(0, 15);
-}
 
 // ── Load PDF index (fetched once, cached) ─────────────────────────────────────
 
@@ -528,20 +390,6 @@ export function resolveResult(result) {
     }
     return { page: result.courseId, courseId: result.courseId, tab: result.tab, file: result.file, query: result.query };
   }
-  if (result.type === "knowledge") {
-    if (result.tab === "langref" || !result.courseId) {
-      // Lang+ knowledge refs — open the COSC dept page, Lang+ panel, specific file
-      return { page: "cosc", courseId: null, tab: "langref", file: result.file };
-    }
-    // Navigate to course + references tab, opening the source HTML file.
-    // Pass the knowledgeEntry so CoursePage can show a knowledge card viewer.
-    return {
-      page:           result.courseId,
-      courseId:       result.courseId,
-      tab:            "references",
-      file:           result.file,
-      knowledgeEntry: result.entry,
-    };
-  }
+
   return null;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { DEPARTMENTS } from "../data/subjects";
-import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult, buildReferenceIndex, searchReferenceIndex, searchKnowledgeIndex, buildRefTextIndex, searchRefTextIndex } from "../search";
+import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult, buildReferenceIndex, searchReferenceIndex, buildRefTextIndex, searchRefTextIndex } from "../search";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -22,9 +22,9 @@ function HighlightSnippet({ text, query }) {
   return <>{parts}</>;
 }
 
-export default function HomePage({ goTo, openUpload }) {
-  const [query, setQuery]         = useState("");
-  const [results, setResults]     = useState([]);
+export default function HomePage({ goTo, openUpload, openInventory, lastSearch, setLastSearch }) {
+  const [query, setQuery]         = useState(lastSearch?.query ?? "");
+  const [results, setResults]     = useState(lastSearch?.results ?? []);
   const [index, setIndex]         = useState(null);
   const [pdfIdx, setPdfIdx]       = useState(null);
   const [refIdx, setRefIdx]       = useState(null);
@@ -61,18 +61,17 @@ export default function HomePage({ goTo, openUpload }) {
     setQuery(q);
     clearTimeout(debounce.current);
     if (q.trim().length < 2) { setResults([]); return; }
-    debounce.current = setTimeout(async () => {
+    debounce.current = setTimeout(() => {
       setLoading(true);
       const text  = index      ? searchTextIndex(index, q)           : [];
       const pdfs  = pdfIdx     ? searchPdfIndex(pdfIdx, q)           : [];
       // Full-text reference search if index is ready, otherwise fall back to label search
       const refs  = refTextIdx ? searchRefTextIndex(refTextIdx, q)
                                : refIdx ? searchReferenceIndex(refIdx, q) : [];
-      const know  = await searchKnowledgeIndex(q);
       // Deduplicate refs by file (full-text may overlap with label results)
       const seen  = new Set();
       const deduped = refs.filter(r => { if (seen.has(r.file)) return false; seen.add(r.file); return true; });
-      setResults([...text, ...deduped, ...know, ...pdfs].slice(0, 30));
+      setResults([...deduped, ...pdfs, ...text].slice(0, 30));
       setLoading(false);
     }, 200);
   }
@@ -81,6 +80,7 @@ export default function HomePage({ goTo, openUpload }) {
     const dest = resolveResult(r);
     if (!dest) return;
     const q = query;
+    setLastSearch?.({ query: q, results });
     setQuery("");
     setResults([]);
     if (dest.page === "talk2me") { goTo("talk2me"); return; }
@@ -89,7 +89,7 @@ export default function HomePage({ goTo, openUpload }) {
     goTo(dest.page, dest.courseId, { ...dest, query: q, _ts: Date.now() });
   }
 
-  const typeColor = { note: "#4ecdc4", code: "#e8c547", pdf: "#e85454", talk2me: "#a78bfa", reference: "#fb923c", knowledge: "#a78bfa" };
+  const typeColor = { note: "#4ecdc4", code: "#e8c547", pdf: "#e85454", talk2me: "#a78bfa", reference: "#fb923c" };
 
   return (
     <div style={{
@@ -134,6 +134,7 @@ export default function HomePage({ goTo, openUpload }) {
               }}
             />
             {!isMobile && (
+            <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={() => openUpload?.()}
               style={{
@@ -149,6 +150,22 @@ export default function HomePage({ goTo, openUpload }) {
             >
               ⊕ Add Files
             </button>
+            <button
+              onClick={() => openInventory?.()}
+              style={{
+                background: "none", border: "1px solid #2a2e38", borderRadius: 7,
+                color: "#7a8090", fontSize: 11, fontFamily: FONT, fontWeight: 600,
+                letterSpacing: "1.5px", textTransform: "uppercase",
+                padding: "6px 14px", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6,
+                transition: "all 0.15s", whiteSpace: "nowrap",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "#4ecdc4"; e.currentTarget.style.color = "#4ecdc4"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.color = "#7a8090"; }}
+            >
+              ⎘ Files
+            </button>
+            </div>
             )}
           </div>
 
@@ -239,12 +256,13 @@ export default function HomePage({ goTo, openUpload }) {
           ))}
         </div>
 
-        {/* Mobile: Add Files below dept cards */}
+        {/* Mobile: Add Files + Files below dept cards */}
         {isMobile && (
+          <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
           <button
             onClick={() => openUpload?.()}
             style={{
-              marginTop: 20, width: "100%",
+              flex: 1,
               background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 10,
               color: "#7a8090", fontSize: 13, fontFamily: FONT, fontWeight: 600,
               padding: "14px 0", cursor: "pointer",
@@ -253,6 +271,19 @@ export default function HomePage({ goTo, openUpload }) {
           >
             ⊕ Add Files
           </button>
+          <button
+            onClick={() => openInventory?.()}
+            style={{
+              flex: 1,
+              background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 10,
+              color: "#7a8090", fontSize: 13, fontFamily: FONT, fontWeight: 600,
+              padding: "14px 0", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}
+          >
+            ⎘ Files
+          </button>
+          </div>
         )}
 
       </div>

@@ -3,7 +3,6 @@ import { getCourse } from "../data/subjects";
 import { FLASHCARD_SETS } from "../data/flashcards";
 import MarkdownViewer  from "../components/MarkdownViewer";
 import CodeViewer      from "../components/CodeViewer";
-import HtmlViewer      from "../components/HtmlViewer";
 import PDFViewer       from "../components/PDFViewer";
 import ReferenceViewer from "../components/ReferenceViewer";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -26,12 +25,17 @@ function flattenItems(items) {
 }
 
 // ── PrevNextBar ───────────────────────────────────────────────────────────────
-function PrevNextBar({ flat, activeFile, onPrev, onNext, isMobile }) {
-  if (!flat || flat.length <= 1) return null;
-  const flatIdx = flat.findIndex(r => r.file === activeFile);
-  if (flatIdx === -1) return null;
+function PrevNextBar({ flat, activeFile, onPrev, onNext, isMobile, onBackToList }) {
+  const flatIdx = flat ? flat.findIndex(r => r.file === activeFile) : -1;
   const hasPrev = flatIdx > 0;
-  const hasNext = flatIdx < flat.length - 1;
+  const hasNext = flat && flatIdx < flat.length - 1;
+  const multiFile = flat && flat.length > 1;
+
+  // On mobile: always render (for the back-to-list button).
+  // On desktop: only render when there are multiple files.
+  if (!isMobile && !multiFile) return null;
+  if (flatIdx === -1 && !isMobile) return null;
+
   const btn = (enabled, onClick, label) => (
     <button onClick={() => enabled && onClick()} disabled={!enabled}
       style={{ background: "none", border: "none", cursor: enabled ? "pointer" : "default",
@@ -44,16 +48,27 @@ function PrevNextBar({ flat, activeFile, onPrev, onNext, isMobile }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8,
       padding: "5px 14px", background: "#161920",
       borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
-      {btn(hasPrev, onPrev, "← prev")}
-      <span style={{ color: "#4a5060", fontSize: 11, fontFamily: FONT, fontWeight: 500 }}>
-        {flatIdx + 1} / {flat.length}
-      </span>
+      {isMobile && onBackToList && (
+        <button onClick={onBackToList}
+          style={{ background: "none", border: "none", cursor: "pointer",
+            color: "#7a8090", fontSize: 13, fontFamily: FONT, padding: "0 4px",
+            fontWeight: 700, marginRight: 2 }}
+          onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
+          onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}
+        >«</button>
+      )}
+      {multiFile && btn(hasPrev, onPrev, "← prev")}
+      {flatIdx !== -1 && (
+        <span style={{ color: "#4a5060", fontSize: 11, fontFamily: FONT, fontWeight: 500 }}>
+          {multiFile ? `${flatIdx + 1} / ${flat.length}` : ""}
+        </span>
+      )}
       <span style={{ color: "#7a8090", fontSize: 11, fontFamily: FONT, fontWeight: 500,
-        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        maxWidth: isMobile ? "120px" : "300px" }}>
-        {flat[flatIdx]?.label}
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1,
+        maxWidth: isMobile ? "160px" : "300px" }}>
+        {flat?.[flatIdx]?.label || activeFile?.split("/").pop() || ""}
       </span>
-      {btn(hasNext, onNext, "next →")}
+      {multiFile && btn(hasNext, onNext, "next →")}
     </div>
   );
 }
@@ -94,7 +109,7 @@ function IframeWithLoader({ src, title, visible }) {
   );
 }
 
-export default function CoursePage({ courseId, dest, onBack }) {
+export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   const course = getCourse(courseId);
   if (!course) return null;
 
@@ -116,7 +131,8 @@ export default function CoursePage({ courseId, dest, onBack }) {
   const [collapsed,    setCollapsed]    = useState({});
   const [flipped,      setFlipped]      = useState(false);
   const [cardIdx,      setCardIdx]      = useState(0);
-  const [knowledgeEntry, setKnowledgeEntry] = useState(dest?.knowledgeEntry || null);
+  const [sidebarOpen,  setSidebarOpen]  = useState(true);
+
   const isMobile                        = useIsMobile();
   // If arriving from search with a specific file, go straight to content on mobile
   const [showList,     setShowList]     = useState(!(isMobile && dest?.file));
@@ -137,7 +153,6 @@ export default function CoursePage({ courseId, dest, onBack }) {
     if (dest.file)  { setActiveFile(dest.file); visitedFiles.current.add(dest.file); }
     if (dest.tab === "code") setCodeHighlight(dest.query || null);
     else setCodeHighlight(null);
-    setKnowledgeEntry(dest.knowledgeEntry || null);
     destPdfFile.current = dest.file    || null;
     destPdfPage.current = dest.pdfPage || null;
     // On mobile, jump straight to content when navigating from search
@@ -151,12 +166,13 @@ export default function CoursePage({ courseId, dest, onBack }) {
   function switchTab(id) {
     setTab(id);
     setCollapsed({});
-    const items = id === "code" ? course.code : course[id];
+    const items = id === "code" ? course.code : (course[id] ?? []);
     const flat  = flattenItems(items);
     const firstKey = flat?.[0]?.[id === "code" ? "path" : "file"] || null;
     setActiveFile(firstKey);
     setFlipped(false);
     setCardIdx(0);
+    if (isMobile) setShowList(true);
   }
 
   function FileList({ items, pathKey = "file" }) {
@@ -184,7 +200,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
     const visibleItems = filteredItems();
 
     return (
-      <div style={{ width: 220, flexShrink: 0, borderRight: "1px solid #2a2e38", overflowY: "auto", display: "flex", flexDirection: "column", background: "#161920" }}>
+      <div style={{ width: 220, flexShrink: 0, borderRight: "1px solid #2a2e38", overflowY: "auto", display: "flex", flexDirection: "column", background: "#161920", position: "relative" }}>
         {(tab === "references" || tab === "gopal") && (
           <div style={{ padding: "10px 10px 6px", flexShrink: 0, borderBottom: "1px solid #1e2230" }}>
             <input
@@ -205,67 +221,80 @@ export default function CoursePage({ courseId, dest, onBack }) {
         {visibleItems.map((item, i) => {
 
           if (item.type === "group") {
-            const isOpen = collapsed[item.label] === true;
+            const isOpen   = collapsed[item.label] === true;
+            const groupKey = `group:${item.label}`;
             return (
               <div key={i}>
-                <button
-                  onClick={() => setCollapsed(c => ({ ...c, [item.label]: !isOpen }))}
-                  style={{
-                    width: "100%", padding: "7px 16px 7px 12px",
-                    background: "transparent", border: "none",
-                    borderTop: i !== 0 ? "1px solid #1e2230" : "none",
-                    borderBottom: "1px solid #1e2230",
-                    color: course.color, fontSize: 10, fontFamily: FONT, fontWeight: 700,
-                    cursor: "pointer", textAlign: "left", letterSpacing: "1.5px",
-                    textTransform: "uppercase",
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                  }}
-                >
-                  {item.label}
-                  <span style={{ fontSize: 9, color: "#7a8090", marginLeft: 4 }}>{isOpen ? "▾" : "▸"}</span>
-                </button>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <button
+                    onClick={() => setCollapsed(c => ({ ...c, [item.label]: !isOpen }))}
+                    style={{
+                      flex: 1, padding: "7px 8px 7px 12px",
+                      background: "transparent", border: "none",
+                      borderTop: i !== 0 ? "1px solid #1e2230" : "none",
+                      borderBottom: "1px solid #1e2230",
+                      color: course.color, fontSize: 10, fontFamily: FONT, fontWeight: 700,
+                      cursor: "pointer", textAlign: "left", letterSpacing: "1.5px",
+                      textTransform: "uppercase",
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                    }}
+                  >
+                    {item.label}
+                    <span style={{ fontSize: 9, color: "#7a8090", marginLeft: 4 }}>{isOpen ? "▾" : "▸"}</span>
+                  </button>
+                </div>
                 {isOpen && item.children.map((child, j) => {
-                  const key = child[pathKey] || child.path || child.file;
+                  const key      = child[pathKey] || child.path || child.file;
                   const isActive = activeFile === key;
                   return (
-                    <button key={j} onClick={() => { setActiveFile(key); setCodeHighlight(null); setKnowledgeEntry(null); if (isMobile) setShowList(false); }} style={{
-                      width: "100%", padding: "9px 16px 9px 24px",
-                      background: isActive ? "#21252e" : "transparent",
-                      border: "none",
-                      borderLeft: `2px solid ${isActive ? course.color : "transparent"}`,
-                      color: isActive ? "#d4d8e0" : "#8a90a0",
-                      fontSize: 13, fontFamily: FONT, fontWeight: isActive ? 600 : 500,
-                      cursor: "pointer", textAlign: "left", transition: "all 0.1s",
-                    }}
-                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "#b0b8c8"; }}
-                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "#8a90a0"; }}
+                    <div
+                      key={j}
+                      style={{ display: "flex", alignItems: "center" }}
                     >
-                      {query && <span style={{ fontSize: 10, color: "#4a5060", fontWeight: 600, marginRight: 5, letterSpacing: "0.5px" }}>{item.label} /</span>}
-                      {child.label}
-                    </button>
+                      <button onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
+                        flex: 1, padding: "9px 8px 9px 24px",
+                        background: isActive ? "#21252e" : "transparent",
+                        border: "none",
+                        borderLeft: `2px solid ${isActive ? course.color : "transparent"}`,
+                        color: isActive ? "#d4d8e0" : "#8a90a0",
+                        fontSize: 13, fontFamily: FONT, fontWeight: isActive ? 600 : 500,
+                        cursor: "pointer", textAlign: "left", transition: "all 0.1s",
+                      }}
+                        onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "#b0b8c8"; }}
+                        onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "#8a90a0"; }}
+                      >
+                        {query && <span style={{ fontSize: 10, color: "#4a5060", fontWeight: 600, marginRight: 5, letterSpacing: "0.5px" }}>{item.label} /</span>}
+                        {child.label}
+                      </button>
+                    </div>
                   );
                 })}
               </div>
             );
           }
 
-          const key = item[pathKey] || item.path || item.file;
+          const key      = item[pathKey] || item.path || item.file;
           const isActive = activeFile === key;
           return (
-            <button key={i} onClick={() => { setActiveFile(key); setCodeHighlight(null); setKnowledgeEntry(null); if (isMobile) setShowList(false); }} style={{
-              width: "100%", padding: "10px 16px",
-              background: isActive ? "#21252e" : "transparent",
-              border: "none",
-              borderLeft: `2px solid ${isActive ? course.color : "transparent"}`,
-              color: isActive ? "#d4d8e0" : "#8a90a0",
-              fontSize: 13, fontFamily: FONT, fontWeight: isActive ? 600 : 500,
-              cursor: "pointer", textAlign: "left", transition: "all 0.1s",
-            }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "#b0b8c8"; }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "#8a90a0"; }}
+            <div
+              key={i}
+              style={{ display: "flex", alignItems: "center" }}
             >
-              {item.label}
-            </button>
+              <button onClick={() => { setActiveFile(key); setCodeHighlight(null); if (isMobile) setShowList(false); }} style={{
+                flex: 1, padding: "10px 8px 10px 16px",
+                background: isActive ? "#21252e" : "transparent",
+                border: "none",
+                borderLeft: `2px solid ${isActive ? course.color : "transparent"}`,
+                color: isActive ? "#d4d8e0" : "#8a90a0",
+                fontSize: 13, fontFamily: FONT, fontWeight: isActive ? 600 : 500,
+                cursor: "pointer", textAlign: "left", transition: "all 0.1s",
+              }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "#b0b8c8"; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "#8a90a0"; }}
+              >
+                {item.label}
+              </button>
+            </div>
           );
         })}
         </div>
@@ -273,7 +302,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
     );
   }
 
-  function Viewer() {
+  function Viewer(onBackToList = null) {
     if (!activeFile) return (
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontFamily: FONT, fontSize: 14, fontWeight: 500 }}>
         select a file
@@ -287,112 +316,45 @@ export default function CoursePage({ courseId, dest, onBack }) {
       const hasPrev  = flatIdx > 0;
       const hasNext  = flatIdx < flat.length - 1;
 
-      // All reference pages render natively via ReferenceViewer — no iframes.
-      // This eliminates the Google Fonts spinner and enables full-text search highlight.
-      const nativeItems = flat.filter(r => r.type === "iframe");
-      const iframeItems = []; // kept for future use, currently empty
-      const htmlItems   = flat.filter(r => r.type !== "iframe");
-
-      const e = knowledgeEntry;
+      // All items (references, gopal, assignments) render via ReferenceViewer.
+      // type:"iframe" = scripted files (DFA sim, DP viz) → srcdoc iframe inside ReferenceViewer
+      // type:"content" = ./content/ assignment HTMLs → fetched via /src/ basePath
+      // everything else = public/references/ pages → default /references basePath
+      const allItems = flat;
 
       return (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-          {/* Knowledge entry card — shown when navigating from a knowledge search result */}
-          {e && (
-            <div style={{
-              background: "#1a1d24",
-              borderBottom: `2px solid #e8c547`,
-              padding: "12px 16px", flexShrink: 0,
-            }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  {/* Header row: symbol + pill tags */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                    <span style={{ fontSize: 10, color: "#e8c547", fontFamily: FONT, fontWeight: 700,
-                      letterSpacing: "0.8px", textTransform: "uppercase" }}>Search result</span>
-                    <span style={{ color: "#2a2e38" }}>·</span>
-                    {e.section && (
-                      <span style={{ fontSize: 10, color: "#7a8090", fontFamily: FONT, fontWeight: 600,
-                        background: "#21252e", borderRadius: 4, padding: "2px 7px", border: "1px solid #2a2e38" }}>
-                        {e.section}{e.subsection ? ` › ${e.subsection}` : ""}
-                      </span>
-                    )}
-                  </div>
-                  {/* Symbol + plain */}
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: "#e8c547" }}>
-                      {e.symbol || e.name}
-                    </span>
-                    {e.plain && e.plain !== (e.symbol || e.name) && (
-                      <span style={{ fontSize: 13, color: "#a0a8b8", fontFamily: FONT }}>— {e.plain}</span>
-                    )}
-                  </div>
-                  {/* Full name / description */}
-                  {e.name && e.name !== e.plain && (
-                    <div style={{ fontSize: 12, color: "#7a8090", fontFamily: FONT, marginTop: 3 }}>{e.name}</div>
-                  )}
-                  {/* Hint to find it */}
-                  <div style={{ fontSize: 11, color: "#4a5060", fontFamily: FONT, marginTop: 6 }}>
-                    ↓ Scroll to <strong style={{ color: "#5a6070" }}>{e.section}</strong> in the reference below
-                  </div>
-                </div>
-                <button onClick={() => setKnowledgeEntry(null)}
-                  style={{ background: "none", border: "none", color: "#4a5060", fontSize: 14,
-                    cursor: "pointer", padding: "2px 4px", lineHeight: 1, flexShrink: 0 }}
-                  onMouseEnter={ev => ev.currentTarget.style.color = "#7a8090"}
-                  onMouseLeave={ev => ev.currentTarget.style.color = "#4a5060"}
-                >✕</button>
-              </div>
-            </div>
-          )}
-
           {/* Prev / Next bar */}
           <PrevNextBar
             flat={flat} activeFile={activeFile} isMobile={isMobile}
-            onPrev={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file); setKnowledgeEntry(null); }}
-            onNext={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file); setKnowledgeEntry(null); }}
+            onBackToList={onBackToList}
+            onPrev={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file); }}
+            onNext={() => { setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file); }}
           />
-          {/* Lazy-load iframes — only for visual/canvas pages in /ds/, /algos/ etc.
-              src is only set when a file is first visited so scroll is preserved. */}
           <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
-            {/* Native ReferenceViewer — structured reference pages */}
-            {nativeItems.map(item => (
-              <div key={item.file} style={{
-                display: item.file === activeFile ? "flex" : "none",
-                position: "absolute", inset: 0, flexDirection: "column",
-              }}>
-                {item.file === activeFile && (
-                  <ReferenceViewer
-                    file={item.file}
-                    color={course.color}
-                    highlight={dest?.query || null}
-                    highlightKey={dest?._ts || null}
-                  />
-                )}
-              </div>
-            ))}
-            {/* Iframe fallback — visual/canvas pages only */}
-            {iframeItems.map(item => {
-              const isActive = item.file === activeFile;
-              if (isActive && !visitedFiles.current.has(item.file)) {
-                visitedFiles.current.add(item.file);
-              }
-              const hasBeenVisited = visitedFiles.current.has(item.file);
+            {allItems.map(item => {
+              const isContent = item.type === "content";
+              // content files live under src/content/ and are served by Vite at /src/content/
+              const basePath  = isContent ? "/src/content" : "/references";
+              const filePath  = isContent ? item.file.replace("./content/", "") : item.file;
               return (
-                <IframeWithLoader
-                  key={item.file}
-                  src={hasBeenVisited ? `${BASE}/${item.file}` : undefined}
-                  title={item.label}
-                  visible={isActive}
-                />
+                <div key={item.file} style={{
+                  display: item.file === activeFile ? "flex" : "none",
+                  position: "absolute", inset: 0, flexDirection: "column",
+                }}>
+                  {item.file === activeFile && (
+                    <ReferenceViewer
+                      file={filePath}
+                      basePath={basePath}
+                      color={course.color}
+                      highlight={dest?.query || null}
+                      highlightKey={dest?._ts || null}
+                    />
+                  )}
+                </div>
               );
             })}
-            {htmlItems.map(item => (
-              <div key={item.file} style={{ display: item.file === activeFile ? "flex" : "none", position: "absolute", inset: 0 }}>
-                <HtmlViewer ref_={{ ...item, color: course.color }} BASE="/references" />
-              </div>
-            ))}
           </div>
         </div>
       );
@@ -403,10 +365,11 @@ export default function CoursePage({ courseId, dest, onBack }) {
       return (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onBackToList={onBackToList}
             onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
             onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
           />
-          <div style={{ flex: 1, overflowY: "auto" }}><CodeViewer filePath={activeFile} highlight={codeHighlight} /></div>
+          <div style={{ flex: 1, overflowY: "auto" }}><CodeViewer filePath={activeFile} highlight={codeHighlight} highlightKey={dest?._ts} /></div>
         </div>
       );
     }
@@ -416,10 +379,11 @@ export default function CoursePage({ courseId, dest, onBack }) {
       return (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onBackToList={onBackToList}
             onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
             onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
           />
-          <PDFViewer file={activeFile} initialPage={page} highlight={dest?.query} />
+          <PDFViewer file={activeFile} initialPage={page} highlight={dest?.query} highlightKey={dest?._ts} />
         </div>
       );
     }
@@ -429,6 +393,7 @@ export default function CoursePage({ courseId, dest, onBack }) {
       return (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <PrevNextBar flat={flat} activeFile={activeFile} isMobile={isMobile}
+            onBackToList={onBackToList}
             onPrev={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) - 1].file)}
             onNext={() => setActiveFile(flat[flat.findIndex(r => r.file === activeFile) + 1].file)}
           />
@@ -481,13 +446,45 @@ export default function CoursePage({ courseId, dest, onBack }) {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 14, padding: isMobile ? "0 12px" : "0 24px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
         {/* On mobile in content view, back arrow goes back to file list */}
-        <button onClick={isMobile && !showList ? () => setShowList(true) : onBack}
+        <button onClick={onBack}
           style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1, transition: "color 0.15s" }}
           onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
           onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}>←</button>
+        {!isMobile && tab !== "flashcards" && (
+          <button onClick={() => setSidebarOpen(o => !o)}
+            style={{
+              background: "#1e2230", border: "1px solid #2a2e38", borderRadius: 5,
+              color: "#7a8090", fontSize: 11, cursor: "pointer",
+              padding: "3px 7px", lineHeight: 1, transition: "all 0.15s",
+              fontFamily: FONT, fontWeight: 700,
+            }}
+            title={sidebarOpen ? "collapse sidebar" : "expand sidebar"}
+            onMouseEnter={e => { e.currentTarget.style.color = "#d4d8e0"; e.currentTarget.style.borderColor = "#4a5060"; }}
+            onMouseLeave={e => { e.currentTarget.style.color = "#7a8090"; e.currentTarget.style.borderColor = "#2a2e38"; }}
+          >{sidebarOpen ? "« hide" : "» show"}</button>
+        )}
         <span style={{ fontSize: 18 }}>{course.icon}</span>
         <span style={{ color: "#d4d8e0", fontSize: isMobile ? 13 : 15, fontWeight: 600, fontFamily: FONT }}>{course.label}</span>
         {course.courseCode && !isMobile && <span style={{ color: "#7a8090", fontSize: 12, fontFamily: FONT, fontWeight: 500 }}>{course.courseCode}</span>}
+        {/* Back-to-search pill — shown when user arrived via search */}
+        {onBackToSearch && dest?.query && (
+          <button
+            onClick={onBackToSearch}
+            title={`Back to search: "${dest.query}"`}
+            style={{
+              background: "#1e2230", border: "1px solid #2a2e38", borderRadius: 20,
+              color: "#e8c547", fontSize: 11, fontFamily: FONT, fontWeight: 600,
+              padding: "3px 10px", cursor: "pointer", display: "flex", alignItems: "center",
+              gap: 5, whiteSpace: "nowrap", flexShrink: 0,
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "#e8c547"; e.currentTarget.style.background = "#252a38"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.background = "#1e2230"; }}
+          >
+            ⌕ {isMobile ? "" : `"${dest.query.length > 18 ? dest.query.slice(0, 18) + "…" : dest.query}"`}
+            {isMobile && <span style={{ color: "#7a8090", fontWeight: 400 }}>back to search</span>}
+          </button>
+        )}
         {/* Tab bar */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 2, overflowX: "auto", maxWidth: isMobile ? "55vw" : "unset" }}>
           {availableTabs.map(t => (
@@ -515,10 +512,39 @@ export default function CoursePage({ courseId, dest, onBack }) {
       <div style={{ flex: 1, display: "flex", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
         {tab === "flashcards" ? <Flashcards /> : (
           <>
-            {(!isMobile || showList) && (
-              <FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} />
+            {/* Mobile: show list OR content. Desktop: show sidebar (maybe collapsed) + content */}
+            {isMobile ? (
+              <>
+                {showList && <FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} />}
+                {!showList && Viewer(() => setShowList(true))}
+              </>
+            ) : (
+              <>
+                {/* Desktop sidebar — always rendered, just collapsed to a thin strip */}
+                {sidebarOpen
+                  ? <FileList items={tab === "code" ? course.code : course[tab]} pathKey={tab === "code" ? "path" : "file"} />
+                  : (
+                    <div
+                      onClick={() => setSidebarOpen(true)}
+                      title="expand sidebar"
+                      style={{
+                        width: 24, flexShrink: 0,
+                        borderRight: "1px solid #2a2e38",
+                        background: "#161920",
+                        cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "background 0.15s",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#21252e"}
+                      onMouseLeave={e => e.currentTarget.style.background = "#161920"}
+                    >
+                      <span style={{ color: "#7a8090", fontSize: 12, fontFamily: FONT, writingMode: "vertical-rl", userSelect: "none", fontWeight: 700 }}>»</span>
+                    </div>
+                  )
+                }
+                {Viewer()}
+              </>
             )}
-            {(!isMobile || !showList) && Viewer()}
           </>
         )}
       </div>

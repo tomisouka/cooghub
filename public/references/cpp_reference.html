@@ -1,54 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>C++ Reference</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0e1014;--surface:#161920;--elevated:#1e222c;--border:#2a2e38;--accent:#60a5fa;--gold:#e8c547;--teal:#4ecdc4;--purple:#a78bfa;--orange:#fb923c;--green:#34d399;--pink:#f472b6;--text:#d4d8e0;--muted:#7a8090}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:500;line-height:1.6;-webkit-font-smoothing:antialiased}
-  header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-  header h1{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700} header h1 span{color:var(--accent)}
-  nav{display:flex;gap:6px;flex-wrap:wrap}
-  nav a{color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;padding:4px 10px;border-radius:6px;border:1px solid transparent;transition:all 0.15s}
-  nav a:hover{color:var(--text);border-color:var(--border);background:var(--elevated)}
-  #search-input{margin-left:auto;background:var(--elevated);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.82rem;padding:6px 12px;outline:none;width:200px}
-  #search-input:focus{border-color:var(--accent)}
-  main{max-width:1200px;margin:0 auto;padding:40px 32px 80px}
-  .section-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin:56px 0 6px}
-  .section-sub{color:var(--muted);font-size:0.88rem;margin-bottom:24px}
-  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:16px}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color 0.15s,transform 0.15s}
-  .card:hover{border-color:var(--card-color,var(--accent));transform:translateY(-2px)}
-  .card-bar{height:4px;background:var(--card-color,var(--accent))}
-  .card-body{padding:16px 18px}
-  .card-label{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--card-color,var(--accent));font-weight:500;letter-spacing:0.5px;margin-bottom:6px}
-  .card-title{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:8px}
-  .card-desc{color:var(--muted);font-size:0.97rem;line-height:1.72}
-  .card-desc strong{color:var(--text)} .card-desc code{font-family:'DM Mono',monospace;background:var(--elevated);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:0.95rem;color:var(--gold)}
-  pre.code-block{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'DM Mono',monospace;font-size:1rem;color:#c8d0e0;line-height:1.9;overflow-x:auto;margin:10px 0}
-  pre.code-block .kw{color:var(--purple)} pre.code-block .ty{color:var(--accent)} pre.code-block .str{color:var(--green)} pre.code-block .cmt{color:#3a4052;font-style:italic} pre.code-block .fn{color:var(--teal)} pre.code-block .num{color:var(--gold)}
-  .timeline{position:relative;padding-left:28px}
-  .timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--accent),var(--purple));opacity:0.4;border-radius:2px}
-  .timeline-item{position:relative;margin-bottom:22px}
-  .timeline-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--dot-color,var(--accent));border:2px solid var(--bg);box-shadow:0 0 0 2px var(--dot-color,var(--accent))}
-  .tl-year{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--dot-color,var(--accent));font-weight:500;letter-spacing:1px;margin-bottom:4px}
-  .tl-title{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
-  .tl-desc{color:var(--muted);font-size:0.97rem;line-height:1.72}
-  .card.hidden,.timeline-item.hidden{display:none}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .card,.timeline-item{animation:fadeIn 0.3s ease both}
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #60a5fa;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+/* ── Layout ── */
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.sidebar-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Timeline ── */
+.tl-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.timeline {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 18px;
+  cursor: default;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -18px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--dot);
+  transition: transform 0.15s;
+}
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--dot);
+  margin-bottom: 2px;
+}
+.tl-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tl-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Sources ── */
+.src-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.src-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.src-card:hover { border-color: var(--accent); }
+.src-card span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.src-card small {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  outline: none;
+  width: 180px;
+}
+#search-input:focus { border-color: var(--accent); }
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 80px;
+}
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Content sections ── */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 48px 0 6px;
+  letter-spacing: -0.3px;
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--card-color, var(--accent));
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code {
+  font-family: 'DM Mono', monospace;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+  color: #e8c547;
+}
+pre.code-block {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: #c8d0e0;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
 </style>
 </head>
 <body>
-<header>
-  <h1>C++ <span>Reference</span></h1>
-  <nav><a href="#memory">Memory</a><a href="#oop">OOP</a><a href="#stl">STL</a><a href="#modern">Modern C++</a><a href="#gotchas">Gotchas</a><a href="#history">History</a></nav>
-  <input id="search-input" type="text" placeholder="search…" />
-</header>
-<main>
+<div class="layout">
 
+  <!-- ── Sidebar: Timeline + Sources ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>C++ History</h1>
+      <p class="sidebar-subtitle">From Simula to C++23 — 50 years of the language that runs the world</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1967</div>
+          <div class="tl-title">Simula — The Inspiration</div>
+          <div class="tl-desc">Dahl and Nygaard create Simula 67, the first object-oriented language. Introduces classes, objects, and inheritance. Bjarne Stroustrup encounters it as a student and is inspired.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1972</div>
+          <div class="tl-title">C Language (Ritchie)</div>
+          <div class="tl-desc">Dennis Ritchie at Bell Labs creates C for Unix. Fast, portable, low-level. Becomes the lingua franca of systems programming. C++ is built on top of it — nearly all C is valid C++.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1979–1983</div>
+          <div class="tl-title">"C with Classes" → C++</div>
+          <div class="tl-desc">Bjarne Stroustrup at Bell Labs adds Simula-style classes to C. Originally called "C with Classes." Renamed C++ in 1983. First compiler: Cfront, which translated C++ to C.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1998</div>
+          <div class="tl-title">C++98 — First Standard</div>
+          <div class="tl-desc">ISO standardization. Introduced the STL (Standard Template Library) — designed by Alexander Stepanov. Templates, exceptions, RTTI. The language that dominated the 2000s.</div>
+        </div>
+        <div class="tl-item" style="--dot:#7a8090">
+          <div class="tl-year">2003</div>
+          <div class="tl-title">C++03 — Bug Fix Release</div>
+          <div class="tl-desc">Minor fixes to C++98. No major features. The stagnation era — other languages (Java, Python) started winning mindshare.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">2011</div>
+          <div class="tl-title">C++11 — The Renaissance</div>
+          <div class="tl-desc">The biggest change in the language's history. Move semantics, smart pointers, lambdas, auto, range-for, threading. Stroustrup calls it "a different language."</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">2014–2020</div>
+          <div class="tl-title">Continuous Evolution</div>
+          <div class="tl-desc">C++14 (generic lambdas), C++17 (structured bindings, parallel algorithms), C++20 (concepts, ranges, modules, coroutines). Now on a 3-year release cycle.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">2015–present</div>
+          <div class="tl-title">Rust Challenge</div>
+          <div class="tl-desc">Mozilla creates Rust as a memory-safe systems language. NSA and CISA recommend moving away from C/C++ for new systems code. The debate over C++'s future is ongoing.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://www.stroustrup.com/C++.html" target="_blank" rel="noopener">
+        <span>Bjarne Stroustrup — The C++ Programming Language</span>
+        <small>stroustrup.com</small>
+      </a>
+      <a class="src-card" href="https://en.cppreference.com/" target="_blank" rel="noopener">
+        <span>cppreference.com</span>
+        <small>en.cppreference.com</small>
+      </a>
+      <a class="src-card" href="https://isocpp.org/std/the-standard" target="_blank" rel="noopener">
+        <span>ISO C++ Standards</span>
+        <small>isocpp.org</small>
+      </a>
+      <a class="src-card" href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines" target="_blank" rel="noopener">
+        <span>C++ Core Guidelines</span>
+        <small>isocpp.github.io</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main: nav + content ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">C++ Reference</span>
+      <nav>
+        <a href="#memory">Memory</a>
+        <a href="#oop">OOP</a>
+        <a href="#stl">STL</a>
+        <a href="#modern-c">Modern C++</a>
+        <a href="#gotchas">Gotchas</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
 <div id="memory">
   <div class="section-title">Memory Management</div>
   <div class="section-sub">C++ gives you full control — and full responsibility</div>
@@ -173,30 +497,18 @@
     </div></div>
   </div>
 </div>
-
-<div id="history">
-  <div class="section-title">History of C++</div>
-  <div class="section-sub">From Simula to C++23 — 50 years of the language that runs the world</div>
-  <div class="timeline">
-    <div class="timeline-item" style="--dot-color:#7a8090"><div class="tl-year">1967</div><div class="tl-title">Simula — The Inspiration</div><div class="tl-desc">Dahl and Nygaard create Simula 67, the first object-oriented language. Introduces classes, objects, and inheritance. Bjarne Stroustrup encounters it as a student and is inspired.</div></div>
-    <div class="timeline-item" style="--dot-color:#fb923c"><div class="tl-year">1972</div><div class="tl-title">C Language (Ritchie)</div><div class="tl-desc">Dennis Ritchie at Bell Labs creates C for Unix. Fast, portable, low-level. Becomes the lingua franca of systems programming. C++ is built on top of it — nearly all C is valid C++.</div></div>
-    <div class="timeline-item" style="--dot-color:#60a5fa"><div class="tl-year">1979–1983</div><div class="tl-title">"C with Classes" → C++</div><div class="tl-desc">Bjarne Stroustrup at Bell Labs adds Simula-style classes to C. Originally called "C with Classes." Renamed C++ in 1983 (++: increment). First compiler: Cfront, which translated C++ to C.</div></div>
-    <div class="timeline-item" style="--dot-color:#e8c547"><div class="tl-year">1998</div><div class="tl-title">C++98 — First Standard</div><div class="tl-desc">ISO standardization. Introduced the STL (Standard Template Library) — designed by Alexander Stepanov. Templates, exceptions, RTTI. The language that dominated the 2000s.</div></div>
-    <div class="timeline-item" style="--dot-color:#4ecdc4"><div class="tl-year">2003</div><div class="tl-title">C++03 — Bug Fix Release</div><div class="tl-desc">Minor fixes to C++98. No major features. The stagnation era — other languages (Java, Python) started winning mindshare. Criticism of C++ as too complex and unsafe grew.</div></div>
-    <div class="timeline-item" style="--dot-color:#a78bfa"><div class="tl-year">2011</div><div class="tl-title">C++11 — The Renaissance</div><div class="tl-desc">The biggest change in the language's history. Move semantics, smart pointers, lambdas, auto, range-for, threading. Stroustrup calls it "a different language." Revitalized C++ development globally.</div></div>
-    <div class="timeline-item" style="--dot-color:#34d399"><div class="tl-year">2014 / 2017 / 2020</div><div class="tl-title">Continuous Evolution</div><div class="tl-desc">C++14 (generic lambdas, relaxed constexpr), C++17 (structured bindings, parallel algorithms, optional/variant), C++20 (concepts, ranges, modules, coroutines). Now on a 3-year release cycle. C++23 adds more standard library quality-of-life features.</div></div>
-    <div class="timeline-item" style="--dot-color:#f472b6"><div class="tl-year">2015–present</div><div class="tl-title">Rust Challenge</div><div class="tl-desc">Mozilla creates Rust as a memory-safe systems language. NSA, CISA, and White House recommend moving away from C/C++ for new systems code. C++ community responds with profiles and safety guidelines. The debate over C++'s future is ongoing.</div></div>
+    </div>
   </div>
-</div>
 
-</main>
+</div>
 <script>
   const input = document.getElementById('search-input');
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    document.querySelectorAll('.card, .timeline-item').forEach(el => {
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
       el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
     });
   });
 </script>
-</body></html>
+</body>
+</html>

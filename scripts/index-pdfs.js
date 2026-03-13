@@ -14,6 +14,12 @@ const ROOT      = resolve(__dirname, "..");
 const PDF_DIR   = join(ROOT, "public", "pdfs");
 const OUT_FILE  = join(ROOT, "public", "pdf-index.json");
 
+const COURSE_IDS = [
+  "datastruct", "algos", "automata", "cpp", "comporg", "python",
+  "algebra", "precalc", "calc1", "calc2", "discrete", "linear", "stats",
+];
+
+// Fallback hardcoded maps for existing files with non-obvious names
 const PDF_COURSE_MAP = {
   "zybookdsa.pdf":           "datastruct",
   "algos_gopalbook_v2.pdf":  "algos",
@@ -47,6 +53,22 @@ const PDF_LABEL_MAP = {
   "lineartextbook.pdf":      "Linear Algebra Textbook",
   "stats-alllectures.pdf":   "All Lectures",
 };
+
+function detectCourse(filename) {
+  if (PDF_COURSE_MAP[filename]) return PDF_COURSE_MAP[filename];
+  const lower = filename.toLowerCase();
+  return COURSE_IDS.find(id => lower.includes(id)) ?? "unknown";
+}
+
+function makeLabel(filename) {
+  if (PDF_LABEL_MAP[filename]) return PDF_LABEL_MAP[filename];
+  // "Algos_Gopal_intro_exam.pdf" → "Gopal Intro Exam"
+  const noExt  = filename.replace(/\.[^.]+$/, "");
+  const words  = noExt.replace(/[_\-]+/g, " ").trim().split(/\s+/);
+  const course = detectCourse(filename);
+  const filtered = words[0].toLowerCase() === course ? words.slice(1) : words;
+  return filtered.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || noExt;
+}
 
 let pdfjsLib = null;
 async function getPdfjs() {
@@ -96,7 +118,8 @@ async function main() {
   }
 
   // ── Skip if index is already newer than all PDFs ─────────────────
-  if (existsSync(OUT_FILE)) {
+  const force = process.argv.includes("--force") || process.env.FORCE_REINDEX === "1";
+  if (!force && existsSync(OUT_FILE)) {
     const indexTime = (await stat(OUT_FILE)).mtimeMs;
     const pdfTimes  = await Promise.all(files.map(f => stat(join(PDF_DIR, f)).then(s => s.mtimeMs)));
     const newestPdf = Math.max(...pdfTimes);
@@ -112,8 +135,8 @@ async function main() {
   const indexed = [];
 
   for (const file of files) {
-    const course = PDF_COURSE_MAP[file] || "unknown";
-    const label  = PDF_LABEL_MAP[file]  || file;
+    const course = detectCourse(file);
+    const label  = makeLabel(file);
     process.stdout.write(`   ${file} ... `);
     try {
       const { total, pages } = await extractPages(join(PDF_DIR, file));

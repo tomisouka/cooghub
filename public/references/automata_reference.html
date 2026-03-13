@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automata — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #4ecdc4;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+.sidebar {
+  width: 300px; min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header { padding: 20px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sidebar-header h1 { font-family:'Fraunces',serif; font-size:1.2rem; font-weight:700; color:var(--accent); margin-bottom:4px; }
+.sidebar-subtitle { color:var(--muted); font-size:0.78rem; line-height:1.5; }
+.sidebar-scroll { flex:1; overflow-y:auto; padding:20px; }
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+.tl-label, .src-label {
+  font-family:'DM Mono',monospace; font-size:0.68rem; font-weight:500;
+  letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; margin-bottom:14px;
+}
+.src-label { margin-top:28px; margin-bottom:10px; }
+
+.timeline { position:relative; padding-left:22px; margin-bottom:8px; }
+.timeline::before {
+  content:''; position:absolute; left:5px; top:6px; bottom:6px;
+  width:2px; background:linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius:2px; opacity:0.4;
+}
+.tl-item { position:relative; margin-bottom:18px; }
+.tl-item::before {
+  content:''; position:absolute; left:-18px; top:5px;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--dot); border:2px solid var(--bg);
+  box-shadow:0 0 0 2px var(--dot); transition:transform 0.15s;
+}
+.tl-item:hover::before { transform:scale(1.3); }
+.tl-year { font-family:'DM Mono',monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.5px; color:var(--dot); margin-bottom:2px; }
+.tl-title { font-size:0.88rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+.tl-desc { font-size:0.82rem; color:var(--muted); line-height:1.6; }
+
+.src-card {
+  background:var(--elevated); border:1px solid var(--border); border-radius:8px;
+  padding:10px 12px; margin-bottom:8px; transition:border-color 0.15s;
+  text-decoration:none; display:block;
+}
+.src-card:hover { border-color:var(--accent); }
+.src-card span { color:var(--text); font-size:0.82rem; font-weight:600; display:block; margin-bottom:2px; }
+.src-card small { color:var(--muted); font-family:'DM Mono',monospace; font-size:0.7rem; }
+
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.topbar {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:10px 24px; display:flex; align-items:center; gap:12px; flex-shrink:0;
+}
+.topbar-title { font-family:'Fraunces',serif; font-size:0.95rem; font-weight:700; color:var(--text); margin-right:8px; }
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color:var(--muted); font-size:0.75rem; font-weight:600; text-decoration:none;
+  padding:4px 10px; border-radius:6px; border:1px solid transparent; transition:all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left:auto; background:var(--elevated); border:1px solid var(--border);
+  border-radius:7px; color:var(--text); font-family:'Inter',sans-serif;
+  font-size:0.8rem; padding:5px 11px; outline:none; width:180px;
+}
+#search-input:focus { border-color:var(--accent); }
+
+.content-scroll { flex:1; overflow-y:auto; padding:32px 32px 80px; }
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+.section-title { font-family:'Fraunces',serif; font-size:1.4rem; font-weight:700; margin:48px 0 6px; letter-spacing:-0.3px; }
+.section-title:first-child { margin-top:0; }
+.section-sub { color:var(--muted); font-size:0.86rem; margin-bottom:22px; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-bottom:14px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:border-color 0.15s,transform 0.15s; }
+.card:hover { border-color:var(--card-color,var(--accent)); transform:translateY(-2px); }
+.card-bar { height:3px; background:var(--card-color,var(--accent)); }
+.card-body { padding:14px 16px; }
+.card-label { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--card-color,var(--accent)); font-weight:500; letter-spacing:0.5px; margin-bottom:5px; }
+.card-title { font-weight:700; font-size:0.95rem; color:var(--text); margin-bottom:7px; }
+.card-desc { color:var(--muted); font-size:0.92rem; line-height:1.7; }
+.card-desc strong { color:var(--text); }
+.card-desc code { font-family:'DM Mono',monospace; background:var(--elevated); border:1px solid var(--border); border-radius:4px; padding:1px 5px; font-size:0.9rem; color:#e8c547; }
+pre.code-block { background:var(--elevated); border:1px solid var(--border); border-radius:8px; padding:14px 16px; font-family:'DM Mono',monospace; font-size:0.9rem; color:#c8d0e0; line-height:1.8; overflow-x:auto; margin:10px 0; }
+
+.card.hidden { display:none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation:fadeIn 0.25s ease both; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Automata History</h1>
+      <p class="sidebar-subtitle">From Turing's theoretical machines to the compilers running your code</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1936</div>
+          <div class="tl-title">Turing Machine</div>
+          <div class="tl-desc">Alan Turing publishes "On Computable Numbers." Defines a theoretical machine that can simulate any algorithm. Establishes the limits of computation — the Halting Problem proves some questions are undecidable.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1943</div>
+          <div class="tl-title">McCulloch-Pitts Neurons</div>
+          <div class="tl-desc">Warren McCulloch and Walter Pitts model the neuron as a binary threshold device — an early finite automaton. First formal model of a neural network and a precursor to FSM theory.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1951</div>
+          <div class="tl-title">Finite Automata (Kleene)</div>
+          <div class="tl-desc">Stephen Kleene formalizes finite automata and introduces regular expressions — the notation we still use today. Kleene's theorem: regular languages = languages accepted by finite automata = languages described by regex.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1956</div>
+          <div class="tl-title">Chomsky Hierarchy</div>
+          <div class="tl-desc">Noam Chomsky publishes "Three Models for the Description of Language." Establishes the four-level grammar hierarchy: regular → context-free → context-sensitive → recursively enumerable. Still the organizing framework for language theory.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1959</div>
+          <div class="tl-title">NFAs & Subset Construction</div>
+          <div class="tl-desc">Rabin and Scott prove that nondeterministic finite automata (NFAs) are equivalent in power to DFAs. The subset construction algorithm converts any NFA to an equivalent DFA — exponential in the worst case but always finite.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">1961</div>
+          <div class="tl-title">Pushdown Automata</div>
+          <div class="tl-desc">Oettinger and Chomsky independently connect pushdown automata to context-free grammars. PDAs add a stack to finite automata — enough power to recognize nested structures like balanced parentheses and arithmetic expressions.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">1965</div>
+          <div class="tl-title">Pumping Lemma</div>
+          <div class="tl-desc">Bar-Hillel, Perles, and Shamir publish the pumping lemma for context-free languages. Becomes the canonical tool for proving a language is NOT context-free — a rite of passage in every theory of computation course.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1969</div>
+          <div class="tl-title">Cook-Levin & Complexity</div>
+          <div class="tl-desc">Stephen Cook proves SAT is NP-complete (1971). Connects decidability to complexity — not just "can a TM solve it?" but "how efficiently?" P vs NP becomes the central open question in computer science.</div>
+        </div>
+
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1972–present</div>
+          <div class="tl-title">Compilers & Tools</div>
+          <div class="tl-desc">Lex (1975) and Yacc (1975) bring automata theory into practice — DFAs for lexing, CFGs for parsing. Every modern compiler uses these ideas. JFLAP (1990s) makes automata visual and interactive for students.</div>
+        </div>
+
+      </div>
+
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://www.sipser.com/itoc.html" target="_blank" rel="noopener">
+        <span>Introduction to the Theory of Computation — Sipser</span>
+        <small>sipser.com</small>
+      </a>
+      <a class="src-card" href="https://www.jflap.org/" target="_blank" rel="noopener">
+        <span>JFLAP — Automata Visualization Tool</span>
+        <small>jflap.org</small>
+      </a>
+      <a class="src-card" href="https://automata.cs.tu-berlin.de/" target="_blank" rel="noopener">
+        <span>Automata Tutor (interactive)</span>
+        <small>tu-berlin.de</small>
+      </a>
+      <a class="src-card" href="https://regexr.com/" target="_blank" rel="noopener">
+        <span>RegExr — Regex Builder & Reference</span>
+        <small>regexr.com</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Automata Theory Reference</span>
+      <nav>
+        <a href="#dfa">DFA</a>
+        <a href="#nfa">NFA</a>
+        <a href="#regex">Regex</a>
+        <a href="#cfg">CFG</a>
+        <a href="#pda">PDA</a>
+        <a href="#tm">Turing Machines</a>
+        <a href="#decidability">Decidability</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+
+      <!-- DFA -->
+      <div id="dfa">
+        <div class="section-title">Deterministic Finite Automata</div>
+        <div class="section-sub">Exactly one transition per symbol — the simplest machine that can recognize patterns</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Definition</div>
+              <div class="card-title">5-Tuple (Q, Σ, δ, q₀, F)</div>
+              <div class="card-desc"><strong>Q</strong> — finite set of states.<br><strong>Σ</strong> — alphabet (finite set of symbols).<br><strong>δ: Q × Σ → Q</strong> — transition function. Exactly one next state for every (state, symbol) pair.<br><strong>q₀ ∈ Q</strong> — start state.<br><strong>F ⊆ Q</strong> — set of accept states.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#e8c547">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Computation</div>
+              <div class="card-title">How a DFA Processes Input</div>
+              <div class="card-desc">Start in q₀. For each symbol in the input string, follow the transition δ(current, symbol) → next state. After reading all symbols, <strong>accept</strong> if current state ∈ F, <strong>reject</strong> otherwise. DFAs never get stuck — δ is total.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#a78bfa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Regular Languages</div>
+              <div class="card-title">What DFAs Can Recognize</div>
+              <div class="card-desc">A language is <strong>regular</strong> iff some DFA recognizes it. Regular languages are closed under union, concatenation, star (Kleene), complement, and intersection. Proved via product construction or De Morgan's laws.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#34d399">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Pumping Lemma (Regular)</div>
+              <div class="card-title">Proving Non-Regularity</div>
+              <div class="card-desc">If L is regular with pumping length p, then any string s ∈ L with |s| ≥ p can be split into s = xyz where: |xy| ≤ p, |y| ≥ 1, and xy<sup>i</sup>z ∈ L for all i ≥ 0.<br><br>To prove non-regular: pick s cleverly, show no valid split exists. Classic: <code>0ⁿ1ⁿ</code> is not regular.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NFA -->
+      <div id="nfa">
+        <div class="section-title">Nondeterministic Finite Automata</div>
+        <div class="section-sub">Multiple possible transitions — same power as DFAs, easier to design</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#60a5fa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Definition</div>
+              <div class="card-title">5-Tuple with Power Set</div>
+              <div class="card-desc">Like a DFA but δ: Q × Σ<sub>ε</sub> → 𝒫(Q). Each (state, symbol) maps to a <strong>set</strong> of next states (possibly empty). ε-transitions allowed — move without consuming input. An NFA accepts if <em>any</em> computation path reaches an accept state.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#fb923c">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Subset Construction</div>
+              <div class="card-title">NFA → DFA Conversion</div>
+              <div class="card-desc">Each DFA state = a <em>set</em> of NFA states. Start state = ε-closure(q₀). For each set S and symbol a: compute ε-closure(⋃<sub>q∈S</sub> δ(q,a)). DFA accepts if any NFA accept state is in the subset. Worst case: 2<sup>|Q|</sup> DFA states.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#f472b6">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">ε-Closure</div>
+              <div class="card-title">Following ε-Transitions</div>
+              <div class="card-desc">ε-closure(q) = all states reachable from q by following zero or more ε-transitions. Essential for subset construction. Computed via BFS/DFS on ε-edges.<br><br>ε-transitions make NFA design cleaner — they don't add expressive power but allow modular construction.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Equivalence</div>
+              <div class="card-title">NFA = DFA in Power</div>
+              <div class="card-desc">Theorem (Rabin & Scott, 1959): For every NFA there exists an equivalent DFA. Therefore NFAs recognize exactly the regular languages. NFAs are preferred for design; DFAs for implementation and analysis.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regex -->
+      <div id="regex">
+        <div class="section-title">Regular Expressions</div>
+        <div class="section-sub">Algebraic notation for regular languages — equivalent to DFAs and NFAs</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#e8c547">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Base Cases</div>
+              <div class="card-title">Atomic Regular Expressions</div>
+              <div class="card-desc"><code>∅</code> — empty language. No strings.<br><code>ε</code> — language containing only the empty string.<br><code>a</code> (for a ∈ Σ) — language containing only the string "a".<br><br>These three are the atomic building blocks. Everything else is built from them.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Operations</div>
+              <div class="card-title">Union, Concat, Star</div>
+              <div class="card-desc"><strong>R₁ ∪ R₂</strong> — strings in R₁ or R₂ (or both).<br><strong>R₁ ∘ R₂</strong> — strings xy where x ∈ R₁ and y ∈ R₂.<br><strong>R*</strong> — zero or more concatenations of strings from R. Always includes ε.<br><strong>R⁺</strong> = R ∘ R* — one or more. Does not include ε unless R does.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#a78bfa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Kleene's Theorem</div>
+              <div class="card-title">Regex ↔ DFA ↔ NFA</div>
+              <div class="card-desc">A language is regular iff it is described by a regular expression.<br><br><strong>Regex → NFA:</strong> structural induction on the regex (Thompson construction).<br><strong>DFA → Regex:</strong> state elimination (GNFA method) — convert states to transitions labeled with regexes, eliminate states one by one.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#34d399">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Common Patterns</div>
+              <div class="card-title">Useful Regex Idioms</div>
+              <div class="card-desc">Strings starting with 1: <code>1(0∪1)*</code><br>Even number of 0s: build a DFA first, then convert.<br>Strings containing "001": <code>(0∪1)*001(0∪1)*</code><br>At least two consecutive 1s: <code>(0∪1)*11(0∪1)*</code><br>Strings of even length: <code>((0∪1)(0∪1))*</code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CFG -->
+      <div id="cfg">
+        <div class="section-title">Context-Free Grammars</div>
+        <div class="section-sub">One level up from regular — powerful enough to describe nested structures and programming languages</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#fb923c">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Definition</div>
+              <div class="card-title">4-Tuple (V, Σ, R, S)</div>
+              <div class="card-desc"><strong>V</strong> — variables (nonterminals).<br><strong>Σ</strong> — terminals (the actual alphabet).<br><strong>R</strong> — rules of the form A → w where A ∈ V and w ∈ (V ∪ Σ)*.<br><strong>S ∈ V</strong> — start variable.<br><br>A string is in the language if it can be derived from S by applying rules.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#60a5fa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Derivations</div>
+              <div class="card-title">Leftmost & Parse Trees</div>
+              <div class="card-desc">A <strong>derivation</strong> is a sequence S ⇒ w₁ ⇒ w₂ ⇒ … ⇒ w.<br>A <strong>leftmost derivation</strong> always replaces the leftmost variable.<br>A <strong>parse tree</strong> shows the hierarchical structure.<br><strong>Ambiguity:</strong> a grammar is ambiguous if some string has two distinct parse trees — a problem for compilers.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#f472b6">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Chomsky Normal Form</div>
+              <div class="card-title">CNF — Every Rule is A→BC or A→a</div>
+              <div class="card-desc">Every CFG can be converted to CNF. Required for the CYK parsing algorithm (O(n³)).<br><br>Steps: eliminate ε-rules, unit rules, and useless variables, then break long rules into binary. CNF grammars are clean but often much larger than the original.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Pumping Lemma (CFL)</div>
+              <div class="card-title">Proving Non-Context-Freeness</div>
+              <div class="card-desc">For CFL L with pumping length p: any s ∈ L with |s| ≥ p can be split as s = uvxyz where |vy| ≥ 1, |vxy| ≤ p, and uv<sup>i</sup>xy<sup>i</sup>z ∈ L for all i ≥ 0.<br><br>Classic non-CFL: <code>aⁿbⁿcⁿ</code>. The CFL pumping lemma is strictly harder to apply than the regular one.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDA -->
+      <div id="pda">
+        <div class="section-title">Pushdown Automata</div>
+        <div class="section-sub">NFAs with a stack — exactly the machines that recognize context-free languages</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#a78bfa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Definition</div>
+              <div class="card-title">6-Tuple (Q, Σ, Γ, δ, q₀, F)</div>
+              <div class="card-desc"><strong>Q</strong> — states. <strong>Σ</strong> — input alphabet. <strong>Γ</strong> — stack alphabet.<br><strong>δ: Q × Σ<sub>ε</sub> × Γ<sub>ε</sub> → 𝒫(Q × Γ<sub>ε</sub>)</strong> — transitions consume input and pop/push stack symbols.<br><strong>q₀</strong> — start state. <strong>F</strong> — accept states.<br><br>PDAs are nondeterministic by default — deterministic PDAs (DPDAs) are strictly less powerful.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#34d399">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Stack Operations</div>
+              <div class="card-title">Push, Pop, Peek</div>
+              <div class="card-desc">A transition reads (state, input symbol or ε, top of stack or ε) and writes (new state, symbol to push or ε).<br><br><strong>Notation:</strong> a,b→c means "read a from input, pop b from stack, push c."<br>Use a bottom-of-stack marker (e.g. $) to detect empty stack.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#e8c547">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Equivalence</div>
+              <div class="card-title">PDA ↔ CFG</div>
+              <div class="card-desc">Theorem: A language is context-free iff some PDA recognizes it.<br><br><strong>CFG → PDA:</strong> push S, then repeatedly pick a variable on the stack and nondeterministically apply a rule. Match terminals against input.<br><strong>PDA → CFG:</strong> more involved — states become variables in the grammar.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#60a5fa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Classic Example</div>
+              <div class="card-title">Recognizing 0ⁿ1ⁿ</div>
+              <div class="card-desc">Push a marker for each 0. When 1s start, pop a marker for each 1. Accept if stack is empty when input ends.<br><br>This is the canonical example of a language that needs a stack — a DFA can't count arbitrarily deep. The stack provides the "memory" of how many 0s were seen.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Turing Machines -->
+      <div id="tm">
+        <div class="section-title">Turing Machines</div>
+        <div class="section-sub">The most powerful computational model — a finite automaton with an infinite read/write tape</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#e8c547">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Definition</div>
+              <div class="card-title">7-Tuple</div>
+              <div class="card-desc">(Q, Σ, Γ, δ, q₀, q<sub>accept</sub>, q<sub>reject</sub>)<br><br><strong>Γ</strong> — tape alphabet (includes blank ⊔ and all of Σ).<br><strong>δ: Q × Γ → Q × Γ × {L,R}</strong> — read symbol, write symbol, move left or right.<br>Computation halts when it enters q<sub>accept</sub> or q<sub>reject</sub>. May also loop forever.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Church-Turing Thesis</div>
+              <div class="card-title">TMs Capture All Computation</div>
+              <div class="card-desc">Any algorithm that can be computed by any reasonable model of computation can be computed by a Turing Machine. Not a theorem — a philosophical claim. Supported by the equivalence of TMs, lambda calculus, recursive functions, and modern CPUs.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#f472b6">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Variants</div>
+              <div class="card-title">Multi-Tape, Nondeterministic, Enumerators</div>
+              <div class="card-desc"><strong>Multi-tape TM:</strong> multiple tapes and heads — equivalent to single-tape but polynomially faster.<br><strong>Nondeterministic TM:</strong> equivalent in power but exponentially faster in some cases.<br><strong>Enumerator:</strong> prints strings to an output tape — recognizes exactly the Turing-recognizable languages.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#a78bfa">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Decidable vs Recognizable</div>
+              <div class="card-title">The Key Distinction</div>
+              <div class="card-desc">A language is <strong>Turing-decidable</strong> (recursive) if a TM always halts and accepts or rejects. <strong>Turing-recognizable</strong> (recursively enumerable) if a TM accepts all strings in L but may loop on strings not in L.<br><br>Every decidable language is recognizable. The converse is false.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decidability -->
+      <div id="decidability">
+        <div class="section-title">Decidability & Undecidability</div>
+        <div class="section-sub">The hard limits of computation — problems no algorithm can solve</div>
+        <div class="card-grid">
+          <div class="card" style="--card-color:#e85454">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">The Halting Problem</div>
+              <div class="card-title">HALT<sub>TM</sub> is Undecidable</div>
+              <div class="card-desc">There is no TM that decides whether an arbitrary TM M halts on input w.<br><br><strong>Proof (diagonalization):</strong> assume a decider H exists. Build a machine D that runs H on itself and does the opposite. D(D) leads to contradiction. Therefore H cannot exist.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#fb923c">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Reductions</div>
+              <div class="card-title">Proving Undecidability</div>
+              <div class="card-desc">To show problem B is undecidable: reduce a known undecidable problem A to B. If B were decidable, then A would be decidable — contradiction.<br><br>A<sub>TM</sub> = {⟨M,w⟩ | M accepts w} is the canonical undecidable language. Most undecidability proofs reduce from A<sub>TM</sub>.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#e8c547">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Rice's Theorem</div>
+              <div class="card-title">All Non-Trivial Properties are Undecidable</div>
+              <div class="card-desc">Any non-trivial property of the <em>language</em> recognized by a TM is undecidable. Non-trivial = some TMs have it, some don't.<br><br>Consequence: you cannot decide if a TM accepts all strings, accepts any string, accepts a finite language, or recognizes a regular language.</div>
+            </div>
+          </div>
+          <div class="card" style="--card-color:#4ecdc4">
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-label">Complexity Preview</div>
+              <div class="card-title">P, NP, and Beyond</div>
+              <div class="card-desc"><strong>P</strong> — decidable in polynomial time on a deterministic TM.<br><strong>NP</strong> — decidable in polynomial time on a nondeterministic TM (equivalently: solutions verifiable in poly time).<br><strong>NP-complete</strong> — hardest problems in NP. SAT, 3-SAT, Vertex Cover, Subset Sum.<br>P ⊆ NP. Whether P = NP is unsolved.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+</body>
+</html>

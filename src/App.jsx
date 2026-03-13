@@ -1,26 +1,35 @@
 import { useState } from "react";
 
-import Sidebar      from "./components/Sidebar";
-import DropZone     from "./components/DropZone";
-import HomePage     from "./pages/HomePage";
-import DeptPage     from "./pages/DeptPage";
-import CoursePage   from "./pages/CoursePage";
-import Talk2MePage  from "./pages/Talk2MePage";
-import TicketsPage  from "./pages/TicketsPage";
+import Sidebar             from "./components/Sidebar";
+import DropZone            from "./components/DropZone";
+import FileInventoryModal  from "./components/FileInventoryModal";
+import HomePage            from "./pages/HomePage";
+import DeptPage            from "./pages/DeptPage";
+import CoursePage          from "./pages/CoursePage";
+import Talk2MePage         from "./pages/Talk2MePage";
+import TicketsPage         from "./pages/TicketsPage";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { NAV } from "./data/nav";
 
 export default function App() {
-  const [nav, setNav]           = useState("home");
-  const [course, setCourse]     = useState(null);
-  const [dest, setDest]         = useState(null);
-  const [showDrop, setShowDrop] = useState(false);
-  const isMobile                = useIsMobile();
+  const [nav, setNav]               = useState("home");
+  const [course, setCourse]         = useState(null);
+  const [dest, setDest]             = useState(null);
+  const [showDrop, setShowDrop]     = useState(false);
+  const [showInventory, setShowInv] = useState(false);
+  const [lastSearch, setLastSearch] = useState(null); // { query, results }
+  const isMobile                    = useIsMobile();
 
   function goTo(navId, courseId = null, destination = null) {
     setNav(navId);
     setCourse(courseId);
     setDest(destination);
+  }
+
+  function goBackToSearch() {
+    setCourse(null);
+    setDest(null);
+    setNav("home");
   }
 
   function renderPage() {
@@ -30,16 +39,17 @@ export default function App() {
           courseId={course}
           dest={dest}
           onBack={() => { setCourse(null); setDest(null); }}
+          onBackToSearch={lastSearch ? goBackToSearch : null}
         />
       );
     }
     switch (nav) {
-      case "home":    return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} />;
+      case "home":    return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
       case "cosc":    return <DeptPage deptId="cosc" goTo={goTo} dest={dest} />;
       case "math":    return <DeptPage deptId="math" goTo={goTo} dest={dest} />;
-      case "talk2me": return <Talk2MePage />;
+      case "talk2me": return <Talk2MePage dest={dest} />;
       case "tickets": return <TicketsPage />;
-      default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} />;
+      default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
     }
   }
 
@@ -81,7 +91,7 @@ export default function App() {
 
       {/* Desktop: left sidebar */}
       {!isMobile && (
-        <Sidebar active={nav} setActive={(id) => { setCourse(null); setDest(null); setNav(id); }} />
+        <Sidebar active={nav} setActive={(id) => { setCourse(null); setDest(null); setNav(id); if (id !== "home") setLastSearch(null); }} />
       )}
 
       {/* Main content */}
@@ -107,7 +117,7 @@ export default function App() {
           {NAV.map(item => (
             <button
               key={item.id}
-              onClick={() => { setCourse(null); setDest(null); setNav(item.id); }}
+              onClick={() => { setCourse(null); setDest(null); setNav(item.id); if (item.id !== "home") setLastSearch(null); }}
               style={{
                 flex: 1, height: 60, border: "none",
                 background: "transparent",
@@ -131,6 +141,10 @@ export default function App() {
         open={showDrop}
         onOpen={() => setShowDrop(true)}
         onClose={() => setShowDrop(false)}
+      />
+      <FileInventoryModal
+        open={showInventory}
+        onClose={() => setShowInv(false)}
       />
     </div>
   );

@@ -15,6 +15,13 @@ const EXT_ICON = {
   ".h": "⌥", ".js": "⌥", ".ts": "⌥",
 };
 
+function extToTab(e) {
+  if (e === ".pdf") return "pdfs";
+  if (e === ".md" || e === ".txt") return "notes";
+  if ([".cpp", ".py", ".c", ".h", ".js", ".ts"].includes(e)) return "code";
+  return null;
+}
+
 function fmt(bytes) {
   if (bytes < 1024) return `${bytes}b`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}kb`;
@@ -39,22 +46,43 @@ function Badge({ status }) {
   );
 }
 
-function FileRow({ item, idx }) {
-  const e = ext(item.filename);
+function FileRow({ item, idx, groupLabel, onGroupLabel, showGroupInput, suggestions, onRename }) {
+  const e    = ext(item.filename);
   const icon = EXT_ICON[e] || "◌";
-  const dim = item.status === "skip" || item.status === "duplicate";
+  const dim  = item.status === "skip" || item.status === "duplicate";
+  const canGroup  = showGroupInput && (item.status === "ok" || item.status === "conflict");
+  const canRename = showGroupInput && !dim;
+  const [focused,   setFocused]   = useState(false);
+  const [renaming,  setRenaming]  = useState(false);
+  const [draftName, setDraftName] = useState(item.filename);
+
+  const filtered = suggestions?.length && focused
+    ? suggestions.filter(s => !groupLabel || s.toLowerCase().includes(groupLabel.toLowerCase()))
+    : [];
+
+  function submitRename() {
+    const trimmed = draftName.trim();
+    if (trimmed && trimmed !== item.filename) onRename?.(item.filename, trimmed);
+    setRenaming(false);
+  }
+
   return (
     <div style={{
       display: "grid", gridTemplateColumns: "20px 1fr auto auto",
-      gap: "0 14px", alignItems: "center", padding: "9px 16px",
+      gap: "0 14px", alignItems: "start", padding: "9px 16px",
       background: idx % 2 === 0 ? "#111318" : "transparent",
       borderRadius: 6, opacity: dim ? 0.45 : 1,
     }}>
-      <span style={{ color: "#3e4452", fontSize: 13, fontFamily: "'Courier New', monospace" }}>{icon}</span>
+      <span style={{ color: "#3e4452", fontSize: 13, fontFamily: "'Courier New', monospace", paddingTop: 2 }}>{icon}</span>
       <div style={{ minWidth: 0 }}>
+        {/* Filename — shows renamed target if applicable */}
         <div style={{ color: dim ? "#4a5060" : "#d4d8e0", fontSize: 12, fontFamily: "'Courier New', monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {item.filename}
+          {item._renamedFrom && (
+            <span style={{ color: "#3e4452", fontSize: 10, marginLeft: 6 }}>← {item._renamedFrom}</span>
+          )}
         </div>
+
         {(item.reason && item.status !== "ok") && (
           <div style={{ color: "#4a5060", fontSize: 10, marginTop: 2, lineHeight: 1.4 }}>{item.reason}</div>
         )}
@@ -63,8 +91,102 @@ function FileRow({ item, idx }) {
             → {item.courseId}
           </div>
         )}
+
+        {/* Rename row */}
+        {canRename && (
+          <div style={{ marginTop: 5 }}>
+            {renaming ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <input
+                  autoFocus
+                  value={draftName}
+                  onChange={e => setDraftName(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter")  submitRename();
+                    if (e.key === "Escape") { setRenaming(false); setDraftName(item.filename); }
+                  }}
+                  style={{
+                    flex: 1, background: "#0d0f14",
+                    border: "1px solid #e8c547", borderRadius: 5,
+                    color: "#e8c547", fontSize: 10,
+                    fontFamily: "'Courier New', monospace",
+                    padding: "3px 8px", outline: "none",
+                  }}
+                />
+                <button onMouseDown={submitRename}
+                  style={{ background: "none", border: "none", color: "#e8c547", cursor: "pointer", fontSize: 10, fontFamily: "'Courier New', monospace", padding: "2px 6px" }}>
+                  OK
+                </button>
+                <button onMouseDown={() => { setRenaming(false); setDraftName(item.filename); }}
+                  style={{ background: "none", border: "none", color: "#4a5060", cursor: "pointer", fontSize: 12 }}>
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setRenaming(true)}
+                style={{
+                  background: "none", border: "1px solid #2a2e38", borderRadius: 4,
+                  color: "#4a5060", cursor: "pointer", fontSize: 10,
+                  fontFamily: "'Courier New', monospace", padding: "2px 8px",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "#e8c547"; e.currentTarget.style.color = "#e8c547"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.color = "#4a5060"; }}
+              >
+                ✎ rename
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Subsection group input */}
+        {canGroup && (
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={groupLabel || ""}
+              onChange={e => onGroupLabel(item.filename, e.target.value)}
+              placeholder="subsection (optional)"
+              style={{
+                marginTop: 5, width: "100%", boxSizing: "border-box",
+                background: "#0d0f14", border: "1px solid #2a2e38", borderRadius: 5,
+                color: groupLabel ? "#e8c547" : "#7a8090",
+                fontSize: 10, fontFamily: "'Courier New', monospace",
+                padding: "3px 8px", outline: "none",
+                transition: "border-color 0.15s",
+              }}
+              onFocus={e => { e.target.style.borderColor = "#e8c547"; setFocused(true); }}
+              onBlur={e => { e.target.style.borderColor = "#2a2e38"; setFocused(false); }}
+            />
+            {filtered.length > 0 && (
+              <div style={{
+                position: "absolute", top: "100%", left: 0, right: 0, zIndex: 20,
+                background: "#1a1d24", border: "1px solid #2a2e38", borderRadius: 5,
+                marginTop: 2, overflow: "hidden",
+              }}>
+                {filtered.map(s => (
+                  <button
+                    key={s}
+                    onMouseDown={e => { e.preventDefault(); onGroupLabel(item.filename, s); }}
+                    style={{
+                      display: "block", width: "100%", textAlign: "left",
+                      padding: "5px 8px", background: "none", border: "none",
+                      color: "#e8c547", fontSize: 10, fontFamily: "'Courier New', monospace",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#21252e"}
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}
+                  >
+                    ↳ {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      <span style={{ color: "#3e4452", fontSize: 10, fontFamily: "'Courier New', monospace", whiteSpace: "nowrap" }}>{fmt(item.size)}</span>
+      <span style={{ color: "#3e4452", fontSize: 10, fontFamily: "'Courier New', monospace", whiteSpace: "nowrap", paddingTop: 2 }}>{fmt(item.size)}</span>
       <Badge status={item.status} />
     </div>
   );
@@ -94,15 +216,26 @@ function SummaryBar({ summary, needsReindex }) {
 }
 
 export default function DropZone({ open, onOpen, onClose }) {
-  const [phase, setPhase]        = useState("idle");
-  const [dragOver, setDragOver]  = useState(false);
-  const [results, setResults]    = useState(null);
-  const [summary, setSummary]    = useState(null);
-  const [needsReindex, setNeeds] = useState(false);
-  const [errorMsg, setErrorMsg]  = useState("");
-  const [zipName, setZipName]    = useState("");
+  const [phase, setPhase]              = useState("idle");
+  const [dragOver, setDragOver]        = useState(false);
+  const [results, setResults]          = useState(null);
+  const [summary, setSummary]          = useState(null);
+  const [needsReindex, setNeeds]       = useState(false);
+  const [errorMsg, setErrorMsg]        = useState("");
+  const [zipName, setZipName]          = useState("");
+  const [groupLabels, setGroupLabels]           = useState({});
+  const [groupSuggestions, setGroupSuggestions] = useState({});
+  const [renames, setRenames]                   = useState({}); // originalName → newName
+  const [orphans, setOrphans]                   = useState([]);
   const fileRef     = useRef(null);
   const pendingFile = useRef(null);
+
+  // Fetch orphaned (on-disk but unregistered) files on open
+  useEffect(() => {
+    fetch("/api/orphans").then(r => r.json()).then(d => {
+      if (d.orphans?.length) setOrphans(d.orphans);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     function onDragEnter(e) {
@@ -123,30 +256,77 @@ export default function DropZone({ open, onOpen, onClose }) {
   const reset = useCallback(() => {
     setPhase("idle"); setDragOver(false); setResults(null);
     setSummary(null); setNeeds(false); setErrorMsg(""); setZipName("");
+    setGroupLabels({});
+    setGroupSuggestions({});
+    setRenames({});
     pendingFile.current = null;
   }, []);
 
-  async function handleFile(file) {
-    if (!file) return;
-    if (!file.name.endsWith(".zip")) {
-      setErrorMsg("Only .zip files are accepted.");
-      setPhase("error");
-      return;
-    }
-    pendingFile.current = file;
-    setZipName(file.name);
+  function handleRename(originalName, newName) {
+    setRenames(prev => ({ ...prev, [originalName]: newName }));
+    // Show new name in the row with a breadcrumb, but keep original status/courseId
+    // — the real validation happens when APPLY sends the file under the new name.
+    setResults(prev => prev.map(r =>
+      r.filename !== originalName ? r
+        : { ...r, filename: newName, _renamedFrom: r._renamedFrom || originalName }
+    ));
+    setGroupLabels(prev => {
+      if (!prev[originalName]) return prev;
+      const next = { ...prev };
+      next[newName] = next[originalName];
+      delete next[originalName];
+      return next;
+    });
+  }
+
+  async function handleFiles(fileList) {
+    if (!fileList?.length) return;
+    const files = [...fileList];
+
+    // If a single zip, use the existing zip flow
+    const isZip = files.length === 1 && files[0].name.endsWith(".zip");
+
+    pendingFile.current = files;
+    setZipName(files.length === 1 ? files[0].name : `${files.length} files`);
     setPhase("scanning");
     setDragOver(false);
     setErrorMsg("");
+
     try {
-      const form = new FormData();
-      form.append("zip", file);
-      const res  = await fetch("/api/scan", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Scan failed");
+      let data;
+      if (isZip) {
+        const form = new FormData();
+        form.append("zip", files[0]);
+        const res = await fetch("/api/scan", { method: "POST", body: form });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Scan failed");
+      } else {
+        const form = new FormData();
+        files.forEach(f => form.append("files", f));
+        const res = await fetch("/api/scan-files", { method: "POST", body: form });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Scan failed");
+      }
       setResults(data.results.filter(r => r.status !== "skip"));
       setSummary(data.summary);
       setPhase("scanned");
+
+      // Fetch existing group names for each unique courseId+tab combo
+      const combos = new Set();
+      data.results.forEach(r => {
+        if (r.courseId && r.ext) {
+          const tab = extToTab(r.ext);
+          if (tab) combos.add(`${r.courseId}:${tab}`);
+        }
+      });
+      combos.forEach(async key => {
+        const [courseId, tab] = key.split(":");
+        try {
+          const res2 = await fetch(`/api/groups?courseId=${courseId}&tab=${tab}`);
+          const d    = await res2.json();
+          if (d.groups?.length) setGroupSuggestions(prev => ({ ...prev, [key]: d.groups }));
+        } catch {}
+      });
     } catch (err) {
       setErrorMsg(err.message);
       setPhase("error");
@@ -154,14 +334,34 @@ export default function DropZone({ open, onOpen, onClose }) {
   }
 
   async function handleApply() {
-    if (!pendingFile.current) return;
+    if (!pendingFile.current?.length) return;
+    const files = pendingFile.current;
+    const isZip = files.length === 1 && files[0].name.endsWith(".zip");
     setPhase("applying");
     try {
-      const form = new FormData();
-      form.append("zip", pendingFile.current);
-      const res  = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload failed");
+      let data;
+      if (isZip) {
+        const form = new FormData();
+        form.append("zip", files[0]);
+        form.append("groupLabels", JSON.stringify(groupLabels));
+        form.append("renames", JSON.stringify(renames));
+        const res = await fetch("/api/upload", { method: "POST", body: form });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+      } else {
+        const form = new FormData();
+        // Apply renames directly on the File object so the server validates
+        // and saves under the intended name — course detection runs on the new name.
+        files.forEach(f => {
+          const targetName = renames[f.name] || f.name;
+          const fileToSend = targetName !== f.name ? new File([f], targetName, { type: f.type }) : f;
+          form.append("files", fileToSend);
+        });
+        form.append("groupLabels", JSON.stringify(groupLabels));
+        const res = await fetch("/api/upload-files", { method: "POST", body: form });
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+      }
       setResults(data.results.filter(r => r.status !== "skip"));
       setSummary(data.summary);
       setNeeds(data.needsReindex);
@@ -175,8 +375,8 @@ export default function DropZone({ open, onOpen, onClose }) {
   function onDrop(e) {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer?.files[0];
-    if (file) handleFile(file);
+    const files = e.dataTransfer?.files;
+    if (files?.length) handleFiles(files);
   }
 
   function onDragOver(e) {
@@ -185,6 +385,19 @@ export default function DropZone({ open, onOpen, onClose }) {
   }
 
   const canApply = phase === "scanned" && summary && (summary.added + summary.conflicts) > 0;
+
+  // Recompute summary live from current results so renames that flip REJECTED→ok are reflected
+  const liveSummary = results ? {
+    total:      results.length,
+    added:      results.filter(r => r.status === "ok").length,
+    conflicts:  results.filter(r => r.status === "conflict").length,
+    duplicates: results.filter(r => r.status === "duplicate").length,
+    rejected:   results.filter(r => r.status === "rejected" && !renames[r._renamedFrom || r.filename] && !renames[r.filename]).length,
+  } : summary;
+  const liveApplyCount = results
+    ? results.filter(r => r.status === "ok" || r.status === "conflict" || (r.status === "rejected" && (renames[r._renamedFrom || r.filename] || renames[r.filename]))).length
+    : 0;
+  const liveCanApply = phase === "scanned" && liveApplyCount > 0;
 
   if (!open && !dragOver) return null;
 
@@ -205,16 +418,16 @@ export default function DropZone({ open, onOpen, onClose }) {
           <span style={{ fontFamily: "'Courier New', monospace", color: "#e8c547", fontSize: 14 }}>⊕</span>
           <div>
             <div style={{ color: "#d4d8e0", fontSize: 13, fontWeight: 600 }}>
-              {phase === "idle" || phase === "scanning" ? "Drop a zip to add files"
+              {phase === "idle" || phase === "scanning" ? "Drop files to add them"
                : phase === "scanned"  ? `Ready to apply — ${zipName}`
                : phase === "applying" ? "Writing files…"
                : phase === "done"     ? `Done — ${zipName}`
                : "Error"}
             </div>
             <div style={{ color: "#3e4452", fontSize: 10, fontFamily: "'Courier New', monospace", marginTop: 2 }}>
-              {phase === "idle"    ? "PDFs, .md, .cpp, .py, .c — must contain a course ID"
-               : phase === "scanned" && summary ? `${summary.total} files scanned`
-               : phase === "done"    && summary ? `${summary.added + summary.conflicts} written, ${summary.rejected} rejected`
+              {phase === "idle"    ? "zip, pdf, md, cpp, py… — filename must contain a course ID"
+               : phase === "scanned" && liveSummary ? `${liveSummary.total} files scanned`
+               : phase === "done"    && liveSummary ? `${liveSummary.added + liveSummary.conflicts} written, ${liveSummary.rejected} rejected`
                : ""}
             </div>
           </div>
@@ -234,10 +447,62 @@ export default function DropZone({ open, onOpen, onClose }) {
           >
             <span style={{ fontSize: 40, opacity: dragOver ? 1 : 0.4, filter: dragOver ? "drop-shadow(0 0 12px #e8c547)" : "none" }}>⎘</span>
             <div style={{ fontFamily: "'Courier New', monospace", fontSize: 12, color: dragOver ? "#e8c547" : "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>
-              {dragOver ? "Release to scan" : "Drag & drop .zip here"}
+              {dragOver ? "Release to scan" : "Drag & drop files here"}
             </div>
-            <div style={{ color: "#3e4452", fontSize: 11 }}>or click to browse</div>
-            <input ref={fileRef} type="file" accept=".zip" style={{ display: "none" }} onChange={e => handleFile(e.target.files?.[0])} />
+            <div style={{ color: "#3e4452", fontSize: 11 }}>or click to browse — zip, pdf, md, cpp, py, c…</div>
+            <input ref={fileRef} type="file" accept=".zip,.pdf,.md,.txt,.cpp,.py,.c,.h,.js,.ts" multiple style={{ display: "none" }} onChange={e => handleFiles(e.target.files)} />
+          </div>
+        )}
+
+        {/* Hidden files — on disk but not registered */}
+        {phase === "idle" && orphans.length > 0 && (
+          <div style={{ margin: "0 20px 20px", border: "1px solid #2a2e38", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ padding: "8px 16px", background: "#111318", borderBottom: "1px solid #2a2e38", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ color: "#7a8090", fontSize: 10, fontFamily: "'Courier New', monospace", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                ◌ hidden — {orphans.length} file{orphans.length !== 1 ? "s" : ""} on disk, not registered
+              </span>
+            </div>
+            {orphans.map((o, i) => (
+              <div key={i} style={{
+                display: "grid", gridTemplateColumns: "1fr auto auto",
+                gap: "0 12px", alignItems: "center", padding: "8px 16px",
+                background: i % 2 === 0 ? "#111318" : "transparent",
+              }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ color: "#7a8090", fontSize: 12, fontFamily: "'Courier New', monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {o.filename}
+                  </div>
+                  <div style={{ color: "#3e4452", fontSize: 10, fontFamily: "'Courier New', monospace", marginTop: 1 }}>
+                    → {o.courseId} · {fmt(o.size)}
+                  </div>
+                </div>
+                <span style={{ color: "#4a5060", fontSize: 10, fontFamily: "'Courier New', monospace", whiteSpace: "nowrap" }}>not registered</span>
+                <button
+                  onClick={async () => {
+                    try {
+                      const form = new FormData();
+                      // Fetch the file from disk via a blob fetch trick isn't possible server-side,
+                      // so we use a dedicated register endpoint
+                      const res = await fetch("/api/register-orphan", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ filename: o.filename, courseId: o.courseId }),
+                      });
+                      if (res.ok) setOrphans(prev => prev.filter(x => x.filename !== o.filename));
+                    } catch {}
+                  }}
+                  style={{
+                    fontFamily: "'Courier New', monospace", fontSize: 10, padding: "4px 12px",
+                    borderRadius: 5, background: "none", border: "1px solid #2a2e38",
+                    color: "#e8c547", cursor: "pointer", letterSpacing: "1px", whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "#e8c547"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "#2a2e38"}
+                >
+                  REGISTER
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
@@ -259,7 +524,16 @@ export default function DropZone({ open, onOpen, onClose }) {
         {/* Results */}
         {(phase === "scanned" || phase === "done") && results && (
           <div style={{ maxHeight: 340, overflowY: "auto", padding: "8px 4px" }}>
-            {results.map((r, i) => <FileRow key={i} item={r} idx={i} />)}
+            {results.map((r, i) => (
+              <FileRow
+                key={i} item={r} idx={i}
+                showGroupInput={phase === "scanned"}
+                groupLabel={groupLabels[r.filename] || ""}
+                onGroupLabel={(filename, val) => setGroupLabels(prev => ({ ...prev, [filename]: val }))}
+                suggestions={r.courseId && r.ext ? (groupSuggestions[`${r.courseId}:${extToTab(r.ext)}`] || []) : []}
+                onRename={handleRename}
+              />
+            ))}
           </div>
         )}
 
@@ -271,8 +545,8 @@ export default function DropZone({ open, onOpen, onClose }) {
         )}
 
         {/* Summary bar */}
-        {(phase === "scanned" || phase === "done") && summary && (
-          <SummaryBar summary={summary} needsReindex={needsReindex} />
+        {(phase === "scanned" || phase === "done") && liveSummary && (
+          <SummaryBar summary={liveSummary} needsReindex={needsReindex} />
         )}
 
         {/* Actions */}
@@ -288,11 +562,11 @@ export default function DropZone({ open, onOpen, onClose }) {
             </button>
             {phase === "scanned" && (
               <button
-                onClick={handleApply}
-                disabled={!canApply}
-                style={{ fontFamily: "'Courier New', monospace", fontSize: 11, padding: "7px 22px", borderRadius: 7, letterSpacing: "1px", background: canApply ? "#e8c547" : "#2a2e38", border: "none", color: canApply ? "#111318" : "#4a5060", cursor: canApply ? "pointer" : "not-allowed", fontWeight: 700 }}
+                onClick={liveCanApply ? handleApply : undefined}
+                disabled={!liveCanApply}
+                style={{ fontFamily: "'Courier New', monospace", fontSize: 11, padding: "7px 22px", borderRadius: 7, letterSpacing: "1px", background: liveCanApply ? "#e8c547" : "#2a2e38", border: "none", color: liveCanApply ? "#111318" : "#4a5060", cursor: liveCanApply ? "pointer" : "not-allowed", fontWeight: 700 }}
               >
-                APPLY {canApply ? `(${summary.added + summary.conflicts})` : ""}
+                APPLY {liveCanApply ? `(${liveApplyCount})` : ""}
               </button>
             )}
             {phase === "error" && (
