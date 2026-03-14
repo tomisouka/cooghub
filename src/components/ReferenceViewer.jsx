@@ -134,7 +134,8 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
         const id = uid.current;
 
 
-        // Strip Google Fonts <link> — this was blocking onLoad in the APK WebView
+        // Keep Google Fonts — stripping breaks font rendering on web
+        // APK WebView: fonts load async and don't block layout meaningfully
         let processed = raw.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>/gi, "");
 
         // Strip ALL Vite dev-server injected scripts — nuclear: remove every
@@ -160,13 +161,18 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
         // Pure HTML — extract <style> blocks and scope them to our container id
         // so they don't leak into the rest of the app
         const styles = [];
+        // Re-inject Google Font links as @import so fonts actually load
+        const fontLinks = [];
+        raw.replace(/<link[^>]*fonts\.googleapis\.com[^>]*href=["']([^"']+)["'][^>]*>/gi, (_, href) => fontLinks.push(href));
+        raw.replace(/<link[^>]*href=["']([^"']*fonts\.googleapis\.com[^"']*)["'][^>]*>/gi, (_, href) => fontLinks.push(href));
+        if (fontLinks.length) styles.push(fontLinks.map(h => `@import url('${h}');`).join('\n'));
         processed = processed.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
           const scoped = css
             .replace(/:root\s*\{/g, `#${id} {`)
             // Replace bare `body` selector only — not class names like .card-body
             .replace(/(^|[\s,{})>+~])body(\s*[{,>+~:\[])/gm, `$1#${id}$2`);
           // Prepend a fallback: ensure all text in this container is visible by default
-          const withFallback = `#${id} { color: #d4d8e0; }\n` + scoped;
+          const withFallback = `#${id} { color: #d4d8e0; width: 100%; box-sizing: border-box; }\n` + scoped;
           styles.push(withFallback);
           return "";
         });
@@ -264,6 +270,7 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
       <div
         id={html.id}
         ref={containerRef}
+        style={{ width: "100%", boxSizing: "border-box" }}
         dangerouslySetInnerHTML={{ __html: html.body }}
       />
     </div>

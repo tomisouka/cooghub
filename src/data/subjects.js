@@ -311,12 +311,36 @@ export const DEPARTMENTS = [
         courseCode: "COSC 3360",
         color: "#fb923c",
         icon: "⚙",
+        isHub: true,
+        lanes: [
+          {
+            id: "opsystems_academic",
+            icon: "⚙",
+            color: "#fb923c",
+            title: "Academic OS",
+            description: "Course references, prep guides, and the Rincon textbook. Scheduling, memory management, concurrency, and OS theory.",
+          },
+          {
+            id: "opsystems_linux",
+            icon: "⌘",
+            color: "#34d399",
+            title: "Linux",
+            description: "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all.",
+          },
+        ],
+      },
+
+      {
+        id: "opsystems_academic",
+        label: "Academic OS",
+        courseCode: "COSC 3360",
+        color: "#fb923c",
+        icon: "⚙",
+        hubParent: "opsystems",
         notes: [],
         references: [
-          { file: "opsystems_prep.html",          label: "⚡ Fall Prep Guide",         type: "iframe" },
-          { file: "opsystems_reference.html",    label: "OS History & Reference",     type: "iframe" },
-          { file: "linux_reference.html",        label: "Linux History & Reference",  type: "iframe" },
-          { file: "linux_quick_reference.html",  label: "Linux Quick Reference",      type: "iframe" },
+          { file: "opsystems_prep.html",      label: "⚡ Fall Prep Guide",     type: "iframe" },
+          { file: "opsystems_reference.html", label: "OS History & Reference", type: "iframe" },
         ],
         assignments: [],
         code: [],
@@ -324,6 +348,48 @@ export const DEPARTMENTS = [
         pdfs: [
           { file: "OperatingSystems_TextbookRincon.pdf", label: "Operating Systems — Rincon Textbook" },
         ],
+        langRefs: true,
+      },
+
+      {
+        id: "opsystems_linux",
+        label: "Linux",
+        courseCode: "COSC 3360",
+        color: "#34d399",
+        icon: "⌘",
+        hubParent: "opsystems",
+        notes: [
+          { file: "./content/subjects/linux/linux_os.md",                 label: "OS" },
+          { file: "./content/subjects/linux/linux_os_history.md",         label: "OS History" },
+          { file: "./content/subjects/linux/linux_kernels.md",            label: "Kernels" },
+          { file: "./content/subjects/linux/linux_gnu.md",                label: "GNU/Linux" },
+          { file: "./content/subjects/linux/linux_gnu_breakdown.md",      label: "Linux & GNU Breakdown" },
+          { file: "./content/subjects/linux/linux_gnu_demo.md",           label: "GNU/Linux Demo" },
+          { file: "./content/subjects/linux/linux_minix.md",              label: "Minix" },
+          { file: "./content/subjects/linux/linux_goats_of_cs.md",        label: "Goats of CS" },
+          { file: "./content/subjects/linux/linux_terminal.md",           label: "Terminal" },
+          { file: "./content/subjects/linux/linux_permissions.md",        label: "Permissions" },
+          { file: "./content/subjects/linux/linux_hidden_files.md",       label: "Hidden Files" },
+          { file: "./content/subjects/linux/linux_my_hidden_files.md",    label: "My Hidden Files" },
+          { file: "./content/subjects/linux/linux_package_management.md", label: "Package Management" },
+          { file: "./content/subjects/linux/linux_makeup.md",             label: "Linux Makeup" },
+          { file: "./content/subjects/linux/linux_words.md",              label: "Linux Words" },
+          { file: "./content/subjects/linux/linux_specs.md",              label: "Specs" },
+          { file: "./content/subjects/linux/linux_api.md",                label: "API" },
+          { file: "./content/subjects/linux/linux_git.md",                label: "Git" },
+          { file: "./content/subjects/linux/linux_gnome.md",              label: "GNOME" },
+          { file: "./content/subjects/linux/linux_anticheat_proton.md",   label: "Anti-Cheat & Proton" },
+          { file: "./content/subjects/linux/linux_wine_proton.md",        label: "Wine & Proton" },
+          { file: "./content/subjects/linux/linux_lockdown_browser.md",   label: "Lockdown Browser" },
+        ],
+        references: [
+          { file: "linux_reference.html",       label: "Linux History & Reference", type: "iframe" },
+          { file: "linux_quick_reference.html", label: "Linux Quick Reference",     type: "iframe" },
+        ],
+        assignments: [],
+        code: [],
+        flashcards: null,
+        pdfs: [],
         langRefs: true,
       },
 
@@ -380,49 +446,9 @@ export const DEPARTMENTS = [
         pdfs: [],
         langRefs: true,
       },
-
-      {
-        id: "linux",
-        label: "Linux",
-        courseCode: null,
-        color: "#34d399",
-        icon: "⌘",
-        notes: [
-          { file: "./content/subjects/linux/linux_os.md",                 label: "OS" },
-          { file: "./content/subjects/linux/linux_os_history.md",         label: "OS History" },
-          { file: "./content/subjects/linux/linux_kernels.md",            label: "Kernels" },
-          { file: "./content/subjects/linux/linux_gnu.md",                label: "GNU/Linux" },
-          { file: "./content/subjects/linux/linux_gnu_breakdown.md",      label: "Linux & GNU Breakdown" },
-          { file: "./content/subjects/linux/linux_gnu_demo.md",           label: "GNU/Linux Demo" },
-          { file: "./content/subjects/linux/linux_minix.md",              label: "Minix" },
-          { file: "./content/subjects/linux/linux_goats_of_cs.md",        label: "Goats of CS" },
-          { file: "./content/subjects/linux/linux_terminal.md",           label: "Terminal" },
-          { file: "./content/subjects/linux/linux_permissions.md",        label: "Permissions" },
-          { file: "./content/subjects/linux/linux_hidden_files.md",       label: "Hidden Files" },
-          { file: "./content/subjects/linux/linux_my_hidden_files.md",    label: "My Hidden Files" },
-          { file: "./content/subjects/linux/linux_package_management.md", label: "Package Management" },
-          { file: "./content/subjects/linux/linux_makeup.md",             label: "Linux Makeup" },
-          { file: "./content/subjects/linux/linux_words.md",              label: "Linux Words" },
-          { file: "./content/subjects/linux/linux_specs.md",              label: "Specs" },
-          { file: "./content/subjects/linux/linux_api.md",                label: "API" },
-          { file: "./content/subjects/linux/linux_git.md",                label: "Git" },
-          { file: "./content/subjects/linux/linux_gnome.md",              label: "GNOME" },
-          { file: "./content/subjects/linux/linux_anticheat_proton.md",   label: "Anti-Cheat & Proton" },
-          { file: "./content/subjects/linux/linux_wine_proton.md",        label: "Wine & Proton" },
-          { file: "./content/subjects/linux/linux_lockdown_browser.md",   label: "Lockdown Browser" },
-        ],
-        references: [
-          { file: "linux_reference.html",       label: "Linux History & Reference", type: "iframe" },
-          { file: "linux_quick_reference.html", label: "Linux Quick Reference",     type: "iframe" },
-        ],
-        assignments: [],
-        code: [],
-        flashcards: null,
-        pdfs: [],
-        langRefs: false,
-      },
     ],
   },
+
   {
     id: "math",
     label: "MATH",
@@ -580,11 +606,13 @@ export const MATH_SHARED_REFS = [
   { label: "Statistics",           file: "statistics-guide.html",           color: "#a78bfa" },
 ];
 
-export const courseContentCount = (course) =>
-  course.notes.length +
-  course.references.length +
-  course.assignments.length +
-  course.code.length +
-  course.pdfs.length +
-  (course.flashcards ? 1 : 0) +
-  (course.langRefs   ? 1 : 0);
+export const courseContentCount = (course) => {
+  if (course.isHub) return 0;
+  return (course.notes?.length       ?? 0) +
+         (course.references?.length  ?? 0) +
+         (course.assignments?.length ?? 0) +
+         (course.code?.length        ?? 0) +
+         (course.pdfs?.length        ?? 0) +
+         (course.flashcards ? 1 : 0) +
+         (course.langRefs   ? 1 : 0);
+};

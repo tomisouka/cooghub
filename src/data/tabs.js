@@ -1,0 +1,12 @@
+// src/data/tabs.js
+export const TABS = [
+  { id: "overview",    icon: "⌂",  label: "Overview"    },
+  { id: "references",  icon: "⊞",  label: "References"  },
+  { id: "gopal",       icon: "📖", label: "Gopal"       },
+  { id: "code",        icon: "⌥",  label: "Code"        },
+  { id: "notes",       icon: "≡",  label: "Notes"       },
+  { id: "linux",       icon: "⌘",  label: "Linux"       },
+  { id: "assignments", icon: "✎",  label: "Assignments" },
+  { id: "pdfs",        icon: "⎘",  label: "PDFs"        },
+  { id: "flashcards",  icon: "⟁",  label: "Flashcards"  },
+];

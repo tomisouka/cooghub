@@ -16,6 +16,7 @@ function buildMeta() {
   const meta = {};
 
   ALL_COURSES.forEach(course => {
+    if (course.isHub) return;
     course.notes.forEach(n => {
       meta[n.file] = {
         label:    n.label,

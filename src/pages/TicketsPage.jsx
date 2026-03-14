@@ -2,23 +2,13 @@
 // Data lives in src/data/tickets.js — edit there, not here.
 
 import { useState } from "react";
-import { TICKETS } from "../data/tickets";
+import { TICKETS, TODO_ITEMS } from "../data/tickets";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { TICKET_STATUS_MAP as STATUS_MAP, TICKET_FIELD_CONFIG as FIELD_CONFIG } from "../data/uiConfig";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 const MONO = "'Courier New', monospace";
 
-const STATUS_MAP = {
-  "IN PROGRESS": { label: "IN PROGRESS", color: "#f0c040", bg: "#f0c04022" },
-  "OPEN":        { label: "OPEN",        color: "#ff6060", bg: "#ff606022" },
-  "DONE":        { label: "DONE",        color: "#4ddd99", bg: "#4ddd9922" },
-};
-
-const FIELD_CONFIG = [
-  { key: "function", label: "Function", color: "#b8a0ff", icon: "⚙" },
-  { key: "error",    label: "Error",    color: "#ff6060", icon: "✕" },
-  { key: "solution", label: "Solution", color: "#4ddd99", icon: "✓" },
-];
 
 function Chip({ label, color, bg }) {
   return (

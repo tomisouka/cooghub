@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { getDept, courseContentCount, LANG_REFS, MATH_SHARED_REFS } from "../data/subjects";
+import { BUCKET_ICONS } from "../data/uiConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
 import ReferenceViewer from "../components/ReferenceViewer";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
-function PrevNextBar({ items, activeFile, onSelect }) {
+function PrevNextBar({ items, activeFile, onSelect, onBack }) {
   if (!items || items.length <= 1) return null;
   const idx = items.findIndex(r => r.file === activeFile);
   if (idx === -1) return null;
@@ -23,6 +24,13 @@ function PrevNextBar({ items, activeFile, onSelect }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8,
       padding: "5px 14px", background: "#161920",
       borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
+      {onBack && (
+        <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer",
+          color: "#7a8090", fontSize: 13, fontFamily: FONT, padding: "0 4px", marginRight: 4 }}
+          onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
+          onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}
+        >✕</button>
+      )}
       {btn(hasPrev, () => onSelect(items[idx - 1].file), "← prev")}
       <span style={{ color: "#4a5060", fontSize: 11, fontFamily: FONT, fontWeight: 500 }}>
         {idx + 1} / {items.length}
@@ -36,9 +44,7 @@ function PrevNextBar({ items, activeFile, onSelect }) {
   );
 }
 
-const BUCKET_ICONS = {
-  notes: "≡", references: "⊞", assignments: "✎", code: "⌥", pdfs: "⎘", flashcards: "⟁",
-};
+// BUCKET_ICONS imported from data/uiConfig.js
 
 
 export default function DeptPage({ deptId, goTo, dest }) {
@@ -48,6 +54,7 @@ export default function DeptPage({ deptId, goTo, dest }) {
   const [view, setView]           = useState("courses");
   const [activeRef, setActiveRef] = useState(null);
   const [showRefContent, setShowRefContent] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const prevDestRef = useRef(null);
 
   // Auto-open ref panel when navigating from a search result
@@ -135,7 +142,7 @@ export default function DeptPage({ deptId, goTo, dest }) {
         <div style={{ padding: isMobile ? "14px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0,
           display: "flex", alignItems: "center", gap: isMobile && showRefContent ? 12 : 0 }}>
           {isMobile && showRefContent && (
-            <button onClick={() => setShowRefContent(false)}
+            <button onClick={() => { setShowRefContent(false); setActiveRef(null); }}
               style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", flexShrink: 0 }}>←</button>
           )}
           <div>
@@ -145,7 +152,7 @@ export default function DeptPage({ deptId, goTo, dest }) {
         </div>
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           {(!isMobile || !showRefContent) && (
-          <div style={{ width: isMobile ? "100%" : 260, flexShrink: 0, borderRight: isMobile ? "none" : "1px solid #2a2e38", overflowY: "auto", background: "#161920" }}>
+          <div style={{ width: isMobile ? "100%" : (sidebarCollapsed ? 0 : 260), flexShrink: 0, borderRight: isMobile ? "none" : "1px solid #2a2e38", overflowY: "auto", background: "#161920", overflow: "hidden", transition: "width 0.2s ease" }}>
             <div style={{ padding: "14px 16px 6px", fontSize: 10, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>References</div>
             {MATH_SHARED_REFS.map((r, i) => {
               const isActive = activeRef === r.file;
@@ -164,8 +171,8 @@ export default function DeptPage({ deptId, goTo, dest }) {
             })}
             <div style={{ margin: "12px 16px", borderTop: "1px solid #2a2e38" }} />
             <div style={{ padding: "6px 16px 6px", fontSize: 10, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>Courses</div>
-            {dept.courses.map(course => {
-              const empty = courseContentCount(course) === 0;
+            {dept.courses.filter(course => !course.hubParent).map(course => {
+              const empty = !course.isHub && courseContentCount(course) === 0;
               return (
                 <button key={course.id} onClick={() => !empty && goTo(deptId, course.id)}
                   style={{
@@ -190,7 +197,17 @@ export default function DeptPage({ deptId, goTo, dest }) {
           {(!isMobile || showRefContent) && (
             activeRef ? (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-                <PrevNextBar items={MATH_SHARED_REFS} activeFile={activeRef} onSelect={f => { setActiveRef(f); }} />
+                <div style={{ display: "flex", alignItems: "stretch", flexShrink: 0 }}>
+                  {!isMobile && (
+                    <button onClick={() => setSidebarCollapsed(c => !c)}
+                      title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+                      style={{ background: "#161920", border: "none", borderBottom: "1px solid #2a2e38", borderRight: "1px solid #2a2e38", color: "#4a5060", cursor: "pointer", padding: "0 10px", fontSize: 12, flexShrink: 0, transition: "color 0.15s" }}
+                      onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
+                      onMouseLeave={e => e.currentTarget.style.color = "#4a5060"}
+                    >{sidebarCollapsed ? "▶" : "◀"}</button>
+                  )}
+                  <PrevNextBar items={MATH_SHARED_REFS} activeFile={activeRef} onSelect={f => { setActiveRef(f); }} onBack={() => { setActiveRef(null); setShowRefContent(false); }} />
+                </div>
                 <ReferenceViewer
                   key={activeRef}
                   file={activeRef}
@@ -200,8 +217,17 @@ export default function DeptPage({ deptId, goTo, dest }) {
                 />
               </div>
             ) : (
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
-                select a reference or course
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+                {!isMobile && sidebarCollapsed && (
+                  <button onClick={() => setSidebarCollapsed(false)}
+                    style={{ alignSelf: "flex-start", background: "#161920", border: "none", borderBottom: "1px solid #2a2e38", borderRight: "1px solid #2a2e38", color: "#4a5060", cursor: "pointer", padding: "8px 10px", fontSize: 12, flexShrink: 0 }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
+                    onMouseLeave={e => e.currentTarget.style.color = "#4a5060"}
+                  >▶</button>
+                )}
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "#4a5060", fontSize: 14, fontWeight: 500 }}>
+                  select a reference or course
+                </div>
               </div>
             )
           )}
@@ -221,9 +247,9 @@ export default function DeptPage({ deptId, goTo, dest }) {
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fill, minmax(260px, 1fr))", gap: isMobile ? 10 : 14 }}>
 
           {/* Course cards */}
-          {dept.courses.map(course => {
+          {dept.courses.filter(course => !course.hubParent).map(course => {
             const count = courseContentCount(course);
-            const empty = count === 0;
+            const empty = !course.isHub && count === 0;
             const activeBuckets = [
               course.notes?.length       > 0 ? "notes"       : null,
               course.references?.length  > 0 ? "references"  : null,
@@ -258,6 +284,14 @@ export default function DeptPage({ deptId, goTo, dest }) {
                     {activeBuckets.map(b => (
                       <span key={b} style={{ fontSize: 10, fontWeight: 600, color: course.color, fontFamily: FONT, background: "#111318", border: `1px solid ${course.color}33`, borderRadius: 4, padding: "2px 7px" }}>
                         {BUCKET_ICONS[b]} {b}
+                      </span>
+                    ))}
+                  </div>
+                ) : course.isHub ? (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {course.lanes.map(lane => (
+                      <span key={lane.id} style={{ fontSize: 10, fontWeight: 600, color: lane.color, fontFamily: FONT, background: "#111318", border: `1px solid ${lane.color}33`, borderRadius: 4, padding: "2px 7px" }}>
+                        {lane.icon} {lane.title}
                       </span>
                     ))}
                   </div>

@@ -1,54 +1,80 @@
 import { useState } from "react";
-
+import { ALL_COURSES } from "./data/subjects";
 import Sidebar             from "./components/Sidebar";
 import DropZone            from "./components/DropZone";
 import FileInventoryModal  from "./components/FileInventoryModal";
 import HomePage            from "./pages/HomePage";
 import DeptPage            from "./pages/DeptPage";
 import CoursePage          from "./pages/CoursePage";
+import OsHubPage           from "./pages/OsHubPage";
 import Talk2MePage         from "./pages/Talk2MePage";
 import TicketsPage         from "./pages/TicketsPage";
-import { useIsMobile } from "./hooks/useIsMobile";
+import RoadMap             from "./pages/RoadMap";
+import DeadlinesPage       from "./pages/DeadlinesPage";
+import { useIsMobile }     from "./hooks/useIsMobile";
 import { NAV } from "./data/nav";
 
 export default function App() {
   const [nav, setNav]               = useState("home");
   const [course, setCourse]         = useState(null);
+  const [hub,    setHub]            = useState(null);
   const [dest, setDest]             = useState(null);
   const [showDrop, setShowDrop]     = useState(false);
   const [showInventory, setShowInv] = useState(false);
-  const [lastSearch, setLastSearch] = useState(null); // { query, results }
+  const [lastSearch, setLastSearch] = useState(null);
   const isMobile                    = useIsMobile();
 
   function goTo(navId, courseId = null, destination = null) {
     setNav(navId);
-    setCourse(courseId);
     setDest(destination);
+    if (courseId) {
+      const entry = ALL_COURSES.find(c => c.id === courseId);
+      if (entry?.isHub) { setHub(courseId); setCourse(null); }
+      else               { setCourse(courseId); setHub(null); }
+    } else {
+      setCourse(null);
+      setHub(null);
+    }
   }
 
   function goBackToSearch() {
     setCourse(null);
+    setHub(null);
     setDest(null);
     setNav("home");
   }
 
   function renderPage() {
     if (course) {
+      const entry = ALL_COURSES.find(c => c.id === course);
+      const backToHub = entry?.hubParent ? () => { setCourse(null); setDest(null); setHub(entry.hubParent); } : null;
       return (
         <CoursePage
           courseId={course}
           dest={dest}
-          onBack={() => { setCourse(null); setDest(null); }}
+          onBack={backToHub ?? (() => { setCourse(null); setDest(null); })}
           onBackToSearch={lastSearch ? goBackToSearch : null}
         />
       );
     }
+    if (hub) {
+      const hubData = ALL_COURSES.find(c => c.id === hub);
+      return (
+        <OsHubPage
+          hubData={hubData}
+          onSelectLane={(laneId) => { setCourse(laneId); setHub(null); }}
+          onBack={() => { setHub(null); }}
+        />
+      );
+    }
     switch (nav) {
-      case "home":    return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
-      case "cosc":    return <DeptPage deptId="cosc" goTo={goTo} dest={dest} />;
-      case "math":    return <DeptPage deptId="math" goTo={goTo} dest={dest} />;
-      case "talk2me": return <Talk2MePage dest={dest} />;
-      case "tickets": return <TicketsPage />;
+      case "home":      return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
+      case "cosc":      return <DeptPage deptId="cosc" goTo={goTo} dest={dest} />;
+      case "math":      return <DeptPage deptId="math" goTo={goTo} dest={dest} />;
+      case "talk2me":   return <Talk2MePage dest={dest} />;
+      case "tickets":   return <TicketsPage />;
+      case "roadmap":   return <RoadMap />;
+      case "deadlines": return <DeadlinesPage />;
       default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
     }
   }
@@ -91,7 +117,7 @@ export default function App() {
 
       {/* Desktop: left sidebar */}
       {!isMobile && (
-        <Sidebar active={nav} setActive={(id) => { setCourse(null); setDest(null); setNav(id); if (id !== "home") setLastSearch(null); }} />
+        <Sidebar active={nav} setActive={(id) => { setCourse(null); setHub(null); setDest(null); setNav(id); if (id !== "home") setLastSearch(null); }} />
       )}
 
       {/* Main content */}

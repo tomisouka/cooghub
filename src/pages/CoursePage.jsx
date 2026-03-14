@@ -6,19 +6,12 @@ import CodeViewer      from "../components/CodeViewer";
 import PDFViewer       from "../components/PDFViewer";
 import ReferenceViewer from "../components/ReferenceViewer";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { TABS } from "../data/tabs";
 
 const BASE = "/references";
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
-const TABS = [
-  { id: "references",  icon: "⊞",  label: "References"  },
-  { id: "gopal",       icon: "📖", label: "Gopal"       },
-  { id: "code",        icon: "⌥",  label: "Code"        },
-  { id: "notes",       icon: "≡",  label: "Notes"       },
-  { id: "assignments", icon: "✎",  label: "Assignments" },
-  { id: "pdfs",        icon: "⎘",  label: "PDFs"        },
-  { id: "flashcards",  icon: "⟁",  label: "Flashcards"  },
-];
+// TABS imported from data/tabs.js
 
 function flattenItems(items) {
   return items?.flatMap(item => item.type === "group" ? item.children : [item]) ?? [];
@@ -114,6 +107,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   if (!course) return null;
 
   const availableTabs = TABS.filter(t => {
+    if (t.id === "overview")   return !!course.overview;
     if (t.id === "flashcards") return !!course.flashcards;
     if (t.id === "gopal")      return !!course.gopal?.length;
     return course[t.id]?.length > 0;
@@ -121,7 +115,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
 
   const initialTab   = dest?.tab && availableTabs.find(t => t.id === dest.tab)
     ? dest.tab : availableTabs[0]?.id || "notes";
-  const initialItems = initialTab === "code" ? course.code : course[initialTab];
+  const initialItems = initialTab === "code" ? course.code : (Array.isArray(course[initialTab]) ? course[initialTab] : []);
   const initialFlat  = flattenItems(initialItems);
   const initialFile  = dest?.file || initialFlat?.[0]?.[initialTab === "code" ? "path" : "file"] || null;
 
@@ -166,7 +160,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   function switchTab(id) {
     setTab(id);
     setCollapsed({});
-    const items = id === "code" ? course.code : (course[id] ?? []);
+    const items = id === "code" ? course.code : (Array.isArray(course[id]) ? course[id] : []);
     const flat  = flattenItems(items);
     const firstKey = flat?.[0]?.[id === "code" ? "path" : "file"] || null;
     setActiveFile(firstKey);
@@ -450,7 +444,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
           style={{ background: "none", border: "none", color: "#7a8090", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1, transition: "color 0.15s" }}
           onMouseEnter={e => e.currentTarget.style.color = "#d4d8e0"}
           onMouseLeave={e => e.currentTarget.style.color = "#7a8090"}>←</button>
-        {!isMobile && tab !== "flashcards" && (
+        {!isMobile && tab !== "flashcards" && tab !== "overview" && (
           <button onClick={() => setSidebarOpen(o => !o)}
             style={{
               background: "#1e2230", border: "1px solid #2a2e38", borderRadius: 5,
@@ -510,7 +504,107 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
            FileList and Flashcards are normal JSX — they have their own hooks and can't
            be called as plain functions without violating Rules of Hooks. */}
       <div style={{ flex: 1, display: "flex", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
-        {tab === "flashcards" ? <Flashcards /> : (
+        {tab === "overview" ? (
+          <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "28px 18px 60px" : "52px 56px 72px" }}>
+            {/* Course title block */}
+            <div style={{ marginBottom: isMobile ? 32 : 48 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <span style={{ fontSize: 32 }}>{course.icon}</span>
+                <div>
+                  <div style={{ color: course.color, fontSize: 11, fontWeight: 700, fontFamily: FONT, letterSpacing: "2px", textTransform: "uppercase", marginBottom: 4 }}>
+                    {course.courseCode || "Course Overview"}
+                  </div>
+                  <h1 style={{ margin: 0, color: "#eceef4", fontSize: isMobile ? 24 : 32, fontWeight: 700, fontFamily: FONT, lineHeight: 1.2 }}>
+                    {course.label}
+                  </h1>
+                </div>
+              </div>
+              {course.overview.tagline && (
+                <p style={{ margin: "0", color: "#8090a8", fontSize: 15, fontFamily: FONT, fontWeight: 400, lineHeight: 1.6 }}>
+                  {course.overview.tagline}
+                </p>
+              )}
+            </div>
+
+            {/* Lane cards */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: 20,
+            }}>
+              {course.overview.lanes.map(lane => (
+                <div key={lane.id} style={{
+                  background: "#1c1f28",
+                  border: `1px solid ${lane.color}44`,
+                  borderTop: `4px solid ${lane.color}`,
+                  borderRadius: 14,
+                  padding: "24px 24px 20px",
+                  display: "flex", flexDirection: "column", gap: 16,
+                }}>
+                  {/* Lane header */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                      <span style={{
+                        fontSize: 22, background: lane.color + "22",
+                        border: `1px solid ${lane.color}44`,
+                        borderRadius: 8, padding: "6px 10px", lineHeight: 1,
+                      }}>{lane.icon}</span>
+                      <span style={{ color: lane.color, fontSize: 17, fontWeight: 700, fontFamily: FONT }}>
+                        {lane.title}
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, color: "#9098b0", fontSize: 13, fontFamily: FONT, lineHeight: 1.75, fontWeight: 400 }}>
+                      {lane.description}
+                    </p>
+                  </div>
+
+                  {/* Pinned files */}
+                  {lane.pins?.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#505870", fontFamily: FONT, letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 2 }}>
+                        Quick access
+                      </div>
+                      {lane.pins.map((pin, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { setTab(pin.tab); setActiveFile(pin.file); setCodeHighlight(null); if (isMobile) setShowList(false); }}
+                          style={{
+                            background: "#13151c", border: `1px solid ${lane.color}33`,
+                            borderLeft: `3px solid ${lane.color}`,
+                            borderRadius: 7, padding: "9px 13px",
+                            color: "#c8d0e0", fontSize: 13, fontFamily: FONT, fontWeight: 500,
+                            cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#1e2230"; e.currentTarget.style.color = "#eceef4"; e.currentTarget.style.borderLeftColor = lane.color; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "#13151c"; e.currentTarget.style.color = "#c8d0e0"; e.currentTarget.style.borderLeftColor = lane.color + "88"; }}
+                        >
+                          {pin.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Go to full tab */}
+                  <button
+                    onClick={() => switchTab(lane.tab)}
+                    style={{
+                      marginTop: "auto",
+                      background: lane.color + "18",
+                      border: `1px solid ${lane.color}55`,
+                      borderRadius: 8, padding: "10px 16px",
+                      color: lane.color, fontSize: 13, fontFamily: FONT, fontWeight: 700,
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = lane.color + "30"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = lane.color + "18"; }}
+                  >
+                    Open {lane.title} →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : tab === "flashcards" ? <Flashcards /> : (
           <>
             {/* Mobile: show list OR content. Desktop: show sidebar (maybe collapsed) + content */}
             {isMobile ? (
