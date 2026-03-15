@@ -21,6 +21,8 @@ ios/
 
 # ── Runtime-written / generated data ─────────────────────────────────────────
 src/data/memory.js
+src/data/memory-deadlines.js
+src/data/memory-progress.js
 public/pdf-index.json
 public/pdfs/
 

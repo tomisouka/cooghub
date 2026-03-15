@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use tauri::Manager;
 
 fn project_root(_app: &tauri::AppHandle) -> Result<PathBuf, String> {
-  // Read project path from ~/.coogshub_path (written by vite plugin on dev start)
   if let Some(home) = std::env::var("HOME").ok().or_else(|| std::env::var("USERPROFILE").ok()) {
     let config = PathBuf::from(&home).join(".coogshub_path");
     if config.exists() {
@@ -40,7 +39,13 @@ fn load_data_file(app: tauri::AppHandle, filename: String) -> Result<String, Str
 
 #[tauri::command]
 fn load_memory(app: tauri::AppHandle) -> Result<String, String> {
-  let target = project_root(&app)?.join("src/data/memory.js");
+  let target = project_root(&app)?.join("src/data/memory-deadlines.js");
+  fs::read_to_string(&target).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn load_memory_progress(app: tauri::AppHandle) -> Result<String, String> {
+  let target = project_root(&app)?.join("src/data/memory-progress.js");
   fs::read_to_string(&target).map_err(|e| e.to_string())
 }
 
@@ -50,7 +55,13 @@ fn save_deadlines(app: tauri::AppHandle, content: String) -> Result<(), String> 
   let log  = PathBuf::from(&home).join(".coogshub_debug.log");
   let root = project_root(&app);
   let _ = fs::write(&log, format!("root={:?}\ncontent_len={}\n", root, content.len()));
-  let target = root?.join("src/data/memory.js");
+  let target = root?.join("src/data/memory-deadlines.js");
+  fs::write(&target, &content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn save_progress(app: tauri::AppHandle, content: String) -> Result<(), String> {
+  let target = project_root(&app)?.join("src/data/memory-progress.js");
   fs::write(&target, &content).map_err(|e| e.to_string())
 }
 
@@ -114,7 +125,9 @@ pub fn run() {
       save_data_file,
       load_data_file,
       load_memory,
+      load_memory_progress,
       save_deadlines,
+      save_progress,
       list_entries,
       read_entry,
       save_entry,

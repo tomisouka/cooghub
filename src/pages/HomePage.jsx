@@ -94,7 +94,8 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
     if (dest.page === "talk2me") { goTo("talk2me"); return; }
     // Spread into a new object with a unique ts so App.setState always fires
     // even when navigating to the same course+file twice in a row
-    goTo(dest.page, dest.courseId, { ...dest, query: q, _ts: Date.now() });
+    const ts = Date.now(); // eslint-disable-line react-hooks/purity
+    goTo(dest.page, dest.courseId, { ...dest, query: q, _ts: ts });
   }
 
   const typeColor = { note: "#4ecdc4", code: "#e8c547", pdf: "#e85454", talk2me: "#a78bfa", reference: "#fb923c" };
