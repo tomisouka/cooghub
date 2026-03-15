@@ -574,6 +574,31 @@ export default function DeadlinesPage() {
     };
   });
 
+  // ── Completion momentum (last 14 days) ────────────────────────────────────
+  const momentumDays = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - 13 + i);
+    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    return {
+      str,
+      label: i === 13 ? "today" : i === 12 ? "yday" : null,
+      count: deadlines.filter(dl => dl.done && dl.completedAt === str).length,
+    };
+  });
+  const maxMomentum = Math.max(1, ...momentumDays.map(d => d.count));
+
+  // ── Daily focus: highest-urgency unstarted deadline ───────────────────────
+  const focusPick = (() => {
+    const candidates = deadlines.filter(d => !d.done && d.status !== "inprogress");
+    if (candidates.length === 0) return null;
+    return candidates.slice().sort((a, b) => {
+      const da = getDaysUntil(a.date), db = getDaysUntil(b.date);
+      const pa = a.priority === "high" ? -1 : a.priority === "low" ? 1 : 0;
+      const pb = b.priority === "high" ? -1 : b.priority === "low" ? 1 : 0;
+      return (da + pa * 2) - (db + pb * 2);
+    })[0];
+  })();
+
   const sect = (title, children, extra) => (
     <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20, marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
@@ -722,7 +747,10 @@ export default function DeadlinesPage() {
           </div>
         </div>
       )}
-      <style>{`@keyframes celebratePop { 0%{transform:scale(0.6) translateY(10px);opacity:0} 20%{transform:scale(1.1) translateY(-6px);opacity:1} 60%{transform:scale(1) translateY(0);opacity:1} 100%{transform:scale(0.95) translateY(-20px);opacity:0} }`}</style>
+      <style>{`
+        @keyframes celebratePop { 0%{transform:scale(0.6) translateY(10px);opacity:0} 20%{transform:scale(1.1) translateY(-6px);opacity:1} 60%{transform:scale(1) translateY(0);opacity:1} 100%{transform:scale(0.95) translateY(-20px);opacity:0} }
+        @keyframes nudgePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.7)} }
+      `}</style>
     <div style={{ height: "100%", overflowY: "auto", background: "#0f1117", fontFamily: FONT, color: "#d4d8e0" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 100px" }}>
 
@@ -782,23 +810,78 @@ export default function DeadlinesPage() {
         )}
 
         {/* Calendar */}
-        {/* Weekly load */}
+        {/* Weekly load + momentum + focus */}
         {!isCompletedTab && (
-          <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:12,padding:"14px 20px",marginBottom:16}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>This week</div>
-            <div style={{display:"flex",gap:6,alignItems:"flex-end",height:40}}>
-              {weekLoad.map((day,i) => {
-                const isToday = day.str === new Date().toISOString().slice(0,10);
-                const h = day.count === 0 ? 4 : Math.min(40, 8 + day.count * 10);
-                return (
-                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                    <div style={{width:"100%",height:h,background:isToday?"#e8c547":(day.count>2?"#fb923c":day.count>0?"#4ecdc4":"#1e2130"),borderRadius:3,transition:"height 0.3s"}}/>
-                    <span style={{fontSize:9,color:isToday?"#e8c547":"#4a5060",fontWeight:isToday?700:400}}>{day.label}</span>
-                    {day.count > 0 && <span style={{fontSize:8,color:"#4a5060"}}>{day.count}</span>}
-                  </div>
-                );
-              })}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+
+            {/* This week load */}
+            <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:12,padding:"14px 20px"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>This week</div>
+              <div style={{display:"flex",gap:6,alignItems:"flex-end",height:40}}>
+                {weekLoad.map((day,i) => {
+                  const isToday = day.str === new Date().toISOString().slice(0,10);
+                  const h = day.count === 0 ? 4 : Math.min(40, 8 + day.count * 10);
+                  return (
+                    <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                      <div style={{width:"100%",height:h,background:isToday?"#e8c547":(day.count>2?"#fb923c":day.count>0?"#4ecdc4":"#1e2130"),borderRadius:3,transition:"height 0.3s"}}/>
+                      <span style={{fontSize:9,color:isToday?"#e8c547":"#4a5060",fontWeight:isToday?700:400}}>{day.label}</span>
+                      {day.count > 0 && <span style={{fontSize:8,color:"#4a5060"}}>{day.count}</span>}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Completion momentum — last 14 days */}
+            <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:12,padding:"14px 20px"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>Momentum · 14d</div>
+              <div style={{display:"flex",gap:3,alignItems:"flex-end",height:40}}>
+                {momentumDays.map((day,i) => {
+                  const isToday = i === 13;
+                  const h = day.count === 0 ? 3 : Math.min(40, 8 + day.count * 14);
+                  return (
+                    <div key={i} title={`${day.str}: ${day.count} completed`} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                      <div style={{width:"100%",height:h,background:isToday?"#34d399":day.count>0?"#34d39966":"#1e2130",borderRadius:2,transition:"height 0.3s"}}/>
+                      {day.label && <span style={{fontSize:8,color:isToday?"#34d399":"#4a5060",fontWeight:isToday?700:400,whiteSpace:"nowrap"}}>{day.label}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+              {momentumDays.every(d => d.count === 0) && (
+                <div style={{fontSize:10,color:"#3a4052",marginTop:6,fontStyle:"italic"}}>no completions yet — let's change that</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Daily focus pick */}
+        {!isCompletedTab && focusPick && (
+          <div style={{
+            background:"#161920",border:"1px solid #e8c54733",
+            borderLeft:"3px solid #e8c547",borderRadius:"0 12px 12px 0",
+            padding:"12px 18px",marginBottom:16,
+            display:"flex",alignItems:"center",gap:14,
+          }}>
+            <div style={{display:"flex",flexDirection:"column",gap:2,flex:1,minWidth:0}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#e8c547",letterSpacing:"2px",textTransform:"uppercase"}}>Focus on this today</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#f0f0f0",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{focusPick.title}</div>
+              <div style={{display:"flex",gap:8,marginTop:1}}>
+                {COURSES.find(c=>c.id===focusPick.course) && (
+                  <span style={{fontSize:10,color:COURSES.find(c=>c.id===focusPick.course).color,fontFamily:MONO}}>
+                    {COURSES.find(c=>c.id===focusPick.course).label}
+                  </span>
+                )}
+                <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>
+                  {(() => { const d=getDaysUntil(focusPick.date); return d===0?"due today":d<0?`${Math.abs(d)}d overdue`:`${d}d left`; })()}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={e => { e.stopPropagation(); cycleStatus(focusPick.id); }}
+              style={{padding:"7px 16px",borderRadius:8,border:"1px solid #e8c54755",background:"#e8c54715",color:"#e8c547",fontFamily:FONT,fontSize:11,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}
+            >
+              {focusPick.status === "inprogress" ? "continue →" : "start now →"}
+            </button>
           </div>
         )}
         {!isCompletedTab && dueNow.length > 0 && (
@@ -1020,6 +1103,18 @@ export default function DeadlinesPage() {
                     const days=getDaysUntil(dl.date),tier=urgencyTier(days),uc=tier.color,course=COURSES.find(c=>c.id===dl.course);
                     return(
                       <div key={dl.id} style={{background:"#0f1117",border:`1px solid ${uc}${tier.bold?"55":"22"}`,borderLeft:`${tier.bold?4:3}px solid ${uc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
+                        {/* Time pressure bar */}
+                        {(() => {
+                          const total = dl.createdAt ? Math.max(1, Math.ceil((new Date(dl.date) - new Date(dl.createdAt)) / 86400000)) : Math.max(1, getDaysUntil(dl.date) + 7);
+                          const remaining = Math.max(0, getDaysUntil(dl.date));
+                          const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
+                          if (pct <= 0) return null;
+                          return (
+                            <div style={{height:2,background:"#1a1f2e",width:"100%"}}>
+                              <div style={{height:"100%",width:`${pct}%`,background:pct>=90?`linear-gradient(90deg,#ff4444,#ff6b6b)`:pct>=60?`linear-gradient(90deg,${uc},${uc}aa)`:uc,transition:"width 0.4s",opacity:0.7}}/>
+                            </div>
+                          );
+                        })()}
                         <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,background:tier.bold?uc+"08":"transparent"}}>
                           <button
                             onClick={e => { e.stopPropagation(); cycleStatus(dl.id); }}
@@ -1061,7 +1156,12 @@ export default function DeadlinesPage() {
                               )}
                             </div>
                           </div>
-                          <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",flexShrink:0,letterSpacing:tier.bold?"0.5px":0}}>{urgencyLabel(days)}</div>
+                          <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+                            {!dl.status && days <= 7 && days >= 0 && (
+                              <div title="Not started yet" style={{width:6,height:6,borderRadius:"50%",background:"#fb923c",flexShrink:0,animation:"nudgePulse 1.8s ease-in-out infinite"}}/>
+                            )}
+                            <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",letterSpacing:tier.bold?"0.5px":0}}>{urgencyLabel(days)}</div>
+                          </div>
                           <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
                         </div>
                         {expandedDl === dl.id && (
