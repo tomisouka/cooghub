@@ -386,13 +386,20 @@ function getDaysUntil(dateStr) {
   const now = new Date(); now.setHours(0,0,0,0);
   return Math.ceil((new Date(dateStr + "T00:00:00") - now) / 86400000);
 }
-function urgencyColor(d) {
-  if (d < 0) return "#ff4444"; if (d === 0) return "#ff6b9d";
-  if (d <= 2) return "#fb923c"; if (d <= 7) return "#e8c547"; return "#34d399";
+function urgencyTier(d) {
+  if (d < 0)   return { color: "#ff4444", label: "OVERDUE",          bold: true };
+  if (d === 0) return { color: "#ff6b9d", label: "TODAY",            bold: true };
+  if (d <= 1)  return { color: "#ff4444", label: "DUE NOW",           bold: true };
+  if (d <= 2)  return { color: "#ff4444", label: `DUE IN ${d}D`,     bold: true };
+  if (d <= 7)  return { color: "#fb923c", label: "DUE SOON",         bold: true };
+  if (d <= 14) return { color: "#7eb8f7", label: "AROUND THE CORNER",bold: false };
+  return              { color: "#4ecdc4", label: "COMING UP",         bold: false };
 }
+function urgencyColor(d) { return urgencyTier(d).color; }
 function urgencyLabel(d) {
-  if (d < 0) return "OVERDUE"; if (d === 0) return "TODAY";
-  if (d === 1) return "TOMORROW"; return `${d}D`;
+  if (d < 0)   return "OVERDUE";
+  if (d === 0) return "TODAY";
+  return urgencyTier(d).label;
 }
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -435,519 +442,13 @@ function LevelUpModal({ skill, currentLevel, targetLevel, onConfirm, onCancel })
   );
 }
 
-// ── Radar chart ───────────────────────────────────────────────────────────────
-function RadarChart({ skillLevels }) {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    const draw = () => {
-      canvasRef.current?._chart?.destroy();
-      // Use top-level categories for radar
-      const cats = [
-        { label: "Algorithms",  color: "#4ecdc4", ids: ALL_SKILLS.filter(s => s.course === "algos") },
-        { label: "Automata",    color: "#ff6b9d", ids: ALL_SKILLS.filter(s => s.course === "automata") },
-        { label: "Data Struct", color: "#e8c547", ids: ALL_SKILLS.filter(s => s.course === "datastruct") },
-        { label: "Systems",     color: "#fb923c", ids: ALL_SKILLS.filter(s => ["comporg","opsystems"].includes(s.course)) },
-        { label: "Databases",   color: "#f472b6", ids: ALL_SKILLS.filter(s => s.course === "databases") },
-        { label: "Linear Alg",  color: "#60a5fa", ids: ALL_SKILLS.filter(s => s.course === "linear") },
-        { label: "C++ / Py",    color: "#fb7185", ids: ALL_SKILLS.filter(s => ["cpp","python"].includes(s.course)) },
-        { label: "Discrete",    color: "#a78bfa", ids: ALL_SKILLS.filter(s => s.course === "discrete") },
-      ];
-      const pcts = cats.map(c => c.ids.length > 0
-        ? Math.round((c.ids.reduce((a,s) => a + (skillLevels[s.id]?.level||0)/MAX_LEVEL, 0) / c.ids.length) * 100)
-        : 0
-      );
-      canvasRef.current._chart = new window.Chart(canvasRef.current, {
-        type: "radar",
-        data: {
-          labels: cats.map(c => c.label),
-          datasets: [
-            { data: pcts, backgroundColor: "#a78bfa18", borderColor: "#a78bfa", borderWidth: 2, pointBackgroundColor: cats.map(c => c.color), pointRadius: 5 },
-            { data: cats.map(() => 100), backgroundColor: "transparent", borderColor: "#2a2e38", borderWidth: 1, borderDash: [4,4], pointRadius: 0 },
-          ],
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: "#1e2130" }, pointLabels: { color: "#7a8090", font: { size: 10, family: "Inter, sans-serif", weight: "600" } }, angleLines: { color: "#1e2130" } } },
-        },
-      });
-    };
-    if (!window.Chart) { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"; s.onload = draw; document.head.appendChild(s); }
-    else draw();
-    return () => canvasRef.current?._chart?.destroy();
-  }, [skillLevels]);
-  return <div style={{ position: "relative", width: "100%", height: 220 }}><canvas ref={canvasRef} /></div>;
-}
-
-// ── Projection chart ──────────────────────────────────────────────────────────
-function ProjectionChart({ skillLevels }) {
-  const canvasRef = useRef(null);
-  const now = new Date();
-  const allEntries = Object.values(skillLevels).flatMap(s => s.log || []);
-  const thirtyAgo = new Date(now); thirtyAgo.setDate(now.getDate() - 30);
-  const recentPts = allEntries.filter(e => new Date(e.ts) >= thirtyAgo).reduce((a, e) => a + (e.to - e.from), 0);
-  const dailyRate = Math.max(recentPts / 30, 0.05);
-  const totalPts  = Object.values(skillLevels).reduce((a, s) => a + (s.level || 0), 0);
-  const maxPts    = TOTAL_SKILLS * MAX_LEVEL;
-  const daysLeft  = dailyRate > 0 ? Math.ceil((maxPts - totalPts) / dailyRate) : null;
-  const masteryDate = daysLeft ? (() => { const d = new Date(now); d.setDate(now.getDate() + daysLeft); return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; })() : null;
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    const sorted = [...allEntries].sort((a,b) => new Date(a.ts) - new Date(b.ts));
-    const pastLabels = [], pastData = [];
-    for (let w = 8; w >= 0; w--) {
-      const d = new Date(now); d.setDate(now.getDate() - w * 7);
-      pastLabels.push(`${MONTHS[d.getMonth()]} ${d.getDate()}`);
-      pastData.push(sorted.filter(e => new Date(e.ts) <= d).reduce((a,e) => a + (e.to - e.from), 0));
-    }
-    const futLabels = [], futData = [];
-    for (let w = 1; w <= 12; w++) {
-      const d = new Date(now); d.setDate(now.getDate() + w * 7);
-      futLabels.push(`${MONTHS[d.getMonth()]} ${d.getDate()}`);
-      futData.push(Math.min(totalPts + dailyRate * w * 7, maxPts));
-    }
-    const allLabels  = [...pastLabels, ...futLabels];
-    const pastFull   = [...pastData, ...Array(12).fill(null)];
-    const futureFull = [...Array(8).fill(null), totalPts, ...futData];
-    const draw = () => {
-      canvasRef.current?._chart?.destroy();
-      canvasRef.current._chart = new window.Chart(canvasRef.current, {
-        type: "line",
-        data: {
-          labels: allLabels,
-          datasets: [
-            { label: "Actual",    data: pastFull,   borderColor: "#a78bfa", backgroundColor: "#a78bfa18", borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#a78bfa", fill: true, tension: 0.3, spanGaps: false },
-            { label: "Projected", data: futureFull, borderColor: "#a78bfa", backgroundColor: "#a78bfa08", borderWidth: 2, borderDash: [6,4], pointRadius: 0, fill: true, tension: 0.3, spanGaps: false },
-            { label: "Max",       data: allLabels.map(() => maxPts), borderColor: "#2a2e38", borderWidth: 1, borderDash: [3,3], pointRadius: 0, fill: false },
-          ],
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${Math.round(ctx.raw||0)} / ${maxPts} levels` } } },
-          scales: {
-            x: { ticks: { color: "#4a5060", font: { size: 10, family: MONO }, maxRotation: 45, autoSkip: true, maxTicksLimit: 8 }, grid: { color: "#1e2130" } },
-            y: { min: 0, max: maxPts, ticks: { color: "#4a5060", font: { size: 10, family: MONO }, stepSize: Math.ceil(maxPts/5) }, grid: { color: "#1e2130" } },
-          },
-        },
-      });
-    };
-    if (!window.Chart) { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"; s.onload = draw; document.head.appendChild(s); }
-    else draw();
-    return () => canvasRef.current?._chart?.destroy();
-  }, [skillLevels]);
-
-  return (
-    <div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
-        <div style={{ background: "#0f1117", border: "1px solid #2a2e38", borderRadius: 8, padding: "10px 14px", flex: 1, minWidth: 100 }}>
-          <div style={{ fontSize: 10, color: "#4a5060", fontFamily: MONO, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Daily rate</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#4ecdc4", fontFamily: MONO }}>{dailyRate.toFixed(2)} <span style={{ fontSize: 10, color: "#4a5060" }}>lvl/day</span></div>
-        </div>
-        <div style={{ background: "#0f1117", border: "1px solid #2a2e38", borderRadius: 8, padding: "10px 14px", flex: 1, minWidth: 100 }}>
-          <div style={{ fontSize: 10, color: "#4a5060", fontFamily: MONO, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Total progress</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#a78bfa", fontFamily: MONO }}>{totalPts} <span style={{ fontSize: 10, color: "#4a5060" }}>/ {maxPts}</span></div>
-        </div>
-        {masteryDate && (
-          <div style={{ background: "#0f1117", border: "1px solid #34d39933", borderRadius: 8, padding: "10px 14px", flex: 2, minWidth: 160 }}>
-            <div style={{ fontSize: 10, color: "#4a5060", fontFamily: MONO, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Full mastery</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#34d399", fontFamily: MONO }}>{masteryDate} <span style={{ fontSize: 10, color: "#4a5060" }}>({daysLeft}d)</span></div>
-          </div>
-        )}
-      </div>
-      <div style={{ position: "relative", width: "100%", height: 200 }}><canvas ref={canvasRef} /></div>
-    </div>
-  );
-}
-
-// ── XP bars ───────────────────────────────────────────────────────────────────
-function XPBars({ skillLevels }) {
-  const totalXP = Object.values(skillLevels).reduce((a, s) => a + (s.level || 0) * 200, 0);
-  return (
-    <div>
-      {COURSES.map(c => {
-        const cs = ALL_SKILLS.filter(s => s.course === c.id);
-        if (!cs.length) return null;
-        const total = cs.reduce((a, s) => a + (skillLevels[s.id]?.level || 0), 0);
-        const max   = cs.length * MAX_LEVEL;
-        const pct   = Math.round((total / max) * 100);
-        const lvl   = Math.floor(total / cs.length) + 1;
-        return (
-          <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <div style={{ width: 100, fontSize: 10, fontWeight: 600, color: "#7a8090", textAlign: "right", flexShrink: 0 }}>{c.label}</div>
-            <div style={{ flex: 1, height: 7, background: "#1e2130", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: c.color, borderRadius: 4, transition: "width 0.8s" }} />
-            </div>
-            <div style={{ fontSize: 10, fontFamily: MONO, color: c.color, width: 44, flexShrink: 0 }}>LVL {lvl}</div>
-          </div>
-        );
-      })}
-      <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #1e2130", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 10, color: "#4a5060", fontFamily: MONO }}>TOTAL XP</span>
-        <span style={{ fontSize: 18, fontWeight: 700, color: "#e8c547", fontFamily: MONO }}>{totalXP.toLocaleString()} <span style={{ fontSize: 10, color: "#4a5060" }}>/ {MAX_XP.toLocaleString()}</span></span>
-      </div>
-    </div>
-  );
-}
-
-// ── Study heatmap ─────────────────────────────────────────────────────────────
-function StudyHeatmap({ studyLog }) {
-  const TOTAL_WEEKS = 36; // wide enough that today (~18 weeks in) sits near center
-  const PAST_WEEKS  = 18; // weeks before today's week
-  const today = new Date(2026, 2, 14); // Mar 14 2026 — local time, not UTC
-  const todayLabel = today.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-  const intensities = ["#1a1f2e","#4ecdc433","#4ecdc466","#4ecdc499","#4ecdc4"];
-  const DAY_LABELS  = ["S","M","T","W","T","F","S"]; // row 0=Sun … 6=Sat
-  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-  // Columns start on Sunday. S M T W T F S display order.
-  const todayDow = today.getDay(); // 0=Sun,1=Mon…
-  const thisSunday = new Date(today);
-  thisSunday.setDate(today.getDate() - todayDow);
-  const gridStart = new Date(thisSunday);
-  gridStart.setDate(thisSunday.getDate() - PAST_WEEKS * 7);
-
-  const cols = [];
-  const monthLabels = [];
-  let lastMonth = null;
-
-  for (let w = 0; w < TOTAL_WEEKS; w++) {
-    const col = [];
-    let colMonthLabel = null;
-
-    const colSunday = new Date(gridStart);
-    colSunday.setDate(gridStart.getDate() + w * 7);
-    const colMonth = colSunday.getMonth();
-    const colYear  = colSunday.getFullYear();
-
-    // Month label fires on the column whose Sunday is the first Sunday of that month
-    if (colMonth !== lastMonth) {
-      colMonthLabel = MONTH_NAMES[colMonth] + " '" + String(colYear).slice(2);
-      lastMonth = colMonth;
-    }
-
-    // Find the day-of-week that the 1st of colMonth falls on (for leading dead cells)
-    const firstOfMonth = new Date(colYear, colMonth, 1);
-    const firstDow = firstOfMonth.getDay(); // 0=Sun…6=Sat — leading dead cells before this dow
-
-    for (let dow = 0; dow < 7; dow++) {
-      const date = new Date(gridStart);
-      date.setDate(gridStart.getDate() + w * 7 + dow);
-      const key = date.toISOString().slice(0, 10);
-      const isFuture = date > today;
-      // Trailing dead: day spills into next month
-      const isTrailingDead = date.getMonth() !== colMonth || date.getFullYear() !== colYear;
-      // Leading dead: first column of a month, dow is before the 1st
-      const isLeadingDead = !!colMonthLabel && dow < firstDow;
-      const isDead = isTrailingDead || isLeadingDead;
-      const level = (isFuture || isDead) ? 0 : Math.min(studyLog[key] || 0, 4);
-      col[dow] = (
-        <div key={dow} title={isDead ? "" : key} style={{
-          width: 11, height: 11,
-          background: isDead ? "transparent" : isFuture ? "#0d1117" : intensities[level],
-          borderRadius: 2,
-          opacity: isDead ? 0 : isFuture ? 0.25 : 1,
-          cursor: "default",
-        }} />
-      );
-    }
-
-    cols.push(col);
-    monthLabels.push(colMonthLabel);
-  }
-
-  let streak = 0; const sd = new Date(today);
-  while (studyLog[sd.toISOString().slice(0, 10)]) { streak++; sd.setDate(sd.getDate() - 1); }
-
-  const CELL = 11, GAP = 3;
-
-  return (
-    <div>
-      {/* top bar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 11, color: "#4a5060" }}>Last {PAST_WEEKS} weeks &nbsp;·&nbsp; <span style={{ color: "#7a8090" }}>{todayLabel}</span></span>
-        {streak > 0 && <span style={{ fontSize: 11, fontFamily: MONO, color: "#4ecdc4", fontWeight: 700 }}>✦ {streak} day streak</span>}
-      </div>
-
-      {/* grid with day-labels on left */}
-      <div style={{ display: "flex", gap: 6 }}>
-        {/* Day labels */}
-        <div style={{ display: "flex", flexDirection: "column", gap: GAP, paddingTop: 18 }}>
-          {DAY_LABELS.map((lbl, i) => (
-            <div key={i} style={{ width: 8, height: CELL, fontSize: 8, color: "#4a5060", lineHeight: `${CELL}px`, textAlign: "right" }}>
-              {lbl}
-            </div>
-          ))}
-        </div>
-
-        {/* Month labels + cell grid */}
-        <div style={{ overflowX: "hidden" }}>
-          {/* Month label row */}
-          <div style={{ display: "flex", marginBottom: 4, height: 14 }}>
-            {monthLabels.map((ml, i) => {
-              if (!ml) return null;
-              let span = 0;
-              for (let j = i; j < monthLabels.length; j++) {
-                if (j === i || !monthLabels[j]) span++;
-                else break;
-              }
-              const colW = CELL + GAP;
-              const monthGapBefore = (i > 0) ? 20 : 0;
-              const totalW = span * colW - GAP;
-              // Offset label to start at the first live cell of the month
-              const firstDow = new Date(
-                new Date(gridStart.getTime() + i * 7 * 86400000).getFullYear(),
-                new Date(gridStart.getTime() + i * 7 * 86400000).getMonth(), 1
-              ).getDay();
-              const labelOffset = firstDow * colW;
-              return (
-                <div key={i} style={{ width: totalW, flexShrink: 0, marginLeft: monthGapBefore, paddingLeft: labelOffset, fontSize: 9, color: "#7a8090", whiteSpace: "nowrap", overflow: "visible" }}>
-                  {ml}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Cell columns */}
-          <div style={{ display: "flex" }}>
-            {cols.map((col, w) => {
-              const isMonthStart = monthLabels[w] && w > 0;
-              return (
-                <div key={w} style={{ display: "flex", flexDirection: "column", gap: GAP, marginLeft: isMonthStart ? 20 : (w > 0 ? GAP : 0), position: "relative" }}>
-                  {isMonthStart && (
-                    <div style={{ position: "absolute", left: -11, top: 0, bottom: 0, width: 1, background: "#e85454", opacity: 0.4 }} />
-                  )}
-                  {col}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* legend */}
-      <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
-        <span style={{ fontSize: 10, color: "#4a5060" }}>Less</span>
-        {intensities.map((c, i) => <div key={i} style={{ width: 10, height: 10, background: c, borderRadius: 2 }} />)}
-        <span style={{ fontSize: 10, color: "#4a5060" }}>More</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Course skill group ────────────────────────────────────────────────────────
-function CourseSkillGroup({ course, skills, skillLevels, onLevelChange, onDeleteLog, tier, onCycleTier }) {
-  const [expanded, setExpanded]       = useState(false);
-  const [expandedSkill, setExpanded2] = useState(null);
-  const [showTierDrop, setShowTierDrop] = useState(false);
-  const [delTarget, setDelTarget]     = useState(null); // { skillId, entryIndex }
-  const [delStep,   setDelStep]       = useState("pw"); // "pw" | "confirm"
-  const [pwInput,   setPwInput]       = useState("");
-  const [pwError,   setPwError]       = useState(false);
-
-  function startDel(skillId, entryIndex) { setDelTarget({ skillId, entryIndex }); setDelStep("pw"); setPwInput(""); setPwError(false); }
-  function cancelDel() { setDelTarget(null); setPwInput(""); setPwError(false); }
-  function submitPw() {
-    if (pwInput === "Jesiah") { setPwError(false); setDelStep("confirm"); }
-    else { setPwError(true); setPwInput(""); }
-  }
-  function confirmDel() { onDeleteLog(delTarget.skillId, delTarget.entryIndex); cancelDel(); }
-
-  const masteredCount = skills.filter(s => (skillLevels[s.id]?.level || 0) === MAX_LEVEL).length;
-  const totalLevels   = skills.reduce((a, s) => a + (skillLevels[s.id]?.level || 0), 0);
-  const pct           = Math.round((totalLevels / (skills.length * MAX_LEVEL)) * 100);
-
-  const TIER_META = {
-    current:  { label: "Current",  color: "#4ecdc4", icon: "◈" },
-    research: { label: "Research", color: "#a78bfa", icon: "◉" },
-    ambition: { label: "Ambition", color: "#fb923c", icon: "◇" },
-  };
-  const tm = TIER_META[tier] || TIER_META.ambition;
-
-  const diffGroups = [1,2,3,4]
-    .map(d => ({ diff: d, label: DIFF_LABELS[d], skills: skills.filter(s => s.diff === d) }))
-    .filter(g => g.skills.length > 0);
-
-  return (
-    <div style={{ background: "#1a1f2e", border: `1px solid ${course.color}22`, borderRadius: 12, overflow: "visible", marginBottom: 10, position: "relative" }}>
-      <div style={{ display: "flex", alignItems: "center", padding: "14px 16px", gap: 12 }}>
-
-        {/* Tier badge — click to open dropdown */}
-        <div style={{ position: "relative", flexShrink: 0 }}>
-          <button onClick={e => { e.stopPropagation(); setShowTierDrop(v => !v); }} style={{
-            padding: "3px 9px", borderRadius: 5,
-            border: `1px solid ${tm.color}44`, background: tm.color + "18",
-            color: tm.color, cursor: "pointer", fontFamily: MONO,
-            fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px",
-            display: "flex", alignItems: "center", gap: 4,
-          }}>
-            {tm.icon} {tm.label} <span style={{ fontSize: 8, opacity: 0.7 }}>▾</span>
-          </button>
-
-          {showTierDrop && (
-            <>
-              {/* Click-away overlay */}
-              <div onClick={() => setShowTierDrop(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
-              <div style={{
-                position: "absolute", top: "calc(100% + 6px)", left: 0,
-                background: "#1e2130", border: "1px solid #2a2e38", borderRadius: 8,
-                padding: 6, zIndex: 100, minWidth: 130,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-              }}>
-                {Object.entries(TIER_META).map(([key, meta]) => (
-                  <button key={key} onClick={e => { e.stopPropagation(); onCycleTier(key); setShowTierDrop(false); }} style={{
-                    width: "100%", display: "flex", alignItems: "center", gap: 8,
-                    padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
-                    background: tier === key ? meta.color + "22" : "transparent",
-                    color: tier === key ? meta.color : "#7a8090",
-                    fontFamily: FONT, fontSize: 12, fontWeight: 600, textAlign: "left",
-                  }}>
-                    <span style={{ fontFamily: MONO, fontSize: 11 }}>{meta.icon}</span>
-                    {meta.label}
-                    {tier === key && <span style={{ marginLeft: "auto", fontSize: 10, color: meta.color }}>✓</span>}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Course info + expand */}
-        <button onClick={() => setExpanded(v => !v)} style={{ flex: 1, background: "transparent", border: "none", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: course.color, flexShrink: 0 }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#d4d8e0", marginBottom: 4 }}>{course.label}</div>
-            <div style={{ height: 4, background: "#2a2e38", borderRadius: 2, overflow: "hidden" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: course.color, borderRadius: 2, transition: "width 0.5s" }} />
-            </div>
-          </div>
-          <div style={{ fontSize: 11, fontFamily: MONO, color: course.color, flexShrink: 0 }}>{masteredCount}/{skills.length}</div>
-          <div style={{ fontSize: 14, color: "#4a5060", transition: "transform 0.2s", transform: expanded ? "rotate(90deg)" : "none" }}>›</div>
-        </button>
-      </div>
-
-      {expanded && (
-        <div style={{ padding: "0 16px 16px" }}>
-          {diffGroups.map(group => (
-            <div key={group.diff} style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#4a5060", fontFamily: MONO, textTransform: "uppercase", letterSpacing: "1px" }}>{group.label}</div>
-                <div style={{ flex: 1, height: 1, background: "#2a2e38" }} />
-                <div style={{ display: "flex", gap: 3 }}>
-                  {Array.from({ length: group.diff }, (_, i) => (
-                    <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: course.color, opacity: 0.4 + i * 0.2 }} />
-                  ))}
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {group.skills.map(skill => {
-                  const level = skillLevels[skill.id]?.level || 0;
-                  const meta  = LEVEL_META[level];
-                  const isOpen = expandedSkill === skill.id;
-                  const log   = skillLevels[skill.id]?.log || [];
-                  return (
-                    <div key={skill.id} style={{ background: "#0f1117", border: `1px solid ${meta.color}33`, borderRadius: 10, overflow: "hidden" }}>
-                      <button onClick={() => setExpanded2(isOpen ? null : skill.id)} style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ display: "flex", gap: 3, flexShrink: 0 }}>
-                          {Array.from({ length: MAX_LEVEL }, (_, i) => (
-                            <div key={i} style={{ width: 14, height: 5, borderRadius: 2, background: i < level ? LEVEL_META[i+1].color : "#2a2e38" }} />
-                          ))}
-                        </div>
-                        <div style={{ flex: 1, textAlign: "left" }}>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: level > 0 ? "#d4d8e0" : "#5a6070" }}>{skill.label}</span>
-                        </div>
-                        <span style={{ fontSize: 10, color: meta.color, fontFamily: MONO, fontWeight: 700, flexShrink: 0 }}>{meta.label}</span>
-                        <span style={{ fontSize: 12, color: "#4a5060", transition: "transform 0.2s", transform: isOpen ? "rotate(90deg)" : "none", flexShrink: 0 }}>›</span>
-                      </button>
-                      {isOpen && (
-                        <div style={{ padding: "0 14px 14px", borderTop: "1px solid #1a1f2e" }}>
-                          <div style={{ display: "flex", gap: 6, marginTop: 12, marginBottom: 12 }}>
-                            {level > 0 && (
-                              <button onClick={() => onLevelChange(skill, level - 1)} style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #2a2e38", background: "transparent", color: "#4a5060", cursor: "pointer", fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>▼ {LEVEL_META[level-1].label}</button>
-                            )}
-                            {level < MAX_LEVEL && (
-                              <button onClick={() => onLevelChange(skill, level + 1)} style={{ flex: 1, padding: "6px 0", borderRadius: 6, border: `1px solid ${LEVEL_META[level+1].color}55`, background: LEVEL_META[level+1].bg, color: LEVEL_META[level+1].color, cursor: "pointer", fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>▲ Level up to {LEVEL_META[level+1].label}</button>
-                            )}
-                            {level === MAX_LEVEL && (
-                              <div style={{ fontSize: 12, color: "#34d399", fontFamily: MONO, padding: "6px 0" }}>✓ Fully mastered</div>
-                            )}
-                          </div>
-                          {log.length > 0 && (
-                            <div>
-                              <div style={{ fontSize: 10, fontWeight: 700, color: "#4a5060", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 8 }}>Progress log</div>
-                              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                {[...log].reverse().map((entry, i) => {
-                                  const realIdx = log.length - 1 - i;
-                                  const isDeleting = delTarget?.skillId === skill.id && delTarget?.entryIndex === realIdx;
-                                  return (
-                                  <div key={i} style={{ background: "#161920", borderRadius: 8, padding: "8px 12px", borderLeft: `2px solid ${LEVEL_META[entry.to]?.color || "#4a5060"}` }}>
-                                    <div style={{ display: "flex", gap: 8, marginBottom: 4, alignItems: "center" }}>
-                                      <span style={{ fontSize: 10, color: LEVEL_META[entry.from]?.color, fontFamily: MONO }}>{LEVEL_META[entry.from]?.label}</span>
-                                      <span style={{ fontSize: 10, color: "#4a5060" }}>→</span>
-                                      <span style={{ fontSize: 10, color: LEVEL_META[entry.to]?.color, fontFamily: MONO, fontWeight: 700 }}>{LEVEL_META[entry.to]?.label}</span>
-                                      <span style={{ fontSize: 10, color: "#3a4052", marginLeft: "auto", fontFamily: MONO }}>{new Date(entry.ts).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                                      {!isDeleting && <button onClick={() => startDel(skill.id, realIdx)} style={{ background: "none", border: "none", color: "#3a4052", cursor: "pointer", fontSize: 11, padding: "0 2px", fontFamily: MONO }} title="delete entry">✕</button>}
-                                    </div>
-                                    <div style={{ fontSize: 11, color: "#5a6070", fontStyle: "italic", lineHeight: 1.5 }}>"{entry.note}"</div>
-                                    {isDeleting && (
-                                      <div style={{ marginTop: 8 }}>
-                                        {delStep === "pw" ? (
-                                          <>
-                                            <div style={{ fontSize: 10, color: "#8090a8", fontFamily: MONO, marginBottom: 5, letterSpacing: "1px" }}>password required</div>
-                                            <input autoFocus type="password" value={pwInput}
-                                              onChange={e => { setPwInput(e.target.value); setPwError(false); }}
-                                              onKeyDown={e => { if (e.key === "Enter") submitPw(); if (e.key === "Escape") cancelDel(); }}
-                                              placeholder="password"
-                                              style={{ width: "100%", boxSizing: "border-box", background: "#0d0f14", border: `1px solid ${pwError ? "#e85454" : "#2a2e38"}`, borderRadius: 5, color: "#d4d8e0", fontSize: 12, fontFamily: MONO, padding: "5px 8px", outline: "none", marginBottom: 5 }}
-                                            />
-                                            {pwError && <div style={{ fontSize: 10, color: "#e85454", fontFamily: MONO, marginBottom: 5 }}>incorrect</div>}
-                                            <div style={{ display: "flex", gap: 6 }}>
-                                              <button onClick={cancelDel} style={{ flex: 1, padding: "4px 0", background: "none", border: "1px solid #2a2e38", borderRadius: 5, color: "#8090a8", fontSize: 11, fontFamily: MONO, cursor: "pointer" }}>cancel</button>
-                                              <button onClick={submitPw} style={{ flex: 1, padding: "4px 0", background: "#2a2e38", border: "none", borderRadius: 5, color: "#d4d8e0", fontSize: 11, fontFamily: MONO, fontWeight: 700, cursor: "pointer" }}>next</button>
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <div style={{ fontSize: 11, color: "#e8eaf0", fontFamily: MONO, marginBottom: 8 }}>delete this entry? level will revert.</div>
-                                            <div style={{ display: "flex", gap: 6 }}>
-                                              <button onClick={cancelDel} style={{ flex: 1, padding: "4px 0", background: "none", border: "1px solid #2a2e38", borderRadius: 5, color: "#8090a8", fontSize: 11, fontFamily: MONO, cursor: "pointer" }}>cancel</button>
-                                              <button onClick={confirmDel} style={{ flex: 1, padding: "4px 0", background: "#e85454", border: "none", borderRadius: 5, color: "#fff", fontSize: 11, fontFamily: MONO, fontWeight: 700, cursor: "pointer" }}>delete</button>
-                                            </div>
-                                          </>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
 export default function DeadlinesPage() {
   const [deadlines,   setDeadlines]   = useState(INITIAL_DEADLINES);
-  const [skillLevels, setSkillLevels] = useState(INITIAL_SKILL_LEVELS);
+  const [skillLevels] = useState(INITIAL_SKILL_LEVELS);
+  const [courseTiers] = useState(INITIAL_COURSE_TIERS);
   const [view,        setView]        = useState("month");
   const [tab,         setTab]         = useState("school");
   const [showAdd,     setShowAdd]     = useState(false);
-  const [modal,       setModal]       = useState(null);
-  const [skillMode,   setSkillMode]   = useState("current");
-  const [courseTiers, setCourseTiers] = useState(INITIAL_COURSE_TIERS);
   const [today]                       = useState(new Date());
   const [calDate,     setCalDate]     = useState(new Date());
   const [form, setForm] = useState({ title: "", course: "", date: "", time: "", notes: "", type: "school", priority: "normal" });
@@ -959,12 +460,8 @@ export default function DeadlinesPage() {
     if (!IS_TAURI) return;
     invoke("load_memory").then(raw => {
       try {
-        const dl   = raw.match(/export const DEADLINES = (\[[\s\S]*?\]);/)?.[1];
-        const sl   = raw.match(/export const SKILL_LEVELS = (\{[\s\S]*?\});/)?.[1];
-        const ct   = raw.match(/export const COURSE_TIERS = (\{[\s\S]*?\});/)?.[1];
+        const dl = raw.match(/export const DEADLINES = (\[\s\S]*?\]);/)?.[1];
         if (dl) setDeadlines(JSON.parse(dl));
-        if (sl) setSkillLevels(JSON.parse(sl));
-        if (ct) setCourseTiers(JSON.parse(ct));
       } catch(e) { console.error("Failed to parse memory.js", e); }
     }).catch(e => console.error("load_memory failed", e));
   }, []);
@@ -973,11 +470,6 @@ export default function DeadlinesPage() {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
     persistToFile(deadlines, skillLevels, courseTiers);
   }, [deadlines, skillLevels, courseTiers]);
-
-  function cycleTier(courseId, newTier) {
-    setCourseTiers(prev => ({ ...prev, [courseId]: newTier }));
-  }
-
 
   function openAddWithDate(y, m, d) {
     const dateStr = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
@@ -992,8 +484,47 @@ export default function DeadlinesPage() {
     setShowAdd(false);
   }
 
-  function toggleDone(id) {
-    setDeadlines(prev => prev.map(d => d.id === id ? { ...d, done: !d.done } : d));
+  const [celebrating, setCelebrating] = useState(null);
+  const [confirmStatus, setConfirmStatus] = useState(null);
+  const [subtaskModal, setSubtaskModal] = useState(null); // { id, phase: "count"|"name", count, steps }
+  const [reflectModal, setReflectModal] = useState(null); // { id }
+  const [reflectInput, setReflectInput] = useState("");
+
+  function cycleStatus(id) {
+    const dl = deadlines.find(d => d.id === id);
+    if (!dl) return;
+    if (dl.done) {
+      setConfirmStatus({ id, nextStatus: "none", label: "Unmark as done?" });
+    } else if (dl.status === "inprogress") {
+      if (dl.subtasks?.length > 0 && !dl.subtasks.every(s => s.done)) {
+        const nextIdx = dl.subtasks.findIndex(s => !s.done);
+        const updated = dl.subtasks.map((s, i) => i === nextIdx ? { ...s, done: true } : s);
+        setDeadlines(p => p.map(d => d.id === id ? { ...d, subtasks: updated } : d));
+        if (updated.every(s => s.done)) {
+          setTimeout(() => { setReflectModal({ id }); setReflectInput(""); }, 150);
+        }
+        return;
+      }
+      setConfirmStatus({ id, nextStatus: "done", label: "Mark as completed?" });
+    } else {
+      setConfirmStatus({ id, nextStatus: "inprogress", label: "Mark as started?" });
+    }
+  }
+
+  function applyStatus() {
+    if (!confirmStatus) return;
+    const { id, nextStatus } = confirmStatus;
+    setConfirmStatus(null);
+    if (nextStatus === "none") {
+      setDeadlines(prev => prev.map(d => d.id === id ? { ...d, done: false, status: "none", completedAt: undefined } : d));
+    } else if (nextStatus === "done") {
+      setDeadlines(prev => prev.map(d => d.id === id ? { ...d, done: true, status: "done", completedAt: new Date().toISOString().slice(0,10) } : d));
+      setReflectModal({ id });
+      setReflectInput("");
+    } else if (nextStatus === "inprogress") {
+      setDeadlines(prev => prev.map(d => d.id === id ? { ...d, status: "inprogress", startedAt: d.startedAt || new Date().toISOString().slice(0,10) } : d));
+      setSubtaskModal({ id, phase: "count", count: 1, steps: [] });
+    }
   }
 
   const [expandedDl,  setExpandedDl]  = useState(null);
@@ -1010,42 +541,38 @@ export default function DeadlinesPage() {
   }
   function confirmDelDl() { setDeadlines(p => p.filter(d => d.id !== delDlTarget)); cancelDelDl(); }
 
-  function handleLevelChange(skill, targetLevel) {
-    setModal({ skill, from: skillLevels[skill.id]?.level || 0, to: targetLevel });
-  }
+  const doneToday = deadlines.filter(d => d.done && d.completedAt === new Date().toISOString().slice(0,10));
 
-  function confirmLevelChange(note) {
-    if (!modal) return;
-    const { skill, from, to } = modal;
-    setSkillLevels(prev => ({
-      ...prev,
-      [skill.id]: { level: to, log: [...(prev[skill.id]?.log || []), { ts: new Date().toISOString(), from, to, note }] },
-    }));
-    setModal(null);
-  }
-
-  function handleDeleteLog(skillId, entryIndex) {
-    setSkillLevels(prev => {
-      const entry = prev[skillId] || { level: 0, log: [] };
-      const newLog = entry.log.filter((_, i) => i !== entryIndex);
-      // revert level to the `to` of the previous entry, or 0 if log is now empty
-      const newLevel = newLog.length > 0 ? newLog[newLog.length - 1].to : 0;
-      return { ...prev, [skillId]: { level: newLevel, log: newLog } };
-    });
-  }
-
-  const calYear = calDate.getFullYear(), calMonth = calDate.getMonth();
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
-  const weekDays = Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(weekStart.getDate()+i); return d; });
-
+  // Derived state
   const isCompletedTab = tab === "completed";
-  const filtered = isCompletedTab ? [] : deadlines.filter(d => d.type===tab && !d.done);
-  const done     = isCompletedTab ? deadlines.filter(d => d.done) : deadlines.filter(d => d.type===tab && d.done);
-  const totalPts = Object.values(skillLevels).reduce((a,s) => a+(s.level||0), 0);
-  const maxPts   = TOTAL_SKILLS * MAX_LEVEL;
-  const pct      = Math.round((totalPts/maxPts)*100);
+  const done     = deadlines.filter(d => d.done);
+  const filtered = deadlines.filter(d => !d.done && d.type === tab);
+  const dueNow   = deadlines.filter(d => !d.done && getDaysUntil(d.date) <= 2);
+
+  // Calendar helpers
+  const calYear      = calDate.getFullYear();
+  const calMonth     = calDate.getMonth();
+  const firstDay     = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth  = new Date(calYear, calMonth + 1, 0).getDate();
+
+  // Week view: Sun–Sat of the current week
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return d;
+  });
+
+  // Weekly load bar data
+  const weekLoad = weekDays.map(d => {
+    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    return {
+      str,
+      label: DAYS[d.getDay()],
+      count: deadlines.filter(dl => dl.date === str && !dl.done).length,
+    };
+  });
 
   const sect = (title, children, extra) => (
     <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20, marginBottom: 20 }}>
@@ -1058,31 +585,153 @@ export default function DeadlinesPage() {
   );
 
   return (
-    <div style={{ height: "100%", overflowY: "auto", background: "#0f1117", fontFamily: FONT, color: "#d4d8e0" }}>
-      {modal && <LevelUpModal skill={modal.skill} currentLevel={modal.from} targetLevel={modal.to} onConfirm={confirmLevelChange} onCancel={() => setModal(null)} />}
+    <>
+      {subtaskModal && (
+        <div style={{position:"fixed",inset:0,zIndex:998,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.6)"}}
+          onClick={() => setSubtaskModal(null)}>
+          <div style={{background:"#161920",border:"1px solid #7eb8f744",borderRadius:14,padding:"24px 28px",minWidth:320,maxWidth:440,display:"flex",flexDirection:"column",gap:16}}
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:"#7eb8f7",fontFamily:FONT,marginBottom:4}}>
+                {subtaskModal.phase === "count" ? "How many steps will this take?" : "Name each step"}
+              </div>
+              <div style={{fontSize:11,color:"#4a5060"}}>{deadlines.find(d=>d.id===subtaskModal.id)?.title}</div>
+            </div>
 
+            {subtaskModal.phase === "count" ? (
+              <>
+                <div style={{display:"flex",gap:8}}>
+                  {[1,2,3,4,5].map(n => (
+                    <button key={n} onClick={() => setSubtaskModal(m => ({...m, count: n}))}
+                      style={{flex:1,padding:"10px 0",borderRadius:8,border:`1px solid ${subtaskModal.count===n?"#7eb8f7":"#2a2e38"}`,
+                        background:subtaskModal.count===n?"#7eb8f720":"transparent",
+                        color:subtaskModal.count===n?"#7eb8f7":"#7a8090",fontFamily:MONO,fontSize:14,fontWeight:700,cursor:"pointer"}}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:10}}>
+                  <button onClick={() => setSubtaskModal(null)} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>Skip</button>
+                  <button onClick={() => setSubtaskModal(m => ({...m, phase:"name", steps: Array(m.count).fill("")}))}
+                    style={{flex:1,padding:"8px 0",background:"#7eb8f720",border:"1px solid #7eb8f744",borderRadius:8,color:"#7eb8f7",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                    Next →
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {subtaskModal.steps.map((step, i) => (
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO,width:16,textAlign:"right",flexShrink:0}}>{i+1}</span>
+                      <input
+                        autoFocus={i===0}
+                        value={step}
+                        onChange={e => setSubtaskModal(m => ({...m, steps: m.steps.map((s,j) => j===i ? e.target.value : s)}))}
+                        onKeyDown={e => { if (e.key==="Enter" && i < subtaskModal.steps.length-1) { e.preventDefault(); document.querySelectorAll(".subtask-input")[i+1]?.focus(); }}}
+                        className="subtask-input"
+                        placeholder={`Step ${i+1}…`}
+                        style={{...inputStyle,fontSize:12,padding:"6px 10px"}}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:10}}>
+                  <button onClick={() => setSubtaskModal(m => ({...m, phase:"count"}))} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>← Back</button>
+                  <button onClick={() => {
+                    const steps = subtaskModal.steps.map((s,i) => ({id: `${subtaskModal.id}_step_${i}`, label: s||`Step ${i+1}`, done: false}));
+                    setDeadlines(p=>p.map(d=>d.id===subtaskModal.id?{...d,subtasks:steps}:d));
+                    setSubtaskModal(null);
+                  }} style={{flex:1,padding:"8px 0",background:"#7eb8f720",border:"1px solid #7eb8f744",borderRadius:8,color:"#7eb8f7",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                    Save steps
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      {reflectModal && (
+        <div style={{position:"fixed",inset:0,zIndex:998,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.6)"}}
+          onClick={() => setReflectModal(null)}>
+          <div style={{background:"#161920",border:"1px solid #34d39944",borderRadius:14,padding:"24px 28px",minWidth:300,maxWidth:420,display:"flex",flexDirection:"column",gap:14}}
+            onClick={e => e.stopPropagation()}>
+            <div style={{fontSize:13,fontWeight:700,color:"#34d399",fontFamily:FONT}}>How did it go?</div>
+            <div style={{fontSize:11,color:"#4a5060"}}>{deadlines.find(d=>d.id===reflectModal.id)?.title}</div>
+            <textarea
+              autoFocus
+              value={reflectInput}
+              onChange={e => setReflectInput(e.target.value)}
+              placeholder="Optional — what worked, what didn't, what you'd do differently..."
+              style={{...inputStyle,fontSize:12,resize:"vertical",minHeight:72}}
+            />
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>{
+                const rid = reflectModal.id;
+                setDeadlines(p=>p.map(d=>d.id===rid?{...d,
+                  done:true, status:"done",
+                  completedAt: d.completedAt || new Date().toISOString().slice(0,10)
+                }:d));
+                setReflectModal(null);
+                setCelebrating(rid);
+                setTimeout(() => setCelebrating(null), 2200);
+              }} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>Skip</button>
+              <button onClick={()=>{
+                const rid = reflectModal.id;
+                setDeadlines(p=>p.map(d=>d.id===rid?{...d,
+                  reflection:reflectInput,
+                  done:true, status:"done",
+                  completedAt: d.completedAt || new Date().toISOString().slice(0,10)
+                }:d));
+                setReflectModal(null);
+                setCelebrating(rid);
+                setTimeout(() => setCelebrating(null), 2200);
+              }} style={{flex:1,padding:"8px 0",background:"#34d39920",border:"1px solid #34d39944",borderRadius:8,color:"#34d399",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmStatus && (
+        <div style={{position:"fixed",inset:0,zIndex:998,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.6)"}}
+          onClick={() => setConfirmStatus(null)}>
+          <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:14,padding:"24px 28px",minWidth:260,display:"flex",flexDirection:"column",gap:16}}
+            onClick={e => e.stopPropagation()}>
+            <div style={{fontSize:13,fontWeight:700,color:"#d4d8e0",fontFamily:FONT}}>{confirmStatus.label}</div>
+            <div style={{fontSize:11,color:"#4a5060",fontFamily:FONT}}>
+              {deadlines.find(d=>d.id===confirmStatus.id)?.title}
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={() => setConfirmStatus(null)} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>
+                Cancel
+              </button>
+              <button onClick={applyStatus} style={{flex:1,padding:"8px 0",background:"#34d39920",border:"1px solid #34d39944",borderRadius:8,color:"#34d399",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {celebrating && (
+        <div style={{position:"fixed",inset:0,zIndex:999,pointerEvents:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{
+            display:"flex",flexDirection:"column",alignItems:"center",gap:8,
+            animation:"celebratePop 1.8s ease-out forwards",
+          }}>
+            <div style={{fontSize:28,fontWeight:800,color:"#34d399",fontFamily:MONO,letterSpacing:"2px"}}>✓ DONE</div>
+            <div style={{fontSize:12,color:"#34d399",fontFamily:FONT,letterSpacing:"1px",fontWeight:600}}>YOU DID IT :))</div>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes celebratePop { 0%{transform:scale(0.6) translateY(10px);opacity:0} 20%{transform:scale(1.1) translateY(-6px);opacity:1} 60%{transform:scale(1) translateY(0);opacity:1} 100%{transform:scale(0.95) translateY(-20px);opacity:0} }`}</style>
+    <div style={{ height: "100%", overflowY: "auto", background: "#0f1117", fontFamily: FONT, color: "#d4d8e0" }}>
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 100px" }}>
 
         <div style={{ marginBottom: 28 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>Coogs Hub</div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>Deadlines & Progress</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#e2e8f0", margin: 0 }}>Deadlines</h1>
         </div>
 
-        {/* Overall progress */}
-        <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: "14px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#4a5060", letterSpacing: "1px", textTransform: "uppercase" }}>Overall mastery</span>
-              <span style={{ fontSize: 11, fontFamily: MONO, color: "#a78bfa" }}>{totalPts}/{maxPts} · {TOTAL_SKILLS} skills</span>
-            </div>
-            <div style={{ height: 6, background: "#1e2130", borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: "linear-gradient(90deg, #4ecdc4, #a78bfa)", borderRadius: 3, transition: "width 0.5s" }} />
-            </div>
-          </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#a78bfa", fontFamily: MONO, flexShrink: 0 }}>{pct}%</div>
-        </div>
-
-        {/* Tabs */}
+{/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {[
             { id: "school",    label: "◈ School",    color: "#e8c547" },
@@ -1133,6 +782,59 @@ export default function DeadlinesPage() {
         )}
 
         {/* Calendar */}
+        {/* Weekly load */}
+        {!isCompletedTab && (
+          <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:12,padding:"14px 20px",marginBottom:16}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>This week</div>
+            <div style={{display:"flex",gap:6,alignItems:"flex-end",height:40}}>
+              {weekLoad.map((day,i) => {
+                const isToday = day.str === new Date().toISOString().slice(0,10);
+                const h = day.count === 0 ? 4 : Math.min(40, 8 + day.count * 10);
+                return (
+                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                    <div style={{width:"100%",height:h,background:isToday?"#e8c547":(day.count>2?"#fb923c":day.count>0?"#4ecdc4":"#1e2130"),borderRadius:3,transition:"height 0.3s"}}/>
+                    <span style={{fontSize:9,color:isToday?"#e8c547":"#4a5060",fontWeight:isToday?700:400}}>{day.label}</span>
+                    {day.count > 0 && <span style={{fontSize:8,color:"#4a5060"}}>{day.count}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {!isCompletedTab && dueNow.length > 0 && (
+          <div style={{
+            background: "#ff444415", border: "1px solid #ff444444",
+            borderLeft: "4px solid #ff4444", borderRadius: "0 10px 10px 0",
+            padding: "12px 18px", marginBottom: 16,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 14, fontWeight: 900, color: "#ff4444", fontFamily: MONO }}>!!</span>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ff4444" }}>
+                  {dueNow.length} deadline{dueNow.length > 1 ? "s" : ""} need attention now
+                </div>
+                <div style={{ fontSize: 11, color: "#7a8090", marginTop: 2 }}>
+                  {dueNow.map(d => d.title).join(" · ")}
+                </div>
+              </div>
+            </div>
+            {doneToday.length > 0 && (
+              <div style={{ fontSize: 11, color: "#34d399", fontWeight: 700, fontFamily: MONO }}>
+                ✓ {doneToday.length} done today
+              </div>
+            )}
+          </div>
+        )}
+        {!isCompletedTab && dueNow.length === 0 && doneToday.length > 0 && (
+          <div style={{
+            background: "#34d39910", border: "1px solid #34d39933",
+            borderRadius: 10, padding: "10px 16px", marginBottom: 16,
+            fontSize: 12, color: "#34d399", fontWeight: 700,
+          }}>
+            ✓ {doneToday.length} completed today — good work
+          </div>
+        )}
         {sect("Calendar",
           <>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
@@ -1196,19 +898,28 @@ export default function DeadlinesPage() {
         {isCompletedTab ? sect("Completed", (
           done.length === 0
             ? <div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No completed deadlines yet.</div>
-            : <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {done.map(dl=>{
+            : <div style={{display:"flex",flexDirection:"column",gap:20}}>
+                {["school","research"].map(type => {
+                  const group = done.filter(d => d.type === type);
+                  if (group.length === 0) return null;
+                  const typeColor = type === "school" ? "#e8c547" : "#a78bfa";
+                  return (
+                    <div key={type}>
+                      <div style={{fontSize:10,fontWeight:700,color:typeColor,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8,paddingBottom:6,borderBottom:`1px solid ${typeColor}22`}}>
+                        {type} · {group.length}
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                      {group.map(dl=>{
                   const course=COURSES.find(c=>c.id===dl.course);
-                  const typeColor = dl.type==="school" ? "#e8c547" : "#a78bfa";
                   return(
-                    <div key={dl.id} style={{background:"#0f1117",border:"1px solid #2a2e38",borderLeft:"3px solid #34d399",borderRadius:"0 10px 10px 0",padding:"10px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.75}}>
-                      <button onClick={()=>toggleDone(dl.id)} title="Mark incomplete" style={{width:16,height:16,borderRadius:"50%",border:"2px solid #34d399",background:"#34d399",cursor:"pointer",flexShrink:0}}/>
+                    <div key={dl.id} style={{background:"#0f1117",border:"1px solid #2a2e38",borderLeft:`3px solid ${typeColor}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
+                      <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.75,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
+                      <button onClick={e=>{e.stopPropagation();cycleStatus(dl.id);}} title="Mark incomplete" style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${typeColor}`,background:typeColor,cursor:"pointer",flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:600,color:"#7a8090",textDecoration:"line-through",marginBottom:2}}>{dl.title}</div>
                         <div style={{display:"flex",gap:8}}>
-                          <span style={{fontSize:10,color:typeColor,fontFamily:MONO,textTransform:"uppercase"}}>{dl.type}</span>
                           {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
-                          <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}</span>
+                          <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
                         </div>
                       </div>
                       {delDlTarget === dl.id ? (
@@ -1238,8 +949,64 @@ export default function DeadlinesPage() {
                           )}
                         </div>
                       ) : (
-                        <button onClick={()=>startDelDl(dl.id)} style={{padding:"4px 8px",borderRadius:6,border:"1px solid #e8545422",background:"transparent",color:"#4a5060",cursor:"pointer",fontFamily:MONO,fontSize:11,flexShrink:0}}>✕</button>
+                        <button onClick={e=>{e.stopPropagation();startDelDl(dl.id);}} style={{padding:"4px 8px",borderRadius:6,border:"1px solid #e8545422",background:"transparent",color:"#4a5060",cursor:"pointer",fontFamily:MONO,fontSize:11,flexShrink:0}}>✕</button>
                       )}
+                      </div>
+                      {expandedDl === dl.id && (
+                        <div style={{padding:"12px 14px 14px",borderTop:`1px solid ${typeColor}22`,display:"flex",flexDirection:"column",gap:8}}>
+                          <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Due</div>
+                              <div style={{fontSize:12,color:"#d4d8e0",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</div>
+                            </div>
+                            {dl.completedAt && (
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Completed</div>
+                                <div style={{fontSize:12,color:"#34d399",fontFamily:MONO}}>{dl.completedAt}</div>
+                              </div>
+                            )}
+                          {dl.startedAt && dl.completedAt && (
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Duration</div>
+                                <div style={{fontSize:12,color:"#a78bfa",fontFamily:MONO}}>{
+                                  (() => {
+                                    const days = Math.round((new Date(dl.completedAt) - new Date(dl.startedAt)) / 86400000);
+                                    return days === 0 ? "same day" : `${days} day${days !== 1 ? "s" : ""}`;
+                                  })()
+                                }</div>
+                              </div>
+                            )}
+                            {dl.priority && dl.priority !== "normal" && (
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Priority</div>
+                                <div style={{fontSize:12,color:dl.priority==="high"?"#fb923c":"#60a5fa"}}>{dl.priority}</div>
+                              </div>
+                            )}
+                          </div>
+                          {dl.notes && (
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Notes</div>
+                              <div style={{fontSize:12,color:"#9aa0b0",lineHeight:1.6}}>{dl.notes}</div>
+                            </div>
+                          )}
+                          {dl.reflection && (
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#34d399",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Reflection</div>
+                              <div style={{fontSize:12,color:"#34d39999",lineHeight:1.6,fontStyle:"italic"}}>"{dl.reflection}"</div>
+                            </div>
+                          )}
+                          {dl.subtasks?.length > 0 && (
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#7eb8f7",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Steps completed</div>
+                              <div style={{fontSize:12,color:"#7eb8f799",fontFamily:MONO}}>{dl.subtasks.filter(s=>s.done).length}/{dl.subtasks.length}</div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                      </div>
                     </div>
                   );
                 })}
@@ -1250,25 +1017,172 @@ export default function DeadlinesPage() {
               ? <div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No upcoming deadlines. Click a day or use + Add.</div>
               : <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {filtered.map(dl=>{
-                    const days=getDaysUntil(dl.date),uc=urgencyColor(days),course=COURSES.find(c=>c.id===dl.course);
+                    const days=getDaysUntil(dl.date),tier=urgencyTier(days),uc=tier.color,course=COURSES.find(c=>c.id===dl.course);
                     return(
-                      <div key={dl.id} style={{background:"#0f1117",border:`1px solid ${uc}33`,borderLeft:`3px solid ${uc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
-                        <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
-                          <button onClick={()=>toggleDone(dl.id)} title="Mark complete" style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${uc}`,background:"transparent",cursor:"pointer",flexShrink:0}}/>
+                      <div key={dl.id} style={{background:"#0f1117",border:`1px solid ${uc}${tier.bold?"55":"22"}`,borderLeft:`${tier.bold?4:3}px solid ${uc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
+                        <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,background:tier.bold?uc+"08":"transparent"}}>
+                          <button
+                            onClick={e => { e.stopPropagation(); cycleStatus(dl.id); }}
+                            title={dl.status==="inprogress"
+                              ? (dl.subtasks?.length > 0 && !dl.subtasks.every(s=>s.done)
+                                ? `Complete all steps first (${dl.subtasks.filter(s=>s.done).length}/${dl.subtasks.length})`
+                                : "Mark complete")
+                              : "Mark in progress"}
+                            style={{
+                              width:18, height:18, borderRadius:"50%", cursor:"pointer", flexShrink:0,
+                              border:`2px solid ${dl.status==="inprogress" ? "#7eb8f7" : uc}`,
+                              background: dl.status==="inprogress" ? "#7eb8f722" : "transparent",
+                              position:"relative", transition:"all 0.2s",
+                            }}
+                          >
+                            {dl.status==="inprogress" && (
+                              <div style={{position:"absolute",inset:2,borderRadius:"50%",background:"#7eb8f7",opacity:0.6}}/>
+                            )}
+                          </button>
                           <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
-                            <div style={{fontSize:13,fontWeight:600,color:"#d4d8e0",marginBottom:2}}>{dl.title}</div>
+                            <div style={{fontSize:13,fontWeight:tier.bold?700:600,color:tier.bold?"#f0f0f0":"#d4d8e0",marginBottom:2}}>{dl.title}</div>
                             <div style={{display:"flex",gap:8}}>
                               {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
                               <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
+                              {dl.status==="inprogress" && dl.startedAt && (
+                                <span style={{fontSize:10,color:"#7eb8f7",fontFamily:MONO}}>● started {dl.startedAt}</span>
+                              )}
+                              {!dl.status && dl.id && (() => {
+                                const daysAgo = Math.floor((Date.now() - parseInt(dl.id)) / 86400000);
+                                return daysAgo >= 7 ? (
+                                  <span style={{fontSize:10,color:"#3a4052",fontFamily:MONO,fontStyle:"italic"}}>in list {daysAgo}d</span>
+                                ) : null;
+                              })()}
+                              {dl.timeEst && <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>· {dl.timeEst}</span>}
+                              {dl.subtasks?.length > 0 && (
+                                <span style={{fontSize:10,color:"#7eb8f7",fontFamily:MONO}}>
+                                  · {dl.subtasks.filter(s=>s.done).length}/{dl.subtasks.length} steps
+                                </span>
+                              )}
                             </div>
                           </div>
-                          <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}33`,borderRadius:6,padding:"3px 8px",flexShrink:0}}>{urgencyLabel(days)}</div>
+                          <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",flexShrink:0,letterSpacing:tier.bold?"0.5px":0}}>{urgencyLabel(days)}</div>
                           <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
                         </div>
-                        {expandedDl === dl.id && dl.notes && (
-                          <div style={{padding:"8px 14px 12px 46px",borderTop:`1px solid ${uc}22`}}>
-                            <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Notes</div>
-                            <div style={{fontSize:12,color:"#9aa0b0",lineHeight:1.6,fontFamily:FONT}}>{dl.notes}</div>
+                        {expandedDl === dl.id && (
+                          <div style={{padding:"12px 14px 14px",borderTop:`1px solid ${uc}22`,display:"flex",flexDirection:"column",gap:10}}>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Title</div>
+                                <input
+                                  value={dl.title}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,title:e.target.value}:d))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                />
+                              </div>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Course</div>
+                                <select
+                                  value={dl.course}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,course:e.target.value}:d))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                >
+                                  <option value="">No course</option>
+                                  {COURSES.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Date</div>
+                                <input
+                                  type="date"
+                                  value={dl.date}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,date:e.target.value}:d).sort((a,b)=>a.date.localeCompare(b.date)))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                />
+                              </div>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Type</div>
+                                <select
+                                  value={dl.type}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,type:e.target.value}:d))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                >
+                                  <option value="school">School</option>
+                                  <option value="research">Research</option>
+                                </select>
+                              </div>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Priority</div>
+                                <select
+                                  value={dl.priority}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,priority:e.target.value}:d))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                >
+                                  <option value="low">Low</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="high">High</option>
+                                </select>
+                              </div>
+                              <div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Time</div>
+                                <input
+                                  type="time"
+                                  value={dl.time||""}
+                                  onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,time:e.target.value}:d))}
+                                  style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Notes</div>
+                              <textarea
+                                value={dl.notes||""}
+                                onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,notes:e.target.value}:d))}
+                                placeholder="Add notes…"
+                                style={{...inputStyle,fontSize:12,padding:"6px 8px",resize:"vertical",minHeight:52,width:"100%",boxSizing:"border-box"}}
+                              />
+                            </div>
+                            <div>
+                              <div style={{fontSize:9,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Time estimate</div>
+                              <input
+                                value={dl.timeEst||""}
+                                onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,timeEst:e.target.value}:d))}
+                                placeholder="e.g. ~2 hrs, 30 min…"
+                                style={{...inputStyle,fontSize:12,padding:"5px 8px"}}
+                              />
+                            </div>
+                            {dl.subtasks?.length > 0 && (
+                              <div style={{gridColumn:"1/-1"}}>
+                                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                                  <div style={{fontSize:9,fontWeight:700,color:"#7eb8f7",letterSpacing:"1px",textTransform:"uppercase"}}>Steps</div>
+                                  <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.subtasks.filter(s=>s.done).length}/{dl.subtasks.length}</span>
+                                </div>
+                                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                                  {dl.subtasks.map((step,si) => (
+                                    <div key={step.id} style={{display:"flex",alignItems:"center",gap:8}}>
+                                      <button onClick={() => {
+                                        const updated = dl.subtasks.map((s,j) => j===si?{...s,done:!s.done}:s);
+                                        setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,subtasks:updated}:d));
+                                        // Only when checking (not unchecking) the last step
+                                        if (!step.done && updated.every(s=>s.done)) {
+                                          setTimeout(() => {
+                                            setReflectModal({id:dl.id});
+                                            setReflectInput("");
+                                          }, 300);
+                                        }
+                                      }} style={{width:14,height:14,borderRadius:3,border:`1px solid ${step.done?"#7eb8f7":"#2a2e38"}`,background:step.done?"#7eb8f7":"transparent",cursor:"pointer",flexShrink:0}}/>
+                                      <span style={{fontSize:12,color:step.done?"#4a5060":"#d4d8e0",textDecoration:step.done?"line-through":"none",fontFamily:FONT}}>
+                                        {step.label}
+                                      </span>
+                                      <input
+                                        value={step.label}
+                                        onChange={e => setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,subtasks:d.subtasks.map((s,j)=>j===si?{...s,label:e.target.value}:s)}:d))}
+                                        style={{display:"none"}}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                                <button onClick={() => setSubtaskModal({id:dl.id,phase:"count",count:dl.subtasks.length,steps:[]})}
+                                  style={{marginTop:8,background:"transparent",border:"1px solid #2a2e3855",borderRadius:6,color:"#4a5060",fontSize:10,fontFamily:FONT,cursor:"pointer",padding:"3px 10px"}}>
+                                  ✎ edit steps
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1279,85 +1193,13 @@ export default function DeadlinesPage() {
           </>
         )}
 
-        {!isCompletedTab && sect("Study activity", (() => {
-          const derivedLog = {};
-          deadlines.filter(d => d.done && d.date).forEach(d => {
-            derivedLog[d.date] = Math.min((derivedLog[d.date] || 0) + 1, 4);
-          });
-          return <StudyHeatmap studyLog={derivedLog} />;
-        })())}
-        {!isCompletedTab && sect("Learning projection", <ProjectionChart skillLevels={skillLevels} />)}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
-          <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 16 }}>Skill radar</div>
-            <RadarChart skillLevels={skillLevels} />
-          </div>
-          <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 16 }}>XP levels</div>
-            <XPBars skillLevels={skillLevels} />
-          </div>
-        </div>
 
-        {/* Skills by course */}
-        <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>Skills by course</div>
-            <span style={{ fontSize: 11, fontFamily: MONO, color: "#4a5060" }}>{TOTAL_SKILLS} skills · {totalPts}/{maxPts}</span>
-          </div>
-          <div style={{ fontSize: 11, color: "#4a5060", marginBottom: 12 }}>Expanded from COSC 3320, 3340, 3360, 3380 syllabi + notes · Each level change requires a note</div>
 
-          {/* 3-tier tabs */}
-          <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-            {[
-              { id: "current",  label: "◈ Current",  color: "#4ecdc4" },
-              { id: "research", label: "◉ Research",  color: "#a78bfa" },
-              { id: "ambition", label: "◇ Ambition",  color: "#fb923c" },
-            ].map(t => (
-              <button key={t.id} onClick={() => setSkillMode(t.id)} style={{
-                padding: "5px 14px", borderRadius: 7, border: "none", cursor: "pointer",
-                fontFamily: FONT, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px",
-                background: skillMode === t.id ? t.color : "#1a1f2e",
-                color: skillMode === t.id ? "#0f1117" : "#4a5060",
-                transition: "all 0.15s",
-              }}>{t.label}</button>
-            ))}
-            <span style={{ fontSize: 10, color: "#3a4052", marginLeft: 8, alignSelf: "center" }}>Tap tier badge on a course to reassign</span>
-          </div>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
-            {LEVEL_META.map((m, i) => (
-              <span key={i} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: m.color }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: m.color }} /> {m.label}
-              </span>
-            ))}
-          </div>
-
-          {SKILLS_BY_COURSE
-            .filter(c => (courseTiers[c.id] || "ambition") === skillMode)
-            .map(course => (
-              <CourseSkillGroup
-                key={course.id}
-                course={course}
-                skills={course.skills}
-                skillLevels={skillLevels}
-                onLevelChange={handleLevelChange}
-                onDeleteLog={handleDeleteLog}
-                tier={courseTiers[course.id] || "ambition"}
-                onCycleTier={newTier => cycleTier(course.id, newTier)}
-              />
-            ))
-          }
-
-          {SKILLS_BY_COURSE.filter(c => (courseTiers[c.id] || "ambition") === skillMode).length === 0 && (
-            <div style={{ fontSize: 13, color: "#4a5060", padding: "20px 0", textAlign: "center" }}>
-              No courses in this tier yet. Tap a tier badge on any course to move it here.
-            </div>
-          )}
-        </div>
 
       </div>
     </div>
+    </>
   );
 }
 

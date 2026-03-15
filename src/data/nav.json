@@ -2,33 +2,38 @@
   "NAV": [
     {
       "id": "home",
-      "icon": "⌂",
+      "icon": "\u2302",
       "label": "Home"
     },
     {
       "id": "deadlines",
-      "icon": "◷",
+      "icon": "\u25f7",
       "label": "Deadlines"
     },
     {
+      "id": "progress",
+      "icon": "\u25c8",
+      "label": "Progress"
+    },
+    {
       "id": "talk2me",
-      "icon": "✦",
+      "icon": "\u2726",
       "label": "Talk2Me"
     },
     {
-      "id": "tickets",
-      "icon": "⚑",
-      "label": "Tickets"
+      "id": "resources",
+      "icon": "\u25c8",
+      "label": "Resources"
     },
     {
       "id": "roadmap",
-      "icon": "◎",
+      "icon": "\u25ce",
       "label": "Roadmap"
     },
     {
-      "id": "resources",
-      "icon": "◈",
-      "label": "Resources"
+      "id": "tickets",
+      "icon": "\u2691",
+      "label": "Tickets"
     }
   ]
 }

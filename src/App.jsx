@@ -11,6 +11,7 @@ import Talk2MePage         from "./pages/Talk2MePage";
 import TicketsPage         from "./pages/TicketsPage";
 import RoadMap             from "./pages/RoadMap";
 import DeadlinesPage       from "./pages/DeadlinesPage";
+import ProgressPage        from "./pages/ProgressPage";
 import ResourcesPage      from "./pages/ResourcesPage";
 import { useIsMobile }     from "./hooks/useIsMobile";
 
@@ -77,6 +78,7 @@ function AppInner() {
       case "roadmap":   return <RoadMap />;
       case "resources":  return <ResourcesPage />;
       case "deadlines": return <DeadlinesPage />;
+      case "progress":  return <ProgressPage />;
       default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
     }
   }
