@@ -1,4 +1,18 @@
 cd rabbit/root/projects/onit/coogs-hub/
 rm -r coogs-hub-clean.zip 
-zip -r coogs-hub-clean.zip . \
--x "*.git*" "*node_modules*" "*dist*" "*build*" "*pdfs*" "*.zip"
+zip -r coogs-hub-clean.zip \
+  src/ \
+  src-tauri/ \
+  public/ \
+  package.json \
+  package-lock.json \
+  tauri.conf.json \
+  -x "src-tauri/target/*" \
+  -x "node_modules/*" \
+  -x "android/build/*" \
+  -x "android/.gradle/*" \
+  -x "dist/*" \
+  -x ".git/*" \
+  -x "*.pdf" \
+  -x "*.apk" \
+  -x "*.jar"

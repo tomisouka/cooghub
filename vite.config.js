@@ -8,6 +8,18 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Upload server plugin — starts alongside `pnpm dev`, no separate terminal needed
+function registerProjectPathPlugin() {
+  return {
+    name: "register-project-path",
+    configureServer() {
+      const homedir = process.env.HOME || process.env.USERPROFILE || "";
+      const configPath = path.join(homedir, ".coogshub_path");
+      fs.writeFileSync(configPath, __dirname, "utf8");
+      console.log("  ✓ Project path registered at", configPath);
+    },
+  };
+}
+
 function uploadServerPlugin() {
   let started = false;
   return {
@@ -62,7 +74,7 @@ function rawHtmlPlugin() {
 }
 
 export default defineConfig({
-  plugins: [react(), uploadServerPlugin(), rawHtmlPlugin()],
+  plugins: [react(), registerProjectPathPlugin(), uploadServerPlugin(), rawHtmlPlugin()],
   server: {
     watch: {
       // Don't watch public/references — these are static HTML assets, not source files.

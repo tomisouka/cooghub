@@ -1,0 +1,692 @@
+{
+  "TICKETS": {
+    "DeadlinesPage": [
+      {
+        "id": "B022",
+        "title": "Study heatmap \u2014 month labels overlapping and misaligned",
+        "filed": "2026-03-15",
+        "status": "OPEN",
+        "section": "DeadlinesPage",
+        "component": "StudyHeatmap",
+        "function": "Month label row above the heatmap grid \u2014 labels should sit cleanly above the first live cell of each month with no overlap.",
+        "error": "Month labels overlap each other (e.g. 'Feb' and 'Mar' collision visible in screenshot), and the label positioning offset logic does not correctly account for dead cells at the start of each month column.",
+        "solution": ""
+      },
+      {
+        "id": "B021",
+        "title": "Study heatmap \u2014 month label positioning incorrect",
+        "filed": "2026-03-14",
+        "status": "OPEN",
+        "section": "DeadlinesPage",
+        "component": "StudyHeatmap",
+        "function": "Month label row above the heatmap grid \u2014 labels should sit above the first live cell of each month.",
+        "error": "Month labels overlap between months or appear offset from their correct column. Dead cells, red separator lines, and calendar sync (derived from done deadlines) are all working correctly. Pinned for later fix.",
+        "solution": ""
+      },
+      {
+        "id": "F029",
+        "title": "Skills page \u2014 3-tier course priority system (Current / Research / Ambition)",
+        "filed": "2026-03-14",
+        "closed": "2026-03-14",
+        "status": "CLOSED",
+        "section": "DeadlinesPage",
+        "component": "CourseSkillGroup",
+        "function": "Skills by course section \u2014 3 tabs filtering courses by user-assigned priority tier.",
+        "error": "Tier membership was hardcoded in CURRENT_COURSES constant, only 2 tiers, not user-controlled.",
+        "solution": "courseTiers persisted to localStorage (TIERS_KEY). DEFAULT_TIERS seeds initial assignments from syllabi. Clickable tier badge on each course header cycles Current \u2192 Research \u2192 Ambition. cycleTier() updates state + localStorage instantly. Session 37."
+      },
+      {
+        "id": "F027",
+        "title": "Deadlines & Progress page",
+        "filed": "2026-03-13",
+        "closed": "2026-03-14",
+        "status": "CLOSED",
+        "section": "DeadlinesPage",
+        "component": "DeadlinesPage",
+        "function": "Full deadlines + skill progression page. Calendar (month/week), urgency-coded deadline list, study heatmap, radar chart, XP bars, learning projection chart, and skill tree pulled from COSC 3320/3340/3360/3380 syllabi and notes.",
+        "error": "No deadline tracking or skill progress system existed in the app.",
+        "solution": "Built DeadlinesPage.jsx with localStorage persistence. 4-level skill system (Seen it \u2192 Understand \u2192 Can apply \u2192 Mastered) with mandatory notes on each level change. Skills organized by course, sorted by difficulty tier. Projection chart shows mastery date based on rolling 30-day pace. Sessions 36-37."
+      }
+    ],
+    "CoursePage": [
+      {
+        "id": "B020",
+        "title": "Math ref PrevNextBar and back button covered by ReferenceViewer",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "ReferenceViewer",
+        "function": "Math dept reference viewer \u2014 split panel with sidebar list + content pane containing PrevNextBar above ReferenceViewer.",
+        "error": "ReferenceViewer scroll container uses position:absolute;inset:0, escaping its flex parent and covering the PrevNextBar and header back button entirely.",
+        "solution": "Reverted scroll container and loading spinner from position:absolute;inset:0 back to flex:1. Session 33."
+      },
+      {
+        "id": "B019",
+        "title": "Pure-HTML references render with wrong fonts \u2014 Google Fonts not loading",
+        "filed": "2026-03-13",
+        "status": "OPEN",
+        "section": "CoursePage",
+        "component": "ReferenceViewer",
+        "function": "ReferenceViewer pure-HTML path \u2014 extracts <style> blocks and <body> content from reference HTML files and renders them natively in a scoped div.",
+        "error": "Google Fonts <link> tags live in <head>, which is discarded entirely in the pure-HTML path. Fonts like Inter, DM Mono, and Fraunces never load \u2014 browser falls back to system fonts at different metrics, making the layout look broken.",
+        "solution": ""
+      },
+      {
+        "id": "F026d",
+        "title": "Session 36 \u2014 Mobile collapsible sidebar for reference pages",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "ReferenceViewer / sidebar HTML files",
+        "function": "11 reference HTML files with sidebar timeline layout \u2014 not usable on mobile.",
+        "error": "On mobile the sidebar occupied too much screen space and the main content area was either not visible or empty.",
+        "solution": "scripts/inject-collapsible.py injects mobile CSS + toggle button + JS into all 11 reference files. Sidebar hidden off-screen via position:fixed + translateX(-100%). \u2630 Timeline button slides it in. Session 36."
+      },
+      {
+        "id": "F026c",
+        "title": "Session 36 \u2014 Databases reference content filled in",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "databases_reference.html",
+        "function": "public/references/databases_reference.html \u2014 was a shell with no card content.",
+        "error": "content-scroll div completely empty.",
+        "solution": "Wrote full content for Relational, NoSQL, Transactions, Indexing, and Design sections via scripts/fill-databases-content.py. Session 36."
+      },
+      {
+        "id": "B016",
+        "title": "CoursePage \u2014 delete UI fully removed from FileList",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "FileList",
+        "function": "FileList sidebar delete UI.",
+        "error": "Delete UI still present after redesign.",
+        "solution": "Stripped entirely."
+      },
+      {
+        "id": "F021",
+        "title": "OS Hub \u2014 Operating Systems splits into Academic OS + Linux lanes",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "OsHubPage",
+        "function": "COSC dept course list.",
+        "error": "Linux and Academic OS content lived in one messy course.",
+        "solution": "Hub entry + two sub-courses. New OsHubPage.jsx. Session 33."
+      },
+      {
+        "id": "F022",
+        "title": "Math dept sidebar \u2014 collapsible panel",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "DeptPage / Math sidebar",
+        "function": "Math dept layout \u2014 fixed sidebar.",
+        "error": "Sidebar always visible, took up too much space.",
+        "solution": "sidebarCollapsed state + CSS transition. Session 33."
+      },
+      {
+        "id": "F023",
+        "title": "Math dept \u2014 back navigation from reference viewer",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "PrevNextBar",
+        "function": "Math dept reference viewer \u2014 no way to exit.",
+        "error": "No back button on desktop or mobile.",
+        "solution": "onBack prop on PrevNextBar. Session 33."
+      },
+      {
+        "id": "F018",
+        "title": "Merge Linux into Operating Systems",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "OsHubPage",
+        "function": "Linux and opsystems were separate.",
+        "error": "Artificial separation.",
+        "solution": "Merged + linux tab added to CoursePage."
+      },
+      {
+        "id": "014",
+        "title": "Collapsible sidebar \u2014 collapse/expand affordance",
+        "filed": "2026-03-12",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "CoursePage sidebar",
+        "function": "Desktop CoursePage sidebar.",
+        "error": "No re-open affordance after collapse.",
+        "solution": "24px clickable strip + header pill toggle."
+      },
+      {
+        "id": "009",
+        "title": "ReferenceViewer.jsx \u2014 native HTML renderer",
+        "filed": "2026-03-11",
+        "closed": "2026-03-11",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "ReferenceViewer",
+        "function": "Reference HTML rendering.",
+        "error": "IframeWithLoader had no highlight/scroll support.",
+        "solution": "Built ReferenceViewer.jsx with TreeWalker highlight support."
+      },
+      {
+        "id": "015",
+        "title": "Vite HMR scripts injected into srcdoc iframes",
+        "filed": "2026-03-12",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "ReferenceViewer",
+        "function": "ReferenceViewer iframe rendering.",
+        "error": "transformIndexHtml + Fast Refresh + Chrome devtools bridge.",
+        "solution": "rawHtmlPlugin bypasses transform. data: URI iframe."
+      },
+      {
+        "id": "016",
+        "title": "Assignment HTML files render with white background",
+        "filed": "2026-03-12",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "HtmlViewer",
+        "function": "HtmlViewer.jsx.",
+        "error": "Hardcoded white background + Google Fonts blocking onLoad in APK.",
+        "solution": "Rerouted through ReferenceViewer + basePath prop."
+      },
+      {
+        "id": "D008",
+        "title": "Lang+ panel on COSC dept page",
+        "filed": "2026-03-10",
+        "closed": "2026-03-10",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "DeptPage / Lang+",
+        "function": "14 language references accessible from COSC dept.",
+        "error": "No entry point from dept page.",
+        "solution": "Lang+ card + sidebar + content panel layout."
+      },
+      {
+        "id": "D005",
+        "title": "Department/course hierarchy rebuilt",
+        "filed": "2026-03-09",
+        "closed": "2026-03-09",
+        "status": "CLOSED",
+        "section": "CoursePage",
+        "component": "DeptPage / CoursePage / subjects.js",
+        "function": "Full data model: DEPARTMENTS \u2192 courses \u2192 content buckets.",
+        "error": "Previous structure flat and ad-hoc.",
+        "solution": "subjects.js as single source of truth. DeptPage + CoursePage rebuilt."
+      }
+    ],
+    "Talk2MePage": [
+      {
+        "id": "F012",
+        "title": "Talk2Me \u2014 Save To popover + persistent entries sidebar",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "Talk2MePage",
+        "component": "Talk2MePage",
+        "function": "Talk2Me page editor.",
+        "error": "Tab bar took full topbar. Sidebar only showed session entries.",
+        "solution": "Popover dropdown + GET /api/list-entries on mount."
+      }
+    ],
+    "FileSystem": [
+      {
+        "id": "F006",
+        "title": "Unindexed PDFs \u2014 INDEX button",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "File Inventory modal INDEX button.",
+        "error": "No UI path to trigger reindex.",
+        "solution": "Resolved with B005. POST /api/index-file."
+      },
+      {
+        "id": "B017",
+        "title": "FileInventoryModal \u2014 unindexed file delete leaves ghost entry",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "FileInventoryModal bulk delete.",
+        "error": "Three compounding routing/stamping/cleanup bugs.",
+        "solution": "Fixed all three. Session 33."
+      },
+      {
+        "id": "B015",
+        "title": "FileInventoryModal bulk delete sends wrong file path",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "handleBulkDelete path resolution.",
+        "error": "Sending basename instead of full filePath.",
+        "solution": "Fixed to send meta.filePath."
+      },
+      {
+        "id": "F011",
+        "title": "FileInventoryModal \u2014 tap-to-select bulk delete",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "File Inventory modal bulk delete.",
+        "error": "No bulk delete existed.",
+        "solution": "Gallery-style tap-to-select, max 10, routes by _section."
+      },
+      {
+        "id": "B007",
+        "title": "Deleting a PDF left its index entry in pdf-index.json",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "upload.js / DELETE endpoints",
+        "function": "DELETE endpoints.",
+        "error": "pdf-index.json not updated on delete.",
+        "solution": "removeFromIndex() helper called on all delete paths."
+      },
+      {
+        "id": "F007",
+        "title": "FileInventoryModal \u2014 show all file types, sort by course \u2192 tab \u2192 subsection",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "File Inventory modal.",
+        "error": "Modal only surfaced PDFs.",
+        "solution": "/api/inventory rewritten to walk all tab types."
+      },
+      {
+        "id": "B006",
+        "title": "DropZone \u2014 renamed file still rejected on APPLY",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "DropZone",
+        "function": "DropZone rename flow.",
+        "error": "Original File object sent instead of renamed.",
+        "solution": "FormData built with new File([blob], targetName)."
+      },
+      {
+        "id": "B005",
+        "title": "FileInventoryModal \u2014 INDEX button not working",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "INDEX button reindex trigger.",
+        "error": "ESM/module resolution issues spawning index-pdfs.js.",
+        "solution": "Added 'reindex' script to package.json, spawn via pnpm."
+      },
+      {
+        "id": "F008",
+        "title": "DropZone \u2014 rename file before accepting",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "DropZone",
+        "function": "DropZone scan results rename flow.",
+        "error": "No rename affordance existed.",
+        "solution": "\u270e rename button + renames map on APPLY."
+      },
+      {
+        "id": "F005",
+        "title": "FileInventoryModal \u2014 orphan delete + rename",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "FileInventoryModal",
+        "function": "File Inventory orphan section.",
+        "error": "Orphan rows only had REGISTER.",
+        "solution": "DELETE /api/orphan + POST /api/rename-orphan."
+      },
+      {
+        "id": "F004",
+        "title": "Hidden files \u2014 orphan detection + one-click register",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "DropZone",
+        "function": "DropZone idle state orphan detection.",
+        "error": "Manually dropped files invisible to app.",
+        "solution": "GET /api/orphans + POST /api/register-orphan."
+      },
+      {
+        "id": "F003",
+        "title": "Upload \u2014 optional subsection label with autocomplete",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "DropZone",
+        "function": "DropZone group label.",
+        "error": "All uploads routed flat with no grouping.",
+        "solution": "Text input + GET /api/groups autocomplete + group-aware patchSubjects."
+      },
+      {
+        "id": "F002",
+        "title": "File/section management GUI",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "CoursePage / DropZone",
+        "function": "CoursePage sidebar delete UI.",
+        "error": "No deletion UI existed.",
+        "solution": "Password \u2192 confirm modal. DELETE /api/file + DELETE /api/group."
+      },
+      {
+        "id": "F001",
+        "title": "File upload \u2192 smart routing + subjects.js auto-patch",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "DropZone / upload.js",
+        "function": "DropZone file upload.",
+        "error": "Only accepted zips. subjects.js manual.",
+        "solution": "/api/scan-files + /api/upload-files + patchSubjects bracket-walk."
+      },
+      {
+        "id": "B002",
+        "title": "DELETE /file greedy regex corrupted subjects.js",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "upload.js",
+        "function": "DELETE /api/file.",
+        "error": "Greedy regex ate multiple lines.",
+        "solution": "Bracket walking + newline split filter."
+      },
+      {
+        "id": "B001",
+        "title": "upload.js process functions merged by bad str_replace",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "upload.js",
+        "function": "upload.js server module.",
+        "error": "processZip/processFiles merged by str_replace collision.",
+        "solution": "Full clean rewrite with shared applyResult(). export { app } moved to end."
+      },
+      {
+        "id": "D001",
+        "title": "PDF full-text indexing pipeline",
+        "filed": "2026-03-09",
+        "closed": "2026-03-09",
+        "status": "CLOSED",
+        "section": "FileSystem",
+        "component": "scripts/index-pdfs.js",
+        "function": "scripts/index-pdfs.js.",
+        "error": "PDFs completely unsearchable.",
+        "solution": "pdfjs-dist text extraction \u2192 pdf-index.json."
+      }
+    ],
+    "Search": [
+      {
+        "id": "F025",
+        "title": "Search \u2014 view all results button",
+        "filed": "2026-03-13",
+        "status": "OPEN",
+        "section": "Search",
+        "component": "Sidebar / search panel",
+        "function": "Search results panel currently shows a limited preview. Need a 'View all' button to expand and show the full result set.",
+        "error": "No way to see more than the first N results \u2014 users miss relevant matches.",
+        "solution": ""
+      },
+      {
+        "id": "B003",
+        "title": "Search highlight not working reliably across all content types",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "Search",
+        "component": "CodeViewer / PDFViewer",
+        "function": "Global search highlights.",
+        "error": "CodeViewer and PDFViewer missing highlightKey prop.",
+        "solution": "highlightKey added to both. CoursePage passes dest?._ts."
+      },
+      {
+        "id": "B004",
+        "title": "Safe back \u2014 return to search after opening a result",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "Search",
+        "component": "App.jsx / CoursePage",
+        "function": "Search result back navigation.",
+        "error": "Navigating to course cleared search.",
+        "solution": "lastSearch state in App.jsx + yellow pill in CoursePage header."
+      },
+      {
+        "id": "D002",
+        "title": "Unified search across all content types",
+        "filed": "2026-03-09",
+        "closed": "2026-03-09",
+        "status": "CLOSED",
+        "section": "Search",
+        "component": "search.js / Sidebar",
+        "function": "Single search bar.",
+        "error": "No unified search existed.",
+        "solution": "PDF index lazy-loaded. Results grouped by type."
+      },
+      {
+        "id": "D004",
+        "title": "Search navigation to course + tab + file",
+        "filed": "2026-03-09",
+        "closed": "2026-03-09",
+        "status": "CLOSED",
+        "section": "Search",
+        "component": "App.jsx / CoursePage",
+        "function": "Search result navigation.",
+        "error": "Result clicks navigated to course home only.",
+        "solution": "Full dest object through App state. _ts forces re-render."
+      }
+    ],
+    "Global": [
+      {
+        "id": "F028",
+        "title": "Resources page \u2014 personal situational guide",
+        "filed": "2026-03-14",
+        "status": "OPEN",
+        "section": "Global",
+        "component": "ResourcesPage (not yet built)",
+        "function": "A dedicated nav page for personal HTML guides organized by situation.",
+        "error": "No centralized place to keep personal study strategy guides, emergency plans, or mental prep resources.",
+        "solution": ""
+      },
+      {
+        "id": "F009",
+        "title": "Project font change",
+        "filed": "2026-03-13",
+        "status": "OPEN",
+        "section": "Global",
+        "component": "Global / all reference HTML files",
+        "function": "Global typography \u2014 fonts used across the app and reference HTML files.",
+        "error": "Current font choices may not best reflect the project's visual identity. No audit has been done.",
+        "solution": "UI Update coming \u2014 audit all font usage, then swap where appropriate."
+      },
+      {
+        "id": "D009",
+        "title": "Font and readability overhaul",
+        "filed": "2026-03-10",
+        "closed": "2026-03-10",
+        "status": "CLOSED",
+        "section": "Global",
+        "component": "Global typography",
+        "function": "Global typography.",
+        "error": "Courier New in body, dim colors too dark.",
+        "solution": "Inter everywhere at 500 min weight. Dim text bumped."
+      }
+    ],
+    "Android": [
+      {
+        "id": "F026b",
+        "title": "Session 36 \u2014 Android dir wiped and regenerated",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "Android",
+        "component": "android/ directory",
+        "function": "Android project directory \u2014 corrupted from failed permission experiments.",
+        "error": "Stale files from multiple failed MainActivity.java edits during Phase 8 sync debugging.",
+        "solution": "rm -rf android && npx cap add android && npx cap sync. Session 36."
+      },
+      {
+        "id": "F026",
+        "title": "Phase 8 \u2014 Runtime Content Sync (detection only, blocked by Android 16)",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "Android",
+        "component": "MainActivity.java / manifest system",
+        "function": "APK manifest detection system.",
+        "error": "Android 16 / One UI 8 blocks MANAGE_EXTERNAL_STORAGE. Permission toggle greyed out in system settings.",
+        "solution": "Built manifest system but determined it only detects changes \u2014 cannot serve files. Phase 8 marked partial. Phase 8b (self-hosted server) added to roadmap. Manifest system removed from APK. Sessions 35-36."
+      }
+    ],
+    "Persistence": [
+      {
+        "id": "F030",
+        "title": "File-based persistence architecture \u2014 memory.js + Rust commands",
+        "filed": "2026-03-14",
+        "closed": "2026-03-14",
+        "status": "CLOSED",
+        "section": "Persistence",
+        "component": "DeadlinesPage / lib.rs / memory.js",
+        "function": "Persist deadlines, skill levels, and course tiers across sessions and machines.",
+        "error": "localStorage is browser-scoped. Tauri webview uses tauri://localhost \u2014 separate storage bucket. Static JS imports are bundled at build time \u2014 always empty on startup regardless of disk state. withGlobalTauri was missing so IS_TAURI was always false in release builds.",
+        "solution": "Two-layer persistence: browser uses POST /api/save-memory (Express), Tauri uses invoke('save_deadlines') (Rust). On startup, Tauri calls load_memory which reads memory.js from disk and hydrates React state, bypassing the bundled snapshot. useRef first-render guard prevents initial render from wiping disk data. Project path registered to ~/.coogshub_path by Vite plugin on pnpm dev. Session 38."
+      },
+      {
+        "id": "F031",
+        "title": "Talk2Me persistence in Tauri \u2014 talk2me.js file",
+        "filed": "2026-03-14",
+        "status": "OPEN",
+        "section": "Persistence",
+        "component": "Talk2MePage / lib.rs",
+        "function": "Talk2Me entries persist in browser via Express but are not verified in Tauri. Entries are .md files in src/content/talk2me/entries/ \u2014 Rust commands list_entries, read_entry, save_entry, delete_entry are implemented but untested end-to-end.",
+        "error": "No dedicated persistence file for Talk2Me session state. Entries sidebar may not load in Tauri.",
+        "solution": ""
+      }
+    ],
+    "DataLayer": [
+      {
+        "id": "F024",
+        "title": "JSX externalization \u2014 data constants moved out of component files",
+        "filed": "2026-03-13",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "DataLayer",
+        "component": "src/data/",
+        "function": "src/data/ \u2014 single source of truth for all app data and config.",
+        "error": "Constants hardcoded in JSX files.",
+        "solution": "Created roadmap.js, tabs.js, uiConfig.js. Session 34."
+      },
+      {
+        "id": "011",
+        "title": "Full-text reference search missing table content",
+        "filed": "2026-03-11",
+        "closed": "2026-03-12",
+        "status": "CLOSED",
+        "section": "DataLayer",
+        "component": "search.js / buildRefTextIndex",
+        "function": "buildRefTextIndex.",
+        "error": "Table cells concatenated without separators.",
+        "solution": "block-aware extractText() recursive walker."
+      },
+      {
+        "id": "013",
+        "title": "Knowledge graph system removed",
+        "filed": "2026-03-11",
+        "closed": "2026-03-13",
+        "status": "CLOSED",
+        "section": "DataLayer",
+        "component": "src/data/knowledge/",
+        "function": "In-app knowledge graph.",
+        "error": "~200KB data, slow startup, out of scope.",
+        "solution": "All knowledge imports/routes/UI removed."
+      }
+    ]
+  },
+  "TODO_ITEMS": [
+    {
+      "id": "T001",
+      "text": "Audit font usage across all app components and reference HTML files (F009)",
+      "done": false,
+      "priority": "low"
+    },
+    {
+      "id": "T002",
+      "text": "Rebuild the APK after subjects.js reorganization",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "T003",
+      "text": "Add COSC 3401 (AI) course stub to subjects.js when content is ready",
+      "done": false
+    },
+    {
+      "id": "T004",
+      "text": "Review and clean up duplicate reference files in public/references",
+      "done": false
+    },
+    {
+      "id": "T005",
+      "text": "Test DropZone rename flow on mobile (Android APK)",
+      "done": false
+    },
+    {
+      "id": "T006",
+      "text": "Set up self-hosted server for Phase 8b content delivery",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "T007",
+      "text": "Build deadline/calendar page (F027) \u2014 done, now iterate",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "T008",
+      "text": "Write personal HTML guide files for ResourcesPage (F028)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "T009",
+      "text": "Implement 3-tier course priority (Current/Research/Ambition) with user assignment UI (F029)",
+      "done": true,
+      "priority": "medium"
+    }
+  ]
+}

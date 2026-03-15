@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { DEPARTMENTS } from "../data/subjects";
-import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult, buildReferenceIndex, searchReferenceIndex, buildRefTextIndex, searchRefTextIndex } from "../search";
+import { useData } from "../data/DataContext";
+import { buildSearchIndex, loadPdfIndex, searchTextIndex, searchPdfIndex, resolveResult, buildReferenceIndex, searchReferenceIndex, buildRefTextIndex, searchRefTextIndex, setSearchData } from "../search";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -23,6 +23,12 @@ function HighlightSnippet({ text, query }) {
 }
 
 export default function HomePage({ goTo, openUpload, openInventory, lastSearch, setLastSearch }) {
+  const { DEPARTMENTS, ALL_COURSES, LANG_REFS, MATH_SHARED_REFS } = useData();
+
+  // Keep search.js in sync with live data from DataContext
+  useEffect(() => {
+    setSearchData({ ALL_COURSES, LANG_REFS, MATH_SHARED_REFS });
+  }, [ALL_COURSES, LANG_REFS, MATH_SHARED_REFS]);
   const [query, setQuery]         = useState(lastSearch?.query ?? "");
   const [results, setResults]     = useState(lastSearch?.results ?? []);
   const [index, setIndex]         = useState(null);
@@ -30,6 +36,7 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
   const [refIdx, setRefIdx]       = useState(null);
   const [refTextIdx, setRefTextIdx] = useState(null);
   const [loading, setLoading]     = useState(false);
+  const [showAll,  setShowAll]     = useState(false);
   const debounce                  = useRef(null);
   const inputRef                  = useRef(null);
   const dropdownRef               = useRef(null);
@@ -59,6 +66,7 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
 
   function handleQuery(q) {
     setQuery(q);
+    setShowAll(false);
     clearTimeout(debounce.current);
     if (q.trim().length < 2) { setResults([]); return; }
     debounce.current = setTimeout(() => {
@@ -71,7 +79,7 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
       // Deduplicate refs by file (full-text may overlap with label results)
       const seen  = new Set();
       const deduped = refs.filter(r => { if (seen.has(r.file)) return false; seen.add(r.file); return true; });
-      setResults([...deduped, ...pdfs, ...text].slice(0, 30));
+      setResults([...deduped, ...pdfs, ...text]);
       setLoading(false);
     }, 200);
   }
@@ -187,11 +195,19 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
                 <span style={{ color: "#4a5060", fontSize: 11, fontWeight: 600, letterSpacing: "0.5px" }}>
                   {loading ? "searching…" : `${results.length} result${results.length !== 1 ? "s" : ""}`}
                 </span>
-                <span style={{ color: "#2a2e38", fontSize: 11 }}>scroll to see all</span>
+                {results.length > 10 && (
+                  <button onClick={() => setShowAll(s => !s)} style={{
+                    background: "transparent", border: "1px solid #2a2e38",
+                    borderRadius: 6, color: "#7a8090", fontSize: 11,
+                    padding: "3px 10px", cursor: "pointer", fontFamily: "inherit",
+                  }}>
+                    {showAll ? "▲ show less" : `▼ show all ${results.length}`}
+                  </button>
+                )}
               </div>
               {/* Scrollable results */}
               <div style={{ overflowY: "auto", flex: 1 }}>
-              {results.map((r, i) => (
+              {(showAll ? results : results.slice(0, 10)).map((r, i) => (
                 <div
                   key={r.id || i}
                   onClick={() => handleResult(r)}

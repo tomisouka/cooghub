@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { getCourse } from "../data/subjects";
-import { FLASHCARD_SETS } from "../data/flashcards";
+import { useData } from "../data/DataContext";
+
 import MarkdownViewer  from "../components/MarkdownViewer";
 import CodeViewer      from "../components/CodeViewer";
 import PDFViewer       from "../components/PDFViewer";
 import ReferenceViewer from "../components/ReferenceViewer";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { TABS } from "../data/tabs";
+
 
 const BASE = "/references";
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -103,6 +103,7 @@ function IframeWithLoader({ src, title, visible }) {
 }
 
 export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
+  const { getCourse, TABS, FLASHCARD_SETS } = useData();
   const course = getCourse(courseId);
   if (!course) return null;
 
@@ -126,6 +127,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   const [flipped,      setFlipped]      = useState(false);
   const [cardIdx,      setCardIdx]      = useState(0);
   const [sidebarOpen,  setSidebarOpen]  = useState(true);
+  const [jumpOpen,     setJumpOpen]     = useState(false);
 
   const isMobile                        = useIsMobile();
   // If arriving from search with a specific file, go straight to content on mobile
@@ -435,8 +437,149 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
     );
   }
 
+
+  // ── Jump List Drawer ──────────────────────────────────────────────────────
+  function JumpDrawer() {
+    if (!jumpOpen) return null;
+    return (
+      <>
+        {/* Backdrop */}
+        <div
+          onClick={() => setJumpOpen(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            background: "rgba(0,0,0,0.5)",
+          }}
+        />
+        {/* Drawer */}
+        <div style={{
+          position: "fixed", top: 0, right: 0, bottom: 0,
+          width: isMobile ? "80vw" : 320,
+          background: "#161920", borderLeft: "1px solid #2a2e38",
+          zIndex: 201, overflowY: "auto",
+          display: "flex", flexDirection: "column",
+        }}>
+          {/* Drawer header */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "16px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>
+              Jump to
+            </span>
+            <button onClick={() => setJumpOpen(false)} style={{
+              background: "none", border: "none", color: "#4a5060",
+              fontSize: 16, cursor: "pointer", padding: 0, lineHeight: 1,
+            }}>✕</button>
+          </div>
+
+          {/* Content tree */}
+          <div style={{ padding: "12px 0" }}>
+            {course.isHub ? (
+              // Hub: show lanes
+              (course.lanes || []).map(lane => {
+                const laneCourse = getCourse(lane.id);
+                return (
+                  <div key={lane.id}>
+                    <button
+                      onClick={() => { setJumpOpen(false); }}
+                      style={{
+                        width: "100%", textAlign: "left", background: "transparent",
+                        border: "none", padding: "10px 20px", cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 10,
+                        borderLeft: `3px solid ${lane.color}`,
+                        marginBottom: 2,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#1e2230"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                    >
+                      <span style={{ fontSize: 14 }}>{lane.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: lane.color }}>{lane.title}</span>
+                    </button>
+                    {/* Sub-tabs for this lane */}
+                    {laneCourse && TABS.filter(t => {
+                      if (t.id === "flashcards") return !!laneCourse.flashcards;
+                      if (t.id === "overview") return !!laneCourse.overview;
+                      if (t.id === "gopal") return !!laneCourse.gopal?.length;
+                      return laneCourse[t.id]?.length > 0;
+                    }).map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setJumpOpen(false);
+                          switchTab(t.id);
+                        }}
+                        style={{
+                          width: "100%", textAlign: "left", background: "transparent",
+                          border: "none", padding: "7px 20px 7px 44px", cursor: "pointer",
+                          fontSize: 12, color: "#7a8090", fontFamily: FONT,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "#1e2230"; e.currentTarget.style.color = "#d4d8e0"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#7a8090"; }}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })
+            ) : (
+              // Regular course: show tabs + first few files
+              availableTabs.map(t => {
+                const items = t.id === "code" ? course.code : (Array.isArray(course[t.id]) ? course[t.id] : []);
+                const flat = flattenItems(items);
+                return (
+                  <div key={t.id} style={{ marginBottom: 4 }}>
+                    <button
+                      onClick={() => { setJumpOpen(false); switchTab(t.id); }}
+                      style={{
+                        width: "100%", textAlign: "left", background: "transparent",
+                        border: "none", padding: "10px 20px", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                        borderLeft: `3px solid ${tab === t.id ? course.color : "transparent"}`,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#1e2230"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                    >
+                      <span style={{ fontSize: 13, fontWeight: 700, color: tab === t.id ? course.color : "#d4d8e0" }}>{t.label}</span>
+                      <span style={{ fontSize: 10, color: "#4a5060" }}>{flat.length}</span>
+                    </button>
+                    {/* Show files under active tab */}
+                    {tab === t.id && flat.slice(0, 12).map((item, i) => {
+                      const key = t.id === "code" ? item.path : item.file;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => { setJumpOpen(false); setActiveFile(key); }}
+                          style={{
+                            width: "100%", textAlign: "left", background: "transparent",
+                            border: "none", padding: "6px 20px 6px 36px", cursor: "pointer",
+                            fontSize: 11, color: activeFile === key ? course.color : "#5a6070",
+                            fontFamily: FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#1e2230"; e.currentTarget.style.color = "#d4d8e0"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = activeFile === key ? course.color : "#5a6070"; }}
+                        >
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                    {tab === t.id && flat.length > 12 && (
+                      <div style={{ padding: "4px 36px", fontSize: 10, color: "#3a4052" }}>+{flat.length - 12} more</div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <JumpDrawer />
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 14, padding: isMobile ? "0 12px" : "0 24px", height: 52, flexShrink: 0, borderBottom: "1px solid #2a2e38", background: "#161920" }}>
         {/* On mobile in content view, back arrow goes back to file list */}
@@ -460,6 +603,23 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
         <span style={{ fontSize: 18 }}>{course.icon}</span>
         <span style={{ color: "#d4d8e0", fontSize: isMobile ? 13 : 15, fontWeight: 600, fontFamily: FONT }}>{course.label}</span>
         {course.courseCode && !isMobile && <span style={{ color: "#7a8090", fontSize: 12, fontFamily: FONT, fontWeight: 500 }}>{course.courseCode}</span>}
+        <button
+          onClick={() => setJumpOpen(o => !o)}
+          title="Jump list"
+          style={{
+            marginLeft: "auto", background: jumpOpen ? "#1e2230" : "transparent",
+            border: `1px solid ${jumpOpen ? course.color + "66" : "#2a2e38"}`,
+            borderRadius: 7, color: jumpOpen ? course.color : "#7a8090",
+            fontSize: 11, fontFamily: FONT, fontWeight: 700,
+            padding: "4px 12px", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 6,
+            transition: "all 0.15s", flexShrink: 0,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = course.color + "66"; e.currentTarget.style.color = course.color; }}
+          onMouseLeave={e => { if (!jumpOpen) { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.color = "#7a8090"; } }}
+        >
+          ≡ Jump
+        </button>
         {/* Back-to-search pill — shown when user arrived via search */}
         {onBackToSearch && dest?.query && (
           <button

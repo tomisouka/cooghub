@@ -1,4 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { invoke } from "@tauri-apps/api/core";
+
+const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
+async function api(method, path, body) {
+  if (IS_TAURI) return null; // handled per-call
+  const opts = method === "GET" ? {} : {
+    method, headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+  const res = await fetch(path, opts);
+  return res.json();
+}
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 const MONO = "'DM Mono', 'Courier New', monospace";
@@ -152,10 +165,11 @@ function EntriesSidebar({ refreshTrigger, onSelect, activeFile, onDeleted }) {
 
   const load = useCallback(() => {
     setLoading(true);
-    fetch("/api/list-entries")
-      .then(r => r.json())
-      .then(d => { setEntries(d.entries || []); setLoading(false); })
-      .catch(() => setLoading(false));
+    (IS_TAURI
+      ? invoke("list_entries").then(entries => ({ entries }))
+      : fetch("/api/list-entries").then(r => r.json())
+    ).then(d => { setEntries(d.entries || []); setLoading(false); })
+     .catch(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load, refreshTrigger]);
@@ -163,12 +177,10 @@ function EntriesSidebar({ refreshTrigger, onSelect, activeFile, onDeleted }) {
   async function handleDelete(filename) {
     setDeleting(true);
     try {
-      const res = await fetch("/api/delete-entry", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename }),
-      });
-      if (res.ok) {
+      const ok = IS_TAURI
+        ? await invoke("delete_entry", { filename }).then(() => true).catch(() => false)
+        : await fetch("/api/delete-entry", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filename }) }).then(r => r.ok);
+      if (ok) {
         setEntries(prev => prev.filter(e => e.filename !== filename));
         setConfirmDel(null);
         if (onDeleted) onDeleted(filename);
@@ -360,6 +372,7 @@ export default function Talk2MePage() {
   const [errMsg,     setErrMsg]     = useState("");
   const [refresh,    setRefresh]    = useState(0);
   const [activeFile, setActiveFile] = useState(null); // currently loaded entry filename
+  const [editMode,   setEditMode]   = useState(false);  // true = editing existing, false = new
   const textRef = useRef(null);
 
   async function handleSelectEntry(filename) {
@@ -371,10 +384,15 @@ export default function Talk2MePage() {
       return;
     }
     try {
+      let raw = "";
+    if (IS_TAURI) {
+      raw = await invoke("read_entry", { filename }).catch(() => "");
+    } else {
       const res = await fetch(`/api/read-entry?filename=${encodeURIComponent(filename)}`);
       const data = await res.json();
       if (!res.ok) return;
-      const raw = data.content || "";
+      raw = data.content || "";
+    }
       // Parse optional leading # Title
       const lines = raw.split("\n");
       if (lines[0].startsWith("# ")) {
@@ -387,6 +405,7 @@ export default function Talk2MePage() {
         setBody(raw.trimEnd());
       }
       setActiveFile(filename);
+      setEditMode(false); // loaded but not yet in edit mode
       setStatus(null);
       textRef.current?.focus();
     } catch (_) {}
@@ -405,19 +424,22 @@ export default function Talk2MePage() {
     setStatus("saving");
     setErrMsg("");
 
-    const filename = buildFilename();
+    const filename = (editMode && activeFile) ? activeFile : buildFilename();
     const content  = title.trim()
       ? `# ${title.trim()}\n\n${body.trim()}\n`
       : `${body.trim()}\n`;
 
     try {
-      const res = await fetch("/api/save-entry", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ filename, content, courseId: target.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "save failed");
+      if (IS_TAURI) {
+        await invoke("save_entry", { filename, content, courseId: target.id || null });
+      } else {
+        const res = await fetch("/api/save-entry", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename, content, courseId: target.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "save failed");
+      }
 
       setStatus("ok");
       if (!target.id) setRefresh(r => r + 1);
@@ -463,6 +485,30 @@ export default function Talk2MePage() {
           <span style={{ fontSize: 12, color: "#55607a" }}>saving…</span>
         )}
 
+        {activeFile && !editMode && (
+          <button
+            onClick={() => setEditMode(true)}
+            style={{
+              padding: "8px 16px", borderRadius: 8, border: "1px solid #4ecdc455",
+              background: "#4ecdc418", color: "#4ecdc4",
+              fontSize: 12, fontWeight: 700, fontFamily: FONT, cursor: "pointer",
+            }}
+          >
+            ✎ Edit
+          </button>
+        )}
+        {editMode && (
+          <button
+            onClick={() => { setEditMode(false); setActiveFile(null); setTitle(""); setBody(""); setStatus(null); }}
+            style={{
+              padding: "8px 16px", borderRadius: 8, border: "1px solid #4a506055",
+              background: "transparent", color: "#7a8090",
+              fontSize: 12, fontWeight: 700, fontFamily: FONT, cursor: "pointer",
+            }}
+          >
+            ✕ Cancel
+          </button>
+        )}
         <button
           onClick={handleSave}
           disabled={!canSave}
@@ -502,7 +548,8 @@ export default function Talk2MePage() {
             ref={textRef}
             placeholder="Write something…"
             value={body}
-            onChange={e => { setBody(e.target.value); setActiveFile(null); }}
+            onChange={e => setBody(e.target.value)}
+            readOnly={!!activeFile && !editMode}
             autoFocus
             style={{
               flex: 1, background: "transparent", border: "none", outline: "none",
@@ -516,7 +563,7 @@ export default function Talk2MePage() {
             flexShrink: 0, paddingTop: 12, borderTop: "1px solid #1e2230",
           }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: "#3a4052" }}>
-              {body.trim() ? buildFilename() : "…"}
+              {body.trim() ? ((editMode && activeFile) ? activeFile : buildFilename()) : "…"}
             </span>
             {charCount > 0 && (
               <span style={{ fontSize: 11, color: "#3a4052", marginLeft: 14 }}>

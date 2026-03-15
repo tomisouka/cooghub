@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Coogs Hub
+Comment=UH CS study hub
+Exec=bash -c "cd /home/kaneki/rabbit/root/projects/onit/coogs-hub && pnpm tauri dev"
+Icon=/home/kaneki/rabbit/root/projects/onit/coogs-hub/src-tauri/icons/128x128.png
+Terminal=false
+Categories=Education;Development;
+StartupNotify=true

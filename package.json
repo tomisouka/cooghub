@@ -16,6 +16,8 @@
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",
     "@capacitor/filesystem": "^8.1.2",
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-store": "^2.4.2",
     "express": "^4.22.1",
     "jszip": "^3.10.1",
     "multer": "1.4.5-lts.2",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tauri-apps/cli": "^2.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

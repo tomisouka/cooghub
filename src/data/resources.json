@@ -1,0 +1,31 @@
+{
+  "RESOURCES": [
+    {
+      "id": "recover",
+      "title": "Recovery Protocol",
+      "subtitle": "After the all-nighter",
+      "situation": "You pushed too hard. Now reset.",
+      "color": "#4ecdc4",
+      "icon": "◈",
+      "file": "/resources/personal/RECOVER.html"
+    },
+    {
+      "id": "pressure",
+      "title": "Performance Under Pressure",
+      "subtitle": "When it counts",
+      "situation": "Exam day. High stakes. Show up.",
+      "color": "#e8c547",
+      "icon": "◉",
+      "file": "/resources/personal/performance_under_pressure.html"
+    },
+    {
+      "id": "dont-lose-it",
+      "title": "Don't Lose It",
+      "subtitle": "The science of keeping what you learned",
+      "situation": "You learned it. Now keep it.",
+      "color": "#a78bfa",
+      "icon": "◇",
+      "file": "/resources/personal/DONT-LOSE-IT.html"
+    }
+  ]
+}

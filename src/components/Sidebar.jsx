@@ -1,6 +1,7 @@
-import { NAV } from "../data/nav";
+import { useData } from "../data/DataContext";
 
 export default function Sidebar({ active, setActive }) {
+  const { NAV } = useData();
   return (
     <aside style={{
       width: 72, minHeight: "100vh",

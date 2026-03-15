@@ -1,4 +1,42 @@
 import { useState, useEffect, useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { DEADLINES as INITIAL_DEADLINES, SKILL_LEVELS as INITIAL_SKILL_LEVELS, COURSE_TIERS as INITIAL_COURSE_TIERS } from "../data/memory";
+
+const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
+function serializeToJS(deadlines, skillLevels, courseTiers) {
+  return `// src/data/memory.js
+// Runtime persistence — auto-saved by Coogs Hub on every change.
+// Do not edit manually while the app is open.
+// Last updated: ${new Date().toISOString()}
+
+export const DEADLINES = ${JSON.stringify(deadlines, null, 2)};
+
+export const SKILL_LEVELS = ${JSON.stringify(skillLevels, null, 2)};
+
+export const COURSE_TIERS = ${JSON.stringify(courseTiers, null, 2)};
+`;
+}
+
+async function persistToFile(deadlines, skillLevels, courseTiers) {
+  try {
+    const content = serializeToJS(deadlines, skillLevels, courseTiers);
+    console.log("[persist] IS_TAURI:", IS_TAURI, "deadlines:", deadlines.length);
+    if (IS_TAURI) {
+      await invoke("save_deadlines", { content });
+      console.log("[persist] saved via invoke");
+    } else {
+      await fetch("/api/save-memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      console.log("[persist] saved via fetch");
+    }
+  } catch (e) {
+    console.error("[persist] FAILED:", e);
+  }
+}
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 const MONO = "'DM Mono', 'Fira Code', monospace";
@@ -342,15 +380,7 @@ const DEFAULT_TIERS = {
   python:     "ambition",
 };
 
-const STORAGE_KEY = "coogs_deadlines";
-const SKILLS_KEY  = "coogs_skill_levels";
-const TIERS_KEY   = "coogs_course_tiers";
 
-function load(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
-  catch { return fallback; }
-}
-function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
 function getDaysUntil(dateStr) {
   const now = new Date(); now.setHours(0,0,0,0);
@@ -578,8 +608,6 @@ function StudyHeatmap({ studyLog }) {
   const gridStart = new Date(thisSunday);
   gridStart.setDate(thisSunday.getDate() - PAST_WEEKS * 7);
 
-  // Build all columns: each column = one week (Sun→Sat, rows 0=Sun..6=Sat)
-  // We'll display rows Mon..Sun (remap below) to match reference image
   const cols = [];
   const monthLabels = [];
   let lastMonth = null;
@@ -588,23 +616,15 @@ function StudyHeatmap({ studyLog }) {
     const col = [];
     let colMonthLabel = null;
 
-    // Owner = month of this column's Sunday. Always.
-    // Dead cells = any day whose month != owner. 
-    // Leading dead cells: when a new month starts mid-week (those early days are dead in prev column).
-    // Trailing dead cells: when a month ends mid-week (remaining days are dead).
     const colSunday = new Date(gridStart);
     colSunday.setDate(gridStart.getDate() + w * 7);
     const colMonth = colSunday.getMonth();
     const colYear  = colSunday.getFullYear();
 
-    // Month label appears on the column whose SUNDAY is the 1st or later in that month
-    // i.e. the first column that is fully owned by the new month
-    if (colSunday.getDate() === 1 || (w > 0 && colSunday.getMonth() !== lastMonth)) {
-      const mo = colMonth;
-      if (mo !== lastMonth) {
-        colMonthLabel = MONTH_NAMES[mo] + " '" + String(colYear).slice(2);
-        lastMonth = mo;
-      }
+    // Month label fires on the column whose Sunday is the first Sunday of that month
+    if (colMonth !== lastMonth) {
+      colMonthLabel = MONTH_NAMES[colMonth] + " '" + String(colYear).slice(2);
+      lastMonth = colMonth;
     }
 
     // Find the day-of-week that the 1st of colMonth falls on (for leading dead cells)
@@ -618,7 +638,7 @@ function StudyHeatmap({ studyLog }) {
       const isFuture = date > today;
       // Trailing dead: day spills into next month
       const isTrailingDead = date.getMonth() !== colMonth || date.getFullYear() !== colYear;
-      // Leading dead: this is the first column of a month (has a label) and dow is before the 1st
+      // Leading dead: first column of a month, dow is before the 1st
       const isLeadingDead = !!colMonthLabel && dow < firstDow;
       const isDead = isTrailingDead || isLeadingDead;
       const level = (isFuture || isDead) ? 0 : Math.min(studyLog[key] || 0, 4);
@@ -652,7 +672,7 @@ function StudyHeatmap({ studyLog }) {
 
       {/* grid with day-labels on left */}
       <div style={{ display: "flex", gap: 6 }}>
-        {/* Day labels — paddingTop must match month row: height(14) + marginBottom(4) = 18 */}
+        {/* Day labels */}
         <div style={{ display: "flex", flexDirection: "column", gap: GAP, paddingTop: 18 }}>
           {DAY_LABELS.map((lbl, i) => (
             <div key={i} style={{ width: 8, height: CELL, fontSize: 8, color: "#4a5060", lineHeight: `${CELL}px`, textAlign: "right" }}>
@@ -663,21 +683,26 @@ function StudyHeatmap({ studyLog }) {
 
         {/* Month labels + cell grid */}
         <div style={{ overflowX: "hidden" }}>
-          {/* Month label row — each label spans the pixel width of its month's columns */}
+          {/* Month label row */}
           <div style={{ display: "flex", marginBottom: 4, height: 14 }}>
             {monthLabels.map((ml, i) => {
               if (!ml) return null;
-              // Count how many consecutive columns belong to this month
               let span = 0;
               for (let j = i; j < monthLabels.length; j++) {
                 if (j === i || !monthLabels[j]) span++;
                 else break;
               }
-              const colW = CELL + GAP; // width of one normal column
-              const monthGapBefore = (ml && i > 0) ? 20 : 0;
-              const totalW = span * colW - GAP; // subtract trailing gap
+              const colW = CELL + GAP;
+              const monthGapBefore = (i > 0) ? 20 : 0;
+              const totalW = span * colW - GAP;
+              // Offset label to start at the first live cell of the month
+              const firstDow = new Date(
+                new Date(gridStart.getTime() + i * 7 * 86400000).getFullYear(),
+                new Date(gridStart.getTime() + i * 7 * 86400000).getMonth(), 1
+              ).getDay();
+              const labelOffset = firstDow * colW;
               return (
-                <div key={i} style={{ width: totalW, flexShrink: 0, marginLeft: monthGapBefore, fontSize: 9, color: "#7a8090", whiteSpace: "nowrap", overflow: "visible" }}>
+                <div key={i} style={{ width: totalW, flexShrink: 0, marginLeft: monthGapBefore, paddingLeft: labelOffset, fontSize: 9, color: "#7a8090", whiteSpace: "nowrap", overflow: "visible" }}>
                   {ml}
                 </div>
               );
@@ -915,21 +940,39 @@ function CourseSkillGroup({ course, skills, skillLevels, onLevelChange, onDelete
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function DeadlinesPage() {
-  const [deadlines,   setDeadlines]   = useState(() => load(STORAGE_KEY, []));
-  const [skillLevels, setSkillLevels] = useState(() => load(SKILLS_KEY, {}));
+  const [deadlines,   setDeadlines]   = useState(INITIAL_DEADLINES);
+  const [skillLevels, setSkillLevels] = useState(INITIAL_SKILL_LEVELS);
   const [view,        setView]        = useState("month");
   const [tab,         setTab]         = useState("school");
   const [showAdd,     setShowAdd]     = useState(false);
   const [modal,       setModal]       = useState(null);
   const [skillMode,   setSkillMode]   = useState("current");
-  const [courseTiers, setCourseTiers] = useState(() => load(TIERS_KEY, DEFAULT_TIERS));
+  const [courseTiers, setCourseTiers] = useState(INITIAL_COURSE_TIERS);
   const [today]                       = useState(new Date());
   const [calDate,     setCalDate]     = useState(new Date());
   const [form, setForm] = useState({ title: "", course: "", date: "", time: "", notes: "", type: "school", priority: "normal" });
 
-  useEffect(() => save(STORAGE_KEY, deadlines),   [deadlines]);
-  useEffect(() => save(SKILLS_KEY,  skillLevels), [skillLevels]);
-  useEffect(() => save(TIERS_KEY,   courseTiers), [courseTiers]);
+  const isFirstRender = useRef(true);
+
+  // On mount in Tauri, load from disk instead of bundled static import
+  useEffect(() => {
+    if (!IS_TAURI) return;
+    invoke("load_memory").then(raw => {
+      try {
+        const dl   = raw.match(/export const DEADLINES = (\[[\s\S]*?\]);/)?.[1];
+        const sl   = raw.match(/export const SKILL_LEVELS = (\{[\s\S]*?\});/)?.[1];
+        const ct   = raw.match(/export const COURSE_TIERS = (\{[\s\S]*?\});/)?.[1];
+        if (dl) setDeadlines(JSON.parse(dl));
+        if (sl) setSkillLevels(JSON.parse(sl));
+        if (ct) setCourseTiers(JSON.parse(ct));
+      } catch(e) { console.error("Failed to parse memory.js", e); }
+    }).catch(e => console.error("load_memory failed", e));
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    persistToFile(deadlines, skillLevels, courseTiers);
+  }, [deadlines, skillLevels, courseTiers]);
 
   function cycleTier(courseId, newTier) {
     setCourseTiers(prev => ({ ...prev, [courseId]: newTier }));
@@ -952,6 +995,20 @@ export default function DeadlinesPage() {
   function toggleDone(id) {
     setDeadlines(prev => prev.map(d => d.id === id ? { ...d, done: !d.done } : d));
   }
+
+  const [expandedDl,  setExpandedDl]  = useState(null);
+  const [delDlTarget, setDelDlTarget] = useState(null); // deadline id pending delete
+  const [delDlStep,   setDelDlStep]   = useState("pw"); // "pw" | "confirm"
+  const [delDlPw,     setDelDlPw]     = useState("");
+  const [delDlErr,    setDelDlErr]    = useState(false);
+
+  function startDelDl(id) { setDelDlTarget(id); setDelDlStep("pw"); setDelDlPw(""); setDelDlErr(false); }
+  function cancelDelDl() { setDelDlTarget(null); setDelDlPw(""); setDelDlErr(false); }
+  function submitDelDlPw() {
+    if (delDlPw === "Jesiah") { setDelDlErr(false); setDelDlStep("confirm"); }
+    else { setDelDlErr(true); setDelDlPw(""); }
+  }
+  function confirmDelDl() { setDeadlines(p => p.filter(d => d.id !== delDlTarget)); cancelDelDl(); }
 
   function handleLevelChange(skill, targetLevel) {
     setModal({ skill, from: skillLevels[skill.id]?.level || 0, to: targetLevel });
@@ -983,8 +1040,9 @@ export default function DeadlinesPage() {
   const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
   const weekDays = Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(weekStart.getDate()+i); return d; });
 
-  const filtered = deadlines.filter(d => d.type===tab && !d.done);
-  const done     = deadlines.filter(d => d.type===tab && d.done);
+  const isCompletedTab = tab === "completed";
+  const filtered = isCompletedTab ? [] : deadlines.filter(d => d.type===tab && !d.done);
+  const done     = isCompletedTab ? deadlines.filter(d => d.done) : deadlines.filter(d => d.type===tab && d.done);
   const totalPts = Object.values(skillLevels).reduce((a,s) => a+(s.level||0), 0);
   const maxPts   = TOTAL_SKILLS * MAX_LEVEL;
   const pct      = Math.round((totalPts/maxPts)*100);
@@ -1026,15 +1084,26 @@ export default function DeadlinesPage() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-          {["school","research"].map(t => (
-            <button key={t} onClick={() => { setTab(t); setForm(f=>({...f,type:t})); }} style={{
+          {[
+            { id: "school",    label: "◈ School",    color: "#e8c547" },
+            { id: "research",  label: "◉ Research",  color: "#a78bfa" },
+            { id: "completed", label: "✓ Completed", color: "#34d399" },
+          ].map(t => (
+            <button key={t.id} onClick={() => { setTab(t.id); if(t.id!=="completed") setForm(f=>({...f,type:t.id})); }} style={{
               padding: "7px 18px", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: FONT,
               fontSize: 12, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase",
-              background: tab===t ? (t==="school"?"#e8c547":"#a78bfa") : "#1a1f2e",
-              color: tab===t ? "#0f1117" : "#4a5060",
-            }}>{t==="school"?"◈ School":"◉ Research"}</button>
+              background: tab===t.id ? t.color : "#1a1f2e",
+              color: tab===t.id ? "#0f1117" : "#4a5060",
+            }}>
+              {t.label}
+              {t.id === "completed" && deadlines.filter(d=>d.done).length > 0 && (
+                <span style={{ marginLeft: 6, fontSize: 10, background: "#34d39933", border: "1px solid #34d39955", borderRadius: 8, padding: "1px 6px", color: "#34d399" }}>
+                  {deadlines.filter(d=>d.done).length}
+                </span>
+              )}
+            </button>
           ))}
-          <button onClick={() => setShowAdd(v=>!v)} style={{ marginLeft: "auto", padding: "7px 16px", borderRadius: 8, border: `1px solid ${showAdd?"#e8c547":"#2a2e38"}`, background: "transparent", color: showAdd?"#e8c547":"#7a8090", cursor: "pointer", fontFamily: FONT, fontSize: 12, fontWeight: 600 }}>+ Add deadline</button>
+          {!isCompletedTab && <button onClick={() => setShowAdd(v=>!v)} style={{ marginLeft: "auto", padding: "7px 16px", borderRadius: 8, border: `1px solid ${showAdd?"#e8c547":"#2a2e38"}`, background: "transparent", color: showAdd?"#e8c547":"#7a8090", cursor: "pointer", fontFamily: FONT, fontSize: 12, fontWeight: 600 }}>+ Add deadline</button>}
         </div>
 
         {/* Add form */}
@@ -1124,7 +1193,58 @@ export default function DeadlinesPage() {
         )}
 
         {/* Upcoming */}
-        {sect(`Upcoming — ${tab}`,
+        {isCompletedTab ? sect("Completed", (
+          done.length === 0
+            ? <div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No completed deadlines yet.</div>
+            : <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {done.map(dl=>{
+                  const course=COURSES.find(c=>c.id===dl.course);
+                  const typeColor = dl.type==="school" ? "#e8c547" : "#a78bfa";
+                  return(
+                    <div key={dl.id} style={{background:"#0f1117",border:"1px solid #2a2e38",borderLeft:"3px solid #34d399",borderRadius:"0 10px 10px 0",padding:"10px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.75}}>
+                      <button onClick={()=>toggleDone(dl.id)} title="Mark incomplete" style={{width:16,height:16,borderRadius:"50%",border:"2px solid #34d399",background:"#34d399",cursor:"pointer",flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:600,color:"#7a8090",textDecoration:"line-through",marginBottom:2}}>{dl.title}</div>
+                        <div style={{display:"flex",gap:8}}>
+                          <span style={{fontSize:10,color:typeColor,fontFamily:MONO,textTransform:"uppercase"}}>{dl.type}</span>
+                          {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
+                          <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}</span>
+                        </div>
+                      </div>
+                      {delDlTarget === dl.id ? (
+                        <div style={{display:"flex",flexDirection:"column",gap:5,minWidth:160}}>
+                          {delDlStep === "pw" ? (
+                            <>
+                              <input autoFocus type="password" value={delDlPw}
+                                onChange={e=>{setDelDlPw(e.target.value);setDelDlErr(false);}}
+                                onKeyDown={e=>{if(e.key==="Enter")submitDelDlPw();if(e.key==="Escape")cancelDelDl();}}
+                                placeholder="password"
+                                style={{background:"#0d0f14",border:`1px solid ${delDlErr?"#e85454":"#2a2e38"}`,borderRadius:5,color:"#d4d8e0",fontSize:11,fontFamily:MONO,padding:"4px 8px",outline:"none",width:"100%",boxSizing:"border-box"}}
+                              />
+                              {delDlErr && <div style={{fontSize:10,color:"#e85454",fontFamily:MONO}}>incorrect</div>}
+                              <div style={{display:"flex",gap:5}}>
+                                <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                                <button onClick={submitDelDlPw} style={{flex:1,padding:"3px 0",background:"#2a2e38",border:"none",borderRadius:5,color:"#d4d8e0",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>next</button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div style={{fontSize:11,color:"#e8eaf0",fontFamily:MONO}}>delete permanently?</div>
+                              <div style={{display:"flex",gap:5}}>
+                                <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                                <button onClick={confirmDelDl} style={{flex:1,padding:"3px 0",background:"#e85454",border:"none",borderRadius:5,color:"#fff",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>delete</button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <button onClick={()=>startDelDl(dl.id)} style={{padding:"4px 8px",borderRadius:6,border:"1px solid #e8545422",background:"transparent",color:"#4a5060",cursor:"pointer",fontFamily:MONO,fontSize:11,flexShrink:0}}>✕</button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+        )) : sect(`Upcoming — ${tab}`,
           <>
             {filtered.length===0
               ? <div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No upcoming deadlines. Click a day or use + Add.</div>
@@ -1132,47 +1252,41 @@ export default function DeadlinesPage() {
                   {filtered.map(dl=>{
                     const days=getDaysUntil(dl.date),uc=urgencyColor(days),course=COURSES.find(c=>c.id===dl.course);
                     return(
-                      <div key={dl.id} style={{background:"#0f1117",border:`1px solid ${uc}33`,borderLeft:`3px solid ${uc}`,borderRadius:"0 10px 10px 0",padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
-                        <button onClick={()=>toggleDone(dl.id)} style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${uc}`,background:"transparent",cursor:"pointer",flexShrink:0}}/>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:13,fontWeight:600,color:"#d4d8e0",marginBottom:2}}>{dl.title}</div>
-                          <div style={{display:"flex",gap:8}}>
-                            {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
-                            <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
+                      <div key={dl.id} style={{background:"#0f1117",border:`1px solid ${uc}33`,borderLeft:`3px solid ${uc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
+                        <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
+                          <button onClick={()=>toggleDone(dl.id)} title="Mark complete" style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${uc}`,background:"transparent",cursor:"pointer",flexShrink:0}}/>
+                          <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
+                            <div style={{fontSize:13,fontWeight:600,color:"#d4d8e0",marginBottom:2}}>{dl.title}</div>
+                            <div style={{display:"flex",gap:8}}>
+                              {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
+                              <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
+                            </div>
                           </div>
+                          <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}33`,borderRadius:6,padding:"3px 8px",flexShrink:0}}>{urgencyLabel(days)}</div>
+                          <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
                         </div>
-                        <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}33`,borderRadius:6,padding:"3px 8px",flexShrink:0}}>{urgencyLabel(days)}</div>
-                        <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
+                        {expandedDl === dl.id && dl.notes && (
+                          <div style={{padding:"8px 14px 12px 46px",borderTop:`1px solid ${uc}22`}}>
+                            <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"1px",textTransform:"uppercase",marginBottom:4}}>Notes</div>
+                            <div style={{fontSize:12,color:"#9aa0b0",lineHeight:1.6,fontFamily:FONT}}>{dl.notes}</div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
                 </div>
             }
-            {done.length>0&&(
-              <details style={{marginTop:12}}>
-                <summary style={{fontSize:11,color:"#4a5060",cursor:"pointer",userSelect:"none"}}>{done.length} completed</summary>
-                <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
-                  {done.map(dl=>(
-                    <div key={dl.id} style={{background:"#0f1117",border:"1px solid #1e2130",borderRadius:10,padding:"8px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.5}}>
-                      <button onClick={()=>toggleDone(dl.id)} style={{width:14,height:14,borderRadius:"50%",border:"2px solid #34d399",background:"#34d399",cursor:"pointer",flexShrink:0}}/>
-                      <div style={{flex:1,fontSize:12,color:"#4a5060",textDecoration:"line-through"}}>{dl.title}</div>
-                      <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:12}}>✕</button>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            )}
           </>
         )}
 
-        {sect("Study activity", (() => {
+        {!isCompletedTab && sect("Study activity", (() => {
           const derivedLog = {};
           deadlines.filter(d => d.done && d.date).forEach(d => {
             derivedLog[d.date] = Math.min((derivedLog[d.date] || 0) + 1, 4);
           });
           return <StudyHeatmap studyLog={derivedLog} />;
         })())}
-        {sect("Learning projection", <ProjectionChart skillLevels={skillLevels} />)}
+        {!isCompletedTab && sect("Learning projection", <ProjectionChart skillLevels={skillLevels} />)}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
           <div style={{ background: "#161920", border: "1px solid #2a2e38", borderRadius: 12, padding: 20 }}>

@@ -1,254 +1,252 @@
 // src/pages/TicketsPage.jsx
 // Data lives in src/data/tickets.js — edit there, not here.
 
-import { useState } from "react";
-import { TICKETS, TODO_ITEMS } from "../data/tickets";
+import { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { TICKETS as INITIAL_TICKETS, TODO_ITEMS as INITIAL_TODO } from "../data/tickets";
+import { useData } from "../data/DataContext";
+import { TICKET_STATUS_MAP as STATIC_STATUS_MAP } from "../data/uiConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { TICKET_STATUS_MAP as STATUS_MAP, TICKET_FIELD_CONFIG as FIELD_CONFIG } from "../data/uiConfig";
+
+const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
+// Module-level STATUS_MAP — updated after data loads via context
+let STATUS_MAP = STATIC_STATUS_MAP;
+
+async function loadDataFile(filename) {
+  try {
+    if (IS_TAURI) {
+      return await invoke("load_data_file", { filename });
+    } else {
+      const res = await fetch(`/api/load-data-file?filename=${filename}`);
+      const data = await res.json();
+      return data.content;
+    }
+  } catch (e) { return null; }
+}
+
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
-const MONO = "'Courier New', monospace";
+const MONO = "'DM Mono', 'Fira Code', monospace";
 
+const FIELD_CONFIG = [
+  { key: "component", label: "Component", color: "#60a5fa", icon: "◈" },
+  { key: "function",  label: "Function",  color: "#a78bfa", icon: "⚙" },
+  { key: "error",     label: "Error",     color: "#f87171", icon: "✕" },
+  { key: "solution",  label: "Solution",  color: "#34d399", icon: "✓" },
+];
+
+const SECTION_META = {
+  DeadlinesPage: { icon: "◷", color: "#e8c547" },
+  CoursePage:    { icon: "⊞", color: "#4ecdc4" },
+  Talk2MePage:   { icon: "✦", color: "#ff6b9d" },
+  FileSystem:    { icon: "⎘", color: "#fb923c" },
+  Search:        { icon: "⌕", color: "#a78bfa" },
+  Global:        { icon: "◎", color: "#60a5fa" },
+  Android:       { icon: "⌘", color: "#34d399" },
+  DataLayer:     { icon: "≡", color: "#f472b6" },
+};
 
 function Chip({ label, color, bg }) {
   return (
     <span style={{
       display: "inline-block",
-      fontSize: 11, fontFamily: FONT, fontWeight: 700,
+      fontSize: 10, fontFamily: FONT, fontWeight: 700,
       letterSpacing: "0.5px", textTransform: "uppercase",
       color, background: bg || color + "22",
       border: `1px solid ${color}55`,
-      borderRadius: 6, padding: "3px 10px",
-      flexShrink: 0,
+      borderRadius: 5, padding: "2px 8px", flexShrink: 0,
     }}>
       {label}
     </span>
   );
 }
 
-function TicketCard({ ticket, type }) {
-  const [expanded, setExpanded] = useState(type !== "done");
-  const isDone = type === "done";
-  const status = ticket.status || (isDone ? "DONE" : "OPEN");
+function TicketCard({ ticket, defaultExpanded = true }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const status = ticket.status || "OPEN";
+  const isDone = status === "CLOSED" || status === "DONE";
   const cfg = STATUS_MAP[status] || STATUS_MAP["OPEN"];
-  const hasUIUpdate = ticket.solution?.toLowerCase().includes("ui update");
   const fields = FIELD_CONFIG.filter(f => ticket[f.key]);
 
   return (
     <div style={{
-      background: "#1e2230",
+      background: "#161920",
       border: `1px solid ${isDone ? "#2e3345" : cfg.color + "55"}`,
-      borderLeft: `5px solid ${cfg.color}`,
-      borderRadius: 12,
-      marginBottom: 14,
-      overflow: "hidden",
+      borderLeft: `4px solid ${cfg.color}`,
+      borderRadius: 12, marginBottom: 10, overflow: "hidden",
     }}>
-      {/* Header */}
-      <div
-        onClick={() => setExpanded(e => !e)}
-        style={{
-          display: "flex", alignItems: "flex-start", flexWrap: "wrap",
-          gap: 8, padding: "16px 18px", cursor: "pointer",
-        }}
-      >
-        {/* ID */}
+      <div onClick={() => setExpanded(e => !e)} style={{
+        display: "flex", alignItems: "flex-start", flexWrap: "wrap",
+        gap: 6, padding: "12px 14px", cursor: "pointer",
+      }}>
         <span style={{
-          fontFamily: MONO, fontSize: 12, fontWeight: 700,
-          color: cfg.color,
-          background: cfg.color + "22",
+          fontFamily: MONO, fontSize: 10, fontWeight: 700,
+          color: cfg.color, background: cfg.color + "22",
           border: `1px solid ${cfg.color}44`,
-          borderRadius: 5, padding: "3px 9px", flexShrink: 0,
-        }}>
-          #{ticket.id}
-        </span>
+          borderRadius: 4, padding: "2px 7px", flexShrink: 0,
+        }}>#{ticket.id}</span>
 
         <Chip label={status} color={cfg.color} bg={cfg.bg} />
+        {ticket.priority?.toLowerCase() === "high" && <Chip label="⚠ HIGH" color="#ff8040" />}
 
-        {ticket.priority?.toLowerCase() === "high" && (
-          <Chip label="⚠ HIGH" color="#ff8040" />
-        )}
-        {hasUIUpdate && (
-          <Chip label="🎨 UI UPDATE" color="#50c8ff" />
-        )}
-
-        {/* Title — largest, most readable element */}
         <span style={{
-          color: isDone ? "#9098b0" : "#eceef4",
-          fontSize: 15, fontWeight: 700, fontFamily: FONT,
+          color: isDone ? "#8090a8" : "#eceef4",
+          fontSize: 13, fontWeight: 600, fontFamily: FONT,
           lineHeight: 1.35, flex: 1, minWidth: 160,
-        }}>
-          {ticket.title}
-        </span>
+        }}>{ticket.title}</span>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: "auto", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
           {ticket.filed && (
-            <span style={{ fontSize: 12, color: "#5a6070", fontFamily: FONT, fontWeight: 500 }}>
-              {ticket.filed}
+            <span style={{ fontSize: 10, color: "#4a5060", fontFamily: FONT }}>
+              {ticket.closed ? `${ticket.filed} → ${ticket.closed}` : ticket.filed}
             </span>
           )}
-          <span style={{ fontSize: 13, color: "#5a6070" }}>{expanded ? "▲" : "▼"}</span>
+          <span style={{ fontSize: 11, color: "#4a5060" }}>{expanded ? "▲" : "▼"}</span>
         </div>
       </div>
 
-      {/* Body */}
       {expanded && fields.length > 0 && (
         <div style={{
-          borderTop: `1px solid #2e3345`,
-          padding: "16px 18px 18px",
-          display: "flex", flexDirection: "column", gap: 14,
+          borderTop: "1px solid #2a2e38", padding: "12px 14px 14px",
+          display: "flex", flexDirection: "column", gap: 10,
         }}>
           {fields.map(({ key, label, color, icon }) => (
             <div key={key}>
-              <div style={{ marginBottom: 7 }}>
+              <div style={{ marginBottom: 4 }}>
                 <span style={{
-                  fontFamily: FONT, fontSize: 11, fontWeight: 700,
+                  fontFamily: FONT, fontSize: 10, fontWeight: 700,
                   letterSpacing: "1px", textTransform: "uppercase",
-                  color, background: color + "18",
-                  border: `1px solid ${color}40`,
-                  borderRadius: 5, padding: "3px 10px",
-                }}>
-                  {icon} {label}
-                </span>
+                  color, background: color + "18", border: `1px solid ${color}40`,
+                  borderRadius: 4, padding: "2px 8px",
+                }}>{icon} {label}</span>
               </div>
               <p style={{
-                color: "#cdd2e0",
-                fontSize: 14, lineHeight: 1.8,
-                fontFamily: FONT, fontWeight: 400,
-                margin: 0, paddingLeft: 2,
-              }}>
-                {ticket[key]}
-              </p>
+                color: "#9aa0b0", fontSize: 12, lineHeight: 1.7,
+                fontFamily: FONT, fontWeight: 400, margin: 0, paddingLeft: 2,
+              }}>{ticket[key]}</p>
             </div>
           ))}
-
-          {isDone && ticket.closed && (
-            <div style={{ fontSize: 12, color: "#5a6070", fontFamily: FONT, fontWeight: 500, marginTop: 2 }}>
-              Closed {ticket.closed}
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-function Section({ label, color, count, children, defaultOpen = true }) {
-  const [open, setOpen] = useState(defaultOpen);
+function SectionBlock({ name, tickets }) {
+  const meta = SECTION_META[name] || { icon: "◆", color: "#7a8090" };
+  const open   = tickets.filter(t => t.status === "OPEN" || t.status === "IN PROGRESS");
+  const closed = tickets.filter(t => t.status === "CLOSED" || t.status === "DONE");
+  const [showClosed, setShowClosed] = useState(false);
+  const [collapsed, setCollapsed]   = useState(false);
+
   return (
-    <div style={{ marginBottom: 44 }}>
-      <div
-        onClick={() => setOpen(o => !o)}
-        style={{
-          display: "flex", alignItems: "center", gap: 12,
-          marginBottom: open ? 18 : 0,
-          paddingBottom: 14, borderBottom: "1px solid #2e3345",
-          cursor: "pointer",
-        }}
-      >
-        <span style={{ fontSize: 18 }}>{label.split(" ")[0]}</span>
+    <div style={{ marginBottom: 32 }}>
+      <div onClick={() => setCollapsed(c => !c)} style={{
+        display: "flex", alignItems: "center", gap: 10,
+        marginBottom: collapsed ? 0 : 12,
+        paddingBottom: 10, borderBottom: "1px solid #2a2e38", cursor: "pointer",
+      }}>
+        <span style={{ fontSize: 14 }}>{meta.icon}</span>
         <span style={{
-          fontFamily: FONT, fontSize: 14, fontWeight: 700,
-          color: "#d8dce8", letterSpacing: "0.5px", textTransform: "uppercase",
-        }}>
-          {label.split(" ").slice(1).join(" ")}
-        </span>
-        <span style={{
-          fontFamily: FONT, fontSize: 12, fontWeight: 700, color: "#fff",
-          background: color + "30", border: `1px solid ${color}50`,
-          borderRadius: 12, padding: "2px 10px",
-        }}>
-          {count}
-        </span>
-        <span style={{ marginLeft: "auto", fontSize: 13, color: "#5a6070" }}>
-          {open ? "▲" : "▼"}
-        </span>
+          fontFamily: FONT, fontSize: 11, fontWeight: 700,
+          color: meta.color, letterSpacing: "1px", textTransform: "uppercase",
+        }}>{name}</span>
+        {open.length > 0 && (
+          <span style={{
+            fontSize: 10, fontWeight: 700, color: "#fff",
+            background: meta.color + "30", border: `1px solid ${meta.color}50`,
+            borderRadius: 12, padding: "1px 8px", fontFamily: FONT,
+          }}>{open.length} open</span>
+        )}
+        <span style={{ fontSize: 10, color: "#4a5060", fontFamily: FONT }}>{closed.length} closed</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "#4a5060" }}>{collapsed ? "▼" : "▲"}</span>
       </div>
-      {open && children}
+
+      {!collapsed && (
+        <>
+          {open.length === 0 && !showClosed && (
+            <p style={{ color: "#4a5060", fontFamily: FONT, fontSize: 11, marginBottom: 8 }}>No open tickets.</p>
+          )}
+          {open.map(t => <TicketCard key={t.id} ticket={t} defaultExpanded={true} />)}
+          {closed.length > 0 && (
+            <div onClick={() => setShowClosed(s => !s)} style={{
+              fontSize: 11, color: "#4a5060", fontFamily: FONT,
+              cursor: "pointer", marginTop: 6, userSelect: "none",
+            }}>
+              {showClosed ? "▲" : "▼"} {closed.length} closed
+            </div>
+          )}
+          {showClosed && closed.map(t => <TicketCard key={t.id} ticket={t} defaultExpanded={false} />)}
+        </>
+      )}
     </div>
   );
 }
 
-const openBugs     = TICKETS.bugs.filter(t => t.status !== "DONE");
-const openFeatures = TICKETS.features.filter(t => t.status !== "DONE");
-
 export default function TicketsPage() {
-  const isMobile = useIsMobile();
+  const { TICKET_STATUS_MAP } = useData();
+  STATUS_MAP = TICKET_STATUS_MAP || STATIC_STATUS_MAP;
+  const [tickets, setTickets] = useState(INITIAL_TICKETS);
+  const [todoItems, setTodoItems] = useState(INITIAL_TODO);
 
+  useEffect(() => {
+    loadDataFile("tickets.json").then(raw => {
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data.TICKETS) setTickets(data.TICKETS);
+        if (data.TODO_ITEMS) setTodoItems(data.TODO_ITEMS);
+      } catch(e) { console.error("tickets parse error", e); }
+    });
+  }, []);
+
+  const allTickets  = Object.values(tickets).flat();
+  const totalOpen   = allTickets.filter(t => t.status === "OPEN" || t.status === "IN PROGRESS").length;
+  const totalClosed = allTickets.filter(t => t.status === "CLOSED" || t.status === "DONE").length;
+  const isMobile = useIsMobile();
   return (
     <div style={{
       height: "100%", overflowY: "auto",
-      padding: isMobile ? "28px 18px 80px" : "52px 56px 72px",
-      fontFamily: FONT, background: "#13151c",
+      padding: isMobile ? "24px 16px 80px" : "44px 52px 72px",
+      fontFamily: FONT, background: "#0f1117",
     }}>
-      {/* Header */}
-      <div style={{ marginBottom: isMobile ? 32 : 48 }}>
+      <div style={{ marginBottom: isMobile ? 28 : 36 }}>
         <div style={{
-          fontFamily: FONT, fontSize: 11, fontWeight: 600, color: "#505870",
-          letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 12,
-        }}>
-          docs / tickets
-        </div>
+          fontSize: 10, fontWeight: 600, color: "#4a5060",
+          letterSpacing: "2px", textTransform: "uppercase", marginBottom: 10,
+        }}>docs / tickets</div>
         <h1 style={{
           fontFamily: "'Georgia', serif",
-          fontSize: isMobile ? 28 : 38,
-          fontWeight: 400, color: "#eceef4",
-          letterSpacing: "-0.5px", margin: "0 0 10px",
-        }}>
-          Issues &amp; Backlog
-        </h1>
-        <div style={{ color: "#7080a0", fontSize: 14, fontFamily: FONT, fontWeight: 500 }}>
-          {openBugs.length} open bugs · {openFeatures.length} open features · {TICKETS.done.length} resolved
+          fontSize: isMobile ? 22 : 28,
+          fontWeight: 400, color: "#d4d8e0",
+          letterSpacing: "-0.5px", margin: "0 0 8px",
+        }}>Issues &amp; Backlog</h1>
+        <div style={{ color: "#7a8090", fontSize: 11, fontFamily: FONT }}>
+          {totalOpen} open · {totalClosed} resolved · {Object.keys(tickets).length} sections
         </div>
       </div>
 
-      {/* Stats row */}
-      <div style={{ display: "flex", gap: 12, marginBottom: isMobile ? 36 : 52, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 10, marginBottom: isMobile ? 28 : 36, flexWrap: "wrap" }}>
         {[
-          { label: "Open Bugs",     count: openBugs.length,     color: "#ff6060" },
-          { label: "Open Features", count: openFeatures.length, color: "#b8a0ff" },
-          { label: "Resolved",      count: TICKETS.done.length, color: "#4ddd99" },
+          { label: "Open",     count: totalOpen,   color: "#ff6060" },
+          { label: "Resolved", count: totalClosed, color: "#4ddd99" },
+          { label: "Sections", count: Object.keys(tickets).length, color: "#a78bfa" },
         ].map(s => (
           <div key={s.label} style={{
-            background: "#1e2230",
-            border: `1px solid ${s.color}33`,
-            borderTop: `4px solid ${s.color}`,
-            borderRadius: 12,
-            padding: isMobile ? "16px 22px" : "20px 32px",
-            minWidth: 110,
+            background: "#161920", border: `1px solid ${s.color}33`,
+            borderTop: `3px solid ${s.color}`, borderRadius: 12,
+            padding: isMobile ? "10px 16px" : "14px 22px", minWidth: 80,
           }}>
-            <div style={{
-              fontSize: isMobile ? 28 : 36, fontWeight: 800,
-              color: s.color, marginBottom: 6, fontFamily: FONT, lineHeight: 1,
-            }}>
-              {s.count}
-            </div>
-            <div style={{
-              fontSize: 12, color: "#8090a8", fontFamily: FONT,
-              fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px",
-            }}>
-              {s.label}
-            </div>
+            <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: s.color, marginBottom: 4, lineHeight: 1 }}>{s.count}</div>
+            <div style={{ fontSize: 10, color: "#4a5060", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      <Section label="🐛 Bugs" color="#ff6060" count={openBugs.length}>
-        {openBugs.length === 0
-          ? <p style={{ color: "#505870", fontFamily: FONT, fontSize: 14 }}>No open bugs.</p>
-          : openBugs.map(t => <TicketCard key={t.id} ticket={t} type="bug" />)
-        }
-      </Section>
-
-      <Section label="🚀 Features" color="#b8a0ff" count={openFeatures.length}>
-        {openFeatures.length === 0
-          ? <p style={{ color: "#505870", fontFamily: FONT, fontSize: 14 }}>No open features.</p>
-          : openFeatures.map(t => <TicketCard key={t.id} ticket={t} type="feature" />)
-        }
-      </Section>
-
-      <Section label="✅ Done" color="#4ddd99" count={TICKETS.done.length} defaultOpen={false}>
-        {TICKETS.done.map(t => <TicketCard key={t.id} ticket={{ ...t, status: "DONE" }} type="done" />)}
-      </Section>
+      {Object.entries(tickets).map(([name, tickets]) => (
+        <SectionBlock key={name} name={name} tickets={tickets} />
+      ))}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { getDept, courseContentCount, LANG_REFS, MATH_SHARED_REFS } from "../data/subjects";
-import { BUCKET_ICONS } from "../data/uiConfig";
+import { useData } from "../data/DataContext";
+
 import { useIsMobile } from "../hooks/useIsMobile";
 import ReferenceViewer from "../components/ReferenceViewer";
 
@@ -48,6 +48,7 @@ function PrevNextBar({ items, activeFile, onSelect, onBack }) {
 
 
 export default function DeptPage({ deptId, goTo, dest }) {
+  const { getDept, courseContentCount, LANG_REFS, MATH_SHARED_REFS, BUCKET_ICONS } = useData();
   const dept = getDept(deptId);
   if (!dept) return null;
 
@@ -55,6 +56,13 @@ export default function DeptPage({ deptId, goTo, dest }) {
   const [activeRef, setActiveRef] = useState(null);
   const [showRefContent, setShowRefContent] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [jumpOpen, setJumpOpen] = useState(false);
+  const [expandedCourses, setExpandedCourses] = useState(() => {
+    // Hubs expanded by default so lanes are visible, regular courses collapsed
+    const init = {};
+    return init;
+  });
+  function toggleCourse(id) { setExpandedCourses(p => ({ ...p, [id]: !p[id] })); }
   const prevDestRef = useRef(null);
 
   // Auto-open ref panel when navigating from a search result
@@ -236,12 +244,130 @@ export default function DeptPage({ deptId, goTo, dest }) {
     );
   }
 
+
+  // ── Jump Drawer ───────────────────────────────────────────────────
+  function JumpDrawer() {
+    if (!jumpOpen) return null;
+    const courses = dept.courses.filter(c => !c.hubParent);
+    return (
+      <>
+        <div onClick={() => setJumpOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.5)" }} />
+        <div style={{
+          position: "fixed", top: 0, right: 0, bottom: 0,
+          width: isMobile ? "85vw" : 340,
+          background: "#161920", borderLeft: "1px solid #2a2e38",
+          zIndex: 201, overflowY: "auto", display: "flex", flexDirection: "column",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#4a5060", letterSpacing: "2px", textTransform: "uppercase" }}>
+              {dept.label} — Jump to
+            </span>
+            <button onClick={() => setJumpOpen(false)} style={{ background: "none", border: "none", color: "#4a5060", fontSize: 16, cursor: "pointer", padding: 0 }}>✕</button>
+          </div>
+          <div style={{ padding: "8px 0" }}>
+            {courses.map(course => (
+              <div key={course.id}>
+                {/* Course header */}
+                <div style={{ display: "flex", alignItems: "center", borderLeft: `3px solid ${course.color}` }}>
+                  <button
+                    onClick={() => { setJumpOpen(false); goTo(deptId, course.id); }}
+                    style={{
+                      flex: 1, textAlign: "left", background: "transparent",
+                      border: "none", padding: "11px 16px", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 10,
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#1e2230"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <span style={{ fontSize: 15 }}>{course.icon}</span>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: course.color }}>{course.label}</div>
+                      {course.courseCode && <div style={{ fontSize: 10, color: "#4a5060" }}>{course.courseCode}</div>}
+                    </div>
+                  </button>
+                  {!course.isHub && (
+                    <button
+                      onClick={() => toggleCourse(course.id)}
+                      style={{ background: "none", border: "none", color: "#4a5060", cursor: "pointer", padding: "0 14px", fontSize: 11 }}
+                    >{expandedCourses[course.id] ? "▲" : "▼"}</button>
+                  )}
+                </div>
+                {/* Sub-items: lanes for hubs, buckets for regular */}
+                {(course.isHub || expandedCourses[course.id]) && (course.isHub ? (
+                  (course.lanes || []).map(lane => (
+                    <button
+                      key={lane.id}
+                      onClick={() => { setJumpOpen(false); goTo(deptId, lane.id); }}
+                      style={{
+                        width: "100%", textAlign: "left", background: "transparent",
+                        border: "none", padding: "7px 20px 7px 44px", cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 8,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "#1e2230"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                    >
+                      <span style={{ fontSize: 12 }}>{lane.icon}</span>
+                      <span style={{ fontSize: 12, color: lane.color }}>{lane.title}</span>
+                    </button>
+                  ))
+                ) : (
+                  ["notes","references","assignments","code","pdfs","flashcards"].filter(b =>
+                    b === "flashcards" ? !!course.flashcards : course[b]?.length > 0
+                  ).map(b => (
+                    <button
+                      key={b}
+                      onClick={() => { setJumpOpen(false); goTo(deptId, course.id, { tab: b }); }}
+                      style={{
+                        width: "100%", textAlign: "left", background: "transparent",
+                        border: "none", padding: "6px 20px 6px 44px", cursor: "pointer",
+                        fontSize: 11, color: "#5a6070", fontFamily: FONT,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "#1e2230"; e.currentTarget.style.color = "#d4d8e0"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#5a6070"; }}
+                    >
+                      {BUCKET_ICONS[b]} {b}
+                      <span style={{ marginLeft: 6, color: "#3a4052", fontSize: 10 }}>
+                        {b === "flashcards" ? "" : `(${course[b]?.length})`}
+                      </span>
+                    </button>
+                  ))
+                ))}
+              </div>
+            ))}
+            {/* Lang+ */}
+            <button
+              onClick={() => { setJumpOpen(false); setView("langs"); }}
+              style={{
+                width: "100%", textAlign: "left", background: "transparent",
+                border: "none", padding: "11px 20px", cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 10,
+                borderLeft: "3px solid #e8c547",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "#1e2230"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <span style={{ fontSize: 15 }}>❰❱</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#e8c547" }}>Lang+</span>
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // ── COSC: course grid + Lang+ card ────────────────────────────────
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-      <div style={{ padding: isMobile ? "16px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>department</div>
-        <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
+      <JumpDrawer />
+      <div style={{ padding: isMobile ? "16px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>department</div>
+          <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 700, color: dept.color }}>{dept.label}</h1>
+        </div>
+        <button onClick={() => setJumpOpen(o => !o)} style={{ background: jumpOpen ? "#1e2230" : "transparent", border: `1px solid ${jumpOpen ? dept.color + "66" : "#2a2e38"}`, borderRadius: 8, color: jumpOpen ? dept.color : "#7a8090", fontSize: 12, fontFamily: FONT, fontWeight: 700, padding: "8px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s" }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = dept.color + "66"; e.currentTarget.style.color = dept.color; }}
+          onMouseLeave={e => { if (!jumpOpen) { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.color = "#7a8090"; } }}
+        >≡ Jump</button>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "16px 12px 80px" : "28px 52px 64px" }}>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fill, minmax(260px, 1fr))", gap: isMobile ? 10 : 14 }}>

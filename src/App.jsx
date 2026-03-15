@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ALL_COURSES } from "./data/subjects";
+import { DataProvider, useData } from "./data/DataContext";
 import Sidebar             from "./components/Sidebar";
 import DropZone            from "./components/DropZone";
 import FileInventoryModal  from "./components/FileInventoryModal";
@@ -11,10 +11,11 @@ import Talk2MePage         from "./pages/Talk2MePage";
 import TicketsPage         from "./pages/TicketsPage";
 import RoadMap             from "./pages/RoadMap";
 import DeadlinesPage       from "./pages/DeadlinesPage";
+import ResourcesPage      from "./pages/ResourcesPage";
 import { useIsMobile }     from "./hooks/useIsMobile";
-import { NAV } from "./data/nav";
 
-export default function App() {
+function AppInner() {
+  const { NAV, getCourse } = useData();
   const [nav, setNav]               = useState("home");
   const [course, setCourse]         = useState(null);
   const [hub,    setHub]            = useState(null);
@@ -28,7 +29,7 @@ export default function App() {
     setNav(navId);
     setDest(destination);
     if (courseId) {
-      const entry = ALL_COURSES.find(c => c.id === courseId);
+      const entry = getCourse(courseId);
       if (entry?.isHub) { setHub(courseId); setCourse(null); }
       else               { setCourse(courseId); setHub(null); }
     } else {
@@ -46,7 +47,7 @@ export default function App() {
 
   function renderPage() {
     if (course) {
-      const entry = ALL_COURSES.find(c => c.id === course);
+      const entry = getCourse(course);
       const backToHub = entry?.hubParent ? () => { setCourse(null); setDest(null); setHub(entry.hubParent); } : null;
       return (
         <CoursePage
@@ -58,7 +59,7 @@ export default function App() {
       );
     }
     if (hub) {
-      const hubData = ALL_COURSES.find(c => c.id === hub);
+      const hubData = getCourse(hub);
       return (
         <OsHubPage
           hubData={hubData}
@@ -74,6 +75,7 @@ export default function App() {
       case "talk2me":   return <Talk2MePage dest={dest} />;
       case "tickets":   return <TicketsPage />;
       case "roadmap":   return <RoadMap />;
+      case "resources":  return <ResourcesPage />;
       case "deadlines": return <DeadlinesPage />;
       default:        return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
     }
@@ -174,4 +176,8 @@ export default function App() {
       />
     </div>
   );
+}
+
+export default function App() {
+  return <DataProvider><AppInner /></DataProvider>;
 }

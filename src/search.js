@@ -3,8 +3,15 @@
 // PDF results come from /pdf-index.json built by scripts/index-pdfs.js
 
 import { mdFiles, txtFiles, cppFiles } from "./globs";
-import { ALL_COURSES, LANG_REFS, MATH_SHARED_REFS } from "./data/subjects";
+// Static fallbacks — overridden by live data passed from DataContext
+import { ALL_COURSES as _ALL_COURSES, LANG_REFS as _LANG_REFS, MATH_SHARED_REFS as _MATH_SHARED_REFS } from "./data/subjects";
 import { TALK2ME }                      from "./data/talk2me";
+
+let _liveData = null;
+export function setSearchData(data) { _liveData = data; }
+const getCourses  = () => _liveData?.ALL_COURSES      ?? _ALL_COURSES;
+const getLangRefs = () => _liveData?.LANG_REFS        ?? _LANG_REFS;
+const getMathRefs = () => _liveData?.MATH_SHARED_REFS ?? _MATH_SHARED_REFS;
 
 // ── Knowledge base — lazy loaded on first search, then cached ─────────────────
 // All 21 JS arrays are large; importing them eagerly delays app startup by ~10s.
@@ -15,7 +22,7 @@ import { TALK2ME }                      from "./data/talk2me";
 function buildMeta() {
   const meta = {};
 
-  ALL_COURSES.forEach(course => {
+  getCourses().forEach(course => {
     if (course.isHub) return;
     course.notes.forEach(n => {
       meta[n.file] = {
@@ -107,13 +114,13 @@ export function buildReferenceIndex() {
     });
   }
 
-  ALL_COURSES.forEach(course => {
+  getCourses().forEach(course => {
     addItems(course.references || [], course.id, course.label, course.color, "references");
     addItems(course.gopal      || [], course.id, course.label, course.color, "gopal");
   });
 
   // Lang+ refs
-  LANG_REFS.forEach(ref => {
+  getLangRefs().forEach(ref => {
     entries.push({
       id:       `langref::${ref.file}`,
       type:     "reference",
@@ -127,7 +134,7 @@ export function buildReferenceIndex() {
   });
 
   // MATH dept shared refs (only live in DeptPage sidebar, not attached to any course)
-  MATH_SHARED_REFS.forEach(ref => {
+  getMathRefs().forEach(ref => {
     entries.push({
       id:       `mathref::${ref.file}`,
       type:     "reference",
@@ -256,7 +263,7 @@ export function searchRefTextIndex(refTextIndex, query) {
   }
 
   results.sort((a, b) => (b.matchInLabel ? 1 : 0) - (a.matchInLabel ? 1 : 0));
-  return results.slice(0, 20);
+  return results;
 }
 
 // ── Search reference label index ──────────────────────────────────────────────
@@ -274,7 +281,7 @@ export function searchReferenceIndex(refIndex, query) {
   }
 
   results.sort((a, b) => (b.matchInLabel ? 1 : 0) - (a.matchInLabel ? 1 : 0));
-  return results.slice(0, 15);
+  return results;
 }
 
 
@@ -326,7 +333,7 @@ export function searchTextIndex(index, query) {
   }
 
   results.sort((a, b) => (b.matchInLabel ? 1 : 0) - (a.matchInLabel ? 1 : 0));
-  return results.slice(0, 30);
+  return results;
 }
 
 // ── Search PDF index ──────────────────────────────────────────────────────────
@@ -364,7 +371,7 @@ export function searchPdfIndex(pdfIndex, query) {
     }
   }
 
-  return results.slice(0, 20);
+  return results;
 }
 
 // ── Resolve a result → navigation target ─────────────────────────────────────

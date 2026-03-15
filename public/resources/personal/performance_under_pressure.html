@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Under Pressure</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #1e1e1e;
+  --paper: #f5f0e8;
+  --cream: #ede7d4;
+  --red: #c0392b;
+  --gold: #b8860b;
+  --muted: #7a7060;
+  --light: #e8e0cc;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.9;
+  cursor: crosshair;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.6;
+}
+
+/* ── PROGRESS LINE ── */
+#progress-line {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--red);
+  z-index: 999;
+  transition: width 0.1s linear;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-left {
+  background: #1e1e1e;
+  color: var(--paper);
+  padding: 4rem 3rem 4rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.hero-left::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 0; bottom: 0;
+  width: 1px;
+  background: var(--red);
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(245,240,232,0.88);
+  font-style: italic;
+  max-width: 320px;
+  line-height: 1.95;
+}
+
+.hero-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 12rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.05);
+  position: absolute;
+  bottom: -2rem;
+  left: 2rem;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-right {
+  background: var(--cream);
+  padding: 4rem 4rem 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.intro-graf {
+  font-size: 1.3rem;
+  line-height: 1.75;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+.intro-graf strong {
+  font-weight: 600;
+  color: var(--red);
+}
+
+.hero-stat-row {
+  display: flex;
+  gap: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--light);
+}
+
+.hero-stat { flex: 1; }
+.hero-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+}
+.hero-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+
+/* ── SECTION BASE ── */
+section {
+  padding: 5rem 0;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 4rem;
+}
+
+.section-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 1.5rem;
+}
+
+.section-title em { font-style: italic; color: var(--muted); }
+
+.lead {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 640px;
+  line-height: 1.95;
+  margin-bottom: 3rem;
+}
+
+/* ── DIVIDER ── */
+.rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--red), transparent);
+  margin: 0;
+}
+
+/* ── THE THREE ENEMIES ── */
+#enemies { background: #1e1e1e; color: var(--paper); }
+#enemies .section-tag { color: var(--red); }
+#enemies .section-title em { color: rgba(255,255,255,0.3); }
+#enemies .lead { color: rgba(245,240,232,0.85); }
+
+.enemies-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+.enemy-card {
+  background: #1e1e1e;
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.enemy-card:hover { background: #222; }
+
+.enemy-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.06);
+  position: absolute;
+  top: -0.5rem;
+  right: 1rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.enemy-icon {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.enemy-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: var(--paper);
+}
+
+.enemy-desc {
+  font-size: 0.9rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.95;
+}
+
+.enemy-tag {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid rgba(192,57,43,0.3);
+  padding: 0.2rem 0.6rem;
+}
+
+/* ── PRESSURE CURVE ── */
+#curve { background: var(--paper); }
+
+.curve-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+
+.curve-text { }
+
+.curve-visual {
+  position: sticky;
+  top: 4rem;
+}
+
+.curve-svg-wrap {
+  background: var(--cream);
+  border: 1px solid var(--light);
+  padding: 2rem;
+  border-radius: 2px;
+}
+
+.curve-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.insight-block {
+  margin-bottom: 2.5rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--light);
+  transition: border-color 0.3s;
+}
+.insight-block:hover { border-color: var(--red); }
+
+.insight-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.insight-body {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.95;
+}
+
+/* ── ERROR TAXONOMY ── */
+#errors { background: var(--cream); }
+
+.error-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+.error-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
+}
+
+.error-table td {
+  padding: 1.2rem;
+  border-bottom: 1px solid var(--light);
+  font-size: 0.95rem;
+  vertical-align: top;
+  line-height: 1.9;
+}
+
+.error-table tr:hover td { background: rgba(192,57,43,0.03); }
+
+.error-type {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.error-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  margin-top: 0.3rem;
+}
+
+.pill-red { background: rgba(192,57,43,0.12); color: var(--red); }
+.pill-gold { background: rgba(184,134,11,0.12); color: var(--gold); }
+.pill-blue { background: rgba(52,73,94,0.12); color: #34495e; }
+.pill-green { background: rgba(39,174,96,0.12); color: #27ae60; }
+
+/* ── THE PROTOCOL ── */
+#protocol { background: #1e1e1e; color: var(--paper); }
+#protocol .section-title em { color: rgba(255,255,255,0.3); }
+#protocol .lead { color: rgba(245,240,232,0.85); }
+
+.protocol-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  counter-reset: step;
+  margin-top: 3rem;
+}
+
+.protocol-step {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 2rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+  align-items: start;
+  transition: background 0.2s;
+}
+.protocol-step:hover { background: rgba(255,255,255,0.02); }
+
+.step-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.08);
+  line-height: 1;
+  text-align: right;
+  padding-top: 0.2rem;
+}
+
+.step-content { }
+
+.step-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--paper);
+  margin-bottom: 0.5rem;
+}
+
+.step-body {
+  font-size: 0.9rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.95;
+  max-width: 560px;
+}
+
+.step-metric {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--gold);
+  border-bottom: 1px solid rgba(184,134,11,0.4);
+  padding-bottom: 2px;
+}
+
+/* ── READINESS METER ── */
+#readiness { background: var(--paper); }
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.block-card {
+  border: 1px solid var(--light);
+  padding: 1.5rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.block-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  transform-origin: left;
+}
+.block-card:hover::before { transform: scaleX(1); }
+.block-card:hover { border-color: var(--ink); }
+
+.block-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.block-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 0.8rem;
+}
+
+.block-concepts {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.readiness-level {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.level-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--light);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.level-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--red);
+  transition: width 1s ease 0.5s;
+  width: 0%;
+}
+
+.level-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.self-rate {
+  margin-top: 3rem;
+  background: var(--cream);
+  border: 1px solid var(--light);
+  padding: 2rem;
+}
+
+.self-rate-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.rate-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.rate-input {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.rate-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--light);
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--muted);
+}
+.rate-btn:hover { border-color: var(--ink); color: var(--ink); }
+.rate-btn.selected { background: #1e1e1e; color: var(--paper); border-color: var(--ink); }
+
+.rate-result {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--light);
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-style: italic;
+  min-height: 2rem;
+  transition: color 0.3s;
+}
+
+/* ── MANIFESTO ── */
+#manifesto {
+  background: #1e1e1e;
+  color: var(--paper);
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.manifesto-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 5rem 4rem;
+  text-align: center;
+}
+
+.manifesto-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.4;
+  color: #f0ece4;
+  margin-bottom: 2rem;
+}
+
+.manifesto-quote strong {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+.manifesto-attr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.3);
+}
+
+.manifesto-rules {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  text-align: left;
+}
+
+.rule-line {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.rule-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--red);
+  flex-shrink: 0;
+  width: 30px;
+}
+
+.rule-text {
+  font-size: 1rem;
+  color: rgba(245,240,232,0.93);
+  line-height: 1.6;
+}
+
+.rule-text em {
+  color: var(--paper);
+  font-style: italic;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-left > * {
+  animation: fadeUp 0.8s ease both;
+}
+.hero-left > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-left > *:nth-child(2) { animation-delay: 0.25s; }
+.hero-left > *:nth-child(3) { animation-delay: 0.4s; }
+.hero-right > * {
+  animation: fadeUp 0.8s ease both;
+}
+.hero-right > *:nth-child(1) { animation-delay: 0.3s; }
+.hero-right > *:nth-child(2) { animation-delay: 0.45s; }
+.hero-right > *:nth-child(3) { animation-delay: 0.6s; }
+
+/* responsive */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-left { min-height: 60vh; }
+  .curve-layout { grid-template-columns: 1fr; }
+  .curve-visual { position: static; }
+  .enemies-grid { grid-template-columns: 1fr; }
+  .readiness-grid { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 0 1.5rem; }
+}
+
+/* ── IMPROVEMENT LOOP ── */
+#improvement { background: var(--cream); }
+
+.loop-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 2.5rem;
+  gap: 0;
+}
+
+.loop-step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem;
+  background: var(--paper);
+  border: 1px solid var(--light);
+  border-bottom: none;
+  transition: background 0.2s;
+  align-items: start;
+}
+.loop-step:last-of-type { border-bottom: 1px solid var(--light); }
+.loop-step:hover { background: #f0ebe0; }
+
+.loop-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  color: var(--red);
+  padding-top: 0.2rem;
+  text-align: center;
+}
+
+.loop-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.loop-desc {
+  font-size: 0.95rem;
+  color: #6a6050;
+  line-height: 1.95;
+  margin-bottom: 0.8rem;
+}
+
+.loop-rule {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: var(--red);
+  border-left: 2px solid var(--red);
+  padding-left: 0.7rem;
+  line-height: 1.6;
+}
+
+.loop-arrow {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 0.4rem 0;
+  letter-spacing: 2px;
+}
+
+.loop-back {
+  margin-top: 0.5rem;
+  color: var(--red);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.threshold-block {
+  margin-top: 3rem;
+  background: #1e1e1e;
+  color: var(--paper);
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.threshold-block::before {
+  content: 'OWNED';
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Playfair Display', serif;
+  font-size: 8rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.03);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.threshold-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+}
+
+.threshold-body {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: rgba(245,240,232,0.92);
+  max-width: 680px;
+}
+
+
+
+/* ── EMERGENCY ── */
+#emergency { background: #1e1e1e; color: var(--paper); }
+#emergency .section-tag { color: var(--red); }
+#emergency .lead { color: rgba(245,240,232,0.85); }
+#emergency .section-title em { color: rgba(255,255,255,0.25); }
+
+.emergency-disclaimer {
+  background: rgba(192,57,43,0.12);
+  border: 1px solid rgba(192,57,43,0.35);
+  border-left: 3px solid var(--red);
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 3rem;
+  font-size: 0.88rem;
+  color: rgba(245,240,232,0.92);
+  line-height: 1.95;
+  font-style: italic;
+}
+
+.emergency-disclaimer strong {
+  color: var(--red);
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.crunch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 3rem;
+}
+
+.crunch-card {
+  background: #1e1e1e;
+  padding: 2rem;
+  transition: background 0.2s;
+}
+.crunch-card:hover { background: #1c1c1c; }
+
+.crunch-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.8rem;
+}
+
+.crunch-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--paper);
+  margin-bottom: 0.7rem;
+  line-height: 1.3;
+}
+
+.crunch-body {
+  font-size: 0.88rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.95;
+}
+
+.crunch-body em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.triage-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3rem;
+}
+
+.triage-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.75);
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  border-top: 1px solid rgba(255,255,255,0.18);
+}
+
+.triage-table td {
+  padding: 1.1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  font-size: 0.88rem;
+  vertical-align: top;
+  line-height: 1.9;
+  color: rgba(245,240,232,0.90);
+}
+
+.triage-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.triage-concept {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--paper);
+}
+
+.triage-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  margin-top: 0.3rem;
+}
+
+.pill-high { background: rgba(192,57,43,0.2); color: #e74c3c; }
+.pill-med  { background: rgba(184,134,11,0.2); color: var(--gold); }
+.pill-low  { background: rgba(255,255,255,0.06); color: rgba(245,240,232,0.75); }
+
+.crunch-truth {
+  background: rgba(184,134,11,0.08);
+  border: 1px solid rgba(184,134,11,0.2);
+  padding: 2rem 2.5rem;
+  margin-top: 1rem;
+}
+
+.crunch-truth-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.crunch-truth-body {
+  font-size: 0.9rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.85;
+}
+
+.crunch-truth-body strong {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .crunch-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ── TOC ── */
+#toc {
+  position: fixed;
+  right: 1.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#toc.visible { opacity: 1; }
+
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.toc-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(122,112,96,0.35);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.toc-item:hover .toc-dot,
+.toc-item.active .toc-dot {
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(192,57,43,0.5);
+  transform: scale(1.4);
+}
+
+.toc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: transparent;
+  white-space: nowrap;
+  transition: color 0.2s ease, transform 0.2s ease;
+  transform: translateX(8px);
+  pointer-events: none;
+  max-width: 0;
+  overflow: hidden;
+}
+
+.toc-item:hover .toc-label,
+.toc-item.active .toc-label {
+  color: var(--muted);
+  transform: translateX(0);
+  max-width: 200px;
+}
+
+@media (max-width: 768px) {
+  #toc { display: none; }
+}
+
+
+/* astigmatism fix — mono labels on dark */
+#enemies .enemy-tag,
+#protocol .step-metric,
+#emergency .crunch-label,
+#emergency .triage-table th,
+.loop-rule,
+.manifesto-attr {
+  opacity: 1;
+  filter: brightness(1.3);
+}
+
+/* increase all body text sizes on dark sections slightly */
+#enemies .enemy-desc,
+#protocol .step-body,
+#emergency .crunch-body,
+#emergency .triage-table td,
+.threshold-body,
+.manifesto-rules .rule-text {
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+
+/* ── ALL NIGHTER ── */
+#allnighter {
+  background: #0d0005;
+  color: rgba(245,240,232,0.92);
+  border-top: 2px solid #4a0010;
+}
+
+#allnighter .section-tag { color: #e74c3c; }
+#allnighter .section-title em { color: rgba(255,255,255,0.2); }
+#allnighter .lead { color: rgba(245,240,232,0.82); }
+
+.an-warning {
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.5);
+  border-left: 4px solid #e74c3c;
+  padding: 1.5rem 2rem;
+  margin-bottom: 3rem;
+  line-height: 1.95;
+}
+
+.an-warning-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #e74c3c;
+  margin-bottom: 0.8rem;
+}
+
+.an-warning-body {
+  font-size: 0.95rem;
+  color: rgba(245,240,232,0.90);
+  line-height: 1.95;
+}
+
+.an-risks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.15);
+  margin-bottom: 3rem;
+}
+
+.an-risk-card {
+  background: #0d0005;
+  padding: 1.5rem;
+  transition: background 0.2s;
+}
+.an-risk-card:hover { background: #130008; }
+
+.an-risk-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e74c3c;
+  margin-bottom: 0.5rem;
+}
+
+.an-risk-body {
+  font-size: 0.88rem;
+  color: rgba(245,240,232,0.82);
+  line-height: 1.9;
+}
+
+.an-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 3rem;
+}
+
+.an-phase {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 2rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  align-items: start;
+}
+
+.an-phase-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: rgba(245,240,232,0.45);
+  padding-top: 0.2rem;
+  line-height: 1.6;
+}
+
+.an-phase-time strong {
+  display: block;
+  font-size: 1rem;
+  color: rgba(245,240,232,0.75);
+  margin-bottom: 0.2rem;
+}
+
+.an-phase-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(245,240,232,0.95);
+  margin-bottom: 0.6rem;
+}
+
+.an-phase-body {
+  font-size: 0.92rem;
+  color: rgba(245,240,232,0.82);
+  line-height: 1.95;
+}
+
+.an-phase-body em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.an-phase-rule {
+  margin-top: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: rgba(192,57,43,0.9);
+  border-left: 2px solid rgba(192,57,43,0.5);
+  padding-left: 0.7rem;
+  line-height: 1.7;
+}
+
+.an-exam-morning {
+  background: rgba(184,134,11,0.08);
+  border: 1px solid rgba(184,134,11,0.25);
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.an-exam-morning-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+.an-morning-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.an-morning-step {
+  display: flex;
+  gap: 1.2rem;
+  align-items: baseline;
+  font-size: 0.92rem;
+  color: rgba(245,240,232,0.88);
+  line-height: 1.85;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.an-morning-step:last-child { border-bottom: none; }
+
+.an-morning-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--gold);
+  flex-shrink: 0;
+  padding-top: 0.25rem;
+}
+
+.an-survival {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 2.5rem;
+}
+
+.an-survival-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(245,240,232,0.95);
+  margin-bottom: 1.2rem;
+}
+
+.an-survival-body {
+  font-size: 0.95rem;
+  color: rgba(245,240,232,0.85);
+  line-height: 2.0;
+}
+
+.an-survival-body strong { color: rgba(245,240,232,0.98); }
+.an-survival-body em { color: var(--gold); font-style: italic; }
+
+@media (max-width: 768px) {
+  .an-risks { grid-template-columns: 1fr; }
+  .an-phase { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-line"></div>
+
+<!-- ── TOC ── -->
+<nav id="toc">
+  <a class="toc-item" href="#enemies">
+    <span class="toc-label">01 — Three Enemies</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#curve">
+    <span class="toc-label">02 — Pressure Curve</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#errors">
+    <span class="toc-label">03 — Error Taxonomy</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#protocol">
+    <span class="toc-label">04 — The Protocol</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#readiness">
+    <span class="toc-label">05 — Self Assessment</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#improvement">
+    <span class="toc-label">06 — Improvement Loop</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#emergency">
+    <span class="toc-label">07 — Emergency</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#allnighter">
+    <span class="toc-label">08 — All-Nighter</span>
+    <span class="toc-dot"></span>
+  </a>
+  <a class="toc-item" href="#manifesto">
+    <span class="toc-label">08 — Manifesto</span>
+    <span class="toc-dot"></span>
+  </a>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">A field guide</div>
+    <div>
+      <div class="hero-title">Per&shy;form&shy;ing<br>Under<br><em>Pres&shy;sure.</em></div>
+    </div>
+    <div class="hero-sub">
+      Why smart people underperform on exams — and the science of fixing it.
+    </div>
+    <div class="hero-number">01</div>
+  </div>
+
+  <div class="hero-right">
+    <p class="intro-graf">
+      You studied. You understood it. You could explain it to a friend.
+      Then the exam started and <strong>something happened.</strong>
+    </p>
+    <p class="intro-graf" style="font-size:1rem;">
+      This isn't a knowledge problem. It's a performance problem.
+      The two require completely different solutions —
+      and most students only train for one of them.
+    </p>
+    <div class="hero-stat-row">
+      <div class="hero-stat">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">Enemies</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">4</div>
+        <div class="hero-stat-label">Error types</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">1</div>
+        <div class="hero-stat-label">Protocol</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<!-- ══════════════════════════════════════════════
+     THE THREE ENEMIES
+══════════════════════════════════════════════ -->
+<section id="enemies">
+  <div class="container">
+    <div class="section-tag">Section 01</div>
+    <div class="section-title">The Three <em>Enemies</em> of Exam Performance</div>
+    <p class="lead">Pressure doesn't make you dumber. It activates three specific failure modes that knowledge alone cannot prevent.</p>
+
+    <div class="enemies-grid">
+      <div class="enemy-card">
+        <div class="enemy-num">I</div>
+        <div class="enemy-icon">⏱</div>
+        <div class="enemy-name">Time Compression</div>
+        <div class="enemy-desc">
+          Under time pressure, the brain shifts from deliberate, analytical processing to fast, pattern-matching mode. This is efficient for simple tasks and catastrophic for multi-step proofs. You start skipping steps you "know" — which is exactly when errors compound.
+          <br><br>
+          You feel faster. You're actually less accurate.
+        </div>
+        <div class="enemy-tag">Cognitive load ↑</div>
+      </div>
+
+      <div class="enemy-card">
+        <div class="enemy-num">II</div>
+        <div class="enemy-icon">🧠</div>
+        <div class="enemy-name">Working Memory Saturation</div>
+        <div class="enemy-desc">
+          Your working memory holds about 4 chunks of information at once. During an exam, it's occupied by: the problem, your partial solution, the time remaining, and your anxiety about the time remaining. That leaves approximately zero slots for novel reasoning.
+          <br><br>
+          This is why you blank on things you "definitely knew."
+        </div>
+        <div class="enemy-tag">WM capacity: full</div>
+      </div>
+
+      <div class="enemy-card">
+        <div class="enemy-num">III</div>
+        <div class="enemy-icon">⚡</div>
+        <div class="enemy-name">Recognition vs Retrieval Gap</div>
+        <div class="enemy-desc">
+          Reading your notes and thinking "I know this" is recognition — a low-effort process that feels like mastery. Exam performance requires retrieval — producing the answer from nothing with no cues. These are neurologically different skills.
+          <br><br>
+          Studying by reading trains recognition. Exams test retrieval.
+        </div>
+        <div class="enemy-tag">Transfer failure</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     THE PRESSURE CURVE
+══════════════════════════════════════════════ -->
+<section id="curve">
+  <div class="container">
+    <div class="curve-layout">
+      <div class="curve-text">
+        <div class="section-tag">Section 02</div>
+        <div class="section-title">The Yerkes–Dodson <em>Curve</em></div>
+        <p class="lead">Performance isn't destroyed by pressure — it's shaped by it. The question is where you sit on the curve.</p>
+
+        <div class="insight-block">
+          <div class="insight-title">Too little pressure</div>
+          <div class="insight-body">No stakes, no urgency. The brain treats the problem as optional. You meander, lose focus, produce shallow work. This is most study sessions.</div>
+        </div>
+
+        <div class="insight-block">
+          <div class="insight-title">Optimal pressure</div>
+          <div class="insight-body">Arousal is high enough to focus but not high enough to activate threat response. You're alert, decisive, and retrieve information quickly. This is the zone. The goal is to expand it.</div>
+        </div>
+
+        <div class="insight-block">
+          <div class="insight-title">Too much pressure</div>
+          <div class="insight-body">Cortisol floods the prefrontal cortex — the part responsible for planning, multi-step reasoning, and suppressing irrelevant thoughts. Retrieval becomes fragmented. Steps get skipped. Simple algebra fails. This is most exam sessions for unprepared performers.</div>
+        </div>
+
+        <div class="insight-block">
+          <div class="insight-title">The training implication</div>
+          <div class="insight-body">You cannot expand the optimal zone by studying more. You expand it by repeatedly practicing at the edge of your pressure tolerance — timed reps, cold retrieval, unfamiliar problem variants. Each session where you push through the discomfort widens the zone slightly.</div>
+        </div>
+      </div>
+
+      <div class="curve-visual">
+        <div class="curve-svg-wrap">
+          <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+            <!-- grid lines -->
+            <line x1="40" y1="220" x2="380" y2="220" stroke="#ddd6c4" stroke-width="1"/>
+            <line x1="40" y1="20" x2="40" y2="220" stroke="#ddd6c4" stroke-width="1"/>
+
+            <!-- curve: inverted U -->
+            <path d="M 40 200 C 80 200, 120 30, 200 30 S 320 200, 380 210"
+                  fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- optimal zone shading -->
+            <path d="M 140 80 C 160 35, 230 35, 260 80 L 260 220 L 140 220 Z"
+                  fill="rgba(192,57,43,0.07)"/>
+            <line x1="140" y1="40" x2="140" y2="220" stroke="#c0392b" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+            <line x1="260" y1="40" x2="260" y2="220" stroke="#c0392b" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+
+            <!-- labels -->
+            <text x="200" y="18" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#c0392b" letter-spacing="1">OPTIMAL ZONE</text>
+
+            <text x="60" y="215" font-family="JetBrains Mono" font-size="7" fill="#9a9080" letter-spacing="1">LOW</text>
+            <text x="170" y="215" font-family="JetBrains Mono" font-size="7" fill="#9a9080" letter-spacing="1">MODERATE</text>
+            <text x="330" y="215" font-family="JetBrains Mono" font-size="7" fill="#9a9080" letter-spacing="1">HIGH</text>
+
+            <text x="24" y="225" font-family="JetBrains Mono" font-size="7" fill="#9a9080" letter-spacing="1" transform="rotate(-90 24 140)">PERFORMANCE</text>
+
+            <!-- axis labels -->
+            <text x="210" y="235" font-family="JetBrains Mono" font-size="7" fill="#9a9080" letter-spacing="2">AROUSAL / PRESSURE</text>
+
+            <!-- dot at peak -->
+            <circle cx="200" cy="30" r="4" fill="#c0392b"/>
+            <text x="206" y="27" font-family="JetBrains Mono" font-size="7" fill="#c0392b">peak</text>
+          </svg>
+          <div class="curve-label">Yerkes–Dodson Law (1908) — still the best model we have</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     ERROR TAXONOMY
+══════════════════════════════════════════════ -->
+<section id="errors">
+  <div class="container">
+    <div class="section-tag">Section 03</div>
+    <div class="section-title">The Error <em>Taxonomy</em></div>
+    <p class="lead">Getting something wrong is not the data. Why you got it wrong is. Each error type has a completely different fix.</p>
+
+    <table class="error-table">
+      <thead>
+        <tr>
+          <th>Error Type</th>
+          <th>What it looks like</th>
+          <th>Root cause</th>
+          <th>The fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="error-type">Conceptual</div>
+            <div class="error-pill pill-red">Rare after good study</div>
+          </td>
+          <td>Wrong approach entirely. Applied Master Theorem to a decrease-and-conquer recurrence. Wrote D&C algorithm when asked for decrease-and-conquer.</td>
+          <td>The underlying idea wasn't understood, only memorized. When the surface changes, the concept doesn't transfer.</td>
+          <td>Go back to the block. Don't reread — reconstruct. Close notes, write out the concept from scratch, identify the exact gap.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="error-type">Procedural</div>
+            <div class="error-pill pill-gold">Most common</div>
+          </td>
+          <td>Right approach, wrong execution. Forgot to verify regularity in Case 3. Skipped invoking the log comparison rule. Missing the base case in induction.</td>
+          <td>The checklist lives in working memory, not long-term memory. Under pressure, working memory is saturated. Steps evaporate.</td>
+          <td>Externalize the checklist. Before writing anything, spend 20 seconds writing the steps you need to hit. Then execute against that list.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="error-type">Algebraic</div>
+            <div class="error-pill pill-blue">Fixable with reps</div>
+          </td>
+          <td>Right structure, arithmetic error. Wrong exponent. Sign error in the induction step. Incorrect sum formula evaluation.</td>
+          <td>Algebraic fluency under pressure. The manipulations aren't automatic enough — they still require conscious attention, which pressure degrades.</td>
+          <td>Drill the specific algebra patterns that appear repeatedly. Unwinding recurrences, geometric series, the divisibility algebra trick. Make them reflexive.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="error-type">Pressure</div>
+            <div class="error-pill pill-green">Training problem</div>
+          </td>
+          <td>Knew it cold in practice, blanked on the exam. Started the right approach, abandoned it for a wrong one due to uncertainty. Rushed and skipped a step you know matters.</td>
+          <td>Insufficient exposure to performing under constraint. The knowledge exists but hasn't been stress-tested enough to survive cortisol.</td>
+          <td>Timed reps on novel problems. The goal is not to practice until you can do it. It's to practice until you can't get it wrong even when uncomfortable.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     THE PROTOCOL
+══════════════════════════════════════════════ -->
+<section id="protocol">
+  <div class="container">
+    <div class="section-tag">Section 04</div>
+    <div class="section-title">The <em>Protocol</em></div>
+    <p class="lead">A systematic method for converting knowledge into exam performance. The order matters.</p>
+
+    <div class="protocol-steps">
+
+      <div class="protocol-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-name">Cold retrieval first, recognition last</div>
+          <div class="step-body">
+            Before opening any notes, write out everything you know about the concept from memory. Time it. This exposes the actual retrieval gap — not what you recognize when you see it, but what you own. Recognition feels like mastery. Cold retrieval reveals the truth.
+          </div>
+          <div class="step-metric">Measure: retrieval speed &lt; 90s per concept = owned</div>
+        </div>
+      </div>
+
+      <div class="protocol-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-name">Classify every error before moving on</div>
+          <div class="step-body">
+            After each practice attempt, don't just mark it wrong and move on. Write one sentence: "This was a [conceptual / procedural / algebraic / pressure] error because ___." This forces diagnosis over volume. Doing 20 problems and not diagnosing errors is vastly inferior to doing 5 and diagnosing every one.
+          </div>
+          <div class="step-metric">Measure: error type log after every session</div>
+        </div>
+      </div>
+
+      <div class="protocol-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-name">Shrink the timer incrementally</div>
+          <div class="step-body">
+            Start with 150% of target time. Get it right consistently. Drop to 120%. Get it right consistently. Drop to 100%. This is progressive overload for cognitive performance. Jumping straight to 75-minute timed exams without building up is like maxing out the barbell on your first day.
+          </div>
+          <div class="step-metric">Measure: % accuracy at each time setting</div>
+        </div>
+      </div>
+
+      <div class="protocol-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <div class="step-name">Externalize your checklist</div>
+          <div class="step-body">
+            Working memory is finite and pressure eats it. The solution is not to try harder — it's to write the checklist down before executing. On every induction proof: write "base case / IH / step / conclude / weak or strong" before writing anything else. On every recurrence: write "a, b, f(n), log_b(a)" before comparing. This costs 15 seconds and saves 5 points.
+          </div>
+          <div class="step-metric">Measure: steps-skipped-per-attempt trends toward zero</div>
+        </div>
+      </div>
+
+      <div class="protocol-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <div class="step-name">Novel variants, not repetition</div>
+          <div class="step-body">
+            Doing the same problem twice trains pattern recognition, not performance. The exam will always have a variant you haven't seen. Train for that — same concept family, different surface. If you practiced "6ⁿ−1 divisible by 5," practice "7ⁿ−1 divisible by 6." Same structure, unfamiliar instance. This is the only thing that actually builds exam-ready performance.
+          </div>
+          <div class="step-metric">Measure: can you start immediately on an unseen variant?</div>
+        </div>
+      </div>
+
+      <div class="protocol-step">
+        <div class="step-num">06</div>
+        <div class="step-content">
+          <div class="step-name">The night-before rule</div>
+          <div class="step-body">
+            Do not study new material the night before. Do one cold retrieval session — write out the 6 checklists from memory, close it. Sleep. The consolidation that happens during sleep is more valuable than any new information you could cram. New information the night before adds to working memory load without having time to consolidate into long-term memory.
+          </div>
+          <div class="step-metric">Measure: time in bed ≥ 7h before exam day</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SELF-ASSESSMENT
+══════════════════════════════════════════════ -->
+<section id="readiness">
+  <div class="container">
+    <div class="section-tag">Section 05</div>
+    <div class="section-title">Readiness <em>Self-Assessment</em></div>
+    <p class="lead">Rate yourself honestly on each block. Recognition doesn't count — only cold retrieval performance.</p>
+
+    <div class="readiness-grid">
+      <div class="block-card">
+        <div class="block-num">Block 01</div>
+        <div class="block-name">Asymptotic Analysis</div>
+        <div class="block-concepts">C1 – C6 · 6 concepts</div>
+        <div class="readiness-level">
+          <div class="level-bar"><div class="level-fill" data-width="0%"></div></div>
+          <div class="level-label" id="b1-label">—</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">Block 02</div>
+        <div class="block-name">Mathematical Induction</div>
+        <div class="block-concepts">C7 – C11 · 5 concepts</div>
+        <div class="readiness-level">
+          <div class="level-bar"><div class="level-fill" data-width="0%"></div></div>
+          <div class="level-label" id="b2-label">—</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">Block 03</div>
+        <div class="block-name">Divide & Conquer</div>
+        <div class="block-concepts">C12 – C17 · 6 concepts</div>
+        <div class="readiness-level">
+          <div class="level-bar"><div class="level-fill" data-width="0%"></div></div>
+          <div class="level-label" id="b3-label">—</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">Block 04</div>
+        <div class="block-name">Decrease & Conquer</div>
+        <div class="block-concepts">C18 – C21 · 4 concepts</div>
+        <div class="readiness-level">
+          <div class="level-bar"><div class="level-fill" data-width="0%"></div></div>
+          <div class="level-label" id="b4-label">—</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">Block 05</div>
+        <div class="block-name">Sorting & Selection</div>
+        <div class="block-concepts">C22 – C25 · 4 concepts</div>
+        <div class="readiness-level">
+          <div class="level-bar"><div class="level-fill" data-width="0%"></div></div>
+          <div class="level-label" id="b5-label">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="self-rate">
+      <div class="self-rate-title">Rate each block — cold retrieval only, not "I recognize it when I see it"</div>
+
+      <div class="rate-row" data-block="1">
+        <div class="rate-label">Block 1 — Asymptotic Analysis</div>
+        <div class="rate-input">
+          <button class="rate-btn" data-val="1">1</button>
+          <button class="rate-btn" data-val="2">2</button>
+          <button class="rate-btn" data-val="3">3</button>
+          <button class="rate-btn" data-val="4">4</button>
+          <button class="rate-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="rate-row" data-block="2">
+        <div class="rate-label">Block 2 — Induction</div>
+        <div class="rate-input">
+          <button class="rate-btn" data-val="1">1</button>
+          <button class="rate-btn" data-val="2">2</button>
+          <button class="rate-btn" data-val="3">3</button>
+          <button class="rate-btn" data-val="4">4</button>
+          <button class="rate-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="rate-row" data-block="3">
+        <div class="rate-label">Block 3 — Divide & Conquer</div>
+        <div class="rate-input">
+          <button class="rate-btn" data-val="1">1</button>
+          <button class="rate-btn" data-val="2">2</button>
+          <button class="rate-btn" data-val="3">3</button>
+          <button class="rate-btn" data-val="4">4</button>
+          <button class="rate-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="rate-row" data-block="4">
+        <div class="rate-label">Block 4 — Decrease & Conquer</div>
+        <div class="rate-input">
+          <button class="rate-btn" data-val="1">1</button>
+          <button class="rate-btn" data-val="2">2</button>
+          <button class="rate-btn" data-val="3">3</button>
+          <button class="rate-btn" data-val="4">4</button>
+          <button class="rate-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="rate-row" data-block="5">
+        <div class="rate-label">Block 5 — Sorting & Selection</div>
+        <div class="rate-input">
+          <button class="rate-btn" data-val="1">1</button>
+          <button class="rate-btn" data-val="2">2</button>
+          <button class="rate-btn" data-val="3">3</button>
+          <button class="rate-btn" data-val="4">4</button>
+          <button class="rate-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="rate-result" id="rateResult">
+        Rate all five blocks to see your priority action.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     MANIFESTO
+══════════════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════════════
+     IMPROVEMENT FRAMEWORK
+══════════════════════════════════════════════ -->
+<section id="improvement">
+  <div class="container">
+    <div class="section-tag">Section 06</div>
+    <div class="section-title">The Efficient <em>Improvement Loop</em></div>
+    <p class="lead">Limited time changes nothing about what works — it only raises the cost of using what doesn't. Here is the loop that builds lasting retention in the least time.</p>
+
+    <div class="loop-diagram">
+      <div class="loop-step" data-n="1">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Acquire</div>
+          <div class="loop-desc">Learn the concept once, fully. Read it, understand it, then immediately close everything and reconstruct it from memory in writing. This first retrieval attempt — done while the material is still fresh — is the most important moment in the entire process. It converts short-term familiarity into the beginning of a durable trace.</div>
+          <div class="loop-rule">Rule: never move on without one cold reconstruction attempt.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow">↓</div>
+
+      <div class="loop-step" data-n="2">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Sleep</div>
+          <div class="loop-desc">Memory consolidation happens during sleep, not during study. The brain replays and strengthens new traces during slow-wave and REM cycles. This is not optional recovery — it is an active part of the learning process. Cramming through the night literally prevents consolidation from occurring.</div>
+          <div class="loop-rule">Rule: sleep between acquisition and first retrieval practice.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow">↓</div>
+
+      <div class="loop-step" data-n="3">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Retrieve</div>
+          <div class="loop-desc">Before touching any notes the next day, retrieve the concept cold. Write it out. This is the highest-ROI activity in the entire system. The struggle to pull something back from memory — especially when it's hard — is exactly what strengthens the trace. Successful retrieval after difficulty produces more durable retention than any amount of rereading.</div>
+          <div class="loop-rule">Rule: retrieve before you review. Always.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow">↓</div>
+
+      <div class="loop-step" data-n="4">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Diagnose</div>
+          <div class="loop-desc">Compare what you retrieved against the source. Every gap is a data point. Classify it: conceptual, procedural, algebraic, or pressure. Write one sentence explaining the gap. This is not self-criticism — it is precision targeting. An undiagnosed error will reappear on the exam. A diagnosed one has a specific fix and a much lower probability of recurring.</div>
+          <div class="loop-rule">Rule: one sentence diagnosis per error, every time.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow">↓</div>
+
+      <div class="loop-step" data-n="5">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Drill the gap</div>
+          <div class="loop-desc">Fix only what the diagnosis revealed. Conceptual gap — reconstruct the idea from first principles. Procedural gap — write the checklist and execute it three times on different problems. Algebraic gap — drill that specific manipulation until it's reflexive. Pressure gap — do the same problem under a tighter time constraint. Precision beats volume every time.</div>
+          <div class="loop-rule">Rule: targeted drilling, not general review.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow">↓</div>
+
+      <div class="loop-step" data-n="6">
+        <div class="loop-icon">▸</div>
+        <div class="loop-content">
+          <div class="loop-name">Interleave and space</div>
+          <div class="loop-desc">Once a concept is solid, stop blocking it. Mix it in with other concepts randomly. The brain's struggle to identify which tool applies — before executing it — is the exact skill an exam tests. Blocked practice produces fast learning that fades fast. Interleaved practice produces slower learning that lasts. Space reviews out: one day, three days, one week. Review just before forgetting, not right after learning.</div>
+          <div class="loop-rule">Rule: mix concepts. Space reviews. Never reread what you haven't retrieved.</div>
+        </div>
+      </div>
+
+      <div class="loop-arrow loop-back">↺ repeat with new material</div>
+    </div>
+
+    <div class="threshold-block">
+      <div class="threshold-title">The Ownership Threshold</div>
+      <div class="threshold-body">
+        There is a qualitative difference between knowing something and owning it.
+        Knowing means you can reproduce it given enough time and the right cues.
+        Owning means it runs automatically — you start immediately, the checklist fires without effort, novel variants feel like familiar structure in a new costume.
+        <br><br>
+        You cross the threshold through one thing only: repeated successful retrieval under increasing constraint. Not reading. Not watching. Not recognizing. Retrieving — cold, from nothing, under pressure — until failure feels impossible.
+        <br><br>
+        Every time you retrieve something successfully when it was hard to pull back, you move the threshold closer. That is the entire game.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     EMERGENCY STUDYING
+══════════════════════════════════════════════ -->
+<section id="emergency">
+  <div class="container">
+    <div class="section-tag">Section 07 — Emergency Protocol</div>
+    <div class="section-title">Cramming: <em>An Honest Guide</em></div>
+    <p class="lead">
+      More time is always better. But time is not always available.
+      Cramming is real, it works within limits, and pretending otherwise is not useful advice.
+    </p>
+
+    <div class="emergency-disclaimer">
+      <strong>Disclaimer:</strong> &nbsp;Everything in this section produces short-term retention — measured in hours to days, not weeks. Cramming narrows the gap between where you are and where you need to be for a single event. It does not build durable knowledge. Use it as a bridge, not a foundation.
+    </div>
+
+    <div class="crunch-grid">
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 01</div>
+        <div class="crunch-title">Triage ruthlessly before you touch anything</div>
+        <div class="crunch-body">
+          The worst thing you can do with limited time is distribute it evenly.
+          That guarantees shallow coverage of everything and mastery of nothing.
+          Before opening a single note, spend five minutes mapping what is worth your time.
+          <em>High-point concepts first. Concepts you're closest to understanding second. Long shots last or never.</em>
+          An hour on the right concept is worth more than three hours spread thin.
+        </div>
+      </div>
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 02</div>
+        <div class="crunch-title">Retrieval even when you barely know it</div>
+        <div class="crunch-body">
+          Even under extreme time pressure, one retrieval attempt beats three reads.
+          Read the concept once, close it, write what you remember for 60 seconds,
+          check the gaps, read again. This cycle takes the same time as reading twice
+          and produces dramatically better short-term retention.
+          <em>The act of attempting recall — even failing — primes the memory trace in a way passive reading cannot.</em>
+        </div>
+      </div>
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 03</div>
+        <div class="crunch-title">Anchor to structure, not content</div>
+        <div class="crunch-body">
+          When time is short, learn the skeleton first.
+          For induction: the 5-part structure. For Master Theorem: the 3-case decision tree.
+          For D&C: the two hint questions. A structural anchor lets you
+          <em>reconstruct partial credit even when the specifics are fuzzy.</em>
+          Gopal's rubric awards points for structure. A complete framework with imperfect details
+          scores significantly higher than detailed content with no organizing structure.
+        </div>
+      </div>
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 04</div>
+        <div class="crunch-title">Sleep is not negotiable — even in a crunch</div>
+        <div class="crunch-body">
+          This sounds wrong but the research is unambiguous.
+          Studying until 3am and sleeping 3 hours produces worse exam performance
+          than studying until midnight and sleeping 7 hours — even with less study time.
+          Sleep deprivation degrades working memory, retrieval speed, and algebraic accuracy
+          — exactly the skills an exam tests. <em>If you must crunch, set a hard stop.
+          The last hour before sleep is the worst hour to study.</em>
+        </div>
+      </div>
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 05</div>
+        <div class="crunch-title">Externalize everything the night before</div>
+        <div class="crunch-body">
+          The night before, stop acquiring new material. Instead: write out every checklist
+          from memory on a single sheet of paper. 5-part induction structure. Master Theorem
+          decision tree. D&C vs decrease-and-conquer distinction. Exact comparison counting steps.
+          <em>This is not studying — it is a consolidation ritual.</em>
+          It surfaces gaps you still have, locks in structure, and frees working memory
+          on the exam because the checklists are in long-term memory, not working memory.
+        </div>
+      </div>
+
+      <div class="crunch-card">
+        <div class="crunch-label">Principle 06</div>
+        <div class="crunch-title">One worked example beats ten read examples</div>
+        <div class="crunch-body">
+          If you have 20 minutes per concept, spend 5 reading and 15 working one problem
+          completely from scratch — no hints, no peeking. If you get stuck,
+          note exactly where, look it up, finish the problem.
+          <em>A single complete worked example under your own power
+          is worth more than a dozen examples you watched someone else solve.</em>
+          The struggle is the mechanism. Remove it and you remove the learning.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-tag" style="margin-bottom:1rem;">Concept triage — where to spend limited time</div>
+    <table class="triage-table">
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>Exam weight</th>
+          <th>Time to functional</th>
+          <th>Crunch priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="triage-concept">Induction structure (5 parts)</div>
+            <div class="triage-pill pill-high">High stakes</div>
+          </td>
+          <td>30 pts — P2 every year</td>
+          <td>~45 min to own the skeleton</td>
+          <td>First. Always. Non-negotiable.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">D&C algorithm design + correctness</div>
+            <div class="triage-pill pill-high">High stakes</div>
+          </td>
+          <td>40 pts — P3 every year</td>
+          <td>~1hr to get the pattern</td>
+          <td>Second. Worth more points than anything else.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">Master Theorem (3 cases)</div>
+            <div class="triage-pill pill-high">High stakes</div>
+          </td>
+          <td>T/F, ~18 pts</td>
+          <td>~30 min to internalize</td>
+          <td>Third. Fast to learn, high point density.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">Asymptotic ordering + limits</div>
+            <div class="triage-pill pill-med">Medium stakes</div>
+          </td>
+          <td>T/F, ~12 pts</td>
+          <td>~1hr for the log toolkit</td>
+          <td>Fourth. Invest in the log trick — highest ROI sub-skill.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">Exact comparison counts</div>
+            <div class="triage-pill pill-med">Medium stakes</div>
+          </td>
+          <td>10 pts within P2</td>
+          <td>~45 min</td>
+          <td>Fifth. High effort, moderate payoff under crunch.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">Recursion tree method</div>
+            <div class="triage-pill pill-med">Medium stakes</div>
+          </td>
+          <td>T/F, ~6 pts</td>
+          <td>~45 min</td>
+          <td>Sixth. Only if Master Theorem is solid first.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="triage-concept">Median of medians (full proof)</div>
+            <div class="triage-pill pill-low">Lower priority</div>
+          </td>
+          <td>T/F, ~6 pts</td>
+          <td>~2hrs to fully own</td>
+          <td>Last resort. Know the conclusion, skip the full derivation under crunch.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="crunch-truth">
+      <div class="crunch-truth-title">The honest truth about cramming</div>
+      <div class="crunch-truth-body">
+        Cramming works. It works less well than distributed learning, produces shorter retention,
+        and puts you at higher risk of pressure errors — but under a real time constraint,
+        six hours of focused emergency study done correctly will move your score meaningfully.
+        <br><br>
+        The difference between good cramming and bad cramming is not how many hours you put in.
+        It is <strong>whether you retrieval-practice instead of reread, whether you triage instead of covering everything, and whether you sleep.</strong>
+        Bad cramming is rereading your notes for six hours straight. Good cramming is two hours of
+        targeted retrieval practice on the highest-value concepts, one hour of worked examples,
+        a checklist consolidation session, and seven hours of sleep.
+        <br><br>
+        <strong>The goal of emergency studying is not mastery. It is to maximize your expected score given the time available.</strong>
+        Those are different optimization problems and they have different solutions.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- ══════════════════════════════════════════════
+     ALL NIGHTER
+══════════════════════════════════════════════ -->
+<section id="allnighter">
+  <div class="container">
+    <div class="section-tag">Section 08 — Absolute Worst Case</div>
+    <div class="section-title">The All-Nighter: <em>A Survival Guide</em></div>
+    <p class="lead">
+      No sleep. Exam in the morning. This is real and it happens.
+      Here is what is working against you, what you can still control, and how to maximize your score anyway.
+    </p>
+
+    <div class="an-warning">
+      <div class="an-warning-title">⚠ Read this first</div>
+      <div class="an-warning-body">
+        Everything on this page assumes you have already made the decision and sleep is not happening.
+        If you still have 4+ hours before you need to be up, stop reading and sleep.
+        Four hours of sleep is dramatically better than zero.
+        Three hours is better than zero. Even 90 minutes — one full sleep cycle —
+        produces measurable improvement in retrieval performance over none at all.
+        This section is for when that window has passed.
+      </div>
+    </div>
+
+    <div class="an-risks">
+      <div class="an-risk-card">
+        <div class="an-risk-title">Working memory degrades ~40%</div>
+        <div class="an-risk-body">
+          After 24 hours without sleep, working memory capacity drops significantly.
+          Multi-step reasoning — the exact skill an algorithms exam tests — is the first casualty.
+          You will hold fewer things in mind simultaneously and lose track of steps mid-proof.
+        </div>
+      </div>
+      <div class="an-risk-card">
+        <div class="an-risk-title">Retrieval becomes fragmented</div>
+        <div class="an-risk-body">
+          Knowledge you genuinely own will feel slippery. You will start a proof correctly,
+          then stall at a step you know. This is not a knowledge gap —
+          it is sleep deprivation acting on the retrieval mechanism.
+          The knowledge is there. Access to it is impaired.
+        </div>
+      </div>
+      <div class="an-risk-card">
+        <div class="an-risk-title">Error detection fails</div>
+        <div class="an-risk-body">
+          The prefrontal cortex — responsible for catching your own mistakes —
+          is heavily impaired by sleep deprivation. You will make errors you would normally catch
+          and not see them. Your confidence in wrong answers increases.
+          Slower, more deliberate checking becomes essential.
+        </div>
+      </div>
+      <div class="an-risk-card">
+        <div class="an-risk-title">Algebraic fluency drops sharply</div>
+        <div class="an-risk-body">
+          Sign errors, wrong exponents, incorrect sum evaluations —
+          the mechanical arithmetic that normally runs on autopilot degrades.
+          Write every step. Do not skip. Do not do arithmetic in your head.
+          Put it on paper even when it feels obvious.
+        </div>
+      </div>
+      <div class="an-risk-card">
+        <div class="an-risk-title">Time perception distorts</div>
+        <div class="an-risk-body">
+          Sleep-deprived brains consistently underestimate time elapsed.
+          You will spend 25 minutes on a problem and feel like 10 have passed.
+          You must use an external timer during the exam. Do not rely on felt sense of time.
+        </div>
+      </div>
+      <div class="an-risk-card">
+        <div class="an-risk-title">Anxiety compounds everything</div>
+        <div class="an-risk-body">
+          Sleep deprivation amplifies the stress response. You will feel more anxious
+          than you would on a normal exam, which further degrades working memory.
+          Knowing this in advance matters — when you feel the anxiety spike,
+          it is physiology, not a signal that you are unprepared.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-tag" style="margin-bottom:1.5rem;">How to spend the night — hour by hour</div>
+
+    <div class="an-phases">
+
+      <div class="an-phase">
+        <div class="an-phase-time">
+          <strong>Hours 1–2</strong>
+          early night
+        </div>
+        <div>
+          <div class="an-phase-name">Triage and acquire the skeleton</div>
+          <div class="an-phase-body">
+            This is your peak cognitive window for the night. Use it entirely on structure.
+            Write out every checklist cold — induction 5 parts, Master Theorem decision tree,
+            D&C vs decrease-and-conquer, exact comparison counting steps.
+            Do not read. Do not review. Write from memory first, then check gaps.
+            <em>Skeleton first. Everything else is secondary.</em>
+            If you can produce the framework from memory, you can score partial credit on anything.
+          </div>
+          <div class="an-phase-rule">Do not touch new material yet. Own the structure you already have.</div>
+        </div>
+      </div>
+
+      <div class="an-phase">
+        <div class="an-phase-time">
+          <strong>Hours 3–4</strong>
+          mid-night
+        </div>
+        <div>
+          <div class="an-phase-name">One worked example per high-value concept</div>
+          <div class="an-phase-body">
+            Cognitive performance starts declining. Switch from acquisition to application.
+            One complete worked example from scratch for each of the three highest-point concepts:
+            induction proof, algorithm design, recurrence analysis.
+            Do not do five problems. Do one each, completely, checking your work against the model after.
+            <em>Depth beats breadth when you are tired.</em>
+            A single complete proof done right consolidates more than six partial attempts.
+          </div>
+          <div class="an-phase-rule">One concept, one complete example, full execution. Then move on.</div>
+        </div>
+      </div>
+
+      <div class="an-phase">
+        <div class="an-phase-time">
+          <strong>Hours 5–6</strong>
+          late night
+        </div>
+        <div>
+          <div class="an-phase-name">Fill the highest-value gaps only</div>
+          <div class="an-phase-body">
+            You are degraded. Acquisition of new material is nearly useless at this stage —
+            it will not consolidate without sleep and will compete with existing knowledge for retrieval.
+            Spend this time only on concepts where you scored zero on your retrieval attempts.
+            Read once, attempt retrieval once, move on. Do not grind.
+            <em>Accept that some concepts will not be solid by morning.
+            Triage and protect what you already have.</em>
+          </div>
+          <div class="an-phase-rule">Stop acquiring anything new after this window. Protect existing knowledge.</div>
+        </div>
+      </div>
+
+      <div class="an-phase">
+        <div class="an-phase-time">
+          <strong>Final hour</strong>
+          before exam
+        </div>
+        <div>
+          <div class="an-phase-name">Stop studying. Consolidate and stabilize.</div>
+          <div class="an-phase-body">
+            Close everything. Write out all five checklists one final time from memory on a single page.
+            This is not studying — it is a consolidation ritual that moves structure into accessible retrieval state.
+            Then stop. Eat something with protein and slow carbs — not sugar.
+            Caffeine if you use it, taken 30 minutes before the exam starts, not immediately before.
+            <em>The last hour of cramming produces almost no benefit and increases anxiety.
+            Stability matters more than marginal additional knowledge at this point.</em>
+          </div>
+          <div class="an-phase-rule">Checklists once. Then close everything. Stability over last-minute acquisition.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="an-exam-morning">
+      <div class="an-exam-morning-title">During the exam — sleep-deprived mode</div>
+      <div class="an-morning-steps">
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">01</div>
+          <div>
+            <strong>Write your checklists on scratch paper before reading any question.</strong>
+            Induction structure, Master Theorem cases, D&C checklist.
+            Your working memory is compromised — externalize everything immediately so you are not
+            holding it in your head while also trying to solve a problem.
+          </div>
+        </div>
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">02</div>
+          <div>
+            <strong>Set time limits and enforce them with a timer.</strong>
+            Your time perception is distorted. P1 gets 25 minutes maximum, P2 gets 25 minutes,
+            P3 gets 25 minutes. When the timer goes off, write what you have and move on.
+            An incomplete answer on three problems scores higher than a complete answer on one.
+          </div>
+        </div>
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">03</div>
+          <div>
+            <strong>Write every algebraic step on paper. No mental arithmetic.</strong>
+            Your error detection is compromised. The only compensation is slowing down
+            and externalizing every manipulation. Write the step, write the result,
+            check it before proceeding. This costs time but prevents cascading errors.
+          </div>
+        </div>
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">04</div>
+          <div>
+            <strong>Structure first, content second, always.</strong>
+            On every problem, write the framework before writing any math.
+            Induction: write "base case / IH / step / conclude" before any algebra.
+            D&C: write "divide / conquer / combine" before pseudocode.
+            Partial credit for structure is real and it is the most reliable points available
+            when your retrieval is fragmented.
+          </div>
+        </div>
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">05</div>
+          <div>
+            <strong>When you blank, write what you know and keep going.</strong>
+            Sleep deprivation causes retrieval blocks that lift. If you hit a wall,
+            write the surrounding structure, skip the specific step, and continue.
+            Come back at the end. The context you build by continuing often unlocks
+            the blocked retrieval better than staring at the gap.
+          </div>
+        </div>
+
+        <div class="an-morning-step">
+          <div class="an-morning-n">06</div>
+          <div>
+            <strong>The anxiety you feel is physiology, not reality.</strong>
+            Sleep deprivation amplifies the stress response independent of actual preparedness.
+            When the anxiety spikes, name it: "this is sleep deprivation, not evidence I can't do this."
+            Treat each problem as isolated. Do not let one hard question contaminate the next.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="an-survival">
+      <div class="an-survival-title">The honest assessment</div>
+      <div class="an-survival-body">
+        An all-nighter will hurt your score. There is no protocol that fully compensates for
+        the cognitive degradation of zero sleep. Anyone telling you otherwise is wrong.
+        <br><br>
+        What this guide gives you is the <strong>best possible outcome within that constraint.</strong>
+        The difference between a smart all-nighter and a bad one is significant —
+        not because the smart one eliminates the damage, but because
+        <em>the bad one adds unnecessary damage on top of the unavoidable damage.</em>
+        <br><br>
+        Bad all-nighter: read notes until 5am, panic, energy drink, no structure on exam, run out of time.
+        <strong>Smart all-nighter: skeleton first, one example per high-value concept, checklists on scratch paper,
+        external timer, structure before content, write every step.</strong>
+        <br><br>
+        The gap between those two outcomes is real. That gap is what this section is for.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section id="manifesto">
+  <div class="manifesto-inner">
+    <div class="manifesto-quote">
+      "The goal is not to practice until you can do it.<br>
+      It's to practice until you <strong>can't get it wrong</strong>."
+    </div>
+    <div class="manifesto-attr">On performance under constraint</div>
+
+    <div class="manifesto-rules">
+      <div class="rule-line">
+        <div class="rule-n">01</div>
+        <div class="rule-text">Knowledge is necessary. It is <em>not sufficient.</em> Every point you lose on an exam you understood is a performance failure, not a knowledge failure.</div>
+      </div>
+      <div class="rule-line">
+        <div class="rule-n">02</div>
+        <div class="rule-text">Comfort in practice is a <em>bad sign.</em> If your study session never felt hard, you trained recognition, not retrieval.</div>
+      </div>
+      <div class="rule-line">
+        <div class="rule-n">03</div>
+        <div class="rule-text">Error diagnosis is the <em>highest-value activity</em> in your study session. One diagnosed error is worth more than ten unexamined ones.</div>
+      </div>
+      <div class="rule-line">
+        <div class="rule-n">04</div>
+        <div class="rule-text">Checklists are not a crutch. They are the <em>professional standard</em> — surgeons, pilots, and engineers use them precisely because working memory fails under pressure.</div>
+      </div>
+      <div class="rule-line">
+        <div class="rule-n">05</div>
+        <div class="rule-text">The exam will always have something unfamiliar. <em>Train for that.</em> Same concept, novel surface, cold retrieval, time pressure. That is the only preparation that transfers.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── SCROLL PROGRESS ──────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / total) * 100;
+  document.getElementById('progress-line').style.width = pct + '%';
+});
+
+// ── INTERSECTION OBSERVER ─────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // animate level bars when readiness section comes in
+      if (e.target.id === 'readiness') {
+        document.querySelectorAll('.level-fill').forEach(bar => {
+          bar.style.width = bar.dataset.width;
+        });
+      }
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+// ── SELF RATING ──────────────────────────────────────────
+const ratings = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+const widthMap = { 1: '10%', 2: '30%', 3: '55%', 4: '75%', 5: '95%' };
+const colorMap = { 1: '#c0392b', 2: '#e67e22', 3: '#f39c12', 4: '#27ae60', 5: '#1a7a4a' };
+
+const labels = {
+  1: 'Needs work',
+  2: 'Shaky',
+  3: 'Developing',
+  4: 'Solid',
+  5: 'Owned'
+};
+
+document.querySelectorAll('.rate-row').forEach(row => {
+  const block = row.dataset.block;
+  row.querySelectorAll('.rate-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.val);
+      ratings[block] = val;
+
+      // highlight buttons
+      row.querySelectorAll('.rate-btn').forEach(b => {
+        b.classList.toggle('selected', parseInt(b.dataset.val) <= val);
+      });
+
+      // update bar
+      const fill = document.querySelector(`#b${block}-label`).closest('.readiness-level').querySelector('.level-fill');
+      const lbl = document.getElementById(`b${block}-label`);
+      fill.style.width = widthMap[val];
+      fill.style.background = colorMap[val];
+      lbl.textContent = labels[val];
+      lbl.style.color = colorMap[val];
+
+      updatePriority();
+    });
+  });
+});
+
+function updatePriority() {
+  const allRated = Object.values(ratings).every(v => v > 0);
+  const result = document.getElementById('rateResult');
+
+  if (!allRated) {
+    const remaining = 5 - Object.values(ratings).filter(v => v > 0).length;
+    result.textContent = `Rate ${remaining} more block${remaining > 1 ? 's' : ''} to see your priority action.`;
+    result.style.color = 'var(--muted)';
+    return;
+  }
+
+  const min = Math.min(...Object.values(ratings));
+  const blockNames = {
+    1: 'Block 1 (Asymptotic Analysis)',
+    2: 'Block 2 (Induction)',
+    3: 'Block 3 (Divide & Conquer)',
+    4: 'Block 4 (Decrease & Conquer)',
+    5: 'Block 5 (Sorting & Selection)'
+  };
+
+  const weakBlocks = Object.entries(ratings)
+    .filter(([,v]) => v === min)
+    .map(([k]) => blockNames[k]);
+
+  const avg = Object.values(ratings).reduce((a,b) => a+b, 0) / 5;
+
+  let action = '';
+  if (avg >= 4.5) {
+    action = `Strong across the board. Your risk is pressure errors, not knowledge gaps. Priority: two timed full-exam runs under 75 minutes on novel problem variants. Focus on checklists.`;
+  } else if (min <= 2) {
+    action = `Priority: ${weakBlocks.join(' and ')} — rated ${min}/5. This is a conceptual or retrieval gap, not a pressure problem. Spend 80% of remaining time reconstructing these concepts cold before any timed practice.`;
+  } else if (min === 3) {
+    action = `${weakBlocks.join(' and ')} rated 3/5 — developing but not owned. Run cold retrieval on these blocks, then immediately practice one novel variant under 30-minute pressure. Classify every error.`;
+  } else {
+    action = `Solid foundation. Priority: procedural errors under pressure — specifically in ${weakBlocks.join(' and ')}. Write the checklist externally before every problem. Time yourself. The gap between knowing and performing closes with timed reps only.`;
+  }
+
+  result.textContent = `→ ${action}`;
+  result.style.color = colorMap[min] || 'var(--ink)';
+}
+
+// ── TOC ──────────────────────────────────────────────────
+const tocEl = document.getElementById('toc');
+const sections = ['enemies','curve','errors','protocol','readiness','improvement','emergency','allnighter','manifesto'];
+const tocItems = document.querySelectorAll('.toc-item');
+
+// Show TOC after scrolling past hero
+window.addEventListener('scroll', () => {
+  if (window.scrollY > window.innerHeight * 0.5) {
+    tocEl.classList.add('visible');
+  } else {
+    tocEl.classList.remove('visible');
+  }
+
+  // Active section highlight
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.offsetTop - window.innerHeight * 0.4) {
+      current = id;
+    }
+  });
+
+  tocItems.forEach(item => {
+    const href = item.getAttribute('href').replace('#','');
+    item.classList.toggle('active', href === current);
+  });
+});
+
+// Smooth scroll on click
+tocItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(item.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+</script>
+</body>
+</html>

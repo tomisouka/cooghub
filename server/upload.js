@@ -890,4 +890,56 @@ app.post("/save-entry", express.json(), async (req, res) => {
   }
 });
 
+// ── Save any data file ───────────────────────────────────────────────
+app.post("/save-data-file", express.json({ limit: "5mb" }), async (req, res) => {
+  const { filename, content } = req.body;
+  if (!filename || content === undefined) return res.status(400).json({ error: "filename and content required" });
+  const safe = path.basename(filename);
+  try {
+    await fs.promises.writeFile(path.join(ROOT, "src", "data", safe), content, "utf8");
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Load any data file ───────────────────────────────────────────────
+app.get("/load-data-file", async (req, res) => {
+  const { filename } = req.query;
+  if (!filename) return res.status(400).json({ error: "filename required" });
+  const safe = path.basename(filename);
+  try {
+    const content = await fs.promises.readFile(path.join(ROOT, "src", "data", safe), "utf8");
+    res.json({ ok: true, content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Save deadlines.js ─────────────────────────────────────────────
+app.post("/save-deadlines", express.json({ limit: "2mb" }), async (req, res) => {
+  const { content } = req.body;
+  if (!content) return res.status(400).json({ error: "content required" });
+  try {
+    const target = path.join(ROOT, "src", "data", "deadlines.js");
+    await fs.promises.writeFile(target, content, "utf8");
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Save memory.js ────────────────────────────────────────────────
+app.post("/save-memory", express.json({ limit: "2mb" }), async (req, res) => {
+  const { content } = req.body;
+  if (!content) return res.status(400).json({ error: "content required" });
+  try {
+    const target = path.join(ROOT, "src", "data", "memory.js");
+    await fs.promises.writeFile(target, content, "utf8");
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export { app };

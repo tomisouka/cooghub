@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recovery Protocol — After the All-Nighter</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Lexend:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN SYSTEM (inherited from CRAM.html) ─── */
+:root {
+  --bg:        #fafaf8;
+  --surface:   #f0efe9;
+  --border:    #d8d6ce;
+  --text:      #1c1b2e;
+  --text-soft: #4a4865;
+  --text-dim:  #7a7890;
+
+  --red:    #c8294a;
+  --blue:   #2563c8;
+  --teal:   #0e8c6e;
+  --amber:  #b86b0c;
+  --purple: #6d28a8;
+
+  --dark-bg:   #1c1b2e;
+  --dark-text: #eeedf6;
+
+  --max-w: 860px;
+  --section-pad: 5rem 0;
+  --gutter: 2.5rem;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Atkinson Hyperlegible', Georgia, serif;
+  font-size: 19px;
+  line-height: 2.0;
+  letter-spacing: 0.012em;
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress-line {
+  position: fixed;
+  top: 0; left: 0;
+  height: 4px;
+  width: 0%;
+  background: var(--teal);
+  z-index: 999;
+  transition: width 0.1s linear;
+}
+
+/* ─── TOC ─── */
+#toc {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#toc.visible { opacity: 1; }
+
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.toc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+.toc-item:hover .toc-dot,
+.toc-item.active .toc-dot {
+  background: var(--teal);
+  box-shadow: 0 0 6px rgba(14,140,110,0.4);
+  transform: scale(1.3);
+}
+.toc-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  color: transparent;
+  white-space: nowrap;
+  transition: color 0.2s;
+  max-width: 0;
+  overflow: hidden;
+}
+.toc-item:hover .toc-label,
+.toc-item.active .toc-label {
+  color: var(--text-soft);
+  max-width: 180px;
+}
+@media (max-width: 768px) { #toc { display: none; } }
+
+/* ─── LAYOUT ─── */
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+section {
+  padding: var(--section-pad);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+section.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── SECTION LABELS ─── */
+.section-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: clamp(1.9rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 1.2rem;
+}
+.section-title .accent { color: var(--teal); }
+
+.lead {
+  font-size: 1.08rem;
+  color: var(--text-soft);
+  max-width: 660px;
+  line-height: 1.95;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.015em;
+}
+
+/* ─── HERO ─── */
+.hero {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  padding: 5rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--blue), var(--purple));
+}
+
+.hero-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero-tag {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--dark-text);
+  margin-bottom: 1.2rem;
+}
+.hero-title .accent {
+  color: #6ee7c7;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(238,237,246,0.75);
+  line-height: 1.9;
+  letter-spacing: 0.015em;
+  max-width: 380px;
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.hero-graf {
+  font-size: 1.08rem;
+  color: rgba(238,237,246,0.88);
+  line-height: 2.0;
+  letter-spacing: 0.013em;
+}
+.hero-graf strong { color: #6ee7c7; font-weight: 700; }
+
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.hero-stat { flex: 1; }
+.hero-stat-n {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #6ee7c7;
+  line-height: 1;
+}
+.hero-stat-l {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(238,237,246,0.5);
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+/* ─── COLOR CARDS ─── */
+.color-card {
+  border-radius: 8px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 1rem;
+}
+.card-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+.card-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.7rem;
+}
+.card-body {
+  font-size: 0.97rem;
+  line-height: 2.0;
+  letter-spacing: 0.013em;
+}
+.card-red    { background: #fef2f4; border-left: 5px solid var(--red); }
+.card-blue   { background: #eff6ff; border-left: 5px solid var(--blue); }
+.card-teal   { background: #f0fdf9; border-left: 5px solid var(--teal); }
+.card-amber  { background: #fffbf0; border-left: 5px solid var(--amber); }
+.card-purple { background: #faf5ff; border-left: 5px solid var(--purple); }
+
+.card-red   .card-label  { color: var(--red); }
+.card-blue  .card-label  { color: var(--blue); }
+.card-teal  .card-label  { color: var(--teal); }
+.card-amber .card-label  { color: var(--amber); }
+.card-purple .card-label { color: var(--purple); }
+
+.card-red   .card-title  { color: #8b1c2c; }
+.card-blue  .card-title  { color: #1e4a99; }
+.card-teal  .card-title  { color: #0a6650; }
+.card-amber .card-title  { color: #8a4e08; }
+.card-purple .card-title { color: #4c1d7a; }
+
+.card-red   .card-body   { color: #5a1a24; }
+.card-blue  .card-body   { color: #1e3a6e; }
+.card-teal  .card-body   { color: #064a3a; }
+.card-amber .card-body   { color: #5a3505; }
+.card-purple .card-body  { color: #3a1258; }
+
+/* ─── DARK SECTION ─── */
+.dark-section {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+}
+.dark-section .section-tag  { color: #6ee7c7; }
+.dark-section .section-title { color: var(--dark-text); }
+.dark-section .lead { color: rgba(238,237,246,0.75); }
+
+/* ─── GRID CARDS (dark) ─── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-top: 2rem;
+}
+@media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+
+.dark-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-top: 4px solid;
+  border-radius: 6px;
+  padding: 1.8rem 1.6rem;
+  transition: background 0.2s;
+}
+.dark-card:hover { background: rgba(255,255,255,0.07); }
+.dark-card.c1 { border-top-color: var(--teal); }
+.dark-card.c2 { border-top-color: #f5a623; }
+.dark-card.c3 { border-top-color: var(--blue); }
+.dark-card.c4 { border-top-color: var(--purple); }
+.dark-card.c5 { border-top-color: var(--red); }
+.dark-card.c6 { border-top-color: #6ee7c7; }
+
+.dc-n {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(238,237,246,0.4);
+  margin-bottom: 0.8rem;
+}
+.dc-icon { font-size: 1.6rem; margin-bottom: 0.8rem; line-height: 1; }
+.dc-name {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark-text);
+  margin-bottom: 0.8rem;
+  line-height: 1.3;
+}
+.dc-desc {
+  font-size: 0.95rem;
+  color: rgba(238,237,246,0.8);
+  line-height: 1.95;
+  letter-spacing: 0.013em;
+}
+.dc-tag {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  background: rgba(14,140,110,0.15);
+  color: #6ee7c7;
+}
+
+/* ─── TIMELINE ─── */
+.timeline {
+  position: relative;
+  margin-top: 2rem;
+  padding-left: 2.5rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.6rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--border);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -1.9rem;
+  top: 0.55rem;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--teal);
+}
+.tl-time {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.3rem;
+}
+.tl-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.tl-body {
+  font-size: 0.97rem;
+  color: var(--text-soft);
+  line-height: 1.95;
+}
+
+/* ─── SOURCE CITATION ─── */
+.source-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.source-row:last-child { border-bottom: none; }
+.source-badge {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
+}
+.source-text { color: var(--text-soft); line-height: 1.7; }
+.source-text strong { color: var(--text); }
+
+/* ─── CALLOUT BOX ─── */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem 2.2rem;
+  margin: 2rem 0;
+}
+.callout-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.6rem;
+}
+.callout-body { font-size: 0.97rem; color: var(--text-soft); line-height: 2.0; }
+.callout-body strong { color: var(--text); }
+
+/* ─── CHECKLIST ─── */
+.checklist { list-style: none; margin-top: 1rem; }
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.97rem;
+  color: var(--text-soft);
+  line-height: 1.8;
+}
+.checklist li:last-child { border-bottom: none; }
+.checklist li .check {
+  font-size: 1rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+/* ─── DIVIDER ─── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--dark-bg);
+  color: rgba(238,237,246,0.45);
+  padding: 3rem 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-align: center;
+  line-height: 2;
+}
+footer strong { color: rgba(238,237,246,0.7); }
+</style>
+</head>
+<body>
+
+<div id="progress-line"></div>
+
+<!-- TOC -->
+<nav id="toc" aria-label="Page sections">
+  <a href="#damage" class="toc-item"><span class="toc-dot"></span><span class="toc-label">DAMAGE DONE</span></a>
+  <a href="#protocol" class="toc-item"><span class="toc-dot"></span><span class="toc-label">RECOVERY PROTOCOL</span></a>
+  <a href="#sleep" class="toc-item"><span class="toc-dot"></span><span class="toc-label">SLEEP DEBT</span></a>
+  <a href="#fuel" class="toc-item"><span class="toc-dot"></span><span class="toc-label">FUEL & REPAIR</span></a>
+  <a href="#longterm" class="toc-item"><span class="toc-dot"></span><span class="toc-label">LONG-TERM</span></a>
+  <a href="#sources" class="toc-item"><span class="toc-dot"></span><span class="toc-label">SOURCES</span></a>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">// recovery protocol</div>
+      <h1 class="hero-title">You pulled<br>an <span class="accent">all-nighter.</span><br>Now what?</h1>
+      <p class="hero-sub">One night of total sleep loss triggers measurable damage. This guide tells you exactly what happened to your body — and how to earn it back.</p>
+    </div>
+    <div class="hero-right">
+      <p class="hero-graf">After 24 hours awake, your cognitive performance drops to the equivalent of someone with a <strong>0.10% blood alcohol concentration</strong> — legally drunk by any standard, and you can't feel how impaired you are.</p>
+      <p class="hero-graf">The good news: most acute damage is <strong>fully reversible</strong> with one solid recovery night. Your brain is built for this. You just have to cooperate with it.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-n">24h</div>
+          <div class="hero-stat-l">to peak impairment</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n">~1</div>
+          <div class="hero-stat-l">recovery nights needed</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n">72h</div>
+          <div class="hero-stat-l">cortisol normalizes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- DAMAGE DONE -->
+<section id="damage" class="dark-section">
+  <div class="container">
+    <div class="section-tag">01 — what actually happened</div>
+    <h2 class="section-title">The damage done to your body overnight</h2>
+    <p class="lead">You didn't just "feel tired." Sleep deprivation is a physiological stressor with real, measurable biochemical consequences across every major system.</p>
+
+    <div class="grid-3">
+      <div class="dark-card c1">
+        <div class="dc-n">01</div>
+        <div class="dc-icon">🧠</div>
+        <div class="dc-name">Prefrontal Cortex Shutdown</div>
+        <div class="dc-desc">The executive function region of your brain — responsible for decisions, impulse control, and working memory — functionally downregulates after ~18 hours awake. You're making worse decisions than you think.</div>
+        <span class="dc-tag">cognitive</span>
+      </div>
+      <div class="dark-card c2">
+        <div class="dc-n">02</div>
+        <div class="dc-icon">⚡</div>
+        <div class="dc-name">Adenosine Overload</div>
+        <div class="dc-desc">Adenosine — the brain's fatigue chemical — has been accumulating all night. Caffeine only blocks receptors; it doesn't clear the backlog. The moment caffeine wears off, the wall hits harder.</div>
+        <span class="dc-tag">neurochemistry</span>
+      </div>
+      <div class="dark-card c3">
+        <div class="dc-n">03</div>
+        <div class="dc-icon">📈</div>
+        <div class="dc-name">Cortisol & Inflammation Spike</div>
+        <div class="dc-desc">One sleepless night raises inflammatory markers (IL-6, TNF-α) and spikes cortisol. Your immune system is weakened, your body is in low-grade stress mode, and recovery hormones never fired.</div>
+        <span class="dc-tag">endocrine</span>
+      </div>
+      <div class="dark-card c4">
+        <div class="dc-n">04</div>
+        <div class="dc-icon">🍽️</div>
+        <div class="dc-name">Hunger Hormones Hijacked</div>
+        <div class="dc-desc">Ghrelin (hunger) surges and leptin (satiety) drops after sleep loss. You'll crave high-calorie, high-carb food aggressively — and your willpower to resist it is at its lowest.</div>
+        <span class="dc-tag">metabolic</span>
+      </div>
+      <div class="dark-card c5">
+        <div class="dc-n">05</div>
+        <div class="dc-icon">🔋</div>
+        <div class="dc-name">Cellular Repair Skipped</div>
+        <div class="dc-desc">Slow-wave sleep (deep sleep) is when human growth hormone (HGH) is released and tissue repair happens. Skip it and your skin, muscles, and cellular systems didn't get their maintenance window.</div>
+        <span class="dc-tag">cellular</span>
+      </div>
+      <div class="dark-card c6">
+        <div class="dc-n">06</div>
+        <div class="dc-icon">👁️</div>
+        <div class="dc-name">Glymphatic System Clogged</div>
+        <div class="dc-desc">Your brain's waste-clearance system (the glymphatic system) operates primarily during sleep, flushing out metabolic waste including beta-amyloid. After one night, your brain is literally running on fumes.</div>
+        <span class="dc-tag">neurological</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECOVERY PROTOCOL TIMELINE -->
+<section id="protocol">
+  <div class="container">
+    <div class="section-tag">02 — the plan</div>
+    <h2 class="section-title">Your <span class="accent">recovery protocol</span> — hour by hour</h2>
+    <p class="lead">Don't wing it. The order matters. Here's exactly how to spend today to maximize your bounce-back and minimize lingering damage.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">Right now — first 2 hours</div>
+        <div class="tl-title">Hydrate before anything else</div>
+        <div class="tl-body">You've been breathing, sweating, and producing urine all night without replacing fluids. Drink 500–750ml of water first. Add a pinch of salt or electrolytes if you have them — sodium helps retention. Dehydration alone compounds cognitive impairment by another 10–15%.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">Within 90 minutes</div>
+        <div class="tl-title">Get light — but not too much caffeine</div>
+        <div class="tl-body">Natural light exposure in the morning resets your circadian clock and triggers cortisol's proper daily peak, which actually helps you feel alert. Caffeine: cap it at 100–150mg (one moderate coffee). Piling more coffee on top of adenosine buildup will spike anxiety and crash you harder. Delay your first caffeine 90–120 minutes after waking if possible.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">Morning — eat deliberately</div>
+        <div class="tl-title">High protein, lower simple carbs</div>
+        <div class="tl-body">Your ghrelin is screaming for pizza and donuts. Protein-forward meals (eggs, Greek yogurt, chicken) will stabilize blood sugar and reduce the crash cycle. Complex carbs are okay; refined sugar will tank your already-impaired focus within the hour.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">Afternoon — 12:00–3:00 PM</div>
+        <div class="tl-title">The nap window — if you must stay awake</div>
+        <div class="tl-body">If you can nap: 20–30 minutes max (a "nap-uccino" — coffee right before, wake up as it kicks in). This clears short-term adenosine without pushing you into deep sleep, which causes grogginess and makes tonight's sleep harder. If you can sleep tonight at a normal time, skip the nap — it's better to build full sleep pressure.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">Evening — no later than 10 PM</div>
+        <div class="tl-title">Don't oversleep. Hit your target bedtime.</div>
+        <div class="tl-body">Going to bed at 7 PM to "catch up" feels logical but disrupts your circadian rhythm for the next 2–3 days. Aim for your normal bedtime ±1 hour. Make the environment cold (65–68°F / 18–20°C), dark, and quiet. This is your recovery night — protect it.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">The next morning</div>
+        <div class="tl-title">Don't alarm-clock out of deep sleep</div>
+        <div class="tl-body">If possible, let yourself wake naturally. After sleep deprivation, your body will prioritize deep slow-wave sleep in the first half of the night. REM rebounds in the second half. A full 8–9 hours tonight restores most cognitive markers to baseline by tomorrow.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLEEP DEBT -->
+<section id="sleep" class="dark-section">
+  <div class="container">
+    <div class="section-tag">03 — the debt</div>
+    <h2 class="section-title">Understanding sleep debt — and how to actually pay it back</h2>
+    <p class="lead">Sleep debt is real, but it doesn't work like a bank account. You can't fully repay it by sleeping 16 hours on Saturday.</p>
+
+    <div style="margin-top: 2rem;">
+      <div class="color-card card-teal" style="background: rgba(14,140,110,0.08); border-left: 5px solid var(--teal);">
+        <div class="card-label" style="color: var(--teal);">The Good News</div>
+        <div class="card-title" style="color: #6ee7c7;">Acute sleep debt (1–2 nights) is largely reversible</div>
+        <div class="card-body" style="color: rgba(238,237,246,0.8);">Research from the University of Chicago and Harvard Medical School shows that after a single night of total sleep deprivation, most cognitive performance markers return to baseline after <strong style="color: #6ee7c7;">one full night of recovery sleep</strong> (7.5–9 hours). Your brain will protect you — it will rebound aggressively into slow-wave sleep and then REM during your recovery night.</div>
+      </div>
+
+      <div class="color-card card-amber" style="background: rgba(184,107,12,0.08); border-left: 5px solid var(--amber); margin-top: 1.2rem;">
+        <div class="card-label" style="color: #f5a623;">The Catch</div>
+        <div class="card-title" style="color: #f5a623;">Chronic debt is a different animal</div>
+        <div class="card-body" style="color: rgba(238,237,246,0.8);">Chronic partial sleep restriction (6 hours/night for 2+ weeks) is harder to reverse and can permanently impair some cognitive functions if sustained. You also lose the ability to accurately self-assess your impairment — you feel fine, but you're not. One all-nighter won't do this. But making it a habit will.</div>
+      </div>
+
+      <div class="color-card card-purple" style="background: rgba(109,40,168,0.08); border-left: 5px solid var(--purple); margin-top: 1.2rem;">
+        <div class="card-label" style="color: #a78bfa;">Youth Factor</div>
+        <div class="card-title" style="color: #a78bfa;">You're recovering faster than you think</div>
+        <div class="card-body" style="color: rgba(238,237,246,0.8);">Younger brains (teens through mid-20s) produce more growth hormone during slow-wave sleep and have higher neuroplasticity, meaning recovery sleep is genuinely more efficient. Your body literally bounces back faster at this age. Use it — but don't abuse it. The habit patterns you build now determine how your sleep architecture ages.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUEL & REPAIR -->
+<section id="fuel">
+  <div class="container">
+    <div class="section-tag">04 — nutrition & repair</div>
+    <h2 class="section-title">What to eat, drink, and <span class="accent">avoid</span> today</h2>
+    <p class="lead">Food becomes medicine or poison today. Your body is running on stress hormones and depleted reserves — these choices accelerate or delay your recovery.</p>
+
+    <div class="color-card card-teal">
+      <div class="card-label">Prioritize</div>
+      <div class="card-title">Foods that support brain repair and HGH release</div>
+      <div class="card-body">
+        <ul class="checklist">
+          <li><span class="check">✓</span><span><strong>Eggs</strong> — choline supports acetylcholine synthesis (memory and attention neurotransmitter). Also contain L-tryptophan, a serotonin precursor.</span></li>
+          <li><span class="check">✓</span><span><strong>Blueberries</strong> — anthocyanins reduce oxidative stress; one study (University of Reading, 2010) found improved memory recall after acute consumption.</span></li>
+          <li><span class="check">✓</span><span><strong>Salmon / fatty fish</strong> — omega-3 DHA is directly incorporated into brain cell membranes and supports the glymphatic clearance process.</span></li>
+          <li><span class="check">✓</span><span><strong>Greek yogurt / cottage cheese</strong> — slow-digesting protein with high tryptophan; setting you up for tonight's sleep at the same time.</span></li>
+          <li><span class="check">✓</span><span><strong>Dark leafy greens</strong> — magnesium and folate support neurotransmitter production and GABA regulation (calming, essential for sleep tonight).</span></li>
+          <li><span class="check">✓</span><span><strong>Water + electrolytes</strong> — sodium, potassium, magnesium. Even mild dehydration amplifies fatigue and brain fog by 10–20%.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="color-card card-red" style="margin-top: 1.2rem;">
+      <div class="card-label">Avoid or Minimize</div>
+      <div class="card-title">Things that extend your recovery timeline</div>
+      <div class="card-body">
+        <ul class="checklist">
+          <li><span class="check" style="color: var(--red);">✗</span><span><strong>Alcohol</strong> — feels relaxing but destroys sleep architecture. Even 1–2 drinks suppress REM sleep, exactly when your brain needs it most tonight.</span></li>
+          <li><span class="check" style="color: var(--red);">✗</span><span><strong>Caffeine after 2 PM</strong> — caffeine's half-life is ~5–6 hours. Afternoon coffee → disrupted deep sleep → you wake up more tired than you started.</span></li>
+          <li><span class="check" style="color: var(--red);">✗</span><span><strong>High-sugar, ultra-processed food</strong> — your blood sugar regulation is already impaired from sleep loss. Glucose spikes → rapid crash → worse cognitive performance for hours.</span></li>
+          <li><span class="check" style="color: var(--red);">✗</span><span><strong>Skipping meals entirely</strong> — hypoglycemia from fasting compounds cognitive fog. Eat even if your appetite is off.</span></li>
+          <li><span class="check" style="color: var(--red);">✗</span><span><strong>Large, heavy meals close to bedtime</strong> — digestion disrupts the thermoregulation your body needs to enter deep sleep. Finish eating 2–3 hours before bed.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1.5rem;">
+      <div class="callout-label">Note on supplements</div>
+      <div class="callout-body"><strong>Magnesium glycinate (200–400mg)</strong> before bed has solid evidence for improving sleep quality and reducing cortisol — especially useful in a recovery context. <strong>L-theanine (100–200mg)</strong> pairs well with morning caffeine to smooth the stimulant curve without the jitters. These are low-risk and well-studied. Skip anything aggressive.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LONG TERM -->
+<section id="longterm">
+  <div class="container">
+    <div class="section-tag">05 — the bigger picture</div>
+    <h2 class="section-title">Protecting your youth — <span class="accent">what sleep actually does</span></h2>
+    <p class="lead">Every hour of quality sleep is doing active anti-aging work. This isn't metaphor — it's measurable biochemistry.</p>
+
+    <div class="color-card card-blue">
+      <div class="card-label">Growth Hormone</div>
+      <div class="card-title">The single most important reason to sleep before midnight</div>
+      <div class="card-body">80% of your daily human growth hormone (HGH) secretion happens in the first 1–2 hours of sleep — specifically during slow-wave deep sleep, which is most abundant earlier in the night. HGH rebuilds muscle, repairs skin collagen, processes fat, and consolidates long-term memory. Every all-nighter or late bedtime directly suppresses this window. You cannot fully compensate by sleeping in.</div>
+    </div>
+
+    <div class="color-card card-purple" style="margin-top: 1.2rem;">
+      <div class="card-label">Telomeres & Aging</div>
+      <div class="card-title">Short sleep accelerates biological aging</div>
+      <div class="card-body">Chronic short sleep is associated with shorter telomere length — the protective caps on your chromosomes that determine how quickly your cells age. A 2019 study in <em>Nature Communications</em> found that sleeping fewer than 6 hours nightly was associated with significantly shorter telomeres. One all-nighter won't do this. But a pattern of chronic under-sleeping is measurable in your DNA within months.</div>
+    </div>
+
+    <div class="color-card card-amber" style="margin-top: 1.2rem;">
+      <div class="card-label">Skin & Collagen</div>
+      <div class="card-title">Why "beauty sleep" is scientifically literal</div>
+      <div class="card-body">The term isn't poetic — it's physiologically accurate. During slow-wave sleep, collagen synthesis rates increase, skin blood flow improves, and transepidermal water loss decreases. Studies from University Hospitals Case Medical Center showed that poor sleepers had significantly more signs of intrinsic skin aging and reduced skin barrier function. The repair window is while you're unconscious.</div>
+    </div>
+
+    <div style="margin-top: 3rem;">
+      <div class="section-tag" style="font-size: 0.65rem;">habits worth building</div>
+      <h3 style="font-family: 'Lexend', sans-serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">If you want to do this less often</h3>
+      <ul class="checklist">
+        <li><span class="check">→</span><span><strong>Consistent wake time</strong> is more important than consistent bedtime. Your circadian clock anchors to wake time. Pick one and protect it even on weekends.</span></li>
+        <li><span class="check">→</span><span><strong>No screens 30–60 minutes before bed.</strong> Short-wavelength blue light suppresses melatonin by up to 50%, delaying sleep onset by 60–90 minutes.</span></li>
+        <li><span class="check">→</span><span><strong>Cold bedroom.</strong> Core body temperature must drop 2–3°F to initiate sleep. 65–68°F (18–20°C) is the studied optimal range.</span></li>
+        <li><span class="check">→</span><span><strong>Time your hard stops.</strong> If you know you have a deadline, schedule the all-nighter before the project — not the night before the thing where you need your full brain.</span></li>
+        <li><span class="check">→</span><span><strong>Strategic naps.</strong> A 20-minute nap at 1–2 PM is one of the highest ROI cognitive performance interventions that exists. NASA, the military, and most elite sports programs use them systematically.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section id="sources">
+  <div class="container">
+    <div class="section-tag">06 — sources</div>
+    <h2 class="section-title">Where this comes from</h2>
+    <p class="lead">Everything in this guide is grounded in peer-reviewed research or established clinical sleep science.</p>
+
+    <div style="margin-top: 1rem;">
+      <div class="source-row">
+        <span class="source-badge">Nature</span>
+        <div class="source-text"><strong>Vgontzas et al.</strong> — Sleep deprivation effects on cytokine and immune function. <em>Journal of Clinical Endocrinology & Metabolism.</em> Documented IL-6 and TNF-α elevation after sleep deprivation.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Sleep</span>
+        <div class="source-text"><strong>Van Dongen et al.</strong> — The cumulative cost of additional wakefulness: dose-response effects on neurobehavioral functions and sleep physiology. <em>Sleep, 2003.</em> Seminal paper on cognitive impairment accumulation and the 0.10% BAC equivalence at 24h.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">PNAS</span>
+        <div class="source-text"><strong>Spiegel, Tasali, Penev & Van Cauter</strong> — Brief communication: Sleep curtailment in healthy young men is associated with decreased leptin levels, elevated ghrelin levels, and increased hunger and appetite. <em>Annals of Internal Medicine, 2004.</em></div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Cell</span>
+        <div class="source-text"><strong>Xie et al.</strong> — Sleep drives metabolite clearance from the adult brain. <em>Science, 2013.</em> Established the glymphatic system and its sleep-dependent function in beta-amyloid clearance.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Nat Comms</span>
+        <div class="source-text"><strong>Jackowska, Hamer, Carvalho, Bridget, Hotopf & Steptoe</strong> — Short sleep duration is associated with shorter telomere length in healthy men: findings from the Whitehall II cohort study. <em>PLOS One, 2012.</em></div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Dermatol</span>
+        <div class="source-text"><strong>Oyetakin-White et al.</strong> — Does poor sleep quality affect skin ageing? <em>Clinical and Experimental Dermatology, 2015.</em> Demonstrated accelerated intrinsic aging and reduced barrier function in poor sleepers.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Endocrinol</span>
+        <div class="source-text"><strong>Van Cauter & Plat</strong> — Physiology of growth hormone secretion during sleep. <em>Journal of Pediatrics, 1996.</em> Characterized slow-wave sleep as the primary HGH secretion window.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Book</span>
+        <div class="source-text"><strong>Matthew Walker</strong> — <em>Why We Sleep: Unlocking the Power of Sleep and Dreams.</em> Scribner, 2017. General synthesis of sleep science research. Note: some specific claims in the book have been contested by researchers; the core biology is well-supported.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="container">
+    <strong>RECOVER.html</strong> — built for the morning after<br>
+    not medical advice · ground this in your own body's signals<br>
+    <span style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">inspired by CRAM.html · go the f*** to sleep tonight</span>
+  </div>
+</footer>
+
+<script>
+// Progress bar
+const progressLine = document.getElementById('progress-line');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  progressLine.style.width = (scrolled / total * 100) + '%';
+});
+
+// TOC visibility + active state
+const toc = document.getElementById('toc');
+const tocItems = document.querySelectorAll('.toc-item');
+const sections = document.querySelectorAll('section[id]');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 200) {
+    toc.classList.add('visible');
+  } else {
+    toc.classList.remove('visible');
+  }
+
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 120;
+    if (window.scrollY >= sectionTop) {
+      current = section.getAttribute('id');
+    }
+  });
+
+  tocItems.forEach(item => {
+    item.classList.remove('active');
+    if (item.getAttribute('href') === '#' + current) {
+      item.classList.add('active');
+    }
+  });
+});
+
+// Section reveal on scroll
+const revealSections = document.querySelectorAll('section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08 });
+
+revealSections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>

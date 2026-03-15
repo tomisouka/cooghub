@@ -56,9 +56,15 @@ export const PHASES = [
   },
   {
     number: 9,
-    title: "Desktop App",
-    status: "active",
-    summary: "Electron or Tauri wrapper around the same React app. Reads content files directly from disk — no manifest needed since it's always live. SyncThing keeps desktop and phone in sync passively.",
+    title: "Desktop App — V1",
+    status: "partial",
+    summary: "Tauri app built and installed on both desktop (kaneki) and laptop (kusuo). App reads and writes directly to src/data/memory.js on disk via custom Rust commands. SyncThing keeps both machines in sync. V1 satisfied — data persists across sessions and machines. Remaining: Talk2Me entries need their own persistence file (talk2me.js) and Rust commands, mirroring the memory.js pattern.",
+  },
+  {
+    number: "9b",
+    title: "Desktop App — Persistence Layer",
+    status: "next",
+    summary: "Complete the file-based persistence architecture. Talk2Me entries currently work in browser via Express but not verified in Tauri. Need talk2me.js as dedicated persistence file, load_talk2me and save_talk2me Rust commands, and first-render guard matching the deadlines pattern. Then verify end-to-end on both machines.",
   },
   {
     number: 10,

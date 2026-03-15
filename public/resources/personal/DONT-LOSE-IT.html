@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Don't Lose It — The Science of Keeping What You Learned</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Lexend:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #fafaf8;
+  --surface:   #f0efe9;
+  --border:    #d8d6ce;
+  --text:      #1c1b2e;
+  --text-soft: #4a4865;
+  --text-dim:  #7a7890;
+  --red:    #c8294a;
+  --blue:   #2563c8;
+  --teal:   #0e8c6e;
+  --amber:  #b86b0c;
+  --purple: #6d28a8;
+  --dark-bg:   #1c1b2e;
+  --dark-text: #eeedf6;
+  --max-w: 900px;
+  --gutter: 2.5rem;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Atkinson Hyperlegible', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.95;
+  letter-spacing: 0.012em;
+}
+
+#progress-line {
+  position: fixed; top: 0; left: 0;
+  height: 4px; width: 0%;
+  background: var(--red);
+  z-index: 999; transition: width 0.1s linear;
+}
+
+#toc {
+  position: fixed; right: 1.4rem; top: 50%;
+  transform: translateY(-50%);
+  z-index: 500; display: flex;
+  flex-direction: column; gap: 0.45rem;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+#toc.visible { opacity: 1; }
+.toc-item { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-decoration: none; color: inherit; }
+.toc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.25s; flex-shrink: 0; }
+.toc-item:hover .toc-dot, .toc-item.active .toc-dot { background: var(--red); box-shadow: 0 0 5px rgba(200,41,74,0.4); transform: scale(1.3); }
+.toc-label { font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 1.5px; color: transparent; white-space: nowrap; transition: color 0.2s; max-width: 0; overflow: hidden; }
+.toc-item:hover .toc-label, .toc-item.active .toc-label { color: var(--text-soft); max-width: 200px; }
+@media (max-width: 768px) { #toc { display: none; } }
+
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter); }
+section { padding: 5rem 0; opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+section.visible { opacity: 1; transform: translateY(0); }
+
+/* HERO */
+.hero { background: var(--dark-bg); color: var(--dark-text); padding: 5rem 0 4rem; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--red), var(--purple), var(--blue)); }
+.hero-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter); display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.hero-tag { font-family: 'Fira Code', monospace; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 0.9rem; }
+.hero-title { font-family: 'Lexend', sans-serif; font-size: clamp(2.6rem, 4.8vw, 4rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: var(--dark-text); margin-bottom: 1.1rem; }
+.hero-title .accent { color: #f5a623; font-weight: 300; font-style: italic; }
+.hero-sub { font-size: 0.98rem; color: rgba(238,237,246,0.7); line-height: 1.9; max-width: 370px; }
+.hero-right { display: flex; flex-direction: column; gap: 1.3rem; }
+.hero-graf { font-size: 1.02rem; color: rgba(238,237,246,0.88); line-height: 2.0; }
+.hero-graf strong { color: #f5a623; }
+.hero-stats { display: flex; gap: 2rem; padding-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.1); }
+.hero-stat-n { font-family: 'Lexend', sans-serif; font-size: 2.4rem; font-weight: 700; color: #f5a623; line-height: 1; }
+.hero-stat-l { font-family: 'Fira Code', monospace; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(238,237,246,0.42); margin-top: 0.2rem; }
+@media (max-width: 768px) { .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+/* SECTION LABELS */
+.section-tag { font-family: 'Fira Code', monospace; font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 0.55rem; font-weight: 500; }
+.section-title { font-family: 'Lexend', sans-serif; font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; color: var(--text); margin-bottom: 1.1rem; }
+.section-title .accent { color: var(--red); }
+.lead { font-size: 1.02rem; color: var(--text-soft); max-width: 650px; line-height: 1.95; margin-bottom: 2.2rem; }
+
+.dark-section { background: var(--dark-bg); color: var(--dark-text); }
+.dark-section .section-tag { color: #f5906a; }
+.dark-section .section-title { color: var(--dark-text); }
+.dark-section .lead { color: rgba(238,237,246,0.72); }
+.surface-section { background: var(--surface); }
+
+/* COLOR CARDS */
+.color-card { border-radius: 8px; padding: 1.6rem 2rem; margin-bottom: 1rem; }
+.card-label { font-family: 'Fira Code', monospace; font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 500; margin-bottom: 0.5rem; }
+.card-title { font-family: 'Lexend', sans-serif; font-size: 1.12rem; font-weight: 600; line-height: 1.3; margin-bottom: 0.55rem; }
+.card-body { font-size: 0.95rem; line-height: 1.95; }
+.card-red    { background: #fef2f4; border-left: 5px solid var(--red); }
+.card-blue   { background: #eff6ff; border-left: 5px solid var(--blue); }
+.card-teal   { background: #f0fdf9; border-left: 5px solid var(--teal); }
+.card-amber  { background: #fffbf0; border-left: 5px solid var(--amber); }
+.card-purple { background: #faf5ff; border-left: 5px solid var(--purple); }
+.card-red   .card-label { color: var(--red); }     .card-red   .card-title { color: #8b1c2c; }    .card-red   .card-body { color: #5a1a24; }
+.card-blue  .card-label { color: var(--blue); }    .card-blue  .card-title { color: #1e4a99; }   .card-blue  .card-body { color: #1e3a6e; }
+.card-teal  .card-label { color: var(--teal); }    .card-teal  .card-title { color: #0a6650; }   .card-teal  .card-body { color: #064a3a; }
+.card-amber .card-label { color: var(--amber); }   .card-amber .card-title { color: #8a4e08; }  .card-amber .card-body { color: #5a3505; }
+.card-purple .card-label { color: var(--purple); } .card-purple .card-title { color: #4c1d7a; }.card-purple .card-body { color: #3a1258; }
+
+/* CONCEPT BLOCK */
+.concept-block { background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.7rem 2rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+.concept-block:hover { border-color: var(--red); }
+.cb-tag { font-family: 'Fira Code', monospace; font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; }
+.cb-name { font-family: 'Lexend', sans-serif; font-size: 1.08rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; line-height: 1.3; }
+.cb-body { font-size: 0.95rem; color: var(--text-soft); line-height: 1.95; }
+.cb-body strong { color: var(--text); }
+.cb-body em { color: var(--red); font-style: italic; }
+.cb-rule { margin-top: 0.9rem; font-family: 'Fira Code', monospace; font-size: 0.64rem; letter-spacing: 1.5px; color: var(--red); border-left: 3px solid var(--red); padding-left: 0.75rem; line-height: 1.65; }
+.cb-source { margin-top: 0.6rem; font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 1px; color: var(--text-dim); }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; margin-top: 2rem; }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+
+/* DARK CARDS */
+.dark-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid; border-radius: 6px; padding: 1.6rem 1.7rem; transition: background 0.2s; }
+.dark-card:hover { background: rgba(255,255,255,0.07); }
+.dark-card.c1 { border-top-color: var(--red); }
+.dark-card.c2 { border-top-color: #f5a623; }
+.dark-card.c3 { border-top-color: var(--blue); }
+.dark-card.c4 { border-top-color: var(--teal); }
+.dark-card.c5 { border-top-color: var(--purple); }
+.dark-card.c6 { border-top-color: #6ee7c7; }
+.dc-n { font-family: 'Fira Code', monospace; font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(238,237,246,0.35); margin-bottom: 0.6rem; }
+.dc-name { font-family: 'Lexend', sans-serif; font-size: 1.05rem; font-weight: 600; color: var(--dark-text); margin-bottom: 0.7rem; line-height: 1.3; }
+.dc-body { font-size: 0.93rem; color: rgba(238,237,246,0.82); line-height: 1.95; }
+.dc-body strong { color: var(--dark-text); }
+.dc-body em { color: #f5a623; font-style: italic; }
+.dc-tag { display: inline-block; margin-top: 0.9rem; font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 3px; background: rgba(200,41,74,0.14); color: #f5906a; }
+
+/* STEPS */
+.steps { display: flex; flex-direction: column; margin-top: 1.5rem; }
+.step { display: grid; grid-template-columns: 48px 1fr; gap: 1.5rem; padding: 1.6rem; background: var(--bg); border: 1px solid var(--border); border-bottom: none; align-items: start; transition: background 0.2s; }
+.step:first-child { border-radius: 8px 8px 0 0; }
+.step:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 8px 8px; }
+.step:hover { background: var(--surface); }
+.step-n { font-family: 'Fira Code', monospace; font-size: 0.63rem; letter-spacing: 2px; color: var(--red); padding-top: 0.1rem; }
+.step-title { font-family: 'Lexend', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.35rem; }
+.step-body { font-size: 0.93rem; color: var(--text-soft); line-height: 1.95; }
+.step-body strong { color: var(--text); }
+.step-body em { color: var(--red); font-style: italic; }
+.step-source { margin-top: 0.4rem; font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 1px; color: var(--text-dim); }
+
+/* FLASHCARD */
+.flashcard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.5rem; }
+@media (max-width: 640px) { .flashcard-grid { grid-template-columns: 1fr; } }
+.flashcard { perspective: 1000px; cursor: pointer; min-height: 210px; }
+.fc-inner { position: relative; width: 100%; height: 100%; min-height: 210px; transform-style: preserve-3d; transition: transform 0.45s ease; }
+.flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back { position: absolute; inset: 0; border-radius: 8px; padding: 1.5rem 1.6rem; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+.fc-front { background: var(--dark-bg); border: 1.5px solid rgba(255,255,255,0.1); }
+.fc-back  { background: var(--surface); border: 1.5px solid var(--border); transform: rotateY(180deg); }
+.fc-label { font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; }
+.fc-front .fc-label { color: rgba(238,237,246,0.33); }
+.fc-back  .fc-label { color: var(--text-dim); }
+.fc-q { font-family: 'Lexend', sans-serif; font-size: 1rem; font-weight: 600; color: var(--dark-text); line-height: 1.45; margin-top: 0.5rem; }
+.fc-a { font-size: 0.91rem; color: var(--text-soft); line-height: 1.88; margin-top: 0.5rem; }
+.fc-a strong { color: var(--text); }
+.fc-a em { color: var(--red); font-style: italic; }
+.fc-hint { font-family: 'Fira Code', monospace; font-size: 0.56rem; letter-spacing: 1px; color: rgba(238,237,246,0.28); }
+.fc-back .fc-hint { color: var(--text-dim); }
+
+/* SOURCE ROW */
+.source-row { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+.source-row:last-child { border-bottom: none; }
+.source-badge { font-family: 'Fira Code', monospace; font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.2rem 0.5rem; white-space: nowrap; color: var(--text-dim); margin-top: 0.15rem; flex-shrink: 0; }
+.source-text { color: var(--text-soft); line-height: 1.75; }
+.source-text strong { color: var(--text); }
+
+/* CALLOUT */
+.callout { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.8rem 2.2rem; margin: 1.8rem 0; }
+.callout-label { font-family: 'Fira Code', monospace; font-size: 0.63rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 0.55rem; }
+.callout-body { font-size: 0.95rem; color: var(--text-soft); line-height: 2.0; }
+.callout-body strong { color: var(--text); }
+
+/* QREF */
+.qref { background: var(--dark-bg); border-radius: 8px; padding: 2rem 2.2rem; margin-top: 1.5rem; }
+.qref-title { font-family: 'Lexend', sans-serif; font-size: 1rem; font-weight: 700; color: #f5a623; margin-bottom: 1rem; }
+.qref-body { font-size: 0.93rem; color: rgba(238,237,246,0.88); line-height: 2.0; }
+.qref-body strong { color: var(--dark-text); }
+.qref-body em { color: #f5a623; }
+
+.rule { width: 100%; height: 2px; background: linear-gradient(90deg, var(--red), transparent); margin: 0; }
+.divider { height: 1px; background: var(--border); margin: 0; }
+
+footer { background: var(--dark-bg); color: rgba(238,237,246,0.4); padding: 3rem 0; font-family: 'Fira Code', monospace; font-size: 0.72rem; letter-spacing: 1.5px; text-align: center; line-height: 2.2; }
+footer strong { color: rgba(238,237,246,0.65); }
+</style>
+</head>
+<body>
+
+<div id="progress-line"></div>
+
+<nav id="toc">
+  <a href="#forgetting"   class="toc-item"><span class="toc-dot"></span><span class="toc-label">FORGETTING CURVE</span></a>
+  <a href="#retrieval"    class="toc-item"><span class="toc-dot"></span><span class="toc-label">RETRIEVAL PRACTICE</span></a>
+  <a href="#spacing"      class="toc-item"><span class="toc-dot"></span><span class="toc-label">SPACING EFFECT</span></a>
+  <a href="#interleaving" class="toc-item"><span class="toc-dot"></span><span class="toc-label">INTERLEAVING</span></a>
+  <a href="#encoding"     class="toc-item"><span class="toc-dot"></span><span class="toc-label">ENCODING DEPTH</span></a>
+  <a href="#sleep"        class="toc-item"><span class="toc-dot"></span><span class="toc-label">SLEEP & MEMORY</span></a>
+  <a href="#flashcards"   class="toc-item"><span class="toc-dot"></span><span class="toc-label">PRACTICE</span></a>
+  <a href="#sources"      class="toc-item"><span class="toc-dot"></span><span class="toc-label">SOURCES</span></a>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">// memory retention science</div>
+      <h1 class="hero-title">Don't <span class="accent">lose</span><br>the cram.</h1>
+      <p class="hero-sub">You loaded it under pressure. Now the science of how memory actually works — and the exact moves that keep it alive instead of watching it evaporate by tomorrow.</p>
+    </div>
+    <div class="hero-right">
+      <p class="hero-graf">Within 24 hours of learning something, you forget <strong>roughly 50–70% of it</strong> if you do nothing. Within a week, that number climbs above 90%.</p>
+      <p class="hero-graf" style="font-size:0.97rem; color:rgba(238,237,246,0.7);">This is Ebbinghaus's Forgetting Curve — documented in 1885 and replicated in 2015. The decay is not random. It is predictable. And it is <strong>almost entirely reversible</strong> with the right interventions at the right times.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-n">~70%</div><div class="hero-stat-l">forgotten in 24hrs</div></div>
+        <div class="hero-stat"><div class="hero-stat-n">50%</div><div class="hero-stat-l">more retained via testing</div></div>
+        <div class="hero-stat"><div class="hero-stat-n">40%</div><div class="hero-stat-l">consolidation lost without sleep</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="rule"></div>
+
+<!-- FORGETTING CURVE -->
+<section id="forgetting">
+  <div class="container">
+    <div class="section-tag">01 — the enemy</div>
+    <h2 class="section-title">The <span class="accent">Forgetting Curve</span> — what's happening right now</h2>
+    <p class="lead">Hermann Ebbinghaus spent years memorizing nonsense syllables and testing his own recall at precise intervals. The decay curve he plotted in 1885 has been replicated with modern participants and holds. You are on it right now.</p>
+
+    <div class="grid-2">
+      <div class="concept-block">
+        <div class="cb-tag">The mechanism</div>
+        <div class="cb-name">Why freshly learned material disappears so fast</div>
+        <div class="cb-body">Memory consolidation is a two-stage process. Initial encoding creates a fragile, hippocampus-dependent trace. Without reinforcement, that trace is not transferred to long-term cortical storage — it decays. The first 24 hours after learning are when the steepest drop occurs. Sleep accelerates consolidation; skipping it leaves the trace especially vulnerable.
+        <div class="cb-rule">You don't forget because you're bad at remembering. You forget because you stopped retrieving.</div></div>
+        <div class="cb-source">Squire & Alvarez, Science, 1995 · Diekelmann & Born, Nat Rev Neurosci, 2010</div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-tag">The shape</div>
+        <div class="cb-name">Forgetting is exponential, not linear</div>
+        <div class="cb-body">The steepest drop happens in the first hour. By 24 hours, roughly 50–70% of newly learned material is inaccessible without cues. By day 7, that figure approaches 90% for passively studied content. <strong>The curve flattens over time</strong> — what survives a week tends to persist much longer. The goal is to survive the initial cliff.
+        <div class="cb-rule">The first 24 hours are the highest-leverage window for intervention.</div></div>
+        <div class="cb-source">Ebbinghaus, 1885 · Murre & Dros replication, PLOS One, 2015</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">The core insight</div>
+      <div class="callout-body">Each successful retrieval attempt <strong>resets and flattens the forgetting curve</strong>. Material that would be 80% gone in a week becomes accessible for months after a single well-timed retrieval. This is why cramming and doing nothing afterward is the worst possible strategy: maximum study cost, minimum retention yield.</div>
+    </div>
+  </div>
+</section>
+
+<!-- RETRIEVAL PRACTICE -->
+<section id="retrieval" class="dark-section">
+  <div class="container">
+    <div class="section-tag">02 — the most important thing</div>
+    <h2 class="section-title">Retrieval Practice — <span style="color:#f5a623">the testing effect</span></h2>
+    <p class="lead">Of all the learning strategies studied in cognitive psychology, retrieval practice has the strongest and most consistent evidence for long-term retention. Not re-reading. Not highlighting. Actively pulling information out of your own memory.</p>
+
+    <div class="grid-3">
+      <div class="dark-card c1">
+        <div class="dc-n">01</div>
+        <div class="dc-name">Recognition vs. Retrieval</div>
+        <div class="dc-body">Reading material and thinking "I know this" is <strong>recognition</strong> — a low-effort, cue-driven process. Producing the answer with no cues is <strong>retrieval</strong>. These are neurologically distinct. Most study methods train recognition. Most exams — and all real-world applications — demand retrieval.
+        </div>
+        <span class="dc-tag">transfer failure</span>
+      </div>
+      <div class="dark-card c2">
+        <div class="dc-n">02</div>
+        <div class="dc-name">The Testing Effect</div>
+        <div class="dc-body">Roediger & Karpicke (2006) showed that students who were tested on material retained <em>approximately 50% more</em> one week later than students who simply restudied — even though the test group spent less total time. The retrieval act itself strengthens the memory trace in a way re-exposure does not.</div>
+        <span class="dc-tag">Roediger & Karpicke, 2006</span>
+      </div>
+      <div class="dark-card c3">
+        <div class="dc-n">03</div>
+        <div class="dc-name">Desirable Difficulty</div>
+        <div class="dc-body">Retrieval only strengthens memory when it is <em>effortful</em>. If the answer comes instantly, the consolidation benefit is minimal. Bjork & Bjork (1992) coined "desirable difficulty" — learning that feels harder in the moment produces better long-term outcomes than learning that feels smooth. The struggle is the mechanism.</div>
+        <span class="dc-tag">Bjork & Bjork, 1992</span>
+      </div>
+      <div class="dark-card c4">
+        <div class="dc-n">04</div>
+        <div class="dc-name">Errors Are Productive</div>
+        <div class="dc-body">Attempting retrieval, getting it wrong, then correcting — produces <strong>better retention than getting it right effortlessly</strong>. The error creates a prediction-correction signal that drives deeper encoding. Kornell et al. (2009) showed that pretesting before study improves later retention of tested items even compared to direct study.</div>
+        <span class="dc-tag">Kornell et al., 2009</span>
+      </div>
+      <div class="dark-card c5">
+        <div class="dc-n">05</div>
+        <div class="dc-name">The Illusion of Knowing</div>
+        <div class="dc-body">Re-reading feels productive because material feels familiar. Familiarity is not knowledge — it's a feeling. Koriat & Bjork (2005) showed that students who re-read <em>significantly overestimate</em> their test performance compared to students who retrieval-practice. Fluency is a trap that mimics mastery.</div>
+        <span class="dc-tag">Koriat & Bjork, 2005</span>
+      </div>
+      <div class="dark-card c6">
+        <div class="dc-n">06</div>
+        <div class="dc-name">How to Actually Do It</div>
+        <div class="dc-body">Close your notes. Write out everything you can recall on a blank page. Use flashcards with the answer hidden. Do practice problems without looking at examples. Explain the concept out loud to no one. The method doesn't matter much — the constraint does: <strong>no cues before the attempt.</strong></div>
+        <span class="dc-tag">practical</span>
+      </div>
+    </div>
+
+    <div class="qref" style="margin-top: 2rem;">
+      <div class="qref-title">The retrieval practice workflow — do this today</div>
+      <div class="qref-body">
+        <strong>Step 1:</strong> Close your notes or textbook completely.<br>
+        <strong>Step 2:</strong> Write out, from nothing, every concept you can recall from the material. No peeking.<br>
+        <strong>Step 3:</strong> Open your notes. Check what you got right, wrong, and missed entirely.<br>
+        <strong>Step 4:</strong> Study <em>only the gaps.</em> Not the whole thing again.<br>
+        <strong>Step 5:</strong> Repeat in 24 hours, then 3 days, then 7 days.<br><br>
+        This single workflow, done consistently, outperforms every other study strategy in the research literature. It takes less total time than re-reading and produces dramatically better retention.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPACING EFFECT -->
+<section id="spacing" class="surface-section">
+  <div class="container">
+    <div class="section-tag">03 — when to study</div>
+    <h2 class="section-title">The <span class="accent">Spacing Effect</span></h2>
+    <p class="lead">Studying the same material multiple times only works if those sessions are separated in time. Mass practice — everything packed into one session — is one of the least efficient ways to build durable memory.</p>
+
+    <div class="grid-2">
+      <div class="concept-block">
+        <div class="cb-tag">The finding</div>
+        <div class="cb-name">Distributed practice dramatically outperforms massed practice</div>
+        <div class="cb-body">Cepeda et al. (2006) conducted a meta-analysis of 254 studies with over 14,000 participants. <strong>Spaced practice consistently produced higher long-term retention</strong> than massed practice across every subject, age group, and time scale tested. The effect is one of the most robustly replicated findings in all of cognitive psychology.
+        <div class="cb-rule">One hour across three sessions outperforms three consecutive hours in a single sitting.</div></div>
+        <div class="cb-source">Cepeda et al., Psychological Bulletin, 2006</div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-tag">Why it works</div>
+        <div class="cb-name">Spacing forces effortful retrieval — and partial forgetting helps</div>
+        <div class="cb-body">Returning to material after a gap forces you to work harder to retrieve it. That effort is exactly what drives consolidation. If you study immediately after studying, retrieval is too easy to produce a strong memory-strengthening signal. <strong>A little forgetting before the next session is part of the mechanism</strong>, not a problem to avoid.
+        </div>
+        <div class="cb-source">Bjork & Allen, 1970 · Kornell & Bjork, 2008</div>
+      </div>
+    </div>
+
+    <div class="color-card card-blue" style="margin-top: 1.5rem;">
+      <div class="card-label">The optimal gap</div>
+      <div class="card-title">How far apart should your sessions be?</div>
+      <div class="card-body">The optimal spacing interval scales with how long you need to remember the material. Cepeda's research found that for a test in one week, the ideal gap between sessions is about 1–2 days. For a test in a month, about a week between sessions. The general heuristic: <strong>space sessions at roughly 10–20% of the retention interval.</strong> For most students retaining post-exam material, sessions every 1–3 days in the immediate aftermath of initial learning is the practical target.</div>
+    </div>
+
+    <div class="color-card card-teal">
+      <div class="card-label">The schedule for crammed material</div>
+      <div class="card-title">Three sessions to move from fragile to durable</div>
+      <div class="card-body">
+        <strong>Today (within 24 hours):</strong> One retrieval session. Blank page dump, check gaps. This arrests the steepest part of the curve — the most important session.<br><br>
+        <strong>Day 3:</strong> Second retrieval session. Same process, harder this time. That difficulty is expected and productive.<br><br>
+        <strong>Day 7:</strong> Third session. By this point, you have moved the material from fragile short-term traces into durable long-term storage. Three spaced retrievals extend retention from days to months.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERLEAVING -->
+<section id="interleaving">
+  <div class="container">
+    <div class="section-tag">04 — how to practice</div>
+    <h2 class="section-title"><span class="accent">Interleaving</span> — the counterintuitive practice strategy</h2>
+    <p class="lead">Blocked practice (finishing all of topic A before starting topic B) feels productive and shows better short-term performance. Interleaved practice (mixing A, B, and C in random order) feels difficult and shows worse immediate results. It also produces dramatically better retention and transfer weeks later.</p>
+
+    <div class="grid-2" style="margin-top: 1.5rem;">
+      <div class="concept-block">
+        <div class="cb-tag">The research</div>
+        <div class="cb-name">Interleaving improves discrimination and transfer</div>
+        <div class="cb-body">Rohrer & Taylor (2007) showed that students who practiced math problems in interleaved sets scored <strong>twice as high</strong> on tests one month later compared to blocked-practice students — even though the blocked group performed slightly better on immediate tests. The advantage is especially strong for procedural knowledge and problems requiring the student to identify which approach applies.
+        <div class="cb-rule">If practice feels too easy, you're probably blocking. Add mixing.</div></div>
+        <div class="cb-source">Rohrer & Taylor, European Journal of Cognitive Psychology, 2007</div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-tag">Why it works</div>
+        <div class="cb-name">Interleaving forces problem-type identification</div>
+        <div class="cb-body">Blocked practice lets you skip the most important step: figuring out which approach applies to this problem. Once you're "in" topic A, every problem is obviously a topic A problem. Interleaving removes that cue — you have to identify the type before you can solve it, which is exactly what happens on a test or in any real application.
+        </div>
+        <div class="cb-source">Kornell & Bjork, Psychological Science, 2008</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Practical application</div>
+      <div class="callout-body">When doing practice problems: <strong>don't group them by topic.</strong> Shuffle them. When reviewing flashcards, shuffle the deck. When reviewing multiple subjects in one session, alternate between them rather than finishing one before starting the next. The discomfort is the mechanism working. Feeling like it's "not going well" during interleaved practice is actually a sign it's going correctly.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ENCODING DEPTH -->
+<section id="encoding" class="dark-section">
+  <div class="container">
+    <div class="section-tag">05 — making it stick at the source</div>
+    <h2 class="section-title">Encoding Depth — <span style="color:#f5a623">how memories are written</span></h2>
+    <p class="lead">Not all studying produces equally strong memories. The depth at which you process material during initial encoding directly determines how robust and accessible the memory will be later.</p>
+
+    <div class="grid-3">
+      <div class="dark-card c1">
+        <div class="dc-n">01</div>
+        <div class="dc-name">Levels of Processing</div>
+        <div class="dc-body">Craik & Lockhart (1972) found that processing depth at encoding predicts retention. <em>Shallow processing</em> (recognizing surface features) makes weak memories. <em>Deep processing</em> (thinking about meaning, connecting to existing knowledge) produces robust, durable memories. Passive reading is shallow. Generating explanations is deep.</div>
+        <span class="dc-tag">Craik & Lockhart, 1972</span>
+      </div>
+      <div class="dark-card c2">
+        <div class="dc-n">02</div>
+        <div class="dc-name">Elaborative Interrogation</div>
+        <div class="dc-body">Asking "why is this true?" while studying — and generating an answer — significantly improves retention compared to reading the same material passively. The answer doesn't need to be correct; the generation attempt drives deeper encoding. Studies have found 40–50% improvement in recall over passive reading.</div>
+        <span class="dc-tag">Pressley et al., 1992</span>
+      </div>
+      <div class="dark-card c3">
+        <div class="dc-n">03</div>
+        <div class="dc-name">The Generation Effect</div>
+        <div class="dc-body">Information you generate yourself is remembered better than information you passively receive — across dozens of experiments. Slamecka & Graf (1978). Writing summaries in your own words outperforms copying or re-reading. Solving from scratch outperforms reading a worked solution. The act of generating is the encoding mechanism.</div>
+        <span class="dc-tag">Slamecka & Graf, 1978</span>
+      </div>
+      <div class="dark-card c4">
+        <div class="dc-n">04</div>
+        <div class="dc-name">Concrete Examples</div>
+        <div class="dc-body">Abstract concepts held in isolation are poorly retained. Connecting an abstract idea to a concrete, specific example dramatically improves both encoding and retrieval. The example serves as a retrieval hook — a vivid, memorable anchor the abstraction is "attached" to. Generate your own examples, not just the ones in the textbook.</div>
+        <span class="dc-tag">encoding depth</span>
+      </div>
+      <div class="dark-card c5">
+        <div class="dc-n">05</div>
+        <div class="dc-name">The Protégé Effect</div>
+        <div class="dc-body">Explaining material to someone else — or even just <em>preparing</em> to explain it — produces measurably better retention than studying for yourself. Nestojko et al. (2014) showed that students who expected to teach recalled more and organized information more coherently. Teaching forces you to find the gaps passive study misses.</div>
+        <span class="dc-tag">Nestojko et al., 2014</span>
+      </div>
+      <div class="dark-card c6">
+        <div class="dc-n">06</div>
+        <div class="dc-name">Dual Coding</div>
+        <div class="dc-body">Paivio's (1971) dual coding theory: information encoded in both verbal and visual form is more robustly retained than single-channel encoding. Drawing a diagram, sketching a process map, or making spatial concept layouts alongside verbal notes gives memory <strong>two retrieval routes</strong> instead of one — either can unlock the other.</div>
+        <span class="dc-tag">Paivio, 1971</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLEEP AND MEMORY -->
+<section id="sleep">
+  <div class="container">
+    <div class="section-tag">06 — the consolidation window</div>
+    <h2 class="section-title">Sleep &amp; <span class="accent">Memory Consolidation</span></h2>
+    <p class="lead">Sleep is not passive rest. It is when the hippocampus replays newly formed memory traces and transfers them to long-term cortical storage. Skipping it doesn't just make you tired — it closes the consolidation window entirely.</p>
+
+    <div class="grid-2">
+      <div class="concept-block">
+        <div class="cb-tag">Slow-wave sleep</div>
+        <div class="cb-name">Declarative memory consolidation happens here</div>
+        <div class="cb-body">During slow-wave (deep) sleep, the hippocampus replays newly formed memory traces and transfers them to neocortical storage. This "memory replay" has been directly observed in neuroimaging. Declarative knowledge — facts, concepts, procedures — is primarily consolidated during slow-wave sleep, which dominates the first half of the night.
+        <div class="cb-rule">Staying up until 3 AM and sleeping 4 hours sacrifices the second half of slow-wave sleep. Material may not consolidate.</div></div>
+        <div class="cb-source">Stickgold, Nature, 2005 · Diekelmann & Born, Nat Rev Neurosci, 2010</div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-tag">REM sleep</div>
+        <div class="cb-name">Pattern extraction, abstraction, and insight</div>
+        <div class="cb-body">REM sleep — most abundant in the second half of the night — supports a different kind of processing: extracting patterns, forming generalizations, and connecting new material to existing knowledge. Wagner et al. (2004) showed that people who slept before a problem-solving task were <strong>nearly three times more likely to discover a hidden solution strategy</strong>. Understanding, not just recall, is sleep-dependent.
+        </div>
+        <div class="cb-source">Wagner et al., Nature, 2004</div>
+      </div>
+    </div>
+
+    <div class="color-card card-red" style="margin-top: 1.2rem;">
+      <div class="card-label">The hard number</div>
+      <div class="card-title">Missing the first night costs ~40% of consolidation — and you can't get it back</div>
+      <div class="card-body">Walker & Stickgold (2006) documented that sleep deprivation in the <strong>first night after learning produces approximately a 40% deficit in memory consolidation</strong> — and this deficit cannot be fully recovered by subsequent nights of sleep. The consolidation window is time-locked to the first sleep period after encoding. Tonight's sleep is not optional — it is when last night's material either gets stored or doesn't.</div>
+    </div>
+
+    <div class="color-card card-purple">
+      <div class="card-label">The nap option</div>
+      <div class="card-title">Even short sleep drives consolidation — if it hits the right stages</div>
+      <div class="card-body">Mednick et al. (2003) showed that a 90-minute nap containing both slow-wave and REM sleep reversed the performance decline seen after a full day of learning, in some cases producing retention equivalent to a full night. Even a 20-minute Stage 2 nap improves procedural memory. If you can nap today, the value is not the alertness. It is the consolidation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section id="flashcards" class="dark-section">
+  <div class="container">
+    <div class="section-tag">07 — active retrieval practice</div>
+    <h2 class="section-title">Test yourself — <span style="color:#f5a623">tap to flip</span></h2>
+    <p class="lead">This is retrieval practice. Try to produce the answer before flipping. The harder the retrieval feels, the more the attempt is strengthening the memory trace.</p>
+
+    <div class="flashcard-grid">
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Forgetting Curve</div><div class="fc-q">What does Ebbinghaus's curve show, and what is the single action that resets it?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a">Memory follows <strong>exponential decay</strong> — ~50–70% lost in 24 hours without reinforcement, approaching 90% by day 7 for passively studied material. Each successful retrieval attempt <em>resets and flattens the curve</em>, dramatically extending the retention interval. The first 24 hours are the highest-leverage window.</div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Testing Effect</div><div class="fc-q">What did Roediger & Karpicke (2006) find, and what does it mean for how you study?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a">Students who were tested on material retained <strong>~50% more</strong> after one week than students who restudied — even spending less time total. The retrieval act itself strengthens the trace in a way re-exposure doesn't. Implication: <em>replace re-reading with self-testing.</em></div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Spacing Effect</div><div class="fc-q">Why does spacing sessions apart improve retention — even though it feels less productive?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a">Returning after a gap forces <em>effortful retrieval</em>, which is the consolidation signal. Massed practice keeps material too accessible — retrieval is too easy to produce a strong memory trace. <strong>Partial forgetting before the next session is part of the mechanism,</strong> not a problem. The struggle is the point.</div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Interleaving</div><div class="fc-q">Why does interleaved practice produce better long-term results than blocked practice, despite feeling harder?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a">Interleaving forces you to identify <em>which strategy applies</em> before solving — the exact skill tested on exams and in real applications. Blocked practice removes that identification step. Rohrer & Taylor (2007): interleaved students scored <strong>2× higher</strong> on tests one month later despite lower immediate performance.</div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Sleep & Memory</div><div class="fc-q">What happens to consolidation if you skip the first night of sleep after learning?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a">Walker & Stickgold (2006): first-night sleep deprivation causes <strong>~40% deficit in memory consolidation</strong> — and subsequent nights do not fully recover this loss. The window is <em>time-locked</em> to the first sleep after encoding. It cannot be postponed. Tonight's sleep is when last night's material either gets stored or doesn't.</div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div><div class="fc-label">Generation Effect</div><div class="fc-q">What is the generation effect, and how does it change how you should take notes?</div></div>
+            <div class="fc-hint">tap to flip</div>
+          </div>
+          <div class="fc-back">
+            <div><div class="fc-label">Answer</div><div class="fc-a"><strong>The generation effect:</strong> self-generated information is retained better than passively received information (Slamecka & Graf, 1978). In practice: write summaries in your own words, not copied text. Attempt problems from scratch before looking at solutions. Generate your own examples for abstract concepts. The act of generating is the encoding mechanism.</div></div>
+            <div class="fc-hint">tap to flip back</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 2.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 2rem 2.2rem;">
+      <div class="dc-n">How to use this document correctly</div>
+      <div class="dc-name">The right way is uncomfortable. That's the point.</div>
+      <div class="dc-body" style="font-size: 0.95rem; line-height: 2.0;">
+        Every time you open this document: <strong>close it first.</strong> Try to retrieve each section's core idea from memory. Then open it and check. Do not read through it as a refresher — that's passive recognition, and it won't help you tomorrow.<br><br>
+        The schedule: <em>Today. Day 3. Day 7.</em> Three sessions moves material from fragile to durable. The sessions don't need to be long — 15–20 minutes of genuine retrieval practice outperforms an hour of rereading.<br><br>
+        Prioritize the sections that were hardest to retrieve just now. That's where the retention gains are concentrated.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section id="sources">
+  <div class="container">
+    <div class="section-tag">08 — sources</div>
+    <h2 class="section-title">Where this comes from</h2>
+    <p class="lead">Every claim in this guide is drawn from peer-reviewed cognitive psychology and memory science research.</p>
+
+    <div style="margin-top: 1rem;">
+      <div class="source-row">
+        <span class="source-badge">Original</span>
+        <div class="source-text"><strong>Ebbinghaus, H.</strong> — Über das Gedächtnis (Memory: A Contribution to Experimental Psychology), 1885. Original forgetting curve and spacing effect from self-experiments on nonsense syllable memorization.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Replication</span>
+        <div class="source-text"><strong>Murre & Dros</strong> — Replication and Analysis of Ebbinghaus' Forgetting Curve. <em>PLOS One, 2015.</em> Modern replication confirming exponential forgetting with 222 participants using Ebbinghaus's original methodology.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Testing Effect</span>
+        <div class="source-text"><strong>Roediger & Karpicke</strong> — Test-enhanced learning: Taking memory tests improves long-term retention. <em>Psychological Science, 2006.</em> Foundational study showing ~50% retention advantage for retrieval practice over restudying at one-week delay.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Spacing</span>
+        <div class="source-text"><strong>Cepeda, Pashler, Vul, Wixted & Rohrer</strong> — Distributed practice in verbal recall tasks: A review and quantitative synthesis. <em>Psychological Bulletin, 2006.</em> Meta-analysis of 254 studies, 14,000+ participants confirming superiority of spaced over massed practice.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Desirable Difficulty</span>
+        <div class="source-text"><strong>Bjork & Bjork</strong> — A new theory of disuse and an old theory of stimulus fluctuation. <em>In A.F. Healy, S.M. Kosslyn & R.M. Shiffrin (Eds.), From learning processes to cognitive processes, 1992.</em> Introduced the concept of desirable difficulties; effortful retrieval as consolidation mechanism.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Interleaving</span>
+        <div class="source-text"><strong>Rohrer & Taylor</strong> — The shuffling of mathematics problems improves learning. <em>Instructional Science, 2007.</em> Demonstrated 2× test performance one month later for interleaved vs. blocked math practice.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Interleaving</span>
+        <div class="source-text"><strong>Kornell & Bjork</strong> — Learning concepts and categories: Is spacing the "enemy of induction"? <em>Psychological Science, 2008.</em> Extended the interleaving advantage to category learning and concept discrimination.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Encoding Depth</span>
+        <div class="source-text"><strong>Craik & Lockhart</strong> — Levels of processing: A framework for memory research. <em>Journal of Verbal Learning and Verbal Behavior, 1972.</em> Established that depth of semantic processing at encoding determines memory durability.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Generation</span>
+        <div class="source-text"><strong>Slamecka & Graf</strong> — The generation effect: Delineation of a phenomenon. <em>Journal of Experimental Psychology: Human Learning and Memory, 1978.</em> Self-generated information retained consistently better than passively received information across experimental conditions.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Errors</span>
+        <div class="source-text"><strong>Kornell, Hays & Bjork</strong> — Unsuccessful retrieval attempts enhance subsequent learning. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 2009.</em> Failed retrieval followed by correction produces better retention than direct study.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Teaching Effect</span>
+        <div class="source-text"><strong>Nestojko, Bui, Kornell & Bjork</strong> — Expecting to teach enhances learning and organization of knowledge. <em>Memory & Cognition, 2014.</em> Expecting to teach improved recall and organization versus expecting a test.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Illusion</span>
+        <div class="source-text"><strong>Koriat & Bjork</strong> — Illusions of competence in monitoring one's knowledge during study. <em>Journal of Experimental Psychology: Learning, Memory, and Cognition, 2005.</em> Systematic overconfidence from re-reading; familiarity misidentified as knowledge.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Sleep</span>
+        <div class="source-text"><strong>Stickgold</strong> — Sleep-dependent memory consolidation. <em>Nature, 2005.</em> Comprehensive review of sleep's role in declarative and procedural memory consolidation, including hippocampal replay mechanisms during slow-wave sleep.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Sleep</span>
+        <div class="source-text"><strong>Diekelmann & Born</strong> — The memory function of sleep. <em>Nature Reviews Neuroscience, 2010.</em> Mechanistic review of slow-wave and REM sleep's separate and complementary roles in memory consolidation.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">REM & Insight</span>
+        <div class="source-text"><strong>Wagner, Gais, Haider, Verleger & Born</strong> — Sleep inspires insight. <em>Nature, 2004.</em> ~3× higher probability of discovering a hidden problem-solving rule after sleep vs. equivalent wakefulness.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Sleep Loss</span>
+        <div class="source-text"><strong>Walker & Stickgold</strong> — Sleep, memory, and plasticity. <em>Annual Review of Psychology, 2006.</em> ~40% consolidation deficit from first-night deprivation; deficit not fully recovered by subsequent sleep nights.</div>
+      </div>
+      <div class="source-row">
+        <span class="source-badge">Naps</span>
+        <div class="source-text"><strong>Mednick, Nakayama & Stickgold</strong> — Sleep-dependent learning: A nap is as good as a night. <em>Nature Neuroscience, 2003.</em> 90-minute naps containing SWS and REM reversed learning-day performance decline; in some cases matched overnight consolidation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="container">
+    <strong>DONT-LOSE-IT.html</strong> — the science of keeping what you learned<br>
+    retrieve · space · sleep · repeat<br>
+    <span style="opacity: 0.35; font-size: 0.62rem; letter-spacing: 1px;">you already loaded it. don't let it go.</span>
+  </div>
+</footer>
+
+<script>
+const progressLine = document.getElementById('progress-line');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  progressLine.style.width = (scrolled / total * 100) + '%';
+});
+
+const toc = document.getElementById('toc');
+const tocItems = document.querySelectorAll('.toc-item');
+const sections = document.querySelectorAll('section[id]');
+
+window.addEventListener('scroll', () => {
+  toc.classList.toggle('visible', window.scrollY > 200);
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 130) current = s.id; });
+  tocItems.forEach(item => {
+    item.classList.toggle('active', item.getAttribute('href') === '#' + current);
+  });
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.07 });
+document.querySelectorAll('section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
