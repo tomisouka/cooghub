@@ -660,5 +660,16 @@ export const TICKETS = {
       error: "~200KB data, slow startup, out of scope.",
       solution: "All knowledge imports/routes/UI removed.",
     },
+    {
+      id: "F032",
+      title: "tickets.js bundle exclusion — move to dev-log/, load via Express",
+      filed: "2026-03-15",
+      status: "OPEN",
+      section: "DataLayer",
+      component: "src/data/tickets.js / server/upload.js / TicketsPage.jsx",
+      "function": "tickets.js is 663 lines of internal dev tracking that currently ships in the production bundle. Goal: move to dev-log/tickets.js, serve via GET /api/load-tickets (dynamic import in Express), hide Tickets from nav in Tauri/prod, show normally in pnpm dev.",
+      error: "Internal bug tracking exposed in production bundle. Tickets nav item visible in shipped app.",
+      solution: "",
+    },
   ],
 };

@@ -753,6 +753,11 @@
               "type": "content"
             },
             {
+              "file": "./content/assignments/hw3_problems_solutionsAutomata.html",
+              "label": "HW3 Solutions",
+              "type": "content"
+            },
+            {
               "file": "./content/assignments/quiz1_review_solutionsAutomata.html",
               "label": "Quiz 1 Review",
               "type": "content"
@@ -2256,6 +2261,11 @@
         {
           "file": "./content/assignments/hw2_problems_solutionsAutomata.html",
           "label": "HW2 Solutions",
+          "type": "content"
+        },
+        {
+          "file": "./content/assignments/hw3_problems_solutionsAutomata.html",
+          "label": "HW3 Solutions",
           "type": "content"
         },
         {

@@ -1,5 +1,6 @@
 // server/upload.js
 // Run alongside Vite via vite.config.js plugin
+/* eslint-env node */
 // POST /scan         — dry-run zip: validate only, no writes
 // POST /upload       — zip: validate + write + patch subjects.js
 // POST /scan-files   — dry-run loose files: validate only, no writes
@@ -30,7 +31,6 @@ const COURSE_IDS = [
   "algebra", "precalc", "calc1", "calc2", "discrete", "linear", "stats",
 ];
 
-// Course code aliases — common UH COSC/MATH codes map to course IDs
 const COURSE_CODE_ALIASES = {
   "2436": "datastruct",
   "3320": "algos",
@@ -48,11 +48,17 @@ const COURSE_CODE_ALIASES = {
   "3339": "stats",
 };
 
-// ── File routing rules ────────────────────────────────────────────────────────
 const ROUTES = {
   ".pdf": ()         => path.join(ROOT, "public", "pdfs"),
-  ".md":  (courseId) => path.join(ROOT, "src", "content", "subjects", courseId),
-  ".txt": (courseId) => path.join(ROOT, "src", "content", "subjects", courseId),
+  ".md":   (courseId) => path.join(ROOT, "src", "content", "subjects", courseId),
+  ".txt":  (courseId) => path.join(ROOT, "src", "content", "subjects", courseId),
+  ".html": (courseId, filename = "") => {
+    const base = path.basename(filename).toLowerCase();
+    const isAssignment = /hw\d|quiz|exam|practice|review|solution/i.test(base);
+    return isAssignment
+      ? path.join(ROOT, "src", "content", "assignments")
+      : path.join(ROOT, "src", "content", "subjects", courseId);
+  },
   ".cpp": (courseId) => path.join(ROOT, "src", "content", "code", courseId),
   ".py":  (courseId) => path.join(ROOT, "src", "content", "code", courseId),
   ".c":   (courseId) => path.join(ROOT, "src", "content", "code", courseId),
@@ -63,18 +69,14 @@ const ROUTES = {
 
 const ALLOWED_EXTS = new Set(Object.keys(ROUTES));
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function sha256(buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
 function detectCourse(filename) {
   const lower = filename.toLowerCase();
-  // Direct course ID match
   const direct = COURSE_IDS.find(id => lower.includes(id));
   if (direct) return direct;
-  // Course code alias match (e.g. "3320" → "algos")
   for (const [code, courseId] of Object.entries(COURSE_CODE_ALIASES)) {
     if (lower.includes(code)) return courseId;
   }
@@ -86,17 +88,14 @@ function existingHash(filepath) {
   return sha256(fs.readFileSync(filepath));
 }
 
-// ── Validate a single file ────────────────────────────────────────────────────
 function validate(name, buffer, zipName = "") {
   const base = path.basename(name);
   const ext  = path.extname(base).toLowerCase();
 
   if (base.startsWith("__") || base.startsWith(".") || name.includes("__MACOSX"))
     return { status: "skip", reason: "System file" };
-
   if (name.endsWith("/"))
     return { status: "skip", reason: "Directory entry" };
-
   if (!ALLOWED_EXTS.has(ext))
     return { status: "rejected", reason: `Unsupported type (${ext || "no extension"})` };
 
@@ -109,7 +108,7 @@ function validate(name, buffer, zipName = "") {
   }
 
   const inferredFrom = detectCourse(base) ? "filename" : "zip name";
-  const destDir      = ROUTES[ext](courseId);
+  const destDir      = ROUTES[ext](courseId, base);
   const destPath     = path.join(destDir, base);
   const incomingHash = sha256(buffer);
   const existHash    = existingHash(destPath);
@@ -124,104 +123,111 @@ function validate(name, buffer, zipName = "") {
   return { status: "ok", courseId, inferredFrom, destPath, ext, hash: incomingHash };
 }
 
-// ── subjects.js auto-patching ─────────────────────────────────────────────────
+const SUBJECTS_JSON_PATH = path.resolve(ROOT, "src", "data", "subjects.json");
 
-const SUBJECTS_PATH = path.resolve(ROOT, "src", "data", "subjects.js");
+// ── JSON helpers ─────────────────────────────────────────────────────────────
 
-function tabForExt(ext) {
+function readSubjects() {
+  return JSON.parse(fs.readFileSync(SUBJECTS_JSON_PATH, "utf8"));
+}
+
+function writeSubjects(json) {
+  fs.writeFileSync(SUBJECTS_JSON_PATH, JSON.stringify(json, null, 2), "utf8");
+}
+
+// Returns every course object that matches courseId (may appear in DEPARTMENTS and ALL_COURSES)
+function findCourses(json, courseId) {
+  const found = [];
+  for (const dept of (json.DEPARTMENTS || [])) {
+    for (const c of (dept.courses || [])) {
+      if (c.id === courseId) found.push(c);
+    }
+  }
+  for (const c of (json.ALL_COURSES || [])) {
+    if (c.id === courseId) found.push(c);
+  }
+  return found;
+}
+
+function tabForExt(ext, filename = "") {
   if (ext === ".pdf") return "pdfs";
+  if (ext === ".html") {
+    const isAssignment = /hw\d|quiz|exam|practice|review|solution/i.test(filename);
+    return isAssignment ? "assignments" : "notes";
+  }
   if (ext === ".md" || ext === ".txt") return "notes";
   if ([".cpp", ".py", ".c", ".h", ".js", ".ts"].includes(ext)) return "code";
   return null;
 }
 
-function makeEntry(base, courseId, tab) {
+function makeEntryObj(base, courseId, tab) {
   const label = base.replace(/\.[^.]+$/, "").replace(/[_-]/g, " ");
-  if (tab === "pdfs")  return `{ file: "${base}", label: "${label}" }`;
-  if (tab === "notes") return `{ file: "./content/subjects/${courseId}/${base}", label: "${label}" }`;
-  if (tab === "code")  return `{ path: "./content/code/${courseId}/${base}", label: "${base}" }`;
+  if (tab === "pdfs")        return { file: base, label };
+  if (tab === "notes")       return { file: `./content/subjects/${courseId}/${base}`, label };
+  if (tab === "assignments") return { file: `./content/assignments/${base}`, label, type: "content" };
+  if (tab === "code")        return { file: `./content/code/${courseId}/${base}`, label };
   return null;
 }
 
 function patchSubjects(base, courseId, tab, group = "") {
-  const entryObj = makeEntry(base, courseId, tab);
-  if (!entryObj) return;
+  const entry = makeEntryObj(base, courseId, tab);
+  if (!entry) return;
 
-  let src = fs.readFileSync(SUBJECTS_PATH, "utf8");
+  const json = readSubjects();
+  const courses = findCourses(json, courseId);
+  if (!courses.length) return;
 
-  const courseIdx = src.indexOf(`id: "${courseId}"`);
-  if (courseIdx === -1) return;
+  for (const course of courses) {
+    if (!Array.isArray(course[tab])) course[tab] = [];
+    const tabArr = course[tab];
 
-  const tabIdx = src.indexOf(`${tab}: [`, courseIdx);
-  if (tabIdx === -1) return;
+    // Already registered?
+    const alreadyFlat = tabArr.some(i => (i.file || i.path) === (entry.file || entry.path));
+    const alreadyChild = tabArr.some(i => i.type === "group" && (i.children || []).some(ch => (ch.file || ch.path) === (entry.file || entry.path)));
+    if (alreadyFlat || alreadyChild) continue;
 
-  // Walk brackets to find the tab array closing ]
-  let depth = 0, closeIdx = -1;
-  for (let i = tabIdx + tab.length + 3 - 1; i < src.length; i++) {
-    if (src[i] === "[") depth++;
-    if (src[i] === "]") { depth--; if (depth === 0) { closeIdx = i; break; } }
-  }
-  if (closeIdx === -1) return;
-
-  // Already registered? (idempotent)
-  if (src.slice(tabIdx, closeIdx).includes(`"${base}"`)) return;
-
-  if (group && group.trim()) {
-    const groupLabel  = group.trim();
-    const groupMarker = `label: "${groupLabel}"`;
-    const groupIdx    = src.indexOf(groupMarker, tabIdx);
-
-    if (groupIdx !== -1 && groupIdx < closeIdx) {
-      // Group exists — append inside its children array
-      const childrenIdx = src.indexOf("children: [", groupIdx);
-      if (childrenIdx !== -1 && childrenIdx < closeIdx) {
-        let cd = 0, childClose = -1;
-        for (let i = childrenIdx + 10; i < src.length; i++) {
-          if (src[i] === "[") cd++;
-          if (src[i] === "]") { if (cd === 0) { childClose = i; break; } cd--; }
-        }
-        if (childClose !== -1) {
-          const entry = `\n            ${entryObj},`;
-          src = src.slice(0, childClose) + entry + "\n          " + src.slice(childClose);
-          fs.writeFileSync(SUBJECTS_PATH, src, "utf8");
-          console.log(`  ✓ subjects.js patched: ${courseId}.${tab}["${groupLabel}"] <- ${base}`);
-          return;
-        }
+    if (group && group.trim()) {
+      const g = tabArr.find(i => i.type === "group" && i.label === group.trim());
+      if (g) {
+        g.children = g.children || [];
+        g.children.push(entry);
+      } else {
+        tabArr.push({ type: "group", label: group.trim(), children: [entry] });
       }
+    } else {
+      tabArr.push(entry);
     }
-
-    // Group doesn't exist — create it
-    const groupBlock =
-      `\n          { type: "group", label: "${groupLabel}", children: [\n` +
-      `            ${entryObj},\n` +
-      `          ] },`;
-    src = src.slice(0, closeIdx) + groupBlock + "\n        " + src.slice(closeIdx);
-  } else {
-    // Flat insert
-    const entry = `\n          ${entryObj},`;
-    src = src.slice(0, closeIdx) + entry + "\n        " + src.slice(closeIdx);
   }
 
-  fs.writeFileSync(SUBJECTS_PATH, src, "utf8");
-  console.log(`  ✓ subjects.js patched: ${courseId}.${tab}${group ? `["${group}"]` : ""} <- ${base}`);
+  writeSubjects(json);
+  console.log(`  ✓ subjects.json patched: ${courseId}.${tab}${group ? `["${group}"]` : ""} <- ${base}`);
 }
 
-// ── Apply a single validated result ──────────────────────────────────────────
-function applyResult(result, buffer, ext, base, groupLabels) {
+function applyResult(result, buffer, ext, base, groupLabels, tabOverrides = {}) {
+  const tabOverride = tabOverrides[base];
   if (result.status === "ok" || result.status === "conflict") {
+    if (tabOverride && tabOverride !== tabForExt(ext, base)) {
+      const newDest = tabOverride === "assignments"
+        ? path.join(ROOT, "src", "content", "assignments")
+        : tabOverride === "references"
+          ? path.join(ROOT, "public", "references")
+          : path.join(ROOT, "src", "content", "subjects", result.courseId);
+      fs.mkdirSync(newDest, { recursive: true });
+      fs.writeFileSync(path.join(newDest, base), buffer);
+      patchSubjects(base, result.courseId, tabOverride, groupLabels[base] || "");
+      return;
+    }
     fs.mkdirSync(path.dirname(result.destPath), { recursive: true });
     fs.writeFileSync(result.destPath, buffer);
-    const tab = tabForExt(ext);
+    const tab = tabForExt(ext, base);
     if (tab) patchSubjects(base, result.courseId, tab, groupLabels[base] || "");
   } else if (result.status === "duplicate") {
-    // File already on disk — just make sure it's registered in subjects.js
-    const tab = tabForExt(ext);
+    const tab = tabOverride || tabForExt(ext, base);
     if (tab) patchSubjects(base, result.courseId, tab, groupLabels[base] || "");
   }
 }
 
-// ── Process zip ───────────────────────────────────────────────────────────────
-async function processZip(zipBuffer, zipName = "", apply = false, groupLabels = {}, renames = {}) {
+async function processZip(zipBuffer, zipName = "", apply = false, groupLabels = {}, renames = {}, tabOverrides = {}) {
   const zip     = await JSZip.loadAsync(zipBuffer);
   const results = [];
 
@@ -229,13 +235,11 @@ async function processZip(zipBuffer, zipName = "", apply = false, groupLabels = 
     if (entry.dir) continue;
     const buffer      = await entry.async("nodebuffer");
     const originalBase = path.basename(name);
-    const base        = renames[originalBase] || originalBase;  // apply rename if present
+    const base        = renames[originalBase] || originalBase;
     const fext        = path.extname(base).toLowerCase();
     const result      = validate(base, buffer, zipName);
-
     results.push({ filename: base, originalFilename: originalBase, path: name, size: buffer.length, ...result });
-
-    if (apply) applyResult(result, buffer, fext, base, groupLabels);
+    if (apply) applyResult(result, buffer, fext, base, groupLabels, tabOverrides);
   }
 
   const summary = {
@@ -254,8 +258,7 @@ async function processZip(zipBuffer, zipName = "", apply = false, groupLabels = 
   return { results, summary, needsReindex };
 }
 
-// ── Process loose files ───────────────────────────────────────────────────────
-async function processFiles(files, apply = false, groupLabels = {}, renames = {}) {
+async function processFiles(files, apply = false, groupLabels = {}, renames = {}, tabOverrides = {}) {
   const results = [];
 
   for (const file of files) {
@@ -264,10 +267,8 @@ async function processFiles(files, apply = false, groupLabels = {}, renames = {}
     const fext         = path.extname(base).toLowerCase();
     const buffer       = file.buffer;
     const result       = validate(base, buffer, "");
-
     results.push({ filename: base, originalFilename: originalBase, path: base, size: buffer.length, ...result });
-
-    if (apply) applyResult(result, buffer, fext, base, groupLabels);
+    if (apply) applyResult(result, buffer, fext, base, groupLabels, tabOverrides);
   }
 
   const summary = {
@@ -286,33 +287,41 @@ async function processFiles(files, apply = false, groupLabels = {}, renames = {}
   return { results, summary, needsReindex };
 }
 
-// ── Express app ───────────────────────────────────────────────────────────────
+function removeFromIndex(basename) {
+  const indexPath = path.join(ROOT, "public", "pdf-index.json");
+  if (!fs.existsSync(indexPath)) return;
+  try {
+    const raw = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    const entries = Array.isArray(raw) ? raw : (raw.indexed ?? []);
+    const filtered = entries.filter(e => path.basename(e.file || "") !== basename);
+    if (filtered.length === entries.length) return;
+    const out = Array.isArray(raw) ? filtered : { ...raw, indexed: filtered };
+    fs.writeFileSync(indexPath, JSON.stringify(out), "utf8");
+    console.log(`  ✓ removed from index: ${basename}`);
+  } catch (err) {
+    console.warn(`  ⚠ could not update pdf-index.json: ${err.message}`);
+  }
+}
+
 const app    = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200 * 1024 * 1024 } });
 
 app.use(express.json());
 
-// ── POST /rescan-file — re-validate a single file under a new name ─────────────
-// Body: { originalName, newName }
-// Returns the same shape as a single scan result entry (no file bytes needed).
 app.post("/rescan-file", express.json(), (req, res) => {
   const { originalName, newName } = req.body;
   if (!originalName || !newName) return res.status(400).json({ error: "Missing originalName or newName" });
   try {
     const base = path.basename(newName);
     const fext = path.extname(base).toLowerCase();
-
     if (!ALLOWED_EXTS.has(fext))
       return res.json({ status: "rejected", reason: `Unsupported type (${fext || "no extension"})`, filename: newName, courseId: null, ext: fext });
-
     const courseId = detectCourse(base);
     if (!courseId)
       return res.json({ status: "rejected", reason: `No course ID found. Include one of: ${COURSE_IDS.join(", ")}`, filename: newName, courseId: null, ext: fext });
-
-    const destDir  = ROUTES[fext](courseId);
+    const destDir  = ROUTES[fext](courseId, base);
     const destPath = path.join(destDir, base);
     const exists   = fs.existsSync(destPath);
-
     res.json({
       filename: newName,
       status: exists ? "conflict" : "ok",
@@ -336,9 +345,10 @@ app.post("/scan", upload.single("zip"), async (req, res) => {
 app.post("/upload", upload.single("zip"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No zip provided" });
   try {
-    const groupLabels = req.body.groupLabels ? JSON.parse(req.body.groupLabels) : {};
-    const renames     = req.body.renames     ? JSON.parse(req.body.renames)     : {};
-    const data = await processZip(req.file.buffer, req.file.originalname, true, groupLabels, renames);
+    const groupLabels  = req.body.groupLabels  ? JSON.parse(req.body.groupLabels)  : {};
+    const tabOverrides = req.body.tabOverrides ? JSON.parse(req.body.tabOverrides) : {};
+    const renames      = req.body.renames      ? JSON.parse(req.body.renames)      : {};
+    const data = await processZip(req.file.buffer, req.file.originalname, true, groupLabels, renames, tabOverrides);
     if (data.needsReindex) triggerReindex();
     res.json(data);
   }
@@ -357,97 +367,157 @@ app.post("/scan-files", upload.array("files"), async (req, res) => {
 app.post("/upload-files", upload.array("files"), async (req, res) => {
   if (!req.files?.length) return res.status(400).json({ error: "No files provided" });
   try {
-    const groupLabels = req.body.groupLabels ? JSON.parse(req.body.groupLabels) : {};
-    const renames     = req.body.renames     ? JSON.parse(req.body.renames)     : {};
-    const data = await processFiles(req.files, true, groupLabels, renames);
+    const groupLabels  = req.body.groupLabels  ? JSON.parse(req.body.groupLabels)  : {};
+    const tabOverrides = req.body.tabOverrides ? JSON.parse(req.body.tabOverrides) : {};
+    const renames      = req.body.renames      ? JSON.parse(req.body.renames)      : {};
+    const data = await processFiles(req.files, true, groupLabels, renames, tabOverrides);
     if (data.needsReindex) triggerReindex();
     res.json(data);
   }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── GET /groups — return existing group labels for a course+tab ───────────────
 app.get("/groups", (req, res) => {
   const { courseId, tab } = req.query;
   if (!courseId || !tab) return res.status(400).json({ error: "Missing courseId or tab" });
   try {
-    const src       = fs.readFileSync(SUBJECTS_PATH, "utf8");
-    const courseIdx = src.indexOf(`id: "${courseId}"`);
-    if (courseIdx === -1) return res.json({ groups: [] });
-    const tabIdx = src.indexOf(`${tab}: [`, courseIdx);
-    if (tabIdx === -1) return res.json({ groups: [] });
-
-    let depth = 0, closeIdx = -1;
-    for (let i = tabIdx + tab.length + 3 - 1; i < src.length; i++) {
-      if (src[i] === "[") depth++;
-      if (src[i] === "]") { depth--; if (depth === 0) { closeIdx = i; break; } }
-    }
-    if (closeIdx === -1) return res.json({ groups: [] });
-
-    const tabSrc = src.slice(tabIdx, closeIdx);
-    const groups = [];
-    const re = /type:\s*"group"[^}]*label:\s*"([^"]+)"/g;
-    let m;
-    while ((m = re.exec(tabSrc)) !== null) groups.push(m[1]);
-
+    const json = readSubjects();
+    const courses = findCourses(json, courseId);
+    if (!courses.length) return res.json({ groups: [] });
+    const tabArr = courses[0][tab] || [];
+    const groups = tabArr.filter(i => i.type === "group").map(i => i.label);
     res.json({ groups });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── removeFromIndex — strip a filename from pdf-index.json if present ─────────
-function removeFromIndex(basename) {
-  const indexPath = path.join(ROOT, "public", "pdf-index.json");
-  if (!fs.existsSync(indexPath)) return;
+app.post("/reorder", express.json(), (req, res) => {
+  const { courseId, tab, items } = req.body;
+  if (!courseId || !tab || !Array.isArray(items))
+    return res.status(400).json({ error: "Missing courseId, tab, or items" });
   try {
-    const raw = JSON.parse(fs.readFileSync(indexPath, "utf8"));
-    const entries = Array.isArray(raw) ? raw : (raw.indexed ?? []);
-    const filtered = entries.filter(e => path.basename(e.file || "") !== basename);
-    if (filtered.length === entries.length) return; // nothing to remove
-    const out = Array.isArray(raw) ? filtered : { ...raw, indexed: filtered };
-    fs.writeFileSync(indexPath, JSON.stringify(out), "utf8");
-    console.log(`  ✓ removed from index: ${basename}`);
-  } catch (err) {
-    console.warn(`  ⚠ could not update pdf-index.json: ${err.message}`);
-  }
-}
+    const json = readSubjects();
+    const courses = findCourses(json, courseId);
+    if (!courses.length) return res.status(404).json({ error: `Course ${courseId} not found` });
 
-// ── DELETE /file — remove a single file entry from subjects.js + disk ─────────
+    // Rebuild tab array from incoming items (flat format from frontend)
+    function buildTab(incomingItems, currentTab) {
+      // Preserve empty groups that aren't in incoming items
+      const incomingGroupLabels = new Set(
+        incomingItems.flatMap(it => it.group ? [it.group] : it.type === "group" ? [it.label] : [])
+      );
+      const emptyGroups = (currentTab || []).filter(
+        e => e.type === "group" && !(e.children || []).length && !incomingGroupLabels.has(e.label)
+      );
+
+      const groupMap = new Map();
+      for (const item of incomingItems) {
+        if (item.group && !item._emptyGroup && (item.file || item.filePath)) {
+          if (!groupMap.has(item.group)) groupMap.set(item.group, []);
+          groupMap.get(item.group).push({ file: item.file || item.filePath, label: item.label, ...(item.type && item.type !== "group" ? { type: item.type } : {}) });
+        }
+      }
+
+      const out = [];
+      const emitted = new Set();
+      for (const item of incomingItems) {
+        if (item.type === "group") {
+          if (emitted.has(item.label)) continue;
+          emitted.add(item.label);
+          const children = groupMap.get(item.label) || item.children || [];
+          out.push({ type: "group", label: item.label, children });
+        } else if (item._emptyGroup && item.group) {
+          if (emitted.has(item.group)) continue;
+          emitted.add(item.group);
+          out.push({ type: "group", label: item.group, children: [] });
+        } else if (item.group) {
+          if (emitted.has(item.group)) continue;
+          emitted.add(item.group);
+          out.push({ type: "group", label: item.group, children: groupMap.get(item.group) || [] });
+        } else if (!item._emptyGroup && (item.file || item.filePath)) {
+          out.push({ file: item.file || item.filePath, label: item.label, ...(item.type ? { type: item.type } : {}) });
+        }
+      }
+      for (const eg of emptyGroups) {
+        if (!emitted.has(eg.label)) out.push({ type: "group", label: eg.label, children: [] });
+      }
+      return out;
+    }
+
+    for (const course of courses) {
+      course[tab] = buildTab(items, course[tab]);
+    }
+
+    writeSubjects(json);
+    console.log(`  ✓ reordered: ${courseId}.${tab} (${items.length} items)`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.post("/add-section", express.json(), (req, res) => {
+  const { courseId, tab, label } = req.body;
+  if (!courseId || !tab || !label?.trim())
+    return res.status(400).json({ error: "Missing courseId, tab, or label" });
+  const groupLabel = label.trim();
+  try {
+    const json = readSubjects();
+    const courses = findCourses(json, courseId);
+    if (!courses.length) return res.status(404).json({ error: `Course ${courseId} not found` });
+
+    for (const course of courses) {
+      if (!Array.isArray(course[tab])) course[tab] = [];
+      if (course[tab].some(x => x.type === "group" && x.label === groupLabel))
+        return res.status(409).json({ error: `Section "${groupLabel}" already exists` });
+      course[tab].push({ type: "group", label: groupLabel, children: [] });
+    }
+
+    writeSubjects(json);
+    console.log(`  ✓ section added: ${courseId}.${tab} -> "${groupLabel}"`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 app.delete("/file", express.json(), async (req, res) => {
   const { courseId, tab, file } = req.body;
   if (!courseId || !tab || !file) return res.status(400).json({ error: "Missing courseId, tab, or file" });
   try {
-    let src = fs.readFileSync(SUBJECTS_PATH, "utf8");
-    const courseIdx = src.indexOf(`id: "${courseId}"`);
-    if (courseIdx === -1) return res.status(404).json({ error: "Course not found" });
-    const tabIdx = src.indexOf(`${tab}: [`, courseIdx);
-    if (tabIdx === -1) return res.status(404).json({ error: "Tab not found" });
+    const json = readSubjects();
+    const courses = findCourses(json, courseId);
+    if (!courses.length) return res.status(404).json({ error: "Course not found" });
 
-    let depth = 0, closeIdx = -1;
-    for (let i = tabIdx + tab.length + 3 - 1; i < src.length; i++) {
-      if (src[i] === "[") depth++;
-      if (src[i] === "]") { depth--; if (depth === 0) { closeIdx = i; break; } }
+    let found = false;
+    for (const course of courses) {
+      if (!Array.isArray(course[tab])) continue;
+      const before = JSON.stringify(course[tab]);
+      course[tab] = course[tab].map(item => {
+        if (item.type === "group") {
+          return { ...item, children: (item.children || []).filter(ch => (ch.file || ch.path) !== file) };
+        }
+        if ((item.file || item.path) === file) { found = true; return null; }
+        return item;
+      }).filter(Boolean);
+      // also check if file was in a group child
+      if (!found && JSON.stringify(course[tab]) !== before) found = true;
     }
-    if (closeIdx === -1) return res.status(500).json({ error: "Could not find tab array end" });
 
-    const before   = src.slice(0, tabIdx);
-    const tabSrc   = src.slice(tabIdx, closeIdx + 1);
-    const after    = src.slice(closeIdx + 1);
-    const escaped  = file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const lineRe   = new RegExp(`(?:file|path):\\s*"${escaped}"`);
-    const lines    = tabSrc.split("\n");
-    const filtered = lines.filter(line => !lineRe.test(line));
+    if (!found) return res.status(404).json({ error: "Entry not found in subjects.json" });
 
-    if (filtered.length === lines.length)
-      return res.status(404).json({ error: "Entry not found in subjects.js" });
+    writeSubjects(json);
 
-    fs.writeFileSync(SUBJECTS_PATH, before + filtered.join("\n") + after, "utf8");
-
-    const fext = path.extname(file).toLowerCase();
-    const dest = ROUTES[fext] ? path.join(ROUTES[fext](courseId), path.basename(file)) : null;
+    // Delete from disk
+    const fext     = path.extname(file).toLowerCase();
+    const basename = path.basename(file);
+    const destDir  = ROUTES[fext] ? ROUTES[fext](courseId, basename) : null;
+    const dest     = destDir ? path.join(destDir, basename) : null;
     if (dest && fs.existsSync(dest)) fs.unlinkSync(dest);
-    if (fext === ".pdf") removeFromIndex(path.basename(file));
+    if (fext === ".pdf") removeFromIndex(basename);
 
     console.log(`  ✓ deleted: ${courseId}.${tab} -> ${file}`);
     res.json({ ok: true });
@@ -456,48 +526,39 @@ app.delete("/file", express.json(), async (req, res) => {
   }
 });
 
-// ── DELETE /group — remove an entire group block from subjects.js + disk ──────
+
 app.delete("/group", express.json(), async (req, res) => {
   const { courseId, tab, label } = req.body;
   if (!courseId || !tab || !label) return res.status(400).json({ error: "Missing courseId, tab, or label" });
   try {
-    let src = fs.readFileSync(SUBJECTS_PATH, "utf8");
-    const courseIdx = src.indexOf(`id: "${courseId}"`);
-    if (courseIdx === -1) return res.status(404).json({ error: "Course not found" });
-    const tabIdx = src.indexOf(`${tab}: [`, courseIdx);
-    if (tabIdx === -1) return res.status(404).json({ error: "Tab not found" });
+    const json = readSubjects();
+    const courses = findCourses(json, courseId);
+    if (!courses.length) return res.status(404).json({ error: "Course not found" });
 
-    const groupMarker = `label: "${label}"`;
-    const groupIdx    = src.indexOf(groupMarker, tabIdx);
-    if (groupIdx === -1) return res.status(404).json({ error: "Group not found" });
+    let found = false;
+    for (const course of courses) {
+      if (!Array.isArray(course[tab])) continue;
+      const group = course[tab].find(i => i.type === "group" && i.label === label);
+      if (!group) continue;
+      found = true;
 
-    let openBrace = groupIdx;
-    while (openBrace > tabIdx && src[openBrace] !== "{") openBrace--;
+      // Delete files on disk that belong to this group
+      for (const child of (group.children || [])) {
+        const f       = child.file || child.path || "";
+        const fext    = path.extname(f).toLowerCase();
+        const base    = path.basename(f);
+        const destDir = ROUTES[fext] ? ROUTES[fext](courseId, base) : null;
+        const dest    = destDir ? path.join(destDir, base) : null;
+        if (dest && fs.existsSync(dest)) fs.unlinkSync(dest);
+        if (fext === ".pdf") removeFromIndex(base);
+      }
 
-    let depth = 0, closeBrace = -1;
-    for (let i = openBrace; i < src.length; i++) {
-      if (src[i] === "{") depth++;
-      if (src[i] === "}") { depth--; if (depth === 0) { closeBrace = i; break; } }
-    }
-    if (closeBrace === -1) return res.status(500).json({ error: "Could not find group end" });
-
-    let end = closeBrace + 1;
-    if (src[end] === ",") end++;
-    if (src[end] === "\n") end++;
-
-    const groupSrc = src.slice(openBrace, closeBrace + 1);
-    const fileRe   = /(?:file|path):\s*"([^"]+)"/g;
-    let match;
-    while ((match = fileRe.exec(groupSrc)) !== null) {
-      const f    = match[1];
-      const fext = path.extname(f).toLowerCase();
-      const dest = ROUTES[fext] ? path.join(ROUTES[fext](courseId), path.basename(f)) : null;
-      if (dest && fs.existsSync(dest)) fs.unlinkSync(dest);
-      if (fext === ".pdf") removeFromIndex(path.basename(f));
+      course[tab] = course[tab].filter(i => !(i.type === "group" && i.label === label));
     }
 
-    fs.writeFileSync(SUBJECTS_PATH, src.slice(0, openBrace) + src.slice(end), "utf8");
+    if (!found) return res.status(404).json({ error: "Group not found" });
 
+    writeSubjects(json);
     console.log(`  ✓ deleted group: ${courseId}.${tab}["${label}"]`);
     res.json({ ok: true });
   } catch (err) {
@@ -505,13 +566,13 @@ app.delete("/group", express.json(), async (req, res) => {
   }
 });
 
-// ── POST /register-orphan — register an already-on-disk file into subjects.js ──
+
 app.post("/register-orphan", express.json(), (req, res) => {
   const { filename, courseId } = req.body;
   if (!filename || !courseId) return res.status(400).json({ error: "Missing filename or courseId" });
   try {
     const ext = path.extname(filename).toLowerCase();
-    const tab = tabForExt(ext);
+    const tab = tabForExt(ext, filename);
     if (!tab) return res.status(400).json({ error: `No tab mapping for extension ${ext}` });
     patchSubjects(filename, courseId, tab, "");
     console.log(`  ✓ registered orphan: ${courseId}.${tab} <- ${filename}`);
@@ -521,13 +582,12 @@ app.post("/register-orphan", express.json(), (req, res) => {
   }
 });
 
-// ── DELETE /orphan — delete an unregistered file from disk ───────────────────
 app.delete("/orphan", express.json(), (req, res) => {
   const { filename } = req.body;
   if (!filename) return res.status(400).json({ error: "Missing filename" });
   try {
     const pdfDir = path.join(ROOT, "public", "pdfs");
-    const target = path.join(pdfDir, path.basename(filename)); // basename prevents path traversal
+    const target = path.join(pdfDir, path.basename(filename));
     if (!fs.existsSync(target)) return res.status(404).json({ error: "File not found on disk" });
     fs.unlinkSync(target);
     removeFromIndex(path.basename(filename));
@@ -538,11 +598,9 @@ app.delete("/orphan", express.json(), (req, res) => {
   }
 });
 
-// ── POST /rename-orphan — rename an unregistered file on disk ────────────────
 app.post("/rename-orphan", express.json(), (req, res) => {
   const { filename, newName } = req.body;
   if (!filename || !newName) return res.status(400).json({ error: "Missing filename or newName" });
-  // Validate: no path separators, must end in .pdf, reasonable length
   if (/[/\\]/.test(newName)) return res.status(400).json({ error: "newName must not contain path separators" });
   if (!newName.toLowerCase().endsWith(".pdf")) return res.status(400).json({ error: "newName must end in .pdf" });
   if (newName.length > 200) return res.status(400).json({ error: "newName too long" });
@@ -560,49 +618,53 @@ app.post("/rename-orphan", express.json(), (req, res) => {
   }
 });
 
-// ── GET /orphans — files on disk not registered in subjects.js ────────────────
 app.get("/orphans", (req, res) => {
   try {
-    const src     = fs.readFileSync(SUBJECTS_PATH, "utf8");
+    const json    = readSubjects();
     const pdfDir  = path.join(ROOT, "public", "pdfs");
     const orphans = [];
-
     if (!fs.existsSync(pdfDir)) return res.json({ orphans: [] });
 
-    const files = fs.readdirSync(pdfDir).filter(f => f.endsWith(".pdf"));
-    for (const file of files) {
-      // Check if this filename appears anywhere in subjects.js
-      if (!src.includes(`"${file}"`)) {
-        const courseId = detectCourse(file) ?? "unknown";
-        const size     = fs.statSync(path.join(pdfDir, file)).size;
-        orphans.push({ filename: file, courseId, size, status: "hidden", reason: "On disk but not registered in subjects.js" });
+    // Collect all registered PDF filenames from subjects.json
+    const registered = new Set();
+    for (const course of (json.ALL_COURSES || [])) {
+      for (const item of (course.pdfs || [])) {
+        if (item.type === "group") {
+          for (const ch of (item.children || [])) if (ch.file) registered.add(path.basename(ch.file));
+        } else if (item.file) {
+          registered.add(path.basename(item.file));
+        }
       }
     }
 
+    const files = fs.readdirSync(pdfDir).filter(f => f.endsWith(".pdf"));
+    for (const file of files) {
+      if (!registered.has(file)) {
+        const courseId = detectCourse(file) ?? "unknown";
+        const size     = fs.statSync(path.join(pdfDir, file)).size;
+        orphans.push({ filename: file, courseId, size, status: "hidden", reason: "On disk but not registered in subjects.json" });
+      }
+    }
     res.json({ orphans });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── GET /inventory — full file overview grouped by course → tab → subsection ──
 app.get("/inventory", (req, res) => {
   try {
-    const src       = fs.readFileSync(SUBJECTS_PATH, "utf8");
     const pdfDir    = path.join(ROOT, "public", "pdfs");
     const indexPath = path.join(ROOT, "public", "pdf-index.json");
 
-    // 1. Indexed PDFs
     const indexed = new Set();
     if (fs.existsSync(indexPath)) {
       try {
         const idx     = JSON.parse(fs.readFileSync(indexPath, "utf8"));
         const entries = Array.isArray(idx) ? idx : (idx.indexed ?? []);
         for (const e of entries) if (e.file) indexed.add(path.basename(e.file));
-      } catch {}
+      } catch {} // eslint-disable-line no-empty
     }
 
-    // 2. Disk stats for pdfs
     const onDisk = new Map();
     if (fs.existsSync(pdfDir)) {
       for (const f of fs.readdirSync(pdfDir).filter(f => f.endsWith(".pdf"))) {
@@ -611,146 +673,50 @@ app.get("/inventory", (req, res) => {
       }
     }
 
-    // 3. Walk subjects.js — parse course blocks and all tab types
-    //    Tabs tracked: notes, references, gopal, assignments, code, pdfs
-    const TAB_KEYS = ["notes", "references", "gopal", "assignments", "code", "pdfs"];
-
-    // Identify course blocks by scanning for `id: "..."` lines, then extract
-    // each tab array by bracket-walking the source text.
-    function extractTabArray(src, courseStart, courseEnd, tabKey) {
-      const region  = src.slice(courseStart, courseEnd);
-      const marker  = `${tabKey}: [`;
-      const tabIdx  = region.indexOf(marker);
-      if (tabIdx === -1) return null;
-
-      const absStart = courseStart + tabIdx + marker.length - 1; // points to '['
-      let depth = 0, close = -1;
-      for (let i = absStart; i < courseStart + courseEnd - courseStart; i++) {
-        if (src[i] === "[") depth++;
-        if (src[i] === "]") { depth--; if (depth === 0) { close = i; break; } }
-      }
-      if (close === -1) return null;
-      return src.slice(absStart, close + 1);
-    }
-
-    // Parse a tab array string into flat items with optional group label
-    function parseTabItems(tabSrc, tabKey) {
-      if (!tabSrc) return [];
-      const items = [];
-
-      // Find all group blocks first
-      const groupRe = /\{\s*type:\s*["']group["'][^}]*label:\s*["']([^"']+)["'][^}]*children:\s*\[/g;
-      let gm;
-      const groups = [];
-      while ((gm = groupRe.exec(tabSrc)) !== null) {
-        const groupLabel = gm[1];
-        const childStart = gm.index + gm[0].length - 1; // points to '['
-        let depth = 0, childClose = -1;
-        for (let i = childStart; i < tabSrc.length; i++) {
-          if (tabSrc[i] === "[") depth++;
-          if (tabSrc[i] === "]") { depth--; if (depth === 0) { childClose = i; break; } }
-        }
-        if (childClose !== -1) {
-          groups.push({ label: groupLabel, start: gm.index, end: childClose + 2, childSrc: tabSrc.slice(childStart + 1, childClose) });
-        }
-      }
-
-      // Extract items inside each group
-      for (const g of groups) {
-        const childItems = extractItems(g.childSrc, tabKey, g.label);
-        items.push(...childItems);
-      }
-
-      // Extract top-level items (not inside a group)
-      // Build a mask of characters that are inside group blocks
-      const masked = tabSrc.split("");
-      for (const g of groups) {
-        for (let i = g.start; i < Math.min(g.end, tabSrc.length); i++) masked[i] = " ";
-      }
-      const flatSrc = masked.join("");
-      items.push(...extractItems(flatSrc, tabKey, null));
-
-      return items;
-    }
-
-    function extractItems(src, tabKey, groupLabel) {
-      const items = [];
-      // Match object literals: { file/path: "...", label: "..." }
-      const objRe = /\{([^{}]*)\}/g;
-      let m;
-      while ((m = objRe.exec(src)) !== null) {
-        const obj = m[1];
-        const fileM  = obj.match(/(?:file|path):\s*["']([^"']+)["']/);
-        const labelM = obj.match(/label:\s*["']([^"']+)["']/);
-        if (!fileM) continue;
-        const filePath = fileM[1];
-        const filename = path.basename(filePath);
-        const label    = labelM ? labelM[1] : filename;
-        items.push({ filename, filePath, label, tab: tabKey, group: groupLabel });
-      }
-      return items;
-    }
-
-    // Walk courses
     const courses = [];
-    const courseRe = /\bid:\s*["']([^"']+)["']/g;
-    // Also grab label
-    const allCourseIds = [];
-    {
-      const idRe = /\bid:\s*["']([^"']+)["']/g;
-      let m;
-      while ((m = idRe.exec(src)) !== null) allCourseIds.push({ id: m[1], pos: m.index });
-    }
+    if (fs.existsSync(SUBJECTS_JSON_PATH)) {
+      const sjson = JSON.parse(fs.readFileSync(SUBJECTS_JSON_PATH, "utf8"));
+      const TAB_KEYS = ["notes", "references", "gopal", "assignments", "code", "pdfs"];
 
-    // Filter to only course-level ids (inside DEPARTMENTS courses array)
-    // Heuristic: preceded by a line with "color:" within 300 chars — good enough
-    const depStart = src.indexOf("export const DEPARTMENTS");
-    if (depStart === -1) return res.status(500).json({ error: "DEPARTMENTS not found in subjects.js" });
+      for (const course of (sjson.ALL_COURSES || [])) {
+        const tabs = {};
+        for (const tabKey of TAB_KEYS) {
+          const tabItems = course[tabKey];
+          if (!Array.isArray(tabItems)) continue;
 
-    const courseStarts = [];
-    const courseIdRe = /\bid:\s*["']([^"']+)["']/g;
-    courseIdRe.lastIndex = depStart;
-    let cm;
-    while ((cm = courseIdRe.exec(src)) !== null) {
-      // Check there's a "label:" within the next 200 chars — confirms it's a course object
-      const ahead = src.slice(cm.index, cm.index + 300);
-      if (ahead.includes("label:") && ahead.includes("courseCode:")) {
-        courseStarts.push({ id: cm[1], start: cm.index });
-      }
-    }
-
-    for (let i = 0; i < courseStarts.length; i++) {
-      const { id, start } = courseStarts[i];
-      const end = i + 1 < courseStarts.length ? courseStarts[i + 1].start : src.length;
-
-      // Get label
-      const labelM = src.slice(start, start + 200).match(/label:\s*["']([^"']+)["']/);
-      const label  = labelM ? labelM[1] : id;
-
-      const tabs = {};
-      for (const tabKey of TAB_KEYS) {
-        const tabSrc = extractTabArray(src, start, end, tabKey);
-        if (tabSrc) {
-          const items = parseTabItems(tabSrc, tabKey);
-          if (items.length > 0) {
-            // Enrich pdf items with disk + index info
-            tabs[tabKey] = items.map(item => {
-              const base = item.filename;
+          const enriched = [];
+          for (const item of tabItems) {
+            if (item.type === "group") {
+              const validChildren = (item.children || []).filter(c => c.file || c.path);
+              if (validChildren.length > 0) {
+                for (const child of validChildren) {
+                  const base = path.basename(child.file || child.path || "");
+                  const extra = tabKey === "pdfs"
+                    ? { size: onDisk.get(base)?.size ?? null, mtime: onDisk.get(base)?.mtime ?? null, indexed: indexed.has(base) }
+                    : {};
+                  enriched.push({ filename: base, filePath: child.file || child.path, label: child.label, tab: tabKey, group: item.label, ...(child.type ? { type: child.type } : {}), ...extra });
+                }
+              } else {
+                enriched.push({ filename: null, filePath: null, label: null, tab: tabKey, group: item.label, _emptyGroup: true });
+              }
+            } else if (item.file || item.path) {
+              const base = path.basename(item.file || item.path || "");
               const extra = tabKey === "pdfs"
                 ? { size: onDisk.get(base)?.size ?? null, mtime: onDisk.get(base)?.mtime ?? null, indexed: indexed.has(base) }
                 : {};
-              return { ...item, ...extra };
-            });
+              enriched.push({ filename: base, filePath: item.file || item.path, label: item.label, tab: tabKey, group: null, ...(item.type ? { type: item.type } : {}), ...extra });
+            }
           }
-        }
-      }
 
-      if (Object.keys(tabs).length > 0) {
-        courses.push({ id, label, tabs });
+          if (enriched.length > 0) tabs[tabKey] = enriched;
+        }
+
+        if (Object.keys(tabs).length > 0) {
+          courses.push({ id: course.id, label: course.label, tabs });
+        }
       }
     }
 
-    // 4. Orphan PDFs — on disk but not in any course's pdfs tab
     const registeredPdfs = new Set(
       courses.flatMap(c => (c.tabs.pdfs || []).map(f => f.filename))
     );
@@ -767,12 +733,10 @@ app.get("/inventory", (req, res) => {
       }
     }
 
-    // 5. Unindexed — registered PDFs not in pdf-index.json
     const unindexed = courses
       .flatMap(c => (c.tabs.pdfs || []).map(f => ({ ...f, courseId: c.id })))
       .filter(f => !f.indexed);
 
-    // Legacy registered flat list (still used by modal header count)
     const registered = courses.flatMap(c =>
       Object.values(c.tabs).flat().map(f => ({ ...f, courseId: c.id }))
     );
@@ -783,26 +747,16 @@ app.get("/inventory", (req, res) => {
   }
 });
 
-// ── POST /api/index-file — run reindex and wait for completion ───────────────
 app.post("/index-file", express.json(), (req, res) => {
   const script = path.join(ROOT, "scripts", "index-pdfs.js");
-
-  // Try pnpm first, fall back to node directly.
-  // We pass --force via env var since argv isn't available in all spawn modes.
   const env = { ...process.env, FORCE_REINDEX: "1" };
-
-  // Use node with the project root as cwd so package.json "type":"module" is respected
   const child = spawn(process.execPath, [script, "--force"], {
     cwd: ROOT,
     stdio: ["ignore", "pipe", "pipe"],
     env,
   });
-
-  let stdout = "";
   let stderr = "";
-  child.stdout?.on("data", d => { stdout += d.toString(); });
   child.stderr?.on("data", d => { stderr += d.toString(); });
-
   child.on("close", code => {
     if (code === 0) {
       res.json({ ok: true, message: "Reindex complete — PDFs are now searchable" });
@@ -811,13 +765,11 @@ app.post("/index-file", express.json(), (req, res) => {
       res.status(500).json({ error: `Reindex failed (exit ${code})`, detail: stderr.slice(0, 400) });
     }
   });
-
   child.on("error", err => {
     res.status(500).json({ error: err.message });
   });
 });
 
-// ── List journal entries ──────────────────────────────────────────
 app.get("/list-entries", async (req, res) => {
   const dir = path.join(ROOT, "src", "content", "talk2me", "entries");
   try {
@@ -838,7 +790,6 @@ app.get("/list-entries", async (req, res) => {
   }
 });
 
-// ── Delete journal entry ──────────────────────────────────────────
 app.delete("/delete-entry", express.json(), async (req, res) => {
   const { filename } = req.body;
   if (!filename) return res.status(400).json({ error: "filename required" });
@@ -852,7 +803,6 @@ app.delete("/delete-entry", express.json(), async (req, res) => {
   }
 });
 
-// ── Read journal entry ────────────────────────────────────────────
 app.get("/read-entry", async (req, res) => {
   const { filename } = req.query;
   if (!filename) return res.status(400).json({ error: "filename required" });
@@ -866,21 +816,15 @@ app.get("/read-entry", async (req, res) => {
   }
 });
 
-// ── Save journal entry ────────────────────────────────────────────
 app.post("/save-entry", express.json(), async (req, res) => {
   const { filename, content, courseId } = req.body;
   if (!filename || !content) {
     return res.status(400).json({ error: "filename and content are required" });
   }
-
-  // Sanitize filename — no path traversal
-  const safe = path.basename(filename).replace(/[^a-z0-9_\-\.]/gi, "_");
-
-  // Destination: entries folder for journal, or course notes folder
+  const safe = path.basename(filename).replace(/[^a-z0-9_\-.]/gi, "_");
   const dest = courseId
     ? path.join(ROOT, "src", "content", "subjects", courseId)
     : path.join(ROOT, "src", "content", "talk2me", "entries");
-
   try {
     await fs.promises.mkdir(dest, { recursive: true });
     await fs.promises.writeFile(path.join(dest, safe), content, "utf8");
@@ -890,7 +834,6 @@ app.post("/save-entry", express.json(), async (req, res) => {
   }
 });
 
-// ── Save any data file ───────────────────────────────────────────────
 app.post("/save-data-file", express.json({ limit: "5mb" }), async (req, res) => {
   const { filename, content } = req.body;
   if (!filename || content === undefined) return res.status(400).json({ error: "filename and content required" });
@@ -903,7 +846,6 @@ app.post("/save-data-file", express.json({ limit: "5mb" }), async (req, res) => 
   }
 });
 
-// ── Load any data file ───────────────────────────────────────────────
 app.get("/load-data-file", async (req, res) => {
   const { filename } = req.query;
   if (!filename) return res.status(400).json({ error: "filename required" });
@@ -916,7 +858,20 @@ app.get("/load-data-file", async (req, res) => {
   }
 });
 
-// ── Save deadlines.js ─────────────────────────────────────────────
+app.get("/load-tickets", async (req, res) => {
+  const ticketsPath = path.join(ROOT, "dev-log", "tickets.js");
+  if (!fs.existsSync(ticketsPath)) {
+    return res.json({ TICKETS: {}, TODO_ITEMS: [] });
+  }
+  try {
+    const mod = await import(`${ticketsPath}?t=${Date.now()}`);
+    res.json({ TICKETS: mod.TICKETS || {}, TODO_ITEMS: mod.TODO_ITEMS || [] });
+  } catch (err) {
+    console.error("  ⚠ load-tickets import error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/save-deadlines", express.json({ limit: "2mb" }), async (req, res) => {
   const { content } = req.body;
   if (!content) return res.status(400).json({ error: "content required" });
@@ -929,12 +884,11 @@ app.post("/save-deadlines", express.json({ limit: "2mb" }), async (req, res) => 
   }
 });
 
-// ── Save memory.js ────────────────────────────────────────────────
 app.post("/save-memory", express.json({ limit: "2mb" }), async (req, res) => {
   const { content } = req.body;
   if (!content) return res.status(400).json({ error: "content required" });
   try {
-    const target = path.join(ROOT, "src", "data", "memory.js");
+    const target = path.join(ROOT, "src", "data", "memory-deadlines.js");
     await fs.promises.writeFile(target, content, "utf8");
     res.json({ ok: true });
   } catch (err) {
@@ -942,4 +896,17 @@ app.post("/save-memory", express.json({ limit: "2mb" }), async (req, res) => {
   }
 });
 
-export { app };
+app.post("/save-progress", express.json({ limit: "2mb" }), async (req, res) => {
+  const { content } = req.body;
+  if (!content) return res.status(400).json({ error: "content required" });
+  try {
+    const target = path.join(ROOT, "src", "data", "memory-progress.js");
+    await fs.promises.writeFile(target, content, "utf8");
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export { app }
+;

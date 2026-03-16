@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coogs Hub — Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,700;0,900;1,700&display=swap');
+
+  :root {
+    --bg:      #0b0d12;
+    --surface: #111318;
+    --border:  #1e2230;
+    --border2: #2a2e3a;
+    --text:    #c8d0e0;
+    --dim:     #4a5568;
+    --dim2:    #7a8490;
+    --done:    #34d399;
+    --partial: #e8c547;
+    --active:  #7eb8f7;
+    --next:    #fb923c;
+    --upcoming:#3a4052;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 60px 40px 120px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .header {
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 32px;
+  }
+
+  .header .eyebrow {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: #eef0f6;
+    line-height: 1.0;
+    letter-spacing: -2px;
+    margin-bottom: 14px;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--partial);
+  }
+
+  .header .meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .header .meta span {
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  .header .meta strong { color: var(--dim2); }
+
+  /* ── Summary bar ── */
+  .summary {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 100px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+
+  .stat .n {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat .l {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .phase {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .phase-dot-col {
+    width: 41px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .phase.done     .dot { background: var(--done);    border-color: var(--done); }
+  .phase.partial  .dot { background: var(--bg);      border-color: var(--partial); box-shadow: 0 0 0 3px #e8c54720; }
+  .phase.active   .dot { background: var(--active);  border-color: var(--active); box-shadow: 0 0 8px #7eb8f766; }
+  .phase.next     .dot { background: var(--bg);      border-color: var(--next); }
+  .phase.upcoming .dot { background: var(--bg);      border-color: var(--upcoming); }
+
+  .phase-card {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+  }
+
+  .phase.done     .phase-card { border-color: #34d39918; }
+  .phase.partial  .phase-card { border-color: #e8c54720; }
+  .phase.active   .phase-card { border-color: #7eb8f720; }
+  .phase.next     .phase-card { border-color: #fb923c20; }
+  .phase.upcoming .phase-card { opacity: 0.45; }
+
+  .phase-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .phase-num {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.5px;
+  }
+
+  .chip {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .phase.done     .chip { color: var(--done);    background: #34d39915; border: 1px solid #34d39930; }
+  .phase.partial  .chip { color: var(--partial); background: #e8c54715; border: 1px solid #e8c54730; }
+  .phase.active   .chip { color: var(--active);  background: #7eb8f715; border: 1px solid #7eb8f730; }
+  .phase.next     .chip { color: var(--next);    background: #fb923c15; border: 1px solid #fb923c30; }
+  .phase.upcoming .chip { color: var(--upcoming);background: transparent; border: 1px solid var(--border2); }
+
+  .phase-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #eef0f6;
+    margin-bottom: 8px;
+    font-family: 'Fraunces', serif;
+    letter-spacing: -0.3px;
+  }
+
+  .phase.upcoming .phase-title { color: var(--dim2); }
+
+  .phase-summary {
+    font-size: 11px;
+    color: var(--dim2);
+    line-height: 1.85;
+    margin-bottom: 0;
+  }
+
+  .phase-steps {
+    margin-top: 12px;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .phase-steps li {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.7;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .phase-steps li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--border2);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    margin-top: 20px;
+    color: var(--dim);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Coogs Hub · Internal</div>
+  <h1>Road<em>map</em></h1>
+  <div class="meta">
+    <span>Updated <strong>2026-03-15</strong></span>
+    <span>Phase <strong>9b partial</strong></span>
+    <span>Next <strong>Phase 10 — Database</strong></span>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="stat"><div class="n" style="color:var(--done)">7</div><div class="l">Done</div></div>
+  <div class="stat"><div class="n" style="color:var(--partial)">3</div><div class="l">Partial</div></div>
+  <div class="stat"><div class="n" style="color:var(--next)">3</div><div class="l">Next</div></div>
+  <div class="stat"><div class="n" style="color:var(--upcoming)">2</div><div class="l">Upcoming</div></div>
+</div>
+
+<div class="timeline">
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 1</span><span class="chip">Done</span></div>
+      <div class="phase-title">Content Transfer</div>
+      <div class="phase-summary">All notes, markdown, HTML refs, code files, PDFs, and assignments wired into the app.</div>
+    </div>
+  </div>
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 2</span><span class="chip">Done</span></div>
+      <div class="phase-title">Component Split</div>
+      <div class="phase-summary">App broken into pages, components, and data files. Routing, search, and glob registry established.</div>
+    </div>
+  </div>
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 3</span><span class="chip">Done</span></div>
+      <div class="phase-title">Knowledge Base Extraction</div>
+      <div class="phase-summary">~4,100 entries extracted from HTML references into structured JS — languages, math, CS core, Linux.</div>
+    </div>
+  </div>
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 4</span><span class="chip">Done</span></div>
+      <div class="phase-title">App Rebuild &amp; UI Overhaul</div>
+      <div class="phase-summary">Dept/course hierarchy, CoursePage tabs, DeptPage layouts, font overhaul, mobile support.</div>
+    </div>
+  </div>
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 5</span><span class="chip">Done</span></div>
+      <div class="phase-title">PDF Viewer</div>
+      <div class="phase-summary">PDF.js viewer wired. OS textbook live. Remaining course PDFs pending.</div>
+    </div>
+  </div>
+
+  <div class="phase partial">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 6</span><span class="chip">Partial</span></div>
+      <div class="phase-title">Search Improvements</div>
+      <div class="phase-summary">Full-text search across notes, code, and talk2me. Knowledge base and PDF search not yet wired.</div>
+    </div>
+  </div>
+
+  <div class="phase done">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 7</span><span class="chip">Done</span></div>
+      <div class="phase-title">JSX → Data Audit</div>
+      <div class="phase-summary">All multi-consumer and DB-bound constants extracted from JSX into src/data/. roadmap.js, tabs.js, uiConfig.js created.</div>
+    </div>
+  </div>
+
+  <div class="phase partial">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 8</span><span class="chip">Partial</span></div>
+      <div class="phase-title">Runtime Content Sync — Detection Only</div>
+      <div class="phase-summary">Manifest generator built. App detects content changes on launch via SyncThing + manifest diff. Currently only notifies — does NOT download or serve new files. Android 16 external storage permissions block full implementation. Actual file delivery requires a self-hosted server (Phase 8b).</div>
+    </div>
+  </div>
+
+  <div class="phase next">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 8b</span><span class="chip">Next</span></div>
+      <div class="phase-title">Self-Hosted Content Server</div>
+      <div class="phase-summary">Host notes, references, and PDFs on a self-hosted server. App fetches new/changed files directly over HTTPS on launch — no APK rebuild needed for content updates. Manifest drives delta downloads. Files cached locally in app storage.</div>
+    </div>
+  </div>
+
+  <div class="phase partial">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 9</span><span class="chip">Partial</span></div>
+      <div class="phase-title">Desktop App — V1</div>
+      <div class="phase-summary">Tauri app built and installed on both machines (kaneki + kusuo). Deadlines and ProgressPage persist across sessions via file-based Rust commands. SyncThing keeps both machines in sync.</div>
+      <ul class="phase-steps">
+        <li>Tauri binary built and installed on both machines</li>
+        <li>Custom Rust commands: load_memory, save_deadlines, save_progress, list_entries, read_entry, save_entry, delete_entry</li>
+        <li>Project path registered to ~/.coogshub_path by Vite plugin</li>
+        <li>Browser fallback via Express /api/save-memory + /api/save-progress</li>
+        <li>Remaining: Talk2Me entries not yet verified end-to-end in Tauri</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase next">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 9b</span><span class="chip">Next</span></div>
+      <div class="phase-title">Desktop App — Persistence Layer</div>
+      <div class="phase-summary">Talk2Me entries working in browser via Express. Rust commands implemented. End-to-end Tauri verification pending — entries sidebar may not load in installed binary.</div>
+      <ul class="phase-steps">
+        <li>Verify list_entries, read_entry, save_entry, delete_entry in installed Tauri binary</li>
+        <li>Any other stateful pages follow the same pattern</li>
+        <li>Verify both machines stay in sync after a full session</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase next">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 10</span><span class="chip">Next</span></div>
+      <div class="phase-title">Database</div>
+      <div class="phase-summary">SQLite via rusqlite (Rust) + better-sqlite3 (Express). Single DB at ~/.coogshub/coogs.db. Replaces file-based persistence for deadlines, skill levels, Talk2Me entries, and eventually the file registry. See db-roadmap.html for full plan.</div>
+      <ul class="phase-steps">
+        <li>Engine: rusqlite in Tauri, better-sqlite3 in Express</li>
+        <li>Schema: courses, files, skill_levels, skill_log, deadlines, talk2me_entries</li>
+        <li>Seed from subjects.js — one-time migration, no data loss</li>
+        <li>Replace memory-*.js file writes with DB upserts</li>
+        <li>Track per-file reads, bookmarks, sync log</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase upcoming">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 11</span><span class="chip">Upcoming</span></div>
+      <div class="phase-title">Frontend Polish</div>
+      <div class="phase-summary">Design system, CSS vars, loading skeletons, flashcard modes, dark/light toggle.</div>
+    </div>
+  </div>
+
+  <div class="phase upcoming">
+    <div class="phase-dot-col"><div class="dot"></div></div>
+    <div class="phase-card">
+      <div class="phase-meta"><span class="phase-num">Phase 12</span><span class="chip">Upcoming</span></div>
+      <div class="phase-title">Android APK</div>
+      <div class="phase-summary">Capacitor build, self-signed APK, biometric lock, local PDF bundle, sideload to Samsung.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>dev-log/roadmap.html · not imported by app · internal reference only</span>
+  <span>Coogs Hub · 2026</span>
+</div>
+
+</body>
+</html>

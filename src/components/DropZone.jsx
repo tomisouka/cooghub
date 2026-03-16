@@ -15,8 +15,12 @@ const EXT_ICON = {
   ".h": "⌥", ".js": "⌥", ".ts": "⌥",
 };
 
-function extToTab(e) {
+function extToTab(e, filename = "") {
   if (e === ".pdf") return "pdfs";
+  if (e === ".html") {
+    const isAssignment = /hw\d|quiz|exam|practice|review|solution/i.test(filename);
+    return isAssignment ? "assignments" : "notes";
+  }
   if (e === ".md" || e === ".txt") return "notes";
   if ([".cpp", ".py", ".c", ".h", ".js", ".ts"].includes(e)) return "code";
   return null;
@@ -46,12 +50,13 @@ function Badge({ status }) {
   );
 }
 
-function FileRow({ item, idx, groupLabel, onGroupLabel, showGroupInput, suggestions, onRename }) {
+function FileRow({ item, idx, groupLabel, onGroupLabel, showGroupInput, suggestions, onRename, tabOverride, onTabOverride }) {
   const e    = ext(item.filename);
   const icon = EXT_ICON[e] || "◌";
   const dim  = item.status === "skip" || item.status === "duplicate";
   const canGroup  = showGroupInput && (item.status === "ok" || item.status === "conflict");
   const canRename = showGroupInput && !dim;
+  const showTabPicker = canGroup && e === ".html";
   const [focused,   setFocused]   = useState(false);
   const [renaming,  setRenaming]  = useState(false);
   const [draftName, setDraftName] = useState(item.filename);
@@ -140,6 +145,27 @@ function FileRow({ item, idx, groupLabel, onGroupLabel, showGroupInput, suggesti
           </div>
         )}
 
+        {/* Tab picker for .html files */}
+        {showTabPicker && (
+          <div style={{ display: "flex", gap: 4, marginTop: 5 }}>
+            {["notes", "assignments", "references"].map(t => (
+              <button
+                key={t}
+                onClick={() => onTabOverride?.(item.filename, t)}
+                style={{
+                  padding: "2px 8px", borderRadius: 4, border: "1px solid",
+                  fontSize: 9, fontFamily: "'Courier New', monospace",
+                  letterSpacing: "0.5px", textTransform: "uppercase", cursor: "pointer",
+                  background: tabOverride === t ? "#e8c54722" : "transparent",
+                  borderColor: tabOverride === t ? "#e8c547" : "#2a2e38",
+                  color: tabOverride === t ? "#e8c547" : "#4a5060",
+                  transition: "all 0.1s",
+                }}
+              >{t}</button>
+            ))}
+          </div>
+        )}
+
         {/* Subsection group input */}
         {canGroup && (
           <div style={{ position: "relative" }}>
@@ -225,6 +251,7 @@ export default function DropZone({ open, onOpen, onClose }) {
   const [zipName, setZipName]          = useState("");
   const [groupLabels, setGroupLabels]           = useState({});
   const [groupSuggestions, setGroupSuggestions] = useState({});
+  const [tabOverrides, setTabOverrides]         = useState({}); // filename → tab override for .html
   const [renames, setRenames]                   = useState({}); // originalName → newName
   const [orphans, setOrphans]                   = useState([]);
   const fileRef     = useRef(null);
@@ -315,7 +342,7 @@ export default function DropZone({ open, onOpen, onClose }) {
       const combos = new Set();
       data.results.forEach(r => {
         if (r.courseId && r.ext) {
-          const tab = extToTab(r.ext);
+          const tab = extToTab(r.ext, r.filename);
           if (tab) combos.add(`${r.courseId}:${tab}`);
         }
       });
@@ -325,7 +352,7 @@ export default function DropZone({ open, onOpen, onClose }) {
           const res2 = await fetch(`/api/groups?courseId=${courseId}&tab=${tab}`);
           const d    = await res2.json();
           if (d.groups?.length) setGroupSuggestions(prev => ({ ...prev, [key]: d.groups }));
-        } catch {}
+        } catch (err) { void err; }
       });
     } catch (err) {
       setErrorMsg(err.message);
@@ -344,20 +371,20 @@ export default function DropZone({ open, onOpen, onClose }) {
         const form = new FormData();
         form.append("zip", files[0]);
         form.append("groupLabels", JSON.stringify(groupLabels));
+        form.append("tabOverrides", JSON.stringify(tabOverrides));
         form.append("renames", JSON.stringify(renames));
         const res = await fetch("/api/upload", { method: "POST", body: form });
         data = await res.json();
         if (!res.ok) throw new Error(data.error || "Upload failed");
       } else {
         const form = new FormData();
-        // Apply renames directly on the File object so the server validates
-        // and saves under the intended name — course detection runs on the new name.
         files.forEach(f => {
           const targetName = renames[f.name] || f.name;
           const fileToSend = targetName !== f.name ? new File([f], targetName, { type: f.type }) : f;
           form.append("files", fileToSend);
         });
         form.append("groupLabels", JSON.stringify(groupLabels));
+        form.append("tabOverrides", JSON.stringify(tabOverrides));
         const res = await fetch("/api/upload-files", { method: "POST", body: form });
         data = await res.json();
         if (!res.ok) throw new Error(data.error || "Upload failed");
@@ -384,6 +411,7 @@ export default function DropZone({ open, onOpen, onClose }) {
     setDragOver(true);
   }
 
+  // eslint-disable-next-line no-unused-vars
   const canApply = phase === "scanned" && summary && (summary.added + summary.conflicts) > 0;
 
   // Recompute summary live from current results so renames that flip REJECTED→ok are reflected
@@ -450,7 +478,7 @@ export default function DropZone({ open, onOpen, onClose }) {
               {dragOver ? "Release to scan" : "Drag & drop files here"}
             </div>
             <div style={{ color: "#3e4452", fontSize: 11 }}>or click to browse — zip, pdf, md, cpp, py, c…</div>
-            <input ref={fileRef} type="file" accept=".zip,.pdf,.md,.txt,.cpp,.py,.c,.h,.js,.ts" multiple style={{ display: "none" }} onChange={e => handleFiles(e.target.files)} />
+            <input ref={fileRef} type="file" accept=".zip,.pdf,.md,.txt,.html,.cpp,.py,.c,.h,.js,.ts" multiple style={{ display: "none" }} onChange={e => handleFiles(e.target.files)} />
           </div>
         )}
 
@@ -480,7 +508,6 @@ export default function DropZone({ open, onOpen, onClose }) {
                 <button
                   onClick={async () => {
                     try {
-                      const form = new FormData();
                       // Fetch the file from disk via a blob fetch trick isn't possible server-side,
                       // so we use a dedicated register endpoint
                       const res = await fetch("/api/register-orphan", {
@@ -489,7 +516,7 @@ export default function DropZone({ open, onOpen, onClose }) {
                         body: JSON.stringify({ filename: o.filename, courseId: o.courseId }),
                       });
                       if (res.ok) setOrphans(prev => prev.filter(x => x.filename !== o.filename));
-                    } catch {}
+                    } catch (err) { void err; }
                   }}
                   style={{
                     fontFamily: "'Courier New', monospace", fontSize: 10, padding: "4px 12px",
@@ -530,8 +557,10 @@ export default function DropZone({ open, onOpen, onClose }) {
                 showGroupInput={phase === "scanned"}
                 groupLabel={groupLabels[r.filename] || ""}
                 onGroupLabel={(filename, val) => setGroupLabels(prev => ({ ...prev, [filename]: val }))}
-                suggestions={r.courseId && r.ext ? (groupSuggestions[`${r.courseId}:${extToTab(r.ext)}`] || []) : []}
+                suggestions={r.courseId && r.ext ? (groupSuggestions[`${r.courseId}:${extToTab(r.ext, r.filename)}`] || []) : []}
                 onRename={handleRename}
+                tabOverride={tabOverrides[r.filename] || extToTab(r.ext, r.filename)}
+                onTabOverride={(filename, val) => setTabOverrides(prev => ({ ...prev, [filename]: val }))}
               />
             ))}
           </div>

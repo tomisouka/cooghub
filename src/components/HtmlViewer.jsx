@@ -6,11 +6,21 @@ function HtmlViewer({ ref_, BASE }) {
   const isContent = ref_.file.startsWith("./content/");
 
   useEffect(() => {
-    if (!isContent) { setHtmlContent(null); return; }
+    let cancelled = false;
+    if (!isContent) {
+      Promise.resolve(null).then(v => { if (!cancelled) setHtmlContent(v); });
+      return () => { cancelled = true; };
+    }
     const loader = htmlFiles[ref_.file];
-    if (!loader) { setHtmlContent(""); return; }
-    loader().then(setHtmlContent).catch(() => setHtmlContent(""));
-  }, [ref_.file]);
+    if (!loader) {
+      Promise.resolve("").then(v => { if (!cancelled) setHtmlContent(v); });
+      return () => { cancelled = true; };
+    }
+    loader()
+      .then(v => { if (!cancelled) setHtmlContent(v); })
+      .catch(() => { if (!cancelled) setHtmlContent(""); });
+    return () => { cancelled = true; };
+  }, [ref_.file, isContent]);
 
   return (
     <>
@@ -41,6 +51,5 @@ function HtmlViewer({ ref_, BASE }) {
     </>
   );
 }
-
 
 export default HtmlViewer;

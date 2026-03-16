@@ -73,7 +73,9 @@ function IframeWithLoader({ src, title, visible }) {
   const [loaded, setLoaded] = useState(false);
 
   // Reset loaded state when src changes (new page selected)
-  useEffect(() => { setLoaded(false); }, [src]);
+  useEffect(() => {
+    Promise.resolve(false).then(v => setLoaded(v));
+  }, [src]);
 
   return (
     <div style={{ position: "absolute", inset: 0, display: visible ? "block" : "none" }}>
@@ -105,18 +107,18 @@ function IframeWithLoader({ src, title, visible }) {
 export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   const { getCourse, TABS, FLASHCARD_SETS } = useData();
   const course = getCourse(courseId);
-  if (!course) return null;
 
-  const availableTabs = TABS.filter(t => {
+  // Compute these before hooks so they can be used as initial state
+  const availableTabs = course ? TABS.filter(t => {
     if (t.id === "overview")   return !!course.overview;
     if (t.id === "flashcards") return !!course.flashcards;
     if (t.id === "gopal")      return !!course.gopal?.length;
     return course[t.id]?.length > 0;
-  });
+  }) : [];
 
   const initialTab   = dest?.tab && availableTabs.find(t => t.id === dest.tab)
     ? dest.tab : availableTabs[0]?.id || "notes";
-  const initialItems = initialTab === "code" ? course.code : (Array.isArray(course[initialTab]) ? course[initialTab] : []);
+  const initialItems = course ? (initialTab === "code" ? course.code : (Array.isArray(course[initialTab]) ? course[initialTab] : [])) : [];
   const initialFlat  = flattenItems(initialItems);
   const initialFile  = dest?.file || initialFlat?.[0]?.[initialTab === "code" ? "path" : "file"] || null;
 
@@ -153,9 +155,12 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
     destPdfPage.current = dest.pdfPage || null;
     // On mobile, jump straight to content when navigating from search
     if (isMobile && dest.file) setShowList(false);
-  }, [dest]);
+  }, [dest]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const flashSet = course.flashcards
+  // Guard after all hooks — hooks cannot be called after an early return
+  if (!course) return null;
+
+  const flashSet = course?.flashcards
     ? FLASHCARD_SETS.find(s => s.id === course.flashcards)
     : null;
 
@@ -183,8 +188,8 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
     }
 
     function filteredItems() {
-      if (!query) return items;
-      return items
+      if (!query) return items || [];
+      return (items || [])
         .map(item => {
           if (item.type !== "group") return itemMatchesFilter(item) ? item : null;
           const kids = item.children.filter(c => c.label.toLowerCase().includes(query));
@@ -217,8 +222,7 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
         {visibleItems.map((item, i) => {
 
           if (item.type === "group") {
-            const isOpen   = collapsed[item.label] === true;
-            const groupKey = `group:${item.label}`;
+            const isOpen = collapsed[item.label] === true; // collapsed by default, open on click
             return (
               <div key={i}>
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -308,9 +312,6 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
     if (tab === "references" || tab === "gopal" || tab === "assignments") {
       const items    = tab === "assignments" ? course.assignments : course[tab];
       const flat     = flattenItems(items);
-      const flatIdx  = flat.findIndex(r => r.file === activeFile);
-      const hasPrev  = flatIdx > 0;
-      const hasNext  = flatIdx < flat.length - 1;
 
       // All items (references, gopal, assignments) render via ReferenceViewer.
       // type:"iframe" = scripted files (DFA sim, DP viz) → srcdoc iframe inside ReferenceViewer

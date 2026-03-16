@@ -18,7 +18,6 @@ export const COURSE_TIERS = ${JSON.stringify(courseTiers, null, 2)};
 `;
   try {
     if (IS_TAURI) {
-      const { invoke } = await import("@tauri-apps/api/core");
       await invoke("save_progress", { content });
     } else {
       await fetch("/api/save-progress", {

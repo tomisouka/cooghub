@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coogs Hub — Database Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&display=swap');
+
+  :root {
+    --bg:       #0b0d12;
+    --surface:  #111318;
+    --border:   #1e2230;
+    --border2:  #2a2e3a;
+    --text:     #c8d0e0;
+    --dim:      #4a5568;
+    --dim2:     #7a8490;
+    --yellow:   #e8c547;
+    --teal:     #4ecdc4;
+    --purple:   #a78bfa;
+    --orange:   #fb923c;
+    --red:      #f87171;
+    --green:    #34d399;
+    --blue:     #60a5fa;
+    --pink:     #f472b6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 60px 40px 120px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 32px;
+  }
+
+  .header .eyebrow {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #eef0f6;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--yellow);
+  }
+
+  .header .sub {
+    color: var(--dim2);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .header .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header .meta span {
+    font-size: 11px;
+    color: var(--dim);
+  }
+
+  .header .meta strong {
+    color: var(--dim2);
+  }
+
+  /* ── Why section ── */
+  .why {
+    margin-bottom: 56px;
+    padding: 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--yellow);
+    border-radius: 4px;
+  }
+
+  .why .label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 12px;
+  }
+
+  .why p {
+    color: var(--dim2);
+    font-size: 12px;
+    line-height: 1.9;
+  }
+
+  .why p + p { margin-top: 10px; }
+
+  /* ── Section headers ── */
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Schema ── */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-card .table-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-card .table-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #eef0f6;
+    flex: 1;
+  }
+
+  .table-card .table-tag {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .table-card .fields {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .field-name {
+    color: var(--teal);
+    font-size: 11px;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+
+  .field-type {
+    color: var(--dim);
+    font-size: 10px;
+  }
+
+  .field-note {
+    color: var(--dim);
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  .field-row.pk .field-name { color: var(--yellow); }
+  .field-row.fk .field-name { color: var(--purple); }
+  .field-row.idx .field-name { color: var(--orange); }
+
+  /* ── Phases ── */
+  .phases {
+    margin-bottom: 56px;
+  }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 20px;
+    margin-bottom: 4px;
+    position: relative;
+  }
+
+  .phase-num {
+    text-align: right;
+    padding-top: 14px;
+  }
+
+  .phase-num .num {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--border2);
+    line-height: 1;
+  }
+
+  .phase-body {
+    border-left: 1px solid var(--border2);
+    padding: 14px 0 14px 24px;
+    position: relative;
+  }
+
+  .phase-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 20px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--border2);
+    border: 2px solid var(--bg);
+  }
+
+  .phase.active .phase-body::before  { background: var(--yellow); }
+  .phase.done .phase-body::before    { background: var(--green); }
+  .phase.blocked .phase-body::before { background: var(--red); }
+  .phase.next .phase-body::before    { background: var(--orange); }
+
+  .phase.active .phase-num .num  { color: var(--yellow); }
+  .phase.done .phase-num .num    { color: var(--green); }
+  .phase.blocked .phase-num .num { color: var(--red); }
+  .phase.next .phase-num .num    { color: var(--orange); }
+
+  .phase-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #eef0f6;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-chip {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .phase-desc {
+    color: var(--dim2);
+    font-size: 11px;
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+
+  .phase-tasks {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .phase-tasks li {
+    font-size: 11px;
+    color: var(--dim);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .phase-tasks li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--border2);
+  }
+
+  .phase-tasks li.done-task { text-decoration: line-through; color: var(--border2); }
+
+  /* ── Decisions ── */
+  .decisions {
+    margin-bottom: 56px;
+  }
+
+  .decision {
+    margin-bottom: 20px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+  }
+
+  .decision .q {
+    font-size: 12px;
+    color: #eef0f6;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .decision .q .icon {
+    color: var(--yellow);
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .decision .a {
+    color: var(--dim2);
+    font-size: 11px;
+    line-height: 1.9;
+    padding-left: 24px;
+  }
+
+  .decision .chosen {
+    display: inline-block;
+    color: var(--green);
+    font-weight: 500;
+    margin-top: 6px;
+    font-size: 11px;
+  }
+
+  /* ── Migration plan ── */
+  .migration {
+    margin-bottom: 56px;
+  }
+
+  .mig-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+
+  .mig-arrow {
+    color: var(--border2);
+    flex-shrink: 0;
+    font-size: 16px;
+    padding-top: 2px;
+  }
+
+  .mig-body .mig-title {
+    font-size: 12px;
+    color: #eef0f6;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .mig-body .mig-desc {
+    font-size: 11px;
+    color: var(--dim2);
+    line-height: 1.8;
+  }
+
+  /* ── Risk table ── */
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 56px;
+    font-size: 11px;
+  }
+
+  .risk-table th {
+    text-align: left;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .risk-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.7;
+  }
+
+  .risk-table td:first-child { color: #eef0f6; font-weight: 500; }
+  .risk-table td:nth-child(2) { color: var(--dim2); }
+  .risk-table td:nth-child(3) { color: var(--dim2); }
+
+  .risk-high   { color: var(--red)    !important; }
+  .risk-medium { color: var(--orange) !important; }
+  .risk-low    { color: var(--green)  !important; }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    color: var(--dim);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Coogs Hub · Phase 10 Planning</div>
+  <h1>Database<br /><em>Roadmap</em></h1>
+  <div class="sub">SQLite · offline-first · dev-log reference only · not imported by app</div>
+  <div class="meta">
+    <span>Created <strong>2026-03-15</strong></span>
+    <span>Status <strong>Planning</strong></span>
+    <span>Phase <strong>10</strong></span>
+    <span>Depends on <strong>Phase 9b partial</strong></span>
+  </div>
+</div>
+
+<!-- ── Why ── -->
+<div class="why">
+  <div class="label">Why a database</div>
+  <p>Current persistence is file-based JS: <code>memory-deadlines.js</code>, <code>memory-progress.js</code>, flat JSON. It works for simple state but breaks down the moment you want to query — "which skills did I level up this week", "which PDFs have I read", "what's my streak", "show me flashcard history". Files are not queryable. DB is.</p>
+  <p>The other driver is the content model. Right now <code>subjects.js</code> is a 600+ line hand-edited JS object. Every new file requires a manual patch. A DB with a seed from the existing manifest gives us queryable content, per-file metadata, read tracking, and bookmarks — without rebuilding anything.</p>
+  <p>This is not a rewrite. It's a persistence layer upgrade. All React state stays React state. The DB handles what files can't: history, queries, relationships, and sync logs.</p>
+</div>
+
+<!-- ── Schema ── -->
+<div class="section-label">Proposed Schema</div>
+<div class="schema-grid">
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">courses</div>
+      <div class="table-tag" style="background:#4ecdc415;color:#4ecdc4;">seed</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">TEXT PK</span></div>
+      <div class="field-row"><span class="field-name">label</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">dept</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">course_code</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">color</span><span class="field-type">TEXT</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">files</div>
+      <div class="table-tag" style="background:#4ecdc415;color:#4ecdc4;">seed</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row fk"><span class="field-name">course_id</span><span class="field-type">TEXT FK</span></div>
+      <div class="field-row"><span class="field-name">tab</span><span class="field-type">TEXT</span><span class="field-note">notes|code|pdfs…</span></div>
+      <div class="field-row"><span class="field-name">file_path</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">label</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">group_label</span><span class="field-type">TEXT</span></div>
+      <div class="field-row idx"><span class="field-name">added_at</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">file_reads</div>
+      <div class="table-tag" style="background:#a78bfa15;color:#a78bfa;">runtime</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row fk"><span class="field-name">file_id</span><span class="field-type">INTEGER FK</span></div>
+      <div class="field-row"><span class="field-name">read_at</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">duration_s</span><span class="field-type">INTEGER</span><span class="field-note">optional</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">skill_levels</div>
+      <div class="table-tag" style="background:#a78bfa15;color:#a78bfa;">runtime</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">skill_id</span><span class="field-type">TEXT PK</span></div>
+      <div class="field-row"><span class="field-name">level</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">updated_at</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">skill_log</div>
+      <div class="table-tag" style="background:#a78bfa15;color:#a78bfa;">runtime</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row fk"><span class="field-name">skill_id</span><span class="field-type">TEXT FK</span></div>
+      <div class="field-row"><span class="field-name">from_level</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">to_level</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">note</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">ts</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">deadlines</div>
+      <div class="table-tag" style="background:#a78bfa15;color:#a78bfa;">runtime</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">TEXT PK</span></div>
+      <div class="field-row fk"><span class="field-name">course_id</span><span class="field-type">TEXT FK</span></div>
+      <div class="field-row"><span class="field-name">title</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">due_date</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">done</span><span class="field-type">INTEGER</span><span class="field-note">0|1</span></div>
+      <div class="field-row"><span class="field-name">subtasks_json</span><span class="field-type">TEXT</span><span class="field-note">JSON blob</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">talk2me_entries</div>
+      <div class="table-tag" style="background:#a78bfa15;color:#a78bfa;">runtime</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row"><span class="field-name">filename</span><span class="field-type">TEXT</span></div>
+      <div class="field-row fk"><span class="field-name">course_id</span><span class="field-type">TEXT FK</span><span class="field-note">nullable</span></div>
+      <div class="field-row"><span class="field-name">title</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">content</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">created_at</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">updated_at</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">pdf_bookmarks</div>
+      <div class="table-tag" style="background:#fb923c15;color:#fb923c;">later</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row fk"><span class="field-name">file_id</span><span class="field-type">INTEGER FK</span></div>
+      <div class="field-row"><span class="field-name">page</span><span class="field-type">INTEGER</span></div>
+      <div class="field-row"><span class="field-name">label</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">created_at</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-name">sync_log</div>
+      <div class="table-tag" style="background:#fb923c15;color:#fb923c;">later</div>
+    </div>
+    <div class="fields">
+      <div class="field-row pk"><span class="field-name">id</span><span class="field-type">INTEGER PK</span></div>
+      <div class="field-row"><span class="field-name">machine</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">event</span><span class="field-type">TEXT</span></div>
+      <div class="field-row"><span class="field-name">ts</span><span class="field-type">INTEGER</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Phases ── -->
+<div class="section-label">Implementation Phases</div>
+<div class="phases">
+
+  <div class="phase next">
+    <div class="phase-num"><div class="num">1</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        Engine selection + Tauri wiring
+        <span class="status-chip" style="background:#fb923c18;color:#fb923c;">next</span>
+      </div>
+      <div class="phase-desc">Pick the SQLite library, add it to Cargo.toml, write one Rust command to open and return a DB version. Confirm it works in both <code>pnpm dev</code> (via Express proxy) and the installed Tauri binary. Nothing else.</div>
+      <ul class="phase-tasks">
+        <li>Add <code>rusqlite</code> to <code>src-tauri/Cargo.toml</code></li>
+        <li>Write <code>db_version</code> Rust command — opens DB, returns SQLite version string</li>
+        <li>Add Express route <code>GET /api/db-version</code> mirroring it for browser mode</li>
+        <li>Confirm DB file created at <code>~/.coogshub/coogs.db</code> on both machines</li>
+        <li>Decision: single DB file vs separate per-domain files → choose single</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">2</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        Schema creation + seed from subjects.js
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">upcoming</span>
+      </div>
+      <div class="phase-desc">Run <code>CREATE TABLE IF NOT EXISTS</code> for all core tables on startup. Write a one-time seed script that reads <code>subjects.js</code> and populates <code>courses</code> and <code>files</code>. After this, subjects.js is read-only reference — the DB is the source of truth for file registry.</div>
+      <ul class="phase-tasks">
+        <li>Write <code>run_migrations()</code> Rust function — idempotent, runs on every startup</li>
+        <li>Create tables: <code>courses</code>, <code>files</code>, <code>skill_levels</code>, <code>skill_log</code>, <code>deadlines</code>, <code>talk2me_entries</code></li>
+        <li>Write <code>scripts/seed-db.js</code> — reads subjects.js, inserts courses + files</li>
+        <li>Seed script is one-time + idempotent — safe to re-run</li>
+        <li>Verify row counts match subjects.js</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">3</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        Migrate runtime state: deadlines + skill levels
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">upcoming</span>
+      </div>
+      <div class="phase-desc">Replace <code>memory-deadlines.js</code> and <code>memory-progress.js</code> with DB reads/writes. The file-based fallback stays for a session or two during transition, then gets removed. React state shape doesn't change — only the persistence layer underneath.</div>
+      <ul class="phase-tasks">
+        <li>Write <code>load_deadlines_db</code> / <code>save_deadline</code> Rust commands</li>
+        <li>Write <code>load_skill_levels_db</code> / <code>upsert_skill_level</code> / <code>append_skill_log</code> Rust commands</li>
+        <li>One-time migration: read existing memory-*.js files, insert into DB on first launch</li>
+        <li>Update DeadlinesPage + ProgressPage to use DB commands instead of file write</li>
+        <li>Add Express routes mirroring each command for browser mode</li>
+        <li>Remove memory-*.js files and gitignore entries once stable</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">4</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        Migrate Talk2Me entries
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">upcoming</span>
+      </div>
+      <div class="phase-desc">Move Talk2Me entries from .md files in <code>src/content/talk2me/entries/</code> into the <code>talk2me_entries</code> table. The .md files stay on disk as a backup but the app reads/writes DB. Resolves F031 properly.</div>
+      <ul class="phase-tasks">
+        <li>Write <code>list_entries_db</code>, <code>read_entry_db</code>, <code>save_entry_db</code>, <code>delete_entry_db</code> Rust commands</li>
+        <li>One-time migration: scan entries/ dir, insert all .md files into DB</li>
+        <li>Update Talk2MePage to use DB commands</li>
+        <li>Keep .md file writes as shadow backup (optional)</li>
+        <li>Verify end-to-end in Tauri — this fully closes F031</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">5</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        File read tracking
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">upcoming</span>
+      </div>
+      <div class="phase-desc">Log every time a file is opened. Enables "last opened", "most read", streak calculations, and eventually a reading history view. Low effort, high payoff for the progress + heatmap features.</div>
+      <ul class="phase-tasks">
+        <li>Write <code>log_file_read</code> Rust command — inserts row into <code>file_reads</code></li>
+        <li>Call it in CoursePage whenever a tab item is selected</li>
+        <li>Expose <code>GET /api/file-reads?file_id=X</code> for browser mode</li>
+        <li>Wire read count into FileInventoryModal (optional)</li>
+        <li>Feed read log into StudyHeatmap as alternative/supplement to skill log</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">6</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        Replace subjects.js file registry with DB queries
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">upcoming</span>
+      </div>
+      <div class="phase-desc">Once the <code>files</code> table is stable and seeded, the upload system writes new files to DB instead of patching subjects.js with regex. The DropZone / FileInventoryModal read from DB. subjects.js becomes a bootstrap-only artifact.</div>
+      <ul class="phase-tasks">
+        <li>Write <code>register_file</code> / <code>delete_file</code> / <code>list_files</code> Rust commands</li>
+        <li>Update <code>server/upload.js</code> — <code>patchSubjects()</code> replaced with DB insert</li>
+        <li>Update FileInventoryModal to query DB via <code>/api/inventory-db</code></li>
+        <li>subjects.js becomes read-only seed reference, not source of truth</li>
+        <li>Remove <code>patchSubjects()</code> and bracket-walking code once stable</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num"><div class="num">7</div></div>
+    <div class="phase-body">
+      <div class="phase-title">
+        PDF bookmarks + sync log
+        <span class="status-chip" style="background:#2a2e3a;color:#4a5568;">later</span>
+      </div>
+      <div class="phase-desc">Bookmark pages in PDFs, track which machine last wrote which record, prepare for Phase 8b content server sync. Nice-to-have, not blocking anything.</div>
+      <ul class="phase-tasks">
+        <li>Add <code>pdf_bookmarks</code> table + Rust commands</li>
+        <li>Wire bookmark button into PDFViewer</li>
+        <li>Add <code>sync_log</code> table — machine name, event type, timestamp</li>
+        <li>Write to sync_log on every DB write — enables conflict detection later</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Key decisions ── -->
+<div class="section-label">Key Decisions</div>
+<div class="decisions">
+
+  <div class="decision">
+    <div class="q"><span class="icon">?</span> Which SQLite library — rusqlite vs sqlx vs tauri-plugin-sql?</div>
+    <div class="a">
+      <code>rusqlite</code> is the right call. Synchronous, no async complexity, well-documented, and all DB work happens in Rust commands anyway — React never touches the DB directly. <code>sqlx</code> async overhead is unnecessary here. <code>tauri-plugin-sql</code> exposes the DB to JS which is exactly what we don't want.
+      <div class="chosen">→ rusqlite</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q"><span class="icon">?</span> Where does the DB file live?</div>
+    <div class="a">
+      <code>~/.coogshub/coogs.db</code> — same pattern as <code>~/.coogshub_path</code>. Lives outside the project so it's never accidentally committed, survives <code>pnpm build</code>, and is easy to find/backup. SyncThing can optionally sync it between machines if the path is added to the sync config.
+      <div class="chosen">→ ~/.coogshub/coogs.db</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q"><span class="icon">?</span> Browser mode — how does the Express server access SQLite?</div>
+    <div class="a">
+      Use <code>better-sqlite3</code> in Express. Same DB file path, same schema. Each Express route mirrors its Rust command. The two runtimes share the same DB file when running on the same machine — no sync needed locally.
+      <div class="chosen">→ better-sqlite3 in Express, same DB path</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q"><span class="icon">?</span> Migration strategy — how to move from file-based to DB without data loss?</div>
+    <div class="a">
+      On first launch after DB is introduced: check if <code>memory-deadlines.js</code> / <code>memory-progress.js</code> exist on disk. If yes, read them and insert into DB, then rename to <code>*.migrated</code>. Subsequent launches skip migration. This is a one-time, zero-loss path. No manual steps required.
+      <div class="chosen">→ auto-migrate on first launch, rename originals</div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q"><span class="icon">?</span> Single DB file or separate files per domain?</div>
+    <div class="a">
+      Single file. Simpler backup, simpler sync, simpler Rust connection management. SQLite handles concurrent table access fine within one file. Splitting by domain adds complexity with no real benefit at this scale.
+      <div class="chosen">→ single coogs.db</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Risks ── -->
+<div class="section-label">Risks</div>
+<table class="risk-table">
+  <thead>
+    <tr>
+      <th>Risk</th>
+      <th>Impact</th>
+      <th>Mitigation</th>
+      <th>Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Data loss during migration from memory-*.js</td>
+      <td>Skill levels / deadlines wiped</td>
+      <td>Auto-migrate reads files first, writes DB, only then renames originals. Files stay as .migrated backup.</td>
+      <td class="risk-low">Low</td>
+    </tr>
+    <tr>
+      <td>rusqlite compilation on both machines</td>
+      <td>Build fails on kusuo (laptop)</td>
+      <td>rusqlite bundles SQLite — no system dependency. Should compile clean on both machines with same Rust toolchain.</td>
+      <td class="risk-low">Low</td>
+    </tr>
+    <tr>
+      <td>Express + rusqlite DB file contention</td>
+      <td>Corruption if both open at same time</td>
+      <td>SQLite WAL mode handles concurrent readers. Express and Tauri won't run simultaneously on same machine in normal use.</td>
+      <td class="risk-medium">Medium</td>
+    </tr>
+    <tr>
+      <td>subjects.js and DB get out of sync</td>
+      <td>Files appear in DB but not in UI (or vice versa)</td>
+      <td>Seed script is idempotent. During transition period, both are in sync by design. Phase 6 removes subjects.js as source of truth.</td>
+      <td class="risk-medium">Medium</td>
+    </tr>
+    <tr>
+      <td>SyncThing syncing DB file between machines causes conflicts</td>
+      <td>One machine's data overwrites the other</td>
+      <td>Don't sync coogs.db via SyncThing. Each machine has its own DB. Git syncs code, SyncThing syncs content files — DB stays local per machine. Revisit in Phase 7 with sync_log.</td>
+      <td class="risk-high">High if synced</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ── Footer ── */-->
+<div class="footer">
+  <span>dev-log/db-roadmap.html · not imported by app · planning only</span>
+  <span>Coogs Hub · 2026</span>
+</div>
+
+</body>
+</html>

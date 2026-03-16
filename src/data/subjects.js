@@ -117,10 +117,10 @@ export const DEPARTMENTS = [
         color: "#4ecdc4",
         icon: "∿",
         notes: [
-          { file: "./content/notes/algos/list.md",          label: "Main Notes" },
-          { file: "./content/notes/algos/hw1questions.md",  label: "HW1 Questions" },
-          { file: "./content/imp/algoinfo.md",              label: "Algorithm Categories Guide" },
-          { file: "./content/imp/ashort.md",                label: "Algorithm Categories (Short)" },
+          { file: "./content/notes/algos/list.md", label: "Main Notes" },
+          { file: "./content/imp/ashort.md", label: "Algorithm Categories (Short)" },
+          { file: "./content/imp/algoinfo.md", label: "Algorithm Categories Guide" },
+          { file: "./content/notes/algos/hw1questions.md", label: "HW1 Questions" },
           { file: "./content/notes/practice/3320Eintro.md", label: "Intro Exam Practice" },
           { file: "./content/subjects/discrete/proofs/algoproofs.md", label: "Algo Proofs" },
         ],
@@ -230,25 +230,37 @@ export const DEPARTMENTS = [
         color: "#ff6b9d",
         icon: "◎",
         notes: [
-          { file: "./content/notes/automata/list.md",                            label: "Main Notes" },
-          { file: "./content/notes/automata/oldlist.md",                         label: "Previous Notes" },
-          { file: "./content/notes/assignments/problems_extractedAutomata.md",   label: "Extracted Problems" },
+          { file: "./content/notes/automata/oldlist.md", label: "Previous Notes" },
+          { file: "./content/notes/automata/list.md", label: "Main Notes" },
+          { file: "./content/notes/assignments/problems_extractedAutomata.md", label: "Extracted Problems" },
           { file: "./content/notes/assignments/solutionsAutomatahw1to2q1pq2.md", label: "HW1-2 Solutions" },
-          { file: "./content/notes/practice/3340Q1.md",                          label: "Quiz 1 Practice" },
-          { file: "./content/subjects/discrete/proofs/automataproofs.md",        label: "Automata Proofs" },
-        ],
+          { file: "./content/notes/practice/3340Q1.md", label: "Quiz 1 Practice" },
+          { file: "./content/subjects/discrete/proofs/automataproofs.md", label: "Automata Proofs" },
+        
+                  ],
         references: [
-          { file: "automata_reference.html",        label: "Automata History & Reference", type: "iframe" },
-          { file: "automata-sisper-reference.html", label: "Sipser Reference",               type: "iframe" },
-          { file: "reading-sets-automata.html",     label: "Reading Sets & Automata", type: "iframe" },
-          { file: "jflap-demo.html",                label: "JFLAP Demo",              type: "iframe" },
-        ],
+          { type: "group", label: "rrrr", children: [
+            { file: "automata_reference.html", label: "Automata History & Reference", type: "iframe" },
+          ] },
+          { file: "automata-sisper-reference.html", label: "Sipser Reference", type: "iframe" },
+          { file: "reading-sets-automata.html", label: "Reading Sets & Automata", type: "iframe" },
+          { file: "jflap-demo.html", label: "JFLAP Demo", type: "iframe" },
+        
+                  
+                  
+                  ],
         assignments: [
           { file: "./content/assignments/hw1_problems_solutionsAutomata.html",   label: "HW1 Solutions",   type: "content" },
           { file: "./content/assignments/hw2_problems_solutionsAutomata.html",   label: "HW2 Solutions",   type: "content" },
           { file: "./content/assignments/quiz1_review_solutionsAutomata.html",   label: "Quiz 1 Review",   type: "content" },
           { file: "./content/assignments/practice_quiz2_solutionsAutomata.html", label: "Practice Quiz 2", type: "content" },
           { file: "./content/practice/3340Q1.html",                              label: "Q1 Practice",     type: "content" },
+        
+        
+        
+        
+        
+          { file: "./content/assignments/hw3_problems_solutionsAutomata.html", label: "hw3 problems solutionsAutomata", type: "content" },
         ],
         code: [],
         flashcards: "automata_basics",

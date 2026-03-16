@@ -24,16 +24,6 @@
       "id": "resources",
       "icon": "\u25c8",
       "label": "Resources"
-    },
-    {
-      "id": "roadmap",
-      "icon": "\u25ce",
-      "label": "Roadmap"
-    },
-    {
-      "id": "tickets",
-      "icon": "\u2691",
-      "label": "Tickets"
     }
   ]
 }

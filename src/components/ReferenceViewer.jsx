@@ -18,12 +18,9 @@ import { useState, useEffect, useRef } from "react";
 // Anchor clicks are handled by an injected script since fragment nav doesn't
 // work across opaque origins.
 function BlobIframe({ html, file, bg }) {
-  // data: URIs work in all browsers and aren't subject to Chrome's
-  // "not allowed to load local resource: blob:" restriction
-  const src = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
   return (
     <iframe
-      src={src}
+      srcDoc={html}
       style={{ flex: 1, width: "100%", height: "100%", border: "none", background: bg, colorScheme: "dark", display: "block" }}
       sandbox="allow-scripts"
       title={file}
@@ -170,7 +167,7 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
           const scoped = css
             .replace(/:root\s*\{/g, `#${id} {`)
             // Replace bare `body` selector only — not class names like .card-body
-            .replace(/(^|[\s,{})>+~])body(\s*[{,>+~:\[])/gm, `$1#${id}$2`);
+            .replace(/(^|[\s,{})>+~])body(\s*[{,>+~:[])/gm, `$1#${id}$2`);
           // Prepend a fallback: ensure all text in this container is visible by default
           const withFallback = `#${id} { color: #d4d8e0; width: 100%; box-sizing: border-box; }\n` + scoped;
           styles.push(withFallback);

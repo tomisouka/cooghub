@@ -1,29 +1,20 @@
 // src/pages/TicketsPage.jsx
-// Data lives in src/data/tickets.js — edit there, not here.
+// Tickets data lives in dev-log/tickets.js — never bundled into production.
+// In Tauri/prod this page is hidden from nav entirely.
+// In dev (browser), data is loaded via GET /api/load-tickets from the Express server.
 
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { TICKETS as INITIAL_TICKETS, TODO_ITEMS as INITIAL_TODO } from "../data/tickets";
 import { useData } from "../data/DataContext";
 import { TICKET_STATUS_MAP as STATIC_STATUS_MAP } from "../data/uiConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
+const INITIAL_TICKETS = {};
+const INITIAL_TODO    = [];
+
 // Module-level STATUS_MAP — updated after data loads via context
 let STATUS_MAP = STATIC_STATUS_MAP;
-
-async function loadDataFile(filename) {
-  try {
-    if (IS_TAURI) {
-      return await invoke("load_data_file", { filename });
-    } else {
-      const res = await fetch(`/api/load-data-file?filename=${filename}`);
-      const data = await res.json();
-      return data.content;
-    }
-  } catch (e) { return null; }
-}
 
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -191,14 +182,14 @@ export default function TicketsPage() {
   const [todoItems, setTodoItems] = useState(INITIAL_TODO);
 
   useEffect(() => {
-    loadDataFile("tickets.json").then(raw => {
-      if (!raw) return;
-      try {
-        const data = JSON.parse(raw);
-        if (data.TICKETS) setTickets(data.TICKETS);
+    if (IS_TAURI) return; // hidden in prod — no data to load
+    fetch("/api/load-tickets")
+      .then(r => r.json())
+      .then(data => {
+        if (data.TICKETS)    setTickets(data.TICKETS);
         if (data.TODO_ITEMS) setTodoItems(data.TODO_ITEMS);
-      } catch(e) { console.error("tickets parse error", e); }
-    });
+      })
+      .catch(e => console.error("tickets load error", e));
   }, []);
 
   const allTickets  = Object.values(tickets).flat();
