@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataProvider, useData } from "./data/DataContext";
 import Sidebar             from "./components/Sidebar";
 import DropZone            from "./components/DropZone";
@@ -16,7 +16,7 @@ import ResourcesPage      from "./pages/ResourcesPage";
 import { useIsMobile }     from "./hooks/useIsMobile";
 
 function AppInner() {
-  const { NAV, getCourse } = useData();
+  const { NAV, getCourse, reloadData } = useData();
   const [nav, setNav]               = useState("home");
   const [course, setCourse]         = useState(null);
   const [hub,    setHub]            = useState(null);
@@ -25,6 +25,20 @@ function AppInner() {
   const [showInventory, setShowInv] = useState(false);
   const [lastSearch, setLastSearch] = useState(null);
   const isMobile                    = useIsMobile();
+
+  // Ctrl+Shift+I → open devtools in Tauri (right-click inspect is disabled in webview)
+  useEffect(() => {
+    const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+    if (!IS_TAURI) return;
+    const handler = async (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "I") {
+        const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+        getCurrentWebviewWindow().openDevtools();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   function goTo(navId, courseId = null, destination = null) {
     setNav(navId);
@@ -171,6 +185,7 @@ function AppInner() {
         open={showDrop}
         onOpen={() => setShowDrop(true)}
         onClose={() => setShowDrop(false)}
+        onDone={reloadData}
       />
       <FileInventoryModal
         open={showInventory}

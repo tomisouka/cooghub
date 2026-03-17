@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra — HW 4: Vector Spaces &amp; Polynomial Spaces</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #f78166;
+    --accent3: #56d364;
+    --accent4: #e3b341;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --tag-bg: #1f3555;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+  .page-header {
+    max-width: 860px;
+    margin: 0 auto 2.5rem;
+    padding: 2rem 2.5rem;
+    background: linear-gradient(135deg, #161b22 0%, #1c2333 100%);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
+  }
+  .page-header h1 {
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+  }
+  .page-header .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .toc {
+    max-width: 860px;
+    margin: 0 auto 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.8rem;
+  }
+  .toc h2 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.8rem; }
+  .toc ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .toc a {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--accent);
+    text-decoration: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid #2d4a7a;
+    transition: background 0.2s;
+  }
+  .toc a:hover { background: #2d4a7a; }
+
+  .bg-section {
+    max-width: 860px;
+    margin: 0 auto 1.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent4);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+  }
+  .bg-section h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent4);
+    margin-bottom: 1rem;
+  }
+  .card {
+    max-width: 860px;
+    margin: 0 auto 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: var(--surface2);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .problem-num {
+    background: var(--accent);
+    color: #0d1117;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .card-header h2 {
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+  .card-body { padding: 1.5rem 2rem; }
+  .part {
+    margin-bottom: 1.8rem;
+    border-left: 3px solid var(--border);
+    padding-left: 1.2rem;
+  }
+  .part:last-child { margin-bottom: 0; }
+  .part-label {
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .problem-text {
+    color: var(--text);
+    margin-bottom: 0.8rem;
+    background: #1a2030;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .solution {
+    background: #0f1e0f;
+    border: 1px solid #2d4a2d;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-top: 0.5rem;
+  }
+  .solution-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+  }
+  .answer-box {
+    background: #162316;
+    border: 1px solid var(--accent3);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    margin-top: 0.7rem;
+    font-weight: 600;
+    color: var(--accent3);
+  }
+  .step {
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid #2d4a2d;
+    color: #c9d1d9;
+  }
+  .justify {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-left: 0.5rem;
+  }
+  .note {
+    background: #1a1a2e;
+    border: 1px solid #3d3d6e;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    margin-top: 0.7rem;
+    color: #a5b4fc;
+    font-size: 0.9rem;
+  }
+  .note::before { content: "💡 "; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+  p { margin-bottom: 0.6rem; }
+  .inline-table { overflow-x: auto; margin: 0.5rem 0; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Linear Algebra — Homework 4</h1>
+  <div class="subtitle">Vector Spaces That Are Not ℝᵐ &nbsp;·&nbsp; Polynomial Spaces &nbsp;·&nbsp; Independence &amp; Bases</div>
+</div>
+
+<div class="toc">
+  <h2>Jump to Problem</h2>
+  <ul>
+    <li><a href="#p1">Problem 1 — Abstract VS Properties</a></li>
+    <li><a href="#p2">Problem 2 — Verifying S²</a></li>
+    <li><a href="#p3">Problem 3 — Basis for S²</a></li>
+    <li><a href="#p4">Problem 4 — Dependent Set in S²</a></li>
+    <li><a href="#p5">Problem 5 — Pₙ Independence</a></li>
+    <li><a href="#p6">Problem 6 — Lagrange Basis</a></li>
+    <li><a href="#p7">Problem 7 — Classify Sets in P₂</a></li>
+    <li><a href="#p8">Problem 8 — Coords in Custom Basis</a></li>
+  </ul>
+</div>
+
+<!-- BACKGROUND -->
+<div class="bg-section">
+  <h2>📚 Background: The Strange Space S²</h2>
+  <p>Same underlying set as \(\mathbb{R}^2\) but with <em>custom operations</em>:</p>
+  <p>
+    \[\alpha \mathbf{x} \equiv \begin{pmatrix}\alpha(x_1-1)+1\\\alpha(x_2-1)+1\end{pmatrix}, \qquad
+    \mathbf{x}+\mathbf{y} \equiv \begin{pmatrix}x_1+y_1-1\\x_2+y_2-1\end{pmatrix}\]
+  </p>
+  <p>Key facts: &nbsp; additive identity \(\mathbf{0} = \begin{pmatrix}1\\1\end{pmatrix}\), &nbsp; additive inverse \(\mathbf{x}' = \begin{pmatrix}2-x_1\\2-x_2\end{pmatrix}\).</p>
+</div>
+
+<div class="bg-section">
+  <h2>📚 Background: Polynomial Space Pₙ</h2>
+  <p>Real polynomials of degree \(\leq n\) with pointwise operations. Standard basis \(\{1, x, \ldots, x^n\}\), \(\dim(P_n)=n+1\). Key theorem: if \(\dim(\text{span}S) = \dim(V)\) and \(\text{span}S \subseteq V\), then \(\text{span}S = V\).</p>
+</div>
+
+<!-- PROBLEM 1 -->
+<div class="card" id="p1">
+  <div class="card-header">
+    <span class="problem-num">Problem 1</span>
+    <h2>Abstract Vector Space Properties</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="part">
+      <div class="part-label">(a) Uniqueness of Additive Identity</div>
+      <div class="problem-text">Suppose \(\mathbf{0}\) and \(\mathbf{0}'\) are both additive identities. Show \(\mathbf{0}' = \mathbf{0}\).</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="step">\(\mathbf{0} + \mathbf{0}' = \mathbf{0}\) &nbsp;<span class="justify">(since \(\mathbf{0}'\) is an additive identity)</span></div>
+        <div class="step">\(\mathbf{0}' + \mathbf{0} = \mathbf{0}'\) &nbsp;<span class="justify">(since \(\mathbf{0}\) is an additive identity)</span></div>
+        <div class="step">\(\mathbf{0} + \mathbf{0}' = \mathbf{0}' + \mathbf{0}\) &nbsp;<span class="justify">(commutativity, a-2)</span></div>
+        <div class="answer-box">Combining: \(\mathbf{0} = \mathbf{0}'\). ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) \(0\mathbf{x} = \mathbf{0}\) for any \(\mathbf{x}\)</div>
+      <div class="problem-text">Let \(0\) be the scalar zero and \(\mathbf{0}\) the vector zero. Show \(0\mathbf{x} = \mathbf{0}\).</div>
+      <div class="solution">
+        <div class="solution-label">Solution — Chain of Equalities</div>
+        <p>Let \(\mathbf{x}'\) be \(\mathbf{x}\)'s additive inverse. Then:</p>
+        <div class="step">\(\mathbf{0} = \mathbf{x} + \mathbf{x}' = \mathbf{x}' + \mathbf{x} = \mathbf{x}' + 1\mathbf{x}\) &nbsp;<span class="justify">(a-4, a-2, m-2)</span></div>
+        <div class="step">\(= \mathbf{x}' + (1+0)\mathbf{x} = \mathbf{x}' + (1\mathbf{x} + 0\mathbf{x})\) &nbsp;<span class="justify">(scalars, d-2)</span></div>
+        <div class="step">\(= \mathbf{x}' + (\mathbf{x} + 0\mathbf{x}) = (\mathbf{x}' + \mathbf{x}) + 0\mathbf{x}\) &nbsp;<span class="justify">(m-2, a-1)</span></div>
+        <div class="step">\(= \mathbf{0} + 0\mathbf{x} = 0\mathbf{x}\) &nbsp;<span class="justify">(a-4, a-3)</span></div>
+        <div class="answer-box">Therefore \(0\mathbf{x} = \mathbf{0}\). ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(c) Uniqueness of Additive Inverse</div>
+      <div class="problem-text">Suppose \(\mathbf{x}'\) and \(\mathbf{x}''\) are both additive inverses of \(\mathbf{x}\). Show \(\mathbf{x}'' = \mathbf{x}'\).</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="step">\((\mathbf{x}+\mathbf{x}') + \mathbf{x}'' = \mathbf{0}+\mathbf{x}'' = \mathbf{x}''\) &nbsp;<span class="justify">(a-4, a-3)</span></div>
+        <div class="step">\(= \mathbf{x}+(\mathbf{x}'+\mathbf{x}'') = \mathbf{x}+(\mathbf{x}''+\mathbf{x}')\) &nbsp;<span class="justify">(a-1, a-2)</span></div>
+        <div class="step">\(= (\mathbf{x}+\mathbf{x}'') + \mathbf{x}' = \mathbf{0}+\mathbf{x}' = \mathbf{x}'\) &nbsp;<span class="justify">(a-1, a-4, a-3)</span></div>
+        <div class="answer-box">So \(\mathbf{x}'' = \mathbf{x}'\). ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(d) \((-1)\mathbf{x} = \mathbf{x}'\)</div>
+      <div class="problem-text">Show that multiplying by the scalar \(-1\) gives the additive inverse.</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="step">\(\mathbf{x}' = \mathbf{x}' + \mathbf{0} = \mathbf{x}' + 0\mathbf{x}\) &nbsp;<span class="justify">(a-3, part b)</span></div>
+        <div class="step">\(= \mathbf{x}' + (1+(-1))\mathbf{x} = \mathbf{x}' + (1\mathbf{x}+(-1)\mathbf{x})\) &nbsp;<span class="justify">(d-2)</span></div>
+        <div class="step">\(= \mathbf{x}' + (\mathbf{x}+(-1)\mathbf{x}) = (\mathbf{x}'+\mathbf{x})+(-1)\mathbf{x}\) &nbsp;<span class="justify">(m-2, a-1)</span></div>
+        <div class="step">\(= \mathbf{0}+(-1)\mathbf{x} = (-1)\mathbf{x}\) &nbsp;<span class="justify">(a-4, a-3)</span></div>
+        <div class="answer-box">Therefore \((-1)\mathbf{x} = \mathbf{x}'\). ✓</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 2 -->
+<div class="card" id="p2">
+  <div class="card-header">
+    <span class="problem-num">Problem 2</span>
+    <h2>Verifying Properties of S²</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="part">
+      <div class="part-label">(a) Find \(\mathbf{0}\) and \(\mathbf{x}'\) in S²</div>
+      <div class="problem-text">Explicitly compute the additive identity and inverse in S².</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p><strong>Additive Identity:</strong> Need \(\mathbf{x}+\mathbf{0}=\mathbf{x}\):</p>
+        <p>\[\begin{pmatrix}x_1+0_1-1\\x_2+0_2-1\end{pmatrix}=\begin{pmatrix}x_1\\x_2\end{pmatrix} \implies 0_1=1,\ 0_2=1\]</p>
+        <div class="answer-box">\(\mathbf{0} = \begin{pmatrix}1\\1\end{pmatrix}\)</div>
+        <p style="margin-top:0.8rem"><strong>Additive Inverse:</strong> Need \(\mathbf{x}+\mathbf{x}'=\mathbf{0}\):</p>
+        <p>\[\begin{pmatrix}x_1+x_1'-1\\x_2+x_2'-1\end{pmatrix}=\begin{pmatrix}1\\1\end{pmatrix} \implies x_1'=2-x_1,\ x_2'=2-x_2\]</p>
+        <div class="answer-box">\(\mathbf{x}' = \begin{pmatrix}2-x_1\\2-x_2\end{pmatrix}\)</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) S² satisfies (d-2): \((\alpha+\beta)\mathbf{x} = \alpha\mathbf{x}+\beta\mathbf{x}\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>\[(\alpha+\beta)\mathbf{x} = \begin{pmatrix}(\alpha+\beta)(x_1-1)+1\\(\alpha+\beta)(x_2-1)+1\end{pmatrix}\]</p>
+        <p>\[\alpha\mathbf{x}+\beta\mathbf{x} = \begin{pmatrix}\alpha(x_1-1)+1\\\alpha(x_2-1)+1\end{pmatrix}+\begin{pmatrix}\beta(x_1-1)+1\\\beta(x_2-1)+1\end{pmatrix}\]</p>
+        <p>Applying S² addition (subtract 1 from sum of each component):</p>
+        <p>\[= \begin{pmatrix}\alpha(x_1-1)+\beta(x_1-1)+1\\\alpha(x_2-1)+\beta(x_2-1)+1\end{pmatrix} = (\alpha+\beta)\mathbf{x}. \checkmark\]</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(c) Confirm \(0\mathbf{x}=\mathbf{0}\) and \((-1)\mathbf{x}=\mathbf{x}'\) in S²</div>
+      <div class="solution">
+        <div class="solution-label">Solution — Direct Calculation</div>
+        <p>\[0\mathbf{x} = \begin{pmatrix}0(x_1-1)+1\\0(x_2-1)+1\end{pmatrix} = \begin{pmatrix}1\\1\end{pmatrix} = \mathbf{0}. \checkmark\]</p>
+        <p>\[(-1)\mathbf{x} = \begin{pmatrix}(-1)(x_1-1)+1\\(-1)(x_2-1)+1\end{pmatrix} = \begin{pmatrix}2-x_1\\2-x_2\end{pmatrix} = \mathbf{x}'. \checkmark\]</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 3 -->
+<div class="card" id="p3">
+  <div class="card-header">
+    <span class="problem-num">Problem 3</span>
+    <h2>A Basis for S²</h2>
+  </div>
+  <div class="card-body">
+    <p style="color:var(--muted); margin-bottom:1rem">Vectors: \(\mathbf{0}=\begin{pmatrix}1\\1\end{pmatrix}\), \(\mathbf{x}=\begin{pmatrix}2\\1\end{pmatrix}\), \(\mathbf{y}=\begin{pmatrix}4\\2\end{pmatrix}\).</p>
+
+    <div class="part">
+      <div class="part-label">(a) \(\{\mathbf{x},\mathbf{y}\}\) is independent in S²</div>
+      <div class="problem-text">Show \(\alpha\mathbf{x}+\beta\mathbf{y}=\mathbf{0}\) implies \(\alpha=\beta=0\).</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>Compute using S² operations:</p>
+        <p>\[\alpha\begin{pmatrix}2\\1\end{pmatrix}+\beta\begin{pmatrix}4\\2\end{pmatrix} = \begin{pmatrix}\alpha+1\\1\end{pmatrix}+\begin{pmatrix}3\beta+1\\\beta+1\end{pmatrix} = \begin{pmatrix}\alpha+3\beta+1\\\beta+1\end{pmatrix}\]</p>
+        <p>Set equal to \(\mathbf{0}=\begin{pmatrix}1\\1\end{pmatrix}\):</p>
+        <p>\[\beta+1=1 \Rightarrow \beta=0, \qquad \alpha+3(0)=0 \Rightarrow \alpha=0.\]</p>
+        <div class="answer-box">\(\alpha=\beta=0\), so \(\{\mathbf{x},\mathbf{y}\}\) is linearly independent. ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) \(\text{span}\{\mathbf{x},\mathbf{y}\} = S^2\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>For any \(\mathbf{z}=\begin{pmatrix}z_1\\z_2\end{pmatrix}\), from part (a):</p>
+        <p>\[\alpha\mathbf{x}+\beta\mathbf{y} = \begin{pmatrix}\alpha+3\beta+1\\\beta+1\end{pmatrix} = \begin{pmatrix}z_1\\z_2\end{pmatrix}\]</p>
+        <p>Solve: \(\beta = z_2-1\), \(\alpha = z_1-3(z_2-1)-1 = z_1-3z_2+2\).</p>
+        <p>These are finite real numbers for any \((z_1,z_2)\), so every vector in S² is reachable.</p>
+        <div class="answer-box">\(\text{span}\{\mathbf{x},\mathbf{y}\} = S^2\). Together with independence, \(\{\mathbf{x},\mathbf{y}\}\) is a basis for S². ✓</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 4 -->
+<div class="card" id="p4">
+  <div class="card-header">
+    <span class="problem-num">Problem 4</span>
+    <h2>A Dependent Set in S²</h2>
+  </div>
+  <div class="card-body">
+    <p style="color:var(--muted); margin-bottom:1rem">Vectors: \(\mathbf{x}=\begin{pmatrix}2\\1\end{pmatrix}\), \(\mathbf{y}=\begin{pmatrix}3\\1\end{pmatrix}\).</p>
+
+    <div class="part">
+      <div class="part-label">(a) \(\{\mathbf{x},\mathbf{y}\}\) is dependent in S²</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>Compute \(2\mathbf{x}\) in S²:</p>
+        <p>\[2\mathbf{x} = \begin{pmatrix}2(2-1)+1\\2(1-1)+1\end{pmatrix} = \begin{pmatrix}3\\1\end{pmatrix} = \mathbf{y}.\]</p>
+        <p>So \(2\mathbf{x} + (-1)\mathbf{y} = \mathbf{0}\) with \((2,-1)\neq(0,0)\).</p>
+        <div class="answer-box">\(\{\mathbf{x},\mathbf{y}\}\) is dependent. ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) Describe \(\text{span}\{\mathbf{x},\mathbf{y}\}\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>Since \(\mathbf{y}=2\mathbf{x}\) in S², any combination \(\alpha\mathbf{x}+\beta\mathbf{y} = \alpha\mathbf{x}+\beta(2\mathbf{x}) = (\alpha+2\beta)\mathbf{x}\).</p>
+        <p>Let \(\tilde{\alpha} = \alpha+2\beta\) range over all reals:</p>
+        <p>\[\text{span}\{\mathbf{x},\mathbf{y}\} = \left\{\tilde{\alpha}\begin{pmatrix}2\\1\end{pmatrix}:\tilde{\alpha}\in\mathbb{R}\right\} = \left\{\begin{pmatrix}\tilde\alpha+1\\1\end{pmatrix}:\tilde\alpha\in\mathbb{R}\right\}.\]</p>
+        <div class="answer-box">A one-parameter family — a "line" through \(\mathbf{0}\) in S², parallel to \(\mathbf{x}\).</div>
+        <div class="note">In S², scalar multiples of \(\mathbf{x}\) don't look like a line in the usual sense — the structure is shifted.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 5 -->
+<div class="card" id="p5">
+  <div class="card-header">
+    <span class="problem-num">Problem 5</span>
+    <h2>Standard Basis of Pₙ is Independent</h2>
+  </div>
+  <div class="card-body">
+    <div class="problem-text">Show: \(\alpha_0 + \alpha_1 x + \cdots + \alpha_n x^n = 0\) for all \(x\) implies all \(\alpha_k = 0\).</div>
+    <div class="solution">
+      <div class="solution-label">Solution — Differentiation Trick</div>
+      <p>From calculus: \(\dfrac{d^k}{dx^k}x^m = m(m-1)\cdots(m-k+1)\,x^{m-k}\) for \(k\leq m\), and \(= 0\) for \(k>m\), and \(= k!\) when \(k=m\).</p>
+      <p>Let \(p(x) = \alpha_0 + \alpha_1 x + \cdots + \alpha_n x^n = 0\) for all \(x\).</p>
+      <p>Take the \(k\)-th derivative (\(0 \leq k \leq n\)) and set \(x=0\):</p>
+      <p>\[\frac{d^k p}{dx^k}\bigg|_{x=0} = \alpha_k \cdot k! = 0 \implies \alpha_k = 0.\]</p>
+      <p>Doing this for each \(k = 0, 1, \ldots, n\):</p>
+      <div class="answer-box">\(\alpha_0 = \alpha_1 = \cdots = \alpha_n = 0\), so \(\{1, x, \ldots, x^n\}\) is independent. ✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM 6 -->
+<div class="card" id="p6">
+  <div class="card-header">
+    <span class="problem-num">Problem 6</span>
+    <h2>Lagrange Basis for P₂ (General)</h2>
+  </div>
+  <div class="card-body">
+    <p style="color:var(--muted); margin-bottom:1rem">Let \(x_0, x_1, x_2\) be three distinct real numbers.</p>
+
+    <div class="part">
+      <div class="part-label">(a) Independence of the Lagrange Basis</div>
+      <div class="problem-text">Show \(\{(x-x_1)(x-x_2),\,(x-x_0)(x-x_2),\,(x-x_0)(x-x_1)\}\) is independent.</div>
+      <div class="solution">
+        <div class="solution-label">Solution — Evaluation at Nodes</div>
+        <p>Let \(b(x) = \alpha_0(x-x_1)(x-x_2) + \alpha_1(x-x_0)(x-x_2) + \alpha_2(x-x_0)(x-x_1) = 0\).</p>
+        <div class="step"><strong>Set \(x=x_0\):</strong> \(\alpha_0(x_0-x_1)(x_0-x_2) = 0 \Rightarrow \alpha_0 = 0\) (since \(x_i\) distinct)</div>
+        <div class="step"><strong>Set \(x=x_1\):</strong> \(\alpha_1(x_1-x_0)(x_1-x_2) = 0 \Rightarrow \alpha_1 = 0\)</div>
+        <div class="step"><strong>Set \(x=x_2\):</strong> \(\alpha_2(x_2-x_0)(x_2-x_1) = 0 \Rightarrow \alpha_2 = 0\)</div>
+        <div class="answer-box">All scalars are zero → set is independent. ✓</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) Write any \(p(x)\in P_2\) in the Lagrange basis</div>
+      <div class="solution">
+        <div class="solution-label">Solution — Lagrange Interpolation Formula</div>
+        <p>Set \(x=x_0, x_1, x_2\) successively to read off coefficients:</p>
+        <p>\(\alpha_0 = \dfrac{p(x_0)}{(x_0-x_1)(x_0-x_2)}\), &nbsp; \(\alpha_1 = \dfrac{p(x_1)}{(x_1-x_0)(x_1-x_2)}\), &nbsp; \(\alpha_2 = \dfrac{p(x_2)}{(x_2-x_0)(x_2-x_1)}\).</p>
+        <div class="answer-box">
+          \[p(x) = p(x_0)\frac{(x-x_1)(x-x_2)}{(x_0-x_1)(x_0-x_2)} + p(x_1)\frac{(x-x_0)(x-x_2)}{(x_1-x_0)(x_1-x_2)} + p(x_2)\frac{(x-x_0)(x-x_1)}{(x_2-x_0)(x_2-x_1)}\]
+        </div>
+        <div class="note">This is the <strong>Lagrange interpolation formula</strong> — the unique polynomial of degree ≤ 2 passing through \((x_0,p(x_0))\), \((x_1,p(x_1))\), \((x_2,p(x_2))\).</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 7 -->
+<div class="card" id="p7">
+  <div class="card-header">
+    <span class="problem-num">Problem 7</span>
+    <h2>Classify Sets in P₂ — Independent or Dependent?</h2>
+  </div>
+  <div class="card-body">
+
+    <div class="part">
+      <div class="part-label">(a) \(\{1,\ (x-0),\ (x-0)(x-1)\}\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>Suppose \(\alpha_0 + \alpha_1 x + \alpha_2 x(x-1)=0\) for all \(x\).</p>
+        <div class="step">\(x=0\): \(\alpha_0 = 0\)</div>
+        <div class="step">\(x=1\): \(\alpha_0+\alpha_1=0 \Rightarrow \alpha_1=0\)</div>
+        <div class="step">\(x=2\): \(\alpha_0+2\alpha_1+2\alpha_2=0 \Rightarrow \alpha_2=0\)</div>
+        <div class="answer-box">✅ INDEPENDENT</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) \(\{2x+1,\ x^2,\ (x+1)^2\}\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>Expand: \((x+1)^2 = x^2 + 2x + 1 = x^2 + (2x+1)\).</p>
+        <p>So: \(-1\cdot(2x+1) + (-1)\cdot x^2 + 1\cdot(x+1)^2 = 0\) for all \(x\).</p>
+        <p>Nontrivial combination (not all zero) sums to zero.</p>
+        <div class="answer-box">❌ DEPENDENT</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROBLEM 8 -->
+<div class="card" id="p8">
+  <div class="card-header">
+    <span class="problem-num">Problem 8</span>
+    <h2>Coordinates in the Basis \(\{x-1,\ x+1,\ x^2+2\}\)</h2>
+  </div>
+  <div class="card-body">
+    <p style="margin-bottom:1.2rem">Write \(p(x) = \alpha_0(x-1)+\alpha_1(x+1)+\alpha_2(x^2+2)\). Expanding into standard basis gives the system:</p>
+    <p>\[\alpha_2 = [\text{coeff of }x^2],\quad \alpha_0+\alpha_1 = [\text{coeff of }x],\quad -\alpha_0+\alpha_1+2\alpha_2 = [\text{const}].\]</p>
+
+    <div class="part">
+      <div class="part-label">(a) \(p(x) = 1\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>\(\alpha_2=0\), \(\alpha_0+\alpha_1=0\), \(-\alpha_0+\alpha_1=1\) → \(\alpha_0=-\tfrac{1}{2}\), \(\alpha_1=\tfrac{1}{2}\).</p>
+        <div class="answer-box">\(\alpha_0=-\tfrac{1}{2},\ \alpha_1=\tfrac{1}{2},\ \alpha_2=0\) &nbsp;→&nbsp; \(1 = -\tfrac{1}{2}(x-1)+\tfrac{1}{2}(x+1)\)</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(b) \(p(x) = x\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>\(\alpha_2=0\), \(\alpha_0+\alpha_1=1\), \(-\alpha_0+\alpha_1=0\) → \(\alpha_0=\alpha_1=\tfrac{1}{2}\).</p>
+        <div class="answer-box">\(\alpha_0=\tfrac{1}{2},\ \alpha_1=\tfrac{1}{2},\ \alpha_2=0\) &nbsp;→&nbsp; \(x = \tfrac{1}{2}(x-1)+\tfrac{1}{2}(x+1)\)</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(c) \(p(x) = x^2\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <p>\(\alpha_2=1\), \(\alpha_0+\alpha_1=0\), \(-\alpha_0+\alpha_1+2=0\) → \(\alpha_0=1\), \(\alpha_1=-1\).</p>
+        <div class="answer-box">\(\alpha_0=1,\ \alpha_1=-1,\ \alpha_2=1\) &nbsp;→&nbsp; \(x^2 = (x-1)-(x+1)+(x^2+2)\)</div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">(d) \(p(x) = x^2+3x+4\)</div>
+      <div class="solution">
+        <div class="solution-label">Solution — Use Linearity with (a), (b), (c)</div>
+        <p>\(x^2+3x+4 = x^2 + 3\cdot x + 4\cdot 1\)</p>
+        <p>Substitute representations from (a), (b), (c) and collect:</p>
+        <p>\[= \left[1+\tfrac{3}{2}-2\right](x-1) + \left[-1+\tfrac{3}{2}+2\right](x+1) + [1+0+0](x^2+2)\]</p>
+        <div class="answer-box">\(\alpha_0=\tfrac{1}{2},\ \alpha_1=\tfrac{5}{2},\ \alpha_2=1\) &nbsp;→&nbsp; \(x^2+3x+4 = \tfrac{1}{2}(x-1)+\tfrac{5}{2}(x+1)+(x^2+2)\)</div>
+        <div class="note">Check: \(\tfrac{1}{2}(x-1)+\tfrac{5}{2}(x+1)+(x^2+2) = \tfrac{x-1+5x+5}{2}+x^2+2 = 3x+2+x^2+2 = x^2+3x+4\). ✓</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="max-width:860px;margin:2rem auto;color:var(--muted);font-size:0.82rem;text-align:center;">
+  Linear Algebra · HW 4 Study Guide &nbsp;·&nbsp; Generated for exam review
+</div>
+
+</body>
+</html>

@@ -123,9 +123,13 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
     setHtml(null);
     setError(null);
 
-    // Append ?raw so our Vite middleware serves the file directly from disk,
-    // bypassing transformIndexHtml which would inject @vite/client, @react-refresh etc.
-    fetch(`${cacheKey}?raw`)
+    // Append ?raw so Vite serves the file directly from disk, bypassing
+    // transformIndexHtml (inject @vite/client etc). In Tauri the asset protocol
+    // serves files as-is — no Vite middleware — so ?raw is omitted there.
+    const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
+
+    fetch(IS_TAURI ? cacheKey : `${cacheKey}?raw`)
       .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.text(); })
       .then(raw => {
         const id = uid.current;

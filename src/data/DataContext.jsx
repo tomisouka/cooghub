@@ -54,8 +54,9 @@ export function DataProvider({ children }) {
     loaded: false,
   });
 
-  useEffect(() => {
-    Promise.all([
+  // Extracted so it can be called on demand (e.g. after an upload patches subjects.json)
+  function reloadData() {
+    return Promise.all([
       loadFile("subjects.json"),
       loadFile("tabs.json"),
       loadFile("nav.json"),
@@ -85,7 +86,9 @@ export function DataProvider({ children }) {
         loaded: true,
       }));
     });
-  }, []);
+  }
+
+  useEffect(() => { reloadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper functions derived from live data
   const getCourse = (courseId) => data.ALL_COURSES.find(c => c.id === courseId) || null;
@@ -102,7 +105,7 @@ export function DataProvider({ children }) {
   };
 
   return (
-    <DataContext.Provider value={{ ...data, getCourse, getDept, courseContentCount }}>
+    <DataContext.Provider value={{ ...data, getCourse, getDept, courseContentCount, reloadData }}>
       {children}
     </DataContext.Provider>
   );

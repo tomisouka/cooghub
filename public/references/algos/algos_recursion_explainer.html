@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Loops, Calls & Stacks</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0e0c0a; --paper:#f5f0e8; --cream:#ede7d9; --warm:#d4c9b0;
+  --r:#c0392b; --b:#2471a3; --g:#1e8449; --v:#6c3483; --gold:#b7950b;
+  --serif:'Fraunces',serif; --mono:'DM Mono',monospace;
+}
+html,body{min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--serif)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:.5}
+
+/* ── HEADER ── */
+header{text-align:center;padding:52px 24px 36px;border-bottom:2px solid var(--ink);background:var(--cream)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h1{font-family:var(--serif);font-size:clamp(38px,8vw,86px);font-weight:900;line-height:.92;letter-spacing:-3px;font-style:italic}
+h1 em{font-style:normal;color:var(--r)}
+.sub{font-family:var(--mono);font-size:12px;color:#777;margin-top:14px;letter-spacing:1px}
+
+/* ── TABS ── */
+.tabs{display:flex;justify-content:center;border-bottom:2px solid var(--ink);background:var(--paper);position:sticky;top:0;z-index:100;overflow-x:auto}
+.tab{padding:14px 28px;font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;border:none;background:none;color:#888;border-right:1px solid var(--warm);
+  transition:all .18s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--ink);background:var(--cream)}
+.tab.active{color:var(--paper);background:var(--ink)}
+
+/* ── PANELS ── */
+.panel{display:none;max-width:1100px;margin:0 auto;padding:40px 20px 80px}
+.panel.active{display:block;animation:up .35s ease both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ── TYPOGRAPHY ── */
+.ch-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--r);margin-bottom:6px}
+.ch-title{font-family:var(--serif);font-size:clamp(26px,5vw,52px);font-weight:700;line-height:.95;letter-spacing:-1.5px;margin-bottom:20px}
+.prose{font-family:var(--serif);font-size:16px;line-height:1.75;color:#3a3530;font-weight:300;max-width:620px;margin-bottom:28px}
+.prose strong{font-weight:700;color:var(--ink)}
+
+/* ── SPLIT VIZ BOX ── */
+.viz-box{border:2px solid var(--ink);margin-bottom:32px;overflow:hidden}
+.viz-topbar{background:var(--ink);color:var(--paper);padding:9px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.viz-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;flex:1}
+.viz-btns{display:flex;gap:6px}
+.vbtn{padding:4px 13px;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  border:1px solid #555;background:none;color:var(--paper);cursor:pointer;transition:all .13s}
+.vbtn:hover{background:#333}
+.vbtn.pri{background:var(--r);border-color:var(--r)}
+.vbtn.pri:hover{opacity:.82}
+/* split layout: left=code, right=visual */
+.viz-split{display:grid;grid-template-columns:1fr 1fr;min-height:320px}
+@media(max-width:700px){.viz-split{grid-template-columns:1fr}}
+.viz-code-pane{background:#141210;border-right:2px solid var(--ink);overflow:auto;padding:0;display:flex;flex-direction:column}
+.viz-visual-pane{background:var(--cream);padding:22px 18px;overflow:auto}
+/* code pane with line highlighting */
+.code-lines{font-family:var(--mono);font-size:12px;line-height:1.9;padding:18px 0;flex:1}
+.cl{display:flex;align-items:flex-start;padding:0 16px;transition:background .18s;position:relative;color:#9a9080}
+.cl.hl{background:#e8c54718;color:#e8e0d0}
+.cl.hl::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.cl-num{width:28px;text-align:right;flex-shrink:0;font-size:10px;color:#444;padding-right:12px;margin-top:1px;user-select:none}
+.cl-src{white-space:pre;flex:1}
+.kw{color:#e8c547}.fn{color:#60c78a}.cm{color:#555;font-style:italic}.nm{color:#a78bfa}.st{color:#fb923c}
+/* step indicator in code pane */
+.code-step-bar{background:#1e1b18;border-top:1px solid #2a2520;padding:7px 16px;
+  font-family:var(--mono);font-size:10px;color:#666;letter-spacing:1px;flex-shrink:0}
+.code-step-bar span{color:#e8c547}
+
+/* ── VISUAL COMPONENTS ── */
+/* Iteration cells */
+.iter-track{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+.iter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ir-label{font-family:var(--mono);font-size:11px;color:#888;width:60px;text-align:right;flex-shrink:0}
+.icell{width:44px;height:44px;border:2px solid var(--warm);background:var(--paper);
+  font-family:var(--mono);font-size:14px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;transition:all .25s}
+.icell.cur{border-color:var(--r);background:#fdf0ef;color:var(--r);transform:scale(1.08)}
+.icell.done{border-color:var(--g);background:#f0fdf4;color:var(--g)}
+.acc-box{font-family:var(--mono);font-size:20px;font-weight:500;padding:8px 20px;
+  border:2px solid var(--ink);background:var(--paper);display:inline-block;transition:all .25s}
+.acc-box.flash{border-color:var(--g);color:var(--g)}
+
+/* Call stack */
+.stack-wrap{display:flex;flex-direction:column;gap:0}
+.frame{border:2px solid var(--ink);background:var(--paper);font-family:var(--mono);font-size:12px;
+  padding:7px 14px;display:flex;justify-content:space-between;align-items:center;
+  position:relative;transition:all .3s cubic-bezier(.34,1.56,.64,1);margin-bottom:2px}
+.frame::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.frame.calling::before{background:var(--b)}
+.frame.active::before{background:var(--r)}
+.frame.returning::before{background:var(--g)}
+.fname{font-weight:500}.farg{color:var(--b)}.fret{color:var(--g);font-style:italic}
+
+/* Queens board */
+.qboard{display:inline-grid;border:2px solid var(--ink)}
+.qcell{width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:24px;transition:background .2s,transform .18s}
+.qcell.light{background:#f5efe0}.qcell.dark{background:#d4c9a8}
+.qcell.trying{background:#fef3c7;transform:scale(1.06)}
+.qcell.placed{background:#dcfce7}
+.qcell.conflict{background:#fee2e2}
+
+/* Maze */
+.maze-grid{display:inline-grid;border:2px solid var(--ink)}
+.mcell{width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:700;transition:background .18s}
+.mcell.wall{background:var(--ink);color:var(--paper)}
+.mcell.open{background:var(--paper)}
+.mcell.path{background:#dcfce7;color:var(--g)}
+.mcell.trying{background:#fef3c7}
+.mcell.dead{background:#fee2e2;opacity:.45}
+.mcell.S{background:#dbeafe;color:var(--b)}
+.mcell.E{background:#f3e8ff;color:var(--v)}
+
+/* Log */
+.log-area{margin-top:14px;display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto}
+.lg{font-family:var(--mono);font-size:11px;padding:5px 10px;border-left:3px solid var(--warm);
+  color:#666;animation:si .18s ease both}
+.lg.call{border-color:var(--b);color:var(--ink)}.lg.ret{border-color:var(--g);color:var(--g)}
+.lg.bt{border-color:var(--v);color:var(--v)}.lg.place{border-color:var(--gold);color:#8a6a00}
+.lg.ok{border-color:var(--g);color:var(--g);font-weight:500}
+@keyframes si{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+
+/* Stepper label */
+.step-lbl{font-family:var(--mono);font-size:11px;color:#888;margin-bottom:10px}
+.step-lbl b{color:var(--ink)}
+
+/* Compare table */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:2px solid var(--ink);margin-bottom:32px}
+.cc{padding:18px 20px;background:var(--cream);font-family:var(--serif);font-size:14px;line-height:1.6;font-weight:300}
+.cc:nth-child(4n+1),.cc:nth-child(4n+2){background:var(--ink);color:var(--paper)}
+.cc h4{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:.5;margin-bottom:8px}
+
+/* Callout */
+.callout{border-left:4px solid var(--r);padding:14px 18px;background:var(--cream);margin-bottom:28px;
+  font-family:var(--serif);font-size:15px;line-height:1.65;color:#444;font-weight:300}
+.callout strong{color:var(--r)}
+.callout.blue{border-color:var(--b)}.callout.blue strong{color:var(--b)}
+.callout.green{border-color:var(--g)}.callout.green strong{color:var(--g)}
+.callout.purple{border-color:var(--v)}.callout.purple strong{color:var(--v)}
+
+/* Merge sort SVG panel */
+#ms-svg{width:100%;height:300px}
+
+@media(max-width:500px){
+  .qcell{width:40px;height:40px;font-size:20px}
+  .mcell{width:32px;height:32px;font-size:9px}
+}
+
+/* ── SUMMARY PAGE ── */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px;margin-bottom:40px}
+.scard{background:var(--cream);border:2px solid var(--ink);padding:0;overflow:hidden;position:relative}
+.scard-head{padding:18px 22px 14px;border-bottom:2px solid var(--ink)}
+.scard-num{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.4;margin-bottom:4px}
+.scard-name{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1}
+.scard-tag{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  display:inline-block;margin-top:8px;padding:2px 8px;border:1px solid currentColor;border-radius:12px}
+.scard-body{padding:18px 22px}
+.scard-diagram{margin-bottom:14px}
+.scard-desc{font-family:var(--serif);font-size:14px;line-height:1.65;color:#444;font-weight:300;margin-bottom:14px}
+.scard-facts{display:flex;flex-direction:column;gap:6px}
+.sfact{display:flex;gap:10px;font-family:var(--mono);font-size:11px;align-items:flex-start}
+.sfact-key{color:#888;flex-shrink:0;width:54px;text-align:right}
+.sfact-val{color:var(--ink);font-weight:500}
+/* SVG diagrams */
+.diag-svg{width:100%;height:auto;display:block}
+/* accent colors per card */
+.scard:nth-child(1) .scard-name{color:var(--b)}
+.scard:nth-child(1) .scard-tag{color:var(--b);border-color:var(--b)}
+.scard:nth-child(1) .scard-head{background:#f0f6ff}
+.scard:nth-child(2) .scard-name{color:var(--r)}
+.scard:nth-child(2) .scard-tag{color:var(--r);border-color:var(--r)}
+.scard:nth-child(2) .scard-head{background:#fff5f5}
+.scard:nth-child(3) .scard-name{color:var(--g)}
+.scard:nth-child(3) .scard-tag{color:var(--g);border-color:var(--g)}
+.scard:nth-child(3) .scard-head{background:#f0fdf4}
+.scard:nth-child(4) .scard-name{color:var(--v)}
+.scard:nth-child(4) .scard-tag{color:var(--v);border-color:var(--v)}
+.scard:nth-child(4) .scard-head{background:#faf5ff}
+/* big concept row */
+.concept-row{display:flex;align-items:stretch;gap:0;border:2px solid var(--ink);margin-bottom:32px;overflow:hidden;flex-wrap:wrap}
+.concept-cell{flex:1;min-width:180px;padding:20px 22px;border-right:2px solid var(--ink)}
+.concept-cell:last-child{border-right:none}
+.concept-cell h3{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-bottom:10px}
+.concept-cell p{font-family:var(--serif);font-size:14px;line-height:1.6;font-weight:300;color:#3a3530}
+.concept-cell p strong{font-weight:700;color:var(--ink)}
+/* big analogy cards */
+.analogy-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px;margin-bottom:32px}
+.an-cell{padding:22px;background:var(--cream);border:2px solid var(--ink);text-align:center}
+.an-icon{font-size:40px;margin-bottom:10px;line-height:1}
+.an-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:#888}
+.an-body{font-family:var(--serif);font-size:14px;line-height:1.6;color:#444;font-weight:300}
+
+/* ── RETURN STATEMENT ── */
+.ret-hero{text-align:center;padding:32px 20px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);margin-bottom:32px;position:relative;overflow:hidden}
+.ret-hero::before{content:'return';position:absolute;font-family:var(--serif);font-size:clamp(60px,15vw,160px);font-weight:900;font-style:italic;opacity:.04;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;color:var(--paper)}
+.ret-hero-label{font-family:var(--mono);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.ret-hero-title{font-family:var(--serif);font-size:clamp(28px,6vw,64px);font-weight:900;line-height:.92;letter-spacing:-2px;font-style:italic}
+.ret-hero-title em{font-style:normal;color:var(--gold)}
+.ret-hero-sub{font-family:var(--mono);font-size:12px;color:#aaa;margin-top:14px;letter-spacing:1px}
+
+/* return flow diagram */
+.ret-flow{display:flex;flex-direction:column;gap:0;margin-bottom:32px;border:2px solid var(--ink);overflow:hidden}
+.ret-flow-row{display:grid;grid-template-columns:200px 1fr;border-bottom:2px solid var(--ink);min-height:64px}
+.ret-flow-row:last-child{border-bottom:none}
+.ret-flow-label{background:var(--ink);color:var(--paper);padding:16px 20px;display:flex;flex-direction:column;justify-content:center;border-right:2px solid var(--ink)}
+.ret-flow-label span:first-child{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:.45;margin-bottom:4px}
+.ret-flow-label span:last-child{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--gold)}
+.ret-flow-content{background:var(--cream);padding:16px 22px;display:flex;flex-direction:column;justify-content:center}
+.ret-flow-content p{font-family:var(--serif);font-size:15px;line-height:1.65;color:#3a3530;font-weight:300}
+.ret-flow-content p strong{font-weight:700;color:var(--ink)}
+.ret-flow-content code{font-family:var(--mono);font-size:12px;background:#e8e0d0;padding:1px 5px;border-radius:2px}
+
+/* interactive return demo */
+.ret-demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:32px}
+@media(max-width:650px){.ret-demo-grid{grid-template-columns:1fr}}
+.ret-demo-cell{border:2px solid var(--ink);overflow:hidden}
+.ret-demo-head{background:var(--ink);color:var(--paper);padding:9px 16px;font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.ret-demo-body{padding:18px;background:var(--cream)}
+.ret-demo-body p{font-family:var(--serif);font-size:14px;line-height:1.65;color:#444;font-weight:300;margin-bottom:10px}
+.ret-demo-body p strong{color:var(--ink);font-weight:700}
+
+/* stack unwind animation */
+.unwind-stage{min-height:220px;position:relative;background:var(--cream);border:2px solid var(--ink);overflow:hidden;margin-bottom:32px}
+.unwind-topbar{background:var(--ink);color:var(--paper);padding:9px 18px;display:flex;justify-content:space-between;align-items:center}
+.unwind-body{display:grid;grid-template-columns:1fr 1fr;min-height:240px}
+@media(max-width:650px){.unwind-body{grid-template-columns:1fr}}
+.unwind-stack{padding:20px;background:#141210;border-right:2px solid var(--ink);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;min-height:240px}
+.unwind-explanation{padding:20px;background:var(--cream)}
+.uframe{font-family:var(--mono);font-size:12px;padding:8px 14px;border:2px solid;display:flex;justify-content:space-between;align-items:center;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.uframe.idle{border-color:#333;color:#777;background:#1a1714}
+.uframe.active{border-color:var(--gold);color:#e8e0d0;background:#1e1b14}
+.uframe.returning{border-color:#1e8449;color:#1e8449;background:#0d1a12}
+.uframe.gone{opacity:0;transform:translateX(30px)}
+.ret-val-bubble{display:inline-block;font-family:var(--mono);font-size:13px;padding:4px 12px;border:2px solid var(--g);color:var(--g);background:#f0fdf4;border-radius:2px;margin-top:8px;transition:all .3s}
+.unwind-log{font-family:var(--mono);font-size:11px;color:#888;line-height:1.8}
+.unwind-log .uh{color:var(--gold);font-weight:500}
+.unwind-log .ur{color:#1e8449}
+
+/* return flavors */
+.flavor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;margin-bottom:32px}
+.flavor{border:2px solid var(--ink);overflow:hidden}
+.flavor-head{padding:12px 16px;font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid var(--ink)}
+.flavor-body{padding:14px 16px;background:var(--cream)}
+.flavor-code{background:var(--ink);color:#e8e0d0;font-family:var(--mono);font-size:12px;padding:12px 14px;line-height:1.8;margin-bottom:10px}
+.flavor-desc{font-family:var(--serif);font-size:13px;line-height:1.6;color:#555;font-weight:300}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Computer Science — Interactive Guide</div>
+  <h1>Loops,<br/><em>Calls</em><br/>&amp; Stacks</h1>
+  <div class="sub">Iteration · Recursion · Recursion+Iteration · Backtracking</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-p="iter" onclick="sw(this)">① Iteration</button>
+  <button class="tab" data-p="rec" onclick="sw(this)">② Recursion</button>
+  <button class="tab" data-p="hybrid" onclick="sw(this)">③ Both Together</button>
+  <button class="tab" data-p="bt" onclick="sw(this)">④ Backtracking</button>
+  <button class="tab" data-p="summary" onclick="sw(this)">⑤ Summary</button>
+  <button class="tab" data-p="ret" onclick="sw(this)">⑥ return</button>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 1 — ITERATION                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel active" id="panel-iter">
+  <div class="ch-label">Chapter One</div>
+  <div class="ch-title">Iteration: The Loop</div>
+  <p class="prose">A loop <strong>repeats a block of instructions</strong>. One stack frame. Flat memory. The program counter jumps back to the top. No new allocations per step — just mutation.</p>
+
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">sumIterative(5) — live trace</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="iterPlay()">▶ Play</button>
+        <button class="vbtn" onclick="iterStep()">Step</button>
+        <button class="vbtn" onclick="iterReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-split">
+      <!-- CODE -->
+      <div class="viz-code-pane">
+        <div class="code-lines" id="iter-code">
+          <div class="cl" data-tag=""><span class="cl-num">1</span><span class="cl-src"><span class="kw">function</span> <span class="fn">sumIterative</span>(n) {</span></div>
+          <div class="cl" data-tag="init"><span class="cl-num">2</span><span class="cl-src">  <span class="kw">let</span> acc = <span class="nm">0</span></span></div>
+          <div class="cl" data-tag="loop"><span class="cl-num">3</span><span class="cl-src">  <span class="kw">for</span> (i = <span class="nm">1</span>; i &lt;= n; i++) {</span></div>
+          <div class="cl" data-tag="body"><span class="cl-num">4</span><span class="cl-src">    acc = acc + i  <span class="cm">// accumulate</span></span></div>
+          <div class="cl" data-tag="loop"><span class="cl-num">5</span><span class="cl-src">  }  <span class="cm">// jump back ↑</span></span></div>
+          <div class="cl" data-tag="ret"><span class="cl-num">6</span><span class="cl-src">  <span class="kw">return</span> acc</span></div>
+          <div class="cl" data-tag=""><span class="cl-num">7</span><span class="cl-src">}</span></div>
+        </div>
+        <div class="code-step-bar">step <span id="iter-sn">0</span> / <span id="iter-st">0</span> &nbsp;·&nbsp; line <span id="iter-ln">—</span></div>
+      </div>
+      <!-- VISUAL -->
+      <div class="viz-visual-pane">
+        <div class="step-lbl">i &nbsp;<span style="color:var(--warm)">·</span> iteration progress</div>
+        <div class="iter-track">
+          <div class="iter-row">
+            <span class="ir-label">i =</span>
+            <div id="iter-icells"></div>
+          </div>
+          <div class="iter-row">
+            <span class="ir-label">acc =</span>
+            <div class="acc-box" id="iter-acc">0</div>
+          </div>
+        </div>
+        <div class="log-area" id="iter-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout"><strong>One frame, always.</strong> The call stack never grows. <code>acc</code> and <code>i</code> are mutated in-place — no new memory allocated per step. Safe for any size <em>n</em>.</div>
+
+  <div class="cmp">
+    <div class="cc"><h4>Property</h4><strong>Stack depth</strong> — always 1</div>
+    <div class="cc"><h4>Implication</h4>No stack overflow risk. Handles n = 10,000,000 fine.</div>
+    <div class="cc"><h4>Property</h4><strong>State</strong> — explicit mutable variables</div>
+    <div class="cc"><h4>Implication</h4>Easy to inspect, pause, and resume. Debugger shows everything.</div>
+    <div class="cc"><h4>Property</h4><strong>Control flow</strong> — branch back to loop top</div>
+    <div class="cc"><h4>Implication</h4>CPUs are optimized for branch-and-loop. Often the fastest path.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 2 — RECURSION                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-rec">
+  <div class="ch-label">Chapter Two</div>
+  <div class="ch-title">Recursion: The Mirror</div>
+  <p class="prose">A function <strong>calls itself</strong> with a smaller problem until it hits a <strong>base case</strong>. Each call pushes a new frame. The answer is assembled on the way back <em>up</em>.</p>
+
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">sumRecursive(5) — call stack</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="recPlay()">▶ Play</button>
+        <button class="vbtn" onclick="recStep()">Step</button>
+        <button class="vbtn" onclick="recReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-split">
+      <div class="viz-code-pane">
+        <div class="code-lines" id="rec-code">
+          <div class="cl" data-tag=""><span class="cl-num">1</span><span class="cl-src"><span class="kw">function</span> <span class="fn">sumRec</span>(n) {</span></div>
+          <div class="cl" data-tag="base"><span class="cl-num">2</span><span class="cl-src">  <span class="kw">if</span> (n === <span class="nm">0</span>)</span></div>
+          <div class="cl" data-tag="base"><span class="cl-num">3</span><span class="cl-src">    <span class="kw">return</span> <span class="nm">0</span>  <span class="cm">// base case ←</span></span></div>
+          <div class="cl" data-tag="call"><span class="cl-num">4</span><span class="cl-src">  sub = <span class="fn">sumRec</span>(n - <span class="nm">1</span>)  <span class="cm">// recurse</span></span></div>
+          <div class="cl" data-tag="ret"><span class="cl-num">5</span><span class="cl-src">  <span class="kw">return</span> n + sub  <span class="cm">// combine ↑</span></span></div>
+          <div class="cl" data-tag=""><span class="cl-num">6</span><span class="cl-src">}</span></div>
+        </div>
+        <div class="code-step-bar">step <span id="rec-sn">0</span> / <span id="rec-st">0</span> &nbsp;·&nbsp; <span id="rec-phase">descending</span></div>
+      </div>
+      <div class="viz-visual-pane">
+        <div class="step-lbl">Call Stack &nbsp;<span style="color:var(--warm)">·</span> top = active frame</div>
+        <div class="stack-wrap" id="rec-stack"></div>
+        <div class="log-area" id="rec-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout"><strong>Base case is mandatory.</strong> Without <code>n === 0</code>, the function recurses forever until the engine throws a <em>Maximum call stack size exceeded</em> error.</div>
+
+  <!-- Recursion tree -->
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">Recursion tree — sumRec(5)</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="treeAnim()">▶ Animate</button>
+        <button class="vbtn" onclick="treeReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-visual-pane" style="background:var(--cream);padding:16px;overflow-x:auto">
+      <svg id="tree-svg" width="540" height="360" style="display:block;margin:0 auto"></svg>
+    </div>
+  </div>
+
+  <div class="cmp">
+    <div class="cc"><h4>Property</h4><strong>Stack depth = problem depth</strong></div>
+    <div class="cc"><h4>Implication</h4>sumRec(5) → 6 frames. sumRec(100000) → stack overflow.</div>
+    <div class="cc"><h4>Property</h4><strong>State lives in frames</strong></div>
+    <div class="cc"><h4>Implication</h4>Each frame holds its own <em>n</em>. No shared mutable variable.</div>
+    <div class="cc"><h4>Property</h4><strong>Two phases: down then up</strong></div>
+    <div class="cc"><h4>Implication</h4>Post-processing on the way back is trivial. Ideal for trees and D&amp;C.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 3 — HYBRID                          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-hybrid">
+  <div class="ch-label">Chapter Three</div>
+  <div class="ch-title">Both Together:<br/>Merge Sort</div>
+  <p class="prose">Real algorithms often combine both. Merge Sort <strong>recurses to split</strong> the array, then <strong>iterates to merge</strong> sorted halves. The recursion handles structure; the loop handles the linear work.</p>
+
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">mergeSort([5,3,1,4,2])</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="msPlay()">▶ Play</button>
+        <button class="vbtn" onclick="msStep()">Step</button>
+        <button class="vbtn" onclick="msReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-split">
+      <div class="viz-code-pane">
+        <div class="code-lines" id="ms-code">
+          <div class="cl" data-tag=""><span class="cl-num">1</span><span class="cl-src"><span class="kw">function</span> <span class="fn">mergeSort</span>(arr) {</span></div>
+          <div class="cl" data-tag="base"><span class="cl-num">2</span><span class="cl-src">  <span class="kw">if</span> arr.len &lt;= <span class="nm">1</span>: <span class="kw">return</span> arr</span></div>
+          <div class="cl" data-tag="split"><span class="cl-num">3</span><span class="cl-src">  mid = arr.len / <span class="nm">2</span></span></div>
+          <div class="cl" data-tag="rec"><span class="cl-num">4</span><span class="cl-src">  L = <span class="fn">mergeSort</span>(arr[<span class="nm">0</span>..mid])  <span class="cm">// recurse</span></span></div>
+          <div class="cl" data-tag="rec"><span class="cl-num">5</span><span class="cl-src">  R = <span class="fn">mergeSort</span>(arr[mid..])  <span class="cm">// recurse</span></span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">6</span><span class="cl-src">  <span class="kw">return</span> <span class="fn">merge</span>(L, R)</span></div>
+          <div class="cl" data-tag=""><span class="cl-num">7</span><span class="cl-src">}</span></div>
+          <div class="cl" data-tag=""><span class="cl-num">8</span><span class="cl-src"></span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">9</span><span class="cl-src"><span class="kw">function</span> <span class="fn">merge</span>(L, R) {</span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">10</span><span class="cl-src">  <span class="kw">while</span> L <span class="kw">and</span> R not empty {  <span class="cm">// ← iter</span></span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">11</span><span class="cl-src">    push min(L[<span class="nm">0</span>], R[<span class="nm">0</span>])</span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">12</span><span class="cl-src">  }  <span class="cm">// copy remainder</span></span></div>
+          <div class="cl" data-tag="merge"><span class="cl-num">13</span><span class="cl-src">  <span class="kw">return</span> result</span></div>
+          <div class="cl" data-tag=""><span class="cl-num">14</span><span class="cl-src">}</span></div>
+        </div>
+        <div class="code-step-bar">step <span id="ms-sn">0</span> / <span id="ms-st">0</span> &nbsp;·&nbsp; <span id="ms-phase">—</span></div>
+      </div>
+      <div class="viz-visual-pane" style="overflow-x:auto;padding:12px 10px">
+        <svg id="ms-svg" style="display:block;max-width:100%;min-width:360px" height="300"></svg>
+        <div class="log-area" id="ms-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout green"><strong>Red boxes = recursive splits ↓ &nbsp; Green boxes = iterative merges ↑.</strong> Each merge call is a loop — entirely linear work. The recursion only provides the divide-and-conquer frame.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 4 — BACKTRACKING                    -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-bt">
+  <div class="ch-label">Chapter Four</div>
+  <div class="ch-title">Backtracking:<br/><em>Try. Fail.<br/>Undo.</em></div>
+  <p class="prose">Backtracking is <strong>recursion with a decision at each step</strong>. Try a choice, recurse forward — if you hit a dead end, <em>undo that choice</em> and try the next. The undo is the magic.</p>
+
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">4-Queens — backtracking solver</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="qPlay()">▶ Play</button>
+        <button class="vbtn" onclick="qStep()">Step</button>
+        <button class="vbtn" onclick="qReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-split">
+      <div class="viz-code-pane">
+        <div class="code-lines" id="q-code">
+          <div class="cl" data-tag=""><span class="cl-num">1</span><span class="cl-src"><span class="kw">function</span> <span class="fn">place</span>(row) {</span></div>
+          <div class="cl" data-tag="solved"><span class="cl-num">2</span><span class="cl-src">  <span class="kw">if</span> row === N: <span class="kw">return</span> <span class="nm">true</span></span></div>
+          <div class="cl" data-tag="try"><span class="cl-num">3</span><span class="cl-src">  <span class="kw">for</span> col = <span class="nm">0</span> → N-<span class="nm">1</span> {</span></div>
+          <div class="cl" data-tag="try"><span class="cl-num">4</span><span class="cl-src">    <span class="kw">if</span> !safe(row, col): <span class="kw">continue</span></span></div>
+          <div class="cl" data-tag="place"><span class="cl-num">5</span><span class="cl-src">    board[row] = col  <span class="cm">// ✓ place</span></span></div>
+          <div class="cl" data-tag="place"><span class="cl-num">6</span><span class="cl-src">    <span class="kw">if</span> <span class="fn">place</span>(row+<span class="nm">1</span>): <span class="kw">return</span> <span class="nm">true</span></span></div>
+          <div class="cl" data-tag="bt"><span class="cl-num">7</span><span class="cl-src">    board[row] = -<span class="nm">1</span>  <span class="cm">// ↩ undo</span></span></div>
+          <div class="cl" data-tag=""><span class="cl-num">8</span><span class="cl-src">  }</span></div>
+          <div class="cl" data-tag="bt"><span class="cl-num">9</span><span class="cl-src">  <span class="kw">return</span> <span class="nm">false</span>  <span class="cm">// dead end</span></span></div>
+          <div class="cl" data-tag=""><span class="cl-num">10</span><span class="cl-src">}</span></div>
+        </div>
+        <div class="code-step-bar">step <span id="q-sn">0</span> / <span id="q-st">0</span> &nbsp;·&nbsp; <span id="q-phase">—</span></div>
+      </div>
+      <div class="viz-visual-pane" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start">
+        <div>
+          <div class="step-lbl">Board state</div>
+          <div class="qboard" id="q-board" style="grid-template-columns:repeat(4,48px)"></div>
+        </div>
+        <div style="width:100%">
+          <div class="step-lbl">Queens: <span id="q-placed" style="font-size:18px;letter-spacing:3px">· · · ·</span></div>
+          <div class="log-area" id="q-log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout purple"><strong>The undo is the magic.</strong> <code>board[row] = -1</code> restores state completely. No board copies needed. One array, millions of paths explored for free.</div>
+
+  <!-- MAZE -->
+  <div class="viz-box">
+    <div class="viz-topbar">
+      <span class="viz-title">Maze solver — find path S → E</span>
+      <div class="viz-btns">
+        <button class="vbtn pri" onclick="mazePlay()">▶ Play</button>
+        <button class="vbtn" onclick="mazeStep()">Step</button>
+        <button class="vbtn" onclick="mazeReset()">Reset</button>
+      </div>
+    </div>
+    <div class="viz-split">
+      <div class="viz-code-pane">
+        <div class="code-lines" id="maze-code">
+          <div class="cl" data-tag=""><span class="cl-num">1</span><span class="cl-src"><span class="kw">function</span> <span class="fn">dfs</span>(r, c) {</span></div>
+          <div class="cl" data-tag="solved"><span class="cl-num">2</span><span class="cl-src">  <span class="kw">if</span> (r,c) === END: <span class="kw">return</span> <span class="nm">true</span></span></div>
+          <div class="cl" data-tag="mark"><span class="cl-num">3</span><span class="cl-src">  visited[r][c] = <span class="nm">true</span>  <span class="cm">// mark</span></span></div>
+          <div class="cl" data-tag="try"><span class="cl-num">4</span><span class="cl-src">  <span class="kw">for each</span> (nr,nc) in neighbours {</span></div>
+          <div class="cl" data-tag="try"><span class="cl-num">5</span><span class="cl-src">    <span class="kw">if</span> wall || visited: <span class="kw">skip</span></span></div>
+          <div class="cl" data-tag="try"><span class="cl-num">6</span><span class="cl-src">    <span class="kw">if</span> <span class="fn">dfs</span>(nr, nc): <span class="kw">return</span> <span class="nm">true</span></span></div>
+          <div class="cl" data-tag="bt"><span class="cl-num">7</span><span class="cl-src">  }  <span class="cm">// all failed</span></span></div>
+          <div class="cl" data-tag="bt"><span class="cl-num">8</span><span class="cl-src">  path.delete(r,c)  <span class="cm">// ↩ undo</span></span></div>
+          <div class="cl" data-tag="bt"><span class="cl-num">9</span><span class="cl-src">  <span class="kw">return</span> <span class="nm">false</span></span></div>
+          <div class="cl" data-tag=""><span class="cl-num">10</span><span class="cl-src">}</span></div>
+        </div>
+        <div class="code-step-bar">step <span id="maze-sn">0</span> / <span id="maze-st">0</span> &nbsp;·&nbsp; <span id="maze-phase">—</span></div>
+      </div>
+      <div class="viz-visual-pane" style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+        <div class="maze-grid" id="maze-grid" style="grid-template-columns:repeat(7,38px)"></div>
+        <div class="step-lbl" style="margin:0">
+          <span style="display:inline-block;width:12px;height:12px;background:#dcfce7;border:1px solid var(--g);margin-right:4px"></span>path &nbsp;
+          <span style="display:inline-block;width:12px;height:12px;background:#fee2e2;border:1px solid var(--r);margin-right:4px;opacity:.6"></span>dead end &nbsp;
+          <span style="display:inline-block;width:12px;height:12px;background:#fef3c7;border:1px solid #f59e0b;margin-right:4px"></span>trying
+        </div>
+        <div class="log-area" id="maze-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmp">
+    <div class="cc"><h4>Step</h4><strong>Make choice</strong> — place, mark, assign</div>
+    <div class="cc"><h4>When</h4>Any forward move that extends the partial solution</div>
+    <div class="cc"><h4>Step</h4><strong>Recurse</strong> — call self with new state</div>
+    <div class="cc"><h4>When</h4>After every valid choice — explore that branch</div>
+    <div class="cc"><h4>Step</h4><strong>Undo</strong> — remove, unmark, unassign</div>
+    <div class="cc"><h4>When</h4>Recursive call returned false — dead end. Restore and try next.</div>
+    <div class="cc"><h4>Step</h4><strong>Prune</strong> — skip invalid choices early</div>
+    <div class="cc"><h4>When</h4>Constraint already violated — no point exploring further</div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────
+const $ = id => document.getElementById(id);
+function sw(btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  $('panel-'+btn.dataset.p).classList.add('active');
+}
+function hlCode(containerId, tag){
+  document.querySelectorAll('#'+containerId+' .cl').forEach(l=>{
+    l.classList.toggle('hl', l.dataset.tag===tag && tag!=='');
+  });
+}
+function addLog(id, text, cls=''){
+  const el=$(id);
+  const d=document.createElement('div');
+  d.className='lg '+cls; d.textContent=text;
+  el.appendChild(d);
+  while(el.children.length>9) el.removeChild(el.firstChild);
+  el.scrollTop=el.scrollHeight;
+}
+function clrLog(id){ $(id).innerHTML=''; }
+
+// ─────────────────────────────────────
+// 1. ITERATION
+// ─────────────────────────────────────
+const ITERN=5;
+let iSteps=[],iI=0,iTmr=null;
+
+function buildIter(){
+  iSteps=[];
+  let acc=0;
+  iSteps.push({i:0,acc,tag:'init',ln:2,log:'let acc = 0',cls:'step'});
+  for(let i=1;i<=ITERN;i++){
+    iSteps.push({i,acc,tag:'loop',ln:3,log:`i=${i}: check i <= ${ITERN}`,cls:'call'});
+    acc+=i;
+    iSteps.push({i,acc,tag:'body',ln:4,log:`acc = ${acc-i} + ${i} = ${acc}`,cls:'ret'});
+  }
+  iSteps.push({i:ITERN+1,acc,tag:'ret',ln:6,log:`return ${acc} ✓`,cls:'ret'});
+}
+
+function rIter(){
+  const s=iSteps[iI]||iSteps[0];
+  $('iter-sn').textContent=iI;
+  $('iter-st').textContent=iSteps.length-1;
+  $('iter-ln').textContent=s.ln;
+  hlCode('iter-code',s.tag);
+  // i cells
+  const ic=$('iter-icells'); ic.innerHTML='';
+  const row=document.createElement('div'); row.style.display='flex'; row.style.gap='4px';
+  for(let v=1;v<=ITERN;v++){
+    const c=document.createElement('div'); c.className='icell';
+    c.textContent=v;
+    if(s.tag!=='init' && v<s.i) c.classList.add('done');
+    if(s.tag!=='ret' && v===s.i) c.classList.add('cur');
+    row.appendChild(c);
+  }
+  ic.appendChild(row);
+  const ab=$('iter-acc'); ab.textContent=s.acc;
+  ab.className='acc-box'+(s.tag==='body'?' flash':'');
+  if(s.log) addLog('iter-log',s.log,s.cls||'step');
+}
+function iterReset(){ clearInterval(iTmr); buildIter(); iI=0; clrLog('iter-log'); rIter(); }
+function iterStep(){ if(iI<iSteps.length-1){iI++;rIter();} }
+function iterPlay(){ clearInterval(iTmr); iTmr=setInterval(()=>{ if(iI<iSteps.length-1){iI++;rIter();}else clearInterval(iTmr); },650); }
+buildIter(); rIter();
+
+// ─────────────────────────────────────
+// 2. RECURSION STACK
+// ─────────────────────────────────────
+const RECN=5;
+let rSteps=[],rI=0,rTmr=null;
+
+function buildRec(){
+  rSteps=[];
+  // descend
+  for(let n=RECN;n>=0;n--){
+    const stack=[];
+    for(let k=RECN;k>=n;k--) stack.unshift({n:k,state:k===n?'active':'calling',ret:null});
+    const tag=n===0?'base':'call';
+    const log=n===0?'sumRec(0) → base case → 0':`sumRec(${n}) calls sumRec(${n-1})`;
+    rSteps.push({stack,tag,log,cls:n===0?'ret':'call',phase:'descending'});
+  }
+  // ascend
+  let running=0;
+  for(let n=1;n<=RECN;n++){
+    running+=n;
+    const stack=[];
+    for(let k=RECN;k>=n;k--)
+      stack.unshift({n:k,state:k===n?'returning':'calling',ret:k===n?running:null});
+    rSteps.push({stack,tag:'ret',log:`sumRec(${n}) → ${n} + ${running-n} = ${running}`,cls:'ret',phase:'ascending'});
+  }
+  rSteps.push({stack:[],tag:'ret',log:`Final: ${RECN*(RECN+1)/2} ✓`,cls:'ret',phase:'done'});
+}
+
+function rRec(){
+  const s=rSteps[rI]||rSteps[0];
+  $('rec-sn').textContent=rI;
+  $('rec-st').textContent=rSteps.length-1;
+  $('rec-phase').textContent=s.phase||'—';
+  hlCode('rec-code',s.tag);
+  const sw=$('rec-stack'); sw.innerHTML='';
+  if(!s.stack.length){
+    sw.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:#aaa;padding:6px">stack empty</div>';
+  }
+  [...s.stack].reverse().forEach((f,ri)=>{
+    const d=document.createElement('div');
+    d.className='frame '+f.state;
+    d.style.marginLeft=(s.stack.length-1-ri)*10+'px';
+    d.innerHTML=`<span class="fname">sumRec</span><span class="farg">(${f.n})</span>${f.ret!==null?`<span class="fret">&nbsp;→ ${f.ret}</span>`:''}`;
+    sw.appendChild(d);
+  });
+  if(s.log) addLog('rec-log',s.log,s.cls||'step');
+}
+function recReset(){ clearInterval(rTmr); buildRec(); rI=0; clrLog('rec-log'); rRec(); }
+function recStep(){ if(rI<rSteps.length-1){rI++;rRec();} }
+function recPlay(){ clearInterval(rTmr); rTmr=setInterval(()=>{ if(rI<rSteps.length-1){rI++;rRec();}else clearInterval(rTmr); },750); }
+buildRec(); rRec();
+
+// ─────────────────────────────────────
+// RECURSION TREE SVG
+// ─────────────────────────────────────
+const TNODES=[
+  {n:5,x:270,y:28,par:null},
+  {n:4,x:185,y:100,par:0},
+  {n:3,x:125,y:172,par:1},
+  {n:2,x:80,y:244,par:2},
+  {n:1,x:52,y:316,par:3},
+  {n:0,x:34,y:388,par:4},
+];
+const TRETS=[0,1,3,6,10,15];
+let tI=0,tTmr=null;
+function drawTree(upTo){
+  const svg=$('tree-svg'); svg.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  svg.setAttribute('height',420);
+  const done=upTo>=TNODES.length;
+  TNODES.forEach((nd,idx)=>{
+    if(idx>upTo) return;
+    if(nd.par!==null){
+      const p=TNODES[nd.par];
+      const ln=document.createElementNS(ns,'line');
+      ln.setAttribute('x1',p.x);ln.setAttribute('y1',p.y+20);
+      ln.setAttribute('x2',nd.x);ln.setAttribute('y2',nd.y-20);
+      ln.setAttribute('stroke',done?'#1e8449':'#c0392b');ln.setAttribute('stroke-width','1.5');
+      ln.setAttribute('stroke-dasharray','4 3'); svg.appendChild(ln);
+    }
+    const isBase=nd.n===0;
+    const circ=document.createElementNS(ns,'circle');
+    circ.setAttribute('cx',nd.x);circ.setAttribute('cy',nd.y);circ.setAttribute('r',20);
+    circ.setAttribute('fill',isBase?'#dcfce7':'#fdf5e8');
+    circ.setAttribute('stroke',isBase?'#1e8449':idx===upTo?'#c0392b':'#d4c9b0');
+    circ.setAttribute('stroke-width',idx===upTo?2.5:1.5);
+    svg.appendChild(circ);
+    const txt=document.createElementNS(ns,'text');
+    txt.setAttribute('x',nd.x);txt.setAttribute('y',nd.y+5);
+    txt.setAttribute('text-anchor','middle');txt.setAttribute('font-family','DM Mono,monospace');
+    txt.setAttribute('font-size','12');txt.setAttribute('fill',isBase?'#1e8449':'#0e0c0a');
+    txt.textContent=`f(${nd.n})`; svg.appendChild(txt);
+    if(done){
+      const rv=document.createElementNS(ns,'text');
+      rv.setAttribute('x',nd.x+26);rv.setAttribute('y',nd.y-6);
+      rv.setAttribute('font-family','DM Mono,monospace');rv.setAttribute('font-size','10');
+      rv.setAttribute('fill','#1e8449');
+      rv.textContent=`→${TRETS[TNODES.length-1-idx]}`; svg.appendChild(rv);
+    }
+  });
+  // legend
+  const leg=document.createElementNS(ns,'text');
+  leg.setAttribute('x',310);leg.setAttribute('y',50);
+  leg.setAttribute('font-family','DM Mono,monospace');leg.setAttribute('font-size','10');
+  leg.setAttribute('fill','#aaa');leg.textContent='f(n) = sumRec(n)';
+  svg.appendChild(leg);
+}
+function treeAnim(){ treeReset(); tTmr=setInterval(()=>{ tI++; drawTree(tI); if(tI>=TNODES.length) clearInterval(tTmr); },600); }
+function treeReset(){ clearInterval(tTmr); tI=0; drawTree(0); }
+drawTree(0);
+
+// ─────────────────────────────────────
+// 3. MERGE SORT
+// ─────────────────────────────────────
+let msSteps=[],msI=0,msTmr=null;
+const MS_ARR=[5,3,1,4,2];
+
+function buildMs(){
+  msSteps=[];
+  function ms(arr,xL,xR,yBase){
+    const cx=(xL+xR)/2;
+    msSteps.push({type:'split',arr:[...arr],cx,cy:yBase,xL,xR,log:`split [${arr}]`,tag:'split',phase:'recurse ↓'});
+    if(arr.length<=1) return arr;
+    const mid=Math.floor(arr.length/2);
+    const L=ms(arr.slice(0,mid),xL,xL+(xR-xL)/2,yBase+72);
+    const R=ms(arr.slice(mid),xL+(xR-xL)/2,xR,yBase+72);
+    const merged=[]; let l=0,r=0;
+    while(l<L.length&&r<R.length) merged.push(L[l]<=R[r]?L[l++]:R[r++]);
+    while(l<L.length) merged.push(L[l++]);
+    while(r<R.length) merged.push(R[r++]);
+    msSteps.push({type:'merge',arr:merged,cx,cy:yBase,xL,xR,log:`merge [${L}]+[${R}]→[${merged}]`,tag:'merge',phase:'iterate ↑'});
+    return merged;
+  }
+  ms(MS_ARR,20,480,24);
+}
+
+function rMs(){
+  $('ms-sn').textContent=msI;
+  $('ms-st').textContent=msSteps.length-1;
+  const cur=msSteps[msI];
+  if(cur){$('ms-phase').textContent=cur.phase; hlCode('ms-code',cur.tag);}
+  const svg=$('ms-svg'); svg.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  const W=svg.parentElement.offsetWidth||500;
+  svg.setAttribute('width',Math.max(360,W-20));
+  const seen=new Map();
+  msSteps.slice(0,msI+1).forEach(s=>{ seen.set(`${s.cx}_${s.cy}_${s.type}`,s); });
+  seen.forEach(s=>{
+    const isM=s.type==='merge';
+    const isCur=cur&&s.cx===cur.cx&&s.cy===cur.cy&&s.type===cur.type;
+    const bw=Math.max(50,s.arr.length*26);
+    const rect=document.createElementNS(ns,'rect');
+    rect.setAttribute('x',s.cx-bw/2);rect.setAttribute('y',s.cy-15);
+    rect.setAttribute('width',bw);rect.setAttribute('height',30);
+    rect.setAttribute('fill',isM?'#dcfce7':'#fdf5e8');
+    rect.setAttribute('stroke',isCur?(isM?'#1e8449':'#c0392b'):'#d4c9b0');
+    rect.setAttribute('stroke-width',isCur?2.5:1.5);rect.setAttribute('rx',2);
+    svg.appendChild(rect);
+    s.arr.forEach((v,i)=>{
+      const tx=s.cx-bw/2+(i+.5)*(bw/s.arr.length);
+      const t=document.createElementNS(ns,'text');
+      t.setAttribute('x',tx);t.setAttribute('y',s.cy+5);
+      t.setAttribute('text-anchor','middle');t.setAttribute('font-family','DM Mono,monospace');
+      t.setAttribute('font-size','13');t.setAttribute('fill',isM?'#1e8449':'#0e0c0a');
+      t.setAttribute('font-weight','500');t.textContent=v;
+      svg.appendChild(t);
+    });
+    const lbl=document.createElementNS(ns,'text');
+    lbl.setAttribute('x',s.cx-bw/2);lbl.setAttribute('y',s.cy-19);
+    lbl.setAttribute('font-family','DM Mono,monospace');lbl.setAttribute('font-size','9');
+    lbl.setAttribute('fill',isM?'#1e8449':'#c0392b');
+    lbl.textContent=isM?'merge ↑':'split ↓'; svg.appendChild(lbl);
+  });
+  if(cur) addLog('ms-log',(cur.type==='merge'?'[iterate] ':'[recurse] ')+cur.log,cur.type==='merge'?'ret':'call');
+}
+function msReset(){ clearInterval(msTmr); buildMs(); msI=0; clrLog('ms-log'); rMs(); }
+function msStep(){ if(msI<msSteps.length-1){msI++;rMs();} }
+function msPlay(){ clearInterval(msTmr); msTmr=setInterval(()=>{ if(msI<msSteps.length-1){msI++;rMs();}else clearInterval(msTmr); },900); }
+buildMs(); rMs();
+
+// ─────────────────────────────────────
+// 4. N-QUEENS
+// ─────────────────────────────────────
+const QN=4;
+let qSteps=[],qI=0,qTmr=null;
+
+function qSafe(board,row,col){
+  for(let r=0;r<row;r++){
+    if(board[r]===col||Math.abs(board[r]-col)===Math.abs(r-row)) return false;
+  }
+  return true;
+}
+function buildQ(){
+  qSteps=[];
+  const board=new Array(QN).fill(-1);
+  function place(row){
+    if(row===QN){ qSteps.push({board:[...board],phase:'solved',tag:'solved',log:'Solution found ✓',cls:'ok'}); return true; }
+    for(let col=0;col<QN;col++){
+      qSteps.push({board:[...board],phase:'try',tryR:row,tryC:col,tag:'try',log:`Row ${row}: try col ${col}`,cls:'step'});
+      if(qSafe(board,row,col)){
+        board[row]=col;
+        qSteps.push({board:[...board],phase:'place',tag:'place',log:`Row ${row} col ${col} — safe ✓`,cls:'place'});
+        if(place(row+1)) return true;
+        board[row]=-1;
+        qSteps.push({board:[...board],phase:'bt',tag:'bt',log:`Backtrack: remove row ${row} col ${col}`,cls:'bt'});
+      } else {
+        qSteps.push({board:[...board],phase:'conflict',conflictR:row,conflictC:col,tag:'try',log:`Row ${row} col ${col} — conflict!`,cls:'bt'});
+      }
+    }
+    return false;
+  }
+  place(0);
+}
+
+function rQ(){
+  const s=qSteps[qI]||qSteps[0];
+  $('q-sn').textContent=qI; $('q-st').textContent=qSteps.length-1;
+  $('q-phase').textContent=s.phase||'—';
+  hlCode('q-code',s.tag);
+  const board=$('q-board'); board.innerHTML='';
+  for(let r=0;r<QN;r++) for(let c=0;c<QN;c++){
+    const cel=document.createElement('div');
+    cel.className='qcell '+((r+c)%2===0?'light':'dark');
+    const hasQ=s.board[r]===c;
+    if(s.phase==='try'&&r===s.tryR&&c===s.tryC) cel.classList.add('trying');
+    else if((s.phase==='conflict')&&r===s.conflictR&&c===s.conflictC) cel.classList.add('conflict');
+    if(hasQ){ cel.classList.add('placed'); cel.textContent='♛'; }
+    board.appendChild(cel);
+  }
+  $('q-placed').textContent=Array.from({length:QN},(_,i)=>s.board[i]>=0?'♛':'·').join(' ');
+  if(s.log) addLog('q-log',s.log,s.cls||'step');
+}
+function qReset(){ clearInterval(qTmr); buildQ(); qI=0; clrLog('q-log'); rQ(); }
+function qStep(){ if(qI<qSteps.length-1){qI++;rQ();} }
+function qPlay(){ clearInterval(qTmr); qTmr=setInterval(()=>{ if(qI<qSteps.length-1){qI++;rQ();}else clearInterval(qTmr); },480); }
+buildQ(); rQ();
+
+// ─────────────────────────────────────
+// 4b. MAZE
+// ─────────────────────────────────────
+const MAZE=[
+  [1,1,1,1,1,1,1],
+  [1,0,0,1,0,0,1],
+  [1,0,1,1,0,1,1],
+  [1,0,0,0,0,0,1],
+  [1,1,0,1,1,0,1],
+  [1,0,0,0,1,0,1],
+  [1,1,1,1,1,1,1],
+];
+const MS=[1,1],ME=[5,5];
+let mazeSteps=[],mazeI=0,mazeTmr=null;
+
+function buildMaze(){
+  mazeSteps=[];
+  const R=MAZE.length,C=MAZE[0].length;
+  const vis=Array.from({length:R},()=>new Array(C).fill(false));
+  const path=new Set(),dead=new Set();
+  const k=(r,c)=>r+','+c;
+  function dfs(r,c){
+    if(r===ME[0]&&c===ME[1]){
+      path.add(k(r,c));
+      mazeSteps.push({path:new Set(path),dead:new Set(dead),trying:null,tag:'solved',log:'Reached exit ✓',cls:'ok'});
+      return true;
+    }
+    vis[r][c]=true; path.add(k(r,c));
+    mazeSteps.push({path:new Set(path),dead:new Set(dead),trying:k(r,c),tag:'mark',log:`Enter (${r},${c})`,cls:'call'});
+    for(const [dr,dc,arrow] of [[0,1,'→'],[1,0,'↓'],[0,-1,'←'],[-1,0,'↑']]){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=R||nc<0||nc>=C||MAZE[nr][nc]===1||vis[nr][nc]) continue;
+      mazeSteps.push({path:new Set(path),dead:new Set(dead),trying:k(nr,nc),tag:'try',log:`Try ${arrow} (${nr},${nc})`,cls:'step'});
+      if(dfs(nr,nc)) return true;
+      path.delete(k(nr,nc)); dead.add(k(nr,nc));
+      mazeSteps.push({path:new Set(path),dead:new Set(dead),trying:k(r,c),tag:'bt',log:`Backtrack from (${nr},${nc})`,cls:'bt'});
+    }
+    return false;
+  }
+  dfs(MS[0],MS[1]);
+}
+
+function rMaze(){
+  const s=mazeSteps[mazeI]||mazeSteps[0];
+  $('maze-sn').textContent=mazeI; $('maze-st').textContent=mazeSteps.length-1;
+  $('maze-phase').textContent=s.tag||'—';
+  hlCode('maze-code',s.tag);
+  const grid=$('maze-grid'); grid.innerHTML='';
+  MAZE.forEach((row,r)=>row.forEach((cell,c)=>{
+    const d=document.createElement('div');
+    const kv=r+','+c;
+    const isS=r===MS[0]&&c===MS[1],isE=r===ME[0]&&c===ME[1];
+    if(cell===1) d.className='mcell wall';
+    else if(isS) d.className='mcell S',d.textContent='S';
+    else if(isE) d.className='mcell E',d.textContent='E';
+    else if(s.path&&s.path.has(kv)) d.className='mcell path';
+    else if(s.dead&&s.dead.has(kv)) d.className='mcell dead';
+    else if(s.trying===kv) d.className='mcell trying';
+    else d.className='mcell open';
+    grid.appendChild(d);
+  }));
+  if(s.log) addLog('maze-log',s.log,s.cls||'step');
+}
+function mazeReset(){ clearInterval(mazeTmr); buildMaze(); mazeI=0; clrLog('maze-log'); rMaze(); }
+function mazeStep(){ if(mazeI<mazeSteps.length-1){mazeI++;rMaze();} }
+function mazePlay(){ clearInterval(mazeTmr); mazeTmr=setInterval(()=>{ if(mazeI<mazeSteps.length-1){mazeI++;rMaze();}else clearInterval(mazeTmr); },360); }
+buildMaze(); rMaze();
+</script>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 5 — SUMMARY                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-summary">
+  <div class="ch-label">Quick Reference</div>
+  <div class="ch-title">All Four,<br/>at a Glance</div>
+
+  <!-- ANALOGY STRIP -->
+  <div class="analogy-strip">
+    <div class="an-cell">
+      <div class="an-icon">🔄</div>
+      <div class="an-title">Iteration</div>
+      <div class="an-body">Like walking down a hallway — one step at a time, always moving forward in the same space</div>
+    </div>
+    <div class="an-cell">
+      <div class="an-icon">🪆</div>
+      <div class="an-title">Recursion</div>
+      <div class="an-body">Like opening a Russian doll — each one contains a smaller version of itself, until you hit the smallest</div>
+    </div>
+    <div class="an-cell">
+      <div class="an-icon">🗂️</div>
+      <div class="an-title">Recursion + Iteration</div>
+      <div class="an-body">Like sorting a filing cabinet — recursively split drawers, then linearly scan each drawer to merge</div>
+    </div>
+    <div class="an-cell">
+      <div class="an-icon">🧩</div>
+      <div class="an-title">Backtracking</div>
+      <div class="an-body">Like solving a maze with a pencil — draw a path, hit a wall, erase back to the last fork, try again</div>
+    </div>
+  </div>
+
+  <!-- FOUR SUMMARY CARDS -->
+  <div class="summary-grid">
+
+    <!-- CARD 1: ITERATION -->
+    <div class="scard">
+      <div class="scard-head">
+        <div class="scard-num">01 / Iteration</div>
+        <div class="scard-name">The Loop</div>
+        <span class="scard-tag">for / while</span>
+      </div>
+      <div class="scard-body">
+        <div class="scard-diagram">
+          <svg class="diag-svg" viewBox="0 0 240 110" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+            <!-- Single flat frame -->
+            <rect x="10" y="20" width="220" height="40" rx="2" fill="#f0f6ff" stroke="#2471a3" stroke-width="1.5"/>
+            <text x="20" y="36" font-size="9" fill="#888" letter-spacing="2">CALL STACK</text>
+            <rect x="20" y="38" width="80" height="16" rx="1" fill="#2471a3" opacity=".15"/>
+            <text x="28" y="50" font-size="10" fill="#2471a3" font-weight="500">frame: main()</text>
+            <!-- Loop arrow -->
+            <path d="M 50 62 Q 50 90 120 90 Q 190 90 190 62" fill="none" stroke="#2471a3" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <polygon points="192,62 188,55 196,55" fill="#2471a3"/>
+            <text x="100" y="104" font-size="9" fill="#2471a3" text-anchor="middle">loop back</text>
+            <!-- Stack depth label -->
+            <text x="200" y="36" font-size="9" fill="#2471a3">depth: 1</text>
+          </svg>
+        </div>
+        <p class="scard-desc">Repeats a block of code. State lives in mutable variables. Stack never grows.</p>
+        <div class="scard-facts">
+          <div class="sfact"><span class="sfact-key">stack</span><span class="sfact-val">always 1 frame</span></div>
+          <div class="sfact"><span class="sfact-key">memory</span><span class="sfact-val">O(1) extra</span></div>
+          <div class="sfact"><span class="sfact-key">overflow</span><span class="sfact-val">impossible</span></div>
+          <div class="sfact"><span class="sfact-key">best for</span><span class="sfact-val">sequences, counters, sums</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: RECURSION -->
+    <div class="scard">
+      <div class="scard-head">
+        <div class="scard-num">02 / Recursion</div>
+        <div class="scard-name">The Mirror</div>
+        <span class="scard-tag">base case + self-call</span>
+      </div>
+      <div class="scard-body">
+        <div class="scard-diagram">
+          <svg class="diag-svg" viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+            <!-- Stack of frames growing down -->
+            <rect x="10" y="8" width="170" height="18" rx="1" fill="#c0392b" opacity=".12" stroke="#c0392b" stroke-width="1.5"/>
+            <text x="18" y="21" font-size="10" fill="#c0392b">f(5)  waiting...</text>
+            <rect x="10" y="28" width="145" height="18" rx="1" fill="#c0392b" opacity=".09" stroke="#c0392b" stroke-width="1"/>
+            <text x="18" y="41" font-size="10" fill="#c0392b">f(4)  waiting...</text>
+            <rect x="10" y="48" width="120" height="18" rx="1" fill="#c0392b" opacity=".06" stroke="#c0392b" stroke-width="1"/>
+            <text x="18" y="61" font-size="10" fill="#c0392b">f(3)  waiting...</text>
+            <rect x="10" y="68" width="95" height="18" rx="1" fill="#c0392b" opacity=".06" stroke="#c0392b" stroke-width="1"/>
+            <text x="18" y="81" font-size="10" fill="#888">f(2)  ...</text>
+            <rect x="10" y="88" width="70" height="18" rx="1" fill="#1e8449" opacity=".15" stroke="#1e8449" stroke-width="1.5"/>
+            <text x="18" y="101" font-size="10" fill="#1e8449">f(0) → 0 base</text>
+            <!-- arrows -->
+            <text x="190" y="20" font-size="9" fill="#888">n=5</text>
+            <text x="190" y="40" font-size="9" fill="#888">n=4</text>
+            <text x="190" y="60" font-size="9" fill="#888">n=3</text>
+            <text x="190" y="80" font-size="9" fill="#888">...</text>
+            <text x="190" y="100" font-size="9" fill="#1e8449">base!</text>
+            <!-- depth brace -->
+            <line x1="228" y1="8" x2="228" y2="106" stroke="#ddd" stroke-width="1"/>
+            <text x="232" y="58" font-size="9" fill="#aaa" transform="rotate(90,232,58)">depth = n</text>
+          </svg>
+        </div>
+        <p class="scard-desc">Each call pushes a new frame. Returns unwind the stack, assembling the answer on the way back up.</p>
+        <div class="scard-facts">
+          <div class="sfact"><span class="sfact-key">stack</span><span class="sfact-val">grows with input depth</span></div>
+          <div class="sfact"><span class="sfact-key">memory</span><span class="sfact-val">O(n) call frames</span></div>
+          <div class="sfact"><span class="sfact-key">overflow</span><span class="sfact-val">possible if n is huge</span></div>
+          <div class="sfact"><span class="sfact-key">best for</span><span class="sfact-val">trees, D&amp;C, self-similar</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3: HYBRID -->
+    <div class="scard">
+      <div class="scard-head">
+        <div class="scard-num">03 / Both Together</div>
+        <div class="scard-name">Divide<br/>&amp; Sweep</div>
+        <span class="scard-tag">recurse to split · loop to merge</span>
+      </div>
+      <div class="scard-body">
+        <div class="scard-diagram">
+          <svg class="diag-svg" viewBox="0 0 240 115" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+            <!-- root -->
+            <rect x="80" y="4" width="80" height="20" rx="2" fill="#c0392b" opacity=".12" stroke="#c0392b" stroke-width="1.5"/>
+            <text x="120" y="18" font-size="10" fill="#c0392b" text-anchor="middle">split ↓</text>
+            <!-- two children -->
+            <line x1="100" y1="24" x2="60" y2="44" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <line x1="140" y1="24" x2="180" y2="44" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <rect x="30" y="44" width="60" height="18" rx="2" fill="#c0392b" opacity=".08" stroke="#c0392b" stroke-width="1"/>
+            <text x="60" y="57" font-size="9" fill="#c0392b" text-anchor="middle">split ↓</text>
+            <rect x="150" y="44" width="60" height="18" rx="2" fill="#c0392b" opacity=".08" stroke="#c0392b" stroke-width="1"/>
+            <text x="180" y="57" font-size="9" fill="#c0392b" text-anchor="middle">split ↓</text>
+            <!-- leaves -->
+            <rect x="10" y="72" width="30" height="16" rx="1" fill="#1e8449" opacity=".2" stroke="#1e8449" stroke-width="1"/>
+            <text x="25" y="84" font-size="8" fill="#1e8449" text-anchor="middle">[1]</text>
+            <rect x="44" y="72" width="30" height="16" rx="1" fill="#1e8449" opacity=".2" stroke="#1e8449" stroke-width="1"/>
+            <text x="59" y="84" font-size="8" fill="#1e8449" text-anchor="middle">[3]</text>
+            <rect x="160" y="72" width="30" height="16" rx="1" fill="#1e8449" opacity=".2" stroke="#1e8449" stroke-width="1"/>
+            <text x="175" y="84" font-size="8" fill="#1e8449" text-anchor="middle">[2]</text>
+            <rect x="194" y="72" width="30" height="16" rx="1" fill="#1e8449" opacity=".2" stroke="#1e8449" stroke-width="1"/>
+            <text x="209" y="84" font-size="8" fill="#1e8449" text-anchor="middle">[5]</text>
+            <!-- merge arrows up -->
+            <text x="59" y="108" font-size="9" fill="#1e8449" text-anchor="middle">merge ↑</text>
+            <text x="180" y="108" font-size="9" fill="#1e8449" text-anchor="middle">merge ↑</text>
+            <line x1="59" y1="88" x2="59" y2="100" stroke="#1e8449" stroke-width="1.2"/>
+            <line x1="180" y1="88" x2="180" y2="100" stroke="#1e8449" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <p class="scard-desc">Recursion handles structural decomposition. Iteration handles the linear work at each level.</p>
+        <div class="scard-facts">
+          <div class="sfact"><span class="sfact-key">recurse</span><span class="sfact-val">split/divide the structure</span></div>
+          <div class="sfact"><span class="sfact-key">iterate</span><span class="sfact-val">merge/combine per level</span></div>
+          <div class="sfact"><span class="sfact-key">examples</span><span class="sfact-val">merge sort, quicksort, DFS</span></div>
+          <div class="sfact"><span class="sfact-key">complexity</span><span class="sfact-val">O(n log n) typical</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 4: BACKTRACKING -->
+    <div class="scard">
+      <div class="scard-head">
+        <div class="scard-num">04 / Backtracking</div>
+        <div class="scard-name">Try,<br/>Fail, Undo</div>
+        <span class="scard-tag">choose · recurse · unchoose</span>
+      </div>
+      <div class="scard-body">
+        <div class="scard-diagram">
+          <svg class="diag-svg" viewBox="0 0 240 115" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+            <!-- Root -->
+            <circle cx="120" cy="16" r="12" fill="#faf5ff" stroke="#6c3483" stroke-width="1.5"/>
+            <text x="120" y="20" font-size="9" fill="#6c3483" text-anchor="middle">start</text>
+            <!-- Three branches -->
+            <line x1="110" y1="27" x2="60" y2="50" stroke="#6c3483" stroke-width="1.2"/>
+            <line x1="120" y1="28" x2="120" y2="50" stroke="#6c3483" stroke-width="1.2"/>
+            <line x1="130" y1="27" x2="180" y2="50" stroke="#6c3483" stroke-width="1.2"/>
+            <!-- Branch 1: fail -->
+            <circle cx="60" cy="60" r="11" fill="#fee2e2" stroke="#c0392b" stroke-width="1.5"/>
+            <text x="60" y="64" font-size="9" fill="#c0392b" text-anchor="middle">✗</text>
+            <text x="60" y="80" font-size="8" fill="#c0392b" text-anchor="middle">conflict</text>
+            <path d="M 52 68 Q 40 88 55 95 Q 70 100 72 82" fill="none" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <text x="30" y="98" font-size="8" fill="#c0392b">↩ undo</text>
+            <!-- Branch 2: partial -->
+            <circle cx="120" cy="60" r="11" fill="#fef3c7" stroke="#b7950b" stroke-width="1.5"/>
+            <text x="120" y="64" font-size="9" fill="#b7950b" text-anchor="middle">?</text>
+            <text x="120" y="80" font-size="8" fill="#b7950b" text-anchor="middle">try…</text>
+            <!-- Branch 3: success -->
+            <circle cx="180" cy="60" r="11" fill="#dcfce7" stroke="#1e8449" stroke-width="2"/>
+            <text x="180" y="64" font-size="9" fill="#1e8449" text-anchor="middle">✓</text>
+            <text x="180" y="80" font-size="8" fill="#1e8449" text-anchor="middle">solution</text>
+            <line x1="180" y1="71" x2="180" y2="90" stroke="#1e8449" stroke-width="1.5"/>
+            <circle cx="180" cy="98" r="7" fill="#1e8449"/>
+            <text x="180" y="102" font-size="8" fill="#fff" text-anchor="middle">★</text>
+          </svg>
+        </div>
+        <p class="scard-desc">At each step: make a choice, recurse. If the path fails, undo the choice and try the next option.</p>
+        <div class="scard-facts">
+          <div class="sfact"><span class="sfact-key">key ops</span><span class="sfact-val">choose · recurse · unchoose</span></div>
+          <div class="sfact"><span class="sfact-key">pruning</span><span class="sfact-val">skip invalid branches early</span></div>
+          <div class="sfact"><span class="sfact-key">examples</span><span class="sfact-val">N-Queens, Sudoku, mazes</span></div>
+          <div class="sfact"><span class="sfact-key">worst case</span><span class="sfact-val">exponential — prune hard</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /summary-grid -->
+
+  <!-- CONCEPT ROW: how they relate -->
+  <div class="ch-label" style="margin-top:8px">How They Relate</div>
+  <div class="concept-row">
+    <div class="concept-cell">
+      <h3>Foundation</h3>
+      <p><strong>Iteration</strong> is the most fundamental. Every recursive algorithm can be converted to iteration using an explicit stack. Iteration is what the CPU actually executes.</p>
+    </div>
+    <div class="concept-cell">
+      <h3>Abstraction</h3>
+      <p><strong>Recursion</strong> is iteration with automatic state management. The call stack <em>is</em> your explicit stack — the language manages it for you. Elegant for self-similar problems.</p>
+    </div>
+    <div class="concept-cell">
+      <h3>Power</h3>
+      <p><strong>Combining both</strong> gives you the best of each: recursive structure for divide-and-conquer, iterative loops for linear sweep. Most real sorting &amp; searching algorithms live here.</p>
+    </div>
+    <div class="concept-cell" style="border-right:none">
+      <h3>Search</h3>
+      <p><strong>Backtracking</strong> is recursion applied to constraint satisfaction. The <em>undo</em> step is what separates it from plain DFS — it allows exhaustive, systematic search with pruning.</p>
+    </div>
+  </div>
+
+  <!-- WHEN TO USE EACH -->
+  <div class="ch-label">When To Use Each</div>
+  <div class="cmp" style="grid-template-columns:repeat(4,1fr)">
+    <div class="cc" style="background:var(--ink);color:var(--paper)"><h4>Iteration</h4>Use when processing a flat sequence, accumulating a value, or when stack depth is a concern.</div>
+    <div class="cc" style="background:#2c1010;color:var(--paper)"><h4>Recursion</h4>Use when the problem is tree-shaped, self-similar, or when divide-and-conquer is natural.</div>
+    <div class="cc" style="background:#0d2010;color:var(--paper)"><h4>Both</h4>Use when recursion divides the problem but each level needs linear work (sort, parse, search).</div>
+    <div class="cc" style="background:#1a0d2e;color:var(--paper)"><h4>Backtracking</h4>Use when you need to explore choices and the solution must satisfy hard constraints.</div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PANEL 6 — RETURN STATEMENT                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-ret">
+
+  <div class="ret-hero">
+    <div class="ret-hero-label">The Most Important Word</div>
+    <div class="ret-hero-title">What does<br/><em>return</em><br/>actually do?</div>
+    <div class="ret-hero-sub">stop · hand back a value · restore the caller</div>
+  </div>
+
+  <!-- WHAT RETURN DOES -->
+  <div class="ret-flow">
+    <div class="ret-flow-row">
+      <div class="ret-flow-label"><span>step 1</span><span>Stop execution</span></div>
+      <div class="ret-flow-content"><p><strong>The function stops immediately.</strong> Any code after <code>return</code> in the same function is skipped. This is true even inside a loop or an if-block — <code>return</code> exits the entire function, not just the block.</p></div>
+    </div>
+    <div class="ret-flow-row">
+      <div class="ret-flow-label"><span>step 2</span><span>Pop the frame</span></div>
+      <div class="ret-flow-content"><p>The function's <strong>stack frame is removed</strong> from the call stack. All local variables inside it (<code>n</code>, <code>acc</code>, <code>i</code>…) are discarded. They no longer exist.</p></div>
+    </div>
+    <div class="ret-flow-row">
+      <div class="ret-flow-label"><span>step 3</span><span>Hand back the value</span></div>
+      <div class="ret-flow-content"><p>Whatever is written after <code>return</code> is evaluated and <strong>given to the caller</strong> as the result of the function call expression. <code>return n + sub</code> first computes <code>n + sub</code>, then hands that number up.</p></div>
+    </div>
+    <div class="ret-flow-row">
+      <div class="ret-flow-label"><span>step 4</span><span>Resume the caller</span></div>
+      <div class="ret-flow-content"><p>The <strong>caller resumes</strong> exactly where it paused — the line that called the function. The returned value slots in where the function call was written. If you wrote <code>x = f(5)</code>, now <code>x</code> holds the returned value.</p></div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE UNWIND -->
+  <div class="unwind-stage">
+    <div class="unwind-topbar">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase">Stack Unwind — sumRec(3) returning</span>
+      <div style="display:flex;gap:6px">
+        <button class="vbtn pri" onclick="unwindPlay()">▶ Play</button>
+        <button class="vbtn" onclick="unwindStep()">Step</button>
+        <button class="vbtn" onclick="unwindReset()">Reset</button>
+      </div>
+    </div>
+    <div class="unwind-body">
+      <div class="unwind-stack" id="unwind-stack"></div>
+      <div class="unwind-explanation" style="display:flex;flex-direction:column;gap:12px">
+        <div class="step-lbl">What's happening</div>
+        <div class="unwind-log" id="unwind-log">Press Play to watch the call stack unwind.</div>
+        <div id="unwind-retval" style="display:none">
+          <div class="step-lbl">Value being returned</div>
+          <div class="ret-val-bubble" id="unwind-bubble">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOUR FLAVORS OF RETURN -->
+  <div class="ch-label">Four Flavours of Return</div>
+  <div class="flavor-grid">
+
+    <div class="flavor">
+      <div class="flavor-head" style="background:#f0f6ff;color:var(--b)">Return a value</div>
+      <div class="flavor-body">
+        <div class="flavor-code"><span class="kw">return</span> n + sub</div>
+        <p class="flavor-desc">Evaluates the expression and hands the result to the caller. The most common form. Used to build up answers from sub-problems.</p>
+      </div>
+    </div>
+
+    <div class="flavor">
+      <div class="flavor-head" style="background:#fff5f5;color:var(--r)">Return early (guard)</div>
+      <div class="flavor-body">
+        <div class="flavor-code"><span class="kw">if</span> (n === <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span></div>
+        <p class="flavor-desc">Exits the function before reaching the main logic. Used for base cases in recursion and input validation. Keeps code flat — no deep nesting needed.</p>
+      </div>
+    </div>
+
+    <div class="flavor">
+      <div class="flavor-head" style="background:#f0fdf4;color:var(--g)">Return a boolean</div>
+      <div class="flavor-body">
+        <div class="flavor-code"><span class="kw">return</span> <span class="fn">solve</span>(next)</div>
+        <p class="flavor-desc">In backtracking, returning <code>true</code> or <code>false</code> propagates a signal up the call stack — "I found a solution" or "I hit a dead end." The caller decides what to do.</p>
+      </div>
+    </div>
+
+    <div class="flavor">
+      <div class="flavor-head" style="background:#faf5ff;color:var(--v)">Return nothing (void)</div>
+      <div class="flavor-body">
+        <div class="flavor-code"><span class="kw">return</span>  <span class="cm">// or just fall off</span></div>
+        <p class="flavor-desc">Exits the function with no value. Used when the function works by <em>side effect</em> (printing, mutating, drawing). The caller gets <code>undefined</code>.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- KEY MISCONCEPTIONS -->
+  <div class="ch-label">Common Confusions</div>
+  <div class="ret-demo-grid">
+    <div class="ret-demo-cell">
+      <div class="ret-demo-head" style="background:#2c1010">✗ return inside a loop exits the loop</div>
+      <div class="ret-demo-body">
+        <div class="flavor-code" style="margin-bottom:12px"><span class="kw">for</span> (i = <span class="nm">0</span>; i &lt; n; i++) {
+  <span class="kw">if</span> (arr[i] === target)
+    <span class="kw">return</span> i  <span class="cm">// exits the FUNCTION</span>
+}</div>
+        <p><strong>No.</strong> <code>return</code> exits the entire <em>function</em>, not just the loop. The loop stops because the function stops. <code>break</code> exits just the loop.</p>
+      </div>
+    </div>
+    <div class="ret-demo-cell">
+      <div class="ret-demo-head" style="background:#0d2010">✓ Recursive return must be forwarded</div>
+      <div class="ret-demo-body">
+        <div class="flavor-code" style="margin-bottom:12px"><span class="cm">// WRONG — loses the value</span>
+<span class="fn">solve</span>(next)
+
+<span class="cm">// CORRECT — forwards it up</span>
+<span class="kw">return</span> <span class="fn">solve</span>(next)</div>
+        <p>A recursive call without <code>return</code> discards the result. The function runs but its answer is thrown away. In backtracking this means <code>true</code> never propagates — the whole search appears to fail.</p>
+      </div>
+    </div>
+    <div class="ret-demo-cell">
+      <div class="ret-demo-head" style="background:#1a0d2e">✗ return exits the whole program</div>
+      <div class="ret-demo-body">
+        <p><strong>No.</strong> <code>return</code> only exits the <em>current function</em> and gives control back to whatever called it. Only the outermost call returning (or <code>process.exit()</code>) ends the program.</p>
+      </div>
+    </div>
+    <div class="ret-demo-cell">
+      <div class="ret-demo-head" style="background:#181408">✓ Multiple returns are fine</div>
+      <div class="ret-demo-body">
+        <div class="flavor-code" style="margin-bottom:12px"><span class="kw">if</span> (!valid) <span class="kw">return</span> <span class="nm">false</span>
+<span class="kw">if</span> (done)   <span class="kw">return</span> <span class="nm">true</span>
+<span class="kw">return</span> <span class="fn">recurse</span>(next)</div>
+        <p>A function can have many <code>return</code> statements. Whichever one is hit first wins. This is idiomatic in recursive and backtracking code.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISUAL: return as a river -->
+  <div class="ch-label">The Return as a River</div>
+  <div class="viz-box">
+    <div class="viz-topbar"><span class="viz-title">Values flow upward through the call stack</span></div>
+    <div class="viz-visual-pane" style="background:var(--cream);padding:20px;overflow-x:auto">
+      <svg viewBox="0 0 580 260" width="100%" style="max-width:580px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+        <!-- call stack frames, stacked -->
+        <!-- Frame 5: caller (top of diagram = bottom of stack visually... let's do caller at top) -->
+        <!-- Actually show: main calls f(3), f(3) calls f(2), f(2) calls f(1), f(1) calls f(0) -->
+        <!-- Frames from top to bottom = order of execution going down -->
+
+        <!-- Arrows on left = calls going down -->
+        <!-- Arrows on right = returns coming up -->
+
+        <!-- FRAMES -->
+        <rect x="160" y="10"  width="260" height="36" rx="2" fill="#1e1b18" stroke="#b7950b" stroke-width="2"/>
+        <text x="175" y="24"  font-size="11" fill="#e8c547">main()</text>
+        <text x="175" y="38"  font-size="10" fill="#888">result = f(3)  ← waits here</text>
+
+        <rect x="160" y="70"  width="220" height="36" rx="2" fill="#1e1b18" stroke="#555" stroke-width="1.5"/>
+        <text x="175" y="84"  font-size="11" fill="#e8e0d0">f(3)</text>
+        <text x="175" y="98"  font-size="10" fill="#888">return 3 + f(2)  ← waits</text>
+
+        <rect x="160" y="130" width="180" height="36" rx="2" fill="#1e1b18" stroke="#555" stroke-width="1.5"/>
+        <text x="175" y="144" font-size="11" fill="#e8e0d0">f(2)</text>
+        <text x="175" y="158" font-size="10" fill="#888">return 2 + f(1)  ← waits</text>
+
+        <rect x="160" y="190" width="140" height="36" rx="2" fill="#1e1b18" stroke="#555" stroke-width="1.5"/>
+        <text x="175" y="204" font-size="11" fill="#e8e0d0">f(1)</text>
+        <text x="175" y="218" font-size="10" fill="#888">return 1 + f(0)  ← waits</text>
+
+        <rect x="160" y="250" width="100" height="28" rx="2" fill="#0d1a12" stroke="#1e8449" stroke-width="2"/>
+        <text x="175" y="268" font-size="11" fill="#1e8449">f(0) → 0  BASE</text>
+
+        <!-- Call arrows (left side, going down) -->
+        <text x="10"  y="20"  font-size="9" fill="#c0392b" letter-spacing="1">CALLS</text>
+        <line x1="50" y1="28"  x2="50" y2="252" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <polygon points="50,256 46,248 54,248" fill="#c0392b"/>
+        <text x="56" y="50"  font-size="9" fill="#c0392b">f(3)</text>
+        <text x="56" y="110" font-size="9" fill="#c0392b">f(2)</text>
+        <text x="56" y="170" font-size="9" fill="#c0392b">f(1)</text>
+        <text x="56" y="230" font-size="9" fill="#c0392b">f(0)</text>
+
+        <!-- Return arrows (right side, going up) -->
+        <text x="448" y="260" font-size="9" fill="#1e8449" letter-spacing="1">RETURNS</text>
+        <line x1="490" y1="254" x2="490" y2="30" stroke="#1e8449" stroke-width="1.5"/>
+        <polygon points="490,26 486,34 494,34" fill="#1e8449"/>
+        <text x="496" y="252" font-size="9" fill="#1e8449">0</text>
+        <text x="496" y="200" font-size="9" fill="#1e8449">1</text>
+        <text x="496" y="140" font-size="9" fill="#1e8449">3</text>
+        <text x="496" y="80"  font-size="9" fill="#1e8449">6</text>
+        <text x="496" y="38"  font-size="9" fill="#b7950b">→ 6</text>
+
+        <!-- horizontal connectors -->
+        <line x1="420" y1="264" x2="490" y2="264" stroke="#1e8449" stroke-width="1" stroke-dasharray="3 2"/>
+        <line x1="300" y1="210" x2="490" y2="210" stroke="#1e8449" stroke-width="1" stroke-dasharray="3 2" opacity=".5"/>
+        <line x1="340" y1="150" x2="490" y2="150" stroke="#1e8449" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/>
+        <line x1="380" y1="90"  x2="490" y2="90"  stroke="#1e8449" stroke-width="1" stroke-dasharray="3 2" opacity=".3"/>
+
+        <!-- label -->
+        <text x="530" y="148" font-size="9" fill="#aaa" transform="rotate(90,530,148)">value flows up</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────
+// STACK UNWIND DEMO
+// ─────────────────────────────────────
+const UNWIND_FRAMES = [
+  {n:3, expr:'return 3 + f(2)', state:'active'},
+  {n:2, expr:'return 2 + f(1)', state:'active'},
+  {n:1, expr:'return 1 + f(0)', state:'active'},
+  {n:0, expr:'return 0  // base case', state:'active'},
+];
+const UNWIND_STEPS = [
+  {frames:[3,2,1,0], active:0,   retAt:-1, log:'sumRec(3) called sumRec(2)\ncalled sumRec(1), called sumRec(0)\nAll frames waiting.', val:null},
+  {frames:[3,2,1,0], active:3,   retAt:3,  log:'f(0) hits the base case.\nreturn 0 — pops its frame.', val:'0'},
+  {frames:[3,2,1],   active:2,   retAt:2,  log:'f(1) resumes, was waiting for f(0).\nComputes: 1 + 0 = 1.\nreturn 1 — pops its frame.', val:'1'},
+  {frames:[3,2],     active:1,   retAt:1,  log:'f(2) resumes, was waiting for f(1).\nComputes: 2 + 1 = 3.\nreturn 3 — pops its frame.', val:'3'},
+  {frames:[3],       active:0,   retAt:0,  log:'f(3) resumes, was waiting for f(2).\nComputes: 3 + 3 = 6.\nreturn 6 — pops its frame.', val:'6'},
+  {frames:[],        active:-1,  retAt:-1, log:'Stack is empty.\nThe caller receives 6.\nsumRec(3) = 6 ✓', val:'6'},
+];
+let uwI=0, uwTmr=null;
+
+function rUnwind(){
+  const s=UNWIND_STEPS[uwI];
+  const stackEl=$('unwind-stack');
+  stackEl.innerHTML='';
+  // Draw frames bottom-to-top (last in array = top of stack)
+  const shown=[...s.frames].reverse();
+  shown.forEach((n,i)=>{
+    const d=document.createElement('div');
+    const isTop=i===0;
+    const isRet=isTop && s.retAt>=0;
+    d.className='uframe '+(isRet?'returning':isTop?'active':'idle');
+    d.innerHTML=`<span>sumRec(<span style="color:#a78bfa">${n}</span>)</span><span style="opacity:.6;font-size:10px">${n===0?'base':'waiting…'}</span>`;
+    stackEl.appendChild(d);
+  });
+  if(!s.frames.length){
+    stackEl.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:#555;text-align:center;padding:16px">— stack empty —</div>';
+  }
+  // Log
+  const logEl=$('unwind-log');
+  logEl.innerHTML='';
+  s.log.split('\n').forEach(line=>{
+    const sp=document.createElement('span');
+    sp.className=line.includes('return')||line.includes('✓')?'ur':'';
+    if(line.includes('waiting')||line.includes('called')) sp.className='uh';
+    sp.textContent=line;
+    logEl.appendChild(sp);
+    logEl.appendChild(document.createElement('br'));
+  });
+  // Return value
+  const rv=$('unwind-retval');
+  const rb=$('unwind-bubble');
+  if(s.val!==null){rv.style.display='block';rb.textContent='→ '+s.val;}
+  else{rv.style.display='none';}
+}
+function unwindReset(){clearInterval(uwTmr);uwI=0;rUnwind();}
+function unwindStep(){if(uwI<UNWIND_STEPS.length-1){uwI++;rUnwind();}}
+function unwindPlay(){clearInterval(uwTmr);uwTmr=setInterval(()=>{if(uwI<UNWIND_STEPS.length-1){uwI++;rUnwind();}else clearInterval(uwTmr);},1100);}
+rUnwind();
+</script>
+</body>
+</html>

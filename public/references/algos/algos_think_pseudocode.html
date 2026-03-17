@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Think · Writing Pseudocode · COSC 3320</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #111111; --paper: #f2ede4; --cream: #ede8dc;
+  --yellow: #f5f500; --red: #e8352a; --navy: #1a1a2e; --navy2: #12121f;
+  --white: #ffffff; --border: 2.5px solid #111111; --thin: 1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; min-width: 52px; padding: 0 6px; font-family: 'Archivo Black', sans-serif; font-size: 10px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; text-align: center; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+.fw-wrap { margin-bottom: 3rem; }
+
+.fw-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.fw-header:hover { opacity: .88; }
+.fw-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 38px; min-width: 72px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.fw-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.fw-title { font-family: 'Archivo Black', sans-serif; font-size: 19px; text-transform: uppercase; letter-spacing: .02em; }
+.fw-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 4px; }
+.fw-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.fw-header.open .fw-arrow { transform: rotate(90deg); }
+
+.trigger-row { border: var(--border); border-top: none; background: var(--white); padding: 10px 16px 12px; }
+.trigger-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
+.trigger-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.trigger-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--ink); color: var(--yellow); padding: 4px 10px; }
+.trigger-pill.red { background: var(--red); color: #fff; }
+.trigger-pill.navy { background: var(--navy); color: #a0c4ff; }
+
+.fw-body { display: none; }
+.fw-body.open { display: block; }
+.fw-section { border: var(--border); border-top: none; }
+.fw-section-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.q-chain { padding: 16px 14px; display: flex; flex-direction: column; }
+.q-node { display: grid; grid-template-columns: 28px 1fr; gap: 0 12px; position: relative; }
+.q-node::before { content: ''; position: absolute; left: 13px; top: 34px; bottom: -12px; width: 2px; background: var(--yellow); z-index: 0; }
+.q-node:last-child::before { display: none; }
+.q-num { background: var(--yellow); color: var(--ink); font-family: 'Archivo Black', sans-serif; font-size: 11px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; position: relative; z-index: 1; }
+.q-body { padding-bottom: 20px; }
+.q-question { font-family: 'Archivo Black', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+.q-answer { font-size: 12.5px; color: #444; line-height: 1.75; }
+.q-answer strong { color: var(--ink); font-weight: 700; }
+.q-math { background: var(--white); border: 2px solid var(--ink); padding: 8px 13px; margin-top: 7px; line-height: 2.4; overflow-x: auto; font-size: 13px; }
+.q-example { background: var(--cream); border-left: 4px solid var(--ink); padding: 7px 11px; margin-top: 7px; font-size: 12px; color: #444; line-height: 1.7; }
+.q-example .ex-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #888; display: block; margin-bottom: 3px; }
+.q-example strong { color: var(--ink); }
+
+.visual-block { border: var(--border); border-top: none; background: var(--white); overflow-x: auto; }
+.visual-block .vb-head { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 5px 12px; }
+.visual-block .vb-body { padding: 16px; }
+svg text { font-family: 'JetBrains Mono', monospace; }
+
+.mistakes { border: var(--border); border-top: none; background: #fff8f8; }
+.mistakes-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; padding: 5px 14px; border-bottom: var(--border); }
+.mistake-row { display: grid; grid-template-columns: 24px 1fr; gap: 0 10px; padding: 8px 14px; border-bottom: var(--thin); align-items: start; font-size: 12.5px; }
+.mistake-row:last-child { border-bottom: none; }
+.mistake-x { color: var(--red); font-family: 'Archivo Black', sans-serif; font-size: 14px; }
+.mistake-text strong { color: var(--red); font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+
+/* Pseudocode blocks */
+.pseudo { border: var(--border); border-top: none; background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+.pseudo .pc-head { background: var(--yellow); border-bottom: var(--border); padding: 8px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pseudo .pc-name { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); }
+.pseudo .pc-sig { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; }
+.pseudo .pc-body { padding: 10px 0 14px; }
+.pseudo .ln-row { display: grid; grid-template-columns: 36px 1fr; padding-right: 18px; line-height: 2.1; }
+.pseudo .ln { font-size: 11px; text-align: right; padding-right: 10px; user-select: none; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; }
+.pseudo .code { padding-left: 14px; }
+.pseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.pseudo .fn { font-family: 'Archivo Black', sans-serif; font-size: 12px; color: #9a7d00; }
+.pseudo .cm { font-size: 11px; color: #bbb; }
+.pseudo .cm::before { content: '▷ '; }
+.pseudo .i1 { padding-left: 1.6em; border-left: 2px solid #e8c800; margin-left: .5em; }
+.pseudo .i2 { padding-left: 3.0em; border-left: 2px solid #e8c800; margin-left: 2.1em; }
+.pseudo .i3 { padding-left: 4.4em; border-left: 2px solid #e8c800; margin-left: 3.7em; }
+
+/* Comparison blocks */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: var(--border); border-top: none; }
+.compare-col { padding: 14px; }
+.compare-col.bad { background: #fff8f8; border-right: var(--border); }
+.compare-col.good { background: #f8fff8; }
+.compare-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 8px; }
+.compare-label.bad { color: var(--red); }
+.compare-label.good { color: #228B22; }
+.compare-code { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.8; color: #333; }
+.compare-note { font-size: 11px; color: #666; margin-top: 6px; font-style: italic; }
+</style>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>How to Think · Writing Pseudocode</h1>
+    <span>COSC 3320 · FROM ALGORITHM IDEA TO CLEAR, GRADEABLE PSEUDOCODE</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#f1">What Is It</a>
+    <a href="#f2">Structure</a>
+    <a href="#f3">Notation</a>
+    <a href="#f4">D&amp;C</a>
+    <a href="#f5">DP</a>
+    <a href="#f6">Greedy</a>
+    <a href="#f7">Traps</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════
+     01 — WHAT PSEUDOCODE IS AND IS NOT
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f1">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">01</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">What Pseudocode Is — And Is Not</div>
+      <div class="fw-sub">THE MINDSET BEFORE YOU WRITE A SINGLE LINE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Read this first</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">foundation</span>
+      <span class="trigger-pill red">not Python, not C++, not math</span>
+      <span class="trigger-pill navy">precise English + math notation</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Core Idea</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Pseudocode Lives Between English and Code</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <!-- spectrum -->
+            <rect x="10" y="40" width="680" height="50" fill="url(#grad)" stroke="#111" stroke-width="2"/>
+            <defs>
+              <linearGradient id="grad" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#fffde6"/>
+                <stop offset="40%" stop-color="#f5f500"/>
+                <stop offset="60%" stop-color="#f5f500"/>
+                <stop offset="100%" stop-color="#1a1a2e"/>
+              </linearGradient>
+            </defs>
+
+            <!-- labels -->
+            <text x="10"  y="30" font-size="9" fill="#555">Too vague</text>
+            <text x="590" y="30" font-size="9" fill="#555">Too specific</text>
+            <text x="285" y="30" font-size="10" fill="#111" font-family="'Archivo Black',sans-serif">← Pseudocode lives here →</text>
+
+            <text x="10"  y="75" text-anchor="start"  font-size="9" fill="#777">"find the max"</text>
+            <text x="190" y="75" text-anchor="middle" font-size="9" fill="#111" font-weight="bold">max ← A[1]</text>
+            <text x="350" y="65" text-anchor="middle" font-size="9" fill="#111" font-weight="bold">for i ← 2 to n:</text>
+            <text x="350" y="79" text-anchor="middle" font-size="9" fill="#111" font-weight="bold">  if A[i] > max: max ← A[i]</text>
+            <text x="560" y="75" text-anchor="middle" font-size="9" fill="#a0c4ff">int max = arr[0];</text>
+            <text x="560" y="88" text-anchor="middle" font-size="8" fill="#a0c4ff">for(int i=1;i&lt;n;i++)</text>
+
+            <text x="10"  y="108" font-size="9" fill="#777">Natural language</text>
+            <text x="280" y="108" font-size="9" fill="#111" font-weight="bold">↑ This is the sweet spot</text>
+            <text x="580" y="108" font-size="9" fill="#a0c4ff">Code</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">The purpose: communicate the algorithm, not implement it</div>
+            <div class="q-answer">Pseudocode communicates the <em>idea</em> of the algorithm clearly enough that any competent programmer could implement it in any language. It is not code. <strong>You should not be thinking about syntax, data types, or language-specific details.</strong><br/><br/>
+            The reader of your pseudocode is the grader — they want to see that you understand what the algorithm is doing, in what order, and why.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">The right level of abstraction — use math when it's cleaner</div>
+            <div class="q-answer">When the math is clearer than code, use math. \(\text{max}(A[j..i])\) is better than a nested loop computing the max. \(\text{Sort}(A)\) is better than writing a sorting algorithm inline. <strong>If a subroutine is standard and you've described it elsewhere, just call it by name.</strong></div>
+            <div class="q-example"><span class="ex-label">Good abstraction level</span><code>p ← KthClosest(R, ⌈m/2⌉)</code> — fine, you already defined KthClosest.<br/><code>running_max ← max(running_max, A[j])</code> — fine, max is understood.<br/><code>S₁ ← {z ∈ S : d(z) &lt; d(p)}</code> — fine, set-builder notation is clear.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">The reader test — would any CS student understand this?</div>
+            <div class="q-answer">After writing a line of pseudocode, ask: "could a CS junior implement this in Python or Java without asking me anything?" If yes, the level is right. If they'd need to ask "what does that mean exactly?", it's too vague. If they'd need to know Python-specific syntax, it's too specific.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col bad">
+        <div class="compare-label bad">✕ Too Vague</div>
+        <div class="compare-code">
+          Find the closest points.<br/>
+          Use the pivot to split.<br/>
+          Combine the results.<br/>
+          Return the answer.
+        </div>
+        <div class="compare-note">No structure, no specifics, unimplementable.</div>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-label good">✓ Right Level</div>
+        <div class="compare-code">
+          p ← KthClosest(R, ⌈m/2⌉)<br/>
+          S₁ ← {z ∈ S : d(z) &lt; d(p)}<br/>
+          if |S₁| = k−1: return p<br/>
+          else if |S₁| &gt; k−1:<br/>
+          &nbsp;&nbsp;return KthClosest(S₁, k)<br/>
+          else: return KthClosest(S₂, k−|S₁|−1)
+        </div>
+        <div class="compare-note">Precise logic, uses math notation, implementable.</div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col bad" style="border-top:var(--border);">
+        <div class="compare-label bad">✕ Too Specific (Code)</div>
+        <div class="compare-code">
+          max_val = float('-inf')<br/>
+          for i in range(len(arr)):<br/>
+          &nbsp;&nbsp;if arr[i] &gt; max_val:<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;max_val = arr[i]<br/>
+          return max_val
+        </div>
+        <div class="compare-note">This is Python. Pseudocode shouldn't be language-specific.</div>
+      </div>
+      <div class="compare-col good" style="border-top:var(--border);">
+        <div class="compare-label good">✓ Right Level</div>
+        <div class="compare-code">
+          max ← −∞<br/>
+          for i ← 1 to n:<br/>
+          &nbsp;&nbsp;if A[i] &gt; max: max ← A[i]<br/>
+          return max
+        </div>
+        <div class="compare-note">Language-agnostic, uses ← for assignment, clear loops.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     02 — THE STRUCTURE OF EVERY PSEUDOCODE BLOCK
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f2">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">02</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Structure — Every Algorithm Has the Same Skeleton</div>
+      <div class="fw-sub">THE 4 PARTS EVERY PSEUDOCODE BLOCK MUST HAVE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Before writing a single line, identify these four things</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">input declaration</span>
+      <span class="trigger-pill">output declaration</span>
+      <span class="trigger-pill">base case</span>
+      <span class="trigger-pill">main logic</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The 4-Part Skeleton</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Anatomy of a Pseudocode Block</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <!-- The four parts with colors -->
+            <!-- Part 1: Header -->
+            <rect x="10" y="10" width="680" height="40" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="20" y="28" font-size="10" font-weight="bold" fill="#111">func AlgorithmName(Input parameters)</text>
+            <text x="20" y="43" font-size="8.5" fill="#555">  ▷ Output: what this returns or produces</text>
+            <text x="580" y="28" font-size="8" fill="#e8352a">PART 1: HEADER</text>
+            <text x="580" y="40" font-size="8" fill="#e8352a">name + I/O contract</text>
+
+            <!-- Part 2: Base case -->
+            <rect x="10" y="52" width="680" height="40" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+            <text x="20" y="70" font-size="10" fill="#a0c4ff">  if |S| ≤ 1 (or n = 0, or other trivial case):</text>
+            <text x="20" y="84" font-size="9" fill="#6090c0">    return trivially correct answer</text>
+            <text x="550" y="68" font-size="8" fill="#f5f500">PART 2: BASE CASE</text>
+            <text x="550" y="80" font-size="8" fill="#f5f500">stop recursion here</text>
+
+            <!-- Part 3: Main logic -->
+            <rect x="10" y="94" width="680" height="100" fill="#fffef8" stroke="#111" stroke-width="1.5"/>
+            <text x="20" y="112" font-size="10" fill="#111">  ← main computation / decomposition →</text>
+            <text x="20" y="128" font-size="9" fill="#555">  split / precompute / build table / choose pivot</text>
+            <text x="20" y="144" font-size="9" fill="#555">  recursive calls or DP transitions</text>
+            <text x="20" y="160" font-size="9" fill="#555">  combine / merge / backtrack</text>
+            <text x="20" y="176" font-size="9" fill="#aaa">  (this is the bulk of the pseudocode)</text>
+            <text x="540" y="140" font-size="8" fill="#e8352a">PART 3: MAIN LOGIC</text>
+            <text x="540" y="152" font-size="8" fill="#e8352a">the actual algorithm</text>
+
+            <!-- Part 4: Return -->
+            <rect x="10" y="196" width="680" height="35" fill="#111" stroke="#111"/>
+            <text x="20" y="214" font-size="10" fill="#f5f500">  return answer</text>
+            <text x="20" y="228" font-size="8" fill="#aaa">  (or: modify in place, or print)</text>
+            <text x="570" y="214" font-size="8" fill="#f5f500">PART 4: RETURN</text>
+            <text x="570" y="226" font-size="8" fill="#aaa">output the result</text>
+
+            <!-- annotation arrow -->
+            <text x="10" y="255" font-size="9" fill="#555">← Everything between base case and return is PART 3. It can be as long as needed.</text>
+            <text x="10" y="270" font-size="9" fill="#555">   But the structure is always: header → stop condition → work → return.</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Start with the header — name your function and declare I/O</div>
+            <div class="q-answer">The function name should say what it does. Parameters should be named meaningfully. The output (comment or explicit) should say what you return. This is the "contract" that correctness proofs refer to.</div>
+            <div class="q-example"><span class="ex-label">Good headers</span><code>func KthClosest(S, k)</code> — Output: k-th closest point to origin.<br/><code>func CleaningRobot(grid[0..m-1][0..n-1])</code> — Output: max dirty cells cleaned.<br/><code>func FindCandidate(A[1..n])</code> — Output: (candidate, count) or (∅, 0).</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Write the base case immediately after the header</div>
+            <div class="q-answer">Before writing any logic, ask: <strong>"what's the smallest input where the answer is trivial?"</strong> Write that check first. This ensures the recursion terminates and gives graders a clean entry point for the correctness argument.</div>
+            <div class="q-example"><span class="ex-label">Base cases by algorithm type</span>D&amp;C: n=1 (single element). DP iteration: i=0 or i=1 (first cell). MergeSort: n=1 (already sorted). Binary search: lo &gt; hi (not found). Game: trivially winning/losing position.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Main logic — divide it into named phases with comments</div>
+            <div class="q-answer">Long pseudocode should have phase separators in comments. Graders scan pseudocode; comments act as a table of contents. Each phase should do one thing: decompose, recurse, combine.</div>
+            <div class="q-example"><span class="ex-label">Good comment structure</span><code>▷ Phase 1: partition into groups of 7</code><br/><code>▷ Phase 2: find median of medians (pivot)</code><br/><code>▷ Phase 3: partition S around pivot</code><br/><code>▷ Phase 4: recurse on correct side</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Missing the base case entirely.</strong> Pseudocode without a base case has an infinite recursion — the grader knows you haven't thought through termination.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Unnamed function / unclear I/O.</strong> "Algorithm 1: do the thing" — unclear. The header must declare: name, parameters, return value.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     03 — NOTATION RULES
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f3">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">03</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Standard Notation — The Symbols You Must Know</div>
+      <div class="fw-sub">CONSISTENT NOTATION = READABLE PSEUDOCODE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use these consistently throughout your pseudocode</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">assignment ←</span>
+      <span class="trigger-pill">comparison = ≠ &lt; ≤ &gt; ≥</span>
+      <span class="trigger-pill">loops: for / while</span>
+      <span class="trigger-pill navy">comments: ▷ terse hint</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Complete Notation Reference</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Standard Pseudocode Notation — All the Symbols</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <g font-family="'JetBrains Mono',monospace" font-size="9">
+            <!-- Assignment -->
+            <rect x="10" y="8" width="100" height="20" fill="#111"/>
+            <text x="60" y="22" text-anchor="middle" fill="#f5f500">ASSIGNMENT</text>
+            <text x="120" y="22" fill="#333">x ← value</text>
+            <text x="280" y="22" fill="#555">use ← not = for assignment</text>
+            <text x="10" y="30" fill="#aaa" font-size="8">never use = for assignment (= is comparison)</text>
+
+            <!-- Comparison -->
+            <rect x="10" y="38" width="100" height="20" fill="#111"/>
+            <text x="60" y="52" text-anchor="middle" fill="#f5f500">COMPARISON</text>
+            <text x="120" y="52" fill="#333">if x = y / x ≠ y / x ≤ y / x ≥ y</text>
+            <text x="10" y="60" fill="#aaa" font-size="8">= means equals (check), ← means assign</text>
+
+            <!-- Loops -->
+            <rect x="10" y="68" width="100" height="20" fill="#1a1a2e"/>
+            <text x="60" y="82" text-anchor="middle" fill="#a0c4ff">FOR LOOP</text>
+            <text x="120" y="82" fill="#333">for i ← 1 to n:  /  for i ← n downto 1:</text>
+            <text x="10" y="90" fill="#aaa" font-size="8">indices are 1-based unless stated otherwise</text>
+
+            <rect x="10" y="98" width="100" height="20" fill="#1a1a2e"/>
+            <text x="60" y="112" text-anchor="middle" fill="#a0c4ff">WHILE LOOP</text>
+            <text x="120" y="112" fill="#333">while condition: body</text>
+
+            <rect x="10" y="128" width="100" height="20" fill="#1a1a2e"/>
+            <text x="60" y="142" text-anchor="middle" fill="#a0c4ff">FOR EACH</text>
+            <text x="120" y="142" fill="#333">for each x ∈ S:  /  for v ∈ Adj[u]:</text>
+
+            <!-- Conditionals -->
+            <rect x="10" y="158" width="100" height="20" fill="#e8352a"/>
+            <text x="60" y="172" text-anchor="middle" fill="#fff">IF/ELSE</text>
+            <text x="120" y="172" fill="#333">if cond: action  /  else if cond2: action  /  else: action</text>
+
+            <!-- Functions -->
+            <rect x="10" y="188" width="100" height="20" fill="#f5f500"/>
+            <text x="60" y="202" text-anchor="middle" fill="#111">FUNCTION</text>
+            <text x="120" y="202" fill="#333">func Name(params):  /  proc Name(params):</text>
+            <text x="10" y="210" fill="#aaa" font-size="8">func = returns a value. proc = modifies in place / side effects.</text>
+
+            <!-- Arrays -->
+            <rect x="10" y="218" width="100" height="20" fill="#111"/>
+            <text x="60" y="232" text-anchor="middle" fill="#f5f500">ARRAYS</text>
+            <text x="120" y="232" fill="#333">A[i], A[i..j], A[1..n]  /  |S| = size of S</text>
+
+            <!-- Return -->
+            <rect x="10" y="248" width="100" height="20" fill="#111"/>
+            <text x="60" y="262" text-anchor="middle" fill="#f5f500">RETURN</text>
+            <text x="120" y="262" fill="#333">return value  /  return (a, b)  for tuples</text>
+
+            <!-- Comments -->
+            <rect x="10" y="278" width="100" height="20" fill="#555"/>
+            <text x="60" y="292" text-anchor="middle" fill="#fff">COMMENTS</text>
+            <text x="120" y="292" fill="#333">▷ terse hint about what this line does</text>
+            <text x="10" y="300" fill="#aaa" font-size="8">comments explain WHY, not restate WHAT. "▷ pivot chosen by median-of-medians" not "▷ set p equal to median"</text>
+
+            <!-- Math in pseudocode -->
+            <rect x="10" y="308" width="100" height="20" fill="#1a1a2e"/>
+            <text x="60" y="318" text-anchor="middle" fill="#a0c4ff">MATH</text>
+            <text x="120" y="318" fill="#333">⌈n/2⌉  ⌊n/2⌋  max(a,b)  ∞  ∅  ∈  ←  →</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Comments: explain WHY, not WHAT</div>
+            <div class="q-answer">Bad comment: <code>▷ set running_max to max of running_max and A[j]</code> — this just restates the line. Good comment: <code>▷ extend group leftward, tracking new max</code> — this explains the purpose in the algorithm's context.</div>
+            <div class="q-example"><span class="ex-label">The test</span>If a comment could be auto-generated by reading the code, it's useless. A good comment tells the reader something they couldn't infer from the code alone — why this step, what invariant it maintains, what edge case it handles.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Indentation communicates structure — be consistent</div>
+            <div class="q-answer">Every level of nesting gets one indent. The grader reads indentation to understand block structure. Inconsistent indentation makes pseudocode ambiguous — they can't tell which block a line belongs to.</div>
+            <div class="q-example"><span class="ex-label">Indentation levels</span>for loop body: +1 indent. if/else body: +1 indent. Nested if inside for: +2 indent. Recursive call at the same level as other statements: same indent as those statements.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">1-indexed vs 0-indexed — pick one, state it, stick to it</div>
+            <div class="q-answer">The textbook uses 1-indexed arrays (A[1..n]). Most pseudocode in this course is 1-indexed. If you use 0-indexed (A[0..n−1]), state it at the top. Mixing the two in the same pseudocode is fatal.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Using = for both assignment and comparison.</strong> Write x ← 5 for assignment. Write if x = 5 for comparison. Mixing these makes pseudocode ambiguous.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>No comments at all, or comments that restate the code.</strong> Comments are graded. "▷ initialize dp[0] to 0" is unhelpful. "▷ base case: empty prefix has zero sum" tells the grader you understand the algorithm.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     04 — PSEUDOCODE FOR D&C ALGORITHMS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f4">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">04</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">D&amp;C Pseudocode — The Recursive Template</div>
+      <div class="fw-sub">HOW SPLIT + RECURSE + COMBINE MAPS TO CODE STRUCTURE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use for…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">MergeSort, QuickSort, Binary Search</span>
+      <span class="trigger-pill">Linear Select (k-th smallest)</span>
+      <span class="trigger-pill">FindMinMax, Majority D&amp;C</span>
+      <span class="trigger-pill navy">any recursive split-and-combine algorithm</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The D&amp;C Template Mapped to Pseudocode Lines</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">D&amp;C Algorithm Structure → Pseudocode Mapping</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah6" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- Left: abstract structure -->
+            <text x="10" y="16" font-size="9" font-family="'Archivo Black',sans-serif">Abstract Structure</text>
+            <rect x="10" y="22" width="180" height="30" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="100" y="41" text-anchor="middle" font-size="9">Base case</text>
+            <rect x="10" y="58" width="180" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="100" y="77" text-anchor="middle" font-size="9">Divide input</text>
+            <rect x="10" y="94" width="180" height="30" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+            <text x="100" y="113" text-anchor="middle" font-size="9" fill="#a0c4ff">Recursive calls</text>
+            <rect x="10" y="130" width="180" height="30" fill="#e8352a" stroke="#111" stroke-width="1.5"/>
+            <text x="100" y="149" text-anchor="middle" font-size="9" fill="#fff">Combine</text>
+            <rect x="10" y="166" width="180" height="30" fill="#111" stroke="#111"/>
+            <text x="100" y="185" text-anchor="middle" font-size="9" fill="#f5f500">Return result</text>
+
+            <!-- arrows -->
+            <line x1="192" y1="37" x2="230" y2="37" stroke="#111" stroke-width="1.5" marker-end="url(#ah6)"/>
+            <line x1="192" y1="73" x2="230" y2="73" stroke="#111" stroke-width="1.5" marker-end="url(#ah6)"/>
+            <line x1="192" y1="109" x2="230" y2="109" stroke="#111" stroke-width="1.5" marker-end="url(#ah6)"/>
+            <line x1="192" y1="145" x2="230" y2="145" stroke="#111" stroke-width="1.5" marker-end="url(#ah6)"/>
+            <line x1="192" y1="181" x2="230" y2="181" stroke="#111" stroke-width="1.5" marker-end="url(#ah6)"/>
+
+            <!-- Right: concrete pseudocode -->
+            <text x="234" y="16" font-size="9" font-family="'Archivo Black',sans-serif">Linear Select — KthClosest(S, k)</text>
+            <rect x="234" y="22" width="455" height="30" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="244" y="38" font-size="9" fill="#111">if |S| = 1: return S[1]   ▷ trivial base case</text>
+            <rect x="234" y="58" width="455" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="244" y="74" font-size="9">Partition S into ⌈n/7⌉ groups; R ← medians of each group</text>
+            <rect x="234" y="94" width="455" height="30" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+            <text x="244" y="110" font-size="9" fill="#a0c4ff">p ← KthClosest(R, ⌈|R|/2⌉)   ▷ pivot = median of medians</text>
+            <text x="244" y="122" font-size="8" fill="#6090c0">S₁ ← {z ∈ S: d(z) &lt; d(p)},  S₂ ← {z ∈ S: d(z) &gt; d(p)}</text>
+            <rect x="234" y="130" width="455" height="30" fill="#e8352a" stroke="#111" stroke-width="1.5"/>
+            <text x="244" y="146" font-size="9" fill="#fff">if |S₁|=k−1: return p   ▷ pivot is exactly k-th</text>
+            <text x="244" y="158" font-size="8" fill="#ffccc">else if |S₁|&gt;k−1: return KthClosest(S₁,k)  else: KthClosest(S₂,k−|S₁|−1)</text>
+            <rect x="234" y="166" width="455" height="30" fill="#111" stroke="#111"/>
+            <text x="244" y="183" font-size="9" fill="#f5f500">(return is embedded in the combine logic above)</text>
+
+            <!-- labels -->
+            <text x="234" y="210" font-size="8.5" fill="#555">Note: in linear select, the "combine" and "return" are the same thing —</text>
+            <text x="234" y="222" font-size="8.5" fill="#555">you recurse on one side and return its result directly (no post-processing).</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Tail recursion: combine = recurse and return directly</div>
+            <div class="q-answer">In some D&amp;C algorithms (QuickSelect, Binary Search), after the divide step you recurse on <em>one</em> side and return its result directly — no combining. This is tail recursion. Your pseudocode should make this explicit: <code>return KthClosest(S₁, k)</code> not <code>result ← KthClosest(S₁, k); return result</code>.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Non-tail recursion: both halves + combine</div>
+            <div class="q-answer">In MergeSort, FindMinMax, and majority D&amp;C: you recurse on both halves and then combine. Your pseudocode should: (1) recursively call both, (2) store both results in variables, (3) combine explicitly.</div>
+            <div class="q-example">
+              <span class="ex-label">FindMinMax pattern</span>
+              <code>(maxL, minL) ← FindMinMax(L)</code><br/>
+              <code>(maxR, minR) ← FindMinMax(R)</code><br/>
+              <code>overall_max ← larger of maxL, maxR</code><br/>
+              <code>return (overall_max, smaller of minL, minR)</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Always name what the recursive call returns — store it in a variable</div>
+            <div class="q-answer">Don't write <code>KthClosest(S₁, k)</code> as a floating statement. Always either: (a) return it directly <code>return KthClosest(S₁, k)</code>, or (b) store it <code>result ← KthClosest(S₁, k)</code>. A function call with no assignment and no return is meaningless.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">FindMinMax(S[1..n])</span>
+          <span class="pc-sig">Output: (maximum, minimum) element of S</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="kw">if</span> n = 1: <span class="kw">return</span> (S[1], S[1]) &nbsp;<span class="cm">single element is both max and min</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code"><span class="kw">if</span> n = 2: compare S[1] and S[2] &nbsp;<span class="cm">1 comparison settles both</span></span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code i1"><span class="kw">return</span> (larger, smaller)</span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code">L ← S[1..⌊n/2⌋] &nbsp;&nbsp;R ← S[⌊n/2⌋+1..n] &nbsp;<span class="cm">split into halves</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code">(maxL, minL) ← <span class="fn">FindMinMax</span>(L) &nbsp;<span class="cm">recurse left — IH: correct by induction</span></span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code">(maxR, minR) ← <span class="fn">FindMinMax</span>(R) &nbsp;<span class="cm">recurse right</span></span></div>
+          <div class="ln-row"><span class="ln">7</span><span class="code">overall_max ← larger of maxL, maxR &nbsp;<span class="cm">1 comparison</span></span></div>
+          <div class="ln-row"><span class="ln">8</span><span class="code">overall_min ← smaller of minL, minR &nbsp;<span class="cm">1 comparison</span></span></div>
+          <div class="ln-row"><span class="ln">9</span><span class="code"><span class="kw">return</span> (overall_max, overall_min)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Recursive call with no assignment or return.</strong> Writing <code>MergeSort(A[1..n/2])</code> as a standalone line does nothing. Either store the result or return it.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Forgetting to handle both n=1 and n=2 base cases when needed.</strong> FindMinMax needs both — if n=2, don't recurse (you'd recurse into n=1 and n=1, spending 2 recursive calls + combine = 2 comparisons instead of 1).</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     05 — PSEUDOCODE FOR DP ALGORITHMS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f5">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">05</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">DP Pseudocode — Table Filling and Memoization</div>
+      <div class="fw-sub">HOW THE DP RECURRENCE MAPS TO ITERATIVE TABLE FILLING</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use for…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">MaxSum, Knapsack, Grid DP</span>
+      <span class="trigger-pill">LCS, Edit Distance, Partition DP</span>
+      <span class="trigger-pill">any problem with overlapping subproblems</span>
+      <span class="trigger-pill navy">iterative (bottom-up) DP preferred for clarity</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">DP Pseudocode = 4 Things in Order</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">The DP Pseudocode Recipe</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah7" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+
+            <!-- 4 steps -->
+            <rect x="10" y="10" width="155" height="55" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="87" y="28" text-anchor="middle" font-size="10" font-weight="bold">1. Initialize table</text>
+            <text x="87" y="43" text-anchor="middle" font-size="8.5" fill="#555">dp[0] = base case value</text>
+            <text x="87" y="55" text-anchor="middle" font-size="8.5" fill="#555">all others = 0 or −∞ or ∞</text>
+
+            <line x1="167" y1="37" x2="180" y2="37" stroke="#111" stroke-width="1.5" marker-end="url(#ah7)"/>
+
+            <rect x="182" y="10" width="155" height="55" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+            <text x="259" y="28" text-anchor="middle" font-size="10" fill="#f5f500" font-weight="bold">2. Fill order</text>
+            <text x="259" y="43" text-anchor="middle" font-size="8.5" fill="#6090c0">ensure predecessors</text>
+            <text x="259" y="55" text-anchor="middle" font-size="8.5" fill="#6090c0">always filled first</text>
+
+            <line x1="339" y1="37" x2="352" y2="37" stroke="#111" stroke-width="1.5" marker-end="url(#ah7)"/>
+
+            <rect x="354" y="10" width="155" height="55" fill="#e8352a" stroke="#111" stroke-width="1.5"/>
+            <text x="431" y="28" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">3. Recurrence</text>
+            <text x="431" y="43" text-anchor="middle" font-size="8.5" fill="#ffccc">dp[i] = f(dp[j], dp[k], ...)</text>
+            <text x="431" y="55" text-anchor="middle" font-size="8.5" fill="#ffccc">exact formula from DP design</text>
+
+            <line x1="511" y1="37" x2="524" y2="37" stroke="#111" stroke-width="1.5" marker-end="url(#ah7)"/>
+
+            <rect x="526" y="10" width="155" height="55" fill="#111" stroke="#111"/>
+            <text x="603" y="28" text-anchor="middle" font-size="10" fill="#f5f500" font-weight="bold">4. Extract answer</text>
+            <text x="603" y="43" text-anchor="middle" font-size="8.5" fill="#aaa">return dp[n] or</text>
+            <text x="603" y="55" text-anchor="middle" font-size="8.5" fill="#aaa">scan for best dp[i]</text>
+
+            <!-- Concrete example below -->
+            <text x="350" y="85" text-anchor="middle" font-size="10" font-family="'Archivo Black',sans-serif">Partition DP: MaxSumPartition(A[1..n], k)</text>
+
+            <text x="10"  y="104" font-size="9">1. Initialize: dp[0] ← 0  (base: empty prefix)</text>
+            <text x="10"  y="118" font-size="9">2. Fill order: i from 1 to n (each dp[i] needs dp[j-1] for j ≤ i, all already filled)</text>
+            <text x="10"  y="132" font-size="9">3. Recurrence: for each i, try j from i downto max(1, i-k+1):</text>
+            <text x="30"  y="147" font-size="9">   dp[i] ← max(dp[i], dp[j-1] + max(A[j..i]) × (i-j+1))</text>
+            <text x="10"  y="162" font-size="9">   (use running_max as j decreases for O(1) per step)</text>
+            <text x="10"  y="178" font-size="9" fill="#e8352a" font-weight="bold">4. Answer: return dp[n]</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">The fill order must ensure predecessors are always ready</div>
+            <div class="q-answer">The most common DP bug is filling the table in the wrong order. Before writing the loop, ask: "what does dp[i] depend on?" If it depends on dp[i−1], fill left-to-right. If it depends on dp[i−1][j−1], fill top-left to bottom-right. If it depends on dp[j] for j &lt; i, fill i=0, 1, 2, …, n.</div>
+            <div class="q-example">
+              <span class="ex-label">Fill order by DP type</span>
+              1D DP (dp[i] depends on dp[i−1]): for i ← 1 to n<br/>
+              2D grid DP (dp[i][j] from dp[i−1][j], dp[i][j−1]): nested for i, for j<br/>
+              Interval DP (dp[i][j] depends on dp[i][k] and dp[k][j]): for length ← 2 to n, then i<br/>
+              Partition DP (dp[i] from dp[j−1] for any j ≤ i): for i ← 1 to n
+            </div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">State the recurrence as a single assignment line</div>
+            <div class="q-answer">The heart of the DP pseudocode is the recurrence. It should be a single (possibly multi-option) assignment. Make the "max" or "min" explicit — don't hide it in prose.</div>
+            <div class="q-example">
+              <span class="ex-label">Good vs bad</span>
+              ✓ <code>dp[i][j] ← grid[i][j] + max(dp[i−1][j], dp[i][j−1])</code><br/>
+              ✗ "we take the best of moving from above or from the left and add the current cell's value"
+            </div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Separate initialization from the main loop</div>
+            <div class="q-answer">Base cases (dp[0] = 0, dp[0][j] = −j, etc.) must be set <em>before</em> the main loop — not inside it. A common mistake is trying to handle base cases with if-statements inside the loop, which clutters the recurrence and makes the logic hard to follow.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">CleaningRobot(grid[0..m-1][0..n-1])</span>
+          <span class="pc-sig">Output: max dirty cells cleaned; path stored in parent table</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="cm">initialize base cases</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code">dp[0][0] ← grid[0][0]</span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code"><span class="kw">for</span> j ← 1 <span class="kw">to</span> n−1: dp[0][j] ← dp[0][j−1] + grid[0][j] &nbsp;<span class="cm">top row: right only</span></span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code"><span class="kw">for</span> i ← 1 <span class="kw">to</span> m−1: dp[i][0] ← dp[i−1][0] + grid[i][0] &nbsp;<span class="cm">left col: down only</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code"><span class="cm">fill table bottom-up, row by row</span></span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code"><span class="kw">for</span> i ← 1 <span class="kw">to</span> m−1:</span></div>
+          <div class="ln-row"><span class="ln">7</span><span class="code i1"><span class="kw">for</span> j ← 1 <span class="kw">to</span> n−1:</span></div>
+          <div class="ln-row"><span class="ln">8</span><span class="code i2">dp[i][j] ← grid[i][j] + max(dp[i−1][j], dp[i][j−1]) &nbsp;<span class="cm">pick up dirt, come from best direction</span></span></div>
+          <div class="ln-row"><span class="ln">9</span><span class="code"><span class="kw">return</span> dp[m−1][n−1] &nbsp;<span class="cm">answer: max dirty cells on any path to bottom-right</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not initializing dp[0] before the loop.</strong> If you handle dp[0] inside the loop with an if-statement, your code is harder to read and easier to get wrong. Initialize base cases before the loop, always.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Wrong fill order — accessing unfilled cells.</strong> If dp[i] depends on dp[i+1], you must fill right-to-left, not left-to-right. Always trace through your fill order with a small example to verify.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     06 — PSEUDOCODE FOR GREEDY ALGORITHMS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f6">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">06</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Greedy Pseudocode — Sort, Select, Commit</div>
+      <div class="fw-sub">ONE PASS, ONE DECISION PER STEP, NO BACKTRACKING</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use for…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">Kruskal, Prim, Dijkstra</span>
+      <span class="trigger-pill">Huffman coding</span>
+      <span class="trigger-pill">Job scheduling, buy order</span>
+      <span class="trigger-pill navy">any "make best local choice" algorithm</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">Greedy Pseudocode = Sort + One-Pass Decision Loop</div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Greedy algorithms usually have the same structure</div>
+            <div class="q-answer"><strong>Step 1:</strong> Sort (or build a priority queue) by the greedy key.<br/>
+            <strong>Step 2:</strong> Iterate through the sorted order.<br/>
+            <strong>Step 3:</strong> At each step, greedily make the locally optimal choice.<br/>
+            <strong>Step 4:</strong> Add to the solution if feasible (or always add, depending on the problem).<br/><br/>
+            The critical question: <strong>what is the greedy key?</strong> Derive it from the exchange argument before writing any pseudocode.</div>
+            <div class="q-example"><span class="ex-label">Greedy keys in this course</span>
+              Job scheduling: sort by profit descending.<br/>
+              Buy order: sort by growth rate r_j descending.<br/>
+              Huffman: always pick two lowest-frequency nodes.<br/>
+              Kruskal: sort edges by weight ascending.<br/>
+              Dijkstra: always pick vertex with smallest current distance.
+            </div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">The greedy key comes from the exchange argument — derive it first</div>
+            <div class="q-answer">Don't guess the sort order. Derive it: "if item A comes before item B in the wrong order, can I swap them and improve?" The condition under which swapping improves tells you the greedy key.<br/><br/>
+            For buy order: swap is better iff r_k &gt; r_j → sort by r descending.<br/>
+            For job scheduling: swap is better (value doesn't decrease) when p_a ≥ p_b → sort by profit descending.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">BuyOrder(r[1..n])</span>
+          <span class="pc-sig">Output: order to buy n software products minimizing total cost</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="cm">greedy key: fastest-growing rate first (proved by exchange argument)</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code">Sort products in decreasing order of r_j &nbsp;<span class="cm">O(n log n)</span></span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code">total_cost ← 0</span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code"><span class="kw">for</span> t ← 0 <span class="kw">to</span> n−1: &nbsp;<span class="cm">buy one per month</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code i1">total_cost ← total_cost + 100 · r[t+1]^t &nbsp;<span class="cm">sorted order: r[1] ≥ r[2] ≥ ...</span></span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code"><span class="kw">return</span> total_cost &nbsp;<span class="cm">and the sorted order</span></span></div>
+        </div>
+      </div>
+
+      <div class="pseudo" style="margin-top:0;">
+        <div class="pc-head">
+          <span class="pc-name">GreedyJobSequencing(jobs[1..n])</span>
+          <span class="pc-sig">Output: feasible subset F of jobs maximizing total profit</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code">Sort jobs in decreasing order of profit p_i &nbsp;<span class="cm">greedy key</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code">F ← {jobs[1]} &nbsp;<span class="cm">start with highest-profit job</span></span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code"><span class="kw">for</span> k ← 2 <span class="kw">to</span> n:</span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code i1"><span class="kw">if</span> <span class="fn">IsFeasible</span>(F ∪ {jobs[k]}): &nbsp;<span class="cm">check sorted-deadline condition</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code i2">F ← F ∪ {jobs[k]}</span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code"><span class="kw">return</span> F</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not deriving the greedy key.</strong> Writing "sort somehow" without stating the key. The key must be derived and justified — from the exchange argument — before appearing in pseudocode.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Omitting the feasibility check.</strong> In job scheduling, not every job in sorted order gets added — only if it keeps the solution feasible. Leaving out the IsFeasible call makes the algorithm incorrect.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     07 — THE TOP 7 PSEUDOCODE TRAPS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f7">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">07</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">The Top 7 Pseudocode Traps</div>
+      <div class="fw-sub">WHAT GRADERS ACTUALLY LOOK FOR — AND WHAT KILLS POINTS</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Check your pseudocode against all of these before submitting</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill red">common point deductions</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Checklist</div>
+
+      <div class="mistakes">
+        <div class="mistakes-label">Trap 1 — Missing Base Case</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>No termination condition.</strong> Every recursive algorithm and every DP loop must have a base case. Graders check this first. A recursive algorithm with no base case is infinite — it proves you haven't thought through termination.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 2 — Undefined Variables</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Using a variable before defining it.</strong> Every variable used in the body must be either: (a) a function parameter, (b) initialized before use, or (c) a standard constant like ∞ or ∅. Using <code>running_max</code> in line 6 without initializing it in line 5 is an error.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 3 — Floating Function Calls</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Recursive call with no assignment or return.</strong> <code>MergeSort(A[1..n/2])</code> as a standalone line does nothing in a function that returns a value. Either <code>L ← MergeSort(A[1..n/2])</code> or <code>return MergeSort(...)</code>.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 4 — Off-by-One on Loop Bounds</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Wrong loop bounds causing index errors.</strong> Common: for i ← 1 to n (correct for 1-indexed), for i ← 0 to n (one too many), for j ← i downto max(1, i-k) (should be max(1, i-k+1)). Trace through a small example to verify bounds.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 5 — No Comments on Non-Trivial Steps</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Uncommented algorithm phases.</strong> If the grader has to work to understand what each section does, you lose points. Every non-obvious step needs a comment. "▷ median of medians guarantees ≥2n/7 elements on each side" is much better than nothing.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 6 — Pseudocode = Python</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Language-specific syntax in pseudocode.</strong> <code>arr.append(x)</code>, <code>len(arr)</code>, <code>range(n)</code>, <code>float('inf')</code> — these are Python, not pseudocode. Use: add x to S, |S|, 1 to n, ∞. The course explicitly says pseudocode ≠ code.</div></div>
+      </div>
+
+      <div class="mistakes" style="border-top:none;">
+        <div class="mistakes-label">Trap 7 — Pseudocode Doesn't Match the Described Algorithm</div>
+        <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Inconsistency between description and pseudocode.</strong> If your written description says "sort by profit descending" and your pseudocode sorts ascending, you lose points. If your description says "last group" pattern and your pseudocode implements something different, that's a disconnect. Pseudocode must faithfully implement the algorithm you described.</div></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The 30-Second Self-Check</span>
+          <div class="concept-tags"><span class="ctag">RUN THIS BEFORE SUBMITTING</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>1.</strong> Does every recursive call have a base case that terminates it?</p>
+        <p><strong>2.</strong> Is every variable defined before it's used?</p>
+        <p><strong>3.</strong> Does every function call store or return its result?</p>
+        <p><strong>4.</strong> Trace through the algorithm with a 3–4 element example. Does it give the right answer?</p>
+        <p><strong>5.</strong> Does the pseudocode match what you said in the description?</p>
+        <p><strong>6.</strong> Are comments explaining WHY each non-trivial step exists?</p>
+        <p><strong>7.</strong> No Python/Java/C++ syntax anywhere?</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togFW(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

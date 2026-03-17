@@ -4,9 +4,11 @@ zip -r coogs-hub-clean.zip \
   src/ \
   src-tauri/ \
   public/ \
+  server/ \
   package.json \
   package-lock.json \
   tauri.conf.json \
+  vite.config.js \
   -x "src-tauri/target/*" \
   -x "node_modules/*" \
   -x "android/build/*" \

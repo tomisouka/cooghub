@@ -4,14 +4,14 @@
       "id": "cosc",
       "label": "COSC",
       "color": "#4ecdc4",
-      "icon": "◈",
+      "icon": "\u25c8",
       "courses": [
         {
           "id": "datastruct",
           "label": "Data Structures",
           "courseCode": "COSC 2436",
           "color": "#e8c547",
-          "icon": "⬡",
+          "icon": "\u2b21",
           "notes": [
             {
               "file": "./content/subjects/datastruct/ds.md",
@@ -258,23 +258,23 @@
             },
             {
               "path": "./content/code/simplyADT/linear.cpp",
-              "label": "ADT — linear.cpp"
+              "label": "ADT \u2014 linear.cpp"
             },
             {
               "path": "./content/code/simplyADT/trees.cpp",
-              "label": "ADT — trees.cpp"
+              "label": "ADT \u2014 trees.cpp"
             },
             {
               "path": "./content/code/simplyADT/graph.cpp",
-              "label": "ADT — graph.cpp"
+              "label": "ADT \u2014 graph.cpp"
             },
             {
               "path": "./content/code/simplyADT/hash.cpp",
-              "label": "ADT — hash.cpp"
+              "label": "ADT \u2014 hash.cpp"
             },
             {
               "path": "./content/code/simplyADT/special.cpp",
-              "label": "ADT — special.cpp"
+              "label": "ADT \u2014 special.cpp"
             }
           ],
           "flashcards": "dsa_basics",
@@ -291,12 +291,8 @@
           "label": "Algorithms",
           "courseCode": "COSC 3320",
           "color": "#4ecdc4",
-          "icon": "∿",
+          "icon": "\u223f",
           "notes": [
-            {
-              "file": "./content/notes/algos/list.md",
-              "label": "Main Notes"
-            },
             {
               "file": "./content/notes/algos/hw1questions.md",
               "label": "HW1 Questions"
@@ -531,11 +527,47 @@
           "gopal": [
             {
               "type": "group",
+              "label": "References",
+              "children": [
+                {
+                  "file": "algos/algos_gopal_induction.html",
+                  "label": "Induction",
+                  "type": "iframe"
+                },
+                {
+                  "file": "algos/algos_greedy.html",
+                  "label": "Greedy",
+                  "type": "iframe"
+                },
+                {
+                  "file": "algos_think_induction.html",
+                  "label": "Think Induction",
+                  "type": "iframe"
+                },
+                {
+                  "file": "algos_think_pseudocode.html",
+                  "label": "Pseudocode",
+                  "type": "iframe"
+                },
+                {
+                  "file": "algos/algo_visualizer.html",
+                  "label": "Algorithm Visualizer",
+                  "type": "iframe"
+                },
+                {
+                  "file": "algos/algos_recursion_explainer.html",
+                  "label": "Recursion Explainer",
+                  "type": "iframe"
+                }
+              ]
+            },
+            {
+              "type": "group",
               "label": "Foundations",
               "children": [
                 {
                   "file": "algos/gopal_asymptotic.html",
-                  "label": "Asymptotic Notation (Big-O/Ω/Θ)",
+                  "label": "Asymptotic Notation (Big-O/\u03a9/\u0398)",
                   "type": "iframe"
                 },
                 {
@@ -571,7 +603,7 @@
               "children": [
                 {
                   "file": "algos/gopal_selection.html",
-                  "label": "Selection — Median of Medians",
+                  "label": "Selection \u2014 Median of Medians",
                   "type": "iframe"
                 },
                 {
@@ -638,6 +670,49 @@
               "file": "./content/practice/3320Eintro.html",
               "label": "Intro Exam Practice",
               "type": "content"
+            },
+            {
+              "type": "group",
+              "label": "Exam",
+              "children": [
+                {
+                  "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
+                  "label": "algos gopal intro exam Intro",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Template",
+              "children": [
+                {
+                  "file": "./content/assignments/TEMPLATE_algos.html",
+                  "label": "TEMPLATE algos",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Homeworks",
+              "children": [
+                {
+                  "file": "./content/assignments/algos_3320_hw2_solutions.html",
+                  "label": "algos 3320 hw2 solutions",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/algos_3320_hw1_solutions.html",
+                  "label": "algos 3320 hw1 solutions",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Gopal",
+              "children": []
             }
           ],
           "code": [
@@ -672,6 +747,16 @@
             {
               "path": "./content/code/simplyAlgos/tree.cpp",
               "label": "tree.cpp"
+            },
+            {
+              "type": "group",
+              "label": "Homework",
+              "children": [
+                {
+                  "file": "./content/code/algos/algos_code_hw2_ex6.py",
+                  "label": "algos code hw2 ex6"
+                }
+              ]
             }
           ],
           "flashcards": null,
@@ -683,6 +768,28 @@
             {
               "file": "Algos_Gopal_intro_exam.pdf",
               "label": "Gopal Intro Exam"
+            },
+            {
+              "type": "group",
+              "label": "Homework",
+              "children": [
+                {
+                  "file": "COSC3320_Homework_1_Spr_2026_ANSWERKEY.pdf",
+                  "label": "COSC3320 Homework 1 Spr 2026 ANSWERKEY"
+                },
+                {
+                  "file": "COSC3320_Homework_2_Spr_2026.pdf",
+                  "label": "COSC3320 Homework 2 Spr 2026"
+                },
+                {
+                  "file": "algos_c_hw1_solutions.pdf",
+                  "label": "algos c hw1 solutions"
+                },
+                {
+                  "file": "algos_jesiah_hw1.pdf",
+                  "label": "algos jesiah hw1"
+                }
+              ]
             }
           ],
           "langRefs": true
@@ -692,7 +799,7 @@
           "label": "Automata",
           "courseCode": "COSC 3340",
           "color": "#ff6b9d",
-          "icon": "◎",
+          "icon": "\u25ce",
           "notes": [
             {
               "file": "./content/notes/automata/list.md",
@@ -739,6 +846,17 @@
               "file": "jflap-demo.html",
               "label": "JFLAP Demo",
               "type": "iframe"
+            },
+            {
+              "type": "group",
+              "label": "Visual",
+              "children": [
+                {
+                  "file": "automata_visualizer.html",
+                  "label": "Automata Visualizer",
+                  "type": "iframe"
+                }
+              ]
             }
           ],
           "assignments": [
@@ -771,6 +889,54 @@
               "file": "./content/practice/3340Q1.html",
               "label": "Q1 Practice",
               "type": "content"
+            },
+            {
+              "type": "group",
+              "label": "Quiz",
+              "children": [
+                {
+                  "file": "./content/assignments/automata_quiz2_rev.html",
+                  "label": "automata quiz2 rev",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/automata_quiz1_solutions.html",
+                  "label": "automata quiz1 solutions",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Template",
+              "children": [
+                {
+                  "file": "./content/assignments/automata_quiz_template.html",
+                  "label": "automata quiz template",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Homeworks",
+              "children": [
+                {
+                  "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+                  "label": "automata cosc3340 hw3 solutions (1)",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/automata_3340_hw1_solutions.html",
+                  "label": "automata 3340 hw1 solutions",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/automata_hw2_solutions.html",
+                  "label": "automata hw2 solutions",
+                  "type": "content"
+                }
+              ]
             }
           ],
           "code": [],
@@ -792,7 +958,7 @@
           "label": "Comp Org",
           "courseCode": "COSC 2425",
           "color": "#34d399",
-          "icon": "⚙",
+          "icon": "\u2699",
           "notes": [],
           "references": [
             {
@@ -830,12 +996,12 @@
           "label": "Databases",
           "courseCode": "COSC 3380",
           "color": "#f472b6",
-          "icon": "⊗",
+          "icon": "\u2297",
           "notes": [],
           "references": [
             {
               "file": "databases_prep.html",
-              "label": "⚡ Fall Prep Guide",
+              "label": "\u26a1 Fall Prep Guide",
               "type": "iframe"
             },
             {
@@ -860,37 +1026,38 @@
           "label": "Operating Systems",
           "courseCode": "COSC 3360",
           "color": "#fb923c",
-          "icon": "⚙",
+          "icon": "\u2699",
           "isHub": true,
           "lanes": [
             {
               "id": "opsystems_academic",
-              "icon": "⚙",
+              "icon": "\u2699",
               "color": "#fb923c",
               "title": "Academic OS",
               "description": "Course references, prep guides, and the Rincon textbook. Scheduling, memory management, concurrency, and OS theory."
             },
             {
               "id": "opsystems_linux",
-              "icon": "⌘",
+              "icon": "\u2318",
               "color": "#34d399",
               "title": "Linux",
-              "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
+              "description": "Personal notes on the Linux OS \u2014 kernels, GNU, the terminal, permissions, package management, and the history behind it all."
             }
-          ]
+          ],
+          "assignments": []
         },
         {
           "id": "opsystems_academic",
           "label": "Academic OS",
           "courseCode": "COSC 3360",
           "color": "#fb923c",
-          "icon": "⚙",
+          "icon": "\u2699",
           "hubParent": "opsystems",
           "notes": [],
           "references": [
             {
               "file": "opsystems_prep.html",
-              "label": "⚡ Fall Prep Guide",
+              "label": "\u26a1 Fall Prep Guide",
               "type": "iframe"
             },
             {
@@ -905,7 +1072,7 @@
           "pdfs": [
             {
               "file": "OperatingSystems_TextbookRincon.pdf",
-              "label": "Operating Systems — Rincon Textbook"
+              "label": "Operating Systems \u2014 Rincon Textbook"
             }
           ],
           "langRefs": true
@@ -915,7 +1082,7 @@
           "label": "Linux",
           "courseCode": "COSC 3360",
           "color": "#34d399",
-          "icon": "⌘",
+          "icon": "\u2318",
           "hubParent": "opsystems",
           "notes": [
             {
@@ -1117,7 +1284,7 @@
           "label": "Python",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "𝜆",
+          "icon": "\ud835\udf06",
           "notes": [],
           "references": [
             {
@@ -1143,14 +1310,14 @@
       "id": "math",
       "label": "MATH",
       "color": "#f472b6",
-      "icon": "∑",
+      "icon": "\u2211",
       "courses": [
         {
           "id": "algebra",
           "label": "Algebra",
           "courseCode": null,
           "color": "#e8c547",
-          "icon": "x²",
+          "icon": "x\u00b2",
           "notes": [],
           "references": [
             {
@@ -1169,7 +1336,7 @@
           "label": "Pre-Calculus",
           "courseCode": null,
           "color": "#fb923c",
-          "icon": "∠",
+          "icon": "\u2220",
           "notes": [],
           "references": [
             {
@@ -1188,7 +1355,7 @@
           "label": "Calculus I",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "∫",
+          "icon": "\u222b",
           "notes": [],
           "references": [
             {
@@ -1207,7 +1374,7 @@
           "label": "Calculus II",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "∬",
+          "icon": "\u222c",
           "notes": [],
           "references": [
             {
@@ -1226,7 +1393,7 @@
           "label": "Discrete Math",
           "courseCode": "COSC 2303",
           "color": "#a78bfa",
-          "icon": "∑",
+          "icon": "\u2211",
           "notes": [
             {
               "file": "./content/subjects/discrete/list.md",
@@ -1296,12 +1463,12 @@
               "label": "Main Notes"
             },
             {
-              "file": "./content/notes/practice/2318E1.md",
-              "label": "Exam 1 Practice"
-            },
-            {
               "file": "./content/notes/practice/linearhwto5.md",
               "label": "HW1-5 Reference"
+            },
+            {
+              "file": "./content/notes/practice/2318E1.md",
+              "label": "Exam 1 Practice"
             }
           ],
           "references": [
@@ -1314,6 +1481,10 @@
               "file": "mathnotation_enhanced.html",
               "label": "Math Notation",
               "type": "iframe"
+            },
+            {
+              "file": "./content/subjects/linear/linear_template.html",
+              "label": "linear template"
             }
           ],
           "assignments": [
@@ -1334,12 +1505,12 @@
             },
             {
               "file": "./content/assignments/linear/hw4_vector_spaces.html",
-              "label": "HW4 — Vector Spaces",
+              "label": "HW4 \u2014 Vector Spaces",
               "type": "content"
             },
             {
               "file": "./content/assignments/linear/hw5_linear_operators.html",
-              "label": "HW5 — Linear Operators",
+              "label": "HW5 \u2014 Linear Operators",
               "type": "content"
             },
             {
@@ -1353,17 +1524,81 @@
               "type": "content"
             },
             {
+              "file": "./content/subjects/linear/linear_template.html",
+              "label": "linear template"
+            },
+            {
               "file": "./content/practice/2318E1.html",
               "label": "Exam 1 Practice",
               "type": "content"
+            },
+            {
+              "type": "group",
+              "label": "Old Exam",
+              "children": [
+                {
+                  "file": "./content/assignments/math2318_exam2_FINAL_v2.html",
+                  "label": "math2318 exam2 FINAL v2",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/math2318_OLD_exam1_solutions.html",
+                  "label": "math2318 OLD exam1 solutions",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/linear_final_sp24_solutions.html",
+                  "label": "linear final sp24 solutions",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Exam",
+              "children": [
+                {
+                  "file": "./content/assignments/math2318_exam1_sp26_solutions.html",
+                  "label": "math2318 exam1 sp26 solutions",
+                  "type": "content"
+                }
+              ]
             }
           ],
           "code": [],
           "flashcards": null,
           "pdfs": [
             {
+              "type": "group",
+              "label": "OldExams",
+              "children": [
+                {
+                  "file": "Linear_Spring25Exam1.pdf",
+                  "label": "Linear Spring25Exam1"
+                },
+                {
+                  "file": "Linear_Spring25Exam2.pdf",
+                  "label": "Linear Spring25Exam2"
+                },
+                {
+                  "file": "Linear_Spring25FinalExam.pdf",
+                  "label": "Linear Spring25FinalExam"
+                }
+              ]
+            },
+            {
               "file": "lineartextbook.pdf",
               "label": "Linear Algebra Textbook"
+            },
+            {
+              "type": "group",
+              "label": "NewExam",
+              "children": [
+                {
+                  "file": "Linear_Exam1-3.pdf",
+                  "label": "Linear Exam1 3"
+                }
+              ]
             }
           ]
         },
@@ -1372,7 +1607,7 @@
           "label": "Statistics",
           "courseCode": null,
           "color": "#a78bfa",
-          "icon": "σ",
+          "icon": "\u03c3",
           "notes": [],
           "references": [],
           "assignments": [],
@@ -1518,7 +1753,7 @@
       "label": "Data Structures",
       "courseCode": "COSC 2436",
       "color": "#e8c547",
-      "icon": "⬡",
+      "icon": "\u2b21",
       "notes": [
         {
           "file": "./content/subjects/datastruct/ds.md",
@@ -1765,23 +2000,23 @@
         },
         {
           "path": "./content/code/simplyADT/linear.cpp",
-          "label": "ADT — linear.cpp"
+          "label": "ADT \u2014 linear.cpp"
         },
         {
           "path": "./content/code/simplyADT/trees.cpp",
-          "label": "ADT — trees.cpp"
+          "label": "ADT \u2014 trees.cpp"
         },
         {
           "path": "./content/code/simplyADT/graph.cpp",
-          "label": "ADT — graph.cpp"
+          "label": "ADT \u2014 graph.cpp"
         },
         {
           "path": "./content/code/simplyADT/hash.cpp",
-          "label": "ADT — hash.cpp"
+          "label": "ADT \u2014 hash.cpp"
         },
         {
           "path": "./content/code/simplyADT/special.cpp",
-          "label": "ADT — special.cpp"
+          "label": "ADT \u2014 special.cpp"
         }
       ],
       "flashcards": "dsa_basics",
@@ -1800,12 +2035,8 @@
       "label": "Algorithms",
       "courseCode": "COSC 3320",
       "color": "#4ecdc4",
-      "icon": "∿",
+      "icon": "\u223f",
       "notes": [
-        {
-          "file": "./content/notes/algos/list.md",
-          "label": "Main Notes"
-        },
         {
           "file": "./content/notes/algos/hw1questions.md",
           "label": "HW1 Questions"
@@ -1927,11 +2158,6 @@
               "file": "algos/sort_bucket.html",
               "label": "Bucket Sort",
               "type": "iframe"
-            },
-            {
-              "file": "algos/sort_tim.html",
-              "label": "Tim Sort",
-              "type": "iframe"
             }
           ]
         },
@@ -2040,11 +2266,47 @@
       "gopal": [
         {
           "type": "group",
+          "label": "References",
+          "children": [
+            {
+              "file": "algos/algos_gopal_induction.html",
+              "label": "Induction",
+              "type": "iframe"
+            },
+            {
+              "file": "algos/algos_greedy.html",
+              "label": "Greedy",
+              "type": "iframe"
+            },
+            {
+              "file": "algos/algos_think_induction.html",
+              "label": "Think Induction",
+              "type": "iframe"
+            },
+            {
+              "file": "algos/algos_think_pseudocode.html",
+              "label": "Pseudocode",
+              "type": "iframe"
+            },
+            {
+              "file": "algos/algo_visualizer.html",
+              "label": "Algorithm Visualizer",
+              "type": "iframe"
+            },
+            {
+              "file": "algos/algos_recursion_explainer.html",
+              "label": "Recursion Explainer",
+              "type": "iframe"
+            }
+          ]
+        },
+        {
+          "type": "group",
           "label": "Foundations",
           "children": [
             {
               "file": "algos/gopal_asymptotic.html",
-              "label": "Asymptotic Notation (Big-O/Ω/Θ)",
+              "label": "Asymptotic Notation (Big-O/\u03a9/\u0398)",
               "type": "iframe"
             },
             {
@@ -2080,7 +2342,7 @@
           "children": [
             {
               "file": "algos/gopal_selection.html",
-              "label": "Selection — Median of Medians",
+              "label": "Selection \u2014 Median of Medians",
               "type": "iframe"
             },
             {
@@ -2147,6 +2409,49 @@
           "file": "./content/practice/3320Eintro.html",
           "label": "Intro Exam Practice",
           "type": "content"
+        },
+        {
+          "type": "group",
+          "label": "Exam",
+          "children": [
+            {
+              "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
+              "label": "algos gopal intro exam Intro",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Template",
+          "children": [
+            {
+              "file": "./content/assignments/TEMPLATE_algos.html",
+              "label": "TEMPLATE algos",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Homeworks",
+          "children": [
+            {
+              "file": "./content/assignments/algos_3320_hw2_solutions.html",
+              "label": "algos 3320 hw2 solutions",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/algos_3320_hw1_solutions.html",
+              "label": "algos 3320 hw1 solutions",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Gopal",
+          "children": []
         }
       ],
       "code": [
@@ -2181,6 +2486,16 @@
         {
           "path": "./content/code/simplyAlgos/tree.cpp",
           "label": "tree.cpp"
+        },
+        {
+          "type": "group",
+          "label": "Homework",
+          "children": [
+            {
+              "file": "./content/code/algos/algos_code_hw2_ex6.py",
+              "label": "algos code hw2 ex6"
+            }
+          ]
         }
       ],
       "flashcards": null,
@@ -2192,6 +2507,28 @@
         {
           "file": "Algos_Gopal_intro_exam.pdf",
           "label": "Gopal Intro Exam"
+        },
+        {
+          "type": "group",
+          "label": "Homework",
+          "children": [
+            {
+              "file": "COSC3320_Homework_1_Spr_2026_ANSWERKEY.pdf",
+              "label": "COSC3320 Homework 1 Spr 2026 ANSWERKEY"
+            },
+            {
+              "file": "COSC3320_Homework_2_Spr_2026.pdf",
+              "label": "COSC3320 Homework 2 Spr 2026"
+            },
+            {
+              "file": "algos_c_hw1_solutions.pdf",
+              "label": "algos c hw1 solutions"
+            },
+            {
+              "file": "algos_jesiah_hw1.pdf",
+              "label": "algos jesiah hw1"
+            }
+          ]
         }
       ],
       "langRefs": true,
@@ -2203,7 +2540,7 @@
       "label": "Automata",
       "courseCode": "COSC 3340",
       "color": "#ff6b9d",
-      "icon": "◎",
+      "icon": "\u25ce",
       "notes": [
         {
           "file": "./content/notes/automata/list.md",
@@ -2250,6 +2587,38 @@
           "file": "jflap-demo.html",
           "label": "JFLAP Demo",
           "type": "iframe"
+        },
+        {
+          "type": "group",
+          "label": "3340",
+          "children": [
+            {
+              "file": "automata_dfanfa.html",
+              "label": "DFA & NFA",
+              "type": "iframe"
+            },
+            {
+              "file": "automata_toc-pumping.html",
+              "label": "Pumping Lemma",
+              "type": "iframe"
+            },
+            {
+              "file": "automata_toc-turing.html",
+              "label": "Turing Machines",
+              "type": "iframe"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Visual",
+          "children": [
+            {
+              "file": "automata_visualizer.html",
+              "label": "Automata Visualizer",
+              "type": "iframe"
+            }
+          ]
         }
       ],
       "assignments": [
@@ -2282,6 +2651,54 @@
           "file": "./content/practice/3340Q1.html",
           "label": "Q1 Practice",
           "type": "content"
+        },
+        {
+          "type": "group",
+          "label": "Quiz",
+          "children": [
+            {
+              "file": "./content/assignments/automata_quiz2_rev.html",
+              "label": "automata quiz2 rev",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/automata_quiz1_solutions.html",
+              "label": "automata quiz1 solutions",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Template",
+          "children": [
+            {
+              "file": "./content/assignments/automata_quiz_template.html",
+              "label": "automata quiz template",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Homeworks",
+          "children": [
+            {
+              "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+              "label": "automata cosc3340 hw3 solutions (1)",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/automata_3340_hw1_solutions.html",
+              "label": "automata 3340 hw1 solutions",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/automata_hw2_solutions.html",
+              "label": "automata hw2 solutions",
+              "type": "content"
+            }
+          ]
         }
       ],
       "code": [],
@@ -2305,7 +2722,7 @@
       "label": "Comp Org",
       "courseCode": "COSC 2425",
       "color": "#34d399",
-      "icon": "⚙",
+      "icon": "\u2699",
       "notes": [],
       "references": [
         {
@@ -2345,12 +2762,12 @@
       "label": "Databases",
       "courseCode": "COSC 3380",
       "color": "#f472b6",
-      "icon": "⊗",
+      "icon": "\u2297",
       "notes": [],
       "references": [
         {
           "file": "databases_prep.html",
-          "label": "⚡ Fall Prep Guide",
+          "label": "\u26a1 Fall Prep Guide",
           "type": "iframe"
         },
         {
@@ -2377,39 +2794,40 @@
       "label": "Operating Systems",
       "courseCode": "COSC 3360",
       "color": "#fb923c",
-      "icon": "⚙",
+      "icon": "\u2699",
       "isHub": true,
       "lanes": [
         {
           "id": "opsystems_academic",
-          "icon": "⚙",
+          "icon": "\u2699",
           "color": "#fb923c",
           "title": "Academic OS",
           "description": "Course references, prep guides, and the Rincon textbook. Scheduling, memory management, concurrency, and OS theory."
         },
         {
           "id": "opsystems_linux",
-          "icon": "⌘",
+          "icon": "\u2318",
           "color": "#34d399",
           "title": "Linux",
-          "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
+          "description": "Personal notes on the Linux OS \u2014 kernels, GNU, the terminal, permissions, package management, and the history behind it all."
         }
       ],
       "dept": "cosc",
-      "deptLabel": "COSC"
+      "deptLabel": "COSC",
+      "assignments": []
     },
     {
       "id": "opsystems_academic",
       "label": "Academic OS",
       "courseCode": "COSC 3360",
       "color": "#fb923c",
-      "icon": "⚙",
+      "icon": "\u2699",
       "hubParent": "opsystems",
       "notes": [],
       "references": [
         {
           "file": "opsystems_prep.html",
-          "label": "⚡ Fall Prep Guide",
+          "label": "\u26a1 Fall Prep Guide",
           "type": "iframe"
         },
         {
@@ -2424,7 +2842,7 @@
       "pdfs": [
         {
           "file": "OperatingSystems_TextbookRincon.pdf",
-          "label": "Operating Systems — Rincon Textbook"
+          "label": "Operating Systems \u2014 Rincon Textbook"
         }
       ],
       "langRefs": true,
@@ -2436,7 +2854,7 @@
       "label": "Linux",
       "courseCode": "COSC 3360",
       "color": "#34d399",
-      "icon": "⌘",
+      "icon": "\u2318",
       "hubParent": "opsystems",
       "notes": [
         {
@@ -2642,7 +3060,7 @@
       "label": "Python",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "𝜆",
+      "icon": "\ud835\udf06",
       "notes": [],
       "references": [
         {
@@ -2669,7 +3087,7 @@
       "label": "Algebra",
       "courseCode": null,
       "color": "#e8c547",
-      "icon": "x²",
+      "icon": "x\u00b2",
       "notes": [],
       "references": [
         {
@@ -2690,7 +3108,7 @@
       "label": "Pre-Calculus",
       "courseCode": null,
       "color": "#fb923c",
-      "icon": "∠",
+      "icon": "\u2220",
       "notes": [],
       "references": [
         {
@@ -2711,7 +3129,7 @@
       "label": "Calculus I",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "∫",
+      "icon": "\u222b",
       "notes": [],
       "references": [
         {
@@ -2732,7 +3150,7 @@
       "label": "Calculus II",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "∬",
+      "icon": "\u222c",
       "notes": [],
       "references": [
         {
@@ -2753,7 +3171,7 @@
       "label": "Discrete Math",
       "courseCode": "COSC 2303",
       "color": "#a78bfa",
-      "icon": "∑",
+      "icon": "\u2211",
       "notes": [
         {
           "file": "./content/subjects/discrete/list.md",
@@ -2825,12 +3243,12 @@
           "label": "Main Notes"
         },
         {
-          "file": "./content/notes/practice/2318E1.md",
-          "label": "Exam 1 Practice"
-        },
-        {
           "file": "./content/notes/practice/linearhwto5.md",
           "label": "HW1-5 Reference"
+        },
+        {
+          "file": "./content/notes/practice/2318E1.md",
+          "label": "Exam 1 Practice"
         }
       ],
       "references": [
@@ -2863,12 +3281,12 @@
         },
         {
           "file": "./content/assignments/linear/hw4_vector_spaces.html",
-          "label": "HW4 — Vector Spaces",
+          "label": "HW4 \u2014 Vector Spaces",
           "type": "content"
         },
         {
           "file": "./content/assignments/linear/hw5_linear_operators.html",
-          "label": "HW5 — Linear Operators",
+          "label": "HW5 \u2014 Linear Operators",
           "type": "content"
         },
         {
@@ -2882,17 +3300,81 @@
           "type": "content"
         },
         {
+          "file": "./content/subjects/linear/linear_template.html",
+          "label": "linear template"
+        },
+        {
           "file": "./content/practice/2318E1.html",
           "label": "Exam 1 Practice",
           "type": "content"
+        },
+        {
+          "type": "group",
+          "label": "Old Exam",
+          "children": [
+            {
+              "file": "./content/assignments/math2318_exam2_FINAL_v2.html",
+              "label": "math2318 exam2 FINAL v2",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/math2318_OLD_exam1_solutions.html",
+              "label": "math2318 OLD exam1 solutions",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/linear_final_sp24_solutions.html",
+              "label": "linear final sp24 solutions",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Exam",
+          "children": [
+            {
+              "file": "./content/assignments/math2318_exam1_sp26_solutions.html",
+              "label": "math2318 exam1 sp26 solutions",
+              "type": "content"
+            }
+          ]
         }
       ],
       "code": [],
       "flashcards": null,
       "pdfs": [
         {
+          "type": "group",
+          "label": "OldExams",
+          "children": [
+            {
+              "file": "Linear_Spring25Exam1.pdf",
+              "label": "Linear Spring25Exam1"
+            },
+            {
+              "file": "Linear_Spring25Exam2.pdf",
+              "label": "Linear Spring25Exam2"
+            },
+            {
+              "file": "Linear_Spring25FinalExam.pdf",
+              "label": "Linear Spring25FinalExam"
+            }
+          ]
+        },
+        {
           "file": "lineartextbook.pdf",
           "label": "Linear Algebra Textbook"
+        },
+        {
+          "type": "group",
+          "label": "NewExam",
+          "children": [
+            {
+              "file": "Linear_Exam1-3.pdf",
+              "label": "Linear Exam1 3"
+            }
+          ]
         }
       ],
       "dept": "math",
@@ -2903,7 +3385,7 @@
       "label": "Statistics",
       "courseCode": null,
       "color": "#a78bfa",
-      "icon": "σ",
+      "icon": "\u03c3",
       "notes": [],
       "references": [],
       "assignments": [],

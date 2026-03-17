@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Linear Algebra — HW 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #12151c;
+    --bg3: #181c26;
+    --border: #252a38;
+    --gold: #c9a84c;
+    --gold-dim: #8a6f2e;
+    --teal: #4ec9b0;
+    --slate: #7b8caa;
+    --text: #d4d8e8;
+    --text-dim: #8890a8;
+    --red: #e06c75;
+    --green: #98c379;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 60px 40px 50px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0a0c12 0%, transparent 100%);
+    text-align: center;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 600;
+    color: #f0ece0;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  header h1 span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .header-sub {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--slate);
+    letter-spacing: 0.12em;
+  }
+
+  .gold-line {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 24px auto 0;
+  }
+
+  /* Layout */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 50px 24px 80px;
+  }
+
+  /* Problem cards */
+  .problem {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dim);
+    border-radius: 2px;
+    margin-bottom: 36px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .problem:nth-child(2) { animation-delay: 0.05s; }
+  .problem:nth-child(3) { animation-delay: 0.10s; }
+  .problem:nth-child(4) { animation-delay: 0.15s; }
+  .problem:nth-child(5) { animation-delay: 0.20s; }
+  .problem:nth-child(6) { animation-delay: 0.25s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .problem-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .problem-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .problem-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #e8e2d0;
+    font-weight: 400;
+  }
+
+  .problem-body {
+    padding: 24px 28px;
+  }
+
+  /* Parts */
+  .part {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(37,42,56,0.7);
+  }
+
+  .part:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .part-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  p { margin-bottom: 10px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* Math display */
+  .math-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    overflow-x: auto;
+    font-size: 0.97em;
+  }
+
+  /* Answer box */
+  .answer {
+    display: inline-block;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid var(--gold-dim);
+    border-radius: 2px;
+    padding: 12px 20px;
+    margin-top: 12px;
+  }
+
+  .answer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* Not defined tag */
+  .nd {
+    display: inline-block;
+    background: rgba(224,108,117,0.12);
+    border: 1px solid rgba(224,108,117,0.3);
+    color: var(--red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  /* Step list for row ops */
+  .steps {
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0;
+  }
+
+  .steps li {
+    padding: 6px 0 6px 20px;
+    border-left: 2px solid var(--border);
+    margin-bottom: 4px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.97em;
+    color: var(--text-dim);
+    position: relative;
+  }
+
+  .steps li::before {
+    content: '→';
+    position: absolute;
+    left: 4px;
+    color: var(--teal);
+    font-size: 12px;
+  }
+
+  /* Proof block */
+  .proof-block {
+    background: rgba(78,201,176,0.04);
+    border-left: 3px solid rgba(78,201,176,0.4);
+    padding: 16px 20px;
+    margin: 14px 0;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.96em;
+  }
+
+  /* Index nav */
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    margin-bottom: 40px;
+    border-radius: 2px;
+  }
+
+  .toc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .toc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+  }
+
+  .toc-list a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--slate);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .toc-list a:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(201,168,76,0.06);
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--slate);
+    letter-spacing: 0.12em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Linear Algebra · Spring 2026</div>
+  <h1>Homework <span>1</span></h1>
+  <h1 style="font-size:1.3rem; margin-top:6px; color:var(--slate); font-weight:400; font-style:italic;">Matrices &amp; Linear Systems</h1>
+  <div class="header-sub">10 Problems · Matrix Arithmetic · Gaussian Elimination · Row Echelon Form</div>
+  <div class="gold-line"></div>
+</header>
+
+<main>
+
+  <nav class="toc">
+    <div class="toc-title">Jump to Problem</div>
+    <ul class="toc-list">
+      <li><a href="#p1">P1 — Addition</a></li>
+      <li><a href="#p2">P2 — Products</a></li>
+      <li><a href="#p3">P3 — Proof</a></li>
+      <li><a href="#p4">P4 — Verify</a></li>
+      <li><a href="#p5">P5 — System</a></li>
+      <li><a href="#p6">P6 — System</a></li>
+      <li><a href="#p7">P7 — System</a></li>
+      <li><a href="#p8">P8 — System</a></li>
+      <li><a href="#p9">P9 — Echelon</a></li>
+      <li><a href="#p10">P10 — Echelon</a></li>
+    </ul>
+  </nav>
+
+  <!-- GIVEN MATRICES NOTE -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:18px 28px;margin-bottom:36px;border-left:3px solid var(--teal);border-radius:2px;">
+    <div class="part-label" style="margin-bottom:12px;">Matrices for Problems 1–2 (set A)</div>
+    <div class="math-block">
+      \( A = \begin{pmatrix}1&2&3\\3&2&1\end{pmatrix},\quad B = \begin{pmatrix}1&1&1\\2&2&2\end{pmatrix},\quad C = \begin{pmatrix}1\\2\\3\end{pmatrix},\quad D = \begin{pmatrix}1\\1\\1\end{pmatrix} \)
+    </div>
+    <div class="part-label" style="margin-bottom:12px; margin-top:16px;">Matrices for Problems 2–4 (set B)</div>
+    <div class="math-block">
+      \( A = \begin{pmatrix}1&2&3\\3&2&1\end{pmatrix},\quad B = \begin{pmatrix}1\\2\\3\end{pmatrix},\quad C = \begin{pmatrix}1&2&3\end{pmatrix},\quad D = \begin{pmatrix}1&4\\2&5\\3&6\end{pmatrix} \)
+    </div>
+  </div>
+
+  <!-- PROBLEM 1 -->
+  <div class="problem" id="p1">
+    <div class="problem-header">
+      <span class="problem-num">Problem 01</span>
+      <span class="problem-title">Matrix Addition — compute when defined</span>
+    </div>
+    <div class="problem-body">
+
+      <div class="part">
+        <div class="part-label">(a) A + B</div>
+        <div class="math-block">
+          \( A+B = \begin{pmatrix}1&2&3\\3&2&1\end{pmatrix}+\begin{pmatrix}1&1&1\\2&2&2\end{pmatrix} = \begin{pmatrix}1+1&2+1&3+1\\3+2&2+2&1+2\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}2&3&4\\5&4&3\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) B + C</div>
+        <p>\(B\) is \(2\times3\) and \(C\) is \(3\times1\). Sizes do not match.</p>
+        <div class="answer"><span class="answer-label">Result</span><span class="nd">NOT DEFINED</span></div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) C + D</div>
+        <div class="math-block">
+          \( C+D = \begin{pmatrix}1\\2\\3\end{pmatrix}+\begin{pmatrix}1\\1\\1\end{pmatrix} = \begin{pmatrix}2\\3\\4\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}2\\3\\4\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(d) A + D</div>
+        <p>\(A\) is \(2\times3\) and \(D\) is \(3\times1\). Sizes do not match.</p>
+        <div class="answer"><span class="answer-label">Result</span><span class="nd">NOT DEFINED</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROBLEM 2 -->
+  <div class="problem" id="p2">
+    <div class="problem-header">
+      <span class="problem-num">Problem 02</span>
+      <span class="problem-title">Matrix Products — compute when defined</span>
+    </div>
+    <div class="problem-body">
+
+      <div class="part">
+        <div class="part-label">(a) AB &nbsp;&nbsp; A∈ℝ²ˣ³, B∈ℝ³ˣ¹ → ℝ²ˣ¹</div>
+        <div class="math-block">
+          \( AB = \begin{pmatrix}1\cdot1+2\cdot2+3\cdot3\\3\cdot1+2\cdot2+1\cdot3\end{pmatrix} = \begin{pmatrix}1+4+9\\3+4+3\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}14\\10\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) AC</div>
+        <p>\(A\in\mathbb{R}^{2\times3}\), \(C\in\mathbb{R}^{1\times3}\). \(A\)'s columns (3) ≠ \(C\)'s rows (1).</p>
+        <div class="answer"><span class="answer-label">Result</span><span class="nd">NOT DEFINED</span></div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) AD &nbsp;&nbsp; A∈ℝ²ˣ³, D∈ℝ³ˣ² → ℝ²ˣ²</div>
+        <div class="math-block">
+          \( AD = \begin{pmatrix}1+4+9&4+10+18\\3+4+3&12+10+6\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}14&32\\10&28\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(d) CD &nbsp;&nbsp; C∈ℝ¹ˣ³, D∈ℝ³ˣ² → ℝ¹ˣ²</div>
+        <div class="math-block">
+          \( CD = \begin{pmatrix}1&2&3\end{pmatrix}\begin{pmatrix}1&4\\2&5\\3&6\end{pmatrix} = \begin{pmatrix}1+4+9&4+10+18\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}14&32\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(e) CB &nbsp;&nbsp; C∈ℝ¹ˣ³, B∈ℝ³ˣ¹ → ℝ¹ˣ¹</div>
+        <div class="math-block">
+          \( CB = \begin{pmatrix}1&2&3\end{pmatrix}\begin{pmatrix}1\\2\\3\end{pmatrix} = 1+4+9 \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( (14) \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(f) BC &nbsp;&nbsp; B∈ℝ³ˣ¹, C∈ℝ¹ˣ³ → ℝ³ˣ³</div>
+        <div class="math-block">
+          \( BC = \begin{pmatrix}1\\2\\3\end{pmatrix}\begin{pmatrix}1&2&3\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}1&2&3\\2&4&6\\3&6&9\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(g) DA &nbsp;&nbsp; D∈ℝ³ˣ², A∈ℝ²ˣ³ → ℝ³ˣ³</div>
+        <div class="math-block">
+          \( DA = \begin{pmatrix}1&4\\2&5\\3&6\end{pmatrix}\begin{pmatrix}1&2&3\\3&2&1\end{pmatrix} = \begin{pmatrix}1+12&2+8&3+4\\2+15&4+10&6+5\\3+18&6+12&9+6\end{pmatrix} \)
+        </div>
+        <div class="answer"><span class="answer-label">Result</span>\( \begin{pmatrix}13&10&7\\17&14&11\\21&18&15\end{pmatrix} \)</div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(h) BD</div>
+        <p>\(B\in\mathbb{R}^{3\times1}\), \(D\in\mathbb{R}^{3\times2}\). \(B\)'s columns (1) ≠ \(D\)'s rows (3).</p>
+        <div class="answer"><span class="answer-label">Result</span><span class="nd">NOT DEFINED</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROBLEM 3 -->
+  <div class="problem" id="p3">
+    <div class="problem-header">
+      <span class="problem-num">Problem 03</span>
+      <span class="problem-title">Prove \((A+B)C = AC + BC\) when either side is defined</span>
+    </div>
+    <div class="problem-body">
+      <div class="proof-block">
+        <strong style="font-style:normal; color:var(--teal);">Setup.</strong> Let \(A\in\mathbb{R}^{m_A\times n_A}\), \(B\in\mathbb{R}^{m_B\times n_B}\), \(C\in\mathbb{R}^{m_C\times n_C}\).
+      </div>
+
+      <p style="margin-top:16px;"><strong style="color:var(--gold);">Direction 1 (LHS defined → RHS equal):</strong></p>
+      <ul class="steps">
+        <li>\(A+B\) defined \(\Rightarrow m_A=m_B=m,\quad n_A=n_B=\ell\)</li>
+        <li>\((A+B)C\) defined \(\Rightarrow m_C=\ell\)</li>
+        <li>So \(A,B\in\mathbb{R}^{m\times\ell},\; C\in\mathbb{R}^{\ell\times n_C}\). Both \(AC\) and \(BC\) are defined.</li>
+      </ul>
+      <p>For each \(1\le i\le m,\; 1\le j\le n_C\):</p>
+      <div class="math-block">
+        \[
+        \bigl((A+B)C\bigr)_{ij}
+        = \sum_{k=1}^{\ell}(A+B)_{ik}C_{kj}
+        = \sum_{k=1}^{\ell}(A_{ik}+B_{ik})C_{kj}
+        = \sum_{k=1}^{\ell}A_{ik}C_{kj}+\sum_{k=1}^{\ell}B_{ik}C_{kj}
+        = (AC)_{ij}+(BC)_{ij}
+        \]
+      </div>
+
+      <p><strong style="color:var(--gold);">Direction 2 (RHS defined → LHS equal):</strong></p>
+      <ul class="steps">
+        <li>\(AC\) defined \(\Rightarrow n_A=m_C=\ell\)</li>
+        <li>\(BC\) defined \(\Rightarrow n_B=m_C=\ell\)</li>
+        <li>\(AC+BC\) defined \(\Rightarrow m_A=m_B=m\)</li>
+        <li>Same index argument (reversed) shows \((AC+BC)_{ij}=((A+B)C)_{ij}\) \(\checkmark\)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PROBLEM 4 -->
+  <div class="problem" id="p4">
+    <div class="problem-header">
+      <span class="problem-num">Problem 04</span>
+      <span class="problem-title">Verify distributivity by example</span>
+    </div>
+    <div class="problem-body">
+      <div style="margin-bottom:20px;">
+        <div class="math-block">
+          \( A=\begin{pmatrix}1&2\\2&3\\2&1\end{pmatrix},\; B=\begin{pmatrix}2&0\\3&4\\1&1\end{pmatrix},\; C=\begin{pmatrix}1\\2\end{pmatrix},\; D=\begin{pmatrix}1&2&1\\2&1&2\end{pmatrix},\; E=\begin{pmatrix}2&0&1\\3&1&1\end{pmatrix},\; F=\begin{pmatrix}1&2\end{pmatrix} \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(a) (A+B)C = AC + BC</div>
+        <div class="math-block">
+          \( A+B = \begin{pmatrix}3&2\\5&7\\3&2\end{pmatrix},\quad
+          (A+B)C = \begin{pmatrix}3+4\\5+14\\3+4\end{pmatrix} = \begin{pmatrix}7\\19\\7\end{pmatrix} \)
+        </div>
+        <div class="math-block">
+          \( AC = \begin{pmatrix}5\\8\\4\end{pmatrix},\quad BC = \begin{pmatrix}2\\11\\3\end{pmatrix},\quad AC+BC = \begin{pmatrix}7\\19\\7\end{pmatrix}\;\checkmark \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) F(D+E) = FD + FE</div>
+        <div class="math-block">
+          \( D+E = \begin{pmatrix}3&2&2\\5&2&3\end{pmatrix},\quad
+          F(D+E)=\begin{pmatrix}1&2\end{pmatrix}\begin{pmatrix}3&2&2\\5&2&3\end{pmatrix}=\begin{pmatrix}13&6&8\end{pmatrix} \)
+        </div>
+        <div class="math-block">
+          \( FD=\begin{pmatrix}5&4&5\end{pmatrix},\quad FE=\begin{pmatrix}8&2&3\end{pmatrix},\quad FD+FE=\begin{pmatrix}13&6&8\end{pmatrix}\;\checkmark \)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 5 -->
+  <div class="problem" id="p5">
+    <div class="problem-header">
+      <span class="problem-num">Problem 05</span>
+      <span class="problem-title">Solve the linear system via Gaussian elimination</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \[
+        x_1 - 2x_2 + x_3 = 0,\quad
+        2x_1 + x_2 - 3x_3 = 5,\quad
+        4x_1 - 7x_2 + x_3 = -1
+        \]
+      </div>
+
+      <div class="part">
+        <div class="part-label">(a) Matrix equation AX = B</div>
+        <div class="math-block">
+          \( \begin{pmatrix}1&-2&1\\2&1&-3\\4&-7&1\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}0\\5\\-1\end{pmatrix} \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) Augmented matrix → triangular form</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{ccc|c}1&-2&1&0\\2&1&-3&5\\4&-7&1&-1\end{array}\right]
+          \xrightarrow{R_2\to R_2-2R_1}
+          \xrightarrow{R_3\to R_3-4R_1}
+          \left[\begin{array}{ccc|c}1&-2&1&0\\0&5&-5&5\\0&1&-3&-1\end{array}\right]
+          \]
+          \[
+          \xrightarrow{R_2\to R_2/5}
+          \left[\begin{array}{ccc|c}1&-2&1&0\\0&1&-1&1\\0&1&-3&-1\end{array}\right]
+          \xrightarrow{R_3\to R_3-R_2}
+          \left[\begin{array}{ccc|c}1&-2&1&0\\0&1&-1&1\\0&0&-2&-2\end{array}\right]
+          \xrightarrow{R_3\to R_3/(-2)}
+          \left[\begin{array}{ccc|c}1&-2&1&0\\0&1&-1&1\\0&0&1&1\end{array}\right]
+          \]
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) Back substitution</div>
+        <ul class="steps">
+          <li>\(x_3 = 1\)</li>
+          <li>\(x_2 - x_3 = 1 \Rightarrow x_2 = 2\)</li>
+          <li>\(x_1 - 2(2) + 1 = 0 \Rightarrow x_1 = 3\)</li>
+        </ul>
+        <div class="answer"><span class="answer-label">Solution</span>\( x_1 = 3,\quad x_2 = 2,\quad x_3 = 1 \)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 6 -->
+  <div class="problem" id="p6">
+    <div class="problem-header">
+      <span class="problem-num">Problem 06</span>
+      <span class="problem-title">Solve the linear system via Gaussian elimination</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \[
+        2x_1 - x_2 + 3x_3 = 5,\quad
+        2x_1 + 2x_2 + 3x_3 = 7,\quad
+        -2x_1 + 3x_2 = -3
+        \]
+      </div>
+
+      <div class="part">
+        <div class="part-label">(a) Matrix equation AX = B</div>
+        <div class="math-block">
+          \( \begin{pmatrix}2&-1&3\\2&2&3\\-2&3&0\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}5\\7\\-3\end{pmatrix} \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) Row reduction</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{ccc|c}2&-1&3&5\\2&2&3&7\\-2&3&0&-3\end{array}\right]
+          \xrightarrow{R_2\to R_2-R_1,\;R_3\to R_3+R_1}
+          \left[\begin{array}{ccc|c}2&-1&3&5\\0&3&0&2\\0&2&3&2\end{array}\right]
+          \xrightarrow{R_3\to 3R_3-2R_2}
+          \left[\begin{array}{ccc|c}2&-1&3&5\\0&3&0&2\\0&0&9&2\end{array}\right]
+          \]
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) Back substitution</div>
+        <ul class="steps">
+          <li>\(9x_3 = 2 \Rightarrow x_3 = \tfrac{2}{9}\)</li>
+          <li>\(3x_2 = 2 \Rightarrow x_2 = \tfrac{2}{3}\)</li>
+          <li>\(2x_1 - \tfrac{2}{3} + 3\cdot\tfrac{2}{9} = 5 \Rightarrow x_1 = \tfrac{5}{2}\)</li>
+        </ul>
+        <div class="answer"><span class="answer-label">Solution</span>\( x_1 = \tfrac{5}{2},\quad x_2 = \tfrac{2}{3},\quad x_3 = \tfrac{2}{9} \)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 7 -->
+  <div class="problem" id="p7">
+    <div class="problem-header">
+      <span class="problem-num">Problem 07</span>
+      <span class="problem-title">Solve the linear system (infinite solutions)</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \[
+        3x_1 - 4x_2 + 5x_3 = 7,\quad
+        -3x_1 + 4x_2 - 2x_3 = -1,\quad
+        6x_1 - 8x_2 + x_3 = -4
+        \]
+      </div>
+
+      <div class="part">
+        <div class="part-label">(a) Matrix equation</div>
+        <div class="math-block">
+          \( \begin{pmatrix}3&-4&5\\-3&4&-2\\6&-8&1\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}7\\-1\\-4\end{pmatrix} \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) Row reduction</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{ccc|c}3&-4&5&7\\-3&4&-2&-1\\6&-8&1&-4\end{array}\right]
+          \xrightarrow{R_2\to R_2+R_1,\;R_3\to R_3-2R_1}
+          \left[\begin{array}{ccc|c}3&-4&5&7\\0&0&3&6\\0&0&-9&-18\end{array}\right]
+          \]
+          \[
+          \xrightarrow{R_2\to R_2/2;\; R_3\to R_3+3R_2}
+          \left[\begin{array}{ccc|c}3&-4&5&7\\0&0&1&2\\0&0&0&0\end{array}\right]
+          \]
+        </div>
+        <p>Zero row → \(x_2\) is a <strong style="color:var(--teal);">free variable</strong>.</p>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) Solution (one-parameter family)</div>
+        <ul class="steps">
+          <li>\(x_3 = 2\)</li>
+          <li>\(x_2 = \alpha\) (free)</li>
+          <li>\(3x_1 = 7 + 4\alpha - 10 \Rightarrow x_1 = \tfrac{4}{3}\alpha - 1\)</li>
+        </ul>
+        <div class="answer"><span class="answer-label">Solution</span>\( x_1 = \tfrac{4}{3}\alpha-1,\quad x_2 = \alpha,\quad x_3 = 2,\quad \alpha\in\mathbb{R} \)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 8 -->
+  <div class="problem" id="p8">
+    <div class="problem-header">
+      <span class="problem-num">Problem 08</span>
+      <span class="problem-title">Solve the linear system (no solution)</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \[
+        x_1+x_2-3x_3=4,\quad 2x_1+x_2-x_3=2,\quad 3x_1+2x_2-4x_3=7
+        \]
+      </div>
+
+      <div class="part">
+        <div class="part-label">(a) Matrix equation</div>
+        <div class="math-block">
+          \( \begin{pmatrix}1&1&-3\\2&1&-1\\3&2&-4\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}4\\2\\7\end{pmatrix} \)
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(b) Row reduction</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{ccc|c}1&1&-3&4\\2&1&-1&2\\3&2&-4&7\end{array}\right]
+          \xrightarrow{R_2-2R_1,\;R_3-3R_1}
+          \left[\begin{array}{ccc|c}1&1&-3&4\\0&-1&5&-6\\0&-1&5&-5\end{array}\right]
+          \]
+          \[
+          \xrightarrow{R_2\to-R_2}
+          \left[\begin{array}{ccc|c}1&1&-3&4\\0&1&-5&6\\0&-1&5&-5\end{array}\right]
+          \xrightarrow{R_3\to R_3-R_2}
+          \left[\begin{array}{ccc|c}1&1&-3&4\\0&1&-5&6\\0&0&0&1\end{array}\right]
+          \]
+        </div>
+        <p>Last row: \(0x_1+0x_2+0x_3=1\) — impossible.</p>
+      </div>
+
+      <div class="part">
+        <div class="part-label">(c) Conclusion</div>
+        <div class="answer" style="border-color:rgba(224,108,117,0.4); background:rgba(224,108,117,0.06);">
+          <span class="answer-label" style="color:var(--red);">Result</span>
+          <span style="color:var(--red);">NO SOLUTION</span> — inconsistent system
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 9 -->
+  <div class="problem" id="p9">
+    <div class="problem-header">
+      <span class="problem-num">Problem 09</span>
+      <span class="problem-title">Row echelon form — 3 equations, 4 unknowns</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \( \begin{pmatrix}1&2&1&2\\1&2&4&3\\2&4&-4&4\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\\x_4\end{pmatrix}=\begin{pmatrix}1\\2\\2\end{pmatrix} \)
+      </div>
+
+      <div class="part">
+        <div class="part-label">Augmented matrix → row echelon form</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{cccc|c}1&2&1&2&1\\1&2&4&3&2\\2&4&-4&4&2\end{array}\right]
+          \xrightarrow{R_2-R_1,\;R_3-2R_1}
+          \left[\begin{array}{cccc|c}1&2&1&2&1\\0&0&3&1&1\\0&0&-6&0&0\end{array}\right]
+          \]
+          \[
+          \xrightarrow{R_3\to R_3+2R_2}
+          \left[\begin{array}{cccc|c}1&2&1&2&1\\0&0&3&1&1\\0&0&0&2&2\end{array}\right]
+          \xrightarrow{R_2/3,\;R_3/2}
+          \left[\begin{array}{cccc|c}1&2&1&2&1\\0&0&1&\tfrac{1}{3}&\tfrac{1}{3}\\0&0&0&1&1\end{array}\right]
+          \]
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">Back substitution — free variable: \(x_2 = \alpha\)</div>
+        <ul class="steps">
+          <li>\(x_4 = 1\)</li>
+          <li>\(x_3 + \tfrac{1}{3}x_4 = \tfrac{1}{3} \Rightarrow x_3 = 0\)</li>
+          <li>\(x_1 + 2\alpha + 0 + 2 = 1 \Rightarrow x_1 = -1-2\alpha\)</li>
+        </ul>
+        <div class="answer"><span class="answer-label">Solution</span>\( x_1=-1-2\alpha,\quad x_2=\alpha,\quad x_3=0,\quad x_4=1,\quad \alpha\in\mathbb{R} \)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 10 -->
+  <div class="problem" id="p10">
+    <div class="problem-header">
+      <span class="problem-num">Problem 10</span>
+      <span class="problem-title">Row echelon form — 4 equations, 4 unknowns</span>
+    </div>
+    <div class="problem-body">
+      <div class="math-block">
+        \( \begin{pmatrix}1&1&2&1\\1&-1&1&-1\\3&-1&4&-5\\2&0&3&0\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\\x_4\end{pmatrix}=\begin{pmatrix}3\\2\\7\\5\end{pmatrix} \)
+      </div>
+
+      <div class="part">
+        <div class="part-label">Row reduction</div>
+        <div class="math-block">
+          \[
+          \left[\begin{array}{cccc|c}1&1&2&1&3\\1&-1&1&-1&2\\3&-1&4&-5&7\\2&0&3&0&5\end{array}\right]
+          \xrightarrow{R_2-R_1,\;R_3-3R_1,\;R_4-2R_1}
+          \left[\begin{array}{cccc|c}1&1&2&1&3\\0&-2&-1&-2&-1\\0&-4&-2&-8&-2\\0&-2&-1&-2&-1\end{array}\right]
+          \]
+          \[
+          \xrightarrow{R_3-2R_2,\;R_4-R_2}
+          \left[\begin{array}{cccc|c}1&1&2&1&3\\0&-2&-1&-2&-1\\0&0&0&-4&0\\0&0&0&0&0\end{array}\right]
+          \]
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">Back substitution — free variable: \(x_3 = \alpha\)</div>
+        <ul class="steps">
+          <li>\(-4x_4 = 0 \Rightarrow x_4 = 0\)</li>
+          <li>\(-2x_2 - \alpha - 0 = -1 \Rightarrow x_2 = \tfrac{1-\alpha}{2}\)</li>
+          <li>\(x_1 + \tfrac{1-\alpha}{2} + 2\alpha + 0 = 3 \Rightarrow x_1 = \tfrac{5-3\alpha}{2}\)</li>
+        </ul>
+        <div class="answer"><span class="answer-label">Solution</span>\( x_1=\tfrac{5-3\alpha}{2},\quad x_2=\tfrac{1-\alpha}{2},\quad x_3=\alpha,\quad x_4=0,\quad \alpha\in\mathbb{R} \)</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Linear Algebra · HW 1 · Matrices &amp; Linear Systems
+</footer>
+
+</body>
+</html>

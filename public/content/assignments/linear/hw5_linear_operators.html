@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra — HW 5: Linear Operators</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  /* ── TOKENS ────────────────────────────────────────── */
+  :root {
+    --bg:       #0a0d13;
+    --surface:  #111620;
+    --surface2: #161d2b;
+    --glass:    rgba(255,255,255,0.03);
+    --border:   rgba(255,255,255,0.08);
+    --glow-b:   #3b82f6;
+    --glow-p:   #a855f7;
+    --glow-g:   #22c55e;
+    --glow-o:   #f97316;
+    --glow-c:   #06b6d4;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --dim:      #94a3b8;
+  }
+
+  /* ── RESET ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── BASE ──────────────────────────────────────────── */
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* subtle grid backdrop */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ────────────────────────────────────────── */
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  /* ── PAGE HEADER ───────────────────────────────────── */
+  .hero {
+    margin-bottom: 3rem;
+    padding: 2.5rem 3rem;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #a855f7;
+    background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 0.3rem 0.9rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #e2e8f0 30%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .hero p { color: var(--dim); font-size: 0.95rem; }
+
+  /* ── NAV / TOC ─────────────────────────────────────── */
+  .toc {
+    margin-bottom: 3rem;
+    padding: 1.5rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .toc-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--dim);
+    font-size: 0.82rem;
+    transition: all 0.2s;
+  }
+  .toc-item:hover {
+    background: rgba(59,130,246,0.08);
+    border-color: rgba(59,130,246,0.3);
+    color: #93c5fd;
+    transform: translateY(-1px);
+  }
+  .toc-num {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── BACKGROUND BOXES ──────────────────────────────── */
+  .bg-card {
+    margin-bottom: 1.5rem;
+    padding: 1.75rem 2rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bg-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+  .bg-card.blue::before  { background: linear-gradient(180deg, #3b82f6, #1d4ed8); }
+  .bg-card.purple::before { background: linear-gradient(180deg, #a855f7, #7c3aed); }
+  .bg-card h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+  .bg-card.blue  h3 { color: #60a5fa; }
+  .bg-card.purple h3 { color: #c084fc; }
+  .bg-card p, .bg-card li { color: var(--dim); font-size: 0.92rem; margin-bottom: 0.35rem; }
+  .bg-card .def-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.8rem;
+  }
+  .def-box {
+    padding: 0.9rem 1rem;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .def-box .label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .def-box.null .label { color: #f97316; }
+  .def-box.rang .label { color: #22c55e; }
+
+  /* ── PROBLEM CARDS ─────────────────────────────────── */
+  .prob {
+    margin-bottom: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+  .prob:hover {
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.25), 0 8px 30px rgba(0,0,0,0.4);
+  }
+
+  .prob-header {
+    padding: 1.1rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+  .prob-header::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+  .prob-header.blue::after  { background: #3b82f6; }
+  .prob-header.green::after { background: #22c55e; }
+  .prob-header.purple::after{ background: #a855f7; }
+  .prob-header.orange::after{ background: #f97316; }
+  .prob-header.cyan::after  { background: #06b6d4; }
+
+  .pnum {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .pnum.blue   { background: rgba(59,130,246,0.15);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.3);  }
+  .pnum.green  { background: rgba(34,197,94,0.12);   color: #4ade80;  border: 1px solid rgba(34,197,94,0.3);   }
+  .pnum.purple { background: rgba(168,85,247,0.12);  color: #c084fc;  border: 1px solid rgba(168,85,247,0.3);  }
+  .pnum.orange { background: rgba(249,115,22,0.12);  color: #fb923c;  border: 1px solid rgba(249,115,22,0.3);  }
+  .pnum.cyan   { background: rgba(6,182,212,0.12);   color: #22d3ee;  border: 1px solid rgba(6,182,212,0.3);   }
+
+  .prob-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); flex: 1; }
+  .prob-header .tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+  }
+  .tag.blue   { background: rgba(59,130,246,0.12);  color: #93c5fd;  border: 1px solid rgba(59,130,246,0.2);  }
+  .tag.green  { background: rgba(34,197,94,0.1);    color: #86efac;  border: 1px solid rgba(34,197,94,0.2);   }
+  .tag.purple { background: rgba(168,85,247,0.1);   color: #d8b4fe;  border: 1px solid rgba(168,85,247,0.2);  }
+  .tag.orange { background: rgba(249,115,22,0.1);   color: #fdba74;  border: 1px solid rgba(249,115,22,0.2);  }
+  .tag.cyan   { background: rgba(6,182,212,0.1);    color: #67e8f9;  border: 1px solid rgba(6,182,212,0.2);   }
+
+  .prob-body { padding: 1.75rem 2rem; }
+
+  /* ── PARTS ─────────────────────────────────────────── */
+  .part {
+    margin-bottom: 2rem;
+    padding: 0 0 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .part:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+  .part-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .part-letter {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: #a5b4fc;
+    font-size: 0.8rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .part-title { font-size: 0.88rem; font-weight: 600; color: #c7d2fe; }
+
+  /* ── QUESTION BOX ──────────────────────────────────── */
+  .q-box {
+    padding: 1rem 1.2rem;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-left: 3px solid #334155;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 1rem;
+    color: var(--dim);
+    font-size: 0.92rem;
+  }
+
+  /* ── SOLUTION BLOCK ────────────────────────────────── */
+  .sol {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .sol-head {
+    padding: 0.5rem 1rem;
+    background: rgba(34,197,94,0.07);
+    border-bottom: 1px solid rgba(34,197,94,0.12);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .sol-head::before { content: '✦'; font-size: 0.6rem; }
+  .sol-body { padding: 1.2rem 1.4rem; font-size: 0.91rem; color: var(--dim); }
+  .sol-body p { margin-bottom: 0.7rem; }
+  .sol-body p:last-child { margin-bottom: 0; }
+
+  /* ── STEP LINES ────────────────────────────────────── */
+  .step-list { margin: 0.5rem 0; }
+  .step {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-math { flex: 1; color: #cbd5e1; }
+  .step-why {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+    flex-shrink: 0;
+    max-width: 220px;
+    text-align: right;
+  }
+
+  /* ── ANSWER BOX ────────────────────────────────────── */
+  .ans {
+    margin-top: 1rem;
+    padding: 0.9rem 1.2rem;
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 8px;
+    font-weight: 600;
+    color: #86efac;
+    font-size: 0.9rem;
+  }
+  .ans::before { content: '→ '; color: #4ade80; font-weight: 800; }
+
+  /* ── MATRIX DISPLAY ────────────────────────────────── */
+  .matrix-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.6rem 0;
+    color: var(--dim);
+    font-size: 0.88rem;
+  }
+  .arrow-lbl { color: var(--muted); font-style: italic; font-size: 0.8rem; }
+
+  /* ── RANK CHECK BADGE ──────────────────────────────── */
+  .rank-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    padding: 0.5rem 1rem;
+    background: rgba(6,182,212,0.07);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #67e8f9;
+    font-weight: 600;
+  }
+  .rank-check::before { content: '✓'; font-weight: 800; color: #22d3ee; }
+
+  /* ── NOTE ──────────────────────────────────────────── */
+  .note {
+    margin-top: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: rgba(168,85,247,0.06);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #c4b5fd;
+  }
+  .note::before { content: '💡 '; }
+
+  /* ── MATRIX TABLE ──────────────────────────────────── */
+  .matrix-header {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    background: rgba(15,23,42,0.8);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SCROLLBAR ─────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+  /* ── RESPONSIVE ────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .hero { padding: 1.5rem; }
+    .hero h1 { font-size: 1.5rem; }
+    .prob-body { padding: 1.2rem; }
+    .bg-card .def-grid { grid-template-columns: 1fr; }
+    .step-why { max-width: 140px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero">
+    <div class="hero-badge">Linear Algebra · Homework 5</div>
+    <h1>Linear Operators</h1>
+    <p>Null spaces · Range spaces · Rank Theorem · Matrix &amp; Polynomial operators</p>
+  </div>
+
+  <!-- ═══ TOC ═══ -->
+  <div class="toc">
+    <div class="toc-title">Problems</div>
+    <div class="toc-grid">
+      <a href="#p1" class="toc-item">
+        <span class="toc-num" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)">1</span>
+        Null &amp; Range are Subspaces
+      </a>
+      <a href="#p2" class="toc-item">
+        <span class="toc-num" style="background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)">2</span>
+        Unique Solution Theorem
+      </a>
+      <a href="#p3" class="toc-item">
+        <span class="toc-num" style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.3)">3</span>
+        Matrix 3×3 (rank 2)
+      </a>
+      <a href="#p4" class="toc-item">
+        <span class="toc-num" style="background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.3)">4</span>
+        Matrix 3×3 (rank 1)
+      </a>
+      <a href="#p5" class="toc-item">
+        <span class="toc-num" style="background:rgba(6,182,212,.12);color:#22d3ee;border:1px solid rgba(6,182,212,.3)">5</span>
+        Matrix 4×3 (R³→R⁴)
+      </a>
+      <a href="#p6" class="toc-item">
+        <span class="toc-num" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)">6</span>
+        Matrix 3×3 (R³→R³)
+      </a>
+      <a href="#p7" class="toc-item">
+        <span class="toc-num" style="background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)">7</span>
+        Matrix 3×4 (R⁴→R³)
+      </a>
+      <a href="#p8" class="toc-item">
+        <span class="toc-num" style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.3)">8</span>
+        Polynomial Operator on P₂
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ BACKGROUND ═══ -->
+  <div class="bg-card blue">
+    <h3>📐 What is a Linear Operator?</h3>
+    <p>A map \(\mathcal{L}: V_x \to V_y\) is <strong style="color:#93c5fd">linear</strong> if for all vectors and scalars:</p>
+    <p>\[\mathcal{L}(\mathbf{x}_1+\mathbf{x}_2) = \mathcal{L}(\mathbf{x}_1)+\mathcal{L}(\mathbf{x}_2) \qquad\text{and}\qquad \mathcal{L}(\alpha\mathbf{x}) = \alpha\mathcal{L}(\mathbf{x})\]</p>
+    <div class="def-grid">
+      <div class="def-box null">
+        <div class="label">Null Space</div>
+        \(\mathrm{Null}(\mathcal{L}) = \{\mathbf{x}\in V_x : \mathcal{L}(\mathbf{x})=\mathbf{0}\}\)
+        <p style="margin-top:.4rem;font-size:.82rem;color:var(--muted)">Vectors <em>annihilated</em> by \(\mathcal{L}\). A subspace of \(V_x\).</p>
+      </div>
+      <div class="def-box rang">
+        <div class="label">Range Space</div>
+        \(\mathrm{Rang}(\mathcal{L}) = \{\mathcal{L}(\mathbf{x}) : \mathbf{x}\in V_x\}\)
+        <p style="margin-top:.4rem;font-size:.82rem;color:var(--muted)">Vectors <em>reachable</em> by \(\mathcal{L}\). A subspace of \(V_y\).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-card purple">
+    <h3>⚖️ Rank Theorem (Fundamental)</h3>
+    <p>\[\dim\!\bigl(\mathrm{Null}(\mathcal{L})\bigr) + \dim\!\bigl(\mathrm{Rang}(\mathcal{L})\bigr) = \dim(V_x)\]</p>
+    <p style="margin-top:.5rem"><strong style="color:#d8b4fe">For matrices:</strong> Range = column span. To get the <em>standard basis</em> for Range, transpose \(A\) and row-reduce to full echelon form.</p>
+  </div>
+
+  <!-- ═══ P1 ═══ -->
+  <div class="prob" id="p1">
+    <div class="prob-header blue">
+      <div class="pnum blue">1</div>
+      <h2>Null(L) and Rang(L) are Subspaces</h2>
+      <span class="tag blue">Proof</span>
+    </div>
+    <div class="prob-body">
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Null(L) is a subspace of V<sub>x</sub></span>
+        </div>
+        <div class="q-box">Prove that \(\mathrm{Null}(\mathcal{L}) \equiv \{\mathbf{x}\in V_x : \mathcal{L}(\mathbf{x})=\mathbf{0}\}\) is a subspace of \(V_x\).</div>
+        <div class="sol">
+          <div class="sol-head">Solution — Closure under both operations</div>
+          <div class="sol-body">
+            <p>We need to show \(\mathrm{Null}(\mathcal{L})\) is closed under scalar multiplication and vector addition.</p>
+            <div class="step-list">
+              <div class="step">
+                <div class="step-math"><strong>Scalar mult:</strong> Suppose \(\alpha\in\mathbb{F}\) and \(\mathbf{x}\in\mathrm{Null}(\mathcal{L})\). Then \(\mathcal{L}(\alpha\mathbf{x}) = \alpha\mathcal{L}(\mathbf{x}) = \alpha\mathbf{0} = \mathbf{0}\).</div>
+                <div class="step-why">linearity of \(\mathcal{L}\)</div>
+              </div>
+              <div class="step">
+                <div class="step-math">So \(\alpha\mathbf{x}\in\mathrm{Null}(\mathcal{L})\). ✓</div>
+                <div class="step-why"></div>
+              </div>
+              <div class="step">
+                <div class="step-math"><strong>Addition:</strong> Suppose \(\mathbf{x}_1,\mathbf{x}_2\in\mathrm{Null}(\mathcal{L})\). Then \(\mathcal{L}(\mathbf{x}_1+\mathbf{x}_2) = \mathcal{L}(\mathbf{x}_1)+\mathcal{L}(\mathbf{x}_2) = \mathbf{0}+\mathbf{0} = \mathbf{0}\).</div>
+                <div class="step-why">linearity of \(\mathcal{L}\)</div>
+              </div>
+              <div class="step">
+                <div class="step-math">So \(\mathbf{x}_1+\mathbf{x}_2\in\mathrm{Null}(\mathcal{L})\). ✓</div>
+                <div class="step-why"></div>
+              </div>
+            </div>
+            <div class="ans">\(\mathrm{Null}(\mathcal{L})\) is closed under scalar mult and vector addition → it is a subspace of \(V_x\).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Rang(L) is a subspace of V<sub>y</sub></span>
+        </div>
+        <div class="q-box">Prove that \(\mathrm{Rang}(\mathcal{L}) \equiv \{\mathbf{y}=\mathcal{L}(\mathbf{x}):\mathbf{x}\in V_x\}\) is a subspace of \(V_y\).</div>
+        <div class="sol">
+          <div class="sol-head">Solution — Use Preimages</div>
+          <div class="sol-body">
+            <div class="step-list">
+              <div class="step">
+                <div class="step-math"><strong>Scalar mult:</strong> Let \(\mathbf{y}\in\mathrm{Rang}(\mathcal{L})\), so \(\exists\,\mathbf{x}\in V_x\) with \(\mathbf{y}=\mathcal{L}(\mathbf{x})\). Then \(\alpha\mathbf{y} = \alpha\mathcal{L}(\mathbf{x}) = \mathcal{L}(\alpha\mathbf{x})\).</div>
+                <div class="step-why">linearity</div>
+              </div>
+              <div class="step">
+                <div class="step-math">Since \(V_x\) is a vector space, \(\alpha\mathbf{x}\in V_x\), so \(\alpha\mathbf{y}\in\mathrm{Rang}(\mathcal{L})\). ✓</div>
+                <div class="step-why">\(V_x\) closed under scalar mult</div>
+              </div>
+              <div class="step">
+                <div class="step-math"><strong>Addition:</strong> Let \(\mathbf{y}_1=\mathcal{L}(\mathbf{x}_1)\) and \(\mathbf{y}_2=\mathcal{L}(\mathbf{x}_2)\). Then \(\mathbf{y}_1+\mathbf{y}_2 = \mathcal{L}(\mathbf{x}_1)+\mathcal{L}(\mathbf{x}_2) = \mathcal{L}(\mathbf{x}_1+\mathbf{x}_2)\).</div>
+                <div class="step-why">linearity</div>
+              </div>
+              <div class="step">
+                <div class="step-math">Since \(V_x\) is a vector space, \(\mathbf{x}_1+\mathbf{x}_2\in V_x\), so \(\mathbf{y}_1+\mathbf{y}_2\in\mathrm{Rang}(\mathcal{L})\). ✓</div>
+                <div class="step-why">\(V_x\) closed under addition</div>
+              </div>
+            </div>
+            <div class="ans">\(\mathrm{Rang}(\mathcal{L})\) is a subspace of \(V_y\).</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ P2 ═══ -->
+  <div class="prob" id="p2">
+    <div class="prob-header purple">
+      <div class="pnum purple">2</div>
+      <h2>Unique Solution When Null(L) = {0}</h2>
+      <span class="tag purple">Rank Theorem</span>
+    </div>
+    <div class="prob-body">
+      <div class="q-box">Let \(V\) be finite-dimensional, \(\mathcal{L}:V\to V\) linear, \(\mathrm{Null}(\mathcal{L})=\{\mathbf{0}\}\). Prove: for any \(\mathbf{y}\in V\), there exists a <em>unique</em> \(\mathbf{x}\in V\) with \(\mathcal{L}(\mathbf{x})=\mathbf{y}\).</div>
+      <div class="sol">
+        <div class="sol-head">Solution — Existence via Rank Theorem, Uniqueness via Null Space</div>
+        <div class="sol-body">
+          <p><strong style="color:#c4b5fd">Existence:</strong></p>
+          <div class="step-list">
+            <div class="step">
+              <div class="step-math">By Rank Theorem: \(\dim(\mathrm{Rang}(\mathcal{L})) + \underbrace{\dim(\mathrm{Null}(\mathcal{L}))}_{=\,0} = \dim(V)\)</div>
+              <div class="step-why">Null = {0} means dim = 0</div>
+            </div>
+            <div class="step">
+              <div class="step-math">So \(\dim(\mathrm{Rang}(\mathcal{L})) = \dim(V)\).</div>
+              <div class="step-why"></div>
+            </div>
+            <div class="step">
+              <div class="step-math">But \(\mathrm{Rang}(\mathcal{L})\subseteq V\) and has the same dimension, so \(\mathrm{Rang}(\mathcal{L}) = V\).</div>
+              <div class="step-why">equal-dim subspace theorem</div>
+            </div>
+            <div class="step">
+              <div class="step-math">Therefore \(\forall\,\mathbf{y}\in V\), \(\exists\,\mathbf{x}\in V\) with \(\mathcal{L}(\mathbf{x})=\mathbf{y}\). ✓</div>
+              <div class="step-why"></div>
+            </div>
+          </div>
+          <p style="margin-top:1rem"><strong style="color:#c4b5fd">Uniqueness:</strong></p>
+          <div class="step-list">
+            <div class="step">
+              <div class="step-math">Suppose \(\mathcal{L}(\mathbf{x}_1)=\mathbf{y}\) and \(\mathcal{L}(\mathbf{x}_2)=\mathbf{y}\). Then \(\mathbf{0}=\mathbf{y}-\mathbf{y}=\mathcal{L}(\mathbf{x}_1)-\mathcal{L}(\mathbf{x}_2)=\mathcal{L}(\mathbf{x}_1-\mathbf{x}_2)\).</div>
+              <div class="step-why">linearity</div>
+            </div>
+            <div class="step">
+              <div class="step-math">So \(\mathbf{x}_1-\mathbf{x}_2\in\mathrm{Null}(\mathcal{L})=\{\mathbf{0}\}\), meaning \(\mathbf{x}_1-\mathbf{x}_2=\mathbf{0}\).</div>
+              <div class="step-why">hypothesis on Null</div>
+            </div>
+          </div>
+          <div class="ans">Therefore \(\mathbf{x}_1=\mathbf{x}_2\) — the solution is unique.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P3 ═══ -->
+  <div class="prob" id="p3">
+    <div class="prob-header green">
+      <div class="pnum green">3</div>
+      <h2>Matrix: 3×3, Rank 2</h2>
+      <span class="tag green">Row Reduction</span>
+    </div>
+    <div class="prob-body">
+      <div class="matrix-header">\(A = \begin{pmatrix}1&2&1\\2&5&2\\1&3&1\end{pmatrix} : \mathbb{R}^3\to\mathbb{R}^3\)</div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Solve A x = 0 by row reduction</div>
+          <div class="sol-body">
+            <p>\[\begin{bmatrix}1&2&1&0\\2&5&2&0\\1&3&1&0\end{bmatrix}\sim\begin{bmatrix}1&2&1&0\\0&1&0&0\\0&1&0&0\end{bmatrix}\sim\begin{bmatrix}1&0&1&0\\0&1&0&0\\0&0&0&0\end{bmatrix}\]</p>
+            <p>\(x_3 = \alpha\) (free), \(x_2=0\), \(x_1=-\alpha\).</p>
+            <div class="ans">\(\mathrm{Null}(A) = \mathrm{span}\!\left\{\begin{pmatrix}-1\\0\\1\end{pmatrix}\right\},\quad \dim=1\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Standard Basis for Rang(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Transpose A, then row-reduce to full echelon form</div>
+          <div class="sol-body">
+            <p>\[A^T=\begin{bmatrix}1&2&1\\2&5&3\\1&2&1\end{bmatrix}\sim\begin{bmatrix}1&2&1\\0&1&1\\0&0&0\end{bmatrix}\sim\begin{bmatrix}1&0&-1\\0&1&1\\0&0&0\end{bmatrix}\]</p>
+            <div class="ans">\(\mathrm{Rang}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\0\\-1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\},\quad \dim=2\)</div>
+            <div class="rank-check">Rank Theorem: \(1 + 2 = 3 = \dim(\mathbb{R}^3)\) ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P4 ═══ -->
+  <div class="prob" id="p4">
+    <div class="prob-header orange">
+      <div class="pnum orange">4</div>
+      <h2>Matrix: 3×3, Rank 1</h2>
+      <span class="tag orange">Row Reduction</span>
+    </div>
+    <div class="prob-body">
+      <div class="matrix-header">\(A = \begin{pmatrix}1&2&1\\2&4&2\\3&6&3\end{pmatrix} : \mathbb{R}^3\to\mathbb{R}^3\)</div>
+      <div class="note">All rows are multiples of the first — rank 1!</div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Solve A x = 0</div>
+          <div class="sol-body">
+            <p>\[\begin{bmatrix}1&2&1&0\\2&4&2&0\\3&6&3&0\end{bmatrix}\sim\begin{bmatrix}1&2&1&0\\0&0&0&0\\0&0&0&0\end{bmatrix}\]</p>
+            <p>\(x_2=\alpha\), \(x_3=\beta\) (both free), \(x_1=-2\alpha-\beta\).</p>
+            <div class="ans">\(\mathrm{Null}(A) = \mathrm{span}\!\left\{\begin{pmatrix}-2\\1\\0\end{pmatrix},\begin{pmatrix}-1\\0\\1\end{pmatrix}\right\},\quad \dim=2\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Standard Basis for Rang(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Transpose and reduce</div>
+          <div class="sol-body">
+            <p>\[A^T=\begin{bmatrix}1&2&3\\2&4&6\\1&2&3\end{bmatrix}\sim\begin{bmatrix}1&2&3\\0&0&0\\0&0&0\end{bmatrix}\]</p>
+            <div class="ans">\(\mathrm{Rang}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix}\right\},\quad \dim=1\)</div>
+            <div class="rank-check">Rank Theorem: \(2 + 1 = 3 = \dim(\mathbb{R}^3)\) ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P5 ═══ -->
+  <div class="prob" id="p5">
+    <div class="prob-header cyan">
+      <div class="pnum cyan">5</div>
+      <h2>Matrix: R³ → R⁴</h2>
+      <span class="tag cyan">Rank Theorem</span>
+    </div>
+    <div class="prob-body">
+      <div class="matrix-header">\(A = \begin{pmatrix}1&1&2\\2&2&4\\3&4&9\\4&2&2\end{pmatrix} : \mathbb{R}^3\to\mathbb{R}^4\)</div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Solve A x = 0</div>
+          <div class="sol-body">
+            <p>\[\begin{bmatrix}1&1&2\\2&2&4\\3&4&9\\4&2&2\end{bmatrix}\sim\begin{bmatrix}1&1&2\\0&0&0\\0&1&3\\0&-2&-6\end{bmatrix}\sim\begin{bmatrix}1&1&2\\0&1&3\\0&0&0\\0&0&0\end{bmatrix}\sim\begin{bmatrix}1&0&-1\\0&1&3\\0&0&0\\0&0&0\end{bmatrix}\]</p>
+            <p>\(x_3=\alpha\) (free), \(x_2=-3\alpha\), \(x_1=\alpha\).</p>
+            <div class="ans">\(\mathrm{Null}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\-3\\1\end{pmatrix}\right\},\quad \dim=1\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Standard Basis for Rang(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Transpose A (now 3×4), reduce to full echelon form</div>
+          <div class="sol-body">
+            <p>\[A^T=\begin{bmatrix}1&2&3&4\\1&2&4&2\\2&4&9&2\end{bmatrix}\sim\cdots\sim\begin{bmatrix}1&2&0&10\\0&0&1&-2\\0&0&0&0\end{bmatrix}\]</p>
+            <div class="ans">\(\mathrm{Rang}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\2\\0\\10\end{pmatrix},\begin{pmatrix}0\\0\\1\\-2\end{pmatrix}\right\},\quad \dim=2\)</div>
+            <div class="rank-check">Rank Theorem: \(1 + 2 = 3 = \dim(\mathbb{R}^3)\) ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">c</div>
+          <span class="part-title">Confirm Rank Theorem</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Dimension count</div>
+          <div class="sol-body">
+            <p>\(\dim(\mathrm{Null}(A)) + \dim(\mathrm{Rang}(A)) = 1 + 2 = 3 = \dim(\mathbb{R}^3)\). ✓</p>
+            <div class="note">The domain is \(\mathbb{R}^3\), not \(\mathbb{R}^4\) — always use domain dimension on right side.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P6 ═══ -->
+  <div class="prob" id="p6">
+    <div class="prob-header blue">
+      <div class="pnum blue">6</div>
+      <h2>Matrix: R³ → R³</h2>
+      <span class="tag blue">Rank Theorem</span>
+    </div>
+    <div class="prob-body">
+      <div class="matrix-header">\(A = \begin{pmatrix}1&1&1\\0&1&1\\1&2&2\end{pmatrix} : \mathbb{R}^3\to\mathbb{R}^3\)</div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Solve A x = 0</div>
+          <div class="sol-body">
+            <p>\[\begin{bmatrix}1&1&1&0\\0&1&1&0\\1&2&2&0\end{bmatrix}\sim\begin{bmatrix}1&1&1&0\\0&1&1&0\\0&1&1&0\end{bmatrix}\sim\begin{bmatrix}1&0&0&0\\0&1&1&0\\0&0&0&0\end{bmatrix}\]</p>
+            <p>\(x_3=\alpha\) (free), \(x_2=-\alpha\), \(x_1=0\).</p>
+            <div class="ans">\(\mathrm{Null}(A) = \mathrm{span}\!\left\{\begin{pmatrix}0\\-1\\1\end{pmatrix}\right\},\quad \dim=1\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Standard Basis for Rang(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Transpose and reduce to full echelon form</div>
+          <div class="sol-body">
+            <p>\[A^T=\begin{bmatrix}1&0&1\\1&1&2\\1&1&2\end{bmatrix}\sim\begin{bmatrix}1&0&1\\0&1&1\\0&0&0\end{bmatrix}\]</p>
+            <div class="ans">\(\mathrm{Rang}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\0\\1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\},\quad \dim=2\)</div>
+            <div class="rank-check">Rank Theorem: \(1 + 2 = 3 = \dim(\mathbb{R}^3)\) ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">c</div>
+          <span class="part-title">Confirm Rank Theorem</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Dimension count</div>
+          <div class="sol-body">
+            <p>\(\dim(\mathrm{Null}) + \dim(\mathrm{Rang}) = 1 + 2 = 3 = \dim(\mathbb{R}^3)\). ✓</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P7 ═══ -->
+  <div class="prob" id="p7">
+    <div class="prob-header purple">
+      <div class="pnum purple">7</div>
+      <h2>Matrix: R⁴ → R³</h2>
+      <span class="tag purple">Rank Theorem</span>
+    </div>
+    <div class="prob-body">
+      <div class="matrix-header">\(A = \begin{pmatrix}1&1&1&2\\1&0&1&0\\2&1&0&1\end{pmatrix} : \mathbb{R}^4\to\mathbb{R}^3\)</div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Solve A x = 0 (4 variables, 3 equations)</div>
+          <div class="sol-body">
+            <p>\[\begin{bmatrix}1&1&1&2\\1&0&1&0\\2&1&0&1\end{bmatrix}\sim\begin{bmatrix}1&0&1&0\\0&1&0&2\\0&0&-2&-1\end{bmatrix}\]</p>
+            <p>\(x_4=\alpha\) (free), \(x_3=-\tfrac{1}{2}\alpha\), \(x_2=-2\alpha\), \(x_1=\tfrac{1}{2}\alpha\).</p>
+            <p>Scale by 2:</p>
+            <div class="ans">\(\mathrm{Null}(A) = \mathrm{span}\!\left\{\begin{pmatrix}1\\-4\\-1\\2\end{pmatrix}\right\},\quad \dim=1\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Standard Basis for Rang(A)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Transpose A (now 4×3), reduce to full echelon form</div>
+          <div class="sol-body">
+            <p>\[A^T=\begin{bmatrix}1&1&2\\1&0&1\\1&1&0\\2&0&1\end{bmatrix}\sim\cdots\sim\begin{bmatrix}1&0&0\\0&1&0\\0&0&1\\0&0&0\end{bmatrix}\]</p>
+            <div class="ans">\(\mathrm{Rang}(A) = \mathbb{R}^3 = \mathrm{span}\!\left\{e_1, e_2, e_3\right\},\quad \dim=3\)</div>
+            <div class="note">The map is onto — every vector in \(\mathbb{R}^3\) is reachable!</div>
+            <div class="rank-check">Rank Theorem: \(1 + 3 = 4 = \dim(\mathbb{R}^4)\) ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">c</div>
+          <span class="part-title">Confirm Rank Theorem</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Dimension count</div>
+          <div class="sol-body">
+            <p>\(\dim(\mathrm{Null}) + \dim(\mathrm{Rang}) = 1 + 3 = 4 = \dim(\mathbb{R}^4)\). ✓</p>
+            <div class="note">Domain is \(\mathbb{R}^4\) (4 columns in \(A\)), target is \(\mathbb{R}^3\) (3 rows in \(A\)).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P8 ═══ -->
+  <div class="prob" id="p8">
+    <div class="prob-header green">
+      <div class="pnum green">8</div>
+      <h2>Polynomial Operator on P₂</h2>
+      <span class="tag green">Calculus + Linear Algebra</span>
+    </div>
+    <div class="prob-body">
+      <div class="q-box">
+        \(\mathcal{L}(p) \equiv \dfrac{d^2p}{dx^2} + \dfrac{dp}{dx}\) maps \(P_2 \to P_2\).
+        For \(p=\alpha_0+\alpha_1 x+\alpha_2 x^2\): \(\mathcal{L}(p) = (2\alpha_2+\alpha_1) + 2\alpha_2 x\).
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">a</div>
+          <span class="part-title">Basis for Null(L)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Set L(p) = 0 and solve for coefficients</div>
+          <div class="sol-body">
+            <p>Set \(\mathcal{L}(p) = (2\alpha_2+\alpha_1) + 2\alpha_2 x = 0\) for all \(x\).</p>
+            <div class="step-list">
+              <div class="step">
+                <div class="step-math">Coefficient of \(x\): \(2\alpha_2 = 0 \implies \alpha_2 = 0\)</div>
+                <div class="step-why">independence of \(\{1,x\}\)</div>
+              </div>
+              <div class="step">
+                <div class="step-math">Constant: \(2(0)+\alpha_1 = 0 \implies \alpha_1 = 0\)</div>
+                <div class="step-why"></div>
+              </div>
+              <div class="step">
+                <div class="step-math">\(\alpha_0\) is free → \(p(x) = \alpha_0 \cdot 1\)</div>
+                <div class="step-why"></div>
+              </div>
+            </div>
+            <div class="ans">\(\mathrm{Null}(\mathcal{L}) = \mathrm{span}\{1\},\quad \dim=1\)</div>
+            <div class="note">The only polynomials killed by \(d^2/dx^2 + d/dx\) are constants (their derivative is 0).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="part">
+        <div class="part-label">
+          <div class="part-letter">b</div>
+          <span class="part-title">Basis for Rang(L)</span>
+        </div>
+        <div class="sol">
+          <div class="sol-head">Apply L to basis vectors of P₂</div>
+          <div class="sol-body">
+            <p>By the rank theorem proof structure, \(P_2 = \mathrm{Null}(\mathcal{L})\oplus M\) where \(M = \mathrm{span}\{x, x^2\}\). So:</p>
+            <p>\[\mathrm{Rang}(\mathcal{L}) = \mathrm{span}\{\mathcal{L}(x),\;\mathcal{L}(x^2)\}\]</p>
+            <div class="step-list">
+              <div class="step">
+                <div class="step-math">\(\mathcal{L}(x) = \frac{d^2x}{dx^2}+\frac{dx}{dx} = 0 + 1 = 1\)</div>
+                <div class="step-why"></div>
+              </div>
+              <div class="step">
+                <div class="step-math">\(\mathcal{L}(x^2) = 2 + 2x\)</div>
+                <div class="step-why"></div>
+              </div>
+            </div>
+            <p>So \(\mathrm{Rang}(\mathcal{L}) = \mathrm{span}\{1, 2+2x\} = \mathrm{span}\{1, 1+x\} = \mathrm{span}\{1, x\}\).</p>
+            <div class="ans">\(\mathrm{Rang}(\mathcal{L}) = \mathrm{span}\{1, x\} = P_1,\quad \dim=2\)</div>
+            <div class="note">\(\mathrm{span}\{1, x+1\}\) is another valid basis for the same space.</div>
+            <div class="rank-check">Rank Theorem: \(\dim(\mathrm{Null})+\dim(\mathrm{Rang}) = 1+2=3=\dim(P_2)\) ✓</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- footer -->
+  <div style="text-align:center;color:var(--muted);font-size:0.78rem;padding-top:1rem;">
+    Linear Algebra · HW 5 Study Guide · Linear Operators
+  </div>
+
+</div>
+</body>
+</html>

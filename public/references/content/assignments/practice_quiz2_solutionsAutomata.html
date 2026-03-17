@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Quiz 2 — COSC 3340</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --border: #e8e4df;
+    --border2: #d4cfc8;
+    --accent: #c4401d;
+    --accent2: #1d5c9e;
+    --green: #1a6e3c;
+    --amber: #8a5c00;
+    --purple: #6b3fa0;
+    --teal: #0e7c7b;
+    --text: #1a1714;
+    --muted: #7a7068;
+    --light: #f2ede8;
+    --sol-bg: #fffbf0;
+    --sol-border: #e8c84a;
+    --def-bg: #f0f7f4;
+    --def-border: #1a6e3c;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--text);
+    color: var(--bg);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-left h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .header-left p { font-size: 0.8rem; color: rgba(250,249,247,0.5); margin-top: 0.3rem; font-weight: 300; letter-spacing: 0.04em; }
+
+  .header-right {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: rgba(250,249,247,0.5);
+  }
+  .header-right .course { color: rgba(250,249,247,0.8); font-size: 0.8rem; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 3rem 2rem; }
+
+  /* ── Nav / legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem 1.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .legend-title {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: 100%;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ── Concept tags ── */
+  .concept-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    border: 1.5px solid;
+    white-space: nowrap;
+  }
+  .tag-regex    { color: #6b3fa0; border-color: #6b3fa0; background: rgba(107,63,160,0.07); }
+  .tag-pumping  { color: #c4401d; border-color: #c4401d; background: rgba(196,64,29,0.07); }
+  .tag-dfa      { color: #1a6e3c; border-color: #1a6e3c; background: rgba(26,110,60,0.07); }
+  .tag-nfa      { color: #0e7c7b; border-color: #0e7c7b; background: rgba(14,124,123,0.07); }
+  .tag-closure  { color: #1d5c9e; border-color: #1d5c9e; background: rgba(29,92,158,0.07); }
+  .tag-induction{ color: #8a5c00; border-color: #8a5c00; background: rgba(138,92,0,0.07); }
+  .tag-countability { color: #555; border-color: #999; background: rgba(0,0,0,0.05); }
+
+  /* ── Question block ── */
+  .q-block {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .q-block:hover { border-color: var(--border2); box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+
+  .q-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+  .q-header:hover { background: var(--light); }
+
+  .q-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--text);
+    color: var(--bg);
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .q-title { font-weight: 600; font-size: 0.95rem; flex: 1; min-width: 160px; }
+  .q-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-left: auto; }
+  .q-arrow { color: var(--muted); transition: transform 0.25s; font-size: 0.7rem; flex-shrink: 0; }
+  .q-block.open .q-arrow { transform: rotate(90deg); }
+
+  .q-body { padding: 1.5rem; display: none; animation: fadeIn 0.2s ease; }
+  .q-block.open .q-body { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  /* ── Key Definitions box ── */
+  .defs-box {
+    background: var(--def-bg);
+    border: 1px solid rgba(26,110,60,0.25);
+    border-left: 4px solid var(--def-border);
+    border-radius: 0 5px 5px 0;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .defs-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .defs-label::before { content: '📖'; font-size: 0.75rem; }
+  .def-item {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.85rem;
+    align-items: baseline;
+  }
+  .def-term {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green);
+    flex-shrink: 0;
+    min-width: 120px;
+  }
+  .def-desc { color: #3a3530; line-height: 1.55; }
+
+  /* ── Problem box ── */
+  .problem-box {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  /* ── Solution highlight ── */
+  .solution-highlight {
+    background: var(--sol-bg);
+    border: 1.5px solid var(--sol-border);
+    border-radius: 5px;
+    padding: 1rem 1.3rem;
+    margin: 0.8rem 0 1.2rem;
+    position: relative;
+  }
+  .solution-highlight::before {
+    content: '✦ SOLUTION';
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    color: #b8920a;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── Section heads ── */
+  .sol-head {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 1.3rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sol-head:first-child { margin-top: 0; }
+  .sol-head::before { content: '▸'; }
+
+  p { margin-bottom: 0.7rem; font-size: 0.92rem; }
+  strong { color: var(--accent2); font-weight: 600; }
+  em { color: var(--amber); font-style: italic; }
+
+  .mono-block {
+    font-family: var(--mono);
+    background: #f7f4f0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.7rem 0;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    color: #4a4540;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8rem 0;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    padding: 0.55rem 0.9rem;
+    text-align: left;
+    font-weight: 400;
+  }
+  td {
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--light); }
+  .acc { color: var(--green); font-weight: 600; }
+  .rej { color: var(--accent); }
+  .start { color: var(--amber); font-weight: 600; }
+
+  .regex-box {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    color: var(--accent2);
+    border: 1.5px solid var(--accent2);
+    border-radius: 3px;
+    padding: 0.5rem 1.2rem;
+    display: inline-block;
+    margin: 0.5rem 0;
+    background: rgba(29,92,158,0.04);
+  }
+
+  .callout {
+    background: rgba(196,64,29,0.04);
+    border: 1px solid rgba(196,64,29,0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 3px 3px 0;
+    padding: 0.8rem 1rem;
+    margin: 0.8rem 0;
+  }
+  .callout-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+  .callout p { font-size: 0.87rem; margin: 0; margin-top: 0.3rem; }
+
+  .callout-blue {
+    background: rgba(29,92,158,0.04);
+    border-color: rgba(29,92,158,0.2);
+    border-left-color: var(--accent2);
+  }
+  .callout-blue .callout-label { color: var(--accent2); }
+
+  .callout-purple {
+    background: rgba(107,63,160,0.04);
+    border-color: rgba(107,63,160,0.2);
+    border-left-color: var(--purple);
+  }
+  .callout-purple .callout-label { color: var(--purple); }
+
+  .qed { text-align: right; font-family: var(--mono); color: var(--text); font-size: 0.9rem; margin-top: 0.5rem; }
+
+  svg.dfa-svg { width: 100%; max-width: 550px; display: block; margin: 0.5rem auto; }
+
+  .pl-box { margin: 0.5rem 0; }
+  .pl-step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.88rem;
+    align-items: flex-start;
+  }
+  .pl-step-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(196,64,29,0.08);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* ── Key Insight strip ── */
+  .key-insight {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    background: #fffef5;
+    border: 1px dashed #d4b83a;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    margin: 0.8rem 0;
+    font-size: 0.87rem;
+  }
+  .key-insight::before {
+    content: '💡';
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  footer {
+    background: var(--text);
+    color: rgba(250,249,247,0.4);
+    text-align: center;
+    padding: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    margin-top: 3rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Expand all button ── */
+  .toolbar {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-bottom: 1.2rem;
+  }
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--muted);
+    padding: 0.3rem 0.8rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--light); color: var(--text); }
+
+  /* intro */
+  .intro-note {
+    background: var(--light);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  code { font-family: var(--mono); font-size: 0.82em; background: var(--light); padding: 0.1em 0.35em; border-radius: 2px; }
+
+  /* ══════════════════════════════════
+     SHOW YOUR WORK SECTION
+  ══════════════════════════════════ */
+  :root {
+    --work-bg: #f6f2ff;
+    --work-border: #7c4fc4;
+    --work-accent: #5b31a0;
+    --work-step-bg: #ffffff;
+  }
+
+  /* Outer collapsible container */
+  .work-section {
+    margin: 1.4rem 0 1rem;
+    border: 1.5px solid var(--work-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Clickable header bar */
+  .work-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.2rem;
+    background: var(--work-bg);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .work-header:hover { background: #ede5ff; }
+
+  .work-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .work-header-text {
+    flex: 1;
+  }
+  .work-header-title {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--work-accent);
+  }
+  .work-header-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+  .work-chevron {
+    font-size: 0.65rem;
+    color: var(--work-border);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+  .work-section.work-open .work-chevron { transform: rotate(90deg); }
+  .work-section.work-open .work-header { border-bottom: 1.5px solid var(--work-border); }
+
+  /* Body that shows/hides */
+  .work-body {
+    display: none;
+    background: var(--work-step-bg);
+    padding: 0;
+  }
+  .work-section.work-open .work-body { display: block; }
+
+  /* Individual numbered steps */
+  .work-step {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #ede8f8;
+  }
+  .work-step:last-child { border-bottom: none; }
+
+  .work-step-num {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.1rem 0;
+    width: 52px;
+    min-width: 52px;
+    background: var(--work-bg);
+    border-right: 1px solid #ddd5f5;
+  }
+  .work-step-num-inner {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--work-border);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.05rem;
+  }
+
+  .work-step-content {
+    flex: 1;
+    padding: 1rem 1.3rem;
+  }
+  .work-step-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--work-accent);
+    margin-bottom: 0.4rem;
+  }
+  .work-step-body {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .work-step-body p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+  .work-step-body p:last-child { margin-bottom: 0; }
+
+  /* Answer check chip inside work steps */
+  .work-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    margin-top: 0.5rem;
+  }
+  .work-check.correct { background: rgba(26,110,60,0.1); color: var(--green); border: 1px solid rgba(26,110,60,0.3); }
+  .work-check.incorrect { background: rgba(196,64,29,0.08); color: var(--accent); border: 1px solid rgba(196,64,29,0.3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Practice Quiz 2 — Solutions</h1>
+    <p>COSC 3340 — Introduction to Automata and Computability · Spring 2026</p>
+  </div>
+  <div class="header-right">
+    <div class="course">Dr. Rakesh Verma</div>
+    <div>Vu Minh Hoang Dang · Bryan Tuck</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="intro-note">
+    Complete solutions with <strong>key definitions</strong> and <strong>highlighted answers</strong> for each problem. Click any header to expand/collapse, or use the buttons below.
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="toggleAll(true)">Expand All</button>
+    <button class="btn" onclick="toggleAll(false)">Collapse All</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-title">Concept Index</div>
+    <span class="concept-tag tag-regex">Regular Expressions</span>
+    <span class="concept-tag tag-pumping">Pumping Lemma</span>
+    <span class="concept-tag tag-dfa">DFA Design</span>
+    <span class="concept-tag tag-nfa">NFA / Subset Construction</span>
+    <span class="concept-tag tag-closure">Closure Properties</span>
+    <span class="concept-tag tag-induction">Proof by Induction</span>
+    <span class="concept-tag tag-countability">Countability Theory</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q1 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q1</span>
+      <span class="q-title">Regular Expressions — Description &amp; Construction</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-regex">Regular Expressions</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <!-- Key Definitions -->
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Regular Expression</span>
+          <span class="def-desc">A formal notation describing a set of strings using union (∪), concatenation, and Kleene star (*). Every regular expression describes a regular language.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Kleene Star (R*)</span>
+          <span class="def-desc">Zero or more concatenations of strings matched by R. R* always includes the empty string ε.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Union (R ∪ S)</span>
+          <span class="def-desc">Matches any string matched by R or by S.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Substring</span>
+          <span class="def-desc">String v is a substring of w if w = xvy for some (possibly empty) x, y.</span>
+        </div>
+      </div>
+
+      <!-- ── PART (a) ── -->
+      <div class="sol-head">Part (a) — Describe (ab ∪ b)* in English</div>
+      <div class="problem-box">Describe the language generated by (ab ∪ b)* over Σ = {a, b}.</div>
+
+      <!-- Show Your Work — Part (a) -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Breaking down what (ab ∪ b)* generates</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify what the star operates on</div>
+              <div class="work-step-body">
+                <p>The expression is <code>(ab ∪ b)*</code>. The Kleene star wraps <code>(ab ∪ b)</code>, meaning we repeat that group zero or more times. Each repetition independently picks <strong>either "ab" or "b"</strong> — those are the only two building blocks available.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Ask: how can 'a' appear in any string?</div>
+              <div class="work-step-body">
+                <p>The only block that produces an 'a' is <strong>"ab"</strong>. The block "b" produces only a 'b'. So every 'a' in the output must come from choosing the "ab" block — which always brings a 'b' directly after it.</p>
+                <p>Conclusion: <strong>every 'a' in the string is immediately followed by a 'b'.</strong> There is no way to produce a lone 'a'.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Ask: can 'a' appear at the end of the string?</div>
+              <div class="work-step-body">
+                <p>No — "ab" always contributes 'a' then 'b', so 'a' is never the final character. The block "b" contributes no 'a' at all. Therefore <strong>'a' can never be the last symbol.</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Verify with concrete examples</div>
+              <div class="work-step-body">
+                <div class="mono-block">ε         →  zero repetitions                    ✓
+b         →  one "b" block                       ✓
+ab        →  one "ab" block                      ✓
+bb        →  "b" then "b"                        ✓
+bab       →  "b" then "ab"                       ✓
+abbb      →  "ab" then "b" then "b"              ✓
+—
+a         →  impossible (no block gives lone 'a') ✗
+ba        →  impossible ('a' must follow a 'b' in "ab", not precede it freely) ✗</div>
+                <span class="work-check correct">✓ Reasoning confirmed</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Final Answer — Part (a) -->
+      <div class="solution-highlight">
+        <p>All strings over {a, b} where <strong>every 'a' is immediately followed by a 'b'</strong>. Equivalently: strings built by freely concatenating the blocks "ab" and "b" any number of times (including zero). No 'a' can appear at the end or without a 'b' directly after it.</p>
+        <p><strong>Examples in the language:</strong> ε, b, ab, bb, bab, abab, babb, abbb</p>
+      </div>
+
+      <!-- ── PART (b) ── -->
+      <div class="sol-head" style="margin-top:1.8rem;">Part (b) — Write a Regex for "no substring bb"</div>
+      <div class="problem-box">Write a regular expression for L = {w ∈ {a,b}* | w does not contain bb as a substring}. Justify your answer.</div>
+
+      <!-- Show Your Work — Part (b) -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Building the regex with two-condition decomposition</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Understand the constraint</div>
+              <div class="work-step-body">
+                <p>The condition is: the string must never contain "bb" as a consecutive pair anywhere. So wherever a 'b' appears in the interior of the string, the very next character cannot also be 'b'.</p>
+                <p>In other words: <strong>every 'b' that has something after it must be immediately followed by 'a'.</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify the safe repeating blocks</div>
+              <div class="work-step-body">
+                <p>From step 1, the interior of the string can only be built from two safe pieces:</p>
+                <div class="mono-block">  "a"   — a lone a (contributes no b at all, always safe)
+  "ba"  — a b immediately followed by a (the b is "covered")</div>
+                <p>Repeating any mix of these gives <code>(a | ba)*</code>. No matter what sequence we choose, no two b's will ever be adjacent inside this part.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Handle the trailing edge case</div>
+              <div class="work-step-body">
+                <p>What if the string ends in 'b'? A final 'b' has nothing after it, so it can't form "bb" by itself. We need to allow it optionally without breaking anything.</p>
+                <p>Append <code>(b | ε)</code> to the end. This allows either a trailing 'b' or nothing. Since every 'b' inside <code>(a|ba)*</code> is already followed by 'a', the trailing 'b' is the only one that could ever be last — and it has no successor, so "bb" is impossible.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Combine the parts</div>
+              <div class="work-step-body">
+                <p>Putting it together:</p>
+                <div class="mono-block">(a | ba)* · (b | ε)</div>
+                <p>The star handles any sequence of safe interior blocks. The optional trailing 'b' covers strings ending in 'b'.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Test on examples to verify</div>
+              <div class="work-step-body">
+                <div class="mono-block">ε    →  (a|ba)⁰ · ε     =  ε               ✓ in L
+a    →  (a)¹ · ε       =  "a"            ✓ in L
+b    →  (a|ba)⁰ · b    =  "b"            ✓ in L
+ba   →  (ba)¹ · ε      =  "ba"           ✓ in L
+bab  →  (ba)(a|ba)⁰·b  =  "ba"+"b"       ✓ in L
+aba  →  (a)(ba)·ε      =  "a"+"ba"       ✓ in L
+—
+bb   →  need two consecutive b's → impossible from our blocks   ✗ not in L
+abb  →  "a" then "b" then "b"? The second 'b' can only come
+        from the trailing (b|ε) — but "b"+"b" at the end
+        would require TWO trailing b's, which is not allowed.   ✗ not in L</div>
+                <span class="work-check correct">✓ All cases check out</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Final Answer — Part (b) -->
+      <div class="solution-highlight">
+        <div class="regex-box">(a | ba)*(b | ε)</div>
+        <p style="margin-top:0.8rem; font-size:0.88rem;"><strong>Justification:</strong> Every 'b' inside <code>(a|ba)*</code> is immediately followed by 'a', so "bb" cannot form in the interior. The optional trailing 'b' ends the string, making it impossible for that 'b' to be followed by another 'b'. Together these two facts guarantee "bb" never appears anywhere in the string.</p>
+        <p style="font-size:0.88rem; margin-top:0.4rem;"><strong>In L:</strong> ε ✓ &nbsp; a ✓ &nbsp; b ✓ &nbsp; ba ✓ &nbsp; ab ✓ &nbsp; aba ✓ &nbsp; bab ✓ &nbsp; abab ✓</p>
+        <p style="font-size:0.88rem;"><strong>Not in L:</strong> bb ✗ &nbsp; abb ✗ &nbsp; bba ✗ &nbsp; abba ✗</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q2 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q2</span>
+      <span class="q-title">Pumping Lemma — Prove L = {aⁿb²ⁿ | n ≥ 0} is not regular</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-pumping">Pumping Lemma</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <!-- Key Definitions -->
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Pumping Lemma</span>
+          <span class="def-desc">If L is regular, ∃ pumping length p such that every w ∈ L with |w| ≥ p can be split as w = xyz where: (i) |xy| ≤ p, (ii) |y| ≥ 1, (iii) xyⁱz ∈ L for all i ≥ 0.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Proof Strategy</span>
+          <span class="def-desc">Assume regular → get pumping length p → choose a concrete string w ∈ L with |w| ≥ p → show that for every valid split w = xyz, some pumped string xyⁱz ∉ L → contradiction.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Pump down (i = 0)</span>
+          <span class="def-desc">Remove y entirely: xy⁰z = xz. Best when the language enforces a strict ratio between symbol counts — removing symbols breaks the ratio.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Conditions (i)(ii)(iii)</span>
+          <span class="def-desc">(i) |xy| ≤ p — the pumped part stays near the front. (ii) |y| ≥ 1 — y is non-empty. (iii) xyⁱz ∈ L for all i ≥ 0 — pumping in either direction must stay in L.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">Use the Pumping Lemma to prove that L = {aⁿb²ⁿ | n ≥ 0} is not regular. Clearly identify your assumption, string choice, split analysis, and contradiction.</div>
+
+      <!-- Show Your Work -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">4-step pumping lemma proof — assumption → string → split → contradiction</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Assume for contradiction</div>
+              <div class="work-step-body">
+                <p>Assume L = {aⁿb²ⁿ | n ≥ 0} is regular. Since L is infinite, the Pumping Lemma applies. Let <strong>p</strong> be the pumping length it guarantees.</p>
+                <p>Our goal is to derive a contradiction by finding a string in L that cannot be pumped.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Choose the right string</div>
+              <div class="work-step-body">
+                <p>Pick <strong>w = aᵖb²ᵖ</strong>. We need to verify it satisfies the conditions:</p>
+                <div class="mono-block">w = aᵖb²ᵖ  ∈  L   (with n = p, so #b's = 2p = 2×#a's ✓)
+|w| = p + 2p = 3p  ≥  p  ✓</div>
+                <p><em>Why this string?</em> Starting the string with p a's means the constraint |xy| ≤ p forces xy to land entirely in that a-only prefix. This locks in exactly what y can look like — making the contradiction clean and arithmetic.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Analyze every possible split w = xyz</div>
+              <div class="work-step-body">
+                <p>The Pumping Lemma says there exists some split w = xyz satisfying (i) and (ii). We need to show that <em>no matter</em> how the split is chosen, condition (iii) fails.</p>
+                <p>By condition (i), |xy| ≤ p. Since the first p characters of w are all a's, the entire xy prefix is a-only. So:</p>
+                <div class="mono-block">x = aʲ        (for some j ≥ 0)
+y = aᵐ        (for some m ≥ 1,  by condition ii)
+z = aᵖ⁻ʲ⁻ᵐb²ᵖ
+
+where  j + m ≤ p</div>
+                <p>There is no other possibility — y cannot contain any b's, because xy only reaches as far as position p into the string, and all those positions are a's.</p>
+                <span class="work-check correct">✓ y consists only of a's in every valid split</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Pump down (i = 0) to get the contradiction</div>
+              <div class="work-step-body">
+                <p>By condition (iii), xy⁰z must be in L. Compute it:</p>
+                <div class="mono-block">xy⁰z  =  xz  =  aʲ · aᵖ⁻ʲ⁻ᵐ · b²ᵖ  =  aᵖ⁻ᵐb²ᵖ</div>
+                <p>For <strong>aᵖ⁻ᵐb²ᵖ</strong> to be in L = {aⁿb²ⁿ}, we need:</p>
+                <div class="mono-block">2 × (# of a's)  =  # of b's
+2(p − m)        =  2p
+2p − 2m         =  2p
+−2m             =  0
+m               =  0</div>
+                <p>But condition (ii) requires <strong>m = |y| ≥ 1</strong>. This is a direct contradiction. ✗</p>
+                <span class="work-check incorrect">✗ xy⁰z ∉ L — condition (iii) is violated</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Close the proof</div>
+              <div class="work-step-body">
+                <p>We chose w ∈ L with |w| ≥ p, but showed that for every valid split w = xyz, the pumped string xy⁰z falls outside L. This directly contradicts the Pumping Lemma's guarantee that xy⁰z ∈ L must hold.</p>
+                <p>Our assumption that L is regular must therefore be false.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Final Answer -->
+      <div class="solution-highlight">
+        <p>For any valid split w = aᵖb²ᵖ = xyz (where y = aᵐ, m ≥ 1), pumping down gives xz = aᵖ⁻ᵐb²ᵖ ∉ L because 2(p−m) ≠ 2p. This violates condition (iii), contradicting the Pumping Lemma. Therefore <strong>L = {aⁿb²ⁿ | n ≥ 0} is not regular.</strong></p>
+        <div class="qed">□</div>
+      </div>
+
+      <div class="key-insight">String choice tip: always pick w so that the |xy| ≤ p constraint forces xy into a single uniform block (all a's here). This eliminates ambiguity in what y can be, making the contradiction a simple arithmetic equation.</div>
+
+      <div class="callout callout-purple">
+        <div class="callout-label">Lecture Cross-Reference — Related Pumping Lemma Problems</div>
+        <p><strong>L = {aᵖ | p is prime}</strong> (Lecture Ex. 01): pump <em>up</em> with i = q+1. Result: a^(q(1+m)) — composite since m ≥ 1, so ∉ L. Direction matters here: pumping down keeps the count a valid multiple.</p>
+        <p><strong>L = {aⁿba²ⁿ | n ≥ 0}</strong> (Lecture Ex. 02): identical technique. Pump down: xz = aᵖ⁻ᵐba²ᵖ. The left block has p−m a's but the right still has 2p, breaking the 1:2 ratio.</p>
+        <p><strong>L = {(010)ⁿ(101)ⁿ | n ≥ 0}</strong> (Lecture Ex. 03): pump up (i = 2). y falls inside the 010 pattern; doubling it disrupts the repeating structure so the pumped string leaves L.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q3 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q3</span>
+      <span class="q-title">DFA Design + Regular Expression Conversion</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-dfa">DFA Design</span>
+        <span class="concept-tag tag-regex">State Elimination → Regex</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">DFA</span>
+          <span class="def-desc">Deterministic Finite Automaton: M = (Q, Σ, δ, q₀, F). For every state and input symbol, exactly one transition exists. Accepts w if δ*(q₀, w) ∈ F.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Trap / Dead State</span>
+          <span class="def-desc">A non-accepting state with all transitions looping back to itself. Once entered, acceptance is impossible. Safe to discard during state elimination.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">GNFA</span>
+          <span class="def-desc">Generalized NFA: edge labels are full regular expressions (not just single symbols). The DFA→regex conversion works by converting to GNFA then eliminating states one by one.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">State Elimination</span>
+          <span class="def-desc">Remove an intermediate state q by rerouting every (pred → q → succ) path as a direct edge labeled pred_label · q_self_loop* · succ_label, unioned with any existing pred → succ edge.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">Design a DFA for L = {w ∈ {0,1}* | every 0 in w is immediately followed by at least one 1}. Then convert your DFA to a regular expression.</div>
+
+      <!-- ── PART (a) ── -->
+      <div class="sol-head">Part (a) — DFA Design</div>
+
+      <!-- Show Your Work — Part (a) -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Figuring out what states the DFA needs and why</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Ask: what does the DFA need to remember?</div>
+              <div class="work-step-body">
+                <p>A DFA can only remember information through its current state. The condition is: "every 0 is immediately followed by at least one 1." The only dangerous moment is right after reading a '0' — we must verify the very next character is '1'.</p>
+                <p>So the DFA needs to track one thing: <strong>did we just see a '0' that hasn't been followed by a '1' yet?</strong> Three situations cover all cases:</p>
+                <div class="mono-block">q_ok    — no pending 0 (safe, accept if string ends here)
+q_need1 — just saw a 0, must see 1 next (reject if string ends)
+q_dead  — saw 0 then another 0 — condition violated, no recovery</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Fill in transitions for q_ok (start state)</div>
+              <div class="work-step-body">
+                <p>In q_ok, we're in a safe state with no pending '0'. What happens next?</p>
+                <div class="mono-block">q_ok  on '1'  →  q_ok     (reading 1 when safe stays safe)
+q_ok  on '0'  →  q_need1  (now we have a pending 0 that needs a 1)</div>
+                <p>q_ok is the <strong>start state</strong> because at the beginning we have no pending 0. It is also an <strong>accept state</strong> because if the string ends here, every 0 we saw was already followed by a 1.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Fill in transitions for q_need1</div>
+              <div class="work-step-body">
+                <p>In q_need1 we just read a '0' and are waiting for a '1' to satisfy it.</p>
+                <div class="mono-block">q_need1  on '1'  →  q_ok    (the 1 satisfies the pending 0 — safe again)
+q_need1  on '0'  →  q_dead  (0 followed by another 0 — condition violated)</div>
+                <p>q_need1 is <strong>not an accept state</strong>: if the string ends here, the last character was a '0' with nothing following it — that directly violates the condition.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Fill in transitions for q_dead (trap state)</div>
+              <div class="work-step-body">
+                <p>In q_dead, we have already seen a '0' followed by another '0'. The condition is permanently violated — no future input can fix it.</p>
+                <div class="mono-block">q_dead  on '0'  →  q_dead  (stay trapped)
+q_dead  on '1'  →  q_dead  (stay trapped — too late)</div>
+                <p>q_dead is a <strong>trap / dead state</strong>: non-accepting, all transitions loop back to itself.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Verify with test strings</div>
+              <div class="work-step-body">
+                <div class="mono-block">ε       →  q_ok                              → accept ✓
+1       →  q_ok →¹ q_ok                   → accept ✓
+01      →  q_ok →⁰ q_need1 →¹ q_ok        → accept ✓
+011     →  q_ok →⁰ q_need1 →¹ q_ok →¹ q_ok → accept ✓
+0       →  q_ok →⁰ q_need1                → reject ✗ (ends in q_need1)
+00      →  q_ok →⁰ q_need1 →⁰ q_dead      → reject ✗
+10      →  q_ok →¹ q_ok →⁰ q_need1        → reject ✗ (ends in q_need1)</div>
+                <span class="work-check correct">✓ All test cases match expected behavior</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Transition table + diagram -->
+      <table>
+        <tr><th>State</th><th>Meaning</th><th>On 0</th><th>On 1</th><th>Accept?</th></tr>
+        <tr><td class="start">q_ok (start)</td><td>No pending 0</td><td>q_need1</td><td>q_ok</td><td class="acc">✓</td></tr>
+        <tr><td>q_need1</td><td>Saw 0, must see 1 next</td><td class="rej">q_dead</td><td>q_ok</td><td class="rej">✗</td></tr>
+        <tr><td class="rej">q_dead</td><td>Saw 0→0 (trap)</td><td class="rej">q_dead</td><td class="rej">q_dead</td><td class="rej">✗</td></tr>
+      </table>
+
+      <svg class="dfa-svg" viewBox="0 0 560 180" fill="none">
+        <line x1="5" y1="90" x2="75" y2="90" stroke="#7a7068" stroke-width="1.5" marker-end="url(#bk)"/>
+        <circle cx="110" cy="90" r="30" stroke="#1a6e3c" stroke-width="1.5" fill="rgba(26,110,60,0.04)"/>
+        <circle cx="110" cy="90" r="25" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+        <text x="110" y="94" text-anchor="middle" font-family="monospace" font-size="11" fill="#1a6e3c">q_ok</text>
+        <path d="M95 62 Q80 35 110 28 Q140 35 125 62" stroke="#7a7068" stroke-width="1.3" fill="none" marker-end="url(#bk)"/>
+        <text x="110" y="24" text-anchor="middle" font-family="monospace" font-size="11" fill="#4a4540">1</text>
+        <line x1="140" y1="90" x2="220" y2="90" stroke="#1d5c9e" stroke-width="1.3" marker-end="url(#bl)"/>
+        <text x="180" y="84" text-anchor="middle" font-family="monospace" font-size="11" fill="#1d5c9e">0</text>
+        <circle cx="255" cy="90" r="30" stroke="#8a5c00" stroke-width="1.5" fill="rgba(138,92,0,0.04)"/>
+        <text x="255" y="88" text-anchor="middle" font-family="monospace" font-size="9" fill="#8a5c00">q_need1</text>
+        <path d="M240 62 Q185 20 125 62" stroke="#1d5c9e" stroke-width="1.3" fill="none" marker-end="url(#bl)"/>
+        <text x="183" y="35" text-anchor="middle" font-family="monospace" font-size="11" fill="#1d5c9e">1</text>
+        <line x1="285" y1="90" x2="375" y2="90" stroke="#c4401d" stroke-width="1.3" marker-end="url(#rd)"/>
+        <text x="330" y="84" text-anchor="middle" font-family="monospace" font-size="11" fill="#c4401d">0</text>
+        <circle cx="410" cy="90" r="30" stroke="#c4401d" stroke-width="1.5" fill="rgba(196,64,29,0.04)"/>
+        <text x="410" y="94" text-anchor="middle" font-family="monospace" font-size="11" fill="#c4401d">q_dead</text>
+        <path d="M395 62 Q380 35 410 28 Q440 35 425 62" stroke="#c4401d" stroke-width="1.3" fill="none" marker-end="url(#rd)"/>
+        <text x="410" y="24" text-anchor="middle" font-family="monospace" font-size="11" fill="#c4401d">0,1</text>
+        <defs>
+          <marker id="bk" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7a7068"/></marker>
+          <marker id="bl" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1d5c9e"/></marker>
+          <marker id="rd" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#c4401d"/></marker>
+        </defs>
+      </svg>
+
+      <!-- ── PART (b) ── -->
+      <div class="sol-head" style="margin-top:1.8rem;">Part (b) — Convert DFA → Regular Expression via GNFA State Elimination</div>
+
+      <!-- Show Your Work — Part (b) -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">4-step GNFA construction and state elimination</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Convert DFA → GNFA (add q_start and q_accept)</div>
+              <div class="work-step-body">
+                <p>A GNFA requires: (1) a unique start state with <strong>no incoming edges</strong>, and (2) a unique accept state with <strong>no outgoing edges</strong>. Our DFA's q_ok has incoming edges (self-loop on 1), so we can't use it directly as the GNFA start.</p>
+                <p>Add two new states and ε-transitions:</p>
+                <div class="mono-block">q_start  →ε→  q_ok          (new start, no incoming edges)
+q_ok     →ε→  q_accept      (new accept, q_ok was the only old accept state)</div>
+                <p>The GNFA now has <strong>5 states</strong>: q_start, q_ok, q_need1, q_dead, q_accept. We will eliminate the 3 middle states one by one until only q_start and q_accept remain, connected by a single regex edge — that edge is the answer.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Eliminate q_dead (trap state — easiest first)</div>
+              <div class="work-step-body">
+                <p>To eliminate a state, we must reroute every path that passes through it into direct edges. The elimination formula for removing state q is:</p>
+                <div class="mono-block">For each pair (pred, succ):
+  new edge label  =  (pred→q label) · (q self-loop)* · (q→succ label)
+                     ∪ (existing pred→succ label)</div>
+                <p>q_dead has a self-loop on {0,1} but <strong>no outgoing edge to q_accept</strong>. Every path through q_dead is a dead end — there is no (q_dead → q_accept) edge to reroute. So we simply <strong>drop q_dead entirely</strong> with no new edges needed.</p>
+                <span class="work-check correct">✓ q_dead removed — GNFA now has 4 states</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Eliminate q_need1</div>
+              <div class="work-step-body">
+                <p>q_need1 has <strong>no self-loop</strong>. The only path through it is:</p>
+                <div class="mono-block">q_ok  →0→  q_need1  →1→  q_ok</div>
+                <p>Apply the elimination formula with pred = q_ok, q = q_need1, succ = q_ok:</p>
+                <div class="mono-block">new edge label  =  (0) · (ε)* · (1)  =  01</div>
+                <p>This becomes an additional self-loop on q_ok. q_ok already has a self-loop labeled <strong>1</strong>. We union the two labels:</p>
+                <div class="mono-block">q_ok self-loop:  1  ∪  01  =  (1 | 01)</div>
+                <span class="work-check correct">✓ q_need1 removed — GNFA now has 3 states: q_start, q_ok, q_accept</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Eliminate q_ok</div>
+              <div class="work-step-body">
+                <p>The remaining 3-state GNFA looks like:</p>
+                <div class="mono-block">q_start  →ε→  q_ok  →ε→  q_accept
+                  ↑_______(1|01)________|  (self-loop)</div>
+                <p>Apply the elimination formula with pred = q_start, q = q_ok, succ = q_accept:</p>
+                <div class="mono-block">new edge label  =  (ε) · (1 | 01)* · (ε)
+                =  (1 | 01)*</div>
+                <p>Now q_start connects directly to q_accept with label <strong>(1 | 01)*</strong>. Only these two states remain.</p>
+                <span class="work-check correct">✓ q_ok removed — only q_start and q_accept remain</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Read off the final regex and verify</div>
+              <div class="work-step-body">
+                <p>The label on the single remaining edge is the regular expression for L:</p>
+                <div class="mono-block">(1 | 01)*</div>
+                <p>Intuition check: every iteration of the star contributes either a lone '1' or the pair "01". In either case, every '0' is immediately followed by a '1'. So the regex exactly captures the language.</p>
+                <div class="mono-block">Accepted:  ε, 1, 01, 11, 011, 101, 0101, 1011  ✓
+Rejected:  0, 10, 00, 001  ✗</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Final Answer -->
+      <div class="solution-highlight">
+        Part (a) — DFA with 3 states: q_ok (start + accept), q_need1 (reject), q_dead (trap).<br><br>
+        Part (b) — After GNFA state elimination:
+        <div class="regex-box" style="margin-top:0.6rem;">(1 | 01)*</div>
+        <p style="margin-top:0.7rem; font-size:0.88rem;">Every '0' is immediately followed by '1' because "01" is the only block in the star that contains a '0', and it always pairs it with a '1' right after.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q4 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q4</span>
+      <span class="q-title">NFA for "contains aba AND no bbb" → DFA Conversion</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-nfa">NFA</span>
+        <span class="concept-tag tag-dfa">Subset Construction</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">NFA</span>
+          <span class="def-desc">Nondeterministic Finite Automaton: allows multiple transitions per symbol and ε-transitions. Accepts if any computation path reaches an accept state.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">ε-closure(S)</span>
+          <span class="def-desc">The set of all NFA states reachable from any state in S using only ε-transitions (including S itself). Must be computed before/after each symbol transition in subset construction.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Subset Construction</span>
+          <span class="def-desc">Converts NFA → equivalent DFA. DFA states are subsets of NFA states. Start state = ε-closure({q₀}). δ_DFA(S, c) = ε-closure(⋃_{q∈S} δ_NFA(q, c)).</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">DFA Accept States</span>
+          <span class="def-desc">In the subset construction, a DFA state (set S) is accepting iff S contains at least one NFA accepting state.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">
+        (a) Construct an NFA for L = {w ∈ {a,b}* | w contains "aba" as a substring AND contains no "bbb" as a substring}.<br>
+        (b) Convert your NFA to an equivalent DFA via subset construction.
+      </div>
+
+      <!-- Part (a) -->
+      <div class="sol-head">Part (a) — NFA Design</div>
+
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Designing NFA states to track two constraints at once</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify the two things to track simultaneously</div>
+              <div class="work-step-body">
+                <p>The language has two independent constraints:</p>
+                <div class="mono-block">Constraint 1:  string MUST contain "aba" as a substring
+Constraint 2:  string must NOT contain "bbb" as a substring</div>
+                <p>States need to encode both <strong>how far along we are in matching "aba"</strong> and <strong>how many consecutive b's we've seen</strong>. The NFA uses nondeterminism to let both concerns run in parallel — when we see 'a', one branch restarts while another commits to tracking a new "aba" attempt.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Design states before "aba" is matched</div>
+              <div class="work-step-body">
+                <p>We need states for every combination of (b-run length) × (aba-matching progress):</p>
+                <div class="mono-block">s      — start: 0 b-run, no aba progress
+s_b1   — 1 consecutive b, no aba progress
+s_b2   — 2 consecutive b's, no aba progress
+p1     — matched 'a' (first char of "aba")
+p2     — matched "ab"
+dead   — saw "bbb" → trap state, reject forever</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Design states after "aba" is matched</div>
+              <div class="work-step-body">
+                <p>Once "aba" is matched, we only still need to track b-runs to avoid "bbb". All three are accept states:</p>
+                <div class="mono-block">acc    — "aba" matched, 0 b-run  ← ACCEPT
+acc_b1 — "aba" matched, 1 consecutive b  ← ACCEPT
+acc_b2 — "aba" matched, 2 consecutive b's  ← ACCEPT</div>
+                <p>Reading 'a' from any acc state resets the b-run back to acc (matching "aba" once is permanent). A third consecutive 'b' goes to dead.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">The key tricky transition: p2 on 'a'</div>
+              <div class="work-step-body">
+                <p>In state p2 (matched "ab"), reading 'a' completes "aba". But the NFA also nondeterministically considers that this same 'a' could be the <em>start</em> of a new "aba" attempt, or a plain reset. So:</p>
+                <div class="mono-block">p2  on 'a'  →  {acc, s, p1}
+  acc  — completed "aba" ✓
+  s    — reset, treat this 'a' as a fresh start
+  p1   — this 'a' is also the first char of a new "aba" attempt</div>
+                <p>This three-way nondeterministic branch is the core of the NFA design.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">The other tricky transition: p2 on 'b'</div>
+              <div class="work-step-body">
+                <p>In state p2 (matched "ab"), reading 'b' breaks the "aba" attempt (we needed 'a', not 'b'). This 'b' starts a fresh b-run, so we go to s_b1:</p>
+                <div class="mono-block">p2  on 'b'  →  {s_b1}   (1 b seen, back to tracking b-runs)</div>
+                <p>Note: this goes to <strong>s_b1</strong>, NOT s_b2. This single detail causes 3 extra DFA states in part (b) if you get it wrong.</p>
+                <span class="work-check correct">✓ NFA fully designed — 9 states total</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <table>
+        <tr><th>State</th><th>Meaning</th><th>On a</th><th>On b</th></tr>
+        <tr><td class="start">s (start)</td><td>0 b-run, no aba</td><td>{s, p1}</td><td>{s_b1}</td></tr>
+        <tr><td>s_b1</td><td>1-b run, no aba</td><td>{s, p1}</td><td>{s_b2}</td></tr>
+        <tr><td>s_b2</td><td>2-b run, no aba</td><td>{s, p1}</td><td>{dead}</td></tr>
+        <tr><td>p1</td><td>matched 'a'</td><td>{s, p1}</td><td>{p2}</td></tr>
+        <tr><td>p2</td><td>matched 'ab'</td><td>{acc, s, p1}</td><td>{s_b1}</td></tr>
+        <tr><td class="acc">acc</td><td>matched 'aba' ✓</td><td>{acc}</td><td>{acc_b1}</td></tr>
+        <tr><td class="acc">acc_b1</td><td>aba matched, 1-b run</td><td>{acc}</td><td>{acc_b2}</td></tr>
+        <tr><td class="acc">acc_b2</td><td>aba matched, 2-b run</td><td>{acc}</td><td>{dead}</td></tr>
+        <tr><td class="rej">dead</td><td>saw bbb — trap</td><td>{dead}</td><td>{dead}</td></tr>
+      </table>
+
+      <p style="font-size:0.85rem;color:var(--muted);margin:0.5rem 0 0.3rem;">NFA state diagram (dashed = nondeterministic branches):</p>
+      <svg viewBox="0 0 720 340" fill="none" style="width:100%;max-width:720px;display:block;margin:0.5rem auto;font-family:monospace;">
+        <defs>
+          <marker id="n1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7a7068"/></marker>
+          <marker id="n2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1d5c9e"/></marker>
+          <marker id="n3" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1a6e3c"/></marker>
+          <marker id="n4" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#c4401d"/></marker>
+        </defs>
+        <line x1="5" y1="90" x2="65" y2="90" stroke="#7a7068" stroke-width="1.5" marker-end="url(#n1)"/>
+        <circle cx="95" cy="90" r="26" stroke="#8a5c00" stroke-width="1.5" fill="rgba(138,92,0,0.04)"/>
+        <text x="95" y="94" text-anchor="middle" font-size="11" fill="#8a5c00">s</text>
+        <path d="M80 65 Q75 38 95 30 Q115 38 110 65" stroke="#7a7068" stroke-width="1.2" fill="none" marker-end="url(#n1)"/>
+        <text x="95" y="26" text-anchor="middle" font-size="10" fill="#7a7068">a(→s)</text>
+        <line x1="121" y1="90" x2="199" y2="90" stroke="#1d5c9e" stroke-width="1.2" marker-end="url(#n2)"/>
+        <text x="160" y="82" text-anchor="middle" font-size="10" fill="#1d5c9e">a(ND)</text>
+        <circle cx="228" cy="90" r="26" stroke="#1d5c9e" stroke-width="1.5" fill="rgba(29,92,158,0.04)"/>
+        <text x="228" y="94" text-anchor="middle" font-size="11" fill="#1d5c9e">p1</text>
+        <line x1="254" y1="90" x2="332" y2="90" stroke="#1d5c9e" stroke-width="1.2" marker-end="url(#n2)"/>
+        <text x="293" y="82" text-anchor="middle" font-size="10" fill="#1d5c9e">b</text>
+        <circle cx="360" cy="90" r="26" stroke="#1d5c9e" stroke-width="1.5" fill="rgba(29,92,158,0.04)"/>
+        <text x="360" y="94" text-anchor="middle" font-size="11" fill="#1d5c9e">p2</text>
+        <line x1="386" y1="90" x2="464" y2="90" stroke="#1a6e3c" stroke-width="1.2" marker-end="url(#n3)"/>
+        <text x="425" y="82" text-anchor="middle" font-size="10" fill="#1a6e3c">a</text>
+        <circle cx="492" cy="90" r="26" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.04)"/>
+        <circle cx="492" cy="90" r="21" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+        <text x="492" y="94" text-anchor="middle" font-size="11" fill="#1a6e3c">acc</text>
+        <path d="M477 65 Q472 38 492 30 Q512 38 507 65" stroke="#1a6e3c" stroke-width="1.2" fill="none" marker-end="url(#n3)"/>
+        <text x="492" y="26" text-anchor="middle" font-size="10" fill="#1a6e3c">a</text>
+        <line x1="95" y1="116" x2="95" y2="184" stroke="#7a7068" stroke-width="1.2" marker-end="url(#n1)"/>
+        <text x="110" y="155" font-size="10" fill="#7a7068">b</text>
+        <circle cx="95" cy="210" r="26" stroke="#8a5c00" stroke-width="1.5" fill="rgba(138,92,0,0.04)"/>
+        <text x="95" y="214" text-anchor="middle" font-size="10" fill="#8a5c00">s_b1</text>
+        <line x1="121" y1="210" x2="199" y2="210" stroke="#7a7068" stroke-width="1.2" marker-end="url(#n1)"/>
+        <text x="160" y="202" text-anchor="middle" font-size="10" fill="#7a7068">b</text>
+        <circle cx="228" cy="210" r="26" stroke="#8a5c00" stroke-width="1.5" fill="rgba(138,92,0,0.04)"/>
+        <text x="228" y="214" text-anchor="middle" font-size="10" fill="#8a5c00">s_b2</text>
+        <line x1="254" y1="210" x2="332" y2="210" stroke="#c4401d" stroke-width="1.2" marker-end="url(#n4)"/>
+        <text x="293" y="202" text-anchor="middle" font-size="10" fill="#c4401d">b</text>
+        <circle cx="360" cy="210" r="26" stroke="#c4401d" stroke-width="1.5" fill="rgba(196,64,29,0.04)"/>
+        <text x="360" y="214" text-anchor="middle" font-size="11" fill="#c4401d">dead</text>
+        <path d="M345 185 Q340 158 360 150 Q380 158 375 185" stroke="#c4401d" stroke-width="1.2" fill="none" marker-end="url(#n4)"/>
+        <text x="360" y="147" text-anchor="middle" font-size="10" fill="#c4401d">a,b</text>
+        <path d="M95 184 Q155 140 199 93" stroke="#1d5c9e" stroke-width="1" stroke-dasharray="4,2" fill="none" marker-end="url(#n2)"/>
+        <text x="130" y="130" font-size="9" fill="#1d5c9e">a(ND)</text>
+        <line x1="492" y1="116" x2="492" y2="184" stroke="#1a6e3c" stroke-width="1.2" marker-end="url(#n3)"/>
+        <text x="507" y="155" font-size="10" fill="#1a6e3c">b</text>
+        <circle cx="492" cy="210" r="26" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.04)"/>
+        <circle cx="492" cy="210" r="21" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+        <text x="492" y="214" text-anchor="middle" font-size="9" fill="#1a6e3c">acc_b1</text>
+        <line x1="518" y1="210" x2="596" y2="210" stroke="#1a6e3c" stroke-width="1.2" marker-end="url(#n3)"/>
+        <text x="557" y="202" text-anchor="middle" font-size="10" fill="#1a6e3c">b</text>
+        <circle cx="624" cy="210" r="26" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.04)"/>
+        <circle cx="624" cy="210" r="21" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+        <text x="624" y="214" text-anchor="middle" font-size="9" fill="#1a6e3c">acc_b2</text>
+        <line x1="624" y1="184" x2="390" y2="184" stroke="#c4401d" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#n4)"/>
+        <text x="510" y="177" text-anchor="middle" font-size="9" fill="#c4401d">b→dead</text>
+        <path d="M492 184 Q480 140 492 116" stroke="#1a6e3c" stroke-width="1" stroke-dasharray="3,2" fill="none" marker-end="url(#n3)"/>
+        <text x="472" y="152" font-size="9" fill="#1a6e3c">a</text>
+        <rect x="10" y="290" width="700" height="40" rx="3" fill="#f7f4f0" stroke="#e8e4df" stroke-width="1"/>
+        <text x="20" y="307" font-size="9" fill="#8a5c00">single circle = non-accept</text>
+        <circle cx="185" cy="304" r="6" stroke="#1a6e3c" stroke-width="1.5" fill="rgba(26,110,60,0.1)"/>
+        <circle cx="185" cy="304" r="4" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+        <text x="196" y="307" font-size="9" fill="#1a6e3c">double circle = accept</text>
+        <text x="360" y="307" font-size="9" fill="#c4401d">red = trap (bbb)</text>
+        <text x="460" y="307" font-size="9" fill="#1d5c9e">dashed = ND branch</text>
+        <text x="20" y="322" font-size="9" fill="#7a7068">Top row: "aba" detection. Bottom row: b-run counter. Cross-links on 'a' reset the b-run.</text>
+      </svg>
+
+      <!-- Part (b) -->
+      <div class="sol-head" style="margin-top:1.8rem;">Part (b) — NFA → DFA via Subset Construction</div>
+
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Building the DFA table row by row from the NFA</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Establish the three rules of subset construction</div>
+              <div class="work-step-body">
+                <div class="mono-block">Rule 1 (start):   DFA start = ε-closure({s}) = {s}  (no ε-transitions here)
+
+Rule 2 (expand):  δ_DFA(S, c) = ⋃_{q ∈ S} δ_NFA(q, c)
+                  → take every NFA state in S, look up its transition on c,
+                    union all the results
+
+Rule 3 (accept):  DFA state S is accepting iff S ∩ {acc, acc_b1, acc_b2} ≠ ∅</div>
+                <p>Process: compute row 1 ({s}), discover new states, add them as new rows, repeat until no new states appear.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Expand the first rows step by step</div>
+              <div class="work-step-body">
+                <p><strong>{s} on a:</strong> δ(s,a) = {s,p1} → new state {s,p1}</p>
+                <p><strong>{s} on b:</strong> δ(s,b) = {s_b1} → new state {s_b1}</p>
+                <p><strong>{s,p1} on a:</strong> δ(s,a)∪δ(p1,a) = {s,p1}∪{s,p1} = {s,p1} → already seen</p>
+                <p><strong>{s,p1} on b:</strong> δ(s,b)∪δ(p1,b) = {s_b1}∪{p2} = {s_b1,p2} → new</p>
+                <p><strong>{s_b1,p2} on b:</strong> δ(s_b1,b)∪δ(p2,b) = {s_b2}∪{s_b1} = <strong>{s_b1,s_b2}</strong><br>
+                ⚠️ Common mistake: writing {s_b2} only. p2 on b goes to {s_b1}, not {s_b2}!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify accept states in the DFA table</div>
+              <div class="work-step-body">
+                <p>Check each DFA subset for any of acc, acc_b1, or acc_b2:</p>
+                <div class="mono-block">{s, p1, acc}           contains acc     → ★ ACCEPT
+{s_b1, p2, acc_b1}     contains acc_b1  → ★ ACCEPT
+{s_b2, acc_b2}         contains acc_b2  → ★ ACCEPT
+{s_b1, s_b2, acc_b2}   contains acc_b2  → ★ ACCEPT
+all others             no acc states    →   reject</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify the trap state</div>
+              <div class="work-step-body">
+                <p>The NFA state <strong>dead</strong> is a trap. The DFA subset {dead} absorbs all future input — both transitions loop back to {dead} — and never accepts. This is the "bbb has been seen" state.</p>
+                <div class="mono-block">{dead}  on a  →  {dead}
+{dead}  on b  →  {dead}   (trap — no escape)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Why we get 12 states (not 9)</div>
+              <div class="work-step-body">
+                <p>The three "extra" states — {s_b1,s_b2}, {s_b1,s_b2,acc_b2}, {s_b2,dead} — only appear because p2 on 'b' correctly goes to {s_b1}. If you mistakenly used {s_b2}, you'd get a shorter but wrong table.</p>
+                <div class="mono-block">Correct:   p2 on b  →  {s_b1}   ← 1 new b seen, reset aba tracking
+Incorrect: p2 on b  →  {s_b2}   ← would imply 2 b's, which is wrong</div>
+                <span class="work-check correct">✓ 12 reachable DFA states total</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <table>
+        <tr><th>DFA State (NFA subset)</th><th>On a</th><th>On b</th><th>Accept?</th></tr>
+        <tr><td class="start">{s} — start</td><td>{s, p1}</td><td>{s_b1}</td><td class="rej">✗</td></tr>
+        <tr><td>{s, p1}</td><td>{s, p1}</td><td>{s_b1, p2}</td><td class="rej">✗</td></tr>
+        <tr><td>{s_b1}</td><td>{s, p1}</td><td>{s_b2}</td><td class="rej">✗</td></tr>
+        <tr><td>{s_b1, p2}</td><td>{s, p1, acc}</td><td>{s_b1, s_b2}</td><td class="rej">✗</td></tr>
+        <tr><td>{s_b2}</td><td>{s, p1}</td><td>{dead}</td><td class="rej">✗</td></tr>
+        <tr><td class="acc">{s, p1, acc} ★</td><td>{s, p1, acc}</td><td>{s_b1, p2, acc_b1}</td><td class="acc">✓</td></tr>
+        <tr><td class="acc">{s_b1, p2, acc_b1} ★</td><td>{s, p1, acc}</td><td>{s_b1, s_b2, acc_b2}</td><td class="acc">✓</td></tr>
+        <tr><td class="acc">{s_b2, acc_b2} ★</td><td>{s, p1, acc}</td><td>{dead}</td><td class="acc">✓</td></tr>
+        <tr><td>{s_b1, s_b2}</td><td>{s, p1}</td><td>{s_b2, dead}</td><td class="rej">✗</td></tr>
+        <tr><td class="acc">{s_b1, s_b2, acc_b2} ★</td><td>{s, p1, acc}</td><td>{s_b2, dead}</td><td class="acc">✓</td></tr>
+        <tr><td>{s_b2, dead}</td><td>{s, p1}</td><td>{dead}</td><td class="rej">✗</td></tr>
+        <tr><td class="rej">{dead}</td><td>{dead}</td><td>{dead}</td><td class="rej">✗</td></tr>
+      </table>
+
+      <div class="solution-highlight">
+        <p><strong>Start state:</strong> {s} &nbsp;|&nbsp; <strong>Accept states (★):</strong> {s,p1,acc}, {s_b1,p2,acc_b1}, {s_b2,acc_b2}, {s_b1,s_b2,acc_b2}</p>
+        <p><strong>Trap state:</strong> {dead} — entered on "bbb", loops on all inputs.</p>
+        <p><strong>Total reachable DFA states: 12.</strong> The states {s_b1,s_b2}, {s_b1,s_b2,acc_b2}, {s_b2,dead} only appear when p2's b-transition is correctly computed as {s_b1}.</p>
+      </div>
+
+      <div class="sol-head" style="margin-top:1.5rem;">DFA State Diagram</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin:0.3rem 0 0.8rem;">12-state DFA produced by subset construction. Double circles = accept states. Red = trap. Yellow arrow = start.</p>
+
+      <svg viewBox="0 0 1040 560" style="width:100%;max-width:1040px;display:block;margin:0 auto;overflow:visible;" font-family="'JetBrains Mono',monospace">
+        <defs>
+          <marker id="da" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7a7068"/></marker>
+          <marker id="dg" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a6e3c"/></marker>
+          <marker id="dr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c4401d"/></marker>
+          <marker id="dy" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8a5c00"/></marker>
+        </defs>
+
+        <!-- Start arrow -->
+        <line x1="18" y1="75" x2="62" y2="75" stroke="#8a5c00" stroke-width="1.5" marker-end="url(#dy)"/>
+        <text x="5" y="68" font-size="8" fill="#8a5c00">start</text>
+
+        <!-- ── EDGES ── -->
+        <!-- A({s}) → B({s,p1}) on a -->
+        <line x1="128" y1="75" x2="228" y2="75" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="173" y="69" font-size="9" fill="#7a7068">a</text>
+
+        <!-- A({s}) → F({s_b1}) on b -->
+        <line x1="95" y1="103" x2="95" y2="262" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="100" y="188" font-size="9" fill="#7a7068">b</text>
+
+        <!-- B({s,p1}) self-loop on a -->
+        <path d="M258 50 Q258 22 275 18 Q292 22 292 46 Q290 60 265 68" stroke="#7a7068" stroke-width="1.2" fill="none" marker-end="url(#da)"/>
+        <text x="293" y="32" font-size="9" fill="#7a7068">a</text>
+
+        <!-- B({s,p1}) → C({s_b1,p2}) on b -->
+        <line x1="288" y1="75" x2="388" y2="75" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="332" y="69" font-size="9" fill="#7a7068">b</text>
+
+        <!-- C({s_b1,p2}) → D({s,p1,acc}) on a -->
+        <line x1="448" y1="75" x2="568" y2="75" stroke="#1a6e3c" stroke-width="1.4" marker-end="url(#dg)"/>
+        <text x="502" y="69" font-size="9" fill="#1a6e3c">a</text>
+
+        <!-- C({s_b1,p2}) → G({s_b1,s_b2}) on b -->
+        <line x1="415" y1="102" x2="278" y2="258" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="365" y="188" font-size="9" fill="#7a7068">b</text>
+
+        <!-- D({s,p1,acc}) self-loop on a -->
+        <path d="M598 50 Q598 22 615 18 Q632 22 632 46 Q630 60 607 68" stroke="#1a6e3c" stroke-width="1.4" fill="none" marker-end="url(#dg)"/>
+        <text x="633" y="32" font-size="9" fill="#1a6e3c">a</text>
+
+        <!-- D({s,p1,acc}) → E({s_b1,p2,acc_b1}) on b -->
+        <line x1="638" y1="75" x2="758" y2="75" stroke="#1a6e3c" stroke-width="1.4" marker-end="url(#dg)"/>
+        <text x="692" y="69" font-size="9" fill="#1a6e3c">b</text>
+
+        <!-- E({s_b1,p2,acc_b1}) → D on a (back arc) -->
+        <path d="M800 50 Q800 8 700 8 Q600 8 600 50" stroke="#1a6e3c" stroke-width="1.3" fill="none" marker-end="url(#dg)"/>
+        <text x="697" y="16" font-size="9" fill="#1a6e3c">a</text>
+
+        <!-- E({s_b1,p2,acc_b1}) → H({s_b1,s_b2,acc_b2}) on b -->
+        <line x1="800" y1="103" x2="468" y2="258" stroke="#1a6e3c" stroke-width="1.3" marker-end="url(#dg)"/>
+        <text x="660" y="178" font-size="9" fill="#1a6e3c">b</text>
+
+        <!-- F({s_b1}) → B on a -->
+        <line x1="120" y1="262" x2="235" y2="98" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="155" y="178" font-size="9" fill="#7a7068">a</text>
+
+        <!-- F({s_b1}) → I({s_b2}) on b -->
+        <line x1="95" y1="318" x2="95" y2="448" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="100" y="388" font-size="9" fill="#7a7068">b</text>
+
+        <!-- G({s_b1,s_b2}) → B on a -->
+        <path d="M258 258 Q215 168 243 98" stroke="#7a7068" stroke-width="1.2" fill="none" marker-end="url(#da)"/>
+        <text x="200" y="178" font-size="9" fill="#7a7068">a</text>
+
+        <!-- G({s_b1,s_b2}) → K({s_b2,dead}) on b -->
+        <line x1="290" y1="296" x2="560" y2="448" stroke="#c4401d" stroke-width="1.1" marker-end="url(#dr)"/>
+        <text x="432" y="388" font-size="9" fill="#c4401d">b</text>
+
+        <!-- H({s_b1,s_b2,acc_b2}) → D on a -->
+        <line x1="448" y1="262" x2="598" y2="98" stroke="#1a6e3c" stroke-width="1.3" marker-end="url(#dg)"/>
+        <text x="498" y="178" font-size="9" fill="#1a6e3c">a</text>
+
+        <!-- H({s_b1,s_b2,acc_b2}) → K on b -->
+        <line x1="460" y1="318" x2="577" y2="455" stroke="#c4401d" stroke-width="1.1" marker-end="url(#dr)"/>
+        <text x="528" y="398" font-size="9" fill="#c4401d">b</text>
+
+        <!-- I({s_b2}) → B on a -->
+        <path d="M95 448 Q55 268 228 100" stroke="#7a7068" stroke-width="1.2" fill="none" marker-end="url(#da)"/>
+        <text x="35" y="268" font-size="9" fill="#7a7068">a</text>
+
+        <!-- I({s_b2}) → L({dead}) on b -->
+        <line x1="123" y1="478" x2="748" y2="478" stroke="#c4401d" stroke-width="1.1" marker-end="url(#dr)"/>
+        <text x="425" y="494" font-size="9" fill="#c4401d">b</text>
+
+        <!-- J({s_b2,acc_b2}) → D on a -->
+        <line x1="278" y1="448" x2="585" y2="100" stroke="#1a6e3c" stroke-width="1.2" marker-end="url(#dg)"/>
+        <text x="395" y="268" font-size="9" fill="#1a6e3c">a</text>
+
+        <!-- J({s_b2,acc_b2}) → L on b -->
+        <line x1="298" y1="478" x2="748" y2="478" stroke="#c4401d" stroke-width="1.1" marker-end="url(#dr)"/>
+
+        <!-- K({s_b2,dead}) → B on a -->
+        <line x1="580" y1="452" x2="270" y2="98" stroke="#7a7068" stroke-width="1.2" marker-end="url(#da)"/>
+        <text x="465" y="290" font-size="9" fill="#7a7068">a</text>
+
+        <!-- K({s_b2,dead}) → L on b -->
+        <line x1="638" y1="470" x2="748" y2="470" stroke="#c4401d" stroke-width="1.2" marker-end="url(#dr)"/>
+        <text x="686" y="462" font-size="9" fill="#c4401d">b</text>
+
+        <!-- L({dead}) self-loop -->
+        <path d="M778 452 Q808 420 830 432 Q848 448 830 468 Q812 480 785 472" stroke="#c4401d" stroke-width="1.3" fill="none" marker-end="url(#dr)"/>
+        <text x="845" y="448" font-size="9" fill="#c4401d">a,b</text>
+
+        <!-- ── NODES ── -->
+        <!-- A = {s} start -->
+        <circle cx="95" cy="75" r="28" fill="#faf9f7" stroke="#8a5c00" stroke-width="2"/>
+        <text x="95" y="71" text-anchor="middle" font-size="9" fill="#8a5c00" font-weight="600">{s}</text>
+        <text x="95" y="83" text-anchor="middle" font-size="7.5" fill="#8a5c00">start</text>
+
+        <!-- B = {s,p1} -->
+        <circle cx="258" cy="75" r="28" fill="#faf9f7" stroke="#4a4540" stroke-width="1.4"/>
+        <text x="258" y="71" text-anchor="middle" font-size="8.5" fill="#4a4540">{s,</text>
+        <text x="258" y="82" text-anchor="middle" font-size="8.5" fill="#4a4540">p1}</text>
+
+        <!-- C = {s_b1,p2} -->
+        <circle cx="418" cy="75" r="28" fill="#faf9f7" stroke="#4a4540" stroke-width="1.4"/>
+        <text x="418" y="70" text-anchor="middle" font-size="8" fill="#4a4540">{s_b1,</text>
+        <text x="418" y="81" text-anchor="middle" font-size="8" fill="#4a4540">p2}</text>
+
+        <!-- D = {s,p1,acc} ACCEPT -->
+        <circle cx="608" cy="75" r="30" fill="#f0f7f4" stroke="#1a6e3c" stroke-width="2.2"/>
+        <circle cx="608" cy="75" r="24" fill="none" stroke="#1a6e3c" stroke-width="0.9"/>
+        <text x="608" y="69" text-anchor="middle" font-size="7.5" fill="#1a6e3c" font-weight="600">{s,p1,</text>
+        <text x="608" y="80" text-anchor="middle" font-size="7.5" fill="#1a6e3c" font-weight="600">acc} ★</text>
+
+        <!-- E = {s_b1,p2,acc_b1} ACCEPT -->
+        <circle cx="800" cy="75" r="30" fill="#f0f7f4" stroke="#1a6e3c" stroke-width="2.2"/>
+        <circle cx="800" cy="75" r="24" fill="none" stroke="#1a6e3c" stroke-width="0.9"/>
+        <text x="800" y="67" text-anchor="middle" font-size="7" fill="#1a6e3c" font-weight="600">{s_b1,p2,</text>
+        <text x="800" y="78" text-anchor="middle" font-size="7" fill="#1a6e3c" font-weight="600">acc_b1} ★</text>
+
+        <!-- F = {s_b1} -->
+        <circle cx="95" cy="290" r="28" fill="#faf9f7" stroke="#4a4540" stroke-width="1.4"/>
+        <text x="95" y="286" text-anchor="middle" font-size="8" fill="#4a4540">{s_b1}</text>
+
+        <!-- G = {s_b1,s_b2} -->
+        <circle cx="258" cy="290" r="28" fill="#faf9f7" stroke="#4a4540" stroke-width="1.4"/>
+        <text x="258" y="284" text-anchor="middle" font-size="7.5" fill="#4a4540">{s_b1,</text>
+        <text x="258" y="296" text-anchor="middle" font-size="7.5" fill="#4a4540">s_b2}</text>
+
+        <!-- H = {s_b1,s_b2,acc_b2} ACCEPT -->
+        <circle cx="438" cy="290" r="30" fill="#f0f7f4" stroke="#1a6e3c" stroke-width="2.2"/>
+        <circle cx="438" cy="290" r="24" fill="none" stroke="#1a6e3c" stroke-width="0.9"/>
+        <text x="438" y="282" text-anchor="middle" font-size="6.8" fill="#1a6e3c" font-weight="600">{s_b1,s_b2,</text>
+        <text x="438" y="293" text-anchor="middle" font-size="6.8" fill="#1a6e3c" font-weight="600">acc_b2} ★</text>
+
+        <!-- I = {s_b2} -->
+        <circle cx="95" cy="478" r="28" fill="#faf9f7" stroke="#4a4540" stroke-width="1.4"/>
+        <text x="95" y="474" text-anchor="middle" font-size="8" fill="#4a4540">{s_b2}</text>
+
+        <!-- J = {s_b2,acc_b2} ACCEPT -->
+        <circle cx="258" cy="478" r="30" fill="#f0f7f4" stroke="#1a6e3c" stroke-width="2.2"/>
+        <circle cx="258" cy="478" r="24" fill="none" stroke="#1a6e3c" stroke-width="0.9"/>
+        <text x="258" y="472" text-anchor="middle" font-size="7.5" fill="#1a6e3c" font-weight="600">{s_b2,</text>
+        <text x="258" y="484" text-anchor="middle" font-size="7.5" fill="#1a6e3c" font-weight="600">acc_b2} ★</text>
+
+        <!-- K = {s_b2,dead} -->
+        <circle cx="598" cy="478" r="28" fill="#fff5f5" stroke="#c4401d" stroke-width="1.5"/>
+        <text x="598" y="472" text-anchor="middle" font-size="7.5" fill="#c4401d">{s_b2,</text>
+        <text x="598" y="484" text-anchor="middle" font-size="7.5" fill="#c4401d">dead}</text>
+
+        <!-- L = {dead} TRAP -->
+        <circle cx="778" cy="478" r="28" fill="#fff5f5" stroke="#c4401d" stroke-width="2"/>
+        <text x="778" y="473" text-anchor="middle" font-size="8" fill="#c4401d">{dead}</text>
+        <text x="778" y="485" text-anchor="middle" font-size="7.5" fill="#c4401d">trap</text>
+
+        <!-- Legend -->
+        <rect x="0" y="528" width="1040" height="28" rx="3" fill="#f2ede8" stroke="#e8e4df" stroke-width="1"/>
+        <text x="12" y="543" font-size="8.5" fill="#7a7068">● start state (amber)</text>
+        <circle cx="158" cy="540" r="6" fill="#f0f7f4" stroke="#1a6e3c" stroke-width="1.5"/>
+        <circle cx="158" cy="540" r="4" fill="none" stroke="#1a6e3c" stroke-width="0.7"/>
+        <text x="168" y="543" font-size="8.5" fill="#1a6e3c">double circle = accept ★</text>
+        <text x="355" y="543" font-size="8.5" fill="#c4401d">● red = trap/bbb-seen</text>
+        <text x="510" y="543" font-size="8.5" fill="#1a6e3c">green arrows = reach accept</text>
+        <text x="710" y="543" font-size="8.5" fill="#c4401d">red arrows = toward trap</text>
+      </svg>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════ Q5 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q5</span>
+      <span class="q-title">Prove L/σ is Regular (Right Quotient / Closure Property)</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-closure">Closure Properties</span>
+        <span class="concept-tag tag-dfa">DFA Construction</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Right Quotient L/σ</span>
+          <span class="def-desc">L/σ = {w | wσ ∈ L}. The set of strings that, when followed by σ, land in L.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Closure under L/σ</span>
+          <span class="def-desc">Regular languages are closed under right quotient: if L is regular and σ ∈ Σ, then L/σ is also regular. Proven by modifying a DFA's accept states.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Extended Transition δ*</span>
+          <span class="def-desc">δ*(q, w) is the state reached from q after reading string w. Key property: δ*(q, wσ) = δ(δ*(q, w), σ).</span>
+        </div>
+      </div>
+
+      <div class="problem-box">Prove that if L is any regular language over Σ and σ ∈ Σ, then L/σ = {w ∈ Σ* | wσ ∈ L} is also regular.</div>
+
+      <!-- ── Show Your Work ── -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Building the DFA for L/σ step by step</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Unpack what L/σ actually asks</div>
+              <div class="work-step-body">
+                <p>The definition says <code>L/σ = { w | wσ ∈ L }</code>. Translate this into plain English: <strong>"w is in L/σ if and only if appending the single character σ to the end of w produces a string that was already in L."</strong></p>
+                <p>Think of it as a look-ahead test: "if I were standing at the state I reach after reading w, and I took one more step on σ, would I land in an accept state?" If yes, w is in L/σ.</p>
+                <p>This is the key insight that tells us <em>exactly</em> which states need to become new accept states in the modified DFA.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Start from the DFA for L — name its parts</div>
+              <div class="work-step-body">
+                <p>Since L is regular, fix a DFA <strong>M = (Q, Σ, δ, q₀, F)</strong> that recognizes L. Nothing about this DFA changes — we are going to <em>re-use it entirely</em> except for swapping out the accept set F.</p>
+                <div class="mono-block">Q   = states (unchanged)
+Σ   = alphabet (unchanged)
+δ   = transition function (unchanged — every arrow stays)
+q₀  = start state (unchanged)
+F   = original accept states (this is the only part we replace)</div>
+                <p>This is the economy of the proof: we pay zero cost in new states or new transitions. The entire structure of M is recycled.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Define the new accept set F′</div>
+              <div class="work-step-body">
+                <p>From Step 1 we know: state q should accept in M′ iff "one more σ from q lands in F." So we define:</p>
+                <div class="mono-block">F′ = { q ∈ Q  |  δ(q, σ) ∈ F }</div>
+                <p>Go through every state q in Q, check where δ(q, σ) lands, and mark q as accepting in M′ if that destination is in F.</p>
+                <p><strong>Concrete micro-example:</strong> Say M has states {s, t, u} with F = {u}, and δ(s, σ) = t, δ(t, σ) = u, δ(u, σ) = u. Then:</p>
+                <div class="mono-block">δ(s, σ) = t ∉ F  →  s ∉ F′
+δ(t, σ) = u ∈ F  →  t ∈ F′   ← new accept state!
+δ(u, σ) = u ∈ F  →  u ∈ F′   ← still an accept state</div>
+                <p>Notice: the original accept state u stays in F′ (because δ(u, σ) ∈ F), and t gets promoted because "one more σ" takes it to u.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Write the biconditional chain — the formal proof core</div>
+              <div class="work-step-body">
+                <p>Construct <strong>M′ = (Q, Σ, δ, q₀, F′)</strong>. Now prove <code>L(M′) = L/σ</code> by showing membership in L(M′) is equivalent to membership in L/σ, one iff-step at a time:</p>
+                <div class="mono-block">w ∈ L(M′)
+  ⟺  δ*(q₀, w) ∈ F′                 [DFA acceptance in M′]
+  ⟺  δ( δ*(q₀, w), σ ) ∈ F          [definition of F′]
+  ⟺  δ*(q₀, wσ) ∈ F                  [extended δ* property: δ*(q, wσ) = δ(δ*(q,w), σ)]
+  ⟺  wσ ∈ L(M) = L                   [DFA acceptance in M]
+  ⟺  w ∈ L/σ                         [definition of L/σ]</div>
+                <p>Each iff is a direct substitution of a definition. The critical link is line 3: the <strong>extended transition function property</strong> <code>δ*(q, wσ) = δ(δ*(q, w), σ)</code>, which says "run w then do one step σ" is the same as "run wσ all at once."</p>
+                <span class="work-check correct">✓ Both directions (⟹ and ⟸) hold since every step is a biconditional</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Close the proof — M′ is a valid DFA, so L/σ is regular</div>
+              <div class="work-step-body">
+                <p>M′ = (Q, Σ, δ, q₀, F′) is a DFA because:</p>
+                <div class="mono-block">• Q is finite            (same finite set as M)
+• δ is total             (same total function as M — no transitions were added or removed)
+• unique start state q₀  (unchanged)
+• F′ ⊆ Q                (we only selected states already in Q)</div>
+                <p>Since M′ is a valid DFA and L(M′) = L/σ (proven in Step 4), L/σ is recognized by a DFA, and therefore <strong>L/σ is regular</strong>.</p>
+                <div class="callout callout-blue" style="margin-top:0.8rem;">
+                  <div class="callout-label">Common Exam Mistake to Avoid</div>
+                  <p>Students sometimes try to construct a new NFA or add new states to handle "reading σ later." This is unnecessary and wrong — M′ uses the <em>exact same</em> Q and δ as M. The only change is the accept set. Do not touch the transitions.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── End Show Your Work ── -->
+
+      <div class="sol-head">Proof — Construct a DFA for L/σ</div>
+      <p>Since L is regular, there exists a DFA M = (Q, Σ, δ, q₀, F) with L(M) = L.</p>
+      <p><strong>Construct M' = (Q, Σ, δ, q₀, F')</strong> with the same states and transitions, but new accept states:</p>
+      <div class="mono-block">
+F' = { q ∈ Q | δ(q, σ) ∈ F }
+
+(All states from which reading one more σ leads to an original accept state.)
+      </div>
+      <p><strong>Claim:</strong> L(M') = L/σ.</p>
+
+      <div class="solution-highlight">
+        <div class="mono-block">
+w ∈ L(M')
+⟺ δ*(q₀, w) ∈ F'           [by definition of DFA acceptance in M']
+⟺ δ(δ*(q₀, w), σ) ∈ F     [by definition of F']
+⟺ δ*(q₀, wσ) ∈ F           [by extended transition function]
+⟺ wσ ∈ L(M) = L            [DFA M accepts wσ]
+⟺ w ∈ L/σ                  [by definition of L/σ]
+        </div>
+        Since M' is a valid DFA, L/σ = L(M') is <strong>regular</strong>.
+      </div>
+
+      <div class="key-insight">The key trick: we don't change any transitions — we only change which states are accepting. A state q accepts in M' iff "one more σ from q" would have accepted in M.</div>
+      <div class="qed">□</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q6 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q6</span>
+      <span class="q-title">Pumping Lemma Failure Case + Showing Regularity of a*b*</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-pumping">Pumping Lemma</span>
+        <span class="concept-tag tag-regex">Regularity</span>
+        <span class="concept-tag tag-dfa">DFA</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Pumping Lemma Direction</span>
+          <span class="def-desc">The Pumping Lemma is a <em>necessary</em> condition for regularity, not sufficient. It can prove irregularity (by contradiction), but <strong>cannot prove regularity</strong>. Failing to find a contradiction proves nothing.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">a*b*</span>
+          <span class="def-desc">All strings of zero or more a's followed by zero or more b's. This is the canonical simple regular language where all a's precede all b's.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Closure under ∩</span>
+          <span class="def-desc">Regular languages are closed under intersection. This gives a powerful non-regularity proof technique: if L ∩ R is non-regular for some regular R, then L itself cannot be regular.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">What goes wrong when using the Pumping Lemma on L = {w ∈ {a,b}* | w has no b before any a}? Show the language is actually regular.</div>
+
+      <!-- ── Show Your Work — Part 1: Why PL Fails ── -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work — Part 1</div>
+            <div class="work-header-sub">Tracing exactly why the Pumping Lemma produces no contradiction</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify the language in plain terms</div>
+              <div class="work-step-body">
+                <p>L = {w ∈ {a,b}* | w has no b before any a}. This means: every b must come <em>after</em> every a. No b is ever followed by an a. In other words, once you see a b, the string can only have more b's — never an a again.</p>
+                <p>That is precisely <strong>a*b*</strong>: any number of a's (possibly zero) followed by any number of b's (possibly zero). Examples in L: ε, a, b, aab, abb, aaabbb. Not in L: ba, abba, baa.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Set up the Pumping Lemma attempt — choose a string</div>
+              <div class="work-step-body">
+                <p>Let p be the pumping length. We pick the "hardest-looking" string to try to break the lemma: <code>s = aᵖbᵖ</code>. It's in L (all a's before all b's) and |s| = 2p ≥ p. ✓</p>
+                <p>Now the Pumping Lemma guarantees we can write <code>s = xyz</code> such that:</p>
+                <div class="mono-block">(i)  |xy| ≤ p
+(ii) |y|  > 0
+(iii) xyⁱz ∈ L  for all i ≥ 0</div>
+                <p>Condition (i) says xy lies entirely within the first p characters of s = aᵖbᵖ. The first p characters are all a's. So <strong>xy is a block of a's</strong>, and therefore y = aᵏ for some 1 ≤ k ≤ p.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Try every pumping value — none break the language</div>
+              <div class="work-step-body">
+                <p>With y = aᵏ, pumping produces:</p>
+                <div class="mono-block">i = 0  (pump down):  xy⁰z = aᵖ⁻ᵏ bᵖ   →  still all-a's then all-b's  ∈ a*b*  ✓
+i = 1  (unchanged):  xy¹z = aᵖ   bᵖ   →  original string               ∈ a*b*  ✓
+i = 2  (pump up):    xy²z = aᵖ⁺ᵏ bᵖ   →  still all-a's then all-b's  ∈ a*b*  ✓
+i = n  (any n):      xyⁿz = aᵖ⁺⁽ⁿ⁻¹⁾ᵏbᵖ →  always all-a's then all-b's  ∈ a*b*  ✓</div>
+                <p>Adding or removing a's from the front of a*b* string always gives another a*b* string. <strong>No matter what i we choose, xyⁱz stays in L.</strong> We cannot find a contradiction.</p>
+                <span class="work-check correct">✓ The Pumping Lemma is satisfied — but this tells us nothing about regularity</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Understand the logical trap — why this proves nothing</div>
+              <div class="work-step-body">
+                <p>The Pumping Lemma is a <strong>one-way implication</strong>:</p>
+                <div class="mono-block">L is regular  ⟹  L is pumpable
+
+The CONTRAPOSITIVE (what we use for proofs):
+L is NOT pumpable  ⟹  L is NOT regular
+
+What we CANNOT conclude:
+L is pumpable  ⟹  L is regular   ← THIS IS WRONG (converse, not valid)</div>
+                <p>Failing to find a contradiction with the Pumping Lemma only means we haven't disproved regularity — it says nothing positive. Some non-regular languages (like {aⁿbⁿ | n ≥ 0} with a bad string choice, or lucky splits) can appear pumpable. The Pumping Lemma is a <em>necessary</em> condition for regularity, never a sufficient one.</p>
+                <div class="callout callout-purple" style="margin-top:0.7rem;">
+                  <div class="callout-label">The Root of the Failure Here</div>
+                  <p>a*b* is "too forgiving." Pumping only ever changes the count of a's, and a*b* accepts <em>any</em> count of a's before any count of b's. There is no balance condition to violate. The language has no constraint that pumping can break.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── End Show Your Work Part 1 ── -->
+
+      <div class="sol-head">What Goes Wrong</div>
+      <p>L = {w | no b appears before any a} = <strong>a*b*</strong>.</p>
+      <p>If we try s = aᵖbᵖ, then |xy| ≤ p forces xy to consist of a's only, so y = aᵏ (k ≥ 1).</p>
+      <div class="mono-block">
+Pump up   (i = 2): xy²z = aᵖ⁺ᵏbᵖ — still in a*b* ✓
+Pump down (i = 0): xy⁰z = aᵖ⁻ᵏbᵖ — still in a*b* ✓
+      </div>
+
+      <div class="callout callout-purple">
+        <div class="callout-label">Why No Contradiction Is Reached</div>
+        <p>Adding or removing a's from the front of aᵖbᵖ always gives another string in a*b*. The Pumping Lemma is a <em>one-way implication</em>: regular → pumpable. It cannot be used to prove regularity. Every regular language satisfies it — and some non-regular languages can accidentally look "pumpable" with a bad choice of string, so failing to find a contradiction tells us nothing.</p>
+      </div>
+
+      <div class="sol-head">Showing L is Regular</div>
+
+      <!-- ── Show Your Work — Part 2: Proving Regularity ── -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work — Part 2</div>
+            <div class="work-header-sub">Two clean ways to prove a*b* is regular</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Method A — Give a regular expression (fastest on an exam)</div>
+              <div class="work-step-body">
+                <p>The language a*b* is <em>literally described</em> by the regular expression <code>a*b*</code>. Since every regular expression describes a regular language (by the equivalence of regex and DFA/NFA), we are done in one line:</p>
+                <div class="mono-block">L = L(a*b*)   →   L is regular   □</div>
+                <p>This is the fastest correct proof. No DFA construction needed if the question just asks you to "show it is regular."</p>
+                <span class="work-check correct">✓ Valid — regex directly witnesses regularity</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Method B — Build the DFA (required if asked to construct one)</div>
+              <div class="work-step-body">
+                <p>Think about what memory the DFA needs. There are exactly three situations:</p>
+                <div class="mono-block">q_a : we have seen only a's so far (or nothing yet) — still "in the a-zone"
+q_b : we have seen at least one b — now "in the b-zone", no more a's allowed
+q_dead : we saw an a after a b — permanently rejected</div>
+                <p>Design transitions by asking: "which zone does the next character push us into?"</p>
+                <div class="mono-block">From q_a:
+  read a → stay in q_a    (still only a's)
+  read b → move to q_b    (first b seen, now in b-zone)
+
+From q_b:
+  read b → stay in q_b    (more b's, still fine)
+  read a → move to q_dead (a after a b — violated!)
+
+From q_dead:
+  read a or b → stay in q_dead  (no escape from rejection)</div>
+                <p>Accept states: <strong>q_a and q_b</strong> (both represent valid a*b* strings so far). q_dead rejects.</p>
+                <span class="work-check correct">✓ DFA has 3 states, is total, and exactly recognizes a*b*</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Verify the DFA on example strings</div>
+              <div class="work-step-body">
+                <div class="mono-block">ε         →  q_a (accept)              ✓  (ε ∈ a*b*)
+a         →  q_a → q_a (accept)      ✓
+b         →  q_a → q_b (accept)      ✓
+aab       →  q_a→q_a→q_a→q_b (acc)  ✓
+abb       →  q_a→q_b→q_b→q_b (acc)  ✓
+ba        →  q_a→q_b→q_dead (rej)    ✓  (b before a)
+abba      →  q_a→q_b→q_b→q_dead→q_dead (rej)  ✓</div>
+                <p>Every string that should be accepted is, and every string that shouldn't be is rejected. The DFA is correct.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Key lesson — how to actually prove regularity</div>
+              <div class="work-step-body">
+                <p>To prove a language <strong>is</strong> regular, use any one of these constructive methods — the Pumping Lemma is <em>never</em> one of them:</p>
+                <div class="mono-block">1. Exhibit a regular expression for it
+2. Construct a DFA (or NFA) that recognizes it
+3. Use closure properties:
+     show it equals L₁ ∩ L₂, L₁ ∪ L₂, L₁*, complement(L₁), etc.
+     where L₁, L₂ are already known regular languages</div>
+                <div class="callout callout-blue" style="margin-top:0.7rem;">
+                  <div class="callout-label">Common Exam Mistake</div>
+                  <p>Writing "I tried all pumping values and none broke L, therefore L is regular." This is always wrong. The Pumping Lemma cannot prove regularity — only the three methods above can. A language that satisfies the Pumping Lemma may still be non-regular (the lemma is necessary but not sufficient).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── End Show Your Work Part 2 ── -->
+
+      <div class="solution-highlight">
+        <p>L = a*b* is described by the regular expression <strong>a*b*</strong>. Every regex describes a regular language, so L is regular.</p>
+        <p>Alternatively, a simple 3-state DFA:</p>
+        <table>
+          <tr><th>State</th><th>Meaning</th><th>On a</th><th>On b</th><th>Accept?</th></tr>
+          <tr><td class="start">q_a (start)</td><td>Still reading a's</td><td>q_a</td><td>q_b</td><td class="acc">✓</td></tr>
+          <tr><td class="acc">q_b</td><td>Now reading b's</td><td class="rej">q_dead</td><td>q_b</td><td class="acc">✓</td></tr>
+          <tr><td class="rej">q_dead</td><td>Saw an a after a b</td><td class="rej">q_dead</td><td class="rej">q_dead</td><td class="rej">✗</td></tr>
+        </table>
+
+        <svg viewBox="0 0 500 160" fill="none" style="width:100%;max-width:500px;display:block;margin:1rem auto;">
+          <defs>
+            <marker id="ab1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7a7068"/></marker>
+            <marker id="ab2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1d5c9e"/></marker>
+            <marker id="ab3" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#c4401d"/></marker>
+          </defs>
+          <!-- Start arrow -->
+          <line x1="5" y1="80" x2="68" y2="80" stroke="#7a7068" stroke-width="1.5" marker-end="url(#ab1)"/>
+          <!-- q_a (start + accept) -->
+          <circle cx="95" cy="80" r="28" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.04)"/>
+          <circle cx="95" cy="80" r="23" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+          <text x="95" y="84" text-anchor="middle" font-size="11" fill="#1a6e3c">q_a</text>
+          <!-- q_a self-loop a -->
+          <path d="M80 54 Q75 28 95 20 Q115 28 110 54" stroke="#1a6e3c" stroke-width="1.3" fill="none" marker-end="url(#ab1)"/>
+          <text x="95" y="16" text-anchor="middle" font-size="11" fill="#4a4540">a</text>
+          <!-- q_a → q_b on b -->
+          <line x1="123" y1="80" x2="217" y2="80" stroke="#1d5c9e" stroke-width="1.3" marker-end="url(#ab2)"/>
+          <text x="170" y="72" text-anchor="middle" font-size="11" fill="#1d5c9e">b</text>
+          <!-- q_b (accept) -->
+          <circle cx="245" cy="80" r="28" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.04)"/>
+          <circle cx="245" cy="80" r="23" stroke="#1a6e3c" stroke-width="0.8" fill="none"/>
+          <text x="245" y="84" text-anchor="middle" font-size="11" fill="#1a6e3c">q_b</text>
+          <!-- q_b self-loop b -->
+          <path d="M230 54 Q225 28 245 20 Q265 28 260 54" stroke="#1a6e3c" stroke-width="1.3" fill="none" marker-end="url(#ab1)"/>
+          <text x="245" y="16" text-anchor="middle" font-size="11" fill="#4a4540">b</text>
+          <!-- q_b → q_dead on a -->
+          <line x1="273" y1="80" x2="367" y2="80" stroke="#c4401d" stroke-width="1.3" marker-end="url(#ab3)"/>
+          <text x="320" y="72" text-anchor="middle" font-size="11" fill="#c4401d">a</text>
+          <!-- q_dead -->
+          <circle cx="395" cy="80" r="28" stroke="#c4401d" stroke-width="1.5" fill="rgba(196,64,29,0.04)"/>
+          <text x="395" y="84" text-anchor="middle" font-size="10" fill="#c4401d">q_dead</text>
+          <!-- q_dead self-loop a,b -->
+          <path d="M380 54 Q375 28 395 20 Q415 28 410 54" stroke="#c4401d" stroke-width="1.3" fill="none" marker-end="url(#ab3)"/>
+          <text x="395" y="16" text-anchor="middle" font-size="11" fill="#c4401d">a,b</text>
+          <!-- Labels at bottom -->
+          <text x="95" y="130" text-anchor="middle" font-size="9" fill="#1a6e3c">start + accept</text>
+          <text x="245" y="130" text-anchor="middle" font-size="9" fill="#1a6e3c">accept</text>
+          <text x="395" y="130" text-anchor="middle" font-size="9" fill="#c4401d">trap (reject)</text>
+        </svg>
+      </div>
+
+      <div class="callout callout-blue">
+        <div class="callout-label">Lecture Note — Alternative Proof Technique: Closure Properties</div>
+        <p>The lecture (Lecture 11, pp. 33–35) shows a powerful alternative to pumping: use <strong>closure under intersection</strong> to prove non-regularity. If L is regular and R is regular, then L ∩ R must also be regular. So if you can find a regular R such that L ∩ R is provably non-regular (e.g., by pumping on the intersection), then L itself cannot be regular.</p>
+        <p><strong>Example from lecture:</strong> To prove L = {w | #010(w) = #101(w)} is non-regular, intersect with R = (010)*(101)* (regular). The intersection equals {(010)ᵏ(101)ᵏ | k ≥ 1}, which is non-regular by pumping. Therefore L is not regular.</p>
+        <p>This technique avoids having to pump directly on the original language, which can be much harder.</p>
+      </div>
+      <div class="qed">□</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q7 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q7</span>
+      <span class="q-title">Error in the "All Horses Same Color" Induction Proof</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-induction">Proof by Induction</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Strong Induction</span>
+          <span class="def-desc">Prove P(1), then assume P(k) holds for all k ≤ N and prove P(N+1). The inductive step must work for <em>every</em> N ≥ 1.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Inductive Step Gap</span>
+          <span class="def-desc">An inductive step may appear valid in general but fail at a specific boundary (e.g., the N=1→N=2 transition). Checking N=1 explicitly is critical.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Overlap Argument</span>
+          <span class="def-desc">Many inductive proofs of size/partition results rely on two subsets sharing at least one element. If the subsets are disjoint, the argument breaks.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">What is wrong with the inductive proof that all horses are the same color?</div>
+
+      <!-- ── Show Your Work ── -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Dissecting exactly where and why the induction collapses</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Reconstruct the argument — read it charitably first</div>
+              <div class="work-step-body">
+                <p>The "proof" claims: <strong>P(N) = "any set of N horses all have the same color."</strong></p>
+                <p><strong>Base case P(1):</strong> A single horse trivially has one color. P(1) holds. ✓</p>
+                <p><strong>Inductive step:</strong> Assume P(N) holds (any N horses share a color). Now consider N+1 horses: H₁, H₂, …, H_N, H_{N+1}.</p>
+                <div class="mono-block">Group A = {H₁, H₂, …, H_N}        ← first N horses
+Group B = {H₂, H₃, …, H_{N+1}}    ← last N horses</div>
+                <p>By the inductive hypothesis P(N): all horses in Group A share a color, and all horses in Group B share a color. The argument then says: since Groups A and B <em>overlap</em> (they share horses H₂ through H_N), their colors must be the same color. Therefore all N+1 horses share one color. P(N+1) holds. ✓?</p>
+                <p>This sounds airtight — the flaw is subtle. Read on.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Identify what the argument actually depends on</div>
+              <div class="work-step-body">
+                <p>The entire logic of the inductive step rests on one claim: <strong>Groups A and B share at least one horse.</strong> That shared horse is the "bridge" — it belongs to both groups, so the color of Group A must equal the color of Group B.</p>
+                <p>The overlap is the set of horses that appear in <em>both</em> groups:</p>
+                <div class="mono-block">Overlap = Group A ∩ Group B
+        = {H₁,…,H_N} ∩ {H₂,…,H_{N+1}}
+        = {H₂, H₃, …, H_N}</div>
+                <p>This overlap has exactly <strong>N − 1 horses</strong>. The whole argument works if and only if N − 1 ≥ 1, i.e., <strong>N ≥ 2</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Test the boundary: plug in N = 1 explicitly</div>
+              <div class="work-step-body">
+                <p>The first application of the inductive step is P(1) → P(2): we need to go from "any 1 horse has one color" to "any 2 horses have the same color." Set N = 1:</p>
+                <div class="mono-block">Group A = {H₁}    (first N = 1 horse)
+Group B = {H₂}    (last  N = 1 horse)
+
+Overlap = {H₂, …, H_N} = {H₂, …, H₁} = ∅</div>
+                <p>The overlap is <strong>empty</strong>. There is no horse shared between Group A and Group B. We know H₁ is some color and H₂ is some color — but we have <em>no link</em> between them. They could be completely different colors.</p>
+                <p>The argument breaks at exactly the first place it needs to work: the step from N = 1 to N = 2.</p>
+                <span class="work-check" style="background:#fef2f2;color:#c4401d;border-color:#fca5a5;">✗ Step fails at N = 1 — empty overlap, no color bridge</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Understand the structure of the gap</div>
+              <div class="work-step-body">
+                <p>In a correct induction, the base case and inductive step form an unbroken chain:</p>
+                <div class="mono-block">P(1)  ──[step]──▶  P(2)  ──[step]──▶  P(3)  ──[step]──▶  …</div>
+                <p>Here, P(1) holds, and the step works for all N ≥ 2. But the step <em>fails for N = 1</em>. So the chain looks like this:</p>
+                <div class="mono-block">P(1)  ──[BROKEN step]──✗  P(2)
+                                         P(2)  ──[step]──▶  P(3)
+                                         P(3)  ──[step]──▶  P(4)
+                                         ...</div>
+                <p>P(1) is an island. P(2) is never reached from it. Every P(N) for N ≥ 2 would follow from P(2) by valid steps — but P(2) itself is never established. The entire chain above P(2) is floating with no foundation.</p>
+                <div class="callout callout-purple" style="margin-top:0.7rem;">
+                  <div class="callout-label">Why This Is Easy to Miss</div>
+                  <p>When N is large, the overlap {H₂, …, H_N} looks obviously non-empty — it has N−1 elements. The case N=1 feels like just another instance of "small N." The error is invisible unless you substitute N=1 explicitly and count the overlap size: N−1 = 0. Always test the inductive step at the minimum value of N where it must apply.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">State the flaw precisely — exam-ready answer</div>
+              <div class="work-step-body">
+                <p>A clean one-paragraph answer for full credit:</p>
+                <div class="mono-block">The inductive step assumes the two groups of N horses share at least one
+horse (the overlap {H₂, …, H_N}), which is required to link their colors.
+This overlap has N−1 elements. For N ≥ 2, N−1 ≥ 1, so the overlap is
+non-empty and the argument is valid. However, for N = 1, the overlap is
+{H₂, …, H₁} = ∅. Group A = {H₁} and Group B = {H₂} share no horse,
+so their colors cannot be compared. The step fails at N = 1, which is
+exactly the step needed to go from P(1) to P(2). Since P(2) is never
+established, no P(N) for N ≥ 2 is proven, and the argument is invalid.</div>
+                <span class="work-check correct">✓ The flaw is the empty overlap at N = 1, not any error in the base case or large-N steps</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── End Show Your Work ── -->
+
+      <div class="sol-head">The Error</div>
+      <p>The inductive step <strong>fails for N = 1</strong> — the critical transition from base case to the first application.</p>
+
+      <p>The argument says: given N+1 horses, remove the last → N horses all same color (by IH). Remove the first → last N horses also all same color (by IH). So all N+1 horses share a color via the overlap.</p>
+
+      <div class="solution-highlight">
+        <div class="callout" style="margin: 0;">
+          <div class="callout-label">The Flaw — Empty Overlap at N = 1</div>
+          <p>The reasoning requires the two groups of N horses to <strong>share at least one horse</strong>, so their colors can be "linked." The overlap is {horse 2, …, horse N}.</p>
+          <p>But when <strong>N = 1</strong>: Group 1 = {horse 1}, Group 2 = {horse 2}. The overlap {2, …, 1} = <em>∅</em>. There is no shared horse, so we cannot conclude they have the same color.</p>
+          <p>The overlap is non-empty only when N ≥ 2. The base case N = 1 does <em>not</em> bridge to N+1 = 2.</p>
+        </div>
+
+        <svg viewBox="0 0 560 180" fill="none" style="width:100%;max-width:560px;display:block;margin:1rem auto;">
+          <!-- Case N≥2 (works) -->
+          <text x="140" y="20" text-anchor="middle" font-size="11" font-weight="600" fill="#1a6e3c">N ≥ 2: overlap is non-empty ✓</text>
+          <!-- Group 1 bracket -->
+          <rect x="20" y="35" width="200" height="50" rx="5" stroke="#1d5c9e" stroke-width="1.5" fill="rgba(29,92,158,0.05)" stroke-dasharray="5,3"/>
+          <text x="120" y="28" text-anchor="middle" font-size="9" fill="#1d5c9e">Group 1: {H1, H2, …, HN}</text>
+          <!-- Horses -->
+          <text x="40" y="67" text-anchor="middle" font-size="18">🐴</text>
+          <text x="80" y="67" text-anchor="middle" font-size="18">🐴</text>
+          <text x="120" y="67" text-anchor="middle" font-size="18">🐴</text>
+          <text x="160" y="67" text-anchor="middle" font-size="18">🐴</text>
+          <text x="200" y="67" text-anchor="middle" font-size="18">🐴</text>
+          <!-- Group 2 bracket -->
+          <rect x="60" y="88" width="200" height="50" rx="5" stroke="#6b3fa0" stroke-width="1.5" fill="rgba(107,63,160,0.05)" stroke-dasharray="5,3"/>
+          <text x="160" y="152" text-anchor="middle" font-size="9" fill="#6b3fa0">Group 2: {H2, …, HN, HN+1}</text>
+          <text x="80" y="120" text-anchor="middle" font-size="18">🐴</text>
+          <text x="120" y="120" text-anchor="middle" font-size="18">🐴</text>
+          <text x="160" y="120" text-anchor="middle" font-size="18">🐴</text>
+          <text x="200" y="120" text-anchor="middle" font-size="18">🐴</text>
+          <text x="240" y="120" text-anchor="middle" font-size="18">🐴</text>
+          <!-- Overlap label -->
+          <rect x="60" y="35" width="160" height="103" rx="5" stroke="#1a6e3c" stroke-width="2" fill="rgba(26,110,60,0.06)"/>
+          <text x="140" y="170" text-anchor="middle" font-size="9" fill="#1a6e3c">← overlap {H2…HN} links colors →</text>
+
+          <!-- Divider -->
+          <line x1="290" y1="10" x2="290" y2="175" stroke="#e8e4df" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- Case N=1 (FAILS) -->
+          <text x="430" y="20" text-anchor="middle" font-size="11" font-weight="600" fill="#c4401d">N = 1: overlap is EMPTY ✗</text>
+          <!-- Group 1 -->
+          <rect x="310" y="35" width="80" height="50" rx="5" stroke="#1d5c9e" stroke-width="1.5" fill="rgba(29,92,158,0.05)" stroke-dasharray="5,3"/>
+          <text x="350" y="28" text-anchor="middle" font-size="9" fill="#1d5c9e">Group 1: {H1}</text>
+          <text x="350" y="67" text-anchor="middle" font-size="24">🐴</text>
+          <text x="350" y="90" text-anchor="middle" font-size="8" fill="#1d5c9e">H1</text>
+
+          <!-- Group 2 -->
+          <rect x="420" y="95" width="80" height="50" rx="5" stroke="#6b3fa0" stroke-width="1.5" fill="rgba(107,63,160,0.05)" stroke-dasharray="5,3"/>
+          <text x="460" y="155" text-anchor="middle" font-size="9" fill="#6b3fa0">Group 2: {H2}</text>
+          <text x="460" y="127" text-anchor="middle" font-size="24">🐴</text>
+
+          <!-- No overlap marker -->
+          <text x="430" y="75" text-anchor="middle" font-size="28" fill="#c4401d">∅</text>
+          <text x="430" y="88" text-anchor="middle" font-size="9" fill="#c4401d">no shared horse!</text>
+        </svg>
+      </div>
+
+      <div class="key-insight">Lesson: always check the inductive step at the smallest valid value of N. A step that works for N ≥ 2 may fail at N = 1, creating a "gap" between the base case and the first use of the step.</div>
+      <div class="qed">□</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ Q8 -->
+  <div class="q-block open">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">Q8</span>
+      <span class="q-title">U − C is Uncountable; Implications for Languages</span>
+      <div class="q-tags">
+        <span class="concept-tag tag-countability">Countability</span>
+        <span class="concept-tag tag-closure">Set Theory</span>
+      </div>
+      <span class="q-arrow">▶</span>
+    </div>
+    <div class="q-body">
+
+      <div class="defs-box">
+        <div class="defs-label">Key Definitions</div>
+        <div class="def-item">
+          <span class="def-term">Countable Set</span>
+          <span class="def-desc">A set S is countable if there exists a bijection from S to ℕ (or S is finite). Examples: ℤ, ℚ, Σ*, all finite strings over any alphabet.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Uncountable Set</span>
+          <span class="def-desc">A set that cannot be put into bijection with ℕ. Examples: ℝ, 𝒫(ℕ), the power set of Σ* (= all languages).</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Cantor's Theorem</span>
+          <span class="def-desc">For any set A, |𝒫(A)| > |A|. In particular if Σ* is countably infinite, then 𝒫(Σ*) (all languages) is uncountable.</span>
+        </div>
+        <div class="def-item">
+          <span class="def-term">Closure of Countable Sets</span>
+          <span class="def-desc">The union of two countable sets is countable. This is the key lemma used in the proof below.</span>
+        </div>
+      </div>
+
+      <div class="problem-box">Show that U − C (uncountable minus countable) is uncountable. What does this tell us about languages?</div>
+
+      <!-- ── Show Your Work ── -->
+      <div class="work-section work-open">
+        <div class="work-header" onclick="toggleWork(this)">
+          <span class="work-icon">✏️</span>
+          <div class="work-header-text">
+            <div class="work-header-title">Show Your Work</div>
+            <div class="work-header-sub">Building the contradiction and applying it to the landscape of languages</div>
+          </div>
+          <span class="work-chevron">▶</span>
+        </div>
+        <div class="work-body">
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">1</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Understand the setup — what are U and C?</div>
+              <div class="work-step-body">
+                <p>We are given two sets:</p>
+                <div class="mono-block">U  =  some uncountable set   (e.g., all languages over Σ, or ℝ)
+C  =  some countable set     (e.g., all regular languages, or ℤ)</div>
+                <p>We want to show that <strong>U − C</strong> (the elements of U that are <em>not</em> in C) is uncountable. Intuitively: if you remove a "small" (countable) chunk from a "large" (uncountable) set, what's left must still be large. But intuition isn't a proof — we need the formal argument.</p>
+                <p>The key tool we'll use: <strong>the union of two countable sets is countable.</strong> This is the closure property of countability under union.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">2</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Set up the proof by contradiction</div>
+              <div class="work-step-body">
+                <p>Proof by contradiction: <strong>assume U − C is countable</strong> and derive that U must be countable — contradicting the given fact that U is uncountable.</p>
+                <div class="mono-block">Assume:  U − C  is countable          ← this is our assumption to contradict
+Given:   C       is countable          ← given in the problem
+Goal:    derive  U  is countable       ← this contradicts "U is uncountable"</div>
+                <p>The structure of every proof by contradiction: assume the opposite of what you want to prove, then show that assumption leads to something you already know is false.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">3</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Build the key subset containment</div>
+              <div class="work-step-body">
+                <p>Here's the critical observation. Every element of U is either in C or not in C. So U can be "covered" by two groups:</p>
+                <div class="mono-block">Elements of U not in C  →  these are in  U − C
+Elements of U also in C →  these are in  U ∩ C  ⊆  C
+
+Together:  U  ⊆  (U − C) ∪ C</div>
+                <p>This is always true as a set identity — any element x ∈ U either satisfies x ∉ C (so x ∈ U−C) or x ∈ C (so x ∈ C). Either way x ∈ (U−C) ∪ C. Therefore U ⊆ (U−C) ∪ C.</p>
+                <span class="work-check correct">✓ This step uses no assumption — it's a pure set-theory fact</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">4</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Apply countability closure to reach the contradiction</div>
+              <div class="work-step-body">
+                <p>Now plug in our assumption from Step 2:</p>
+                <div class="mono-block">U − C  is countable   (assumption)
+C      is countable   (given)
+
+   ⟹   (U − C) ∪ C  is countable   [union of two countable sets is countable]
+
+   ⟹   U  is countable              [U ⊆ countable set ⟹ U is countable]
+
+   ⟹   CONTRADICTION  ✗             [U is uncountable by hypothesis]</div>
+                <p>The last implication uses: <strong>any subset of a countable set is countable.</strong> Since U ⊆ (U−C) ∪ C and (U−C) ∪ C is countable (under our assumption), U itself must be countable. But we were told U is uncountable. Contradiction.</p>
+                <p>Therefore our assumption was wrong: <strong>U − C must be uncountable.</strong></p>
+                <span class="work-check correct">✓ Contradiction reached — proof complete</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-step">
+            <div class="work-step-num"><div class="work-step-num-inner">5</div></div>
+            <div class="work-step-content">
+              <div class="work-step-label">Apply the result to languages — fill in U and C concretely</div>
+              <div class="work-step-body">
+                <p>Now substitute the specific sets from automata theory:</p>
+                <div class="mono-block">U  =  𝒫(Σ*)  =  all languages over Σ
+        → uncountable by Cantor's theorem (Σ* is countably infinite,
+          so its power set is strictly larger)
+
+C  =  all regular languages
+        → countable: each is described by a finite DFA/regex,
+          and there are only countably many finite descriptions</div>
+                <p>Then by our theorem:</p>
+                <div class="mono-block">Non-regular languages  =  U − C  =  uncountable − countable  =  uncountable</div>
+                <p>The same argument applies to any countable class of languages — context-free, decidable, Turing-recognizable — because all of these are also countable (each described by a finite grammar or Turing machine, and there are only countably many finite descriptions).</p>
+                <div class="mono-block">All languages (U):                     uncountable  ← the full ocean
+  − Turing-recognizable languages (C):   countable    ← a tiny island
+  ─────────────────────────────────────────────────
+  Unrecognizable languages (U − C):      uncountable  ← still the ocean</div>
+                <div class="callout callout-blue" style="margin-top:0.7rem;">
+                  <div class="callout-label">The Big Picture Takeaway</div>
+                  <p>The languages we study in this course — regular, context-free, decidable — are all countable classes. The set of ALL languages is uncountable. So in a precise mathematical sense, the languages computers can handle are a <em>measure-zero</em> speck inside the space of all possible languages. Almost every language that exists cannot be recognized by any algorithm whatsoever. We just never encounter those languages because they can't be described finitely either.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- ── End Show Your Work ── -->
+
+      <div class="sol-head">Proof</div>
+      <p>Let U be uncountable and C be countable. Suppose for contradiction that U − C is countable.</p>
+      <div class="mono-block">
+Observe: U ⊆ (U − C) ∪ (U ∩ C) ⊆ (U − C) ∪ C
+
+If U − C is countable, then:
+  (U − C) ∪ C = (countable) ∪ (countable) = countable
+
+But U ⊆ countable set → U is countable.
+Contradiction! U is uncountable by assumption.
+      </div>
+
+      <div class="solution-highlight">
+        Therefore U − C must be <strong>uncountable</strong>.
+      </div>
+
+      <div class="sol-head">Implications for Languages</div>
+      <div class="callout callout-blue">
+        <div class="callout-label">Key Consequence</div>
+        <p><strong>All languages</strong> over Σ = 𝒫(Σ*) is <em>uncountable</em> by Cantor's theorem (Σ* is countably infinite).</p>
+        <p><strong>Regular languages</strong> form a <em>countable</em> set — each is described by a finite regex, and there are countably many finite strings.</p>
+        <p>By our result: <strong>Non-regular languages</strong> = All languages − Regular languages = Uncountable − Countable = <em>uncountable</em>.</p>
+        <p>In fact the same argument applies to Turing-recognizable languages (also countable). So <em>most languages cannot be recognized by any Turing machine</em>. The computable languages are a tiny countable island in an uncountable sea.</p>
+      </div>
+
+      <div class="key-insight">Takeaway: the class of languages we can "solve" in this course (regular, context-free, decidable) is infinitesimally small compared to the space of all possible languages.</div>
+      <div class="qed">□</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>COSC 3340 — Practice Quiz 2 · Spring 2026 · Dr. Rakesh Verma, Vu Minh Hoang Dang, Bryan Tuck</footer>
+
+<script>
+function toggle(head) {
+  const block = head.closest('.q-block');
+  block.classList.toggle('open');
+}
+function toggleAll(open) {
+  document.querySelectorAll('.q-block').forEach(b => {
+    if (open) b.classList.add('open');
+    else b.classList.remove('open');
+  });
+}
+function toggleWork(head) {
+  const section = head.closest('.work-section');
+  section.classList.toggle('work-open');
+}
+</script>
+
+</body>
+</html>

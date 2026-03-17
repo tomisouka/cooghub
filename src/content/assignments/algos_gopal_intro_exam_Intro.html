@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms · Intro Exam · Solution Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+/* ── SITE HEADER ── */
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; width: 48px; font-family: 'Archivo Black', sans-serif; font-size: 13px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+/* ── LAYOUT ── */
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+.prob-wrap { margin-bottom: 2.5rem; }
+
+/* ── PROBLEM HEADER ── */
+.prob-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.prob-header:hover { opacity: .88; }
+.prob-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 42px; min-width: 76px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.prob-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.prob-title { font-family: 'Archivo Black', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: .02em; }
+.prob-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 3px; }
+.prob-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.prob-header.open .prob-arrow { transform: rotate(90deg); }
+
+/* ── PROBLEM STATEMENT ── */
+.prob-statement { border: var(--border); border-top: none; background: var(--white); }
+.prob-statement-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; padding: 7px 14px 0; }
+.prob-statement-context { font-size: 12px; color: #666; padding: 4px 14px 0; font-style: italic; line-height: 1.6; }
+.part-row { display: grid; grid-template-columns: 36px 1fr; border-top: 1px solid #eee; }
+.part-row .pn { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 2px solid var(--ink); flex-shrink: 0; }
+.part-row .pt { padding: 9px 14px; font-size: 13px; line-height: 1.8; color: var(--ink); }
+.pts { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-left: 8px; }
+
+/* ── PROB BODY ── */
+.prob-body { display: none; }
+.prob-body.open { display: block; }
+
+/* ── PART ── */
+.part { border: var(--border); border-top: none; }
+.part-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+/* ── FORMULA BAR ── */
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+/* ── PREREQ ── */
+.prereq-toggle { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--cream); border-bottom: var(--thin); cursor: pointer; user-select: none; transition: background .15s; }
+.prereq-toggle:hover { background: #e0d8c8; }
+.prereq-toggle .tl { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+.prereq-toggle .tl::before { content: '◈'; color: var(--red); font-size: 12px; }
+.prereq-toggle .arr { font-size: 10px; color: #999; transition: transform .2s; }
+.prereq-toggle.open .arr { transform: rotate(90deg); }
+.prereq-body { display: none; padding: 12px 14px; background: var(--cream); border-bottom: var(--thin); font-size: 12.5px; color: #333; line-height: 2; }
+.prereq-body.open { display: block; }
+.prereq-body strong { font-weight: 700; color: var(--ink); }
+.prereq-formula { background: var(--white); border: 1.5px solid #aaa; border-left: 3px solid var(--ink); padding: 10px 14px; margin-top: 8px; line-height: 2.4; overflow-x: auto; }
+
+/* ── STEPS ── */
+.steps { padding: 16px 14px 4px; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 0 12px; margin-bottom: 16px; align-items: start; }
+.step-n { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 12px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-label { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+.step-math { background: var(--white); border: 2px solid var(--ink); padding: 10px 14px; line-height: 2.4; overflow-x: auto; }
+.step-note { font-size: 12px; color: #555; margin-top: 5px; line-height: 1.6; }
+.step-note strong { color: var(--ink); font-weight: 700; }
+
+/* ── PSEUDOCODE — EE5-C + T1 ── */
+.pseudo { border: var(--border); border-top: none; background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+.pseudo .pc-head { background: var(--yellow); border-bottom: var(--border); padding: 8px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pseudo .pc-name { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); }
+.pseudo .pc-sig { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; }
+.pseudo .pc-body { padding: 10px 0 14px; }
+.pseudo .ln-row { display: grid; grid-template-columns: 36px 1fr; padding-right: 18px; line-height: 2.1; }
+.pseudo .ln { font-size: 11px; text-align: right; padding-right: 10px; user-select: none; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; }
+.pseudo .code { padding-left: 14px; }
+.pseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.pseudo .fn { font-family: 'Archivo Black', sans-serif; font-size: 12px; color: #9a7d00; }
+.pseudo .cm { font-size: 11px; color: #bbb; }
+.pseudo .cm::before { content: '▷ '; }
+.pseudo .i1 { padding-left: 1.6em; border-left: 2px solid #e8c800; margin-left: .5em; }
+.pseudo .i2 { padding-left: 3.0em; border-left: 2px solid #e8c800; margin-left: 2.1em; }
+.pseudo .i3 { padding-left: 4.4em; border-left: 2px solid #e8c800; margin-left: 3.7em; }
+
+/* ── ANSWER ── */
+.answer { margin: 4px 14px 0; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+
+/* ── CALLOUT ── */
+.callout { margin: 12px 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+/* ── WARN ── */
+.warn { background: #fff3cd; border: var(--border); border-bottom: none; padding: 9px 13px; font-size: 12px; color: #5a4000; }
+.warn strong { font-weight: 700; }
+
+/* ── CONCEPT ── */
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+</style>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>Algorithms · Intro Exam</h1>
+    <span>GOPAL PANDURANGAN · UH · PERMS/COMBOS · INDUCTION · RECURSION</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#p1">1</a>
+    <a href="#p2">2</a>
+    <a href="#p3">3</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════ PROBLEM 1 -->
+<div class="prob-wrap" id="p1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Permutations &amp; Combinations</div>
+      <div class="prob-sub">P(n,k) · C(n,k) · n^k · ASYMPTOTIC RANKING · 30 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">There are \(n\) students and \(k \leq n\) movie tickets. In how many <em>different</em> ways can \(k\) tickets be distributed among the \(n\) students if:</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">Tickets for <em>different</em> movies. Each student gets <strong>at most one</strong>. <span class="pts">(8 pts)</span></div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Tickets for <em>different</em> movies. Each student can get <strong>any number</strong> \(\leq k\). <span class="pts">(7 pts)</span></div></div>
+    <div class="part-row"><div class="pn">c</div><div class="pt">Tickets for the <em>same</em> movie. Each student gets <strong>at most one</strong>. <span class="pts">(7 pts)</span></div></div>
+    <div class="part-row"><div class="pn">d</div><div class="pt">Rank (a), (b), (c) by asymptotic growth w.r.t. \(n\), assuming \(k = \lceil n/2 \rceil\). Use Big-O or Big-\(\Theta\). <span class="pts">(8 pts)</span></div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- PART A -->
+    <div class="part">
+      <div class="part-label">Part A — Different Movies, At Most One Each</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Formula</span><div class="formula-tags"><span class="ftag">P(n,k) = n!/(n−k)!</span><span class="ftag">Ordered · No Repetition</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ P(n,k) = n(n-1)(n-2)\cdots(n-k+1) = \frac{n!}{(n-k)!} \]
+        <div class="f-note">Order matters because tickets are distinguishable (different movies). No repetition because each student gets at most one.</div>
+      </div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Two questions determine your formula:</strong> (1) Does order matter? (2) Is repetition allowed?<br><br>
+        Here tickets are for <em>different</em> movies, so getting ticket A ≠ getting ticket B. Order matters → permutation. Each student gets at most one → no repetition.
+        <div class="prereq-formula">\[ \underbrace{n}_{\text{1st ticket}} \times \underbrace{(n-1)}_{\text{2nd ticket}} \times \cdots \times \underbrace{(n-k+1)}_{k\text{-th}} = \frac{n!}{(n-k)!} \]</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify: ordered, no repetition</div>
+          <div class="step-note">Distinct tickets → order matters. At most one per student → no repetition. This is a <strong>permutation</strong>.</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Apply multiplication principle</div>
+          <div class="step-math">\[ n \times (n-1) \times \cdots \times (n-k+1) = \frac{n!}{(n-k)!} \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Solution</span>\[ P(n,k) = \frac{n!}{(n-k)!} \]</div>
+    </div>
+
+    <!-- PART B -->
+    <div class="part">
+      <div class="part-label">Part B — Different Movies, Any Number Per Student</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Formula</span><div class="formula-tags"><span class="ftag">n^k</span><span class="ftag">Ordered · Repetition Allowed</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ n^k \]
+        <div class="f-note">Each of the \(k\) distinct tickets independently goes to any of \(n\) students — repetition is allowed.</div>
+      </div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Key difference from Part A:</strong> a student can now receive multiple tickets. After giving ticket 1, all \(n\) students are still eligible for ticket 2.
+        <div class="prereq-formula">\[ \underbrace{n \times n \times \cdots \times n}_{k\ \text{times}} = n^k \]</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify: ordered, repetition allowed</div>
+          <div class="step-note">Distinct tickets → order matters. No restriction on count → repetition allowed.</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Apply multiplication principle with repetition</div>
+          <div class="step-math">\[ n \times n \times \cdots \times n = n^k \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Solution</span>\[ n^k \]</div>
+    </div>
+
+    <!-- PART C -->
+    <div class="part">
+      <div class="part-label">Part C — Same Movie, At Most One Each</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Formula</span><div class="formula-tags"><span class="ftag">C(n,k) = n!/k!(n−k)!</span><span class="ftag">Unordered · No Repetition</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \binom{n}{k} = \frac{n!}{k!\,(n-k)!} \]
+        <div class="f-note">Tickets are identical → only which \(k\) students get one matters, not the order.</div>
+      </div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Why unordered?</strong> All tickets are for the same movie — indistinguishable. Start from \(P(n,k)\) and divide out the \(k!\) orderings of the chosen students that are identical.
+        <div class="prereq-formula">\[ \binom{n}{k} = \frac{P(n,k)}{k!} = \frac{n!}{k!\,(n-k)!} \]</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify: unordered, no repetition</div>
+          <div class="step-note">Same ticket for all → order doesn't matter. At most one per student → no repetition. This is a <strong>combination</strong>.</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Divide permutations by over-count</div>
+          <div class="step-math">\[ \binom{n}{k} = \frac{n!}{k!\,(n-k)!} \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Solution</span>\[ \binom{n}{k} = \frac{n!}{k!\,(n-k)!} \]</div>
+    </div>
+
+    <!-- PART D -->
+    <div class="part">
+      <div class="part-label">Part D — Asymptotic Ranking with \(k = \lceil n/2 \rceil\)</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Key Facts</span><div class="formula-tags"><span class="ftag">Stirling: n! ≈ (n/e)^n</span><span class="ftag">C(n,n/2) = Θ(2^n/√n)</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ n! \approx \left(\frac{n}{e}\right)^n \sqrt{2\pi n} \qquad \binom{n}{n/2} = \Theta\!\left(\frac{2^n}{\sqrt{n}}\right) \]
+        <div class="f-note">Use Stirling's approximation to simplify factorials at \(k = n/2\).</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Substitute \(k = n/2\) into each answer</div>
+          <div class="step-math">\[ \text{(a)}\ \frac{n!}{(n/2)!} \qquad \text{(b)}\ n^{n/2} \qquad \text{(c)}\ \frac{n!}{(n/2)!\,(n/2)!} \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Analyze (c) — slowest</div>
+          <div class="step-math">\[ \binom{n}{n/2} = \Theta\!\left(\frac{2^n}{\sqrt{n}}\right) \]</div>
+          <div class="step-note">By Stirling: the \((n/e)^n\) terms cancel leaving \(2^n\). Choosing a subset is far fewer arrangements than assigning distinct tickets.</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Analyze (a) and (b) — fastest</div>
+          <div class="step-math">\[ P(n,n/2) = n(n-1)\cdots(n/2+1) = \Theta(n^{n/2}) \qquad n^{n/2} = \Theta(n^{n/2}) \]</div>
+          <div class="step-note">(a) and (b) are the same asymptotic order. Both grow as \(\Theta(n^{n/2})\), which dominates \(2^n\) since \(\sqrt{n} \gg 2\) for large \(n\).</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Ranking — slowest to fastest</span>
+        \[ \underbrace{(c)}_{\Theta(2^n/\sqrt{n})} \;\ll\; \underbrace{(a) \approx (b)}_{\Theta(n^{n/2})} \]
+      </div>
+      <div class="callout"><strong>Intuition:</strong> (c) counts subsets — just who gets a ticket. (a) counts ordered selections — who gets which movie. (b) allows repeats. At \(k=n/2\), (a) and (b) both reach \(\Theta(n^{n/2})\), dwarfing the exponential \(2^n\) of (c).</div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span><div class="concept-tags"><span class="ctag">[CH1] COUNTING</span><span class="ctag">[CH1] ASYMPTOTIC NOTATION</span></div></div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Two questions determine your formula.</strong> Does order matter? Is repetition allowed? Order + no rep → \(P(n,k)\). Order + rep → \(n^k\). No order + no rep → \(\binom{n}{k}\).</p>
+      <p><strong>Asymptotic hierarchy:</strong> \(\log n \ll n \ll n^c \ll c^n \ll n! \ll n^n\). Binomial \(\binom{n}{n/2} = \Theta(2^n/\sqrt{n})\) is exponential but still much slower than \(n^{n/2}\) which grows as \((\sqrt{n})^n\).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ PROBLEM 2 -->
+<div class="prob-wrap" id="p2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Mathematical Induction</div>
+      <div class="prob-sub">WEAK INDUCTION · DIVISIBILITY · 30 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Prove by mathematical induction: for any positive integer \(n\), \(6^n - 1\) is divisible by \(5\).</div>
+    <div class="part-row"><div class="pn">1</div><div class="pt">What is the induction variable? <span class="pts">(2 pts)</span></div></div>
+    <div class="part-row"><div class="pn">2</div><div class="pt">What is the base case? <span class="pts">(3 pts)</span></div></div>
+    <div class="part-row"><div class="pn">3</div><div class="pt">What is the induction hypothesis? <span class="pts">(7 pts)</span></div></div>
+    <div class="part-row"><div class="pn">4</div><div class="pt">State what to prove in the induction step and prove it. <span class="pts">(15 pts)</span></div></div>
+    <div class="part-row"><div class="pn">5</div><div class="pt">Did you use weak or strong induction, and why? <span class="pts">(3 pts)</span></div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part 1 — Induction Variable</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify the variable</div>
+          <div class="step-note">The statement is about all positive integers \(n\). We induct on \(n\) — stepping through \(n = 1, 2, 3, \ldots\)</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Answer</span>The induction variable is \(n\).</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part 2 — Base Case</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">What is a base case?</span><span class="arr">▶</span></div>
+      <div class="prereq-body">The smallest value of \(n\) — here \(n=1\). You must verify the claim directly by computation. No induction allowed here.</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Set \(n=1\), evaluate</div>
+          <div class="step-math">\[ 6^1 - 1 = 5 \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Verify divisibility</div>
+          <div class="step-math">\[ 5 \mid 5 \quad \checkmark \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Base Case: n = 1</span>\[ 6^1 - 1 = 5, \quad 5 \mid 5 \quad \checkmark \]</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part 3 — Induction Hypothesis</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">What is an induction hypothesis?</span><span class="arr">▶</span></div>
+      <div class="prereq-body">The assumption we take for free — we assume the statement holds for \(n\) and use it to prove it for \(n+1\). It is NOT something we prove in this step.</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">State the hypothesis formally</div>
+          <div class="step-math">\[ \textbf{IH:}\ \text{Assume } 5 \mid (6^n - 1),\ \text{i.e., } 6^n - 1 = 5m\ \text{for some integer } m. \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ IH</span>\[ 5 \mid (6^n - 1) \iff 6^n - 1 = 5m \text{ for some } m \in \mathbb{Z} \]</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part 4 — Induction Step</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Goal</span><div class="formula-tags"><span class="ftag">Prove 5 | (6^{n+1} − 1)</span><span class="ftag">Using IH</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        Rewrite \(6^{n+1} - 1\) so the IH term \((6^n - 1)\) appears explicitly — then substitute.
+        <div class="f-note">Key trick: \(6^{n+1} - 1 = 6 \cdot 6^n - 1 = 6(6^n - 1) + 5\)</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Rewrite to expose \((6^n - 1)\)</div>
+          <div class="step-math">\[ 6^{n+1} - 1 = 6 \cdot 6^n - 1 = 6 \cdot 6^n - 6 + 5 = 6(6^n - 1) + 5 \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Substitute IH: \(6^n - 1 = 5m\)</div>
+          <div class="step-math">\[ 6^{n+1} - 1 = 6(5m) + 5 = 30m + 5 = 5(6m + 1) \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Conclude</div>
+          <div class="step-math">\[ 5(6m+1),\ 6m+1 \in \mathbb{Z} \implies 5 \mid (6^{n+1} - 1) \quad \checkmark \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Induction Step</span>
+        \[ 6^{n+1} - 1 = 6(6^n-1)+5 = 6(5m)+5 = 5(6m+1) \implies 5 \mid (6^{n+1}-1) \quad \blacksquare \]
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part 5 — Weak or Strong?</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Check what the step required</div>
+          <div class="step-note">To prove \(P(n+1)\) we only used \(P(n)\) — the immediately prior case. We did not need \(P(n-1), P(n-2), \ldots\)</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Classify</div>
+          <div class="step-math">
+            \[\textbf{Weak:}\ P(n) \Rightarrow P(n+1)\]
+            \[\textbf{Strong:}\ P(1) \wedge \cdots \wedge P(n) \Rightarrow P(n+1)\]
+          </div>
+          <div class="step-note">One step back → <strong>weak induction</strong>.</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Answer</span><strong>Weak induction</strong> — proving \(P(n+1)\) required only \(P(n)\).</div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span><div class="concept-tags"><span class="ctag">[CH2] INDUCTION</span><span class="ctag">[APP-A] WEAK vs STRONG</span></div></div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Three parts — never skip any.</strong> Base case: verify directly. IH: assume for \(n\). Step: prove for \(n+1\) using IH only.</p>
+      <p><strong>The algebraic trick for divisibility:</strong> rewrite \(f(n+1)\) so \(f(n)\) appears as a factor. The IH handles that factor; the remainder is explicit.</p>
+      <p><strong>Weak vs Strong:</strong> if the step looks back one case → weak. If it might need any earlier case (e.g. Fibonacci, coin problems) → strong.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ PROBLEM 3 -->
+<div class="prob-wrap" id="p3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Recursive Algorithm Design</div>
+      <div class="prob-sub">DIVIDE &amp; CONQUER · INDUCTION PROOF · RECURRENCE · 40 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Array \(A\) of 0s and 1s is <em>good</em> if it has an <strong>even</strong> number of 1s. Example: \([1,0,0,1]\) is good; \([1,1,1,0,0,1,1]\) is not.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">Give a <strong>recursive algorithm</strong> (pseudocode) to determine if \(A[1\ldots n]\) is good. <span class="pts">(20 pts)</span></div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Prove correctness using mathematical induction. <span class="pts">(10 pts)</span></div></div>
+    <div class="part-row"><div class="pn">c</div><div class="pt">Give a recurrence for the runtime. <span class="pts">(5 pts)</span></div></div>
+    <div class="part-row"><div class="pn">d</div><div class="pt">Solve the recurrence and state the runtime. <span class="pts">(5 pts)</span></div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- PART A -->
+    <div class="part">
+      <div class="part-label">Part A — Recursive Algorithm</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Strategy</span><div class="formula-tags"><span class="ftag">Divide &amp; Conquer</span><span class="ftag">Split · Recurse · XOR</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \text{parity}(A) = \text{parity}(\text{left half}) \oplus \text{parity}(\text{right half}) \]
+        <div class="f-note">XOR: same parity ⊕ same parity = 0 (even total). Different parities ⊕ = 1 (odd total).</div>
+      </div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite — Divide &amp; Conquer</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>D&amp;C template:</strong> Split → Solve recursively → Combine.<br><br>
+        <strong>Parity observation:</strong> total 1s = (1s in left) + (1s in right). The sum is even iff both halves have the same parity. XOR captures this: \(0 \oplus 0 = 0\), \(1 \oplus 1 = 0\), \(0 \oplus 1 = 1\), \(1 \oplus 0 = 1\).
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Base cases</div>
+          <div class="step-note">Empty array: 0 ones → even → return 0. Single element: return A[lo] directly (it is 0 or 1, which is already the parity).</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Pseudocode</div>
+        </div></div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">IsGood(A, lo, hi)</span>
+          <span class="pc-sig">Output: 0 = even ones (good) · 1 = odd</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="kw">if</span> lo &gt; hi: <span class="kw">return</span> 0 &nbsp;<span class="cm">empty → 0 ones</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code"><span class="kw">if</span> lo = hi: <span class="kw">return</span> A[lo] &nbsp;<span class="cm">single element</span></span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code">mid ← ⌊(lo + hi) / 2⌋ &nbsp;<span class="cm">split point</span></span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code">p<sub>L</sub> ← <span class="fn">IsGood</span>(A, lo, mid) &nbsp;<span class="cm">left parity</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code">p<sub>R</sub> ← <span class="fn">IsGood</span>(A, mid+1, hi) &nbsp;<span class="cm">right parity</span></span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code"><span class="kw">return</span> p<sub>L</sub> ⊕ p<sub>R</sub> &nbsp;<span class="cm">XOR = overall parity</span></span></div>
+        </div>
+      </div>
+
+      <div class="answer"><span class="ans-label">✓ Call: IsGood(A, 1, n) = 0 → good</span>Returns 0 if \(A\) has even # of 1s, else 1.</div>
+    </div>
+
+    <!-- PART B -->
+    <div class="part">
+      <div class="part-label">Part B — Correctness by Induction</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Induction on array size n</span><span class="arr">▶</span></div>
+      <div class="prereq-body"><strong>Claim:</strong> IsGood(A, lo, hi) returns the parity of the number of 1s in A[lo..hi]. Induction variable: \(n = \text{hi} - \text{lo} + 1\).</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Base cases: \(n=0\) and \(n=1\)</div>
+          <div class="step-math">
+            \(n=0\): returns 0. Empty → 0 ones → parity 0. \(\checkmark\)<br>
+            \(n=1\): returns \(A[\text{lo}]\). Value is 0 or 1 = its own parity. \(\checkmark\)
+          </div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">IH: correct for all sizes \(< n\)</div>
+          <div class="step-note">Both halves have size \(\leq \lfloor n/2 \rfloor < n\), so by IH, \(p_L\) and \(p_R\) are correct parities.</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Induction step: \(n > 1\)</div>
+          <div class="step-math">\[ (a + b) \bmod 2 = (a \bmod 2) \oplus (b \bmod 2) \implies \text{parity(total)} = p_L \oplus p_R \quad \checkmark \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Correctness proved</span>By IH both halves return correct parities; XOR gives correct overall parity. \(\blacksquare\)</div>
+    </div>
+
+    <!-- PART C -->
+    <div class="part">
+      <div class="part-label">Part C — Recurrence</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Count calls and work per level</div>
+          <div class="step-note">2 recursive calls on arrays of size \(n/2\). Combine step: one XOR + one split = \(O(1)\).</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Recurrence</span>\[ T(n) = 2T\!\left(\tfrac{n}{2}\right) + O(1), \quad T(1) = O(1) \]</div>
+    </div>
+
+    <!-- PART D -->
+    <div class="part">
+      <div class="part-label">Part D — Solve the Recurrence</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Master Theorem</span><div class="formula-tags"><span class="ftag">a=2, b=2, f(n)=O(1)</span><span class="ftag">Case 1</span></div></div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ T(n) = aT(n/b) + f(n) \xRightarrow{\text{Case 1}} T(n) = \Theta(n^{\log_b a}) \text{ when } f(n) = O(n^{\log_b a - \varepsilon}) \]
+        <div class="f-note">Case 1 applies when the recursive work dominates the combining work.</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify \(a, b, f(n)\)</div>
+          <div class="step-math">\[ a = 2,\quad b = 2,\quad f(n) = O(1) \implies \log_b a = \log_2 2 = 1 \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Check Case 1: is \(f(n) = O(n^{1-\varepsilon})\)?</div>
+          <div class="step-math">\[ O(1) = O(n^0) = O(n^{1-1}) \implies \varepsilon = 1 > 0 \quad \checkmark \]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Apply Case 1</div>
+          <div class="step-math">\[ T(n) = \Theta(n^{\log_2 2}) = \Theta(n) \]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Runtime</span>\[ T(n) = \Theta(n) \]</div>
+      <div class="callout"><strong>Sanity check:</strong> any algorithm that counts 1s must inspect every element at least once → \(\Omega(n)\) lower bound. Our algorithm hits this exactly — it's optimal.</div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span><div class="concept-tags"><span class="ctag">[CH3] RECURSION</span><span class="ctag">[CH3] RECURRENCES</span><span class="ctag">[CH2] INDUCTION</span></div></div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>D&amp;C = Split · Solve · Combine.</strong> Correctness proof mirrors the algorithm: base case = termination condition; induction step = correctness of combine given correct subresults.</p>
+      <p><strong>Recurrences encode recursive runtime.</strong> \(T(n) = 2T(n/2) + O(1)\): 2 subproblems of half size, constant combine. Master Theorem Case 1 → \(\Theta(n)\).</p>
+      <p><strong>Common Master Theorem results:</strong> \(T(n)=T(n/2)+O(1) \Rightarrow O(\log n)\). \(T(n)=2T(n/2)+O(1) \Rightarrow O(n)\). \(T(n)=2T(n/2)+O(n) \Rightarrow O(n\log n)\).</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togProb(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

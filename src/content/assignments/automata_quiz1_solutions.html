@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSC 3340 · Quiz 1 · Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; width: 48px; font-family: 'Archivo Black', sans-serif; font-size: 13px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+.prob-wrap { margin-bottom: 2.5rem; }
+
+.prob-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.prob-header:hover { opacity: .88; }
+.prob-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 42px; min-width: 76px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.prob-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.prob-title { font-family: 'Archivo Black', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: .02em; }
+.prob-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 3px; }
+.prob-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.prob-header.open .prob-arrow { transform: rotate(90deg); }
+
+.prob-statement { border: var(--border); border-top: none; background: var(--white); }
+.prob-statement-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; padding: 7px 14px 0; }
+.prob-statement-context { font-size: 12px; color: #666; padding: 4px 14px 0; font-style: italic; line-height: 1.6; }
+.part-row { display: grid; grid-template-columns: 36px 1fr; border-top: 1px solid #eee; }
+.part-row .pn { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 2px solid var(--ink); flex-shrink: 0; }
+.part-row .pt { padding: 9px 14px; font-size: 13px; line-height: 1.8; color: var(--ink); }
+.pts { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-left: 8px; }
+
+.prob-body { display: none; }
+.prob-body.open { display: block; }
+
+.part { border: var(--border); border-top: none; }
+.part-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+.prereq-toggle { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--cream); border-bottom: var(--thin); cursor: pointer; user-select: none; transition: background .15s; }
+.prereq-toggle:hover { background: #e0d8c8; }
+.prereq-toggle .tl { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+.prereq-toggle .tl::before { content: '◈'; color: var(--red); font-size: 12px; }
+.prereq-toggle .arr { font-size: 10px; color: #999; transition: transform .2s; }
+.prereq-toggle.open .arr { transform: rotate(90deg); }
+.prereq-body { display: none; padding: 12px 14px; background: var(--cream); border-bottom: var(--thin); font-size: 12.5px; color: #333; line-height: 2; }
+.prereq-body.open { display: block; }
+.prereq-body strong { font-weight: 700; color: var(--ink); }
+.prereq-formula { background: var(--white); border: 1.5px solid #aaa; border-left: 3px solid var(--ink); padding: 10px 14px; margin-top: 8px; line-height: 2.4; overflow-x: auto; }
+
+.steps { padding: 16px 14px 4px; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 0 12px; margin-bottom: 16px; align-items: start; }
+.step-n { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 12px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-label { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+.step-math { background: var(--white); border: 2px solid var(--ink); padding: 10px 14px; line-height: 2.4; overflow-x: auto; }
+.step-note { font-size: 12px; color: #555; margin-top: 5px; line-height: 1.6; }
+.step-note strong { color: var(--ink); font-weight: 700; }
+
+.tt { border-collapse: collapse; margin: 10px 14px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.tt th { background: var(--ink); color: var(--yellow); padding: 6px 16px; border: var(--border); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.tt td { padding: 6px 16px; border: var(--border); background: var(--white); text-align: center; }
+
+.answer { margin: 4px 14px 14px; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+
+.callout { margin: 0 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>COSC 3340 · Quiz 1 · Solutions</h1>
+    <span>DR. RAKESH VERMA · UH · SPRING 2026 · DIAGONALIZATION · INDUCTION · COMBINATORICS · CARDINALITY · RELATIONS · PROBABILITY</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#p1">1</a>
+    <a href="#p2">2</a>
+    <a href="#p3">3</a>
+    <a href="#p4">4</a>
+    <a href="#p5">5</a>
+    <a href="#p6">6</a>
+    <a href="#p7">7</a>
+    <a href="#p8">8</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 1 — Diagonalization (12 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Diagonalization</div>
+      <div class="prob-sub">CANTOR · DIAGONAL ARGUMENT · 12 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Questions about the diagonalization principle and its application to infinite binary strings.</div>
+    <div class="part-row">
+      <div class="pn">a</div>
+      <div class="pt">In one sentence, define the <em>diagonalization principle</em>. <span class="pts">(2 pts)</span></div>
+    </div>
+    <div class="part-row">
+      <div class="pn">b</div>
+      <div class="pt">Given an infinite list of infinite binary strings \(s_1, s_2, s_3, \ldots\), use the diagonalization principle to construct an infinite binary string \(t\) that is guaranteed not to appear anywhere in the list. Clearly indicate how \(t\) is formed. <span class="pts">(10 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- Part A -->
+    <div class="part">
+      <div class="part-label">Part A — Definition</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">Cantor 1891</span>
+            <span class="ftag">uncountability</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        Construct a new object by <strong>differing from the \(i\)-th object on the \(i\)-th component</strong>, guaranteeing the new object cannot equal any object in the list.
+        <div class="f-note">This is the diagonal — you read down the "main diagonal" of an infinite matrix and flip every bit.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">One-sentence definition</div>
+            <div class="step-note">
+              The <strong>diagonalization principle</strong> states: given any countably infinite list of objects (e.g., infinite binary strings), one can always construct a new object that <em>differs from the \(i\)-th listed object in the \(i\)-th position</em>, thereby proving the new object is absent from the list and that the collection of all such objects is <em>uncountable</em>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer (Part A)</span>
+        The diagonalization principle constructs a new element by ensuring it differs from the \(n\)-th listed element in its \(n\)-th component, proving no enumeration can list all elements of the set.
+      </div>
+    </div><!-- /part A -->
+
+    <!-- Part B -->
+    <div class="part">
+      <div class="part-label">Part B — Construction of t</div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Setup — the infinite matrix of strings</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        Arrange the strings as rows of an infinite matrix. The entry at row \(i\), column \(j\) is \(s_i[j]\) — the \(j\)-th bit of string \(s_i\).
+        The <strong>main diagonal</strong> consists of entries \(s_1[1],\; s_2[2],\; s_3[3],\; \ldots\)
+        <div class="prereq-formula">\[
+          \begin{array}{c|cccccc}
+             & \mathbf{j=1} & j=2 & j=3 & j=4 & \cdots \\
+          \hline
+          s_1 & \mathbf{0} & 1 & 0 & 1 & \cdots \\
+          s_2 & 1 & \mathbf{1} & 0 & 0 & \cdots \\
+          s_3 & 0 & 0 & \mathbf{0} & 0 & \cdots \\
+          s_4 & 1 & 0 & 1 & \mathbf{0} & \cdots \\
+          \vdots & & & & & \ddots
+          \end{array}
+        \]</div>
+        Diagonal bits (bolded): \(0, 1, 0, 0, \ldots\)
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Read the diagonal</div>
+            <div class="step-note">Let \(d_i = s_i[i]\) — the \(i\)-th bit of the \(i\)-th string. For the example above: \(d_1=0,\; d_2=1,\; d_3=0,\; d_4=0,\ldots\)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Flip every diagonal bit</div>
+            <div class="step-math">
+              \[ t[i] = \overline{d_i} = \begin{cases} 1 & \text{if } s_i[i] = 0 \\ 0 & \text{if } s_i[i] = 1 \end{cases} \]
+            </div>
+            <div class="step-note">For the example: \(t = 1, 0, 1, 1, \ldots\)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Why t is not in the list</div>
+            <div class="step-note">
+              For any \(k \geq 1\): \(t[k] = \overline{s_k[k]} \neq s_k[k]\). Therefore \(t \neq s_k\) for <em>every</em> \(k\). Since \(t\) differs from \(s_k\) in at least one position (position \(k\)), it cannot equal \(s_k\). This holds for all \(k\), so \(t \notin \{s_1, s_2, s_3, \ldots\}\).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer (Part B)</span>
+        Define \(t\) by: \(t[i] = 1 - s_i[i]\) for each \(i \geq 1\).<br>
+        For the given list: diagonal bits are \(s_1[1]=0,\; s_2[2]=1,\; s_3[3]=0,\; s_4[4]=0,\ldots\) so \(t = 1011\cdots\)<br>
+        \(t\) is guaranteed not in the list because \(t \neq s_k\) for every \(k\) (they differ at position \(k\)).
+      </div>
+
+      <div class="callout">
+        <strong>Common mistake:</strong> Students sometimes use Kleene star or "guarantee infinitely many strings." Kleene star generates strings but does <em>not</em> prove the new string differs from every \(s_i\). The diagonal flip is the correct mechanism.
+      </div>
+    </div><!-- /part B -->
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">CANTOR'S THEOREM</span>
+          <span class="ctag">UNCOUNTABILITY</span>
+          <span class="ctag">SIPSER §4.2</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Cantor's Diagonalization (1891):</strong> The set of all infinite binary strings (equivalently, \(\mathcal{P}(\mathbb{N})\) or the real interval \([0,1]\)) is <em>uncountable</em>. Any purported enumeration misses at least one string — the one built by the diagonal argument.</p>
+      <p><strong>In computability theory:</strong> Diagonalization is used to prove that the language \(A_{TM}\) is undecidable (Sipser Theorem 4.11) by constructing a machine that does the opposite of what any hypothetical decider would do.</p>
+      <p><strong>Exam tip:</strong> Always state explicitly <em>which position</em> \(t\) differs from \(s_i\) and <em>why</em> that proves \(t \neq s_i\). One-sentence proofs are penalized without justification.</p>
+    </div>
+  </div>
+</div><!-- /p1 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 2 — Proof by Induction (10 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Proof by Induction</div>
+      <div class="prob-sub">MATHEMATICAL INDUCTION · SUM OF ODD NUMBERS · 10 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Prove by mathematical induction that for all \(n \geq 1\):</div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">
+        \(\displaystyle\sum_{i=1}^{n}(2i-1) = n^2\), i.e., \(1+3+5+\cdots+(2n-1)=n^2\).
+        State clearly: (a) the base case, (b) the inductive hypothesis, (c) the inductive step.
+        <span class="pts">(10 pts)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution — Full Induction Proof</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Claim</span>
+          <div class="formula-tags"><span class="ftag">sum of first n odd numbers</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \forall\, n \geq 1:\quad \sum_{i=1}^{n}(2i-1) = n^2 \]
+        <div class="f-note">Equivalently: \(1+3+5+\cdots+(2n-1) = n^2\).</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">(a) Base Case — n = 1</div>
+            <div class="step-math">
+              \[\text{LHS} = \sum_{i=1}^{1}(2i-1) = 2(1)-1 = 1 \qquad \text{RHS} = 1^2 = 1\]
+            </div>
+            <div class="step-note">LHS \(=\) RHS \(= 1\). ✓ Base case holds.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">(b) Inductive Hypothesis</div>
+            <div class="step-note">
+              Assume that for some arbitrary \(k \geq 1\), the statement holds:
+            </div>
+            <div class="step-math">
+              \[ \sum_{i=1}^{k}(2i-1) = k^2 \]
+            </div>
+            <div class="step-note">That is, \(1+3+5+\cdots+(2k-1) = k^2\). We call this the <strong>inductive hypothesis (IH)</strong>.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">(c) Inductive Step — show it holds for n = k+1</div>
+            <div class="step-note">We must show: \(\displaystyle\sum_{i=1}^{k+1}(2i-1) = (k+1)^2\).</div>
+            <div class="step-math">
+              \[
+              \sum_{i=1}^{k+1}(2i-1)
+              = \underbrace{\sum_{i=1}^{k}(2i-1)}_{\text{apply IH}} + \bigl(2(k+1)-1\bigr)
+              = k^2 + (2k+1)
+              = k^2 + 2k + 1
+              = (k+1)^2
+              \]
+            </div>
+            <div class="step-note">The last equality uses the perfect-square factorization \((k+1)^2 = k^2+2k+1\). ✓</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Conclusion</div>
+            <div class="step-note">
+              By the principle of mathematical induction, \(\displaystyle\sum_{i=1}^{n}(2i-1)=n^2\) holds for all \(n \geq 1\). \(\blacksquare\)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Proved</span>
+        Base case \((n=1)\): \(1 = 1^2\) ✓. IH: assume \(\sum_{i=1}^{k}(2i-1)=k^2\). Step: \(\sum_{i=1}^{k+1}(2i-1) = k^2+(2k+1)=(k+1)^2\) ✓.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">MATHEMATICAL INDUCTION</span>
+          <span class="ctag">PROOF STRUCTURE</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Structure every induction proof with three labeled parts:</strong> (1) Base case — verify the formula at the smallest \(n\). (2) Inductive hypothesis — explicitly state what you assume for \(n=k\). (3) Inductive step — derive the \(n=k+1\) case using the IH.</p>
+      <p><strong>Exam tip:</strong> Partial credit is awarded per part. Even if your algebra in the step is wrong, labeling and setting up the IH correctly earns points. Never skip the base case — it validates the whole chain.</p>
+    </div>
+  </div>
+</div><!-- /p2 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 3 — Pigeonhole (8 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Pigeonhole Principle</div>
+      <div class="prob-sub">COMBINATORICS · PIGEONHOLE · 8 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">In a drawer there are six pairs of socks of six different colors. You cannot see them as you pull them out.</div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">What is the minimum number of socks you must draw to <em>guarantee</em> two of the same color? Justify your answer carefully. <span class="pts">(8 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags"><span class="ftag">pigeonhole principle</span><span class="ftag">worst-case analysis</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \text{To guarantee a match: draw } k+1 \text{ items from } k \text{ categories.} \]
+        <div class="f-note">Here \(k = 6\) colors (pigeonholes). Drawing \(k+1 = 7\) socks guarantees at least one pair.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Identify the categories (pigeonholes)</div>
+            <div class="step-note">There are <strong>6 colors</strong>. Each sock drawn belongs to one of these 6 color categories.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Worst-case scenario</div>
+            <div class="step-note">
+              In the worst case, the first 6 socks drawn are all <em>different</em> colors — one of each. At this point you still have no matching pair.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Apply pigeonhole</div>
+            <div class="step-note">
+              The 7th sock drawn must match one of the 6 colors already in hand (since there are only 6 possible colors). By the <strong>Pigeonhole Principle</strong>, placing 7 items into 6 categories guarantees at least one category has \(\geq 2\) items.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Why 6 socks is not enough</div>
+            <div class="step-note">
+              It is possible (though unlikely) to draw exactly one sock of each of the 6 colors in the first 6 draws — no guarantee of a match. Therefore 6 is insufficient; <strong>7 is the minimum</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer</span>
+        You must draw <strong>7 socks</strong>. By the Pigeonhole Principle, 7 socks distributed among 6 colors guarantees at least two socks share a color.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">PIGEONHOLE PRINCIPLE</span>
+          <span class="ctag">DIRICHLET 1834</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Pigeonhole Principle:</strong> If \(n+1\) items are placed into \(n\) containers, then at least one container holds at least 2 items. Generalized: if \(m\) items go into \(n\) containers and \(m > n\), some container holds \(\geq \lceil m/n \rceil\) items.</p>
+      <p><strong>Exam tip:</strong> Always justify <em>both directions</em> — why the answer \(-1\) is insufficient (give a counter-example scenario) AND why the answer itself guarantees the result.</p>
+    </div>
+  </div>
+</div><!-- /p3 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 4 — Cardinality (9 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p4">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">04</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Cardinality</div>
+      <div class="prob-sub">SET THEORY · BIJECTION · 9 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">
+      Let \(E = \{0,2,4,6,\ldots\}\) be the set of even natural numbers, and let \(F = \{0,4,8,12,\ldots\}\) be the set of natural numbers that are exact multiples of 4.
+    </div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Prove or disprove in detail: \(E\) and \(F\) have the same cardinality. <span class="pts">(9 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution — Bijection Proof</div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Prerequisite — cardinality of infinite sets</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        Two sets \(A\) and \(B\) have the <strong>same cardinality</strong> (\(|A|=|B|\)) if and only if there exists a <strong>bijection</strong> (one-to-one and onto function) \(f: A \to B\).
+        For infinite sets, a proper subset can have the same cardinality as the whole set — this is a hallmark of infinite cardinality (Dedekind's definition of infinite).
+        <div class="prereq-formula">\[ |A| = |B| \iff \exists\, f: A \xrightarrow{\sim} B \text{ (bijection)} \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Claim</div>
+            <div class="step-note"><strong>\(|E| = |F|\)</strong>. We prove this by exhibiting an explicit bijection \(f: E \to F\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Define the bijection</div>
+            <div class="step-math">
+              \[ f: E \to F, \qquad f(x) = 2x \]
+            </div>
+            <div class="step-note">
+              Since \(x \in E\) means \(x = 2k\) for some \(k \geq 0\), we get \(f(x) = 2(2k) = 4k\), which is always a multiple of 4. So \(f\) maps into \(F\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Injective (one-to-one)</div>
+            <div class="step-note">
+              If \(f(x_1) = f(x_2)\), then \(2x_1 = 2x_2\), so \(x_1 = x_2\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Surjective (onto)</div>
+            <div class="step-note">
+              Let \(y \in F\), so \(y = 4k\) for some \(k \geq 0\). Then \(x = 2k \in E\) and \(f(x) = 2(2k) = 4k = y\). Every element of \(F\) is hit. ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div class="step-body">
+            <div class="step-label">Explicit correspondence</div>
+            <div class="step-note">
+              \(E: 0,\; 2,\; 4,\; 6,\; 8,\ldots\) maps to \(F: 0,\; 4,\; 8,\; 12,\; 16,\ldots\) via \(f(x)=2x\). Both sets are countably infinite with the same cardinality \(\aleph_0\).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer — TRUE, same cardinality</span>
+        The function \(f: E \to F\) defined by \(f(x) = 2x\) is a bijection. Therefore \(|E| = |F| = \aleph_0\).
+      </div>
+
+      <div class="callout">
+        <strong>Intuition:</strong> Although \(F \subsetneq E\), both are countably infinite. For infinite sets, "subset" does not imply "smaller cardinality." The bijection \(f(x)=2x\) perfectly pairs every even number with a multiple of 4.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">COUNTABLE INFINITY ℵ₀</span>
+          <span class="ctag">BIJECTION</span>
+          <span class="ctag">SIPSER §4.1</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Countably infinite sets:</strong> A set is countably infinite (cardinality \(\aleph_0\)) if there exists a bijection with \(\mathbb{N}\). Any two countably infinite sets have the same cardinality, even if one is a proper subset of the other.</p>
+      <p><strong>Exam tip:</strong> Always explicitly verify both injectivity and surjectivity of your proposed bijection. Stating "there's an obvious one-to-one correspondence" without proof earns no credit.</p>
+    </div>
+  </div>
+</div><!-- /p4 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 5 — Binary Relation / Function (8 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p5">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">05</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Binary Relation as a Function</div>
+      <div class="prob-sub">RELATIONS · FUNCTIONS · 8 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Let \(S\) be the set of students in this course.</div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Define a binary relation on \(S\) such that it is also a function. How do you know it is a function? Justify carefully. <span class="pts">(8 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution</div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Prerequisite — relation vs. function</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        A <strong>binary relation</strong> \(R\) on \(S\) is any subset \(R \subseteq S \times S\).<br>
+        \(R\) is a <strong>function</strong> \(f: S \to S\) if and only if: for every \(x \in S\), there exists <em>exactly one</em> \(y \in S\) such that \((x,y) \in R\).
+        <div class="prereq-formula">\[ f \text{ is a function} \iff \forall\, x \in S,\; \exists!\; y \in S : (x,y) \in R \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Define the relation — the Identity Relation</div>
+            <div class="step-note">
+              Define \(R = \{(s, s) \mid s \in S\}\), i.e., every student is related to themselves and only themselves. This is the <strong>identity relation</strong> on \(S\), also written \(\mathrm{id}_S\).
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Verify it is a function</div>
+            <div class="step-note">
+              For every student \(s \in S\): the pair \((s, s) \in R\) exists (so every input has an output), and no other pair \((s, t)\) with \(t \neq s\) is in \(R\) (so the output is unique). Therefore each input \(s\) maps to <em>exactly one</em> output \(s\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Formal statement</div>
+            <div class="step-math">
+              \[ f: S \to S, \quad f(s) = s \quad \forall\, s \in S \]
+            </div>
+            <div class="step-note">
+              The function is well-defined (total) because every student has exactly one PSID (themselves). Another valid example: \(f(s) = \text{PSID of } s\) mapping \(S\) to \(\mathbb{N}\), which is also a function since every student has exactly one PSID.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer</span>
+        The identity relation \(R = \{(s,s) \mid s \in S\}\) is a function \(f(s)=s\). It is a function because for every \(s \in S\), there is exactly one \(y \in S\) (namely \(y=s\)) such that \((s,y) \in R\).
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">TOTAL FUNCTION</span>
+          <span class="ctag">IDENTITY RELATION</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Function vs. Relation:</strong> Every function is a relation, but not every relation is a function. A relation fails to be a function if any element maps to zero outputs (partial) or more than one output (not well-defined).</p>
+      <p><strong>Exam tip:</strong> To justify "it is a function," always check both: (1) every element of the domain has an output (totality) and (2) no element has two different outputs (well-definedness / right-uniqueness).</p>
+    </div>
+  </div>
+</div><!-- /p5 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 6 — Equivalence Relation (10 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p6">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">06</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Equivalence Relation on E</div>
+      <div class="prob-sub">RELATIONS · EQUIVALENCE · 10 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Recall \(E = \{0,2,4,6,\ldots\}\), the even natural numbers from Problem 4.</div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Define a relation on \(E\). Prove or disprove that it is an equivalence relation. <span class="pts">(10 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution</div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Prerequisite — equivalence relation definition</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        A relation \(\sim\) on a set \(A\) is an <strong>equivalence relation</strong> iff it satisfies all three:
+        <ul style="margin-left:1.2em;margin-top:6px;line-height:2;">
+          <li><strong>Reflexive:</strong> \(\forall\, a \in A,\; a \sim a\)</li>
+          <li><strong>Symmetric:</strong> \(\forall\, a,b \in A,\; a \sim b \Rightarrow b \sim a\)</li>
+          <li><strong>Transitive:</strong> \(\forall\, a,b,c \in A,\; a \sim b \text{ and } b \sim c \Rightarrow a \sim c\)</li>
+        </ul>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Define the relation</div>
+            <div class="step-note">
+              Define \(\sim\) on \(E\) by: \(a \sim b \iff 4 \mid (a - b)\), i.e., \(a\) and \(b\) are congruent modulo 4 (and both must be in \(E\), so both are even).
+              <br>Examples: \(0 \sim 4 \sim 8 \sim \ldots\) and \(2 \sim 6 \sim 10 \sim \ldots\)
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Reflexive</div>
+            <div class="step-note">
+              For any \(a \in E\): \(a - a = 0\) and \(4 \mid 0\). So \(a \sim a\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Symmetric</div>
+            <div class="step-note">
+              If \(a \sim b\), then \(4 \mid (a-b)\), so \(a-b = 4k\) for some integer \(k\). Then \(b-a = -4k = 4(-k)\), so \(4 \mid (b-a)\), giving \(b \sim a\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Transitive</div>
+            <div class="step-note">
+              If \(a \sim b\) and \(b \sim c\), then \(4 \mid (a-b)\) and \(4 \mid (b-c)\). So \(a-b=4j\) and \(b-c=4k\). Then \(a-c = (a-b)+(b-c) = 4j+4k = 4(j+k)\), so \(4 \mid (a-c)\), giving \(a \sim c\). ✓
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div class="step-body">
+            <div class="step-label">Equivalence classes</div>
+            <div class="step-note">
+              There are exactly <strong>2 equivalence classes</strong> on \(E\) under \(\sim\):<br>
+              \([0] = \{0, 4, 8, 12, \ldots\} = F\) (multiples of 4) and \([2] = \{2, 6, 10, 14, \ldots\}\) (evens ≡ 2 mod 4).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer — it IS an equivalence relation</span>
+        The relation \(a \sim b \iff 4 \mid (a-b)\) on \(E\) is reflexive, symmetric, and transitive. It is therefore an equivalence relation, with equivalence classes \([0]=F\) and \([2]=E\setminus F\).
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">EQUIVALENCE CLASSES</span>
+          <span class="ctag">CONGRUENCE MOD n</span>
+          <span class="ctag">PARTITION</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Equivalence relation ↔ Partition:</strong> Every equivalence relation on \(A\) partitions \(A\) into disjoint equivalence classes whose union is all of \(A\). Modular congruence \((\bmod n)\) is the canonical example.</p>
+      <p><strong>Exam tip:</strong> Check all three properties. A common error is forgetting transitivity. Show the arithmetic explicitly: write \(a-b=nk\), not just "it's obvious."</p>
+    </div>
+  </div>
+</div><!-- /p6 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 7 — Probability (11 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p7">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">07</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Probability</div>
+      <div class="prob-sub">COIN · DIE · INDEPENDENCE · 11 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">You have a fair coin and an unbiased six-sided die.</div>
+    <div class="part-row">
+      <div class="pn">a</div>
+      <div class="pt">Compute the probability of getting <em>at least one head</em> in three tosses of the coin. <span class="pts">(5 pts)</span></div>
+    </div>
+    <div class="part-row">
+      <div class="pn">b</div>
+      <div class="pt">Compute the probability of getting an <em>even number</em> from the die (one roll) <em>and</em> a <em>tail</em> from the coin (one toss). <span class="pts">(6 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- Part A -->
+    <div class="part">
+      <div class="part-label">Part A — At least one head in 3 tosses</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags"><span class="ftag">complement rule</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ P(\text{at least one H}) = 1 - P(\text{no heads}) = 1 - P(\text{all tails}) \]
+        <div class="f-note">Complement is easier: "no heads in 3 tosses" = TTT.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">P(all tails)</div>
+            <div class="step-math">
+              \[ P(\text{TTT}) = \left(\tfrac{1}{2}\right)^3 = \frac{1}{8} \]
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Apply complement</div>
+            <div class="step-math">
+              \[ P(\text{at least one H}) = 1 - \frac{1}{8} = \frac{7}{8} \]
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer (Part A)</span>
+        \(P(\text{at least one head in 3 tosses}) = \dfrac{7}{8}\)
+      </div>
+    </div><!-- /part A -->
+
+    <!-- Part B -->
+    <div class="part">
+      <div class="part-label">Part B — Even die AND tail</div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">P(even on die)</div>
+            <div class="step-note">Even faces: \{2, 4, 6\}. There are 3 out of 6 equally likely outcomes.</div>
+            <div class="step-math">\[ P(\text{even}) = \frac{3}{6} = \frac{1}{2} \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">P(tail on coin)</div>
+            <div class="step-math">\[ P(\text{tail}) = \frac{1}{2} \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Apply independence</div>
+            <div class="step-note">Die roll and coin toss are independent events.</div>
+            <div class="step-math">
+              \[ P(\text{even} \cap \text{tail}) = P(\text{even}) \cdot P(\text{tail}) = \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4} \]
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Answer (Part B)</span>
+        \(P(\text{even die AND tail}) = \dfrac{1}{2} \times \dfrac{1}{2} = \dfrac{1}{4}\)
+      </div>
+    </div><!-- /part B -->
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">COMPLEMENT RULE</span>
+          <span class="ctag">INDEPENDENCE</span>
+          <span class="ctag">MULTIPLICATION RULE</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Complement rule:</strong> \(P(A) = 1 - P(A^c)\). Use it when "at least one" problems are easier computed via the complement "none."</p>
+      <p><strong>Independence:</strong> Events \(A\) and \(B\) are independent iff \(P(A \cap B) = P(A) \cdot P(B)\). A coin and die are always independent physical devices.</p>
+      <p><strong>Exam tip:</strong> State explicitly that you are using the complement rule or independence — show the formula step, not just the arithmetic.</p>
+    </div>
+  </div>
+</div><!-- /p7 -->
+
+
+<!-- ══════════════════════════════════════════════════
+     PROBLEM 8 — Week 1 Summary (12 pts)
+══════════════════════════════════════════════════ -->
+<div class="prob-wrap" id="p8">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">08</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Week 1 Course Content Summary</div>
+      <div class="prob-sub">DFA · NFA · REGULAR LANGUAGES · 12 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context"></div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">What course content did you learn from the first week of class? Summarize in 75 words. <span class="pts">(12 pts)</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Model Answer (≤ 75 words)</div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Core topics from week 1</div>
+            <div class="step-note">
+              The first week introduced <strong>finite automata</strong> as models of computation. We defined <strong>Deterministic Finite Automata (DFA)</strong> and <strong>Nondeterministic Finite Automata (NFA)</strong>, both as 5-tuple structures \((Q,\Sigma,\delta,q_0,F)\). We explored <strong>regular languages</strong> — those recognizable by a DFA — and proved that every NFA has an equivalent DFA (subset construction), so DFAs and NFAs are equally expressive. We also began constructing regular expressions using union, concatenation, and Kleene star.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Model Answer</span>
+        Week 1 covered DFAs and NFAs, both defined as 5-tuples \((Q,\Sigma,\delta,q_0,F)\). We learned that every NFA can be converted to a DFA (subset/powerset construction), so both models recognize exactly the class of <strong>regular languages</strong>. We also introduced regular expressions (\(\cup\), concatenation, \(^*\)) as an algebraic characterization of regular languages, and began proving equivalences between these three representations via Kleene's theorem.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">DFA · NFA</span>
+          <span class="ctag">SIPSER CH.1</span>
+          <span class="ctag">REGULAR LANGUAGES</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>DFA (Sipser Def. 1.5):</strong> A 5-tuple \((Q,\Sigma,\delta,q_0,F)\) where \(\delta: Q\times\Sigma \to Q\) is a total function. Accepts a string iff the computation ends in an accept state.</p>
+      <p><strong>NFA (Sipser Def. 1.37):</strong> Same 5-tuple but \(\delta: Q\times\Sigma_\varepsilon \to \mathcal{P}(Q)\) allows multiple transitions and \(\varepsilon\)-moves. Accepts iff <em>some</em> branch ends in an accept state.</p>
+      <p><strong>Equivalence (Sipser Theorem 1.39):</strong> Every NFA has an equivalent DFA via the subset construction. Therefore NFAs and DFAs recognize the same class — the regular languages.</p>
+      <p><strong>Exam tip:</strong> Know the 5-tuple definitions cold. Know that the subset construction can produce up to \(2^{|Q|}\) DFA states from an NFA with \(|Q|\) states.</p>
+    </div>
+  </div>
+</div><!-- /p8 -->
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+
+function togProb(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

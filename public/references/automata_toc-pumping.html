@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pumping Lemma &amp; Non-Regularity — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #111; font-family: 'Archivo', sans-serif; }
+
+.picker { background: #0a0a0a; border-bottom: 3px solid #222; display: flex; position: sticky; top: 0; z-index: 999; }
+.pick-btn { flex: 1; padding: 15px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #555; background: transparent; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: all .2s; }
+.pick-btn:hover { color: #999; }
+.pick-btn.a-on { color: #f5f500; border-bottom-color: #f5f500; }
+.pick-btn.b-on { color: #e8352a; border-bottom-color: #e8352a; }
+.demo { display: none; }
+.demo.active { display: block; }
+
+/* ════ STYLE A ════ */
+#dA { background: #f2ede4; min-height: 100vh; }
+.aH { background: #111; display: flex; align-items: stretch; position: sticky; top: 46px; z-index: 100; border-bottom: 4px solid #111; }
+.aH-brand { padding: 13px 22px; font-family: 'Archivo Black', sans-serif; font-size: 17px; text-transform: uppercase; letter-spacing: .04em; color: #f5f500; display: flex; align-items: center; gap: 14px; flex: 1; }
+.aH-brand span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(245,245,0,.4); letter-spacing: .1em; }
+.aH-nav { display: flex; }
+.aH-nav a { display: flex; align-items: center; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.4); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.aH-nav a:hover { background: #e8352a; color: #fff; }
+.aW { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+.aS { margin-bottom: 48px; }
+.aS-head { display: flex; align-items: stretch; border: 2.5px solid #111; }
+.aS-num { background: #111; color: #f5f500; font-family: 'Archivo Black', sans-serif; font-size: 30px; min-width: 60px; display: flex; align-items: center; justify-content: center; }
+.aS-meta { padding: 9px 14px; border-left: 2.5px solid #111; flex: 1; }
+.aS-meta h2 { font-family: 'Archivo Black', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: .02em; }
+.aS-meta p { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #888; letter-spacing: .08em; margin-top: 2px; }
+.aS-tag { display: flex; align-items: center; padding: 0 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.6); background: #111; border-left: 2px solid rgba(245,245,0,.15); }
+.aSub-block { border: 2.5px solid #111; border-top: none; }
+.aSub-head { background: #e8352a; color: #fff; font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 14px; border-bottom: 2.5px solid #111; display: flex; align-items: center; justify-content: space-between; }
+.aSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,.5); font-weight: 400; letter-spacing: .06em; }
+.aLabel { background: #ede8dc; border-bottom: 1.5px solid #ddd; padding: 5px 14px; font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+.aDef { padding: 11px 14px; background: #fffde6; font-size: 12.5px; color: #111; line-height: 1.8; border-bottom: 1.5px solid #ddd; }
+.aDef strong { font-family: 'Archivo Black', sans-serif; }
+.aDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aNote { border-left: 6px solid #f5f500; background: #fff; padding: 11px 14px; font-size: 12.5px; color: #333; line-height: 1.75; border-bottom: 1.5px solid #ddd; }
+.aNote strong { font-family: 'Archivo Black', sans-serif; color: #111; }
+.aNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aWarn { border-left: 6px solid #e8352a; background: #fff0ee; padding: 11px 14px; font-size: 12.5px; color: #333; line-height: 1.75; border-bottom: 1.5px solid #ddd; }
+.aWarn strong { font-family: 'Archivo Black', sans-serif; color: #e8352a; }
+.aSvg { background: #fff; padding: 20px 18px 14px; border-bottom: 1.5px solid #ddd; overflow-x: auto; }
+.aSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+.a2col { display: grid; grid-template-columns: 1fr 1fr; }
+.a2col-cell { padding: 12px 14px; border-right: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; font-size: 12px; color: #444; line-height: 1.8; }
+.a2col-cell:last-child { border-right: none; }
+.a2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #111; margin-bottom: 6px; }
+.a2col-cell ul { padding-left: 16px; }
+.a2col-cell li { margin-bottom: 4px; }
+.a2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aPseudo { background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; overflow-x: auto; border-bottom: 1.5px solid #ddd; }
+.aPseudo .ph { background: #f5f500; border-bottom: 2px solid #111; padding: 6px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+.aPseudo .pn { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #111; }
+.aPseudo .ps { font-size: 9px; color: #777; }
+.aPseudo .pb { padding: 6px 0 10px; }
+.aPseudo .lr { display: grid; grid-template-columns: 30px 1fr; padding-right: 14px; line-height: 2; }
+.aPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; user-select: none; }
+.aPseudo .cd { padding-left: 12px; }
+.aPseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.aPseudo .cm { font-size: 10px; color: #bbb; }
+.aPseudo .cm::before { content: '▷ '; }
+.aPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #e8c800; margin-left: .4em; }
+.aT { border-collapse: collapse; width: 100%; }
+.aT-wrap { border-bottom: 1.5px solid #ddd; }
+.aT tr { border-top: 1px solid #e0dbd2; }
+.aT tr:first-child { border-top: none; background: #ede8dc; }
+.aT tr:hover { background: #ede8dc; }
+.aT td, .aT th { padding: 9px 12px; border-right: 1px solid #e0dbd2; font-size: 12px; line-height: 1.5; vertical-align: middle; }
+.aT td:last-child, .aT th:last-child { border-right: none; }
+.aT .sym { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: center; border-right: 2.5px solid #111; width: 70px; }
+.aT .plain { font-size: 11px; font-weight: 700; color: #e8352a; font-style: italic; }
+.aT .name { font-family: 'Archivo Black', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.aT .desc { font-size: 12px; color: #555; }
+.aT .desc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aT th { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+
+/* ════ STYLE B ════ */
+#dB { background: #fafaf8; min-height: 100vh; color: #1a1a1a; }
+.bH { background: #fff; border-bottom: 1px solid #e8e5df; padding: 0 28px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 46px; z-index: 100; }
+.bH-brand { font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; color: #1a1a1a; }
+.bH-brand::before { content: ''; width: 7px; height: 7px; background: #e8352a; border-radius: 1px; display: block; }
+.bH-nav { display: flex; gap: 2px; }
+.bH-nav a { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #999; text-decoration: none; padding: 4px 9px; border-radius: 100px; letter-spacing: .06em; text-transform: uppercase; transition: all .15s; }
+.bH-nav a:hover { background: #f0ede8; color: #1a1a1a; }
+.bW { max-width: 960px; margin: 0 auto; padding: 40px 28px 80px; }
+.bS { margin-bottom: 48px; }
+.bS-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 12px; border-bottom: 2px solid #1a1a1a; margin-bottom: 24px; }
+.bS-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e8352a; letter-spacing: .1em; }
+.bS-head h2 { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 300; }
+.bS-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #bbb; letter-spacing: .08em; text-transform: uppercase; margin-left: auto; }
+.bSub-block { background: #fff; border: 1px solid #e8e5df; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+.bSub-head { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.bSub-head h3 { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #1a1a1a; }
+.bSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #e8352a; letter-spacing: .08em; text-transform: uppercase; }
+.bLabel { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #e8352a; padding: 14px 16px 4px; display: flex; align-items: center; gap: 6px; }
+.bLabel::before { content: '–'; }
+.bDef { padding: 10px 16px 14px; font-size: 12.5px; color: #444; line-height: 1.8; }
+.bDef strong { color: #1a1a1a; font-weight: 700; }
+.bDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bNote { background: #fff8f0; border-left: 3px solid #e8352a; margin: 0 16px 14px; padding: 10px 12px; font-size: 12px; color: #444; line-height: 1.75; border-radius: 0 6px 6px 0; }
+.bNote strong { color: #1a1a1a; font-weight: 700; }
+.bNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bWarn { background: #fff0ee; border-left: 3px solid #e8352a; margin: 0 16px 14px; padding: 10px 12px; font-size: 12px; color: #444; line-height: 1.75; border-radius: 0 6px 6px 0; }
+.bWarn strong { color: #e8352a; font-weight: 700; }
+.bSvg { margin: 0 16px 16px; background: #faf5ee; border: 1px solid #e8e5df; border-radius: 8px; padding: 16px; overflow-x: auto; }
+.bSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #bbb; margin-bottom: 8px; }
+.b2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 16px; }
+.b2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #e8352a; margin-bottom: 6px; }
+.b2col-cell ul { padding-left: 16px; }
+.b2col-cell li { margin-bottom: 4px; font-size: 12px; color: #555; }
+.b2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bPseudo { border: 1px solid #e8e5df; border-radius: 8px; overflow: hidden; background: #fff; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin: 0 16px 16px; }
+.bPseudo .ph { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 8px 12px; display: flex; justify-content: space-between; align-items: baseline; }
+.bPseudo .pn { font-family: 'Archivo', sans-serif; font-size: 12px; font-weight: 700; color: #1a1a1a; }
+.bPseudo .ps { font-size: 9px; color: #bbb; }
+.bPseudo .pb { padding: 6px 0 10px; }
+.bPseudo .lr { display: grid; grid-template-columns: 28px 1fr; padding-right: 12px; line-height: 2; }
+.bPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #ddd; user-select: none; }
+.bPseudo .cd { padding-left: 10px; color: #333; }
+.bPseudo .kw { color: #e8352a; font-weight: 700; }
+.bPseudo .cm { font-size: 10px; color: #ccc; font-style: italic; }
+.bPseudo .cm::before { content: '# '; }
+.bPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #f0ede8; margin-left: .4em; }
+</style>
+</head>
+<body>
+
+<div class="picker">
+  <button class="pick-btn active a-on" onclick="sw('A',this)">A · Ink &amp; Paper</button>
+  <button class="pick-btn" onclick="sw('B',this)">B · Editorial Light</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE A
+════════════════════════════════════════════════════════ -->
+<div id="dA" class="demo active">
+  <div class="aH">
+    <div class="aH-brand">TOC REF <span>PUMPING LEMMA · NON-REGULARITY · NON-CFL · SPRING 2026</span></div>
+    <nav class="aH-nav">
+      <a href="#">Regular PL</a>
+      <a href="#">Proof Game</a>
+      <a href="#">Examples</a>
+      <a href="#">CFL PL</a>
+      <a href="#">Mistakes</a>
+    </nav>
+  </div>
+  <div class="aW">
+
+    <!-- §01 PUMPING LEMMA — REGULAR -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">01</div>
+        <div class="aS-meta">
+          <h2>Pumping Lemma — Regular Languages</h2>
+          <p>STATEMENT · PIGEONHOLE · s = xyz · THREE CONDITIONS</p>
+        </div>
+        <div class="aS-tag">regular</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Formal Statement</span><span>if regular → pumpable</span></div>
+        <div class="aDef">
+          If A is a regular language, then there exists a <strong>pumping length p ≥ 1</strong> such that every string <strong>s ∈ A</strong> with |s| ≥ p can be written as <strong>s = xyz</strong> satisfying all three conditions simultaneously:<br><br>
+          <strong>(1)</strong> &nbsp;xyⁱz ∈ A &nbsp;for all i ≥ 0<br>
+          <strong>(2)</strong> &nbsp;|y| ≥ 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(y is non-empty)<br>
+          <strong>(3)</strong> &nbsp;|xy| ≤ p &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(y falls within first p characters)
+        </div>
+        <div class="aLabel">What each condition means</div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">COND.</th><th class="plain">PLAIN ENGLISH</th><th class="name">FORMAL</th><th class="desc">HOW YOU USE IT</th></tr>
+            <tr><td class="sym">(1)</td><td class="plain">any pump is still in A</td><td class="name">xyⁱz ∈ A ∀i≥0</td><td class="desc">i=0 removes y entirely; i=2 duplicates it. Either must stay in A.</td></tr>
+            <tr><td class="sym">(2)</td><td class="plain">y is not empty</td><td class="name">|y| ≥ 1</td><td class="desc">Guarantees pumping actually changes the string. You get to use this.</td></tr>
+            <tr><td class="sym">(3)</td><td class="plain">y lives in the first p chars</td><td class="name">|xy| ≤ p</td><td class="desc">Forces y into a specific region of s. This is your most powerful constraint.</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Why It's True — Pigeonhole on States</span><span>p = number of states · repeated state = y</span></div>
+        <div class="aDef">
+          Let M be a DFA with p states that recognizes A. For any string s ∈ A with |s| ≥ p, reading s visits p+1 or more states — but M has only p states, so by the <strong>pigeonhole principle</strong> some state qᵣ must be visited at least twice. The portion of the string between the two visits is y. Since the DFA returns to qᵣ after reading y, it can repeat y any number of times (pumping up) or skip it entirely (pumping down, i=0) and still accept.
+        </div>
+        <div class="aLabel">Pigeonhole visual — state qᵣ repeats, creating a pumpable cycle</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Reading s from q₀: after p+1 steps some state must repeat — that loop is y</div>
+          <svg viewBox="0 0 580 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;font-family:'Archivo',sans-serif">
+            <defs><marker id="plArw" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#111"/></marker></defs>
+            <line x1="20" y1="66" x2="44" y2="66" stroke="#111" stroke-width="2" marker-end="url(#plArw)"/>
+            <circle cx="60" cy="66" r="15" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="60" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₀</text>
+            <line x1="75" y1="66" x2="99" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="115" cy="66" r="15" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="115" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₁</text>
+            <line x1="130" y1="66" x2="154" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="170" cy="66" r="15" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="170" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="185" y1="66" x2="209" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="225" cy="66" r="15" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="225" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₃</text>
+            <line x1="240" y1="66" x2="264" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="280" cy="66" r="15" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="280" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="295" y1="66" x2="319" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="335" cy="66" r="15" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="335" y="71" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₅</text>
+            <line x1="350" y1="66" x2="374" y2="66" stroke="#111" stroke-width="1.5" marker-end="url(#plArw)"/>
+            <circle cx="390" cy="66" r="15" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="390" cy="66" r="10" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="390" y="71" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">qₐcc</text>
+            <!-- pump arc -->
+            <path d="M170,50 C170,10 280,10 280,50" fill="none" stroke="#e8352a" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#plArw)"/>
+            <text x="225" y="7" text-anchor="middle" font-size="10" fill="#e8352a" font-family="JetBrains Mono,monospace">y — pump this cycle any number of times</text>
+            <!-- x / y / z labels -->
+            <rect x="52" y="92" width="118" height="18" rx="2" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="111" y="104" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">x</text>
+            <rect x="157" y="92" width="138" height="18" rx="2" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="226" y="104" text-anchor="middle" font-size="10" fill="#e8352a" font-family="JetBrains Mono,monospace">y (the repeated-state segment)</text>
+            <rect x="267" y="92" width="138" height="18" rx="2" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="336" y="104" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">z</text>
+            <!-- |xy| ≤ p annotation -->
+            <line x1="52" y1="120" x2="295" y2="120" stroke="#888" stroke-width="1"/>
+            <line x1="52" y1="115" x2="52" y2="125" stroke="#888" stroke-width="1"/>
+            <line x1="295" y1="115" x2="295" y2="125" stroke="#888" stroke-width="1"/>
+            <text x="174" y="134" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">|xy| ≤ p  (condition 3 forces qᵣ to appear within first p steps)</text>
+          </svg>
+        </div>
+      </div>
+    </div><!-- §01 -->
+
+
+    <!-- §02 THE ADVERSARIAL GAME -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">02</div>
+        <div class="aS-meta">
+          <h2>The Adversarial Game &amp; Proof Template</h2>
+          <p>YOU vs. ADVERSARY · PROOF BY CONTRADICTION · STRUCTURE</p>
+        </div>
+        <div class="aS-tag">method</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>How to think about the proof</span><span>you choose s · adversary chooses split · you find bad pump</span></div>
+        <div class="aDef">
+          Think of the Pumping Lemma as a <strong>two-player game</strong>. You want to prove A is not regular. Your opponent (the adversary) is trying to defeat you by showing A is pumpable.<br><br>
+          <strong>Adversary's moves:</strong> gives you p (the pumping length), then chooses how to split your s into xyz (as long as |y|≥1 and |xy|≤p).<br>
+          <strong>Your moves:</strong> choose s ∈ A with |s|≥p, then for every split the adversary makes, find an i that breaks condition (1).<br><br>
+          You win if you can always find a bad pump — meaning A is not regular.
+        </div>
+        <div class="aLabel">Proof template — step by step</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">Non-Regularity Proof</span><span class="ps">proof by contradiction via pumping lemma</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume A is regular. Let p be the pumping length given by the lemma.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Choose string s ∈ A with |s| ≥ p. <span class="cm">▷ pick to exploit condition (3)</span></span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd">Consider ALL ways to write s = xyz with |y| ≥ 1 and |xy| ≤ p.</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Use condition (3) to determine where y must lie in s.</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd i1">For each possible y in that region, find i ≥ 0 such that xyⁱz ∉ A.</span></div>
+            <div class="lr"><span class="ln">6</span><span class="cd">This contradicts condition (1). ∴ A is not regular. □</span></div>
+          </div>
+        </div>
+        <div class="aLabel">Choosing s — strategy</div>
+        <div class="a2col">
+          <div class="a2col-cell">
+            <h4>What makes a good s</h4>
+            <ul>
+              <li>Must be in A (so the assumption holds)</li>
+              <li>|s| ≥ p (so PL applies)</li>
+              <li>Chosen so that condition (3) forces y into a "bad" region — one where any pump breaks membership</li>
+              <li>Common choice: set length = p exactly, load the front of s with one symbol type</li>
+            </ul>
+          </div>
+          <div class="a2col-cell">
+            <h4>Pump up or pump down?</h4>
+            <ul>
+              <li><strong>Pump up (i=2):</strong> xyyz — adds more of y. Use when extra symbols break the pattern.</li>
+              <li><strong>Pump down (i=0):</strong> xz — removes y entirely. Use when balance requires y to be present.</li>
+              <li>Sometimes i=0 and i=2 both work — pick whichever is cleaner to argue.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="aWarn"><strong>Critical mistake to avoid:</strong> you must show the contradiction holds for <em>every</em> valid split xyz — not just for one particular split you chose. Condition (3) limits where y can be, but within that region the adversary picks the split. Your argument must cover all cases.</div>
+      </div>
+    </div><!-- §02 -->
+
+
+    <!-- §03 WORKED EXAMPLES -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">03</div>
+        <div class="aS-meta">
+          <h2>Worked Examples — Regular Languages</h2>
+          <p>0ⁿ1ⁿ · ww · 1^(n²) · MULTIPLE WORKED PROOFS</p>
+        </div>
+        <div class="aS-tag">examples</div>
+      </div>
+
+      <!-- Example 1 -->
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Example 1 — L = {0ⁿ1ⁿ | n ≥ 0}</span><span>equal counts · classic</span></div>
+        <div class="aLabel">Proof</div>
+        <div class="aDef">
+          Assume L is regular; let p be its pumping length. Choose <strong>s = 0ᵖ1ᵖ</strong> ∈ L, |s| = 2p ≥ p. ✓<br><br>
+          By condition (3), |xy| ≤ p, so x and y both lie entirely within the first p characters — the <strong>block of 0s</strong>. Write y = 0ᵏ for some k ≥ 1 (guaranteed by condition 2).<br><br>
+          Pump up with i = 2: &nbsp;<strong>xy²z = 0^(p+k) 1ᵖ</strong><br>
+          This has p+k zeros and p ones — unequal counts — so xy²z ∉ L.<br><br>
+          Contradiction with condition (1). ∴ L is not regular. □
+        </div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">y must lie in the 0-block (|xy|≤p) · pumping up creates imbalance</div>
+          <svg viewBox="0 0 520 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <!-- s = 0^p 1^p -->
+            <rect x="20" y="10" width="220" height="36" rx="3" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <rect x="240" y="10" width="220" height="36" rx="3" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="130" y="33" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#111">0 0 0 … 0</text>
+            <text x="350" y="33" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#888">1 1 1 … 1</text>
+            <text x="130" y="60" text-anchor="middle" font-size="10" fill="#111" font-family="JetBrains Mono,monospace">← p zeros (y lives here)</text>
+            <text x="350" y="60" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">← p ones (z)</text>
+            <!-- y bracket -->
+            <line x1="60" y1="8" x2="160" y2="8" stroke="#e8352a" stroke-width="2"/>
+            <line x1="60" y1="4" x2="60" y2="12" stroke="#e8352a" stroke-width="2"/>
+            <line x1="160" y1="4" x2="160" y2="12" stroke="#e8352a" stroke-width="2"/>
+            <text x="110" y="5" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">y = 0ᵏ</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Example 2 — L = {ww | w ∈ {0,1}*}</span><span>doubled strings · harder split</span></div>
+        <div class="aLabel">Proof</div>
+        <div class="aDef">
+          Assume L is regular; let p be its pumping length. Choose <strong>s = 0ᵖ1 0ᵖ1</strong> ∈ L (w = 0ᵖ1, ww = 0ᵖ10ᵖ1), |s| = 2p+2 ≥ p. ✓<br><br>
+          By condition (3), |xy| ≤ p, so y lies entirely within the first p+1 characters — within <strong>the first block of 0s</strong>. Write y = 0ᵏ, k ≥ 1.<br><br>
+          Pump up with i = 2: &nbsp;<strong>xy²z = 0^(p+k) 1 0ᵖ 1</strong><br>
+          For this to be in L it must equal ww for some w. But the first half has p+k zeros followed by 1, and the second half has exactly p zeros followed by 1. Since k ≥ 1, the halves are unequal length — no valid w exists. So xy²z ∉ L.<br><br>
+          Contradiction. ∴ L is not regular. □
+        </div>
+        <div class="aNote"><strong>Key insight:</strong> choose s so that condition (3) forces y into a region where any pump destroys the structure you need. Here, loading the first block of 0s makes y inevitable fall there, and pumping changes the count asymmetrically.</div>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Example 3 — L = {1^(n²) | n ≥ 0}</span><span>perfect square lengths · pump skips squares</span></div>
+        <div class="aLabel">Proof</div>
+        <div class="aDef">
+          Assume L is regular; let p be its pumping length. Choose <strong>s = 1^(p²)</strong> ∈ L (length is a perfect square), |s| = p² ≥ p. ✓<br><br>
+          By conditions (2) and (3): y = 1ᵏ where 1 ≤ k ≤ p. So xyⁱz = 1^(p² + (i−1)k).<br><br>
+          Consider i = 2: length = p² + k. We need p² + k to be a perfect square. But: <br>
+          p² &lt; p² + k ≤ p² + p &lt; (p+1)² = p² + 2p + 1<br>
+          So p² + k lies strictly between consecutive perfect squares p² and (p+1)² — it cannot be a perfect square itself. Thus xy²z ∉ L.<br><br>
+          Contradiction. ∴ L is not regular. □
+        </div>
+      </div>
+    </div><!-- §03 -->
+
+
+    <!-- §04 PUMPING LEMMA — CFL -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">04</div>
+        <div class="aS-meta">
+          <h2>Pumping Lemma — Context-Free Languages</h2>
+          <p>s = uvxyz · PARSE TREE · TALL PATH · REPEATED VARIABLE</p>
+        </div>
+        <div class="aS-tag">CFL</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Formal Statement</span><span>if CFL → 5-way pumpable</span></div>
+        <div class="aDef">
+          If A is a context-free language, then there exists a <strong>pumping length p ≥ 1</strong> such that every string <strong>s ∈ A</strong> with |s| ≥ p can be written as <strong>s = uvxyz</strong> satisfying all three conditions:<br><br>
+          <strong>(1)</strong> &nbsp;uvⁱxyⁱz ∈ A &nbsp;for all i ≥ 0<br>
+          <strong>(2)</strong> &nbsp;|vy| ≥ 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(v and y not both empty)<br>
+          <strong>(3)</strong> &nbsp;|vxy| ≤ p &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(v, x, y together fit in p chars)
+        </div>
+        <div class="aLabel">Why it's true — repeated variable on a tall parse tree</div>
+        <div class="aDef">
+          Convert the CFG to Chomsky Normal Form (CNF). In CNF, every parse tree for a string of length n has height at least log₂n. If |s| ≥ p (chosen large enough based on the grammar size), some variable <strong>R must repeat</strong> on the path from root to a leaf. The portion of the string generated by the inner R is x; v and y are generated by the outer R but not the inner R. Repeating or deleting the outer subtree pumps v and y simultaneously.
+        </div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Repeated variable R on a tall parse tree path — outer subtree can be pumped</div>
+          <svg viewBox="0 0 500 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;font-family:'Archivo',sans-serif">
+            <defs><marker id="tArw" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#888"/></marker></defs>
+            <!-- tree structure -->
+            <circle cx="250" cy="20" r="18" fill="#fffde6" stroke="#111" stroke-width="2"/>
+            <text x="250" y="25" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">S</text>
+            <line x1="240" y1="36" x2="210" y2="62" stroke="#888" stroke-width="1.5"/>
+            <line x1="260" y1="36" x2="290" y2="62" stroke="#888" stroke-width="1.5"/>
+            <!-- first R (outer) -->
+            <circle cx="250" cy="80" r="18" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="250" y="85" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#e8352a">R</text>
+            <line x1="240" y1="96" x2="200" y2="122" stroke="#888" stroke-width="1.5"/>
+            <line x1="260" y1="96" x2="300" y2="122" stroke="#888" stroke-width="1.5"/>
+            <!-- v and y labels at sides -->
+            <text x="170" y="138" text-anchor="middle" font-size="11" fill="#111" font-family="JetBrains Mono,monospace">v</text>
+            <text x="330" y="138" text-anchor="middle" font-size="11" fill="#111" font-family="JetBrains Mono,monospace">y</text>
+            <!-- inner subtree continuation -->
+            <circle cx="250" cy="140" r="18" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="250" y="145" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#e8352a">R</text>
+            <line x1="240" y1="156" x2="220" y2="178" stroke="#888" stroke-width="1.5"/>
+            <line x1="260" y1="156" x2="280" y2="178" stroke="#888" stroke-width="1.5"/>
+            <!-- x label -->
+            <text x="250" y="200" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">x</text>
+            <!-- u and z at leaves level -->
+            <text x="60" y="215" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">u</text>
+            <text x="145" y="215" font-size="11" fill="#111" font-family="JetBrains Mono,monospace">v</text>
+            <text x="230" y="215" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">x</text>
+            <text x="310" y="215" font-size="11" fill="#111" font-family="JetBrains Mono,monospace">y</text>
+            <text x="395" y="215" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">z</text>
+            <!-- string underline -->
+            <line x1="40" y1="222" x2="450" y2="222" stroke="#888" stroke-width="1"/>
+            <text x="245" y="230" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">s = u v x y z — pump outer R to get uvⁱxyⁱz</text>
+            <!-- pump annotation -->
+            <path d="M235,58 C160,58 160,140 232,140" fill="none" stroke="#e8352a" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <text x="130" y="100" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">repeat outer R</text>
+            <text x="130" y="112" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">subtree to pump</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>CFL Pumping Lemma — Worked Example</span><span>L = {aⁿbⁿcⁿ} · classic non-CFL</span></div>
+        <div class="aLabel">Proof that L = {aⁿbⁿcⁿ | n ≥ 0} is not context-free</div>
+        <div class="aDef">
+          Assume L is a CFL; let p be its pumping length. Choose <strong>s = aᵖbᵖcᵖ</strong> ∈ L, |s| = 3p ≥ p. ✓<br><br>
+          By condition (3), |vxy| ≤ p, so v, x, y together span at most p consecutive characters. This means <strong>vxy cannot contain all three symbols a, b, c</strong> — it either sits within one block or straddles two adjacent blocks.<br><br>
+          <strong>Case 1:</strong> v and y contain only a's (or only b's, or only c's).<br>
+          Pumping up (i=2) increases only that count — the three counts become unequal. xyⁱz ∉ L.<br><br>
+          <strong>Case 2:</strong> v and y each contain one type of symbol, spanning two adjacent blocks (e.g. v = aʲ, y = bᵏ).<br>
+          Pumping up increases counts of a and b but not c — again unequal. xy²z ∉ L.<br><br>
+          <strong>Every case</strong> leads to an imbalanced string not in L. Contradiction. ∴ L is not context-free. □
+        </div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">|vxy| ≤ p forces vxy to span at most two blocks — c's always left out</div>
+          <svg viewBox="0 0 520 72" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <rect x="10"  y="10" width="160" height="36" rx="3" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <rect x="170" y="10" width="160" height="36" rx="3" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <rect x="330" y="10" width="160" height="36" rx="3" fill="#f2ede4" stroke="#888" stroke-width="1" stroke-dasharray="4,2"/>
+            <text x="90"  y="33" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#111">a a … a</text>
+            <text x="250" y="33" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#888">b b … b</text>
+            <text x="410" y="33" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#bbb">c c … c</text>
+            <text x="90"  y="58" text-anchor="middle" font-size="9" fill="#111" font-family="JetBrains Mono,monospace">p a's</text>
+            <text x="250" y="58" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">p b's</text>
+            <text x="410" y="58" text-anchor="middle" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">p c's (untouched by any pump)</text>
+            <!-- vxy bracket spanning a-b boundary -->
+            <line x1="110" y1="8" x2="310" y2="8" stroke="#e8352a" stroke-width="2"/>
+            <line x1="110" y1="4" x2="110" y2="12" stroke="#e8352a" stroke-width="2"/>
+            <line x1="310" y1="4" x2="310" y2="12" stroke="#e8352a" stroke-width="2"/>
+            <text x="210" y="5" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">vxy (max p chars) — never touches all three blocks</text>
+          </svg>
+        </div>
+      </div>
+    </div><!-- §04 -->
+
+
+    <!-- §05 COMMON MISTAKES -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">05</div>
+        <div class="aS-meta">
+          <h2>Common Mistakes &amp; Pitfalls</h2>
+          <p>WRONG DIRECTION · BAD s CHOICE · MISSING CASES · WHAT NOT TO DO</p>
+        </div>
+        <div class="aS-tag">pitfalls</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head"><span>Mistakes that will lose you points</span><span>read these carefully</span></div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">MISTAKE</th><th class="plain">WHAT WENT WRONG</th><th class="name">WHY IT'S WRONG</th><th class="desc">WHAT TO DO INSTEAD</th></tr>
+            <tr>
+              <td class="sym" style="font-size:11px">Wrong direction</td>
+              <td class="plain">used PL to prove regular</td>
+              <td class="name">PL only proves NON-regularity</td>
+              <td class="desc">PL is a necessary condition, not sufficient. Failing to pump doesn't mean regular.</td>
+            </tr>
+            <tr>
+              <td class="sym" style="font-size:11px">Chose split</td>
+              <td class="plain">only handled one xyz</td>
+              <td class="name">Adversary picks the split</td>
+              <td class="desc">Must show ALL valid splits lead to a bad pump. Use condition (3) to bound where y can be, then handle all cases in that region.</td>
+            </tr>
+            <tr>
+              <td class="sym" style="font-size:11px">Bad s</td>
+              <td class="plain">s didn't force a contradiction</td>
+              <td class="name">Wrong string choice</td>
+              <td class="desc">If condition (3) doesn't pin y into a harmful region, try a different s. Load the front of s with the "dangerous" symbol.</td>
+            </tr>
+            <tr>
+              <td class="sym" style="font-size:11px">Forgot i=0</td>
+              <td class="plain">only checked i=2</td>
+              <td class="name">i=0 (pump down) also valid</td>
+              <td class="desc">Sometimes removing y (i=0) breaks membership more cleanly than adding it. Try both.</td>
+            </tr>
+            <tr>
+              <td class="sym" style="font-size:11px">Ignored |vy|≥1</td>
+              <td class="plain">assumed v=y=ε in CFL PL</td>
+              <td class="name">Condition (2) rules this out</td>
+              <td class="desc">v and y can't both be empty. At least one has |≥1. Use this when casework assumes v=ε.</td>
+            </tr>
+          </table>
+        </div>
+        <div class="aWarn"><strong>The pumping lemma is not an "if and only if".</strong> There exist non-regular languages that satisfy the pumping lemma conditions — the lemma cannot be used to prove a language IS regular. It is only a tool for proving languages are NOT regular.</div>
+      </div>
+    </div><!-- §05 -->
+
+  </div>
+</div><!-- #dA -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE B
+════════════════════════════════════════════════════════ -->
+<div id="dB" class="demo">
+  <div class="bH">
+    <div class="bH-brand">Theory of Computation</div>
+    <nav class="bH-nav">
+      <a href="#">Regular PL</a>
+      <a href="#">Proof Game</a>
+      <a href="#">Examples</a>
+      <a href="#">CFL PL</a>
+      <a href="#">Mistakes</a>
+    </nav>
+  </div>
+  <div class="bW">
+
+    <!-- §01 -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">01</span><h2>Pumping Lemma — Regular</h2><span>Statement · pigeonhole · s = xyz</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Formal Statement</h3><span>if regular → pumpable</span></div>
+        <div class="bDef">If A is regular, ∃ pumping length <strong>p ≥ 1</strong> s.t. every s ∈ A with |s| ≥ p can be written <strong>s = xyz</strong> with:<br><br>
+        <strong>(1)</strong> xyⁱz ∈ A for all i ≥ 0 &nbsp;·&nbsp; <strong>(2)</strong> |y| ≥ 1 &nbsp;·&nbsp; <strong>(3)</strong> |xy| ≤ p</div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>Condition (3) — your best friend</h4>
+            <ul>
+              <li>Forces y into the first p characters</li>
+              <li>If s starts with a large block of one symbol, y must live there</li>
+              <li>Use this to constrain what y can look like</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Why it's true — pigeonhole</h4>
+            <ul>
+              <li>DFA has p states</li>
+              <li>String of length ≥ p visits p+1 states</li>
+              <li>Some state qᵣ repeats — that loop is y</li>
+              <li>Machine can repeat y any number of times</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bLabel">Pigeonhole visual</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">State qᵣ visited twice → the segment between visits is y → pumpable</div>
+          <svg viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bplArw" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="20" y1="62" x2="44" y2="62" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bplArw)"/>
+            <circle cx="60" cy="62" r="15" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="60" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#1a1a1a">q₀</text>
+            <line x1="75" y1="62" x2="99" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="115" cy="62" r="15" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="115" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#1a1a1a">q₁</text>
+            <line x1="130" y1="62" x2="154" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="170" cy="62" r="15" fill="#fff8f0" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="170" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="185" y1="62" x2="209" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="225" cy="62" r="15" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="225" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#1a1a1a">q₃</text>
+            <line x1="240" y1="62" x2="264" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="280" cy="62" r="15" fill="#fff8f0" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="280" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="295" y1="62" x2="319" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="335" cy="62" r="15" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="335" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#1a1a1a">q₅</text>
+            <line x1="350" y1="62" x2="374" y2="62" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#bplArw)"/>
+            <circle cx="390" cy="62" r="15" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="390" cy="62" r="10" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="390" y="67" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#e8352a">acc</text>
+            <path d="M170,46 C170,8 280,8 280,46" fill="none" stroke="#e8352a" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#bplArw)"/>
+            <text x="225" y="5" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">y — pump this cycle</text>
+            <text x="115" y="96" text-anchor="middle" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">x</text>
+            <text x="225" y="96" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">y</text>
+            <text x="340" y="96" text-anchor="middle" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">z</text>
+            <line x1="45" y1="85" x2="295" y2="85" stroke="#ccc" stroke-width="1"/>
+            <text x="170" y="108" text-anchor="middle" font-size="8" fill="#bbb" font-family="JetBrains Mono,monospace">|xy| ≤ p — qᵣ must appear within first p steps</text>
+          </svg>
+        </div>
+      </div>
+    </div><!-- §01 B -->
+
+    <!-- §02 -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">02</span><h2>The Adversarial Game &amp; Proof Template</h2><span>You vs. adversary · pick s · handle all splits</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Proof Template</h3><span>proof by contradiction · universal quantifier on splits</span></div>
+        <div class="bPseudo">
+          <div class="ph"><span class="pn">Non-Regularity Proof</span><span class="ps">proof by contradiction</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume A regular. Let p = pumping length.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Choose s ∈ A, |s| ≥ p. <span class="cm"># exploit condition (3)</span></span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">For all</span> splits s=xyz with |y|≥1, |xy|≤p:</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Use (3) to determine where y lives in s.</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd i1">Find i ≥ 0 such that xyⁱz ∉ A.</span></div>
+            <div class="lr"><span class="ln">6</span><span class="cd">Contradiction with (1). ∴ A not regular. □</span></div>
+          </div>
+        </div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>Pump up (i=2)</h4>
+            <ul>
+              <li>Adds more of y to the string</li>
+              <li>Use when extra symbols break balance or pattern</li>
+              <li>Most common choice</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Pump down (i=0)</h4>
+            <ul>
+              <li>Removes y entirely — string becomes xz</li>
+              <li>Use when removing y breaks membership</li>
+              <li>Especially useful when s is minimal</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bWarn"><strong>Must handle ALL valid splits,</strong> not just one. Condition (3) limits where y can be, but within that region the adversary picks freely. Your argument must cover every case in that region.</div>
+      </div>
+    </div><!-- §02 B -->
+
+    <!-- §03 Examples -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">03</span><h2>Worked Examples</h2><span>0ⁿ1ⁿ · ww · 1^(n²)</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>L = {0ⁿ1ⁿ | n ≥ 0}</h3><span>equal counts · classic</span></div>
+        <div class="bDef">s = 0ᵖ1ᵖ. Condition (3) forces y into the 0-block. Write y=0ᵏ, k≥1. Pump up: xy²z = 0^(p+k)1ᵖ — more 0s than 1s → ∉ L. □</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>L = {ww | w ∈ {0,1}*}</h3><span>doubled strings</span></div>
+        <div class="bDef">s = 0ᵖ10ᵖ1. Condition (3) forces y into the first block of 0s. Write y=0ᵏ. Pump up: xy²z = 0^(p+k)10ᵖ1. First half has p+k zeros, second half p zeros — unequal halves, no valid w exists → ∉ L. □</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>L = {1^(n²) | n ≥ 0}</h3><span>perfect square lengths</span></div>
+        <div class="bDef">s = 1^(p²). y = 1ᵏ, 1≤k≤p. xy²z has length p²+k. But p² &lt; p²+k ≤ p²+p &lt; (p+1)² = p²+2p+1, so p²+k lies strictly between consecutive squares — not a perfect square → ∉ L. □</div>
+      </div>
+    </div><!-- §03 B -->
+
+    <!-- §04 CFL PL -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">04</span><h2>Pumping Lemma — Context-Free</h2><span>s = uvxyz · parse tree · repeated variable</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Statement &amp; Intuition</h3><span>tall parse tree forces repeated variable</span></div>
+        <div class="bDef">If A is CFL, ∃ p s.t. every s ∈ A with |s|≥p can be written <strong>s=uvxyz</strong> with:<br><br>
+        <strong>(1)</strong> uvⁱxyⁱz ∈ A ∀i≥0 &nbsp;·&nbsp; <strong>(2)</strong> |vy|≥1 &nbsp;·&nbsp; <strong>(3)</strong> |vxy|≤p<br><br>
+        Intuition: in CNF, tall parse trees must repeat a variable R on some path. The outer R generates uvxyz; the inner R generates x. Repeating (or deleting) the outer subtree pumps v and y simultaneously — always in equal quantity.</div>
+        <div class="bLabel">Worked example — L = {aⁿbⁿcⁿ} is not CFL</div>
+        <div class="bDef">s = aᵖbᵖcᵖ. By condition (3), |vxy|≤p, so vxy spans at most two adjacent blocks. No matter which two blocks v and y touch, pumping changes at most two of the three counts — the third is always left unchanged → counts become unequal → ∉ L. □</div>
+        <div class="bNote">The key is that <strong>v and y are pumped together</strong> (both multiplied by i). But vxy ≤ p means they can't span all three symbol types simultaneously — so one count always gets left behind.</div>
+      </div>
+    </div><!-- §04 B -->
+
+    <!-- §05 Mistakes -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">05</span><h2>Common Mistakes &amp; Pitfalls</h2><span>Wrong direction · one split · bad s · non-iff</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Things That Will Lose You Points</h3><span>read carefully</span></div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>Wrong direction</h4>
+            <ul>
+              <li>PL cannot prove a language IS regular</li>
+              <li>It's a necessary condition only</li>
+              <li>Some non-regular languages satisfy PL</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Only one split</h4>
+            <ul>
+              <li>Must handle ALL valid splits</li>
+              <li>Adversary picks xyz — you don't</li>
+              <li>Condition (3) limits the region; you cover all cases within it</li>
+            </ul>
+          </div>
+        </div>
+        <div class="b2col" style="margin-top:12px">
+          <div class="b2col-cell">
+            <h4>Bad choice of s</h4>
+            <ul>
+              <li>If condition (3) doesn't pin y into a harmful region, pick a different s</li>
+              <li>Front-load s with the "dangerous" symbol type</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Forgot i=0</h4>
+            <ul>
+              <li>Pumping down (removing y) is always valid</li>
+              <li>Sometimes xz ∉ A is easier to argue than xyyz ∉ A</li>
+              <li>Try both directions</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bWarn"><strong>The pumping lemma is not an if-and-only-if.</strong> Satisfying the conditions does not make a language regular. There exist non-regular languages that are "pumpable" by the lemma. PL is only a tool for proving non-regularity via contradiction.</div>
+      </div>
+    </div><!-- §05 B -->
+
+  </div>
+</div><!-- #dB -->
+
+<script>
+function sw(letter, btn) {
+  document.querySelectorAll('.demo').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('active','a-on','b-on','c-on'));
+  document.getElementById('d'+letter).classList.add('active');
+  btn.classList.add('active', letter.toLowerCase()+'-on');
+}
+</script>
+</body>
+</html>

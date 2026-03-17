@@ -137,6 +137,15 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
   const scrollContainerRef              = useRef(null);
   const visitedFiles                    = useRef(new Set(initialFile ? [initialFile] : []));
 
+  // Re-sync tab when data reloads (e.g. after an upload adds a new tab like assignments)
+  useEffect(() => {
+    const ids = availableTabs.map(t => t.id);
+    // If current tab is now valid, keep it. If not, fall back to first available.
+    if (ids.length > 0 && !ids.includes(tab)) {
+      setTab(ids[0]);
+    }
+  }, [availableTabs.map(t => t.id).join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Re-sync when dest changes (e.g. clicking a second search result for the same course)
   const prevDestRef  = useRef(null);
   const destPdfPage  = useRef(dest?.pdfPage || null);
@@ -332,8 +341,8 @@ export default function CoursePage({ courseId, dest, onBack, onBackToSearch }) {
           <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
             {allItems.map(item => {
               const isContent = item.type === "content";
-              // content files live under src/content/ and are served by Vite at /src/content/
-              const basePath  = isContent ? "/src/content" : "/references";
+              // content files live under public/content/ — served at /content/ in both Vite dev and Tauri
+              const basePath  = isContent ? "/content" : "/references";
               const filePath  = isContent ? item.file.replace("./content/", "") : item.file;
               return (
                 <div key={item.file} style={{

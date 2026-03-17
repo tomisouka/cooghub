@@ -56,7 +56,7 @@ const ROUTES = {
     const base = path.basename(filename).toLowerCase();
     const isAssignment = /hw\d|quiz|exam|practice|review|solution/i.test(base);
     return isAssignment
-      ? path.join(ROOT, "src", "content", "assignments")
+      ? path.join(ROOT, "public", "content", "assignments")
       : path.join(ROOT, "src", "content", "subjects", courseId);
   },
   ".cpp": (courseId) => path.join(ROOT, "src", "content", "code", courseId),
@@ -166,6 +166,7 @@ function makeEntryObj(base, courseId, tab) {
   if (tab === "notes")       return { file: `./content/subjects/${courseId}/${base}`, label };
   if (tab === "assignments") return { file: `./content/assignments/${base}`, label, type: "content" };
   if (tab === "code")        return { file: `./content/code/${courseId}/${base}`, label };
+  if (tab === "references")  return { file: `/references/${base}`, label, type: "content" };
   return null;
 }
 
@@ -207,8 +208,9 @@ function applyResult(result, buffer, ext, base, groupLabels, tabOverrides = {}) 
   const tabOverride = tabOverrides[base];
   if (result.status === "ok" || result.status === "conflict") {
     if (tabOverride && tabOverride !== tabForExt(ext, base)) {
+      // User manually overrode the tab — write to the override destination
       const newDest = tabOverride === "assignments"
-        ? path.join(ROOT, "src", "content", "assignments")
+        ? path.join(ROOT, "public", "content", "assignments")
         : tabOverride === "references"
           ? path.join(ROOT, "public", "references")
           : path.join(ROOT, "src", "content", "subjects", result.courseId);
@@ -217,12 +219,15 @@ function applyResult(result, buffer, ext, base, groupLabels, tabOverrides = {}) 
       patchSubjects(base, result.courseId, tabOverride, groupLabels[base] || "");
       return;
     }
+    // No override (or override matches auto-detect) — use the validated destination
     fs.mkdirSync(path.dirname(result.destPath), { recursive: true });
     fs.writeFileSync(result.destPath, buffer);
-    const tab = tabForExt(ext, base);
+    const tab = tabOverride || tabForExt(ext, base);
     if (tab) patchSubjects(base, result.courseId, tab, groupLabels[base] || "");
   } else if (result.status === "duplicate") {
-    const tab = tabOverride || tabForExt(ext, base);
+    // File already on disk at its real location — don't move it, just ensure it's registered
+    // Use the actual auto-detected tab (not override) since we can't relocate the file
+    const tab = tabForExt(ext, base);
     if (tab) patchSubjects(base, result.courseId, tab, groupLabels[base] || "");
   }
 }

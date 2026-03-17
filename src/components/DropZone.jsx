@@ -241,7 +241,7 @@ function SummaryBar({ summary, needsReindex }) {
   );
 }
 
-export default function DropZone({ open, onOpen, onClose }) {
+export default function DropZone({ open, onOpen, onClose, onDone }) {
   const [phase, setPhase]              = useState("idle");
   const [dragOver, setDragOver]        = useState(false);
   const [results, setResults]          = useState(null);
@@ -378,13 +378,10 @@ export default function DropZone({ open, onOpen, onClose }) {
         if (!res.ok) throw new Error(data.error || "Upload failed");
       } else {
         const form = new FormData();
-        files.forEach(f => {
-          const targetName = renames[f.name] || f.name;
-          const fileToSend = targetName !== f.name ? new File([f], targetName, { type: f.type }) : f;
-          form.append("files", fileToSend);
-        });
+        files.forEach(f => form.append("files", f));
         form.append("groupLabels", JSON.stringify(groupLabels));
         form.append("tabOverrides", JSON.stringify(tabOverrides));
+        form.append("renames", JSON.stringify(renames));
         const res = await fetch("/api/upload-files", { method: "POST", body: form });
         data = await res.json();
         if (!res.ok) throw new Error(data.error || "Upload failed");
@@ -393,6 +390,7 @@ export default function DropZone({ open, onOpen, onClose }) {
       setSummary(data.summary);
       setNeeds(data.needsReindex);
       setPhase("done");
+      onDone?.();  // reload subjects.json so new files appear immediately
     } catch (err) {
       setErrorMsg(err.message);
       setPhase("error");
