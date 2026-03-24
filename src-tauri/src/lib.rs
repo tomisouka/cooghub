@@ -134,6 +134,18 @@ pub fn run() {
       delete_entry,
     ])
     .setup(|app| {
+      // Auto-register the project root path so commands work on any machine
+      if let Ok(cwd) = std::env::current_dir() {
+        if cwd.join("src/data").exists() {
+          let home = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .unwrap_or_default();
+          if !home.is_empty() {
+            let config = PathBuf::from(home).join(".coogshub_path");
+            let _ = fs::write(config, cwd.to_string_lossy().as_bytes());
+          }
+        }
+      }
       if cfg!(debug_assertions) {
         app.handle().plugin(
           tauri_plugin_log::Builder::default()
