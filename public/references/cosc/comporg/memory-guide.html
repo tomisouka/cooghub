@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory: A Complete Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f2ede4;
+  --black: #111111;
+  --red: #e8352a;
+  --yellow: #f5f500;
+  --white: #ffffff;
+  --border: 2.5px solid #111111;
+  --gray: #d4cfc6;
+  --gray2: #e8e3da;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--cream); color: var(--black); font-family: 'Archivo', sans-serif; font-size: 1rem; line-height: 1.6; }
+
+/* HEADER */
+header { background: var(--black); color: var(--cream); padding: 2rem 2.5rem 1.5rem; border-bottom: var(--border); }
+header .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.4rem; }
+header h1 { font-family: 'Archivo Black', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; }
+header p { font-size: 0.95rem; color: #9a9488; max-width: 60ch; margin-top: 0.4rem; }
+
+/* NAV */
+nav { border-bottom: var(--border); display: flex; background: var(--cream); overflow-x: auto; }
+nav button { font-family: 'Archivo Black', sans-serif; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.9rem 1.3rem; border: none; border-right: var(--border); background: transparent; cursor: pointer; color: #999; white-space: nowrap; transition: background 0.12s, color 0.12s; }
+nav button:hover { background: var(--gray2); color: var(--black); }
+nav button.active { background: var(--black); color: var(--yellow); }
+
+/* LAYOUT */
+main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* TYPOGRAPHY */
+.section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--red); margin-bottom: 0.35rem; }
+h2 { font-family: 'Archivo Black', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.1; margin-bottom: 0.9rem; }
+h3 { font-family: 'Archivo Black', sans-serif; font-size: 1.05rem; margin-bottom: 0.5rem; }
+p { margin-bottom: 0.9rem; color: #2a2a2a; }
+hr.divider { border: none; border-top: var(--border); margin: 2.2rem 0; }
+
+/* KEY IDEA */
+.key-idea { border: var(--border); background: var(--black); color: var(--yellow); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 1rem 1.2rem; margin: 1.4rem 0; line-height: 1.6; }
+.key-idea .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: #777; margin-bottom: 0.3rem; }
+
+/* CALLOUT */
+.callout { border-left: 4px solid var(--red); background: var(--white); padding: 0.85rem 1.1rem; margin: 1.4rem 0; font-size: 0.88rem; color: #333; }
+.callout strong { font-family: 'Archivo Black', sans-serif; color: var(--red); }
+
+/* TWO-COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: var(--border); margin: 1.4rem 0; }
+.two-col .col { padding: 1.1rem; }
+.two-col .col:first-child { border-right: var(--border); }
+.col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--red); margin-bottom: 0.45rem; }
+.two-col .col p { font-size: 0.87rem; margin-bottom: 0.5rem; }
+.two-col .col p:last-child { margin-bottom: 0; }
+
+/* CODE */
+.code-section { border: var(--border); margin: 1.8rem 0; }
+.code-header { background: var(--black); color: var(--cream); padding: 0.55rem 1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: var(--border); }
+.code-header span { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+.code-header .lang-tag { background: var(--yellow); color: var(--black); padding: 2px 7px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+pre { background: #1a1a1a; color: #e2ddd5; font-family: 'JetBrains Mono', monospace; font-size: 0.81rem; line-height: 1.75; padding: 1.3rem 1.2rem; overflow-x: auto; margin: 0; }
+.kw { color: #e8352a; font-weight: 700; }
+.fn { color: #f5f500; }
+.cm { color: #5a5a5a; font-style: italic; }
+.st { color: #7ec8a0; }
+.nu { color: #f0a050; }
+.tp { color: #a0c8f0; }
+
+/* MEMORY MAP */
+.mem-map { border: var(--border); margin: 1.8rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; overflow: hidden; }
+.mem-map-title { background: var(--black); color: var(--cream); padding: 0.5rem 1rem; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: var(--border); }
+.mem-row { display: flex; border-bottom: 1.5px solid #d4cfc6; }
+.mem-row:last-child { border-bottom: none; }
+.mem-addr { width: 90px; min-width: 90px; padding: 0.5rem 0.7rem; border-right: var(--border); font-size: 0.72rem; background: #1a1a1a; color: #c87ff0; }
+.mem-region { width: 120px; min-width: 120px; padding: 0.5rem 0.7rem; border-right: 1.5px solid #d4cfc6; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; display: flex; align-items: center; }
+.mem-content { flex: 1; padding: 0.5rem 0.9rem; color: #333; font-size: 0.78rem; font-family: 'Archivo', sans-serif; }
+.region-stack { background: #ddeeff; color: #1a3a5c; }
+.region-heap  { background: #dff0d8; color: #2d5a1b; }
+.region-bss   { background: #f0ddf8; color: #5a1a7a; }
+.region-data  { background: #eeddf0; color: #5a1a3a; }
+.region-code  { background: #fff0d8; color: #5a3a1a; }
+.region-gap   { background: var(--cream); color: #aaa; font-style: italic; font-size: 0.68rem; }
+.region-arrow { background: var(--cream); color: #888; font-size: 1.1rem; justify-content: center; }
+
+/* STACK DIAGRAM */
+.stack-diagram { border: var(--border); margin: 1.8rem 0; overflow: hidden; }
+.stack-diagram-title { background: var(--black); color: var(--cream); padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+.stack-diagram-title .pc-badge { background: var(--yellow); color: var(--black); padding: 2px 8px; font-size: 0.6rem; font-weight: 700; }
+.stack-frame { border-bottom: var(--border); }
+.stack-frame:last-child { border-bottom: none; }
+.frame-header { padding: 0.55rem 1rem; font-family: 'Archivo Black', sans-serif; font-size: 0.82rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #d4cfc6; flex-wrap: wrap; gap: 0.3rem; }
+.frame-header .frame-pc { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #888; }
+.frame-header .frame-pc span { color: var(--red); font-weight: 700; }
+.frame-active .frame-header { background: #1a1a1a; color: var(--yellow); }
+.frame-active .frame-header .frame-pc span { color: var(--yellow); }
+.frame-body { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1.5px solid #d4cfc6; }
+.frame-body:last-child { border-bottom: none; }
+.frame-cell { padding: 0.45rem 0.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; border-right: 1.5px solid #d4cfc6; }
+.frame-cell:last-child { border-right: none; }
+.fc-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.15rem; }
+.fc-val { color: #111; font-weight: 700; }
+.fc-type { color: #c87ff0; font-weight: 400; }
+.frame-inactive { opacity: 0.55; }
+
+/* STEPPER */
+.stepper { border: var(--border); margin: 2rem 0; overflow: hidden; }
+.stepper-header { background: var(--black); color: var(--cream); padding: 0.55rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+.stepper-controls { display: flex; }
+.stepper-controls button { font-family: 'Archivo Black', sans-serif; font-size: 0.72rem; padding: 0.35rem 0.9rem; border: none; border-left: var(--border); background: transparent; color: var(--cream); cursor: pointer; }
+.stepper-controls button:hover { background: #333; }
+.stepper-controls button:first-child { border-left: none; }
+.stepper-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 340px; }
+.stepper-code-side { border-right: var(--border); background: #1a1a1a; overflow: hidden; }
+.stepper-code-side pre { padding: 1rem; background: transparent; font-size: 0.77rem; line-height: 1.9; }
+.code-line { display: block; padding: 1px 4px; border-radius: 2px; }
+.code-line.current { background: #2d2d1a; outline: 1px solid var(--yellow); }
+.stepper-stack-side { padding: 1rem; background: var(--white); }
+.stepper-stack-side h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--red); margin-bottom: 0.7rem; }
+.s-frame { border: var(--border); margin-bottom: 6px; overflow: hidden; animation: slideIn 0.25s ease; }
+@keyframes slideIn { from { opacity:0; transform: translateY(-8px); } }
+.s-frame-head { padding: 0.35rem 0.7rem; font-family: 'Archivo Black', sans-serif; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.2rem; }
+.s-frame-head .pc-val { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: #aaa; }
+.s-frame-head .pc-val strong { color: var(--red); }
+.s-frame.top .s-frame-head { background: var(--black); color: var(--yellow); }
+.s-frame.top .s-frame-head .pc-val strong { color: var(--yellow); }
+.s-frame.below .s-frame-head { background: var(--gray2); color: var(--black); }
+.s-vars { padding: 0.4rem 0.7rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; background: #fafaf8; border-top: 1.5px solid #d4cfc6; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.s-var .vname { color: #1a3a5c; font-weight: 700; }
+.s-var .vval  { color: #c87ff0; }
+.stepper-desc { padding: 0.7rem 1rem; background: var(--gray2); border-top: var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #333; min-height: 52px; display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+.stepper-desc .step-num { color: var(--red); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; }
+.step-counter { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #888; margin-left: auto; }
+
+/* SCOPE TABLE */
+.scope-table { border: var(--border); width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+.scope-table th { font-family: 'Archivo Black', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.7rem 0.9rem; border: var(--border); background: var(--black); color: var(--cream); text-align: left; }
+.scope-table th.red-head { background: var(--red); }
+.scope-table td { padding: 0.65rem 0.9rem; border: var(--border); font-size: 0.84rem; vertical-align: top; }
+.scope-table tr:nth-child(even) td { background: var(--gray2); }
+.scope-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--red); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; background: var(--cream) !important; }
+
+/* HEAP GRID */
+.heap-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; border: var(--border); padding: 1rem; background: #1a2a1a; margin: 1.5rem 0; }
+.heap-cell { height: 36px; border: 1.5px solid #2a3a2a; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; border-radius: 2px; }
+.heap-cell.allocated { background: #1f4a1f; border-color: #4a8a4a; color: #a0e0a0; }
+.heap-cell.free      { background: #111a11; border-color: #2a3a2a; color: #3a5a3a; }
+.heap-cell.frag      { background: #2a1a1a; border-color: #5a2a2a; color: #8a5a5a; }
+.heap-legend { display: flex; gap: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.legend-box { width: 14px; height: 14px; border: 1.5px solid; flex-shrink: 0; }
+.lb-alloc { background: #1f4a1f; border-color: #4a8a4a; }
+.lb-free  { background: #111a11; border-color: #2a3a2a; }
+.lb-frag  { background: #2a1a1a; border-color: #5a2a2a; }
+
+/* BADGES */
+.badge-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1.2rem 0; }
+.badge { border: var(--border); padding: 0.55rem 0.9rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.2rem; min-width: 110px; }
+.badge .b-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888; }
+.badge .b-val { font-size: 0.95rem; font-weight: 700; }
+.badge.stack-b .b-val { color: #1a6aaa; }
+.badge.heap-b  .b-val { color: #2a8a2a; }
+.badge.warn-b  .b-val { color: var(--red); }
+.badge.ok-b    .b-val { color: #1a7a3f; }
+
+/* EXAMPLES GRID */
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); border: var(--border); margin: 1.5rem 0; }
+.ex-card { padding: 0.9rem; border-right: var(--border); border-bottom: var(--border); }
+.ex-card:nth-child(3n) { border-right: none; }
+.ex-card:nth-last-child(-n+3) { border-bottom: none; }
+.ex-name   { font-family: 'Archivo Black', sans-serif; font-size: 0.82rem; margin-bottom: 0.25rem; }
+.ex-region { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--red); margin-bottom: 0.25rem; }
+.ex-desc   { font-size: 0.76rem; color: #555; line-height: 1.4; }
+
+/* RESPONSIVE */
+@media (max-width: 650px) {
+  .stepper-body { grid-template-columns: 1fr; }
+  .stepper-code-side { border-right: none; border-bottom: var(--border); }
+  .two-col { grid-template-columns: 1fr; }
+  .two-col .col:first-child { border-right: none; border-bottom: var(--border); }
+  .frame-body { grid-template-columns: 1fr 1fr; }
+  .heap-grid { grid-template-columns: repeat(4, 1fr); }
+  nav button { font-size: 0.7rem; padding: 0.75rem 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Computer Systems · Memory Architecture</div>
+  <h1>Memory: A Complete Map</h1>
+  <p>Stack, heap, global, local, program counter, stack frames — how memory is actually laid out and used when your program runs.</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('overview')">Overview</button>
+  <button onclick="showPanel('stack')">Stack</button>
+  <button onclick="showPanel('heap')">Heap</button>
+  <button onclick="showPanel('scope')">Global vs Local</button>
+  <button onclick="showPanel('frames')">Stack Frames &amp; PC</button>
+  <button onclick="showPanel('compare')">Compare All</button>
+</nav>
+
+<main>
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="panel active" id="panel-overview">
+  <div class="section-label">§ 0 — The Big Picture</div>
+  <h2>How a program's memory is laid out</h2>
+  <p>Every running program gets a block of virtual memory from the OS. That block is divided into distinct regions, each with a different purpose, lifetime, and access pattern.</p>
+
+  <div class="mem-map">
+    <div class="mem-map-title">Process virtual address space — high address → low address</div>
+    <div class="mem-row">
+      <div class="mem-addr">0xFFFF…</div>
+      <div class="mem-region region-stack">Stack</div>
+      <div class="mem-content">Local variables, function parameters, return addresses, saved registers. Grows <strong>downward</strong>. Managed automatically by the compiler.</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-addr"></div>
+      <div class="mem-region region-arrow">↓  ↑</div>
+      <div class="mem-content region-gap">unmapped gap — stack and heap grow toward each other</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-addr"></div>
+      <div class="mem-region region-heap">Heap</div>
+      <div class="mem-content">Dynamically allocated memory. malloc / new lives here. Grows <strong>upward</strong>. Must be freed manually (C) or by garbage collector (Python/Java).</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-addr"></div>
+      <div class="mem-region region-bss">BSS</div>
+      <div class="mem-content">Uninitialized global and static variables. Zero-filled at program start. Not stored in the binary.</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-addr"></div>
+      <div class="mem-region region-data">Data</div>
+      <div class="mem-content">Initialized global and static variables. Stored in the binary, loaded directly into memory at startup.</div>
+    </div>
+    <div class="mem-row">
+      <div class="mem-addr">0x0000…</div>
+      <div class="mem-region region-code">Text / Code</div>
+      <div class="mem-content">Machine instructions. Read-only. The Program Counter (PC) always points somewhere inside this region.</div>
+    </div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">The core rule</div>
+    Stack = automatic, fast, limited size, LIFO, local scope, dies with function<br>
+    Heap  = manual/GC, flexible size, arbitrary lifetime, accessible via pointer<br>
+    Data/BSS = globals and statics, entire program lifetime<br>
+    Text  = your compiled code — the PC walks through this region instruction by instruction
+  </div>
+
+  <div class="callout">
+    <strong>Every variable you write lands in exactly one region.</strong> Where it lands depends on where you declared it and how you allocated it — not on its type alone.
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 0.1 — All Regions Annotated</div>
+  <div class="code-section">
+    <div class="code-header"><span>memory_regions.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="cm">// ── TEXT SEGMENT: this entire file's compiled instructions ──</span>
+
+<span class="tp">int</span>   global_init   = <span class="nu">42</span>;       <span class="cm">// DATA   — initialized global</span>
+<span class="tp">int</span>   global_uninit;             <span class="cm">// BSS    — uninitialized, zeroed at load</span>
+<span class="kw">static</span> <span class="tp">int</span> file_static = <span class="nu">7</span>;     <span class="cm">// DATA   — file-scoped static</span>
+
+<span class="tp">void</span> <span class="fn">inner</span>(<span class="tp">int</span> x) {
+    <span class="tp">int</span>  local_var = x * <span class="nu">2</span>;      <span class="cm">// STACK  — gone when inner() returns</span>
+    <span class="tp">int</span>* ptr = <span class="fn">malloc</span>(<span class="nu">4</span>);        <span class="cm">// ptr → STACK,  *ptr → HEAP</span>
+    *ptr = <span class="nu">99</span>;
+    <span class="fn">free</span>(ptr);                    <span class="cm">// must free or memory leaks</span>
+}
+
+<span class="tp">void</span> <span class="fn">outer</span>(<span class="tp">int</span> a, <span class="tp">int</span> b) {
+    <span class="tp">int</span> sum = a + b;              <span class="cm">// STACK  — local to outer()</span>
+    <span class="fn">inner</span>(sum);                   <span class="cm">// new stack frame pushed for inner</span>
+}                                 <span class="cm">// outer's frame popped here on return</span>
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">outer</span>(<span class="nu">3</span>, <span class="nu">4</span>);                  <span class="cm">// stack frame pushed for outer</span>
+    <span class="kw">return</span> <span class="nu">0</span>;
+}</pre>
+  </div>
+</div>
+
+<!-- ==================== STACK ==================== -->
+<div class="panel" id="panel-stack">
+  <div class="section-label">§ 1 — The Stack</div>
+  <h2>The Stack</h2>
+  <p>The call stack is a LIFO structure that tracks every active function call. Each call pushes a <em>stack frame</em>. When the function returns, its frame is popped. Everything on the stack has a fixed, compile-time-known size.</p>
+
+  <div class="badge-row">
+    <div class="badge stack-b"><span class="b-label">Structure</span><span class="b-val">LIFO</span></div>
+    <div class="badge stack-b"><span class="b-label">Direction</span><span class="b-val">Grows ↓</span></div>
+    <div class="badge ok-b"><span class="b-label">Allocation</span><span class="b-val">Automatic</span></div>
+    <div class="badge ok-b"><span class="b-label">Speed</span><span class="b-val">Very fast</span></div>
+    <div class="badge warn-b"><span class="b-label">Size limit</span><span class="b-val">~1–8 MB</span></div>
+    <div class="badge warn-b"><span class="b-label">Overflow</span><span class="b-val">Segfault</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">What lives on the stack</div>
+    • Local variables (size known at compile time)<br>
+    • Function parameters<br>
+    • Return address — where to jump back after the function<br>
+    • Saved register values (callee-saved registers)<br>
+    • Base pointer / frame pointer (rbp) — the frame's anchor
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 1.1 — Interactive Call Stack Stepper</div>
+  <h3>Watch frames push and pop for factorial(3)</h3>
+  <p>Each step shows which frame is active (top/black), which are suspended, and where the Program Counter is pointing.</p>
+
+  <div class="stepper">
+    <div class="stepper-header">
+      <span>Call Stack Simulation — factorial(3)</span>
+      <div class="stepper-controls">
+        <button onclick="stepBack()">← Back</button>
+        <button onclick="stepFwd()">Next →</button>
+        <button onclick="resetStepper()">Reset</button>
+      </div>
+    </div>
+    <div class="stepper-body">
+      <div class="stepper-code-side">
+        <pre id="stepper-code"></pre>
+      </div>
+      <div class="stepper-stack-side">
+        <h4>Call Stack — top = active frame</h4>
+        <div id="stepper-stack"></div>
+      </div>
+    </div>
+    <div class="stepper-desc">
+      <span class="step-num" id="step-label">Step 1</span>
+      <span id="step-desc">Press Next to begin stepping through the call.</span>
+      <span class="step-counter" id="step-counter"></span>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 1.2 — Stack Overflow</div>
+  <h3>What happens when the stack runs out</h3>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">How it happens</div>
+      <p>Each function call consumes stack space. Infinite (or extremely deep) recursion keeps pushing frames without popping. When the stack hits the OS-imposed limit (~1–8 MB), you get a segmentation fault.</p>
+      <p>Even non-recursive code can overflow: a <code>char buf[5000000]</code> inside a function tries to grab 5 MB on the stack.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">How to fix it</div>
+      <p>Move large buffers to the heap via <code>malloc</code>. Convert deep recursion to iteration using an explicit stack data structure. Python's default recursion limit is 1000 — increase with <code>sys.setrecursionlimit()</code>.</p>
+    </div>
+  </div>
+  <div class="code-section">
+    <div class="code-header"><span>stack_overflow.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="cm">// ❌ Infinite recursion — stack exhausted → segfault</span>
+<span class="tp">void</span> <span class="fn">infinite</span>() {
+    <span class="tp">int</span> x = <span class="nu">0</span>;      <span class="cm">// 4 bytes pushed on every call</span>
+    <span class="fn">infinite</span>();     <span class="cm">// never returns</span>
+}
+
+<span class="cm">// ❌ Huge local array — stack killer</span>
+<span class="tp">void</span> <span class="fn">big_local</span>() {
+    <span class="tp">char</span> buf[<span class="nu">5000000</span>];   <span class="cm">// 5 MB on stack → boom</span>
+}
+
+<span class="cm">// ✅ Fix: large data belongs on the heap</span>
+<span class="tp">void</span> <span class="fn">big_heap</span>() {
+    <span class="tp">char</span>* buf = (<span class="tp">char</span>*) <span class="fn">malloc</span>(<span class="nu">5000000</span>);
+    <span class="cm">// use buf ...</span>
+    <span class="fn">free</span>(buf);
+}</pre>
+  </div>
+</div>
+
+<!-- ==================== HEAP ==================== -->
+<div class="panel" id="panel-heap">
+  <div class="section-label">§ 2 — The Heap</div>
+  <h2>The Heap</h2>
+  <p>The heap is a large pool for dynamic allocation — data whose size isn't known at compile time, or whose lifetime needs to outlive the function that created it. Unlike the stack, nothing is managed automatically: you free what you allocate (C/C++), or a garbage collector does it for you (Python, Java, Go).</p>
+
+  <div class="badge-row">
+    <div class="badge heap-b"><span class="b-label">Structure</span><span class="b-val">Unordered</span></div>
+    <div class="badge heap-b"><span class="b-label">Direction</span><span class="b-val">Grows ↑</span></div>
+    <div class="badge warn-b"><span class="b-label">Allocation</span><span class="b-val">Manual/GC</span></div>
+    <div class="badge ok-b"><span class="b-label">Size</span><span class="b-val">GBs possible</span></div>
+    <div class="badge warn-b"><span class="b-label">Speed</span><span class="b-val">Slower</span></div>
+    <div class="badge warn-b"><span class="b-label">Bugs</span><span class="b-val">Leaks / UAF</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">What lives on the heap</div>
+    • Objects created with malloc / new / calloc / realloc<br>
+    • Arrays whose size is determined at runtime<br>
+    • Data that must outlive the function that created it<br>
+    • Linked list nodes, tree nodes, graph adjacency structures<br>
+    • In Python: literally every object — ints, strings, lists, dicts, all of it
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 2.1 — Heap Fragmentation</div>
+  <h3>Why the heap gets messy over time</h3>
+  <p>As you allocate and free blocks, gaps develop between live allocations. These gaps may be too small to satisfy future requests individually — this is fragmentation. The allocator has to do extra bookkeeping to find usable space.</p>
+
+  <div class="heap-grid" id="heap-vis"></div>
+  <div class="heap-legend">
+    <div class="legend-item"><div class="legend-box lb-alloc"></div> Allocated block</div>
+    <div class="legend-item"><div class="legend-box lb-free"></div> Free block</div>
+    <div class="legend-item"><div class="legend-box lb-frag"></div> Fragmented (too small to reuse)</div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 2.2 — The Three Heap Bugs</div>
+  <div class="code-section">
+    <div class="code-header"><span>heap_bugs.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="cm">// ❌ 1. Memory leak — allocated, never freed</span>
+<span class="tp">void</span> <span class="fn">leak</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">int</span>) * <span class="nu">100</span>);
+    <span class="cm">// ... use p ... but never free(p)</span>
+    <span class="cm">// 400 bytes lost for the life of the process</span>
+}
+
+<span class="cm">// ❌ 2. Use-after-free — classic undefined behavior + security bug</span>
+<span class="tp">void</span> <span class="fn">uaf</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">int</span>));
+    *p = <span class="nu">42</span>;
+    <span class="fn">free</span>(p);
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, *p);  <span class="cm">// ❌ p is dangling — may crash, may corrupt</span>
+}
+
+<span class="cm">// ❌ 3. Double free — corrupts the allocator's internal state</span>
+<span class="tp">void</span> <span class="fn">dfree</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="nu">4</span>);
+    <span class="fn">free</span>(p);
+    <span class="fn">free</span>(p);  <span class="cm">// ❌ undefined behavior</span>
+}
+
+<span class="cm">// ✅ Correct pattern — allocate, use, free, null</span>
+<span class="tp">void</span> <span class="fn">correct</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">int</span>));
+    *p = <span class="nu">42</span>;
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, *p);
+    <span class="fn">free</span>(p);
+    p = <span class="kw">NULL</span>;    <span class="cm">// null the pointer — prevents accidental UAF</span>
+}</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Python / Java heap note:</strong> In Python, every object lives on the heap — integers, strings, lists, functions, all of it. CPython uses reference counting plus a cyclic GC to free. You never call <code>free()</code>, but leaks can still happen via lingering references (a global list that accumulates objects forever). Java uses generational GC. Go uses tri-color mark-and-sweep. The heap is still there — you just don't manage it by hand.
+  </div>
+</div>
+
+<!-- ==================== SCOPE ==================== -->
+<div class="panel" id="panel-scope">
+  <div class="section-label">§ 3 — Global vs Local</div>
+  <h2>Global vs Local Variables</h2>
+  <p>Scope (who can see a variable) and lifetime (how long the memory exists) are distinct concepts. A variable's scope comes from where it was declared. Its lifetime comes from which memory region it lives in.</p>
+
+  <div class="key-idea">
+    <div class="label">Scope vs Lifetime — the critical distinction</div>
+    Scope    → which lines of code can name this variable?<br>
+    Lifetime → how long does the actual memory persist?<br><br>
+    A static local has local scope (only visible in its function)<br>
+    but global lifetime (memory exists for the entire program run).
+  </div>
+
+  <table class="scope-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="red-head">Global</th>
+        <th class="red-head">Local (auto)</th>
+        <th class="red-head">Static Local</th>
+        <th class="red-head">Heap-allocated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Declared where</td>
+        <td>Outside all functions</td>
+        <td>Inside a function body</td>
+        <td>Inside a function, with static keyword</td>
+        <td>Anywhere via malloc/new</td>
+      </tr>
+      <tr>
+        <td>Memory region</td>
+        <td>Data / BSS segment</td>
+        <td>Stack</td>
+        <td>Data / BSS segment</td>
+        <td>Heap</td>
+      </tr>
+      <tr>
+        <td>Scope</td>
+        <td>Entire file (or program with extern)</td>
+        <td>Enclosing function only</td>
+        <td>Enclosing function only</td>
+        <td>Wherever the pointer is accessible</td>
+      </tr>
+      <tr>
+        <td>Lifetime</td>
+        <td>Entire program execution</td>
+        <td>Duration of one function call</td>
+        <td>Entire program execution</td>
+        <td>From malloc to free (or GC collection)</td>
+      </tr>
+      <tr>
+        <td>Default value</td>
+        <td>Zero (BSS) or explicit (Data)</td>
+        <td>Garbage — uninitialized</td>
+        <td>Zero on first call, then persists</td>
+        <td>Garbage (malloc) or zero (calloc)</td>
+      </tr>
+      <tr>
+        <td>Thread-safe?</td>
+        <td>No — shared by all threads</td>
+        <td>Yes — each thread has its own stack</td>
+        <td>No — shared across all calls</td>
+        <td>Depends — shared if pointer is shared</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+  <div class="section-label">§ 3.1 — All Four Storage Classes in One File</div>
+  <div class="code-section">
+    <div class="code-header"><span>scope_lifetime.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="tp">int</span>   g_count = <span class="nu">0</span>;     <span class="cm">// GLOBAL   — DATA, scope: entire file</span>
+<span class="tp">int</span>   g_zero;           <span class="cm">// GLOBAL   — BSS,  zero-initialized</span>
+
+<span class="tp">void</span> <span class="fn">counter</span>() {
+    <span class="kw">static</span> <span class="tp">int</span> calls = <span class="nu">0</span>;   <span class="cm">// STATIC LOCAL — BSS, persists across calls</span>
+    <span class="tp">int</span>        x     = <span class="nu">0</span>;   <span class="cm">// LOCAL AUTO   — STACK, fresh every call</span>
+
+    calls++;    <span class="cm">// persists: 1, 2, 3 …</span>
+    x++;        <span class="cm">// always 1 — reset each call</span>
+    g_count++;  <span class="cm">// global — visible everywhere</span>
+
+    <span class="fn">printf</span>(<span class="st">"calls=%d  x=%d  g=%d\n"</span>, calls, x, g_count);
+}
+
+<span class="tp">int</span>* <span class="fn">heap_example</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">int</span>));
+    *p = <span class="nu">777</span>;
+    <span class="kw">return</span> p;   <span class="cm">// safe — heap outlives the function frame</span>
+}
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">counter</span>();   <span class="cm">// calls=1, x=1, g=1</span>
+    <span class="fn">counter</span>();   <span class="cm">// calls=2, x=1, g=2  ← x resets, calls doesn't</span>
+    <span class="fn">counter</span>();   <span class="cm">// calls=3, x=1, g=3</span>
+
+    <span class="tp">int</span>* val = <span class="fn">heap_example</span>();
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, *val);  <span class="cm">// 777 — heap outlived heap_example()</span>
+    <span class="fn">free</span>(val);
+}</pre>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 3.2 — The Dangling Pointer Trap</div>
+  <div class="callout">
+    <strong>Never return a pointer to a local variable.</strong> When a function returns, its entire stack frame is popped. Any pointer into that frame is now pointing at memory the program no longer owns. In C this is silent undefined behavior — the next function call may quietly overwrite it.
+  </div>
+  <div class="code-section">
+    <div class="code-header"><span>dangling.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="cm">// ❌ Returns address of a stack variable — UB</span>
+<span class="tp">int</span>* <span class="fn">bad</span>() {
+    <span class="tp">int</span> x = <span class="nu">42</span>;    <span class="cm">// x is on the stack frame of bad()</span>
+    <span class="kw">return</span> &x;     <span class="cm">// frame popped on return — x is gone</span>
+}
+
+<span class="cm">// ✅ Allocate on the heap — outlives the function</span>
+<span class="tp">int</span>* <span class="fn">good</span>() {
+    <span class="tp">int</span>* p = (<span class="tp">int</span>*) <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">int</span>));
+    *p = <span class="nu">42</span>;
+    <span class="kw">return</span> p;      <span class="cm">// heap persists — caller must free</span>
+}
+
+<span class="cm">// Python: this is a non-issue — all objects on the heap,
+// GC manages lifetime, references keep objects alive automatically</span>
+<span class="kw">def</span> <span class="fn">safe_in_python</span>():
+    items = [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>]   <span class="cm"># list object on heap</span>
+    <span class="kw">return</span> items          <span class="cm"># GC keeps it alive while ref exists</span></pre>
+  </div>
+</div>
+
+<!-- ==================== FRAMES & PC ==================== -->
+<div class="panel" id="panel-frames">
+  <div class="section-label">§ 4 — Stack Frames &amp; Program Counter</div>
+  <h2>Stack Frames &amp; The Program Counter</h2>
+  <p>Every function call creates a <em>stack frame</em> (activation record). The <em>program counter</em> (PC, or instruction pointer / RIP on x86-64) is a CPU register holding the address of the next instruction to execute. Together these two mechanisms are the heartbeat of program execution.</p>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">Program Counter (PC / RIP)</div>
+      <p>A single CPU register holding one address inside the <strong>text segment</strong>. The CPU fetches, executes, then automatically increments PC. On a function call: PC is pushed onto the stack as the return address, then set to the callee's first instruction. On return: PC is restored from the stack.</p>
+      <p>The PC is the only "cursor" in the CPU. Every branch, loop, call, and return is just the CPU changing where PC points.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">Stack Frame (Activation Record)</div>
+      <p>A contiguous block of stack memory created per function call. Contains: the function's local variables, its parameters (if passed on stack), the saved return address (old PC), the saved base pointer (RBP), and any callee-saved registers. Freed automatically when the function executes <code>ret</code>.</p>
+    </div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">Anatomy of a stack frame (x86-64 C calling convention)</div>
+    [higher addr]  caller's frame<br>
+    ───────────────────────────────────<br>
+    &nbsp;&nbsp;function arguments (if &gt; 6, spill onto stack)<br>
+    &nbsp;&nbsp;return address    ← saved PC (where to jump after ret)<br>
+    &nbsp;&nbsp;saved RBP         ← caller's base pointer / frame anchor<br>
+    &nbsp;&nbsp;local variables   ← RBP - offset addresses these<br>
+    &nbsp;&nbsp;saved registers   ← callee-saved: rbx, r12–r15<br>
+    ───────────────────────────────────<br>
+    [lower addr]   ← RSP (stack pointer) always points here
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.1 — Live Stack Frame Snapshot</div>
+  <h3>Three nested calls: main → outer → inner</h3>
+  <p>Active frame is black. Suspended frames are dimmed — their saved PC holds the return address back into their caller.</p>
+
+  <div class="stack-diagram">
+    <div class="stack-diagram-title">
+      <span>Call Stack — during execution of inner(7)</span>
+      <span class="pc-badge">PC = 0x401182 (executing in inner)</span>
+    </div>
+    <div class="stack-frame frame-active">
+      <div class="frame-header">
+        <span class="frame-name">inner(x=7) — ACTIVE FRAME</span>
+        <span class="frame-pc">PC: <span>0x401182</span> — currently executing</span>
+      </div>
+      <div class="frame-body">
+        <div class="frame-cell"><div class="fc-label">Local: result</div><div class="fc-val">14 <span class="fc-type">int</span></div></div>
+        <div class="frame-cell"><div class="fc-label">Param: x</div><div class="fc-val">7 <span class="fc-type">int</span></div></div>
+        <div class="frame-cell"><div class="fc-label">Return addr (saved PC)</div><div class="fc-val fc-type">0x401140 — back into outer</div></div>
+      </div>
+    </div>
+    <div class="stack-frame frame-inactive">
+      <div class="frame-header">
+        <span class="frame-name">outer(a=3, b=4) — suspended</span>
+        <span class="frame-pc">PC saved: <span>0x401140</span> — waiting for inner to return</span>
+      </div>
+      <div class="frame-body">
+        <div class="frame-cell"><div class="fc-label">Local: sum</div><div class="fc-val">7 <span class="fc-type">int</span></div></div>
+        <div class="frame-cell"><div class="fc-label">Param: a</div><div class="fc-val">3 <span class="fc-type">int</span></div></div>
+        <div class="frame-cell"><div class="fc-label">Param: b</div><div class="fc-val">4 <span class="fc-type">int</span></div></div>
+      </div>
+      <div class="frame-body">
+        <div class="frame-cell"><div class="fc-label">Return addr (saved PC)</div><div class="fc-val fc-type">0x4010f0 — back into main</div></div>
+        <div class="frame-cell"></div><div class="frame-cell"></div>
+      </div>
+    </div>
+    <div class="stack-frame frame-inactive">
+      <div class="frame-header">
+        <span class="frame-name">main() — suspended</span>
+        <span class="frame-pc">PC saved: <span>0x4010f0</span> — waiting for outer to return</span>
+      </div>
+      <div class="frame-body">
+        <div class="frame-cell"><div class="fc-label">Local vars</div><div class="fc-val fc-type">— none —</div></div>
+        <div class="frame-cell"><div class="fc-label">Return addr</div><div class="fc-val fc-type">libc __libc_start_main</div></div>
+        <div class="frame-cell"><div class="fc-label">argc / argv</div><div class="fc-val">1 / ptr <span class="fc-type">int/char**</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.2 — Assembly: What CALL and RET actually do</div>
+  <div class="code-section">
+    <div class="code-header"><span>call_mechanics.asm (x86-64)</span><span class="lang-tag">ASM</span></div>
+    <pre><span class="cm">; Calling outer(3, 4) from main</span>
+
+    mov  edi, <span class="nu">3</span>            <span class="cm">; arg a → register rdi (1st arg)</span>
+    mov  esi, <span class="nu">4</span>            <span class="cm">; arg b → register rsi (2nd arg)</span>
+
+<span class="cm">; CALL does two things atomically:</span>
+<span class="cm">;   1. push (PC + instruction_size) onto stack  ← this IS the return address</span>
+<span class="cm">;   2. jump: set PC ← address of outer</span>
+    call <span class="fn">outer</span>
+
+<span class="cm">; ── inside outer's prologue ────────────────────────</span>
+<span class="fn">outer</span>:
+    push rbp               <span class="cm">; save caller's frame pointer (rbp)</span>
+    mov  rbp, rsp          <span class="cm">; rbp = current rsp → anchor this frame</span>
+    sub  rsp, <span class="nu">16</span>           <span class="cm">; reserve 16 bytes for locals (aligned)</span>
+
+    mov  [rbp-<span class="nu">4</span>], edi     <span class="cm">; store param a  at rbp-4</span>
+    mov  [rbp-<span class="nu">8</span>], esi     <span class="cm">; store param b  at rbp-8</span>
+    add  edi, esi
+    mov  [rbp-<span class="nu">12</span>], edi    <span class="cm">; sum = a + b    at rbp-12</span>
+
+<span class="cm">; ── epilogue / RET ──────────────────────────────────</span>
+    leave                  <span class="cm">; = mov rsp,rbp + pop rbp (restores both)</span>
+
+<span class="cm">; RET does two things:</span>
+<span class="cm">;   1. pop return address from stack</span>
+<span class="cm">;   2. jump: set PC ← that address (back into main)</span>
+    ret</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Buffer overflow and the PC:</strong> The saved return address sits on the stack inside the callee's frame. If a local buffer overflows (writing past its bounds), it can overwrite the return address — causing <code>ret</code> to jump to attacker-controlled code. This is why stack canaries, ASLR, and NX bits exist.
+  </div>
+</div>
+
+<!-- ==================== COMPARE ==================== -->
+<div class="panel" id="panel-compare">
+  <div class="section-label">§ 5 — Full Comparison</div>
+  <h2>All Memory Regions at a Glance</h2>
+
+  <table class="scope-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="red-head">Stack</th>
+        <th class="red-head">Heap</th>
+        <th class="red-head">Data / BSS</th>
+        <th class="red-head">Text (Code)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What lives here</td>
+        <td>Locals, params, return addrs, saved regs</td>
+        <td>Dynamic allocs (malloc/new)</td>
+        <td>Global and static variables</td>
+        <td>Machine instructions</td>
+      </tr>
+      <tr>
+        <td>Managed by</td>
+        <td>Compiler / CPU — fully automatic</td>
+        <td>Programmer or GC</td>
+        <td>OS loader at startup</td>
+        <td>OS — read-only, mapped from binary</td>
+      </tr>
+      <tr>
+        <td>Lifetime</td>
+        <td>Duration of function call</td>
+        <td>malloc → free (or GC collection)</td>
+        <td>Entire program execution</td>
+        <td>Entire program execution</td>
+      </tr>
+      <tr>
+        <td>Size known at</td>
+        <td>Compile time</td>
+        <td>Runtime</td>
+        <td>Compile time</td>
+        <td>Compile time</td>
+      </tr>
+      <tr>
+        <td>Growth direction</td>
+        <td>Downward (high → low)</td>
+        <td>Upward (low → high)</td>
+        <td>Fixed</td>
+        <td>Fixed</td>
+      </tr>
+      <tr>
+        <td>Typical max size</td>
+        <td>1–8 MB (OS-configured)</td>
+        <td>Up to available RAM + swap</td>
+        <td>Varies (KBs to MBs)</td>
+        <td>Size of compiled binary</td>
+      </tr>
+      <tr>
+        <td>Access speed</td>
+        <td>Fastest — cache-hot, sequential</td>
+        <td>Slower — pointer chasing, fragmented</td>
+        <td>Fast — often in cache</td>
+        <td>Fast — instruction cache (L1i)</td>
+      </tr>
+      <tr>
+        <td>Common bugs</td>
+        <td>Stack overflow, dangling pointer, buffer overflow → RIP hijack</td>
+        <td>Memory leak, use-after-free, double-free</td>
+        <td>Race conditions across threads</td>
+        <td>Code injection via buffer overflow</td>
+      </tr>
+      <tr>
+        <td>PC relationship</td>
+        <td>Saved return address lives here</td>
+        <td>No direct relation</td>
+        <td>No direct relation</td>
+        <td>PC always points into this region</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+  <div class="section-label">§ 5.1 — Quick Variable Placement Reference</div>
+  <div class="ex-grid">
+    <div class="ex-card"><div class="ex-name">int x = 5;</div><div class="ex-region">inside function → STACK</div><div class="ex-desc">Local auto variable. Destroyed when function returns.</div></div>
+    <div class="ex-card"><div class="ex-name">int g = 5;</div><div class="ex-region">file scope → DATA</div><div class="ex-desc">Initialized global. Stored in binary, loaded at startup.</div></div>
+    <div class="ex-card"><div class="ex-name">int g;</div><div class="ex-region">file scope → BSS</div><div class="ex-desc">Uninitialized global. Zero-filled, not stored in binary.</div></div>
+    <div class="ex-card"><div class="ex-name">static int s;</div><div class="ex-region">inside function → BSS</div><div class="ex-desc">Local scope, global lifetime. Persists across calls.</div></div>
+    <div class="ex-card"><div class="ex-name">malloc(n)</div><div class="ex-region">anywhere → HEAP</div><div class="ex-desc">Pointer on stack, data on heap. Must be freed.</div></div>
+    <div class="ex-card"><div class="ex-name">int arr[1000]</div><div class="ex-region">inside function → STACK</div><div class="ex-desc">Fixed-size local array. Watch the ~8MB stack limit.</div></div>
+    <div class="ex-card"><div class="ex-name">const char* s = "hi"</div><div class="ex-region">literal → TEXT/DATA (read-only)</div><div class="ex-desc">String literal in rodata. Pointer s itself is on the stack.</div></div>
+    <div class="ex-card"><div class="ex-name">x = a + b (compiled)</div><div class="ex-region">instruction → TEXT</div><div class="ex-desc">Machine instruction. PC points here during execution.</div></div>
+    <div class="ex-card"><div class="ex-name">Python: x = [1,2,3]</div><div class="ex-region">object → HEAP</div><div class="ex-desc">All Python objects heap-allocated. GC manages lifetime.</div></div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 5.2 — The Exam Traps</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">Trap 1 — scope ≠ lifetime</div>
+      <p>A <code>static</code> local variable has function scope (only visible inside that function) but global lifetime (memory persists the entire program). These are independent axes.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">Trap 2 — pointer vs pointee</div>
+      <p><code>int* p = malloc(4)</code> — the pointer p is on the stack. The integer it points to is on the heap. One allocation, two different regions.</p>
+    </div>
+  </div>
+  <div class="two-col" style="border-top:none; margin-top:0;">
+    <div class="col" style="border-top: var(--border);">
+      <div class="col-label">Trap 3 — return address vs function address</div>
+      <p>The saved PC (return address) in a stack frame points back into the caller's code in TEXT. The function's own instructions are also in TEXT, but at a different address.</p>
+    </div>
+    <div class="col" style="border-top: var(--border);">
+      <div class="col-label">Trap 4 — BSS vs DATA</div>
+      <p>Uninitialized globals go to BSS — not stored in the binary, zero-filled by the OS at load. Initialized globals go to DATA — stored in the binary. Both have global lifetime.</p>
+    </div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">One-line memory model</div>
+    TEXT = code (PC walks here) | DATA/BSS = globals (forever) |<br>
+    STACK = locals + call frames (function lifetime, LIFO, automatic) |<br>
+    HEAP = dynamic data (manual/GC lifetime, arbitrary size and order)
+  </div>
+</div>
+
+</main>
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* HEAP VIS */
+(function() {
+  const g = document.getElementById('heap-vis');
+  if (!g) return;
+  const p = ['allocated','allocated','allocated','free','allocated','allocated','frag','free','allocated','free','free','allocated','allocated','allocated','frag','frag','free','allocated','allocated','allocated','free','frag','allocated','allocated','allocated','allocated','free','free','allocated','allocated','allocated','free','frag','allocated','free','allocated','allocated','frag','free','allocated','allocated','allocated','allocated','free','frag','allocated','allocated','free','free','free','allocated','allocated','allocated','allocated','free','frag','allocated','frag','free','allocated','allocated','allocated','free','allocated'];
+  const l = {allocated:'alloc',free:'free',frag:'frag'};
+  p.forEach(t => { const c=document.createElement('div'); c.className='heap-cell '+t; c.textContent=l[t]; g.appendChild(c); });
+})();
+
+/* STEPPER */
+const STEPS = [
+  { line: 7, desc: 'main() is called by the OS. A stack frame is pushed for main. PC = first instruction of main.', frames: [{name:'main()',pc:'0x401000',active:true,vars:[]}] },
+  { line: 8, desc: 'main calls factorial(3). A new frame is pushed on top. PC jumps into factorial.', frames: [{name:'factorial(n=3)',pc:'0x401050',active:true,vars:[{n:'n',v:'3'},{n:'ret',v:'main+8'}]},{name:'main()',pc:'0x401008',active:false,vars:[]}] },
+  { line: 2, desc: 'n=3, not base case. factorial(3) calls factorial(2). Another frame pushed.', frames: [{name:'factorial(n=2)',pc:'0x401050',active:true,vars:[{n:'n',v:'2'},{n:'ret',v:'fact+18'}]},{name:'factorial(n=3)',pc:'0x401068',active:false,vars:[{n:'n',v:'3'}]},{name:'main()',pc:'0x401008',active:false,vars:[]}] },
+  { line: 2, desc: 'n=2, not base case. factorial(2) calls factorial(1). Stack grows deeper.', frames: [{name:'factorial(n=1)',pc:'0x401050',active:true,vars:[{n:'n',v:'1'},{n:'ret',v:'fact+18'}]},{name:'factorial(n=2)',pc:'0x401068',active:false,vars:[{n:'n',v:'2'}]},{name:'factorial(n=3)',pc:'0x401068',active:false,vars:[{n:'n',v:'3'}]},{name:'main()',pc:'0x401008',active:false,vars:[]}] },
+  { line: 3, desc: 'n=1 — base case! Returns 1. Frame for factorial(1) POPPED. PC restores to factorial(2)+offset.', frames: [{name:'factorial(n=2)',pc:'0x401068',active:true,vars:[{n:'n',v:'2'},{n:'got',v:'1 ← returned'}]},{name:'factorial(n=3)',pc:'0x401068',active:false,vars:[{n:'n',v:'3'}]},{name:'main()',pc:'0x401008',active:false,vars:[]}] },
+  { line: 4, desc: 'factorial(2) computes 2 × 1 = 2, returns 2. Frame POPPED. PC restores to factorial(3).', frames: [{name:'factorial(n=3)',pc:'0x401068',active:true,vars:[{n:'n',v:'3'},{n:'got',v:'2 ← returned'}]},{name:'main()',pc:'0x401008',active:false,vars:[]}] },
+  { line: 4, desc: 'factorial(3) computes 3 × 2 = 6, returns 6. Frame POPPED. PC restores to main.', frames: [{name:'main()',pc:'0x401010',active:true,vars:[{n:'result',v:'6'}]}] },
+  { line: 9, desc: 'main prints result=6, returns 0. main frame POPPED. Stack is empty. Process exits.', frames: [] }
+];
+
+const CODE_LINES = [
+  '<span class="tp">int</span> <span class="fn">factorial</span>(<span class="tp">int</span> n) {',
+  '    <span class="kw">if</span> (n <= <span class="nu">1</span>)',
+  '        <span class="kw">return</span> <span class="nu">1</span>;            <span class="cm">// base case</span>',
+  '    <span class="cm">// base case hit ↑ returning 1</span>',
+  '    <span class="kw">return</span> n * <span class="fn">factorial</span>(n-<span class="nu">1</span>); <span class="cm">// unwinding</span>',
+  '}',
+  '',
+  '<span class="tp">int</span> <span class="fn">main</span>() {',
+  '    <span class="tp">int</span> r = <span class="fn">factorial</span>(<span class="nu">3</span>);',
+  '    <span class="fn">printf</span>(<span class="st">"%d\\n"</span>, r);',
+  '    <span class="kw">return</span> <span class="nu">0</span>;',
+  '}'
+];
+
+let cur = 0;
+
+function renderStepper() {
+  const step = STEPS[cur];
+  document.getElementById('stepper-code').innerHTML =
+    CODE_LINES.map((l,i) =>
+      `<span class="code-line${i===step.line?' current':''}">${l||' '}</span>`
+    ).join('');
+  const stackEl = document.getElementById('stepper-stack');
+  if (!step.frames.length) {
+    stackEl.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:0.75rem;color:#aaa;padding:0.5rem 0;">— stack empty — program has exited —</div>';
+  } else {
+    stackEl.innerHTML = step.frames.map((f,i) => {
+      const cls = i===0 ? 'top' : 'below';
+      const vars = f.vars.length
+        ? `<div class="s-vars">${f.vars.map(v=>`<span class="s-var"><span class="vname">${v.n}</span>=<span class="vval">${v.v}</span></span>`).join('')}</div>`
+        : '';
+      return `<div class="s-frame ${cls}"><div class="s-frame-head"><span>${f.name}</span><span class="pc-val">PC: <strong>${f.pc}</strong></span></div>${vars}</div>`;
+    }).join('');
+  }
+  document.getElementById('step-label').textContent = `Step ${cur+1}`;
+  document.getElementById('step-desc').textContent = step.desc;
+  document.getElementById('step-counter').textContent = `${cur+1} / ${STEPS.length}`;
+}
+
+function stepFwd()      { if (cur < STEPS.length-1) { cur++; renderStepper(); } }
+function stepBack()     { if (cur > 0)              { cur--; renderStepper(); } }
+function resetStepper() { cur = 0; renderStepper(); }
+
+renderStepper();
+</script>
+</body>
+</html>

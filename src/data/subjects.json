@@ -100,18 +100,13 @@
           ],
           "references": [
             {
-              "file": "cosc/datastruct/other/ds_overview.html",
-              "label": "DS Overview",
+              "file": "cosc/datastruct/datastruct_history.html",
+              "label": "Data Structures History & Reference",
               "type": "iframe"
             },
             {
               "file": "cosc/datastruct/data_structures.html",
-              "label": "DS History & Reference",
-              "type": "iframe"
-            },
-            {
-              "file": "cosc/datastruct/data_structures.html",
-              "label": "Data Structures Guide",
+              "label": "Data Structures Reference",
               "type": "iframe"
             },
             {
@@ -205,27 +200,6 @@
                   "type": "iframe"
                 }
               ]
-            },
-            {
-              "file": "cosc/datastruct/tools/ds_toc.html",
-              "label": "DS Table of Contents",
-              "type": "iframe"
-            },
-            {
-              "type": "group",
-              "label": "Tools",
-              "children": [
-                {
-                  "file": "tools/iteration_visualizer.html",
-                  "label": "Iteration Visualizer",
-                  "type": "iframe"
-                },
-                {
-                  "file": "tools/zybook.html",
-                  "label": "Zybook",
-                  "type": "iframe"
-                }
-              ]
             }
           ],
           "assignments": [],
@@ -310,8 +284,7 @@
               "label": "Zybook DSA Textbook"
             }
           ],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "algos",
@@ -339,25 +312,17 @@
             {
               "file": "./content/subjects/discrete/proofs/algoproofs.md",
               "label": "Algo Proofs"
-            },
-            {
-              "file": "./content/notes/algos/list.md",
-              "label": "Algos List"
-            },
-            {
-              "file": "./content/notes/algos/sorting.md",
-              "label": "Sorting Notes"
             }
           ],
           "references": [
             {
-              "file": "cosc/algos/algorithms.html",
+              "file": "cosc/algos/algos_history.html",
               "label": "Algorithms History & Reference",
               "type": "iframe"
             },
             {
               "file": "cosc/algos/algorithms.html",
-              "label": "Algorithms Guide",
+              "label": "Algorithms Reference",
               "type": "iframe"
             },
             {
@@ -448,6 +413,11 @@
                 {
                   "file": "cosc/algos/sorting/sort_bucket.html",
                   "label": "Bucket Sort",
+                  "type": "iframe"
+                },
+                {
+                  "file": "cosc/algos/sorting/sort_tim.html",
+                  "label": "Tim Sort",
                   "type": "iframe"
                 }
               ]
@@ -552,6 +522,11 @@
                   "type": "iframe"
                 }
               ]
+            },
+            {
+              "file": "cosc/algos/algorithm-strategies.html",
+              "label": "Algorithm Strategies",
+              "type": "iframe"
             }
           ],
           "gopal": [
@@ -559,11 +534,6 @@
               "type": "group",
               "label": "References",
               "children": [
-                {
-                  "file": "cosc/algos/gopal/algos_overview.html",
-                  "label": "Algorithms Overview",
-                  "type": "iframe"
-                },
                 {
                   "file": "cosc/algos/gopal/algos_gopal_induction.html",
                   "label": "Induction",
@@ -592,6 +562,11 @@
                 {
                   "file": "cosc/algos/gopal/algos_recursion_explainer.html",
                   "label": "Recursion Explainer",
+                  "type": "iframe"
+                },
+                {
+                  "file": "cosc/algos/gopal/induction_problems.html",
+                  "label": "Induction Problems",
                   "type": "iframe"
                 }
               ]
@@ -697,12 +672,12 @@
           ],
           "assignments": [
             {
-              "file": "./content/assignments/algos/intro_exam_review.html",
+              "file": "./content/assignments/algos_intro_exam_review.html",
               "label": "Intro Exam Review",
               "type": "content"
             },
             {
-              "file": "./content/practice/algos_intro_exam.html",
+              "file": "./content/practice/3320Eintro.html",
               "label": "Intro Exam Practice",
               "type": "content"
             },
@@ -711,7 +686,7 @@
               "label": "Exam",
               "children": [
                 {
-                  "file": "./content/assignments/algos/intro_exam.html",
+                  "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
                   "label": "algos gopal intro exam Intro",
                   "type": "content"
                 }
@@ -722,7 +697,7 @@
               "label": "Template",
               "children": [
                 {
-                  "file": "./content/assignments/algos/template.html",
+                  "file": "./content/assignments/TEMPLATE_algos.html",
                   "label": "TEMPLATE algos",
                   "type": "content"
                 }
@@ -733,12 +708,12 @@
               "label": "Homeworks",
               "children": [
                 {
-                  "file": "./content/assignments/algos/hw2_solutions.html",
+                  "file": "./content/assignments/algos_3320_hw2_solutions.html",
                   "label": "algos 3320 hw2 solutions",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/algos/hw1_solutions.html",
+                  "file": "./content/assignments/algos_3320_hw1_solutions.html",
                   "label": "algos 3320 hw1 solutions",
                   "type": "content"
                 }
@@ -859,19 +834,11 @@
             {
               "file": "./content/subjects/discrete/proofs/automataproofs.md",
               "label": "Automata Proofs"
-            },
-            {
-              "file": "./content/notes/automata/hw1_hw2_solutions.md",
-              "label": "HW1-2 Solutions"
-            },
-            {
-              "file": "./content/notes/automata/problems_extracted.md",
-              "label": "Problems Extracted"
             }
           ],
           "references": [
             {
-              "file": "cosc/automata/finite/automata_reference.html",
+              "file": "cosc/automata/finite/automata_history.html",
               "label": "Automata History & Reference",
               "type": "iframe"
             },
@@ -900,57 +867,36 @@
                   "type": "iframe"
                 }
               ]
-            },
-            {
-              "type": "group",
-              "label": "3340",
-              "children": [
-                {
-                  "file": "cosc/automata/finite/automata_dfa_nfa.html",
-                  "label": "DFA & NFA",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/automata/advanced/automata_pumping.html",
-                  "label": "Pumping Lemma",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/automata/advanced/automata_turing.html",
-                  "label": "Turing Machines",
-                  "type": "iframe"
-                }
-              ]
             }
           ],
           "assignments": [
             {
-              "file": "./content/assignments/automata/hw1_problems.html",
+              "file": "./content/assignments/hw1_problems_solutionsAutomata.html",
               "label": "HW1 Solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/hw2_problems.html",
+              "file": "./content/assignments/hw2_problems_solutionsAutomata.html",
               "label": "HW2 Solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/hw3_problems.html",
+              "file": "./content/assignments/hw3_problems_solutionsAutomata.html",
               "label": "HW3 Solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/quiz1_review.html",
+              "file": "./content/assignments/quiz1_review_solutionsAutomata.html",
               "label": "Quiz 1 Review",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/quiz2_review.html",
+              "file": "./content/assignments/practice_quiz2_solutionsAutomata.html",
               "label": "Practice Quiz 2",
               "type": "content"
             },
             {
-              "file": "./content/practice/automata_quiz1.html",
+              "file": "./content/practice/3340Q1.html",
               "label": "Q1 Practice",
               "type": "content"
             },
@@ -959,18 +905,13 @@
               "label": "Quiz",
               "children": [
                 {
-                  "file": "./content/assignments/automata/quiz2_review.html",
+                  "file": "./content/assignments/automata_quiz2_rev.html",
                   "label": "automata quiz2 rev",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/automata/quiz1_solutions.html",
+                  "file": "./content/assignments/automata_quiz1_solutions.html",
                   "label": "automata quiz1 solutions",
-                  "type": "content"
-                },
-                {
-                  "file": "./content/assignments/automata/quiz2_practice.html",
-                  "label": "Quiz 2 Practice",
                   "type": "content"
                 }
               ]
@@ -980,7 +921,7 @@
               "label": "Template",
               "children": [
                 {
-                  "file": "./content/assignments/automata/quiz_template.html",
+                  "file": "./content/assignments/automata_quiz_template.html",
                   "label": "automata quiz template",
                   "type": "content"
                 }
@@ -991,17 +932,17 @@
               "label": "Homeworks",
               "children": [
                 {
-                  "file": "./content/assignments/automata/hw3_solutions.html",
+                  "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
                   "label": "automata cosc3340 hw3 solutions (1)",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/automata/hw1_solutions.html",
+                  "file": "./content/assignments/automata_3340_hw1_solutions.html",
                   "label": "automata 3340 hw1 solutions",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/automata/hw2_solutions.html",
+                  "file": "./content/assignments/automata_hw2_solutions.html",
                   "label": "automata hw2 solutions",
                   "type": "content"
                 }
@@ -1020,8 +961,7 @@
               "label": "AutomataQuiz2"
             }
           ],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "comporg",
@@ -1032,13 +972,23 @@
           "notes": [],
           "references": [
             {
-              "file": "cosc/comporg/comporg_reference.html",
+              "file": "cosc/comporg/comporg_history.html",
               "label": "Comp Org History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/comporg/arm_reference.html",
+              "file": "cosc/comporg/comp_org_arm_reference.html",
               "label": "ARM / Comp Org Reference",
+              "type": "iframe"
+            },
+            {
+              "file": "cosc/comporg/memory-guide.html",
+              "label": "Memory Guide",
+              "type": "iframe"
+            },
+            {
+              "file": "cosc/comporg/memory-hierarchy.html",
+              "label": "Memory Hierarchy",
               "type": "iframe"
             }
           ],
@@ -1059,8 +1009,7 @@
               "label": "Comp Org Labs"
             }
           ],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "databases",
@@ -1076,8 +1025,8 @@
               "type": "iframe"
             },
             {
-              "file": "cosc/databases/databases_reference.html",
-              "label": "DB History, Models & Migration",
+              "file": "cosc/databases/databases_history.html",
+              "label": "Databases History & Reference",
               "type": "iframe"
             },
             {
@@ -1090,8 +1039,7 @@
           "code": [],
           "flashcards": null,
           "pdfs": [],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "opsystems",
@@ -1117,8 +1065,6 @@
             }
           ],
           "assignments": [],
-          "gopal": [],
-          "pdfs": [],
           "references": []
         },
         {
@@ -1136,7 +1082,7 @@
               "type": "iframe"
             },
             {
-              "file": "cosc/opsystems/opsystems_reference.html",
+              "file": "cosc/opsystems/opsystems_history.html",
               "label": "OS History & Reference",
               "type": "iframe"
             }
@@ -1150,8 +1096,7 @@
               "label": "Operating Systems — Rincon Textbook"
             }
           ],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "opsystems_linux",
@@ -1252,7 +1197,7 @@
           ],
           "references": [
             {
-              "file": "cosc/linux/linux_reference.html",
+              "file": "cosc/linux/linux_history.html",
               "label": "Linux History & Reference",
               "type": "iframe"
             },
@@ -1266,8 +1211,7 @@
           "code": [],
           "flashcards": null,
           "pdfs": [],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "cpp",
@@ -1331,13 +1275,13 @@
           ],
           "references": [
             {
-              "file": "cosc/cpp/cpp_reference.html",
+              "file": "cosc/cpp/cpp_history.html",
               "label": "C++ History & Reference",
               "type": "iframe"
             },
             {
               "file": "cosc/cpp/cpp_reference.html",
-              "label": "C++ Quick Reference",
+              "label": "C++ Language Guide",
               "type": "iframe"
             }
           ],
@@ -1354,8 +1298,7 @@
               "label": "RPG Project"
             }
           ],
-          "langRefs": true,
-          "gopal": []
+          "langRefs": true
         },
         {
           "id": "python",
@@ -1366,13 +1309,13 @@
           "notes": [],
           "references": [
             {
-              "file": "languages/python_reference.html",
+              "file": "languages/python_history.html",
               "label": "Python History & Reference",
               "type": "iframe"
             },
             {
               "file": "languages/python_reference.html",
-              "label": "Python Quick Reference",
+              "label": "Python Language Guide",
               "type": "iframe"
             }
           ],
@@ -1380,81 +1323,7 @@
           "code": [],
           "flashcards": null,
           "pdfs": [],
-          "langRefs": true,
-          "gopal": []
-        },
-        {
-          "id": "ai",
-          "label": "AI & LLMs",
-          "courseCode": null,
-          "color": "#a78bfa",
-          "icon": "◎",
-          "notes": [
-            {
-              "file": "ai/introtollms.md",
-              "label": "Intro to LLMs"
-            },
-            {
-              "file": "ai/transformers.md",
-              "label": "Transformers"
-            },
-            {
-              "file": "ai/agents.md",
-              "label": "Agents"
-            },
-            {
-              "file": "ai/transformer.svg",
-              "label": "Transformer Architecture (SVG)"
-            }
-          ],
-          "references": [
-            {
-              "file": "ai/llms_intro.html",
-              "label": "Intro to LLMs",
-              "type": "iframe"
-            },
-            {
-              "file": "ai/llm_explained.html",
-              "label": "LLM Explained",
-              "type": "iframe"
-            },
-            {
-              "file": "ai/machine_learning.html",
-              "label": "Machine Learning",
-              "type": "iframe"
-            },
-            {
-              "file": "ai/deep_learning.html",
-              "label": "Deep Learning",
-              "type": "iframe"
-            },
-            {
-              "type": "group",
-              "label": "Agents",
-              "children": [
-                {
-                  "file": "ai/ai_agents.html",
-                  "label": "AI Agents",
-                  "type": "iframe"
-                },
-                {
-                  "file": "ai/agents_guide.html",
-                  "label": "Agents Guide",
-                  "type": "iframe"
-                }
-              ]
-            },
-            {
-              "file": "ai/ai_landscape.html",
-              "label": "AI Landscape",
-              "type": "iframe"
-            }
-          ],
-          "assignments": [],
-          "code": [],
-          "flashcards": null,
-          "pdfs": [],
-          "gopal": []
+          "langRefs": true
         }
       ]
     },
@@ -1481,8 +1350,7 @@
           "assignments": [],
           "code": [],
           "flashcards": null,
-          "pdfs": [],
-          "gopal": []
+          "pdfs": []
         },
         {
           "id": "precalc",
@@ -1501,8 +1369,7 @@
           "assignments": [],
           "code": [],
           "flashcards": null,
-          "pdfs": [],
-          "gopal": []
+          "pdfs": []
         },
         {
           "id": "calc1",
@@ -1521,8 +1388,7 @@
           "assignments": [],
           "code": [],
           "flashcards": null,
-          "pdfs": [],
-          "gopal": []
+          "pdfs": []
         },
         {
           "id": "calc2",
@@ -1541,8 +1407,7 @@
           "assignments": [],
           "code": [],
           "flashcards": null,
-          "pdfs": [],
-          "gopal": []
+          "pdfs": []
         },
         {
           "id": "discrete",
@@ -1566,10 +1431,6 @@
             {
               "file": "./content/subjects/discrete/proofs/proofs.md",
               "label": "Proofs"
-            },
-            {
-              "file": "./content/notes/math_notation.md",
-              "label": "Math Notation Notes"
             }
           ],
           "references": [
@@ -1586,11 +1447,6 @@
             {
               "file": "math/notation/math_science.html",
               "label": "Math & Science Ref",
-              "type": "iframe"
-            },
-            {
-              "file": "math/notation/math_notation_simple.html",
-              "label": "Math Notation (Simple)",
               "type": "iframe"
             }
           ],
@@ -1614,8 +1470,7 @@
               "file": "discrete_exam2.pdf",
               "label": "Exam 2"
             }
-          ],
-          "gopal": []
+          ]
         },
         {
           "id": "linear",
@@ -1651,46 +1506,41 @@
             {
               "file": "./content/subjects/linear/linear_template.html",
               "label": "linear template"
-            },
-            {
-              "file": "math/notation/math_notation_simple.html",
-              "label": "Math Notation (Simple)",
-              "type": "iframe"
             }
           ],
           "assignments": [
             {
-              "file": "./content/assignments/linear/hw1.html",
+              "file": "./content/assignments/linear/linear_algebra_hw1.html",
               "label": "HW1",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/hw2.html",
+              "file": "./content/assignments/linear/linear_algebra_hw2.html",
               "label": "HW2",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/hw3.html",
+              "file": "./content/assignments/linear/linear_algebra_hw3.html",
               "label": "HW3",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/hw4.html",
+              "file": "./content/assignments/linear/hw4_vector_spaces.html",
               "label": "HW4 — Vector Spaces",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/hw5.html",
+              "file": "./content/assignments/linear/hw5_linear_operators.html",
               "label": "HW5 — Linear Operators",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/exam1_review.html",
+              "file": "./content/assignments/linear/linAlg_exam1_review.html",
               "label": "Exam 1 Review",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/exam_checklist.html",
+              "file": "./content/assignments/linear/linear-exam-checklist.html",
               "label": "Exam Checklist",
               "type": "content"
             },
@@ -1699,7 +1549,7 @@
               "label": "linear template"
             },
             {
-              "file": "./content/practice/linear_exam1.html",
+              "file": "./content/practice/2318E1.html",
               "label": "Exam 1 Practice",
               "type": "content"
             },
@@ -1708,17 +1558,17 @@
               "label": "Old Exam",
               "children": [
                 {
-                  "file": "./content/assignments/linear/exam2_final.html",
+                  "file": "./content/assignments/math2318_exam2_FINAL_v2.html",
                   "label": "math2318 exam2 FINAL v2",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/linear/exam1_old.html",
+                  "file": "./content/assignments/math2318_OLD_exam1_solutions.html",
                   "label": "math2318 OLD exam1 solutions",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/linear/final_sp24.html",
+                  "file": "./content/assignments/linear_final_sp24_solutions.html",
                   "label": "linear final sp24 solutions",
                   "type": "content"
                 }
@@ -1729,7 +1579,7 @@
               "label": "Exam",
               "children": [
                 {
-                  "file": "./content/assignments/linear/exam1_sp26.html",
+                  "file": "./content/assignments/math2318_exam1_sp26_solutions.html",
                   "label": "math2318 exam1 sp26 solutions",
                   "type": "content"
                 }
@@ -1771,8 +1621,7 @@
                 }
               ]
             }
-          ],
-          "gopal": []
+          ]
         },
         {
           "id": "stats",
@@ -1781,13 +1630,7 @@
           "color": "#a78bfa",
           "icon": "σ",
           "notes": [],
-          "references": [
-            {
-              "file": "math/stats/statistics.html",
-              "label": "Statistics Reference",
-              "type": "iframe"
-            }
-          ],
+          "references": [],
           "assignments": [],
           "code": [],
           "flashcards": null,
@@ -1796,8 +1639,7 @@
               "file": "stats_lectures.pdf",
               "label": "All Lectures"
             }
-          ],
-          "gopal": []
+          ]
         }
       ]
     }
@@ -1844,13 +1686,13 @@
       "color": "#fb923c"
     },
     {
-      "file": "cosc/comporg/arm_reference.html",
+      "file": "cosc/comporg/comp_org_arm_reference.html",
       "label": "ARM",
       "color": "#34d399"
     },
     {
-      "file": "cosc/linux/linux_reference.html",
-      "label": "Linux",
+      "file": "cosc/linux/linux_history.html",
+      "label": "Linux History & Reference",
       "color": "#a78bfa"
     },
     {
@@ -1865,12 +1707,12 @@
     },
     {
       "file": "cosc/cpp/cpp_reference.html",
-      "label": "C++",
+      "label": "C++ Language Guide",
       "color": "#fb923c"
     },
     {
       "file": "languages/python_reference.html",
-      "label": "Python",
+      "label": "Python Language Guide",
       "color": "#4ecdc4"
     }
   ],
@@ -1888,10 +1730,15 @@
     {
       "label": "Discrete Math",
       "file": "math/discrete/discrete_math.html",
-      "color": "#a78bfa"
+      "color": "#f472b6"
     },
     {
-      "label": "Pre-Calculus",
+      "label": "Discrete Math (alt)",
+      "file": "math/discrete/discrete_math.html",
+      "color": "#f472b6"
+    },
+    {
+      "label": "Precalculus",
       "file": "math/calculus/precalculus.html",
       "color": "#fb923c"
     },
@@ -1907,6 +1754,11 @@
     },
     {
       "label": "Linear Algebra",
+      "file": "math/linear/linear_algebra.html",
+      "color": "#a78bfa"
+    },
+    {
+      "label": "Linear Algebra (alt)",
       "file": "math/linear/linear_algebra.html",
       "color": "#a78bfa"
     },
@@ -2011,18 +1863,13 @@
       ],
       "references": [
         {
-          "file": "cosc/datastruct/other/ds_overview.html",
-          "label": "DS Overview",
+          "file": "cosc/datastruct/datastruct_history.html",
+          "label": "Data Structures History & Reference",
           "type": "iframe"
         },
         {
           "file": "cosc/datastruct/data_structures.html",
-          "label": "DS History & Reference",
-          "type": "iframe"
-        },
-        {
-          "file": "cosc/datastruct/data_structures.html",
-          "label": "Data Structures Guide",
+          "label": "Data Structures Reference",
           "type": "iframe"
         },
         {
@@ -2116,27 +1963,6 @@
               "type": "iframe"
             }
           ]
-        },
-        {
-          "file": "cosc/datastruct/tools/ds_toc.html",
-          "label": "DS Table of Contents",
-          "type": "iframe"
-        },
-        {
-          "type": "group",
-          "label": "Tools",
-          "children": [
-            {
-              "file": "tools/iteration_visualizer.html",
-              "label": "Iteration Visualizer",
-              "type": "iframe"
-            },
-            {
-              "file": "tools/zybook.html",
-              "label": "Zybook",
-              "type": "iframe"
-            }
-          ]
         }
       ],
       "assignments": [],
@@ -2222,7 +2048,6 @@
         }
       ],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -2252,25 +2077,17 @@
         {
           "file": "./content/subjects/discrete/proofs/algoproofs.md",
           "label": "Algo Proofs"
-        },
-        {
-          "file": "./content/notes/algos/list.md",
-          "label": "Algos List"
-        },
-        {
-          "file": "./content/notes/algos/sorting.md",
-          "label": "Sorting Notes"
         }
       ],
       "references": [
         {
-          "file": "cosc/algos/algorithms.html",
+          "file": "cosc/algos/algos_history.html",
           "label": "Algorithms History & Reference",
           "type": "iframe"
         },
         {
           "file": "cosc/algos/algorithms.html",
-          "label": "Algorithms Guide",
+          "label": "Algorithms Reference",
           "type": "iframe"
         },
         {
@@ -2465,6 +2282,11 @@
               "type": "iframe"
             }
           ]
+        },
+        {
+          "file": "cosc/algos/algorithm-strategies.html",
+          "label": "Algorithm Strategies",
+          "type": "iframe"
         }
       ],
       "gopal": [
@@ -2472,11 +2294,6 @@
           "type": "group",
           "label": "References",
           "children": [
-            {
-              "file": "cosc/algos/gopal/algos_overview.html",
-              "label": "Algorithms Overview",
-              "type": "iframe"
-            },
             {
               "file": "cosc/algos/gopal/algos_gopal_induction.html",
               "label": "Induction",
@@ -2505,6 +2322,11 @@
             {
               "file": "cosc/algos/gopal/algos_recursion_explainer.html",
               "label": "Recursion Explainer",
+              "type": "iframe"
+            },
+            {
+              "file": "cosc/algos/gopal/induction_problems.html",
+              "label": "Induction Problems",
               "type": "iframe"
             }
           ]
@@ -2610,12 +2432,12 @@
       ],
       "assignments": [
         {
-          "file": "./content/assignments/algos/intro_exam_review.html",
+          "file": "./content/assignments/algos_intro_exam_review.html",
           "label": "Intro Exam Review",
           "type": "content"
         },
         {
-          "file": "./content/practice/algos_intro_exam.html",
+          "file": "./content/practice/3320Eintro.html",
           "label": "Intro Exam Practice",
           "type": "content"
         },
@@ -2624,7 +2446,7 @@
           "label": "Exam",
           "children": [
             {
-              "file": "./content/assignments/algos/intro_exam.html",
+              "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
               "label": "algos gopal intro exam Intro",
               "type": "content"
             }
@@ -2635,7 +2457,7 @@
           "label": "Template",
           "children": [
             {
-              "file": "./content/assignments/algos/template.html",
+              "file": "./content/assignments/TEMPLATE_algos.html",
               "label": "TEMPLATE algos",
               "type": "content"
             }
@@ -2646,12 +2468,12 @@
           "label": "Homeworks",
           "children": [
             {
-              "file": "./content/assignments/algos/hw2_solutions.html",
+              "file": "./content/assignments/algos_3320_hw2_solutions.html",
               "label": "algos 3320 hw2 solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/algos/hw1_solutions.html",
+              "file": "./content/assignments/algos_3320_hw1_solutions.html",
               "label": "algos 3320 hw1 solutions",
               "type": "content"
             }
@@ -2774,19 +2596,11 @@
         {
           "file": "./content/subjects/discrete/proofs/automataproofs.md",
           "label": "Automata Proofs"
-        },
-        {
-          "file": "./content/notes/automata/hw1_hw2_solutions.md",
-          "label": "HW1-2 Solutions"
-        },
-        {
-          "file": "./content/notes/automata/problems_extracted.md",
-          "label": "Problems Extracted"
         }
       ],
       "references": [
         {
-          "file": "cosc/automata/finite/automata_reference.html",
+          "file": "cosc/automata/finite/automata_history.html",
           "label": "Automata History & Reference",
           "type": "iframe"
         },
@@ -2804,17 +2618,6 @@
           "file": "cosc/automata/finite/jflap_demo.html",
           "label": "JFLAP Demo",
           "type": "iframe"
-        },
-        {
-          "type": "group",
-          "label": "Visual",
-          "children": [
-            {
-              "file": "cosc/automata/finite/automata_visualizer.html",
-              "label": "Automata Visualizer",
-              "type": "iframe"
-            }
-          ]
         },
         {
           "type": "group",
@@ -2836,36 +2639,47 @@
               "type": "iframe"
             }
           ]
+        },
+        {
+          "type": "group",
+          "label": "Visual",
+          "children": [
+            {
+              "file": "cosc/automata/finite/automata_visualizer.html",
+              "label": "Automata Visualizer",
+              "type": "iframe"
+            }
+          ]
         }
       ],
       "assignments": [
         {
-          "file": "./content/assignments/automata/hw1_problems.html",
+          "file": "./content/assignments/hw1_problems_solutionsAutomata.html",
           "label": "HW1 Solutions",
           "type": "content"
         },
         {
-          "file": "./content/assignments/automata/hw2_problems.html",
+          "file": "./content/assignments/hw2_problems_solutionsAutomata.html",
           "label": "HW2 Solutions",
           "type": "content"
         },
         {
-          "file": "./content/assignments/automata/hw3_problems.html",
+          "file": "./content/assignments/hw3_problems_solutionsAutomata.html",
           "label": "HW3 Solutions",
           "type": "content"
         },
         {
-          "file": "./content/assignments/automata/quiz1_review.html",
+          "file": "./content/assignments/quiz1_review_solutionsAutomata.html",
           "label": "Quiz 1 Review",
           "type": "content"
         },
         {
-          "file": "./content/assignments/automata/quiz2_review.html",
+          "file": "./content/assignments/practice_quiz2_solutionsAutomata.html",
           "label": "Practice Quiz 2",
           "type": "content"
         },
         {
-          "file": "./content/practice/automata_quiz1.html",
+          "file": "./content/practice/3340Q1.html",
           "label": "Q1 Practice",
           "type": "content"
         },
@@ -2874,18 +2688,13 @@
           "label": "Quiz",
           "children": [
             {
-              "file": "./content/assignments/automata/quiz2_review.html",
+              "file": "./content/assignments/automata_quiz2_rev.html",
               "label": "automata quiz2 rev",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/quiz1_solutions.html",
+              "file": "./content/assignments/automata_quiz1_solutions.html",
               "label": "automata quiz1 solutions",
-              "type": "content"
-            },
-            {
-              "file": "./content/assignments/automata/quiz2_practice.html",
-              "label": "Quiz 2 Practice",
               "type": "content"
             }
           ]
@@ -2895,7 +2704,7 @@
           "label": "Template",
           "children": [
             {
-              "file": "./content/assignments/automata/quiz_template.html",
+              "file": "./content/assignments/automata_quiz_template.html",
               "label": "automata quiz template",
               "type": "content"
             }
@@ -2906,17 +2715,17 @@
           "label": "Homeworks",
           "children": [
             {
-              "file": "./content/assignments/automata/hw3_solutions.html",
+              "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
               "label": "automata cosc3340 hw3 solutions (1)",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/hw1_solutions.html",
+              "file": "./content/assignments/automata_3340_hw1_solutions.html",
               "label": "automata 3340 hw1 solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/automata/hw2_solutions.html",
+              "file": "./content/assignments/automata_hw2_solutions.html",
               "label": "automata hw2 solutions",
               "type": "content"
             }
@@ -2936,7 +2745,6 @@
         }
       ],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -2949,13 +2757,23 @@
       "notes": [],
       "references": [
         {
-          "file": "cosc/comporg/comporg_reference.html",
+          "file": "cosc/comporg/comporg_history.html",
           "label": "Comp Org History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/comporg/arm_reference.html",
+          "file": "cosc/comporg/comp_org_arm_reference.html",
           "label": "ARM / Comp Org Reference",
+          "type": "iframe"
+        },
+        {
+          "file": "cosc/comporg/memory-guide.html",
+          "label": "Memory Guide",
+          "type": "iframe"
+        },
+        {
+          "file": "cosc/comporg/memory-hierarchy.html",
+          "label": "Memory Hierarchy",
           "type": "iframe"
         }
       ],
@@ -2977,7 +2795,6 @@
         }
       ],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -2995,8 +2812,8 @@
           "type": "iframe"
         },
         {
-          "file": "cosc/databases/databases_reference.html",
-          "label": "DB History, Models & Migration",
+          "file": "cosc/databases/databases_history.html",
+          "label": "Databases History & Reference",
           "type": "iframe"
         },
         {
@@ -3010,7 +2827,6 @@
       "flashcards": null,
       "pdfs": [],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -3037,12 +2853,10 @@
           "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
         }
       ],
-      "assignments": [],
-      "gopal": [],
-      "pdfs": [],
-      "references": [],
       "dept": "cosc",
-      "deptLabel": "COSC"
+      "deptLabel": "COSC",
+      "assignments": [],
+      "references": []
     },
     {
       "id": "opsystems_academic",
@@ -3059,7 +2873,7 @@
           "type": "iframe"
         },
         {
-          "file": "cosc/opsystems/opsystems_reference.html",
+          "file": "cosc/opsystems/opsystems_history.html",
           "label": "OS History & Reference",
           "type": "iframe"
         }
@@ -3074,7 +2888,6 @@
         }
       ],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -3177,7 +2990,7 @@
       ],
       "references": [
         {
-          "file": "cosc/linux/linux_reference.html",
+          "file": "cosc/linux/linux_history.html",
           "label": "Linux History & Reference",
           "type": "iframe"
         },
@@ -3192,7 +3005,6 @@
       "flashcards": null,
       "pdfs": [],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -3258,13 +3070,13 @@
       ],
       "references": [
         {
-          "file": "cosc/cpp/cpp_reference.html",
+          "file": "cosc/cpp/cpp_history.html",
           "label": "C++ History & Reference",
           "type": "iframe"
         },
         {
           "file": "cosc/cpp/cpp_reference.html",
-          "label": "C++ Quick Reference",
+          "label": "C++ Language Guide",
           "type": "iframe"
         }
       ],
@@ -3282,7 +3094,6 @@
         }
       ],
       "langRefs": true,
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -3295,13 +3106,13 @@
       "notes": [],
       "references": [
         {
-          "file": "languages/python_reference.html",
+          "file": "languages/python_history.html",
           "label": "Python History & Reference",
           "type": "iframe"
         },
         {
           "file": "languages/python_reference.html",
-          "label": "Python Quick Reference",
+          "label": "Python Language Guide",
           "type": "iframe"
         }
       ],
@@ -3310,82 +3121,6 @@
       "flashcards": null,
       "pdfs": [],
       "langRefs": true,
-      "gopal": [],
-      "dept": "cosc",
-      "deptLabel": "COSC"
-    },
-    {
-      "id": "ai",
-      "label": "AI & LLMs",
-      "courseCode": null,
-      "color": "#a78bfa",
-      "icon": "◎",
-      "notes": [
-        {
-          "file": "ai/introtollms.md",
-          "label": "Intro to LLMs"
-        },
-        {
-          "file": "ai/transformers.md",
-          "label": "Transformers"
-        },
-        {
-          "file": "ai/agents.md",
-          "label": "Agents"
-        },
-        {
-          "file": "ai/transformer.svg",
-          "label": "Transformer Architecture (SVG)"
-        }
-      ],
-      "references": [
-        {
-          "file": "ai/llms_intro.html",
-          "label": "Intro to LLMs",
-          "type": "iframe"
-        },
-        {
-          "file": "ai/llm_explained.html",
-          "label": "LLM Explained",
-          "type": "iframe"
-        },
-        {
-          "file": "ai/machine_learning.html",
-          "label": "Machine Learning",
-          "type": "iframe"
-        },
-        {
-          "file": "ai/deep_learning.html",
-          "label": "Deep Learning",
-          "type": "iframe"
-        },
-        {
-          "type": "group",
-          "label": "Agents",
-          "children": [
-            {
-              "file": "ai/ai_agents.html",
-              "label": "AI Agents",
-              "type": "iframe"
-            },
-            {
-              "file": "ai/agents_guide.html",
-              "label": "Agents Guide",
-              "type": "iframe"
-            }
-          ]
-        },
-        {
-          "file": "ai/ai_landscape.html",
-          "label": "AI Landscape",
-          "type": "iframe"
-        }
-      ],
-      "assignments": [],
-      "code": [],
-      "flashcards": null,
-      "pdfs": [],
-      "gopal": [],
       "dept": "cosc",
       "deptLabel": "COSC"
     },
@@ -3407,7 +3142,6 @@
       "code": [],
       "flashcards": null,
       "pdfs": [],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3429,7 +3163,6 @@
       "code": [],
       "flashcards": null,
       "pdfs": [],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3451,7 +3184,6 @@
       "code": [],
       "flashcards": null,
       "pdfs": [],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3473,7 +3205,6 @@
       "code": [],
       "flashcards": null,
       "pdfs": [],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3499,10 +3230,6 @@
         {
           "file": "./content/subjects/discrete/proofs/proofs.md",
           "label": "Proofs"
-        },
-        {
-          "file": "./content/notes/math_notation.md",
-          "label": "Math Notation Notes"
         }
       ],
       "references": [
@@ -3519,11 +3246,6 @@
         {
           "file": "math/notation/math_science.html",
           "label": "Math & Science Ref",
-          "type": "iframe"
-        },
-        {
-          "file": "math/notation/math_notation_simple.html",
-          "label": "Math Notation (Simple)",
           "type": "iframe"
         }
       ],
@@ -3548,7 +3270,6 @@
           "label": "Exam 2"
         }
       ],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3582,50 +3303,41 @@
           "file": "math/notation/math_notation.html",
           "label": "Math Notation",
           "type": "iframe"
-        },
-        {
-          "file": "./content/subjects/linear/linear_template.html",
-          "label": "linear template"
-        },
-        {
-          "file": "math/notation/math_notation_simple.html",
-          "label": "Math Notation (Simple)",
-          "type": "iframe"
         }
       ],
       "assignments": [
         {
-          "file": "./content/assignments/linear/hw1.html",
+          "file": "./content/assignments/linear/linear_algebra_hw1.html",
           "label": "HW1",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/hw2.html",
+          "file": "./content/assignments/linear/linear_algebra_hw2.html",
           "label": "HW2",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/hw3.html",
+          "file": "./content/assignments/linear/linear_algebra_hw3.html",
           "label": "HW3",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/hw4.html",
+          "file": "./content/assignments/linear/hw4_vector_spaces.html",
           "label": "HW4 — Vector Spaces",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/hw5.html",
+          "file": "./content/assignments/linear/hw5_linear_operators.html",
           "label": "HW5 — Linear Operators",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/exam1_review.html",
+          "file": "./content/assignments/linear/linAlg_exam1_review.html",
           "label": "Exam 1 Review",
           "type": "content"
         },
         {
-          "file": "./content/assignments/linear/exam_checklist.html",
+          "file": "./content/assignments/linear/linear-exam-checklist.html",
           "label": "Exam Checklist",
           "type": "content"
         },
@@ -3634,7 +3346,7 @@
           "label": "linear template"
         },
         {
-          "file": "./content/practice/linear_exam1.html",
+          "file": "./content/practice/2318E1.html",
           "label": "Exam 1 Practice",
           "type": "content"
         },
@@ -3643,17 +3355,17 @@
           "label": "Old Exam",
           "children": [
             {
-              "file": "./content/assignments/linear/exam2_final.html",
+              "file": "./content/assignments/math2318_exam2_FINAL_v2.html",
               "label": "math2318 exam2 FINAL v2",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/exam1_old.html",
+              "file": "./content/assignments/math2318_OLD_exam1_solutions.html",
               "label": "math2318 OLD exam1 solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/linear/final_sp24.html",
+              "file": "./content/assignments/linear_final_sp24_solutions.html",
               "label": "linear final sp24 solutions",
               "type": "content"
             }
@@ -3664,7 +3376,7 @@
           "label": "Exam",
           "children": [
             {
-              "file": "./content/assignments/linear/exam1_sp26.html",
+              "file": "./content/assignments/math2318_exam1_sp26_solutions.html",
               "label": "math2318 exam1 sp26 solutions",
               "type": "content"
             }
@@ -3707,7 +3419,6 @@
           ]
         }
       ],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     },
@@ -3718,13 +3429,7 @@
       "color": "#a78bfa",
       "icon": "σ",
       "notes": [],
-      "references": [
-        {
-          "file": "math/stats/statistics.html",
-          "label": "Statistics Reference",
-          "type": "iframe"
-        }
-      ],
+      "references": [],
       "assignments": [],
       "code": [],
       "flashcards": null,
@@ -3734,7 +3439,6 @@
           "label": "All Lectures"
         }
       ],
-      "gopal": [],
       "dept": "math",
       "deptLabel": "MATH"
     }

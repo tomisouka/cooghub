@@ -44,18 +44,19 @@ const MONO = "'DM Mono', 'Fira Code', monospace";
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
 function getDaysUntil(dateStr) {
-  const now = new Date(); now.setHours(0,0,0,0);
-  return Math.ceil((new Date(dateStr + "T00:00:00") - now) / 86400000);
+  const now = new Date();
+  const deadline = new Date(dateStr + "T23:59:00");
+  return Math.floor((deadline - now) / 86400000);
 }
-// Urgency tiers — x = days until deadline
-// OVERDUE : x <= 0
-// DEATH   : 0 < x <= 3
+// Urgency tiers — x = days until deadline (floored, so 0 = due today with time remaining)
+// OVERDUE : x < 0  (past 23:59 on due date)
+// DEATH   : 0 <= x <= 3
 // PULSE   : 3 < x <= 7
 // CORNER  : 7 < x <= 14
 // WINDOW  : 14 < x <= 21
 // PROJECT : x > 21
 function urgencyTier(d) {
-  if (d <= 0)  return { color: "#ff4444", label: "OVERDUE", bold: true  };
+  if (d < 0)   return { color: "#ff4444", label: "OVERDUE", bold: true  };
   if (d <= 3)  return { color: "#ff6b9d", label: "DEATH",   bold: true  };
   if (d <= 7)  return { color: "#fb923c", label: "PULSE",   bold: true  };
   if (d <= 14) return { color: "#7eb8f7", label: "CORNER",  bold: false };
@@ -67,8 +68,8 @@ function urgencyLabel(d) {
 }
 // Returns the name of the next urgency tier and how many days until it arrives
 function nextTierInfo(d) {
-  if (d <= 0)  return null; // already overdue, no next tier
-  if (d <= 3)  return { name: "OVERDUE", daysUntil: d };
+  if (d < 0)   return null; // already overdue, no next tier
+  if (d <= 3)  return { name: "OVERDUE", daysUntil: d + 1 };
   if (d <= 7)  return { name: "DEATH",   daysUntil: d - 3 };
   if (d <= 14) return { name: "PULSE",   daysUntil: d - 7 };
   if (d <= 21) return { name: "CORNER",  daysUntil: d - 14 };
@@ -212,7 +213,7 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 const emptyForm = (type = "sun") => ({
-  title: "", course: "", date: "", time: "", notes: "",
+  title: "", course: "", date: "", time: "23:59", notes: "",
   type, priority: "normal", repeat: "none", tag: "",
   parentSunId: "",
 });
@@ -521,8 +522,7 @@ export default function DeadlinesPage() {
                     <div style={{position:"absolute",top:-8,right:6,fontSize:8,fontWeight:700,color:"#e8c547",background:"#161920",padding:"0 4px",letterSpacing:"0.5px",textTransform:"uppercase"}}>inherited from ☀</div>
                   )}
                 </div>
-                <input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} style={inputStyle}/>
-                <input type="time" value={form.time} onChange={e=>setForm(f=>({...f,time:e.target.value}))} style={inputStyle}/>
+                <input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} onClick={e=>e.target.showPicker?.()} style={{...inputStyle,gridColumn:"1 / -1"}}/>
                 <select value={form.priority} onChange={e=>setForm(f=>({...f,priority:e.target.value}))} style={inputStyle}>
                   <option value="low">Low priority</option>
                   <option value="normal">Normal</option>
@@ -864,8 +864,7 @@ export default function DeadlinesPage() {
                                     {COURSES.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
                                   </select>
                                 </div>
-                                <div><div style={fieldLabel}>Date</div><input type="date" value={dl.date} onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,date:e.target.value}:d).sort((a,b)=>a.date.localeCompare(b.date)))} style={{...inputStyle,fontSize:12,padding:"5px 8px"}}/></div>
-                                <div><div style={fieldLabel}>Time</div><input type="time" value={dl.time||""} onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,time:e.target.value}:d))} style={{...inputStyle,fontSize:12,padding:"5px 8px"}}/></div>
+                                <div><div style={fieldLabel}>Date</div><input type="date" value={dl.date} onChange={e=>setDeadlines(p=>p.map(d=>d.id===dl.id?{...d,date:e.target.value}:d).sort((a,b)=>a.date.localeCompare(b.date)))} onClick={e=>e.target.showPicker?.()} style={{...inputStyle,fontSize:12,padding:"5px 8px"}}/></div>
                                 <div><div style={fieldLabel}>Status</div>
                                   <select value={dl.status==="inprogress"?"inprogress":"none"} onChange={e=>{
                                     const next=e.target.value;

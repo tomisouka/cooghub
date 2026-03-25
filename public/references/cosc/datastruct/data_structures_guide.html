@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --border: #242424;
+    --accent: #c8f542;
+    --accent2: #42d4f5;
+    --text: #e8e8e8;
+    --muted: #666;
+    --cat1: #ff6b6b;
+    --cat2: #ffd93d;
+    --cat3: #6bcb77;
+    --cat4: #4d96ff;
+    --cat5: #c77dff;
+    --cat6: #f4845f;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 60px 40px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,245,66,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  header {
+    max-width: 1100px;
+    margin: 0 auto 70px;
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .title-block h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -3px;
+    color: var(--text);
+  }
+
+  .title-block h1 span {
+    color: var(--accent);
+  }
+
+  .title-block p {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stats {
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .stats .num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stats .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2px;
+  }
+
+  .category {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 28px 32px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .category::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--cat-color);
+  }
+
+  .category:nth-child(1) { --cat-color: var(--cat1); animation-delay: 0.05s; }
+  .category:nth-child(2) { --cat-color: var(--cat2); animation-delay: 0.1s; }
+  .category:nth-child(3) { --cat-color: var(--cat3); animation-delay: 0.15s; }
+  .category:nth-child(4) { --cat-color: var(--cat4); animation-delay: 0.2s; }
+  .category:nth-child(5) { --cat-color: var(--cat5); animation-delay: 0.25s; }
+  .category:nth-child(6) { --cat-color: var(--cat6); animation-delay: 0.3s; }
+  .category:nth-child(7) { --cat-color: var(--cat1); animation-delay: 0.35s; }
+  .category:nth-child(8) { --cat-color: var(--cat2); animation-delay: 0.4s; }
+  .category:nth-child(9) { --cat-color: var(--accent2); animation-delay: 0.45s; }
+
+  .category:hover {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .cat-index {
+    font-size: 10px;
+    color: var(--cat-color);
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  .cat-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .cat-count {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 3px 8px;
+    letter-spacing: 1px;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  ul li {
+    padding: 6px 0;
+    border-bottom: 1px solid #1e1e1e;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #bbb;
+    transition: color 0.15s;
+  }
+
+  ul li:last-child { border-bottom: none; }
+
+  ul li::before {
+    content: '—';
+    color: var(--cat-color);
+    opacity: 0.6;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+
+  ul li:hover {
+    color: var(--text);
+  }
+
+  .sub {
+    margin-top: 4px;
+    margin-left: 14px;
+  }
+
+  .sub li {
+    font-size: 11.5px;
+    color: var(--muted);
+    padding: 4px 0;
+  }
+
+  .sub li::before {
+    content: '·';
+    color: var(--cat-color);
+    opacity: 0.4;
+  }
+
+  .sub li:hover { color: #aaa; }
+
+  .tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border: 1px solid;
+    border-color: var(--cat-color);
+    color: var(--cat-color);
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  footer {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<header>
+  <div class="title-block">
+    <h1>Data<br><span>Structures</span></h1>
+    <p>Complete Reference · All Categories</p>
+  </div>
+  <div class="stats">
+    <div class="num">9</div>
+    <div class="label">Categories</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 1. Linear -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">01</span>
+      <span class="cat-name">Linear</span>
+      <span class="cat-count">7 types</span>
+    </div>
+    <ul>
+      <li>Array <span class="tag">primitive</span></li>
+      <ul class="sub">
+        <li>Static Array</li>
+        <li>Dynamic Array (ArrayList)</li>
+        <li>Multi-dimensional Array</li>
+      </ul>
+      <li>Linked List</li>
+      <ul class="sub">
+        <li>Singly Linked List</li>
+        <li>Doubly Linked List</li>
+        <li>Circular Linked List</li>
+        <li>Circular Doubly Linked List</li>
+      </ul>
+      <li>Stack <span class="tag">LIFO</span></li>
+      <ul class="sub">
+        <li>Array-based Stack</li>
+        <li>Linked List-based Stack</li>
+      </ul>
+      <li>Queue <span class="tag">FIFO</span></li>
+      <ul class="sub">
+        <li>Simple Queue</li>
+        <li>Circular Queue</li>
+        <li>Double-ended Queue (Deque)</li>
+        <li>Priority Queue</li>
+      </ul>
+    </ul>
+  </div>
+
+  <!-- 2. Hash-based -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">02</span>
+      <span class="cat-name">Hash-Based</span>
+      <span class="cat-count">5 types</span>
+    </div>
+    <ul>
+      <li>Hash Table</li>
+      <ul class="sub">
+        <li>Open Addressing (Linear, Quadratic, Double)</li>
+        <li>Separate Chaining</li>
+        <li>Robin Hood Hashing</li>
+        <li>Cuckoo Hashing</li>
+      </ul>
+      <li>Hash Map</li>
+      <li>Hash Set</li>
+      <li>Bloom Filter <span class="tag">probabilistic</span></li>
+      <li>Count-Min Sketch <span class="tag">probabilistic</span></li>
+    </ul>
+  </div>
+
+  <!-- 3. Trees -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">03</span>
+      <span class="cat-name">Trees</span>
+      <span class="cat-count">12 types</span>
+    </div>
+    <ul>
+      <li>Binary Tree</li>
+      <ul class="sub">
+        <li>Binary Search Tree (BST)</li>
+        <li>Complete Binary Tree</li>
+        <li>Full Binary Tree</li>
+        <li>Perfect Binary Tree</li>
+      </ul>
+      <li>Self-Balancing Trees</li>
+      <ul class="sub">
+        <li>AVL Tree</li>
+        <li>Red-Black Tree</li>
+        <li>Splay Tree</li>
+        <li>Scapegoat Tree</li>
+        <li>Treap</li>
+      </ul>
+      <li>B-Trees <span class="tag">disk</span></li>
+      <ul class="sub">
+        <li>B-Tree</li>
+        <li>B+ Tree</li>
+        <li>B* Tree</li>
+      </ul>
+      <li>Heap</li>
+      <ul class="sub">
+        <li>Min-Heap / Max-Heap</li>
+        <li>Fibonacci Heap</li>
+        <li>Binomial Heap</li>
+        <li>Leftist Heap</li>
+        <li>Skew Heap</li>
+      </ul>
+      <li>N-ary Tree</li>
+      <li>K-D Tree <span class="tag">spatial</span></li>
+      <li>Segment Tree <span class="tag">range</span></li>
+      <li>Fenwick Tree (BIT)</li>
+      <li>Suffix Tree / Array</li>
+    </ul>
+  </div>
+
+  <!-- 4. Tries -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">04</span>
+      <span class="cat-name">Tries</span>
+      <span class="cat-count">4 types</span>
+    </div>
+    <ul>
+      <li>Standard Trie</li>
+      <li>Compressed Trie (Radix Tree / Patricia)</li>
+      <li>Ternary Search Trie</li>
+      <li>Suffix Trie</li>
+    </ul>
+  </div>
+
+  <!-- 5. Graphs -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">05</span>
+      <span class="cat-name">Graphs</span>
+      <span class="cat-count">6 types</span>
+    </div>
+    <ul>
+      <li>Representations</li>
+      <ul class="sub">
+        <li>Adjacency Matrix</li>
+        <li>Adjacency List</li>
+        <li>Edge List</li>
+        <li>Incidence Matrix</li>
+      </ul>
+      <li>Directed Graph (Digraph)</li>
+      <li>Undirected Graph</li>
+      <li>Weighted Graph</li>
+      <li>DAG (Directed Acyclic Graph)</li>
+      <li>Sparse / Dense Graph</li>
+      <li>Bipartite Graph</li>
+    </ul>
+  </div>
+
+  <!-- 6. Disjoint Set -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">06</span>
+      <span class="cat-name">Union-Find</span>
+      <span class="cat-count">3 types</span>
+    </div>
+    <ul>
+      <li>Disjoint Set (Union-Find)</li>
+      <ul class="sub">
+        <li>Quick Find</li>
+        <li>Quick Union</li>
+        <li>Union by Rank + Path Compression</li>
+        <li>Weighted Union</li>
+      </ul>
+      <li>Persistent Union-Find</li>
+      <li>Link-Cut Tree</li>
+    </ul>
+  </div>
+
+  <!-- 7. Advanced / Augmented -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">07</span>
+      <span class="cat-name">Advanced</span>
+      <span class="cat-count">8 types</span>
+    </div>
+    <ul>
+      <li>Skip List</li>
+      <li>Sparse Table <span class="tag">range min/max</span></li>
+      <li>Sqrt Decomposition</li>
+      <li>Van Emde Boas Tree</li>
+      <li>X-fast / Y-fast Trie</li>
+      <li>Rope (String) <span class="tag">text edit</span></li>
+      <li>Order Statistics Tree</li>
+      <li>Interval Tree</li>
+    </ul>
+  </div>
+
+  <!-- 8. Monotonic -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">08</span>
+      <span class="cat-name">Monotonic</span>
+      <span class="cat-count">2 types</span>
+    </div>
+    <ul>
+      <li>Monotonic Stack</li>
+      <ul class="sub">
+        <li>Increasing Monotonic Stack</li>
+        <li>Decreasing Monotonic Stack</li>
+      </ul>
+      <li>Monotonic Queue / Deque</li>
+      <ul class="sub">
+        <li>Sliding Window Maximum</li>
+      </ul>
+    </ul>
+  </div>
+
+  <!-- 9. Persistent / Functional -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">09</span>
+      <span class="cat-name">Persistent</span>
+      <span class="cat-count">4 types</span>
+    </div>
+    <ul>
+      <li>Persistent Segment Tree</li>
+      <li>Persistent Array</li>
+      <li>Persistent BST</li>
+      <li>Functional Queue / Stack</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <span>DATA STRUCTURES — COMPLETE TOC</span>
+  <span>ALGORITHMS →</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080c14;
+    --surface: #0d1220;
+    --border: #1a2238;
+    --accent: #42d4f5;
+    --accent2: #f5b942;
+    --text: #dce8f5;
+    --muted: #4a6080;
+    --cat1: #42d4f5;
+    --cat2: #f5b942;
+    --cat3: #6bde84;
+    --cat4: #f56b9a;
+    --cat5: #a78bfa;
+    --cat6: #fb923c;
+    --cat7: #34d399;
+    --cat8: #f87171;
+    --cat9: #60a5fa;
+    --cat10: #e879f9;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 60px 40px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    bottom: -200px; left: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(66,212,245,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 30%; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(245,185,66,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .dot-bg {
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  header {
+    max-width: 1200px;
+    margin: 0 auto 70px;
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .title-block h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -3px;
+    color: var(--text);
+  }
+
+  .title-block h1 span {
+    color: var(--accent);
+  }
+
+  .title-block p {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stats {
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .stats .num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stats .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2px;
+  }
+
+  .category {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 28px 32px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+    transition: background 0.15s;
+  }
+
+  .category::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--cat-color);
+  }
+
+  .category:nth-child(1)  { --cat-color: var(--cat1);  animation-delay: 0.05s; }
+  .category:nth-child(2)  { --cat-color: var(--cat2);  animation-delay: 0.1s; }
+  .category:nth-child(3)  { --cat-color: var(--cat3);  animation-delay: 0.15s; }
+  .category:nth-child(4)  { --cat-color: var(--cat4);  animation-delay: 0.2s; }
+  .category:nth-child(5)  { --cat-color: var(--cat5);  animation-delay: 0.25s; }
+  .category:nth-child(6)  { --cat-color: var(--cat6);  animation-delay: 0.3s; }
+  .category:nth-child(7)  { --cat-color: var(--cat7);  animation-delay: 0.35s; }
+  .category:nth-child(8)  { --cat-color: var(--cat8);  animation-delay: 0.4s; }
+  .category:nth-child(9)  { --cat-color: var(--cat9);  animation-delay: 0.45s; }
+  .category:nth-child(10) { --cat-color: var(--cat10); animation-delay: 0.5s; }
+
+  .category:hover { background: #111827; border-color: #243048; }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .cat-index {
+    font-size: 10px;
+    color: var(--cat-color);
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  .cat-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .cat-count {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 3px 8px;
+    letter-spacing: 1px;
+  }
+
+  ul { list-style: none; }
+
+  ul li {
+    padding: 5px 0;
+    border-bottom: 1px solid #111d30;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #8da8c8;
+    transition: color 0.15s;
+  }
+
+  ul li:last-child { border-bottom: none; }
+
+  ul li::before {
+    content: '—';
+    color: var(--cat-color);
+    opacity: 0.6;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+
+  ul li:hover { color: var(--text); }
+
+  .sub {
+    margin-top: 3px;
+    margin-left: 14px;
+  }
+
+  .sub li {
+    font-size: 11.5px;
+    color: var(--muted);
+    padding: 3px 0;
+  }
+
+  .sub li::before {
+    content: '·';
+    color: var(--cat-color);
+    opacity: 0.5;
+  }
+
+  .sub li:hover { color: #6b8fad; }
+
+  .tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border: 1px solid;
+    border-color: var(--cat-color);
+    color: var(--cat-color);
+    opacity: 0.65;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  footer {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    animation: fadeUp 0.6s 0.55s ease both;
+  }
+</style>
+</head>
+<body>
+<div class="dot-bg"></div>
+
+<header>
+  <div class="title-block">
+    <h1>Algo<span>rithms</span></h1>
+    <p>Complete Reference · All Categories</p>
+  </div>
+  <div class="stats">
+    <div class="num">10</div>
+    <div class="label">Categories</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 1. Sorting -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">01</span>
+      <span class="cat-name">Sorting</span>
+      <span class="cat-count">12 algos</span>
+    </div>
+    <ul>
+      <li>Comparison-based</li>
+      <ul class="sub">
+        <li>Bubble Sort <span class="tag">O(n²)</span></li>
+        <li>Selection Sort <span class="tag">O(n²)</span></li>
+        <li>Insertion Sort <span class="tag">O(n²)</span></li>
+        <li>Merge Sort <span class="tag">O(n log n)</span></li>
+        <li>Quick Sort <span class="tag">O(n log n)</span></li>
+        <li>Heap Sort <span class="tag">O(n log n)</span></li>
+        <li>Shell Sort</li>
+        <li>Tim Sort <span class="tag">hybrid</span></li>
+        <li>Intro Sort <span class="tag">hybrid</span></li>
+      </ul>
+      <li>Non-comparison</li>
+      <ul class="sub">
+        <li>Counting Sort <span class="tag">O(n+k)</span></li>
+        <li>Radix Sort <span class="tag">O(nk)</span></li>
+        <li>Bucket Sort</li>
+      </ul>
+    </ul>
+  </div>
+
+  <!-- 2. Searching -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">02</span>
+      <span class="cat-name">Searching</span>
+      <span class="cat-count">8 algos</span>
+    </div>
+    <ul>
+      <li>Linear Search</li>
+      <li>Binary Search <span class="tag">sorted</span></li>
+      <ul class="sub">
+        <li>Lower / Upper Bound</li>
+        <li>Binary Search on Answer</li>
+        <li>Fractional Cascading</li>
+      </ul>
+      <li>Jump Search</li>
+      <li>Interpolation Search</li>
+      <li>Exponential Search</li>
+      <li>Ternary Search</li>
+    </ul>
+  </div>
+
+  <!-- 3. Graph Traversal -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">03</span>
+      <span class="cat-name">Graph Traversal</span>
+      <span class="cat-count">6 algos</span>
+    </div>
+    <ul>
+      <li>BFS (Breadth-First Search)</li>
+      <ul class="sub">
+        <li>Level-order Traversal</li>
+        <li>Multi-source BFS</li>
+        <li>0-1 BFS</li>
+      </ul>
+      <li>DFS (Depth-First Search)</li>
+      <ul class="sub">
+        <li>Iterative DFS</li>
+        <li>Backtracking DFS</li>
+      </ul>
+      <li>Topological Sort</li>
+      <ul class="sub">
+        <li>Kahn's Algorithm (BFS-based)</li>
+        <li>DFS-based Topo Sort</li>
+      </ul>
+      <li>Cycle Detection</li>
+      <ul class="sub">
+        <li>Directed (DFS coloring)</li>
+        <li>Undirected (Union-Find)</li>
+      </ul>
+    </ul>
+  </div>
+
+  <!-- 4. Shortest Path -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">04</span>
+      <span class="cat-name">Shortest Path</span>
+      <span class="cat-count">7 algos</span>
+    </div>
+    <ul>
+      <li>Single-source</li>
+      <ul class="sub">
+        <li>Dijkstra's Algorithm</li>
+        <li>Bellman-Ford</li>
+        <li>SPFA (Shortest Path Faster)</li>
+      </ul>
+      <li>All-pairs</li>
+      <ul class="sub">
+        <li>Floyd-Warshall</li>
+        <li>Johnson's Algorithm</li>
+      </ul>
+      <li>Unweighted Graphs</li>
+      <ul class="sub">
+        <li>BFS-based</li>
+      </ul>
+      <li>A* Search <span class="tag">heuristic</span></li>
+    </ul>
+  </div>
+
+  <!-- 5. Minimum Spanning Tree -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">05</span>
+      <span class="cat-name">Spanning Trees</span>
+      <span class="cat-count">4 algos</span>
+    </div>
+    <ul>
+      <li>Kruskal's Algorithm <span class="tag">greedy</span></li>
+      <li>Prim's Algorithm <span class="tag">greedy</span></li>
+      <li>Borůvka's Algorithm</li>
+      <li>Steiner Tree <span class="tag">NP-hard</span></li>
+    </ul>
+  </div>
+
+  <!-- 6. Dynamic Programming -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">06</span>
+      <span class="cat-name">Dynamic Programming</span>
+      <span class="cat-count">15+ patterns</span>
+    </div>
+    <ul>
+      <li>1D DP</li>
+      <ul class="sub">
+        <li>Fibonacci / Memoization</li>
+        <li>Climbing Stairs</li>
+        <li>House Robber</li>
+        <li>Coin Change</li>
+      </ul>
+      <li>2D DP</li>
+      <ul class="sub">
+        <li>0/1 Knapsack</li>
+        <li>Unbounded Knapsack</li>
+        <li>Edit Distance (LCS/LIS)</li>
+        <li>Grid Path Problems</li>
+        <li>Matrix Chain Multiplication</li>
+      </ul>
+      <li>Sequence DP</li>
+      <ul class="sub">
+        <li>Longest Common Subsequence (LCS)</li>
+        <li>Longest Increasing Subsequence (LIS)</li>
+        <li>Longest Common Substring</li>
+        <li>Palindrome Partitioning</li>
+      </ul>
+      <li>Interval DP</li>
+      <li>Tree DP</li>
+      <li>Digit DP</li>
+      <li>Bitmask DP</li>
+      <li>DP on DAG</li>
+    </ul>
+  </div>
+
+  <!-- 7. Greedy -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">07</span>
+      <span class="cat-name">Greedy</span>
+      <span class="cat-count">8 algos</span>
+    </div>
+    <ul>
+      <li>Activity Selection</li>
+      <li>Fractional Knapsack</li>
+      <li>Huffman Coding <span class="tag">compression</span></li>
+      <li>Job Scheduling</li>
+      <li>Task Assignment</li>
+      <li>Interval Scheduling Maximization</li>
+      <li>Gas Station Problem</li>
+      <li>Greedy Graph Coloring</li>
+    </ul>
+  </div>
+
+  <!-- 8. String Algorithms -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">08</span>
+      <span class="cat-name">String Algorithms</span>
+      <span class="cat-count">10 algos</span>
+    </div>
+    <ul>
+      <li>Pattern Matching</li>
+      <ul class="sub">
+        <li>Naive / Brute Force</li>
+        <li>KMP (Knuth-Morris-Pratt)</li>
+        <li>Rabin-Karp (Rolling Hash)</li>
+        <li>Boyer-Moore</li>
+        <li>Z-Algorithm</li>
+        <li>Aho-Corasick (Multi-pattern)</li>
+      </ul>
+      <li>String Hashing</li>
+      <li>Manacher's Algorithm <span class="tag">palindrome</span></li>
+      <li>Suffix Array + LCP Array</li>
+      <li>Suffix Automaton</li>
+    </ul>
+  </div>
+
+  <!-- 9. Math & Number Theory -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">09</span>
+      <span class="cat-name">Math & Number Theory</span>
+      <span class="cat-count">12 algos</span>
+    </div>
+    <ul>
+      <li>Primes</li>
+      <ul class="sub">
+        <li>Sieve of Eratosthenes</li>
+        <li>Sieve of Atkin</li>
+        <li>Miller-Rabin Primality Test</li>
+        <li>Pollard's Rho Factorization</li>
+      </ul>
+      <li>GCD / LCM</li>
+      <ul class="sub">
+        <li>Euclidean Algorithm</li>
+        <li>Extended Euclidean (Bezout)</li>
+      </ul>
+      <li>Modular Arithmetic</li>
+      <ul class="sub">
+        <li>Fast Exponentiation (Binary Exp)</li>
+        <li>Modular Inverse (Fermat's Little)</li>
+        <li>Chinese Remainder Theorem</li>
+      </ul>
+      <li>Combinatorics</li>
+      <ul class="sub">
+        <li>Pascal's Triangle / nCr</li>
+        <li>Inclusion-Exclusion</li>
+        <li>Catalan Numbers</li>
+      </ul>
+    </ul>
+  </div>
+
+  <!-- 10. Advanced Graph -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-index">10</span>
+      <span class="cat-name">Advanced Graph</span>
+      <span class="cat-count">10 algos</span>
+    </div>
+    <ul>
+      <li>Strongly Connected Components</li>
+      <ul class="sub">
+        <li>Kosaraju's Algorithm</li>
+        <li>Tarjan's Algorithm</li>
+      </ul>
+      <li>Bridges & Articulation Points</li>
+      <li>Bipartite Matching</li>
+      <ul class="sub">
+        <li>Hopcroft-Karp</li>
+        <li>Hungarian Algorithm</li>
+      </ul>
+      <li>Network Flow</li>
+      <ul class="sub">
+        <li>Ford-Fulkerson / Edmonds-Karp</li>
+        <li>Dinic's Algorithm</li>
+        <li>Push-Relabel</li>
+      </ul>
+      <li>Euler Path / Circuit</li>
+      <li>Hamiltonian Path <span class="tag">NP</span></li>
+      <li>LCA (Lowest Common Ancestor)</li>
+      <ul class="sub">
+        <li>Binary Lifting</li>
+        <li>Euler Tour + Sparse Table</li>
+      </ul>
+      <li>Heavy-Light Decomposition</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <span>← DATA STRUCTURES</span>
+  <span>ALGORITHMS — COMPLETE TOC</span>
+</footer>
+
+</body>
+</html>

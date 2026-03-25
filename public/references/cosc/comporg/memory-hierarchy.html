@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cache, RAM, VRAM, Virtual Memory</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #f2ede4;
+  --black: #111111;
+  --red: #e8352a;
+  --yellow: #f5f500;
+  --white: #ffffff;
+  --border: 2.5px solid #111111;
+  --gray: #d4cfc6;
+  --gray2: #e8e3da;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--cream); color: var(--black); font-family: 'Archivo', sans-serif; font-size: 1rem; line-height: 1.6; }
+
+header { background: var(--black); color: var(--cream); padding: 2rem 2.5rem 1.5rem; border-bottom: var(--border); }
+header .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.4rem; }
+header h1 { font-family: 'Archivo Black', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; }
+header p { font-size: 0.95rem; color: #9a9488; max-width: 65ch; margin-top: 0.4rem; }
+
+nav { border-bottom: var(--border); display: flex; background: var(--cream); overflow-x: auto; }
+nav button { font-family: 'Archivo Black', sans-serif; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.9rem 1.3rem; border: none; border-right: var(--border); background: transparent; cursor: pointer; color: #999; white-space: nowrap; transition: background 0.12s, color 0.12s; }
+nav button:hover { background: var(--gray2); color: var(--black); }
+nav button.active { background: var(--black); color: var(--yellow); }
+
+main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--red); margin-bottom: 0.35rem; }
+h2 { font-family: 'Archivo Black', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.1; margin-bottom: 0.9rem; }
+h3 { font-family: 'Archivo Black', sans-serif; font-size: 1.05rem; margin-bottom: 0.5rem; }
+p { margin-bottom: 0.9rem; color: #2a2a2a; }
+hr.divider { border: none; border-top: var(--border); margin: 2.2rem 0; }
+
+.key-idea { border: var(--border); background: var(--black); color: var(--yellow); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 1rem 1.2rem; margin: 1.4rem 0; line-height: 1.6; }
+.key-idea .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: #777; margin-bottom: 0.3rem; }
+
+.callout { border-left: 4px solid var(--red); background: var(--white); padding: 0.85rem 1.1rem; margin: 1.4rem 0; font-size: 0.88rem; color: #333; }
+.callout strong { font-family: 'Archivo Black', sans-serif; color: var(--red); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: var(--border); margin: 1.4rem 0; }
+.two-col .col { padding: 1.1rem; }
+.two-col .col:first-child { border-right: var(--border); }
+.col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--red); margin-bottom: 0.45rem; }
+.two-col .col p { font-size: 0.87rem; margin-bottom: 0.5rem; }
+.two-col .col p:last-child { margin-bottom: 0; }
+
+.code-section { border: var(--border); margin: 1.8rem 0; }
+.code-header { background: var(--black); color: var(--cream); padding: 0.55rem 1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: var(--border); }
+.code-header span { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+.lang-tag { background: var(--yellow); color: var(--black); padding: 2px 7px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+pre { background: #1a1a1a; color: #e2ddd5; font-family: 'JetBrains Mono', monospace; font-size: 0.81rem; line-height: 1.75; padding: 1.3rem 1.2rem; overflow-x: auto; margin: 0; }
+.kw { color: #e8352a; font-weight: 700; }
+.fn { color: #f5f500; }
+.cm { color: #5a5a5a; font-style: italic; }
+.st { color: #7ec8a0; }
+.nu { color: #f0a050; }
+.tp { color: #a0c8f0; }
+
+.badge-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1.2rem 0; }
+.badge { border: var(--border); padding: 0.55rem 0.9rem; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; gap: 0.2rem; min-width: 110px; }
+.b-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888; }
+.b-val   { font-size: 0.95rem; font-weight: 700; }
+.b-fast  .b-val { color: #1a7a3f; }
+.b-mid   .b-val { color: #b86a00; }
+.b-slow  .b-val { color: var(--red); }
+.b-neutral .b-val { color: #1a3a8a; }
+
+/* ── HIERARCHY DIAGRAM ── */
+.hierarchy {
+  border: var(--border);
+  margin: 1.8rem 0;
+  overflow: hidden;
+}
+.hier-title {
+  background: var(--black); color: var(--cream);
+  padding: 0.5rem 1rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  border-bottom: var(--border);
+}
+.hier-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px 120px 100px;
+  border-bottom: 1.5px solid var(--gray);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  align-items: stretch;
+}
+.hier-row:last-child { border-bottom: none; }
+.hier-row.header-row {
+  background: var(--gray2);
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888;
+  font-weight: 700;
+}
+.hier-cell {
+  padding: 0.6rem 0.8rem;
+  border-right: 1.5px solid var(--gray);
+  display: flex; align-items: center;
+}
+.hier-cell:last-child { border-right: none; }
+.hier-name { font-family: 'Archivo Black', sans-serif; font-size: 0.82rem; }
+.hier-sub  { font-size: 0.65rem; color: #888; margin-top: 1px; }
+.tier-l1   { background: #fff0cc; }
+.tier-l2   { background: #fff8dd; }
+.tier-l3   { background: #fefef0; }
+.tier-ram  { background: #e8f4ff; }
+.tier-virt { background: #f0e8ff; }
+.tier-disk { background: #f0f0f0; }
+.tier-vram { background: #e8ffe8; }
+.speed-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.speed-bar { height: 8px; background: var(--black); border-radius: 1px; }
+
+/* ── CACHE LINE VIS ── */
+.cache-vis {
+  border: var(--border);
+  margin: 1.8rem 0;
+  overflow: hidden;
+}
+.cache-vis-title {
+  background: var(--black); color: var(--cream);
+  padding: 0.5rem 1rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  border-bottom: var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.3rem;
+}
+.cache-controls button {
+  font-family: 'Archivo Black', sans-serif; font-size: 0.7rem;
+  padding: 0.3rem 0.8rem; border: none; border-left: var(--border);
+  background: transparent; color: var(--cream); cursor: pointer;
+}
+.cache-controls button:first-child { border-left: none; }
+.cache-controls button:hover { background: #333; }
+.cache-body { padding: 1.2rem; background: var(--white); }
+.addr-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 1rem; }
+.addr-cell {
+  width: 34px; height: 34px; border: 1.5px solid var(--black);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  font-weight: 700; transition: background 0.3s, color 0.3s;
+  cursor: default;
+}
+.addr-cell.hit  { background: #1a4a1a; color: #a0e0a0; border-color: #4a8a4a; }
+.addr-cell.miss { background: #4a1a1a; color: #e0a0a0; border-color: #8a4a4a; }
+.addr-cell.idle { background: var(--white); color: #aaa; }
+.cache-slots { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.cache-slot {
+  width: 34px; height: 34px; border: 2px solid var(--black);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  font-weight: 700; background: #f8f8f0;
+  transition: background 0.3s;
+}
+.cache-slot.filled { background: var(--yellow); border-color: var(--black); color: var(--black); }
+.cache-slot.evicted { background: #e0e0e0; color: #aaa; border-style: dashed; }
+.cache-legend {
+  display: flex; gap: 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; flex-wrap: wrap;
+}
+.cl-item { display: flex; align-items: center; gap: 0.4rem; }
+.cl-box  { width: 12px; height: 12px; border: 1.5px solid; }
+.cl-hit  { background: #1a4a1a; border-color: #4a8a4a; }
+.cl-miss { background: #4a1a1a; border-color: #8a4a4a; }
+.cl-cache { background: var(--yellow); border-color: var(--black); }
+.cache-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #333; margin-top: 0.7rem; padding: 0.5rem 0.7rem; background: var(--gray2); border: 1px solid var(--gray); min-height: 40px; }
+.cache-desc .hit-label  { color: #1a7a3f; font-weight: 700; }
+.cache-desc .miss-label { color: var(--red); font-weight: 700; }
+
+/* ── PAGE TABLE VIS ── */
+.page-table {
+  border: var(--border);
+  margin: 1.8rem 0;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+}
+.page-table-title {
+  background: var(--black); color: var(--cream);
+  padding: 0.5rem 1rem; border-bottom: var(--border);
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+}
+.pt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0; }
+.pt-cell {
+  padding: 0.5rem 0.7rem;
+  border-right: 1.5px solid var(--gray); border-bottom: 1.5px solid var(--gray);
+}
+.pt-cell .pt-virt { font-size: 0.65rem; color: #888; }
+.pt-cell .pt-phys { font-weight: 700; font-size: 0.78rem; }
+.pt-cell.mapped    { background: #e8f4ff; }
+.pt-cell.swapped   { background: #fff0cc; }
+.pt-cell.unmapped  { background: #f8f8f8; color: #aaa; }
+.pt-cell.mapped    .pt-phys { color: #1a3a8a; }
+.pt-cell.swapped   .pt-phys { color: #b86a00; }
+.pt-cell.unmapped  .pt-phys { color: #ccc; }
+.pt-legend { display: flex; gap: 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; flex-wrap: wrap; padding: 0.6rem 0.9rem; border-top: 1.5px solid var(--gray); background: var(--gray2); }
+.ptl-item { display: flex; align-items: center; gap: 0.4rem; }
+.ptl-box  { width: 12px; height: 12px; border: 1.5px solid #999; }
+.ptl-mapped  { background: #e8f4ff; }
+.ptl-swapped { background: #fff0cc; }
+.ptl-unmapped { background: #f8f8f8; }
+
+/* ── LATENCY BAR ── */
+.latency-chart { border: var(--border); margin: 1.8rem 0; overflow: hidden; }
+.latency-title { background: var(--black); color: var(--cream); padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: var(--border); }
+.latency-row { display: flex; align-items: center; padding: 0.55rem 1rem; border-bottom: 1.5px solid var(--gray); gap: 0.8rem; }
+.latency-row:last-child { border-bottom: none; }
+.lat-name { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; width: 80px; min-width: 80px; }
+.lat-bar-wrap { flex: 1; height: 18px; background: var(--gray2); border: 1px solid var(--gray); position: relative; }
+.lat-bar { height: 100%; background: var(--black); transition: width 0.4s; }
+.lat-val { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #555; width: 100px; min-width: 100px; text-align: right; }
+.lat-row-l1   .lat-bar { background: #1a7a3f; }
+.lat-row-l2   .lat-bar { background: #3a6a1a; }
+.lat-row-l3   .lat-bar { background: #7a6a1a; }
+.lat-row-ram  .lat-bar { background: #1a3a8a; }
+.lat-row-vram .lat-bar { background: #2a6a1a; }
+.lat-row-swap .lat-bar { background: var(--red); }
+.lat-row-disk .lat-bar { background: #5a1a1a; }
+
+/* ── COMPARE TABLE ── */
+.cmp-table { border: var(--border); width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+.cmp-table th { font-family: 'Archivo Black', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.7rem 0.9rem; border: var(--border); background: var(--black); color: var(--cream); text-align: left; }
+.cmp-table th.rh { background: var(--red); }
+.cmp-table td { padding: 0.65rem 0.9rem; border: var(--border); font-size: 0.84rem; vertical-align: top; }
+.cmp-table tr:nth-child(even) td { background: var(--gray2); }
+.cmp-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--red); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; background: var(--cream) !important; }
+
+/* ── VRAM DIAGRAM ── */
+.vram-pipeline {
+  border: var(--border);
+  margin: 1.8rem 0; overflow: hidden;
+}
+.vram-pipeline-title { background: var(--black); color: var(--cream); padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: var(--border); }
+.pipeline-body { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; padding: 1.2rem 1rem; gap: 0; background: var(--white); }
+.pipe-box { border: var(--border); padding: 0.8rem; text-align: center; }
+.pipe-box .pb-title { font-family: 'Archivo Black', sans-serif; font-size: 0.82rem; margin-bottom: 0.3rem; }
+.pipe-box .pb-sub   { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #777; line-height: 1.4; }
+.pipe-box.cpu-box  { background: #e8f4ff; }
+.pipe-box.gpu-box  { background: #e8ffe8; }
+.pipe-box.vram-box { background: #fff8cc; border: 3px solid var(--black); }
+.pipe-arrow { text-align: center; padding: 0 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #555; }
+.pipe-arrow .arr-label { font-size: 0.62rem; color: #aaa; display: block; margin-top: 2px; }
+
+/* RESPONSIVE */
+@media (max-width: 650px) {
+  .two-col { grid-template-columns: 1fr; }
+  .two-col .col:first-child { border-right: none; border-bottom: var(--border); }
+  .hier-row { grid-template-columns: 120px 1fr 90px; }
+  .hier-row > *:nth-child(4), .hier-row > *:nth-child(5) { display: none; }
+  .pipeline-body { grid-template-columns: 1fr; }
+  .pipe-arrow { transform: rotate(90deg); }
+  nav button { font-size: 0.7rem; padding: 0.75rem 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Computer Systems · Memory Hierarchy</div>
+  <h1>Cache, RAM, VRAM &amp; Virtual Memory</h1>
+  <p>The full memory hierarchy — from nanosecond CPU caches to gigabytes of virtual address space and GPU VRAM — what each is, why it exists, and how they work together.</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('overview')">Overview</button>
+  <button onclick="showPanel('cache')">Cache (L1/L2/L3)</button>
+  <button onclick="showPanel('ram')">RAM</button>
+  <button onclick="showPanel('vram')">VRAM</button>
+  <button onclick="showPanel('virtual')">Virtual Memory</button>
+  <button onclick="showPanel('compare')">Compare All</button>
+</nav>
+
+<main>
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="panel active" id="panel-overview">
+  <div class="section-label">§ 0 — The Memory Hierarchy</div>
+  <h2>Why there are so many kinds of memory</h2>
+  <p>CPUs can execute billions of instructions per second. But getting data from RAM takes hundreds of cycles. The solution is a hierarchy — layers of progressively larger, slower, cheaper memory between the CPU and the disk. Each layer acts as a buffer for the one below it.</p>
+
+  <div class="latency-chart">
+    <div class="latency-title">Access latency — smaller = faster</div>
+    <div class="latency-row lat-row-l1">
+      <div class="lat-name">L1 Cache</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:1%"></div></div>
+      <div class="lat-val">~1–4 cycles</div>
+    </div>
+    <div class="latency-row lat-row-l2">
+      <div class="lat-name">L2 Cache</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:2%"></div></div>
+      <div class="lat-val">~12 cycles</div>
+    </div>
+    <div class="latency-row lat-row-l3">
+      <div class="lat-name">L3 Cache</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:4%"></div></div>
+      <div class="lat-val">~40 cycles</div>
+    </div>
+    <div class="latency-row lat-row-ram">
+      <div class="lat-name">RAM (DRAM)</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:20%"></div></div>
+      <div class="lat-val">~200 cycles</div>
+    </div>
+    <div class="latency-row lat-row-vram">
+      <div class="lat-name">VRAM</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:18%"></div></div>
+      <div class="lat-val">~500 ns</div>
+    </div>
+    <div class="latency-row lat-row-swap">
+      <div class="lat-name">Swap / Page</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:60%"></div></div>
+      <div class="lat-val">~100 µs (SSD)</div>
+    </div>
+    <div class="latency-row lat-row-disk">
+      <div class="lat-name">HDD</div>
+      <div class="lat-bar-wrap"><div class="lat-bar" style="width:100%"></div></div>
+      <div class="lat-val">~10 ms</div>
+    </div>
+  </div>
+
+  <div class="hierarchy">
+    <div class="hier-title">Memory hierarchy — size, speed, location, cost</div>
+    <div class="hier-row header-row">
+      <div class="hier-cell">Layer</div>
+      <div class="hier-cell">Purpose</div>
+      <div class="hier-cell">Typical Size</div>
+      <div class="hier-cell">Location</div>
+      <div class="hier-cell">Cost/GB</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-l1"><div class="hier-name">L1 Cache</div><div class="hier-sub">per core</div></div>
+      <div class="hier-cell tier-l1">Ultra-fast buffer for the instructions and data each core is actively using</div>
+      <div class="hier-cell tier-l1">32–64 KB</div>
+      <div class="hier-cell tier-l1">Inside CPU die, per core</div>
+      <div class="hier-cell tier-l1">~$10,000+</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-l2"><div class="hier-name">L2 Cache</div><div class="hier-sub">per core</div></div>
+      <div class="hier-cell tier-l2">Larger fallback when L1 misses; still per-core</div>
+      <div class="hier-cell tier-l2">256 KB – 1 MB</div>
+      <div class="hier-cell tier-l2">Inside CPU die, per core</div>
+      <div class="hier-cell tier-l2">~$1,000+</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-l3"><div class="hier-name">L3 Cache</div><div class="hier-sub">shared</div></div>
+      <div class="hier-cell tier-l3">Shared across all cores; last cache before RAM</div>
+      <div class="hier-cell tier-l3">8–64 MB</div>
+      <div class="hier-cell tier-l3">Inside CPU die, shared</div>
+      <div class="hier-cell tier-l3">~$100+</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-ram"><div class="hier-name">RAM (DRAM)</div><div class="hier-sub">system memory</div></div>
+      <div class="hier-cell tier-ram">Working memory for all running programs</div>
+      <div class="hier-cell tier-ram">8–128 GB</div>
+      <div class="hier-cell tier-ram">On motherboard (DIMMs)</div>
+      <div class="hier-cell tier-ram">~$3–6</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-vram"><div class="hier-name">VRAM (GDDR)</div><div class="hier-sub">GPU memory</div></div>
+      <div class="hier-cell tier-vram">High-bandwidth memory for textures, framebuffers, GPU compute</div>
+      <div class="hier-cell tier-vram">4–24 GB</div>
+      <div class="hier-cell tier-vram">On GPU card (HBM/GDDR)</div>
+      <div class="hier-cell tier-vram">~$80–200</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-virt"><div class="hier-name">Virtual Mem</div><div class="hier-sub">swap / page file</div></div>
+      <div class="hier-cell tier-virt">RAM overflow — pages evicted to disk when RAM is full</div>
+      <div class="hier-cell tier-virt">Up to TB (logical)</div>
+      <div class="hier-cell tier-virt">SSD / HDD (pagefile)</div>
+      <div class="hier-cell tier-virt">~$0.10</div>
+    </div>
+    <div class="hier-row">
+      <div class="hier-cell tier-disk"><div class="hier-name">Storage</div><div class="hier-sub">SSD / HDD</div></div>
+      <div class="hier-cell tier-disk">Persistent data — survives power loss</div>
+      <div class="hier-cell tier-disk">256 GB – 20 TB</div>
+      <div class="hier-cell tier-disk">M.2 / SATA / NVMe</div>
+      <div class="hier-cell tier-disk">~$0.05</div>
+    </div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">The fundamental tradeoff</div>
+    Faster memory = smaller capacity + higher cost per byte + physically closer to CPU<br>
+    Slower memory = larger capacity + lower cost per byte + physically farther away<br><br>
+    The hierarchy exists to make it APPEAR that you have both: the speed of L1<br>
+    and the capacity of a hard drive. Locality of reference makes this work.
+  </div>
+</div>
+
+<!-- ==================== CACHE ==================== -->
+<div class="panel" id="panel-cache">
+  <div class="section-label">§ 1 — CPU Cache</div>
+  <h2>CPU Cache (L1 / L2 / L3)</h2>
+  <p>Cache is fast SRAM sitting between the CPU and main RAM. When the CPU needs data, it first checks L1 — if present, that's a <strong>cache hit</strong> (~1–4 cycles). If not, it checks L2, then L3, then fetches from RAM (~200 cycles). This is a <strong>cache miss</strong>.</p>
+
+  <div class="badge-row">
+    <div class="badge b-fast"><span class="b-label">L1 latency</span><span class="b-val">1–4 cyc</span></div>
+    <div class="badge b-fast"><span class="b-label">L2 latency</span><span class="b-val">~12 cyc</span></div>
+    <div class="badge b-mid"><span class="b-label">L3 latency</span><span class="b-val">~40 cyc</span></div>
+    <div class="badge b-slow"><span class="b-label">RAM latency</span><span class="b-val">~200 cyc</span></div>
+    <div class="badge b-neutral"><span class="b-label">L1 size</span><span class="b-val">32–64 KB</span></div>
+    <div class="badge b-neutral"><span class="b-label">L3 size</span><span class="b-val">8–64 MB</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">Temporal vs Spatial Locality</div>
+    Temporal locality: if you used address X recently, you'll probably use X again soon.<br>
+    Spatial locality:  if you used address X, you'll probably use X+1, X+2, … soon.<br><br>
+    Caches exploit both. A cache line is typically 64 bytes — when you load one word,<br>
+    the entire 64-byte block around it is fetched. That's spatial locality in hardware.
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 1.1 — Cache Hit / Miss Simulator</div>
+  <h3>Access pattern vs cache state</h3>
+  <p>Each cell below is a memory address. Green = cache hit (already in cache). Red = cache miss (fetched from RAM, loaded into cache). Cache size here is 8 slots — LRU eviction.</p>
+
+  <div class="cache-vis">
+    <div class="cache-vis-title">
+      <span>Cache Simulator — 8-slot direct-mapped, 64-byte lines</span>
+      <div class="cache-controls">
+        <button onclick="runAccess()">Access Next →</button>
+        <button onclick="runAll()">Run All</button>
+        <button onclick="resetCache()">Reset</button>
+      </div>
+    </div>
+    <div class="cache-body">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:#aaa;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em;">Memory addresses being accessed</div>
+      <div class="addr-row" id="addr-row"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:#aaa;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em;">Cache slots (8 lines × 64 bytes)</div>
+      <div class="cache-slots" id="cache-slots"></div>
+      <div class="cache-legend">
+        <div class="cl-item"><div class="cl-box cl-hit"></div> Cache hit</div>
+        <div class="cl-item"><div class="cl-box cl-miss"></div> Cache miss (RAM fetch)</div>
+        <div class="cl-item"><div class="cl-box cl-cache"></div> Currently in cache</div>
+      </div>
+      <div class="cache-desc" id="cache-desc">Press "Access Next" to simulate memory accesses.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 1.2 — Why cache-friendly code matters</div>
+  <div class="code-section">
+    <div class="code-header"><span>cache_locality.c</span><span class="lang-tag">C</span></div>
+    <pre><span class="cm">// ✅ Cache-FRIENDLY: row-major traversal</span>
+<span class="cm">// arr[0][0], arr[0][1], arr[0][2] ... are contiguous in memory</span>
+<span class="cm">// Each cache line load covers 16 ints (64 bytes / 4 bytes)</span>
+<span class="tp">int</span> arr[<span class="nu">1024</span>][<span class="nu">1024</span>];
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="nu">0</span>; i < <span class="nu">1024</span>; i++)
+    <span class="kw">for</span> (<span class="tp">int</span> j = <span class="nu">0</span>; j < <span class="nu">1024</span>; j++)
+        arr[i][j] += <span class="nu">1</span>;    <span class="cm">// ← sequential, cache-hot</span>
+
+<span class="cm">// ❌ Cache-HOSTILE: column-major traversal on row-major array</span>
+<span class="cm">// arr[0][0], arr[1][0], arr[2][0] ... are 1024 ints apart</span>
+<span class="cm">// Every access is a cache miss — jumps 4096 bytes each step</span>
+<span class="kw">for</span> (<span class="tp">int</span> j = <span class="nu">0</span>; j < <span class="nu">1024</span>; j++)
+    <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nu">0</span>; i < <span class="nu">1024</span>; i++)
+        arr[i][j] += <span class="nu">1</span>;    <span class="cm">// ← random jumps, cold cache</span>
+
+<span class="cm">// The hostile version can be 5-10x SLOWER on the same hardware.
+// Same O(n²) complexity. Entirely different cache behavior.</span></pre>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 1.3 — L1 vs L2 vs L3: The Three Levels</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">L1 — per core, split</div>
+      <p>Split into L1i (instructions) and L1d (data). Smallest (~32–64 KB each) but fastest — 1 to 4 cycles. The CPU checks here first on every load and store. Critical path for performance.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">L2 — per core, unified</div>
+      <p>Larger (256 KB to 1 MB), slower (~12 cycles). Holds data that was recently evicted from L1. Still per-core, so no sharing contention.</p>
+    </div>
+  </div>
+  <div class="two-col" style="border-top:none;margin-top:0;">
+    <div class="col" style="border-top:var(--border);">
+      <div class="col-label">L3 — shared across all cores</div>
+      <p>Large (8–64 MB), slower (~40 cycles), shared by all cores on the die. Acts as a last-resort before going to RAM. Core-to-core communication often goes through L3.</p>
+    </div>
+    <div class="col" style="border-top:var(--border);">
+      <div class="col-label">Cache coherence</div>
+      <p>When multiple cores share memory, their caches can hold stale copies. The MESI protocol (Modified, Exclusive, Shared, Invalid) keeps caches consistent — a fundamental multi-core hardware challenge.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RAM ==================== -->
+<div class="panel" id="panel-ram">
+  <div class="section-label">§ 2 — RAM</div>
+  <h2>RAM (Random Access Memory)</h2>
+  <p>RAM is the main working memory of the system. Every running program's code, data, heap, and stack live here (or appear to via virtual memory). It's volatile — power off and it's gone. Modern systems use DRAM, which stores bits as tiny capacitor charges that must be periodically refreshed.</p>
+
+  <div class="badge-row">
+    <div class="badge b-neutral"><span class="b-label">Technology</span><span class="b-val">DRAM</span></div>
+    <div class="badge b-mid"><span class="b-label">Latency</span><span class="b-val">~60–100 ns</span></div>
+    <div class="badge b-neutral"><span class="b-label">Bandwidth</span><span class="b-val">50–100 GB/s</span></div>
+    <div class="badge b-neutral"><span class="b-label">Typical size</span><span class="b-val">8–128 GB</span></div>
+    <div class="badge b-slow"><span class="b-label">Volatile?</span><span class="b-val">Yes</span></div>
+    <div class="badge b-fast"><span class="b-label">Cost/GB</span><span class="b-val">~$3–6</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">DRAM vs SRAM</div>
+    SRAM (cache): 6 transistors per bit. No refresh needed. Fast. Expensive. Small.<br>
+    DRAM (RAM):   1 transistor + 1 capacitor per bit. Needs refresh. Slower. Cheap. Dense.<br><br>
+    This is why L1 cache is 64 KB and RAM is 64 GB — fundamentally different cells.
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 2.1 — How RAM is physically organized</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">Rows and columns</div>
+      <p>DRAM is organized as a 2D grid of rows and columns. Accessing a row "opens" it into a row buffer. Accessing the same row again (row hit) is fast. Accessing a different row requires a precharge cycle — this is the latency you feel.</p>
+      <p>DDR (Double Data Rate) transfers on both clock edges. DDR5 (2023+) runs at ~4800–8400 MT/s per channel.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">Channels and ranks</div>
+      <p>Modern systems have 2–8 memory channels. Each channel is an independent 64-bit bus to the CPU. Dual-channel roughly doubles bandwidth. Ranks are the number of independent DRAM chip groups on a DIMM.</p>
+      <p>Bandwidth = channels × bus width × clock rate. A dual-channel DDR5-5600 system gets ~89 GB/s peak.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 2.2 — RAM in the context of your program</div>
+  <div class="code-section">
+    <div class="code-header"><span>ram_context.py</span><span class="lang-tag">Python</span></div>
+    <pre><span class="kw">import</span> sys, tracemalloc
+
+<span class="cm"># RAM holds everything a running process needs:</span>
+<span class="cm"># - The Python interpreter's own code (text segment → cache → RAM)</span>
+<span class="cm"># - Your module's bytecode</span>
+<span class="cm"># - The heap: every list, dict, int, str you create</span>
+<span class="cm"># - The call stack: local variables, return addresses</span>
+
+tracemalloc.<span class="fn">start</span>()
+
+big_list = [<span class="fn">list</span>(<span class="fn">range</span>(<span class="nu">1000</span>)) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nu">1000</span>)]
+<span class="cm"># big_list → heap → RAM → probably NOT in L1/L2 cache</span>
+<span class="cm"># First access to each 64-byte chunk: cache miss → RAM fetch</span>
+<span class="cm"># Subsequent accesses: cache hit</span>
+
+snapshot = tracemalloc.<span class="fn">take_snapshot</span>()
+stats = snapshot.<span class="fn">statistics</span>(<span class="st">'lineno'</span>)
+<span class="fn">print</span>(stats[<span class="nu">0</span>])   <span class="cm"># shows how much RAM this allocation used</span>
+
+<span class="cm"># Accessing sequentially = cache-friendly</span>
+total = <span class="fn">sum</span>(x <span class="kw">for</span> row <span class="kw">in</span> big_list <span class="kw">for</span> x <span class="kw">in</span> row)
+
+<span class="cm"># Random access = cache-cold, every access may hit RAM</span>
+<span class="kw">import</span> random
+val = big_list[<span class="fn">random</span>.<span class="fn">randint</span>(<span class="nu">0</span>,<span class="nu">999</span>)][<span class="fn">random</span>.<span class="fn">randint</span>(<span class="nu">0</span>,<span class="nu">999</span>)]</pre>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 2.3 — What happens when RAM fills up</div>
+  <div class="callout">
+    <strong>Out of RAM → the OS swaps to disk.</strong> When physical RAM is exhausted, the OS evicts pages (4 KB chunks) to the swap partition or page file on disk. The next access to that page triggers a page fault — the OS suspends the process, reads the page back from disk, then resumes. This is 1000–100,000x slower than RAM. A heavily swapping system becomes nearly unusable.
+  </div>
+</div>
+
+<!-- ==================== VRAM ==================== -->
+<div class="panel" id="panel-vram">
+  <div class="section-label">§ 3 — VRAM</div>
+  <h2>VRAM (Video RAM / GPU Memory)</h2>
+  <p>VRAM is the dedicated memory on your GPU. It stores textures, framebuffers, shader programs, and (increasingly) ML model weights. Unlike system RAM, VRAM sits on the GPU card itself and is connected to thousands of shader cores simultaneously — it's designed for massive parallel bandwidth rather than low latency.</p>
+
+  <div class="badge-row">
+    <div class="badge b-neutral"><span class="b-label">Technology</span><span class="b-val">GDDR6/HBM</span></div>
+    <div class="badge b-mid"><span class="b-label">Latency</span><span class="b-val">~500–800 ns</span></div>
+    <div class="badge b-fast"><span class="b-label">Bandwidth</span><span class="b-val">400–3000 GB/s</span></div>
+    <div class="badge b-neutral"><span class="b-label">Typical size</span><span class="b-val">4–24 GB</span></div>
+    <div class="badge b-slow"><span class="b-label">Volatile?</span><span class="b-val">Yes</span></div>
+    <div class="badge b-slow"><span class="b-label">Cost/GB</span><span class="b-val">~$80–200</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">The core difference from RAM</div>
+    RAM:  designed for low latency, general purpose, accessed by a few CPU cores<br>
+    VRAM: designed for high BANDWIDTH, accessed by thousands of shader cores at once<br><br>
+    GDDR6X: ~1 TB/s bandwidth. DDR5 system RAM: ~90 GB/s. VRAM is ~10x wider.
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 3.1 — CPU / GPU / VRAM data flow</div>
+
+  <div class="vram-pipeline">
+    <div class="vram-pipeline-title">Data pipeline: CPU → PCIe → GPU → VRAM</div>
+    <div class="pipeline-body">
+      <div class="pipe-box cpu-box">
+        <div class="pb-title">CPU + RAM</div>
+        <div class="pb-sub">Prepares mesh data, textures, uniforms on system RAM. Sends draw calls via driver.</div>
+      </div>
+      <div class="pipe-arrow">
+        →<br><span class="arr-label">PCIe bus<br>~32–64 GB/s</span>
+      </div>
+      <div class="pipe-box vram-box">
+        <div class="pb-title">VRAM</div>
+        <div class="pb-sub">Textures · Framebuffer · Vertex buffers · Shader code · Depth buffer · ML weights</div>
+      </div>
+      <div class="pipe-arrow">
+        →<br><span class="arr-label">memory bus<br>~500–3000 GB/s</span>
+      </div>
+      <div class="pipe-box gpu-box">
+        <div class="pb-title">GPU Cores</div>
+        <div class="pb-sub">Thousands of CUDA/shader cores read VRAM in parallel. Render, compute, output.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 3.2 — What lives in VRAM</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">Graphics workloads</div>
+      <p><strong>Textures</strong> — compressed image data for 3D surfaces. A single 4K texture is 32 MB uncompressed.</p>
+      <p><strong>Framebuffer</strong> — the current rendered frame. At 4K/60fps with HDR: ~50 MB for color + depth.</p>
+      <p><strong>Vertex / index buffers</strong> — 3D mesh geometry. A complex scene may have hundreds of MBs.</p>
+      <p><strong>Shader programs</strong> — compiled GPU code that runs on every vertex and pixel.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">ML / compute workloads</div>
+      <p><strong>Model weights</strong> — a 7B parameter LLM at FP16 = ~14 GB VRAM. This is why consumer GPUs with 8 GB struggle with large models.</p>
+      <p><strong>Activations</strong> — intermediate tensors during forward/backward pass. Can dwarf the model size during training.</p>
+      <p><strong>KV cache</strong> — during LLM inference, previous token attention keys/values are cached in VRAM to avoid recomputation.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 3.3 — GDDR vs HBM</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">GDDR6 / GDDR6X (consumer)</div>
+      <p>Chips soldered around the GPU die. Wide interface (256–384 bit). GDDR6X uses PAM4 signaling for ~1 TB/s. Used in RTX 4090, RX 7900 XTX. Cheaper, good density, limited by PCB trace routing.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">HBM2e / HBM3 (data center)</div>
+      <p>Stacked DRAM dies connected via silicon interposer directly to the GPU. Massively wider bus (1024–2048 bit). 3+ TB/s on H100. Used in A100, H100, MI300X. Much more expensive but dominant for ML training.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>VRAM is the hard limit for ML:</strong> If your model + activations don't fit in VRAM, you can't run it on that GPU without tricks like quantization (FP8/INT4), gradient checkpointing, CPU offloading, or model parallelism across multiple GPUs. This is why 24 GB GPUs sell at a massive premium for ML workloads.
+  </div>
+
+  <div class="code-section">
+    <div class="code-header"><span>vram_check.py</span><span class="lang-tag">Python (PyTorch)</span></div>
+    <pre><span class="kw">import</span> torch
+
+<span class="cm"># Check VRAM usage</span>
+device = torch.<span class="fn">device</span>(<span class="st">"cuda"</span>)
+
+<span class="fn">print</span>(<span class="fn">torch.cuda.get_device_name</span>(<span class="nu">0</span>))
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Total VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Reserved:   {torch.cuda.memory_reserved(0)  / 1e9:.2f} GB"</span>)
+<span class="fn">print</span>(<span class="fn">f</span><span class="st">"Allocated:  {torch.cuda.memory_allocated(0) / 1e9:.2f} GB"</span>)
+
+<span class="cm"># Tensors on VRAM</span>
+x = torch.<span class="fn">randn</span>(<span class="nu">1000</span>, <span class="nu">1000</span>, device=device)  <span class="cm"># 4 MB on VRAM</span>
+y = torch.<span class="fn">randn</span>(<span class="nu">1000</span>, <span class="nu">1000</span>, device=device)
+z = x @ y   <span class="cm"># matrix multiply — entire operation in VRAM, ~0 PCIe traffic</span>
+
+<span class="cm"># Move from VRAM → RAM (slow — crosses PCIe)</span>
+z_cpu = z.<span class="fn">cpu</span>()    <span class="cm"># PCIe transfer: 32 GB/s cap</span>
+
+<span class="cm"># Out of memory error: RuntimeError: CUDA out of memory
+# Use torch.cuda.empty_cache() to free unreferenced allocations</span></pre>
+  </div>
+</div>
+
+<!-- ==================== VIRTUAL MEMORY ==================== -->
+<div class="panel" id="panel-virtual">
+  <div class="section-label">§ 4 — Virtual Memory</div>
+  <h2>Virtual Memory</h2>
+  <p>Virtual memory is an OS abstraction that gives every process the illusion of having its own large, contiguous address space. The CPU's MMU (Memory Management Unit) translates virtual addresses to physical RAM addresses on every memory access. This enables isolation, protection, and RAM overcommitment.</p>
+
+  <div class="badge-row">
+    <div class="badge b-neutral"><span class="b-label">Address space</span><span class="b-val">48–64 bit</span></div>
+    <div class="badge b-neutral"><span class="b-label">Page size</span><span class="b-val">4 KB default</span></div>
+    <div class="badge b-neutral"><span class="b-label">Huge pages</span><span class="b-val">2 MB / 1 GB</span></div>
+    <div class="badge b-slow"><span class="b-label">Page fault</span><span class="b-val">~100 µs</span></div>
+    <div class="badge b-fast"><span class="b-label">TLB hit</span><span class="b-val">~0 extra cycles</span></div>
+    <div class="badge b-mid"><span class="b-label">TLB miss</span><span class="b-val">~10–100 cyc</span></div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">What virtual memory gives you</div>
+    Isolation:     process A cannot read process B's memory — different page tables<br>
+    Overcommit:    allocate more virtual space than physical RAM exists<br>
+    Swapping:      evict cold pages to disk when RAM is full, bring back on access<br>
+    Shared memory: multiple processes can map the same physical page (shared libs, IPC)<br>
+    Guard pages:   unmapped pages used to detect stack overflows (OS signals SIGSEGV)
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.1 — Page Table Visualization</div>
+  <h3>Virtual → Physical page mapping</h3>
+  <p>Each entry in the page table maps one virtual page number (VPN) to a physical frame number (PFN), or marks it as swapped to disk, or as not-yet-allocated.</p>
+
+  <div class="page-table">
+    <div class="page-table-title">Page table — 16 virtual pages (4 KB each = 64 KB virtual space)</div>
+    <div class="pt-grid" id="pt-grid"></div>
+    <div class="pt-legend">
+      <div class="ptl-item"><div class="ptl-box ptl-mapped"></div> Mapped → physical frame in RAM</div>
+      <div class="ptl-item"><div class="ptl-box ptl-swapped"></div> Swapped → on disk (page fault on access)</div>
+      <div class="ptl-item"><div class="ptl-box ptl-unmapped"></div> Unmapped → not allocated</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.2 — Address Translation: VA → PA</div>
+  <div class="code-section">
+    <div class="code-header"><span>address_translation.txt</span><span class="lang-tag">Concept</span></div>
+    <pre><span class="cm">Virtual address (48-bit on x86-64):
+  [PML4 idx 9b] [PDP idx 9b] [PD idx 9b] [PT idx 9b] [offset 12b]
+
+Translation steps (hardware, every memory access):
+  1. CPU generates virtual address (VA)
+  2. Check TLB (Translation Lookaside Buffer) — a small cache of VA→PA mappings
+     HIT:  use cached physical address directly → ~0 cycles overhead
+     MISS: walk the 4-level page table in RAM → ~10-100 cycles
+  3. Page table walk returns Physical Frame Number (PFN)
+  4. Physical address = PFN × 4096 + (VA & 0xFFF)
+  5. Check if page is present (P bit):
+     PRESENT:  access RAM at physical address
+     NOT PRES: PAGE FAULT → OS takes over
+       - If swapped: read from disk, update page table, resume
+       - If invalid: segmentation fault (SIGSEGV)
+
+TLB on modern CPUs:
+  L1 TLB:  32–64 entries, 0 latency penalty
+  L2 TLB:  1024–1536 entries, ~7-cycle penalty
+  Miss → page table walk in RAM → ~50-100 cycles</pre>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.3 — Swap / Page File</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">What is swap?</div>
+      <p>When RAM fills up, the OS picks "cold" pages (not recently accessed) and writes them to a swap partition (Linux) or page file (Windows). The physical frame is freed for another process. If the evicted data is needed again, a <strong>page fault</strong> suspends the process, the OS reads it back, and execution resumes.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">Swap performance</div>
+      <p>SSD swap: ~100 µs per page fault. HDD swap: ~10 ms. Either way, that's 1,000–100,000x slower than RAM. A system that's heavily swapping ("thrashing") grinds to a halt. Modern systems with SSDs tolerate light swapping; HDD swap is essentially unusable under load.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 4.4 — mmap and virtual memory tricks</div>
+  <div class="code-section">
+    <div class="code-header"><span>virtual_memory.c</span><span class="lang-tag">C / Linux</span></div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;sys/mman.h&gt;</span>
+
+<span class="cm">// mmap: map a file directly into the virtual address space</span>
+<span class="cm">// Pages are loaded on-demand (demand paging) — no upfront RAM cost</span>
+<span class="tp">void</span>* <span class="fn">mapped</span> = <span class="fn">mmap</span>(
+    <span class="kw">NULL</span>,           <span class="cm">// let OS choose virtual address</span>
+    file_size,      <span class="cm">// how many bytes to map</span>
+    PROT_READ,      <span class="cm">// permissions</span>
+    MAP_PRIVATE,    <span class="cm">// copy-on-write; changes not written back</span>
+    fd,             <span class="cm">// file descriptor</span>
+    <span class="nu">0</span>               <span class="cm">// offset in file</span>
+);
+<span class="cm">// First access to each page → page fault → OS loads that 4 KB chunk
+// This is how the OS itself loads your executable — demand paging</span>
+
+<span class="cm">// Anonymous mmap: large allocation without malloc overhead</span>
+<span class="tp">void</span>* big = <span class="fn">mmap</span>(<span class="kw">NULL</span>, <span class="nu">1</span><<span class="nu">30</span>, PROT_READ|PROT_WRITE,
+                  MAP_PRIVATE|MAP_ANONYMOUS, -<span class="nu">1</span>, <span class="nu">0</span>);
+<span class="cm">// 1 GB reserved in virtual space — but NO physical RAM used yet
+// Only allocated when actually touched (zero-page optimization)</span>
+
+<span class="fn">munmap</span>(mapped, file_size);   <span class="cm">// release virtual mapping</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Virtual memory ≠ swap:</strong> Virtual memory is the address translation mechanism (always on). Swap is one consequence — pages that don't fit in RAM get evicted to disk. You can have virtual memory without swap (embedded systems). Swap is just one policy that exploits virtual memory's "not present" page fault mechanism.
+  </div>
+</div>
+
+<!-- ==================== COMPARE ==================== -->
+<div class="panel" id="panel-compare">
+  <div class="section-label">§ 5 — Full Comparison</div>
+  <h2>Cache, RAM, VRAM, Virtual Memory — all at once</h2>
+
+  <table class="cmp-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="rh">L1/L2/L3 Cache</th>
+        <th class="rh">RAM (DRAM)</th>
+        <th class="rh">VRAM (GDDR/HBM)</th>
+        <th class="rh">Virtual Memory</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What it is</td>
+        <td>Fast SRAM on the CPU die</td>
+        <td>Main system working memory</td>
+        <td>Dedicated GPU memory</td>
+        <td>OS abstraction over physical RAM</td>
+      </tr>
+      <tr>
+        <td>Technology</td>
+        <td>SRAM (6T flip-flop)</td>
+        <td>DRAM (1T1C capacitor)</td>
+        <td>GDDR6X or HBM2e/3</td>
+        <td>Software + MMU hardware</td>
+      </tr>
+      <tr>
+        <td>Latency</td>
+        <td>1–40 cycles (L1→L3)</td>
+        <td>~200 cycles (~60 ns)</td>
+        <td>~500–800 ns</td>
+        <td>0 (TLB hit) to ~10 ms (page fault to disk)</td>
+      </tr>
+      <tr>
+        <td>Bandwidth</td>
+        <td>1–4 TB/s (L1) to ~300 GB/s (L3)</td>
+        <td>50–100 GB/s</td>
+        <td>400–3000 GB/s</td>
+        <td>Same as underlying RAM or disk</td>
+      </tr>
+      <tr>
+        <td>Typical size</td>
+        <td>32 KB – 64 MB</td>
+        <td>8–128 GB</td>
+        <td>4–24 GB (consumer), 80 GB (H100)</td>
+        <td>Up to 128 TB (48-bit VA space)</td>
+      </tr>
+      <tr>
+        <td>Managed by</td>
+        <td>Hardware automatically (LRU eviction)</td>
+        <td>OS + programmer (malloc/free)</td>
+        <td>GPU driver + programmer (CUDA/Vulkan)</td>
+        <td>OS kernel (page tables, MMU)</td>
+      </tr>
+      <tr>
+        <td>Volatile?</td>
+        <td>Yes — loses data on power loss or eviction</td>
+        <td>Yes — loses data on power loss</td>
+        <td>Yes — loses data on power loss</td>
+        <td>RAM portion volatile; swap survives reboot</td>
+      </tr>
+      <tr>
+        <td>Physical location</td>
+        <td>Inside CPU die, per-core</td>
+        <td>DIMMs on motherboard</td>
+        <td>On GPU PCB (or HBM interposer)</td>
+        <td>Logical — backed by RAM + swap on disk</td>
+      </tr>
+      <tr>
+        <td>Cost/GB (approx)</td>
+        <td>$1,000+ (embedded in CPU)</td>
+        <td>$3–6</td>
+        <td>$80–200</td>
+        <td>Essentially $0 (logical abstraction)</td>
+      </tr>
+      <tr>
+        <td>Failure mode</td>
+        <td>Cache miss → slower, falls to L2/L3/RAM</td>
+        <td>OOM → OS kills process or swaps</td>
+        <td>CUDA OOM → crash unless handled</td>
+        <td>Page fault to disk → very slow; segfault if invalid</td>
+      </tr>
+      <tr>
+        <td>Key insight</td>
+        <td>Exploit locality — arrange data to stay in cache</td>
+        <td>Working memory; everything lives here temporarily</td>
+        <td>Bandwidth over latency — massively parallel reads</td>
+        <td>Every pointer you use is virtual — hardware translates it</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+  <div class="section-label">§ 5.1 — What actually happens when you access a variable</div>
+  <div class="code-section">
+    <div class="code-header"><span>full_path.txt</span><span class="lang-tag">Walkthrough</span></div>
+    <pre>int x = arr[i];   ← you write this. here is what happens:
+
+1. CPU issues a LOAD for virtual address VA = &arr[i]
+
+2. MMU checks TLB for VA:
+   HIT  → physical address PA in ~1 cycle
+   MISS → walk 4-level page table (~50-100 cycles)
+          → check P bit:
+             present  → PA found, update TLB
+             swapped  → PAGE FAULT, OS reads from disk (~100µs)
+             invalid  → SIGSEGV
+
+3. Now we have PA. Check L1 cache:
+   HIT  → data returned in 1-4 cycles ✓
+   MISS → check L2 (~12 cycles)
+     HIT  → data returned, loaded into L1
+     MISS → check L3 (~40 cycles)
+       HIT  → data returned, loaded into L1+L2
+       MISS → fetch from RAM (~200 cycles)
+              64-byte cache line loaded into L1+L2+L3
+              data returned
+
+Total worst case: TLB miss + page fault + L3 miss + RAM fetch
+  ≈ 100µs (swap) + 200 cycles (RAM) ≈ millions of cycles at 3 GHz
+
+Total best case: TLB hit + L1 hit
+  ≈ 1-4 cycles — essentially free</pre>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">§ 5.2 — Exam Traps</div>
+  <div class="two-col">
+    <div class="col">
+      <div class="col-label">Trap 1 — Virtual memory ≠ RAM</div>
+      <p>Virtual memory is an address translation system. It can be backed by RAM, by disk (swap), or by nothing yet (lazy allocation). "64 GB virtual address space" doesn't mean 64 GB of RAM exists.</p>
+    </div>
+    <div class="col">
+      <div class="col-label">Trap 2 — VRAM ≠ faster RAM</div>
+      <p>VRAM has higher bandwidth but higher latency than DDR5. The GPU tolerates latency by running thousands of threads — while one thread waits for VRAM, others run. This is the opposite of how CPUs handle memory latency (caches).</p>
+    </div>
+  </div>
+  <div class="two-col" style="border-top:none;margin-top:0;">
+    <div class="col" style="border-top:var(--border);">
+      <div class="col-label">Trap 3 — Cache is hardware, not software</div>
+      <p>You cannot directly control what's in cache (without special intrinsics). You influence it indirectly by how you access memory. Sequential access = cache-friendly. Pointer chasing = cache-hostile.</p>
+    </div>
+    <div class="col" style="border-top:var(--border);">
+      <div class="col-label">Trap 4 — malloc doesn't touch RAM immediately</div>
+      <p>After <code>malloc(1GB)</code>, no physical RAM is allocated. The OS maps virtual pages but marks them as not-present. Physical frames are assigned only when you actually write to each page (demand paging).</p>
+    </div>
+  </div>
+
+  <div class="key-idea">
+    <div class="label">The one-line summary of each</div>
+    Cache:   tiny, blazing-fast SRAM that hides RAM latency — exploit spatial/temporal locality<br>
+    RAM:     the working memory everything runs from — volatile, limited, and the bottleneck<br>
+    VRAM:    bandwidth-optimized GPU memory — parallel reads for textures, tensors, frames<br>
+    Virtual: the OS illusion that every process has its own huge private address space
+  </div>
+</div>
+
+</main>
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ── CACHE SIMULATOR ── */
+const ACCESS_SEQ = [0,1,2,3,0,1,8,9,0,2,10,1,3,11,0,4];
+const CACHE_SIZE = 8;
+let cacheState = new Array(CACHE_SIZE).fill(null);
+let lruOrder   = [];
+let accessIdx  = 0;
+let hitCount   = 0, missCount = 0;
+
+function renderCache() {
+  const addrRow = document.getElementById('addr-row');
+  const slotsEl = document.getElementById('cache-slots');
+  if (!addrRow || !slotsEl) return;
+
+  addrRow.innerHTML = ACCESS_SEQ.map((a, i) => {
+    let cls = 'idle';
+    if (i < accessIdx) {
+      cls = cacheState.includes(a) || (i === accessIdx - 1) ? 'idle' : 'idle';
+    }
+    return `<div class="addr-cell ${i < accessIdx ? 'idle' : ''}" id="addr-${i}">${a}</div>`;
+  }).join('');
+
+  slotsEl.innerHTML = cacheState.map((v, i) => {
+    if (v === null) return `<div class="cache-slot" title="slot ${i}">—</div>`;
+    return `<div class="cache-slot filled" title="slot ${i}">${v}</div>`;
+  }).join('');
+}
+
+function runAccess() {
+  if (accessIdx >= ACCESS_SEQ.length) return;
+  const addr = ACCESS_SEQ[accessIdx];
+  const addrEl = document.getElementById(`addr-${accessIdx}`);
+  const descEl = document.getElementById('cache-desc');
+  const inCache = cacheState.includes(addr);
+
+  if (inCache) {
+    hitCount++;
+    if (addrEl) addrEl.className = 'addr-cell hit';
+    lruOrder = lruOrder.filter(x => x !== addr);
+    lruOrder.push(addr);
+    descEl.innerHTML = `<span class="hit-label">HIT</span> — addr ${addr} already in cache slot ${cacheState.indexOf(addr)}. No RAM fetch needed. Hits: ${hitCount}, Misses: ${missCount}`;
+  } else {
+    missCount++;
+    if (addrEl) addrEl.className = 'addr-cell miss';
+    let slot;
+    if (cacheState.includes(null)) {
+      slot = cacheState.indexOf(null);
+    } else {
+      const evict = lruOrder.shift();
+      slot = cacheState.indexOf(evict);
+    }
+    cacheState[slot] = addr;
+    lruOrder = lruOrder.filter(x => x !== addr);
+    lruOrder.push(addr);
+    descEl.innerHTML = `<span class="miss-label">MISS</span> — addr ${addr} not in cache. Fetched 64-byte line from RAM → loaded into slot ${slot}. Hits: ${hitCount}, Misses: ${missCount}`;
+  }
+  accessIdx++;
+  renderCache();
+}
+
+function runAll() {
+  while (accessIdx < ACCESS_SEQ.length) runAccess();
+}
+
+function resetCache() {
+  cacheState = new Array(CACHE_SIZE).fill(null);
+  lruOrder = [];
+  accessIdx = 0;
+  hitCount = 0;
+  missCount = 0;
+  document.getElementById('cache-desc').innerHTML = 'Press "Access Next" to simulate memory accesses.';
+  renderCache();
+}
+
+renderCache();
+
+/* ── PAGE TABLE ── */
+(function buildPageTable() {
+  const grid = document.getElementById('pt-grid');
+  if (!grid) return;
+  const entries = [
+    {vpn:0,  type:'mapped',   phys:'0x1A000'},
+    {vpn:1,  type:'mapped',   phys:'0x3F000'},
+    {vpn:2,  type:'swapped',  phys:'disk@0x8'},
+    {vpn:3,  type:'mapped',   phys:'0x02000'},
+    {vpn:4,  type:'unmapped', phys:'—'},
+    {vpn:5,  type:'unmapped', phys:'—'},
+    {vpn:6,  type:'mapped',   phys:'0xB1000'},
+    {vpn:7,  type:'swapped',  phys:'disk@0x2'},
+    {vpn:8,  type:'mapped',   phys:'0x7C000'},
+    {vpn:9,  type:'unmapped', phys:'—'},
+    {vpn:10, type:'mapped',   phys:'0x44000'},
+    {vpn:11, type:'swapped',  phys:'disk@0xF'},
+    {vpn:12, type:'unmapped', phys:'—'},
+    {vpn:13, type:'mapped',   phys:'0x0A000'},
+    {vpn:14, type:'unmapped', phys:'—'},
+    {vpn:15, type:'mapped',   phys:'0xCC000'},
+  ];
+  grid.innerHTML = entries.map(e => `
+    <div class="pt-cell ${e.type}">
+      <div class="pt-virt">VPN ${e.vpn}</div>
+      <div class="pt-phys">${e.phys}</div>
+    </div>`).join('');
+})();
+</script>
+</body>
+</html>

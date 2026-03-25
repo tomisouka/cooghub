@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Design Strategies</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f2ede4;
+    --black: #111111;
+    --red: #e8352a;
+    --yellow: #f5f500;
+    --white: #ffffff;
+    --border: 2.5px solid #111111;
+    --gray: #d4cfc6;
+    --gray2: #e8e3da;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--black);
+    font-family: 'Archivo', sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: var(--border);
+    padding: 2rem 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: var(--black);
+    color: var(--cream);
+  }
+
+  header .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--yellow);
+  }
+
+  header h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.05;
+    color: var(--cream);
+  }
+
+  header p {
+    font-size: 1rem;
+    color: #a09a8e;
+    max-width: 55ch;
+    margin-top: 0.3rem;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    border-bottom: var(--border);
+    display: flex;
+    background: var(--cream);
+  }
+
+  nav button {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    padding: 1rem 1.6rem;
+    border: none;
+    border-right: var(--border);
+    background: transparent;
+    cursor: pointer;
+    color: #888;
+    transition: background 0.15s, color 0.15s;
+    text-transform: uppercase;
+  }
+
+  nav button:hover { background: var(--gray2); color: var(--black); }
+
+  nav button.active {
+    background: var(--black);
+    color: var(--yellow);
+  }
+
+  nav button .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    border: 1px solid currentColor;
+    margin-left: 6px;
+    vertical-align: middle;
+    opacity: 0.7;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── SECTION BLOCKS ── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+  }
+
+  h2 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p { margin-bottom: 1rem; color: #333; }
+
+  /* ── KEY IDEA BOX ── */
+  .key-idea {
+    border: var(--border);
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 1rem 1.2rem;
+    margin: 1.5rem 0;
+    line-height: 1.5;
+  }
+
+  .key-idea .label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ── TWO-COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .two-col .col {
+    padding: 1.2rem;
+  }
+
+  .two-col .col:first-child {
+    border-right: var(--border);
+  }
+
+  .two-col .col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--red);
+    margin-bottom: 0.5rem;
+  }
+
+  .two-col .col p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+
+  /* ── COMPLEXITY BADGE ── */
+  .complexity-row {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    border: var(--border);
+    padding: 0.6rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 130px;
+  }
+
+  .badge .badge-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+  }
+
+  .badge .badge-value { font-size: 1rem; font-weight: 700; }
+
+  .badge.best .badge-value { color: #1a7a3f; }
+  .badge.avg .badge-value { color: var(--black); }
+  .badge.worst .badge-value { color: var(--red); }
+
+  /* ── CODE BLOCK ── */
+  .code-section {
+    border: var(--border);
+    margin: 2rem 0;
+  }
+
+  .code-header {
+    background: var(--black);
+    color: var(--cream);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: var(--border);
+  }
+
+  .code-header span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  .code-header .lang-tag {
+    background: var(--yellow);
+    color: var(--black);
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  pre {
+    background: #1a1a1a;
+    color: #e2ddd5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    padding: 1.4rem 1.2rem;
+    overflow-x: auto;
+    margin: 0;
+  }
+
+  /* Syntax highlight classes */
+  .kw { color: #e8352a; font-weight: 700; }
+  .fn { color: #f5f500; }
+  .cm { color: #666; font-style: italic; }
+  .st { color: #7ec8a0; }
+  .nu { color: #f0a050; }
+  .tp { color: #a0c8f0; }
+
+  /* ── TRACE / WALKTHROUGH ── */
+  .trace-box {
+    border: var(--border);
+    margin: 2rem 0;
+    background: var(--white);
+  }
+
+  .trace-header {
+    border-bottom: var(--border);
+    padding: 0.7rem 1rem;
+    background: var(--gray2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--red);
+  }
+
+  .trace-body { padding: 1.2rem; }
+
+  .trace-step {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 0.8rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--gray);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    align-items: start;
+  }
+
+  .trace-step:last-child { border-bottom: none; }
+
+  .trace-step .step-num {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    padding-top: 2px;
+  }
+
+  .trace-step .step-arr {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .arr-cell {
+    border: 1.5px solid var(--black);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .arr-cell.highlight { background: var(--yellow); border-color: var(--black); }
+  .arr-cell.locked { background: var(--black); color: var(--yellow); }
+  .arr-cell.pivot { background: var(--red); color: var(--white); border-color: var(--red); }
+  .arr-cell.left-side { background: #d4f0e0; }
+  .arr-cell.right-side { background: #ffd4d4; }
+
+  .trace-note {
+    font-family: 'Archivo', sans-serif;
+    font-size: 0.8rem;
+    color: #555;
+    font-style: italic;
+    margin-left: 4px;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    border: var(--border);
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+  }
+
+  .compare-table th {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.8rem 1rem;
+    border: var(--border);
+    background: var(--black);
+    color: var(--cream);
+    text-align: left;
+  }
+
+  .compare-table th.strategy-head {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  .compare-table td {
+    padding: 0.75rem 1rem;
+    border: var(--border);
+    font-size: 0.88rem;
+    vertical-align: top;
+  }
+
+  .compare-table tr:nth-child(even) td { background: var(--gray2); }
+
+  .compare-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    background: var(--cream) !important;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* ── MENTAL MODEL STRIP ── */
+  .mental-strip {
+    border: var(--border);
+    display: flex;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+
+  .mental-strip .strip-item {
+    flex: 1;
+    padding: 1.2rem 1rem;
+    border-right: var(--border);
+    text-align: center;
+  }
+
+  .mental-strip .strip-item:last-child { border-right: none; }
+
+  .mental-strip .strip-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .mental-strip .strip-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+  }
+
+  .mental-strip .strip-desc {
+    font-size: 0.78rem;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  /* ── EXAMPLES LIST ── */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0;
+    border: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .example-card {
+    padding: 1rem;
+    border-right: var(--border);
+    border-bottom: var(--border);
+  }
+
+  .example-card:nth-child(3n) { border-right: none; }
+  .example-card:nth-last-child(-n+3) { border-bottom: none; }
+
+  .example-card .ex-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .example-card .ex-complex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+  }
+
+  .example-card .ex-desc {
+    font-size: 0.78rem;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  /* ── ANSWER BLOCK ── */
+  .answer {
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0 1.2rem;
+    border: var(--border);
+    line-height: 1.5;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 4px solid var(--red);
+    background: var(--white);
+    padding: 0.9rem 1.2rem;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .callout strong {
+    font-family: 'Archivo Black', sans-serif;
+    color: var(--red);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav button .tag { display: none; }
+    nav button { padding: 0.8rem 0.9rem; font-size: 0.75rem; }
+    .two-col { grid-template-columns: 1fr; }
+    .two-col .col:first-child { border-right: none; border-bottom: var(--border); }
+    .mental-strip { flex-direction: column; }
+    .mental-strip .strip-item { border-right: none; border-bottom: var(--border); }
+    .mental-strip .strip-item:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">Algorithm Design · COSC 3320</span>
+  <h1>Algorithmic Thinking:<br>Three Core Strategies</h1>
+  <p>Brute Force, Decrease &amp; Conquer, and Divide &amp; Conquer — what they are, how they differ, and when each appears.</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('overview')">Overview</button>
+  <button onclick="showPanel('brute')">Brute Force <span class="tag">O(n²)+</span></button>
+  <button onclick="showPanel('decrease')">Decrease &amp; Conquer <span class="tag">O(n²)</span></button>
+  <button onclick="showPanel('divide')">Divide &amp; Conquer <span class="tag">O(n log n)</span></button>
+  <button onclick="showPanel('compare')">Compare All</button>
+</nav>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════
+       OVERVIEW PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="section-label">§ 0 — Introduction</div>
+    <h2>Why strategy matters before code</h2>
+    <p>Every algorithm belongs to a design paradigm — a mental framework for attacking a problem. Before you write a single line, choosing the right strategy determines your complexity ceiling.</p>
+
+    <div class="mental-strip">
+      <div class="strip-item">
+        <span class="strip-icon">∀</span>
+        <div class="strip-title">Brute Force</div>
+        <div class="strip-desc">Try everything. No cleverness. Direct exhaustive attack on the problem.</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon">n−1</span>
+        <div class="strip-title">Decrease &amp; Conquer</div>
+        <div class="strip-desc">Shrink the problem by one (or a constant) each step. Use the smaller answer to get the full answer.</div>
+      </div>
+      <div class="strip-item">
+        <span class="strip-icon">n/2</span>
+        <div class="strip-title">Divide &amp; Conquer</div>
+        <div class="strip-desc">Split into independent halves. Solve both. Merge. Each split is where the log&nbsp;n comes from.</div>
+      </div>
+    </div>
+
+    <div class="key-idea">
+      <div class="label">The key question to ask</div>
+      Brute Force: "What's the most direct way to try all possibilities?"<br>
+      Decrease &amp; Conquer: "How do I reduce this to size n−1?"<br>
+      Divide &amp; Conquer: "How do I split this into independent halves?"
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 0.1 — The Critical Distinction</div>
+    <h3>Decrease vs. Divide — these get confused most</h3>
+    <p>Both are recursive/iterative. Both exploit structure. The difference is in what you do after:</p>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="col-label">Decrease &amp; Conquer</div>
+        <p>You solve a problem of size <strong>n−1</strong>, then extend that solution to size n. One subproblem. The reduction is sequential — each step depends on the previous.</p>
+      </div>
+      <div class="col">
+        <div class="col-label">Divide &amp; Conquer</div>
+        <p>You split into two (or more) <strong>independent</strong> subproblems of size ~n/2, solve both, then combine. Neither half needs the other to run.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Exam tip:</strong> If the recursion only goes one direction (and one side is always trivially handled), it's probably Decrease &amp; Conquer. If both halves do real work and you need a merge step, it's Divide &amp; Conquer.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       BRUTE FORCE PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="panel" id="panel-brute">
+    <div class="section-label">§ 1 — Brute Force</div>
+    <h2>Brute Force</h2>
+    <p>Solve the problem by directly trying all possibilities with no exploitation of structure. The algorithm does exactly what the problem statement says, naively. Often the first correct solution — never the best efficient one.</p>
+
+    <div class="key-idea">
+      <div class="label">Core idea</div>
+      There is no strategy. For every possible candidate, check if it's the answer.<br>
+      Correctness is trivial. Efficiency is not.
+    </div>
+
+    <div class="complexity-row">
+      <div class="badge best"><span class="badge-label">Best case</span><span class="badge-value">O(1)</span></div>
+      <div class="badge avg"><span class="badge-label">Average case</span><span class="badge-value">O(n)</span></div>
+      <div class="badge worst"><span class="badge-label">Worst case</span><span class="badge-value">O(n²) or worse</span></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Code: Linear Search -->
+    <div class="section-label">§ 1.1 — Example: Linear Search</div>
+    <h3>Linear Search</h3>
+    <p>Check every element from left to right. Return when found. No assumptions about order.</p>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>linear_search.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">linear_search</span>(arr: <span class="tp">list</span>, target: <span class="tp">int</span>) -> <span class="tp">int</span>:
+    <span class="cm"># Brute force: check every index, no assumptions made</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(arr)):
+        <span class="kw">if</span> arr[i] == target:
+            <span class="kw">return</span> i       <span class="cm"># found at index i</span>
+    <span class="kw">return</span> -<span class="nu">1</span>          <span class="cm"># not found</span>
+
+<span class="cm"># Example</span>
+arr = [<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">2</span>]
+<span class="fn">print</span>(<span class="fn">linear_search</span>(arr, <span class="nu">8</span>))   <span class="cm"># → 2  (index of 8)</span>
+<span class="fn">print</span>(<span class="fn">linear_search</span>(arr, <span class="nu">7</span>))   <span class="cm"># → -1 (not present)</span></pre>
+    </div>
+
+    <div class="trace-box">
+      <div class="trace-header">Trace — searching for 8 in [5, 3, 8, 1, 9, 2]</div>
+      <div class="trace-body">
+        <div class="trace-step">
+          <span class="step-num">i = 0</span>
+          <span class="step-arr">
+            <span class="arr-cell highlight">5</span>
+            <span class="arr-cell">3</span><span class="arr-cell">8</span><span class="arr-cell">1</span><span class="arr-cell">9</span><span class="arr-cell">2</span>
+            <span class="trace-note">5 ≠ 8, continue</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">i = 1</span>
+          <span class="step-arr">
+            <span class="arr-cell">5</span>
+            <span class="arr-cell highlight">3</span><span class="arr-cell">8</span><span class="arr-cell">1</span><span class="arr-cell">9</span><span class="arr-cell">2</span>
+            <span class="trace-note">3 ≠ 8, continue</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">i = 2</span>
+          <span class="step-arr">
+            <span class="arr-cell">5</span><span class="arr-cell">3</span>
+            <span class="arr-cell locked">8</span>
+            <span class="arr-cell">1</span><span class="arr-cell">9</span><span class="arr-cell">2</span>
+            <span class="trace-note">8 = 8 ✓ return index 2</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Code: Naive string matching -->
+    <div class="section-label">§ 1.2 — Example: Naive String Matching</div>
+    <h3>Naive String Matching</h3>
+    <p>Try aligning the pattern at every position in the text. At each alignment, check character by character. Classic O(nm) brute force.</p>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>naive_string_match.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">naive_search</span>(text: <span class="tp">str</span>, pattern: <span class="tp">str</span>) -> <span class="tp">list</span>:
+    n = <span class="fn">len</span>(text)
+    m = <span class="fn">len</span>(pattern)
+    matches = []
+
+    <span class="cm"># Try every alignment: O(n) positions</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n - m + <span class="nu">1</span>):
+        <span class="cm"># Check character by character: O(m) per alignment</span>
+        <span class="kw">if</span> text[i:i + m] == pattern:
+            matches.<span class="fn">append</span>(i)
+
+    <span class="kw">return</span> matches   <span class="cm"># T(n) = O(n * m)</span>
+
+<span class="fn">print</span>(<span class="fn">naive_search</span>(<span class="st">"AABAACAADAABAABA"</span>, <span class="st">"AABA"</span>))
+<span class="cm"># → [0, 9, 12]</span></pre>
+    </div>
+
+    <div class="callout">
+      <strong>Why brute force is still useful:</strong> It's trivially correct. Use it to verify faster algorithms on small inputs. On exams, describing the brute force first shows you understand the problem before optimizing it.
+    </div>
+
+    <div class="section-label">§ 1.3 — All Brute Force Examples</div>
+    <div class="examples-grid">
+      <div class="example-card">
+        <div class="ex-name">Linear Search</div>
+        <div class="ex-complex">O(n)</div>
+        <div class="ex-desc">Scan every element for target.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Naive String Match</div>
+        <div class="ex-complex">O(nm)</div>
+        <div class="ex-desc">Align pattern at each position, compare all chars.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Bubble Sort</div>
+        <div class="ex-complex">O(n²)</div>
+        <div class="ex-desc">Repeatedly swap adjacent out-of-order pairs.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Closest Pair (BF)</div>
+        <div class="ex-complex">O(n²)</div>
+        <div class="ex-desc">Check every pair of points for minimum distance.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Exhaustive TSP</div>
+        <div class="ex-complex">O(n!)</div>
+        <div class="ex-desc">Try every permutation of cities.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Compute n!</div>
+        <div class="ex-complex">O(n)</div>
+        <div class="ex-desc">Multiply 1 × 2 × 3 × ... × n directly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       DECREASE AND CONQUER PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="panel" id="panel-decrease">
+    <div class="section-label">§ 2 — Decrease &amp; Conquer</div>
+    <h2>Decrease &amp; Conquer</h2>
+    <p>Reduce the problem by one (or a constant factor, or a variable amount) each step. Solve the reduced problem, then extend that solution to the original. The key is that you're recursing into <em>one</em> subproblem — not two independent ones.</p>
+
+    <div class="key-idea">
+      <div class="label">Core idea</div>
+      T(n) = T(n−1) + O(1)  →  O(n)<br>
+      T(n) = T(n/2) + O(1)  →  O(log n)<br>
+      T(n) = T(n−1) + O(n)  →  O(n²)
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="col-label">Three flavors</div>
+        <p><strong>Decrease by 1:</strong> Selection Sort, Insertion Sort — problem shrinks by one element each pass.</p>
+        <p style="margin-top:0.6rem"><strong>Decrease by constant factor:</strong> Binary Search — problem halves each step.</p>
+        <p style="margin-top:0.6rem"><strong>Decrease by variable:</strong> Quickselect — partition removes a variable chunk.</p>
+      </div>
+      <div class="col">
+        <div class="col-label">One subproblem only</div>
+        <p>This is what separates D&amp;C from Divide &amp; Conquer. After reducing, you recurse into <em>one</em> subproblem. The other part is either trivially done or discarded entirely.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 2.1 — Example: Selection Sort</div>
+    <h3>Selection Sort</h3>
+    <p>On each pass, find the minimum of the unsorted suffix and lock it in place. After k passes, the first k elements are sorted. The problem decreases by one each round.</p>
+
+    <div class="complexity-row">
+      <div class="badge best"><span class="badge-label">Best case</span><span class="badge-value">Θ(n²)</span></div>
+      <div class="badge avg"><span class="badge-label">Average case</span><span class="badge-value">Θ(n²)</span></div>
+      <div class="badge worst"><span class="badge-label">Worst case</span><span class="badge-value">Θ(n²)</span></div>
+    </div>
+
+    <div class="callout">
+      <strong>Note:</strong> Selection Sort has no best-case improvement — it always scans the full remaining unsorted portion regardless of input order. At most n swaps total (one per pass), which is its only real advantage over Bubble Sort.
+    </div>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>selection_sort.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">selection_sort</span>(arr: <span class="tp">list</span>) -> <span class="tp">list</span>:
+    n = <span class="fn">len</span>(arr)
+
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n):
+        <span class="cm"># Find minimum in unsorted suffix arr[i..n-1]</span>
+        min_idx = i
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i + <span class="nu">1</span>, n):
+            <span class="kw">if</span> arr[j] < arr[min_idx]:
+                min_idx = j
+
+        <span class="cm"># Swap min into position i — lock it in</span>
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+        <span class="cm"># Problem reduced: arr[0..i] is now sorted</span>
+
+    <span class="kw">return</span> arr
+
+<span class="fn">print</span>(<span class="fn">selection_sort</span>([<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">2</span>]))
+<span class="cm"># → [1, 2, 3, 5, 8, 9]</span></pre>
+    </div>
+
+    <div class="trace-box">
+      <div class="trace-header">Trace — Selection Sort on [5, 3, 8, 1, 9, 2]</div>
+      <div class="trace-body">
+        <div class="trace-step">
+          <span class="step-num">Pass 1</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span>
+            <span class="arr-cell">3</span><span class="arr-cell">8</span><span class="arr-cell">5</span><span class="arr-cell">9</span><span class="arr-cell">2</span>
+            <span class="trace-note">min=1 found at idx 3, swap → locked</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Pass 2</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span>
+            <span class="arr-cell locked">2</span>
+            <span class="arr-cell">8</span><span class="arr-cell">5</span><span class="arr-cell">9</span><span class="arr-cell">3</span>
+            <span class="trace-note">min=2 found at idx 5, swap → locked</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Pass 3</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span><span class="arr-cell locked">2</span>
+            <span class="arr-cell locked">3</span>
+            <span class="arr-cell">5</span><span class="arr-cell">9</span><span class="arr-cell">8</span>
+            <span class="trace-note">min=3 found at idx 5, swap → locked</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Pass 4</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span><span class="arr-cell locked">2</span><span class="arr-cell locked">3</span>
+            <span class="arr-cell locked">5</span>
+            <span class="arr-cell">9</span><span class="arr-cell">8</span>
+            <span class="trace-note">min=5 already in place → locked</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Done</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span><span class="arr-cell locked">2</span><span class="arr-cell locked">3</span><span class="arr-cell locked">5</span><span class="arr-cell locked">8</span><span class="arr-cell locked">9</span>
+            <span class="trace-note">fully sorted</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 2.2 — Example: Binary Search</div>
+    <h3>Binary Search — decrease by constant factor</h3>
+    <p>Each step throws away half the search space. This is decrease-and-conquer by a factor of 2, giving O(log n). Requires a sorted array.</p>
+
+    <div class="complexity-row">
+      <div class="badge best"><span class="badge-label">Best case</span><span class="badge-value">O(1)</span></div>
+      <div class="badge avg"><span class="badge-label">Average case</span><span class="badge-value">O(log n)</span></div>
+      <div class="badge worst"><span class="badge-label">Worst case</span><span class="badge-value">O(log n)</span></div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>binary_search.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">binary_search</span>(arr: <span class="tp">list</span>, target: <span class="tp">int</span>) -> <span class="tp">int</span>:
+    low, high = <span class="nu">0</span>, <span class="fn">len</span>(arr) - <span class="nu">1</span>
+
+    <span class="kw">while</span> low <= high:
+        mid = (low + high) // <span class="nu">2</span>
+
+        <span class="kw">if</span> arr[mid] == target:
+            <span class="kw">return</span> mid              <span class="cm"># found</span>
+        <span class="kw">elif</span> arr[mid] < target:
+            low = mid + <span class="nu">1</span>            <span class="cm"># discard left half</span>
+        <span class="kw">else</span>:
+            high = mid - <span class="nu">1</span>           <span class="cm"># discard right half</span>
+
+    <span class="kw">return</span> -<span class="nu">1</span>   <span class="cm"># not found</span>
+    <span class="cm"># T(n) = T(n/2) + O(1) → O(log n) by Master Theorem Case 2</span>
+
+arr = [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">8</span>, <span class="nu">9</span>, <span class="nu">13</span>, <span class="nu">21</span>]
+<span class="fn">print</span>(<span class="fn">binary_search</span>(arr, <span class="nu">9</span>))   <span class="cm"># → 5</span></pre>
+    </div>
+
+    <div class="section-label">§ 2.3 — All Decrease &amp; Conquer Examples</div>
+    <div class="examples-grid">
+      <div class="example-card">
+        <div class="ex-name">Selection Sort</div>
+        <div class="ex-complex">Θ(n²)</div>
+        <div class="ex-desc">Lock min each pass. Decrease by 1.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Insertion Sort</div>
+        <div class="ex-complex">O(n²) / O(n)</div>
+        <div class="ex-desc">Insert each element into its sorted place. Decrease by 1.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Binary Search</div>
+        <div class="ex-complex">O(log n)</div>
+        <div class="ex-desc">Discard half the space each step. Decrease by factor 2.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Quickselect</div>
+        <div class="ex-complex">O(n) avg</div>
+        <div class="ex-desc">Partition, recurse on one side only. Variable decrease.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Bubble Sort</div>
+        <div class="ex-complex">O(n²)</div>
+        <div class="ex-desc">Bubble max to end each pass. Decrease by 1.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Topological Sort (DFS)</div>
+        <div class="ex-complex">O(V+E)</div>
+        <div class="ex-desc">Post-order DFS — reduce graph one vertex at a time.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       DIVIDE AND CONQUER PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="panel" id="panel-divide">
+    <div class="section-label">§ 3 — Divide &amp; Conquer</div>
+    <h2>Divide &amp; Conquer</h2>
+    <p>Split the problem into independent subproblems, solve them recursively, then combine the results. The independence of subproblems + the merge step is where the log n comes from and what makes these algorithms hard to analyze.</p>
+
+    <div class="key-idea">
+      <div class="label">Recurrence form</div>
+      T(n) = aT(n/b) + f(n)<br><br>
+      a = subproblems, b = size reduction factor, f(n) = work outside recursion<br>
+      → Solve with Master Theorem
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="col-label">Three phases (always)</div>
+        <p><strong>Divide:</strong> Split input into b parts of size n/b.</p>
+        <p style="margin-top:0.5rem"><strong>Conquer:</strong> Recursively solve each part. Base case when n is small enough.</p>
+        <p style="margin-top:0.5rem"><strong>Combine:</strong> Merge subproblem solutions into the full answer. This step is often the expensive part.</p>
+      </div>
+      <div class="col">
+        <div class="col-label">What makes it different</div>
+        <p>Both halves do <em>real work</em>. Neither is discarded. And you need a non-trivial merge step to stitch results together. If one half is trivially empty, you're doing decrease-and-conquer.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 3.1 — Example: Merge Sort</div>
+    <h3>Merge Sort</h3>
+    <p>Divide the array in half, sort both halves recursively, then merge them. The merge step does O(n) work. Recurrence: T(n) = 2T(n/2) + O(n) → O(n log n) by Master Theorem Case 2.</p>
+
+    <div class="complexity-row">
+      <div class="badge best"><span class="badge-label">Best case</span><span class="badge-value">O(n log n)</span></div>
+      <div class="badge avg"><span class="badge-label">Average case</span><span class="badge-value">O(n log n)</span></div>
+      <div class="badge worst"><span class="badge-label">Worst case</span><span class="badge-value">O(n log n)</span></div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>merge_sort.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">merge_sort</span>(arr: <span class="tp">list</span>) -> <span class="tp">list</span>:
+    <span class="cm"># Base case: size 0 or 1 is already sorted</span>
+    <span class="kw">if</span> <span class="fn">len</span>(arr) <= <span class="nu">1</span>:
+        <span class="kw">return</span> arr
+
+    <span class="cm"># DIVIDE: split into two independent halves</span>
+    mid = <span class="fn">len</span>(arr) // <span class="nu">2</span>
+    left  = <span class="fn">merge_sort</span>(arr[:mid])    <span class="cm"># T(n/2)</span>
+    right = <span class="fn">merge_sort</span>(arr[mid:])   <span class="cm"># T(n/2)</span>
+
+    <span class="cm"># COMBINE: merge two sorted halves — O(n)</span>
+    <span class="kw">return</span> <span class="fn">merge</span>(left, right)
+
+<span class="kw">def</span> <span class="fn">merge</span>(left: <span class="tp">list</span>, right: <span class="tp">list</span>) -> <span class="tp">list</span>:
+    result = []
+    i = j = <span class="nu">0</span>
+
+    <span class="kw">while</span> i < <span class="fn">len</span>(left) <span class="kw">and</span> j < <span class="fn">len</span>(right):
+        <span class="kw">if</span> left[i] <= right[j]:
+            result.<span class="fn">append</span>(left[i]);  i += <span class="nu">1</span>
+        <span class="kw">else</span>:
+            result.<span class="fn">append</span>(right[j]); j += <span class="nu">1</span>
+
+    <span class="kw">return</span> result + left[i:] + right[j:]
+    <span class="cm"># T(n) = 2T(n/2) + O(n) → O(n log n)</span>
+
+<span class="fn">print</span>(<span class="fn">merge_sort</span>([<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">2</span>]))
+<span class="cm"># → [1, 2, 3, 5, 8, 9]</span></pre>
+    </div>
+
+    <div class="trace-box">
+      <div class="trace-header">Divide phase — [5, 3, 8, 1, 9, 2]</div>
+      <div class="trace-body">
+        <div class="trace-step">
+          <span class="step-num">Level 0</span>
+          <span class="step-arr">
+            <span class="arr-cell">5</span><span class="arr-cell">3</span><span class="arr-cell">8</span><span class="arr-cell">1</span><span class="arr-cell">9</span><span class="arr-cell">2</span>
+            <span class="trace-note">split at mid=3</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Level 1</span>
+          <span class="step-arr">
+            <span class="arr-cell left-side">5</span><span class="arr-cell left-side">3</span><span class="arr-cell left-side">8</span>
+            &nbsp;&nbsp;
+            <span class="arr-cell right-side">1</span><span class="arr-cell right-side">9</span><span class="arr-cell right-side">2</span>
+            <span class="trace-note">two independent subproblems</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Level 2</span>
+          <span class="step-arr">
+            <span class="arr-cell left-side">5</span>
+            <span class="arr-cell left-side">3</span><span class="arr-cell left-side">8</span>
+            &nbsp;
+            <span class="arr-cell right-side">1</span>
+            <span class="arr-cell right-side">9</span><span class="arr-cell right-side">2</span>
+            <span class="trace-note">split again — base cases approaching</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">Merge up</span>
+          <span class="step-arr">
+            <span class="arr-cell locked">1</span><span class="arr-cell locked">2</span><span class="arr-cell locked">3</span><span class="arr-cell locked">5</span><span class="arr-cell locked">8</span><span class="arr-cell locked">9</span>
+            <span class="trace-note">merge step stitches results together</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 3.2 — Example: Quicksort</div>
+    <h3>Quicksort</h3>
+    <p>Pick a pivot, partition everything around it (smaller left, larger right), then recursively sort both sides. Unlike Merge Sort, the hard work is in the divide step (partition), and the combine step is trivial.</p>
+
+    <div class="complexity-row">
+      <div class="badge best"><span class="badge-label">Best case</span><span class="badge-value">O(n log n)</span></div>
+      <div class="badge avg"><span class="badge-label">Average case</span><span class="badge-value">O(n log n)</span></div>
+      <div class="badge worst"><span class="badge-label">Worst case</span><span class="badge-value">O(n²)</span></div>
+    </div>
+
+    <div class="callout">
+      <strong>Quicksort vs Quickselect:</strong> They share the partition step. Quicksort recurses on <em>both</em> halves (divide &amp; conquer). Quickselect recurses on <em>one</em> half only (decrease &amp; conquer). Same code skeleton, different recursion structure, different complexity.
+    </div>
+
+    <div class="code-section">
+      <div class="code-header">
+        <span>quicksort.py</span>
+        <span class="lang-tag">Python</span>
+      </div>
+      <pre><span class="kw">def</span> <span class="fn">quicksort</span>(arr: <span class="tp">list</span>, lo: <span class="tp">int</span>, hi: <span class="tp">int</span>) -> <span class="kw">None</span>:
+    <span class="kw">if</span> lo >= hi:
+        <span class="kw">return</span>   <span class="cm"># base case</span>
+
+    <span class="cm"># DIVIDE: partition around pivot — O(n)</span>
+    p = <span class="fn">partition</span>(arr, lo, hi)
+
+    <span class="cm"># CONQUER: recurse on BOTH sides (this is what makes it D&C)</span>
+    <span class="fn">quicksort</span>(arr, lo, p - <span class="nu">1</span>)    <span class="cm"># left of pivot</span>
+    <span class="fn">quicksort</span>(arr, p + <span class="nu">1</span>, hi)   <span class="cm"># right of pivot</span>
+    <span class="cm"># COMBINE: nothing — pivot already in final position</span>
+
+<span class="kw">def</span> <span class="fn">partition</span>(arr: <span class="tp">list</span>, lo: <span class="tp">int</span>, hi: <span class="tp">int</span>) -> <span class="tp">int</span>:
+    pivot = arr[hi]   <span class="cm"># last element as pivot</span>
+    i = lo - <span class="nu">1</span>
+
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(lo, hi):
+        <span class="kw">if</span> arr[j] <= pivot:
+            i += <span class="nu">1</span>
+            arr[i], arr[j] = arr[j], arr[i]
+
+    arr[i + <span class="nu">1</span>], arr[hi] = arr[hi], arr[i + <span class="nu">1</span>]
+    <span class="kw">return</span> i + <span class="nu">1</span>   <span class="cm"># pivot's final index</span>
+
+arr = [<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">2</span>]
+<span class="fn">quicksort</span>(arr, <span class="nu">0</span>, <span class="fn">len</span>(arr) - <span class="nu">1</span>)
+<span class="fn">print</span>(arr)   <span class="cm"># → [1, 2, 3, 5, 8, 9]</span></pre>
+    </div>
+
+    <div class="trace-box">
+      <div class="trace-header">Quicksort partition — [5, 3, 8, 1, 9, 2], pivot = 2</div>
+      <div class="trace-body">
+        <div class="trace-step">
+          <span class="step-num">Before</span>
+          <span class="step-arr">
+            <span class="arr-cell">5</span><span class="arr-cell">3</span><span class="arr-cell">8</span><span class="arr-cell">1</span><span class="arr-cell">9</span>
+            <span class="arr-cell pivot">2</span>
+            <span class="trace-note">pivot = 2 (last element)</span>
+          </span>
+        </div>
+        <div class="trace-step">
+          <span class="step-num">After</span>
+          <span class="step-arr">
+            <span class="arr-cell left-side">1</span>
+            <span class="arr-cell pivot">2</span>
+            <span class="arr-cell right-side">8</span><span class="arr-cell right-side">3</span><span class="arr-cell right-side">9</span><span class="arr-cell right-side">5</span>
+            <span class="trace-note">pivot in final place — recurse both sides</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">§ 3.3 — All Divide &amp; Conquer Examples</div>
+    <div class="examples-grid">
+      <div class="example-card">
+        <div class="ex-name">Merge Sort</div>
+        <div class="ex-complex">Θ(n log n)</div>
+        <div class="ex-desc">Split, sort both, merge. Hard work in combine.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Quicksort</div>
+        <div class="ex-complex">O(n log n) avg</div>
+        <div class="ex-desc">Partition, sort both halves. Hard work in divide.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Binary Search (D&amp;C view)</div>
+        <div class="ex-complex">O(log n)</div>
+        <div class="ex-desc">Split, solve one half only. Often classified as D&amp;C.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Closest Pair (D&amp;C)</div>
+        <div class="ex-complex">O(n log n)</div>
+        <div class="ex-desc">Split by x-coord, solve each half, check strip.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Strassen's Matrix Mult</div>
+        <div class="ex-complex">O(n^2.81)</div>
+        <div class="ex-desc">7 subproblems instead of 8. Reduces exponent.</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">FFT</div>
+        <div class="ex-complex">O(n log n)</div>
+        <div class="ex-desc">Split into even/odd, recurse, combine with butterfly.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       COMPARE PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="panel" id="panel-compare">
+    <div class="section-label">§ 4 — Full Comparison</div>
+    <h2>All Three Strategies Side-by-Side</h2>
+    <p>Use this as a quick-reference for classifying algorithms on exams.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="strategy-head">Brute Force</th>
+          <th class="strategy-head">Decrease &amp; Conquer</th>
+          <th class="strategy-head">Divide &amp; Conquer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Core idea</td>
+          <td>Try all candidates directly</td>
+          <td>Reduce to size n−1, solve, extend</td>
+          <td>Split into halves, solve both, merge</td>
+        </tr>
+        <tr>
+          <td>Key question</td>
+          <td>"What's the naive solution?"</td>
+          <td>"How do I reduce by one?"</td>
+          <td>"How do I split independently?"</td>
+        </tr>
+        <tr>
+          <td>Subproblems</td>
+          <td>None — no recursion</td>
+          <td>One subproblem of size n−1</td>
+          <td>Two (or more) independent subproblems</td>
+        </tr>
+        <tr>
+          <td>Recurrence</td>
+          <td>No recurrence (loop)</td>
+          <td>T(n) = T(n−1) + f(n)</td>
+          <td>T(n) = aT(n/b) + f(n)</td>
+        </tr>
+        <tr>
+          <td>Typical complexity</td>
+          <td>O(n²) or worse</td>
+          <td>O(n²) typical; O(log n) possible</td>
+          <td>O(n log n) typical</td>
+        </tr>
+        <tr>
+          <td>Combine step?</td>
+          <td>No</td>
+          <td>Trivial (extend by one)</td>
+          <td>Yes — often the hard part</td>
+        </tr>
+        <tr>
+          <td>Master Theorem?</td>
+          <td>Not applicable</td>
+          <td>Sometimes (if decrease by factor)</td>
+          <td>Yes — this is what it's for</td>
+        </tr>
+        <tr>
+          <td>Sort examples</td>
+          <td>Bubble Sort</td>
+          <td>Selection Sort, Insertion Sort</td>
+          <td>Merge Sort, Quicksort</td>
+        </tr>
+        <tr>
+          <td>Search examples</td>
+          <td>Linear Search</td>
+          <td>Binary Search, Quickselect</td>
+          <td>Closest Pair, FFT</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 4.1 — Common Exam Traps</div>
+    <h3>Where students get it wrong</h3>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="col-label">Trap 1</div>
+        <p><strong>Bubble Sort is decrease &amp; conquer, not brute force.</strong> It reduces the unsorted portion by one each pass — that's the defining characteristic of D&amp;C by one.</p>
+      </div>
+      <div class="col">
+        <div class="col-label">Trap 2</div>
+        <p><strong>Binary Search can be classified as either D&amp;C or decrease &amp; conquer</strong> depending on the framing. Gopal's textbook treats it as decrease by factor — one subproblem, other half discarded.</p>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:0; border-top: none;">
+      <div class="col" style="border-top: var(--border);">
+        <div class="col-label">Trap 3</div>
+        <p><strong>Quicksort vs Quickselect.</strong> Same partition code. Quicksort recurses on both sides (D&amp;C). Quickselect recurses on one side only (decrease &amp; conquer). Different paradigm, different complexity.</p>
+      </div>
+      <div class="col" style="border-top: var(--border);">
+        <div class="col-label">Trap 4</div>
+        <p><strong>O(n²) does not mean brute force.</strong> Selection Sort is O(n²) and decrease &amp; conquer. Complexity and design paradigm are orthogonal concepts.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">§ 4.2 — Quick Classification Test</div>
+    <h3>Ask these questions in order</h3>
+
+    <div class="key-idea">
+      <div class="label">Decision tree</div>
+      1. Does the algorithm recurse at all?<br>
+      &nbsp;&nbsp;&nbsp;→ NO: likely Brute Force (or Dynamic Programming)<br><br>
+      2. How many recursive calls does it make?<br>
+      &nbsp;&nbsp;&nbsp;→ ONE: Decrease &amp; Conquer<br>
+      &nbsp;&nbsp;&nbsp;→ TWO or more: Divide &amp; Conquer<br><br>
+      3. Is the subproblem size n−k or n/b?<br>
+      &nbsp;&nbsp;&nbsp;→ n−k (constant subtracted): Decrease by constant<br>
+      &nbsp;&nbsp;&nbsp;→ n/b (divided): Decrease by factor (or D&amp;C)
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Induction Problems — Gopal's Efficient Algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Archivo:wght@400;600&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    tags: 'none'
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --cream: #f2ede4;
+    --black: #111111;
+    --red: #e8352a;
+    --yellow: #f5f500;
+    --white: #ffffff;
+    --border: 2.5px solid #111111;
+    --gray: #d8d3ca;
+    --light-gray: #e8e3da;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--black);
+    font-family: 'Archivo', sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--black);
+    color: var(--cream);
+    padding: 2rem 2.5rem 1.5rem;
+    border-bottom: 4px solid var(--red);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  header h1 span { color: var(--red); }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--yellow);
+    margin-top: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    background: var(--cream);
+    border-bottom: var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.78rem;
+    padding: 0.85rem 1.3rem;
+    border: none;
+    border-right: var(--border);
+    background: transparent;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background 0.1s, color 0.1s;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { background: var(--black); color: var(--cream); }
+  .nav-btn.active { background: var(--red); color: var(--white); }
+
+  /* ── LAYOUT ── */
+  .page { display: none; padding: 2rem 2.5rem; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── SECTION LABELS ── */
+  .part-label {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+  }
+  .section-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.5rem;
+    border-bottom: var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── CONCEPT BOXES ── */
+  .concept-box {
+    border: var(--border);
+    background: var(--white);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .concept-box h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+    border-bottom: 1.5px solid var(--gray);
+    padding-bottom: 0.4rem;
+  }
+  .concept-box p, .concept-box li { font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .concept-box ul { padding-left: 1.2rem; }
+
+  /* ── PROBLEM CARDS ── */
+  .problem-card {
+    border: var(--border);
+    background: var(--white);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .problem-header {
+    background: var(--black);
+    color: var(--cream);
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .problem-header h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+  .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border: 1.5px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .tag-weak { border-color: #4da6ff; color: #4da6ff; }
+  .tag-strong { border-color: var(--yellow); color: var(--yellow); }
+  .tag-algo { border-color: var(--red); color: var(--red); }
+  .tag-sum { border-color: #aaa; color: #aaa; }
+  .tag-div { border-color: #b8e0a0; color: #b8e0a0; }
+  .tag-tree { border-color: #f9a84d; color: #f9a84d; }
+
+  .problem-body { padding: 1.25rem 1.5rem; }
+  .problem-statement {
+    background: var(--light-gray);
+    border-left: 4px solid var(--red);
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.2rem;
+    font-size: 0.97rem;
+  }
+  .problem-statement strong {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  /* ── COLLAPSIBLE PREREQS ── */
+  details { margin-bottom: 0.9rem; border: var(--border); }
+  details summary {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.55rem 1rem;
+    cursor: pointer;
+    background: var(--cream);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  details summary::after { content: '▼'; font-size: 0.6rem; }
+  details[open] summary::after { content: '▲'; }
+  details summary::-webkit-details-marker { display: none; }
+  .details-content { padding: 0.85rem 1rem; background: var(--white); border-top: var(--border); font-size: 0.93rem; }
+  .details-content p { margin-bottom: 0.5rem; }
+  .details-content ul { padding-left: 1.2rem; }
+  .details-content li { margin-bottom: 0.3rem; }
+
+  /* ── PROOF STEPS ── */
+  .proof-steps { list-style: none; counter-reset: step; margin: 0.5rem 0; }
+  .proof-steps li {
+    counter-increment: step;
+    padding: 0.6rem 0.9rem 0.6rem 3rem;
+    margin-bottom: 0.5rem;
+    border: 1.5px solid var(--gray);
+    position: relative;
+    font-size: 0.93rem;
+    background: var(--white);
+  }
+  .proof-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.2rem;
+    background: var(--black);
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+  }
+  .step-label {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ── ANSWER BLOCK ── */
+  .answer-block {
+    background: var(--black);
+    color: var(--yellow);
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin-top: 0.75rem;
+    border: var(--border);
+  }
+  .answer-block .ans-label {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+    font-family: 'Archivo Black', sans-serif;
+  }
+  .answer-block .math-line { color: var(--white); margin: 0.3rem 0; }
+
+  /* ── SHOW/HIDE SOLUTION ── */
+  .show-solution-btn {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--yellow);
+    color: var(--black);
+    border: var(--border);
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    margin-top: 0.85rem;
+    transition: background 0.1s;
+  }
+  .show-solution-btn:hover { background: var(--black); color: var(--yellow); }
+  .solution-panel { display: none; margin-top: 1rem; }
+  .solution-panel.visible { display: block; }
+
+  /* ── INDUCTION TEMPLATE ── */
+  .induction-template {
+    border: var(--border);
+    background: var(--white);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .template-header {
+    background: var(--red);
+    color: var(--white);
+    padding: 0.7rem 1.25rem;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+  .template-body { padding: 1.25rem 1.5rem; }
+  .template-step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+  }
+  .template-num {
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+    min-width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: var(--border);
+  }
+  .template-text strong {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.82rem;
+    display: block;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--red);
+  }
+  .template-text p { font-size: 0.92rem; }
+
+  /* ── MATH BOX ── */
+  .math-box {
+    background: var(--white);
+    border: var(--border);
+    padding: 0.85rem 1.1rem;
+    margin: 0.7rem 0;
+    font-size: 0.95rem;
+    overflow-x: auto;
+  }
+
+  /* ── STRONG VS WEAK COMPARISON ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: var(--border);
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 650px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-col { padding: 1.25rem; border-right: var(--border); }
+  .compare-col:last-child { border-right: none; }
+  .compare-col h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.95rem;
+    padding-bottom: 0.5rem;
+    border-bottom: var(--border);
+    margin-bottom: 0.85rem;
+  }
+  .compare-col.weak h3 { color: #2266cc; }
+  .compare-col.strong h3 { color: #cc6600; }
+  .compare-col li { font-size: 0.92rem; margin-bottom: 0.4rem; padding-left: 0.9rem; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    background: var(--black);
+    height: 4px;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .progress-fill {
+    background: var(--red);
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--black);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    color: #666;
+    padding: 1.2rem 2.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    border-top: 4px solid var(--red);
+    margin-top: 3rem;
+    letter-spacing: 0.04em;
+  }
+  footer span { color: var(--yellow); }
+
+  /* ── DIFF BADGE ── */
+  .diff {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border: 1.5px solid;
+    text-transform: uppercase;
+  }
+  .diff-easy { border-color: #4caf50; color: #4caf50; }
+  .diff-med { border-color: var(--yellow); color: var(--yellow); }
+  .diff-hard { border-color: var(--red); color: var(--red); }
+
+  /* ── CATEGORY HEADER ── */
+  .category-header {
+    background: var(--black);
+    color: var(--cream);
+    padding: 0.6rem 1.1rem;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 2rem 0 1rem;
+    border-left: 6px solid var(--red);
+  }
+
+  /* ── QUIZ ── */
+  .quiz-card {
+    border: var(--border);
+    margin-bottom: 1.5rem;
+    background: var(--white);
+    overflow: hidden;
+  }
+  .quiz-qheader {
+    background: var(--black);
+    color: var(--cream);
+    padding: 0.65rem 1.1rem;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+  }
+  .quiz-body { padding: 1rem 1.25rem; }
+  .quiz-choices { list-style: none; margin: 0.8rem 0; }
+  .quiz-choices li {
+    margin-bottom: 0.5rem;
+  }
+  .quiz-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.55rem 0.9rem;
+    border: var(--border);
+    background: var(--cream);
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    font-size: 0.9rem;
+    transition: background 0.1s;
+  }
+  .quiz-btn:hover { background: var(--light-gray); }
+  .quiz-btn.correct { background: #c8f0a0; border-color: #4caf50; }
+  .quiz-btn.wrong { background: #fdd; border-color: var(--red); }
+  .quiz-feedback {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 4px solid;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { border-color: #4caf50; color: #2a6e2a; background: #efffed; }
+  .quiz-feedback.bad { border-color: var(--red); color: #8b1111; background: #fff0f0; }
+
+  /* ── SYMBOL CARDS ── */
+  .sym-group-header {
+    background: var(--red);
+    color: var(--white);
+    padding: 0.55rem 1.1rem;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 2rem 0 0.8rem;
+  }
+  .sym-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 0;
+    border-top: var(--border);
+    border-left: var(--border);
+    margin-bottom: 0.5rem;
+  }
+  .sym-card {
+    border-right: var(--border);
+    border-bottom: var(--border);
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+  }
+  .sym-top {
+    display: flex;
+    align-items: stretch;
+    border-bottom: var(--border);
+  }
+  .sym-glyph {
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.7rem;
+    min-width: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-right: var(--border);
+    line-height: 1;
+  }
+  .sym-names {
+    padding: 0.55rem 0.85rem;
+    flex: 1;
+  }
+  .sym-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+  .sym-latex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #777;
+    margin-top: 0.15rem;
+  }
+  .sym-say {
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.85rem;
+    letter-spacing: 0.04em;
+    border-bottom: var(--border);
+  }
+  .sym-say::before { content: '🔊 SAY: '; font-size: 0.65rem; opacity: 0.7; letter-spacing: 0.1em; }
+  .sym-body {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.88rem;
+    flex: 1;
+    line-height: 1.5;
+  }
+  .sym-example {
+    background: var(--light-gray);
+    border-left: 3px solid var(--red);
+    padding: 0.4rem 0.7rem;
+    margin-top: 0.55rem;
+    font-size: 0.85rem;
+  }
+  .sym-example strong {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .sym-context-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.1rem 0.4rem;
+    border: 1.5px solid var(--red);
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 0.35rem;
+  }
+  .callout-box {
+    border: var(--border);
+    background: var(--black);
+    color: var(--cream);
+    padding: 1rem 1.4rem;
+    margin-bottom: 1.8rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .callout-box strong { color: var(--yellow); }
+  .phrase-card {
+    border: var(--border);
+    background: var(--white);
+    margin-bottom: 1.2rem;
+    overflow: hidden;
+  }
+  .phrase-header {
+    background: var(--black);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    padding: 0.5rem 1rem;
+    letter-spacing: 0.04em;
+  }
+  .phrase-body {
+    padding: 0.9rem 1.1rem;
+    font-size: 0.92rem;
+  }
+  .phrase-body .spoken {
+    font-family: 'Archivo Black', sans-serif;
+    color: var(--red);
+    font-size: 0.88rem;
+    margin-top: 0.3rem;
+  }
+
+  .solved-count {
+    font-size: 0.82rem;
+    color: var(--black);
+    background: var(--yellow);
+    padding: 0.3rem 0.8rem;
+    border: var(--border);
+    display: inline-block;
+    margin-bottom: 1.2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mathematical <span>Induction</span> — Problem Reference</h1>
+  <p>// SOURCE: GOPAL PANDURANGAN · EFFICIENT ALGORITHMS (PART 1: FUNDAMENTALS) · COSC 3320</p>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showPage('overview')">Overview</button>
+  <button class="nav-btn" onclick="showPage('symbols')">Read the Symbols</button>
+  <button class="nav-btn" onclick="showPage('weak')">Weak Induction</button>
+  <button class="nav-btn" onclick="showPage('strong')">Strong Induction</button>
+  <button class="nav-btn" onclick="showPage('algo')">Algorithm Proofs</button>
+  <button class="nav-btn" onclick="showPage('templates')">Templates</button>
+  <button class="nav-btn" onclick="showPage('quiz')">Quiz Yourself</button>
+</nav>
+
+<!-- ═══════════════════════════ SYMBOLS ═══════════════════════════ -->
+<div class="page" id="page-symbols">
+  <div class="part-label">// Read It Aloud — Notation Literacy</div>
+  <div class="section-title">How to Read Math Symbols Out Loud</div>
+
+  <div class="callout-box">
+    <strong>Why this matters:</strong> You cannot understand a proof you can't read. When your inner voice says "squiggle-thing" instead of "for all", you lose the logical thread. Every symbol below appears in Gopal's text or in standard induction/algorithm proofs. Learn the spoken name first — the meaning follows naturally.
+  </div>
+
+  <!-- ── LOGIC ── -->
+  <div class="sym-group-header">Group 1 — Logic &amp; Quantifiers</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∀</div>
+        <div class="sym-names">
+          <div class="sym-name">Universal Quantifier</div>
+          <div class="sym-latex">\forall</div>
+        </div>
+      </div>
+      <div class="sym-say">"for all" &nbsp;·&nbsp; "for every" &nbsp;·&nbsp; "for each"</div>
+      <div class="sym-body">
+        Claims that something is true about <em>every</em> element in a set. The upside-down A stands for "All."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\forall\, n \geq 1$ → <em>"for all n greater than or equal to 1"</em>
+        </div>
+        <span class="sym-context-tag">induction claim</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∃</div>
+        <div class="sym-names">
+          <div class="sym-name">Existential Quantifier</div>
+          <div class="sym-latex">\exists</div>
+        </div>
+      </div>
+      <div class="sym-say">"there exists" &nbsp;·&nbsp; "there is some"</div>
+      <div class="sym-body">
+        Claims that at least one element satisfying the property exists. Backwards E for "Exists."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\exists\, k \in \mathbb{Z}$ such that $n = 3k$ → <em>"there exists an integer k such that n equals 3k"</em>
+        </div>
+        <span class="sym-context-tag">divisibility proofs</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∄</div>
+        <div class="sym-names">
+          <div class="sym-name">Does Not Exist</div>
+          <div class="sym-latex">\nexists</div>
+        </div>
+      </div>
+      <div class="sym-say">"there does not exist" &nbsp;·&nbsp; "no such ... exists"</div>
+      <div class="sym-body">
+        Negation of ∃. The slash means "not."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\nexists$ integer solution → <em>"there does not exist an integer solution"</em>
+        </div>
+        <span class="sym-context-tag">impossibility</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">⟹</div>
+        <div class="sym-names">
+          <div class="sym-name">Implies / If–Then</div>
+          <div class="sym-latex">\implies</div>
+        </div>
+      </div>
+      <div class="sym-say">"implies" &nbsp;·&nbsp; "if ... then ..." &nbsp;·&nbsp; "so"</div>
+      <div class="sym-body">
+        $P \implies Q$ means: whenever P is true, Q must also be true. The whole point of an inductive step.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $P(k) \implies P(k+1)$ → <em>"P of k implies P of k plus one"</em>
+        </div>
+        <span class="sym-context-tag">inductive step</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">⟺</div>
+        <div class="sym-names">
+          <div class="sym-name">If and Only If (Biconditional)</div>
+          <div class="sym-latex">\iff</div>
+        </div>
+      </div>
+      <div class="sym-say">"if and only if" &nbsp;·&nbsp; "iff" &nbsp;·&nbsp; "is equivalent to"</div>
+      <div class="sym-body">
+        Both directions: $P \iff Q$ means $P \implies Q$ AND $Q \implies P$. Stronger than "implies."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $2k^2 \geq (k+1)^2 \iff k^2 \geq 2k+1$ → <em>"two k-squared is at least (k+1)-squared if and only if k-squared is at least 2k plus 1"</em>
+        </div>
+        <span class="sym-context-tag">equivalence</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">¬</div>
+        <div class="sym-names">
+          <div class="sym-name">Logical Negation (NOT)</div>
+          <div class="sym-latex">\neg</div>
+        </div>
+      </div>
+      <div class="sym-say">"not" &nbsp;·&nbsp; "the negation of"</div>
+      <div class="sym-body">
+        Flips truth value. $\neg P$ is true exactly when $P$ is false.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\neg P(n)$ → <em>"not P of n"</em> &nbsp; (used in proof by contradiction)
+        </div>
+        <span class="sym-context-tag">contradiction</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SETS ── -->
+  <div class="sym-group-header">Group 2 — Sets &amp; Membership</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∈</div>
+        <div class="sym-names">
+          <div class="sym-name">Element Of / In</div>
+          <div class="sym-latex">\in</div>
+        </div>
+      </div>
+      <div class="sym-say">"in" &nbsp;·&nbsp; "is an element of" &nbsp;·&nbsp; "belongs to"</div>
+      <div class="sym-body">
+        Says something is a member of a set.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $n \in \mathbb{N}$ → <em>"n is a natural number"</em> or <em>"n in N"</em>
+        </div>
+        <span class="sym-context-tag">domain of induction</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">ℕ</div>
+        <div class="sym-names">
+          <div class="sym-name">Natural Numbers</div>
+          <div class="sym-latex">\mathbb{N}</div>
+        </div>
+      </div>
+      <div class="sym-say">"the naturals" &nbsp;·&nbsp; "N" &nbsp;·&nbsp; "the set of natural numbers"</div>
+      <div class="sym-body">
+        Usually $\{0, 1, 2, 3, \ldots\}$ or $\{1, 2, 3, \ldots\}$ (context-dependent). Induction lives here.
+        <div class="sym-example">
+          <strong>In context</strong>
+          "for all $n \in \mathbb{N}$" → <em>"for all n in the naturals"</em>
+        </div>
+        <span class="sym-context-tag">number sets</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">ℤ</div>
+        <div class="sym-names">
+          <div class="sym-name">Integers</div>
+          <div class="sym-latex">\mathbb{Z}</div>
+        </div>
+      </div>
+      <div class="sym-say">"the integers" &nbsp;·&nbsp; "Z" &nbsp;·&nbsp; "zee"</div>
+      <div class="sym-body">
+        $\{\ldots, -2, -1, 0, 1, 2, \ldots\}$. From German "Zahlen" (numbers). Used in divisibility proofs: $n = 3k$ for some $k \in \mathbb{Z}$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\exists\, m \in \mathbb{Z}$ s.t. $n = 2m$ → <em>"there exists an integer m such that n equals 2m"</em>
+        </div>
+        <span class="sym-context-tag">divisibility</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">ℝ</div>
+        <div class="sym-names">
+          <div class="sym-name">Real Numbers</div>
+          <div class="sym-latex">\mathbb{R}</div>
+        </div>
+      </div>
+      <div class="sym-say">"the reals" &nbsp;·&nbsp; "R"</div>
+      <div class="sym-body">
+        All numbers on the number line, including irrationals like $\sqrt{2}$ and $\pi$. Appears in Bernoulli's inequality ($x \in \mathbb{R},\, x > -1$).
+        <div class="sym-example">
+          <strong>In context</strong>
+          $x \in \mathbb{R},\, x > -1$ → <em>"x is a real number greater than negative one"</em>
+        </div>
+        <span class="sym-context-tag">inequalities</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∣</div>
+        <div class="sym-names">
+          <div class="sym-name">Divides</div>
+          <div class="sym-latex">a \mid b</div>
+        </div>
+      </div>
+      <div class="sym-say">"divides" &nbsp;·&nbsp; "a divides b"</div>
+      <div class="sym-body">
+        $a \mid b$ means $b = a \cdot k$ for some integer $k$. <em>Not</em> the same as $b / a$ (that's division). The bar is vertical here.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $3 \mid (n^3 + 2n)$ → <em>"3 divides n-cubed plus 2n"</em>
+        </div>
+        <span class="sym-context-tag">divisibility</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">⊂</div>
+        <div class="sym-names">
+          <div class="sym-name">Subset Of</div>
+          <div class="sym-latex">\subset \;\text{or}\; \subseteq</div>
+        </div>
+      </div>
+      <div class="sym-say">"is a subset of" &nbsp;·&nbsp; "contained in"</div>
+      <div class="sym-body">
+        $A \subseteq B$ means every element of $A$ is also in $B$. The $=$ underneath means $A$ can equal $B$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\mathbb{N} \subset \mathbb{Z} \subset \mathbb{R}$ → <em>"the naturals are a subset of the integers, which are a subset of the reals"</em>
+        </div>
+        <span class="sym-context-tag">set hierarchy</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SUMS & PRODUCTS ── -->
+  <div class="sym-group-header">Group 3 — Sums, Products &amp; Big Operators</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">Σ</div>
+        <div class="sym-names">
+          <div class="sym-name">Summation (Sigma)</div>
+          <div class="sym-latex">\sum_{i=1}^{n}</div>
+        </div>
+      </div>
+      <div class="sym-say">"the sum from i equals 1 to n of ..."</div>
+      <div class="sym-body">
+        Adds up terms. Bottom index is start, top index is end. The variable below ($i$) is the counter.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\displaystyle\sum_{i=1}^{n} i^2$ → <em>"the sum from i equals 1 to n of i squared"</em>
+        </div>
+        <span class="sym-context-tag">closed-form proofs</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">Π</div>
+        <div class="sym-names">
+          <div class="sym-name">Product (Pi)</div>
+          <div class="sym-latex">\prod_{i=1}^{n}</div>
+        </div>
+      </div>
+      <div class="sym-say">"the product from i equals 1 to n of ..."</div>
+      <div class="sym-body">
+        Multiplies terms together. Works exactly like $\Sigma$ but multiplies instead of adds.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\displaystyle\prod_{i=1}^{n} i = n!$ → <em>"the product from i equals 1 to n of i equals n factorial"</em>
+        </div>
+        <span class="sym-context-tag">factorials</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">⌊⌋</div>
+        <div class="sym-names">
+          <div class="sym-name">Floor Function</div>
+          <div class="sym-latex">\lfloor x \rfloor</div>
+        </div>
+      </div>
+      <div class="sym-say">"floor of x" &nbsp;·&nbsp; "x floored"</div>
+      <div class="sym-body">
+        Rounds <em>down</em> to the nearest integer. $\lfloor 3.7 \rfloor = 3$. $\lfloor -1.2 \rfloor = -2$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\text{mid} = \lfloor (lo + hi)/2 \rfloor$ → <em>"mid equals the floor of lo plus hi over 2"</em> (Binary Search)
+        </div>
+        <span class="sym-context-tag">binary search · D&amp;C</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">⌈⌉</div>
+        <div class="sym-names">
+          <div class="sym-name">Ceiling Function</div>
+          <div class="sym-latex">\lceil x \rceil</div>
+        </div>
+      </div>
+      <div class="sym-say">"ceiling of x" &nbsp;·&nbsp; "x ceiling"</div>
+      <div class="sym-body">
+        Rounds <em>up</em> to the nearest integer. $\lceil 3.2 \rceil = 4$. $\lceil 4 \rceil = 4$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\lceil n/2 \rceil$ → <em>"the ceiling of n over 2"</em> (size of the larger half in odd-$n$ D&amp;C)
+        </div>
+        <span class="sym-context-tag">divide &amp; conquer</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">n!</div>
+        <div class="sym-names">
+          <div class="sym-name">Factorial</div>
+          <div class="sym-latex">n!</div>
+        </div>
+      </div>
+      <div class="sym-say">"n factorial"</div>
+      <div class="sym-body">
+        $n! = n \cdot (n-1) \cdots 2 \cdot 1$. Defines $0! = 1$. Grows faster than any polynomial or exponential.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $5! = 120$ → <em>"five factorial equals one hundred twenty"</em>
+        </div>
+        <span class="sym-context-tag">combinatorics · complexity</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≡</div>
+        <div class="sym-names">
+          <div class="sym-name">Congruence (mod)</div>
+          <div class="sym-latex">a \equiv b \pmod{m}</div>
+        </div>
+      </div>
+      <div class="sym-say">"a is congruent to b mod m" &nbsp;·&nbsp; "a and b have the same remainder when divided by m"</div>
+      <div class="sym-body">
+        $a \equiv b \pmod{m}$ means $m \mid (a - b)$. Not the same as $=$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $n \equiv 0 \pmod{3}$ → <em>"n is congruent to zero mod three"</em> (n is a multiple of 3)
+        </div>
+        <span class="sym-context-tag">strong induction cases</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── INEQUALITIES ── -->
+  <div class="sym-group-header">Group 4 — Inequalities &amp; Ordering</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≤</div>
+        <div class="sym-names">
+          <div class="sym-name">Less Than or Equal To</div>
+          <div class="sym-latex">\leq</div>
+        </div>
+      </div>
+      <div class="sym-say">"less than or equal to" &nbsp;·&nbsp; "at most"</div>
+      <div class="sym-body">
+        $a \leq b$ means $a &lt; b$ or $a = b$. Extremely common in upper-bound induction proofs.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $T(n) \leq cn\log n$ → <em>"T of n is at most c times n log n"</em>
+        </div>
+        <span class="sym-context-tag">upper bounds</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≥</div>
+        <div class="sym-names">
+          <div class="sym-name">Greater Than or Equal To</div>
+          <div class="sym-latex">\geq</div>
+        </div>
+      </div>
+      <div class="sym-say">"greater than or equal to" &nbsp;·&nbsp; "at least"</div>
+      <div class="sym-body">
+        $a \geq b$ means $a &gt; b$ or $a = b$. Used in lower bound proofs and induction domains ($n \geq 1$).
+        <div class="sym-example">
+          <strong>In context</strong>
+          $F_n \geq \phi^{n-2}$ → <em>"the n-th Fibonacci is at least phi to the n minus 2"</em>
+        </div>
+        <span class="sym-context-tag">lower bounds</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≠</div>
+        <div class="sym-names">
+          <div class="sym-name">Not Equal To</div>
+          <div class="sym-latex">\neq</div>
+        </div>
+      </div>
+      <div class="sym-say">"not equal to" &nbsp;·&nbsp; "is not"</div>
+      <div class="sym-body">
+        The $=$ with a slash through it. Appears in conditions like $r \neq 1$ (geometric series must exclude ratio 1).
+        <div class="sym-example">
+          <strong>In context</strong>
+          $r \neq 1$ → <em>"r is not equal to 1"</em>
+        </div>
+        <span class="sym-context-tag">geometric series</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≪</div>
+        <div class="sym-names">
+          <div class="sym-name">Much Less Than</div>
+          <div class="sym-latex">\ll</div>
+        </div>
+      </div>
+      <div class="sym-say">"much less than" &nbsp;·&nbsp; "significantly smaller than"</div>
+      <div class="sym-body">
+        Informal notation meaning "negligibly small in comparison." Used in asymptotic arguments when discussing dominant terms.
+        <div class="sym-example">
+          <strong>In context</strong>
+          For large $n$: $\log n \ll n$ → <em>"log n is much less than n"</em>
+        </div>
+        <span class="sym-context-tag">asymptotics</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ASYMPTOTICS ── -->
+  <div class="sym-group-header">Group 5 — Asymptotic Notation (Gopal Ch. 1)</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">O</div>
+        <div class="sym-names">
+          <div class="sym-name">Big-O (Upper Bound)</div>
+          <div class="sym-latex">O(f(n))</div>
+        </div>
+      </div>
+      <div class="sym-say">"big-oh of f of n" &nbsp;·&nbsp; "order f of n"</div>
+      <div class="sym-body">
+        $T(n) = O(f(n))$: there exist constants $c, n_0$ such that $T(n) \leq c \cdot f(n)$ for all $n \geq n_0$. The formal meaning of "grows no faster than."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $T(n) = O(n \log n)$ → <em>"T of n is big-oh of n log n"</em>
+        </div>
+        <span class="sym-context-tag">runtime analysis</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">Ω</div>
+        <div class="sym-names">
+          <div class="sym-name">Big-Omega (Lower Bound)</div>
+          <div class="sym-latex">\Omega(f(n))</div>
+        </div>
+      </div>
+      <div class="sym-say">"big-omega of f of n" &nbsp;·&nbsp; "omega of ..."</div>
+      <div class="sym-body">
+        $T(n) = \Omega(f(n))$: $T(n) \geq c \cdot f(n)$ for all large $n$. Grows at least as fast as $f$.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $T(n) = \Omega(n)$ → <em>"T of n is omega of n"</em> (takes at least linear time)
+        </div>
+        <span class="sym-context-tag">lower bound</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">Θ</div>
+        <div class="sym-names">
+          <div class="sym-name">Theta (Tight Bound)</div>
+          <div class="sym-latex">\Theta(f(n))</div>
+        </div>
+      </div>
+      <div class="sym-say">"theta of f of n" &nbsp;·&nbsp; "exactly the order of"</div>
+      <div class="sym-body">
+        $T(n) = \Theta(f(n))$: both $O(f(n))$ and $\Omega(f(n))$. The algorithm is tightly bounded.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $F_n = \Theta(\phi^n)$ → <em>"F-n is theta of phi to the n"</em> (tight Fibonacci bound)
+        </div>
+        <span class="sym-context-tag">tight bound</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">φ</div>
+        <div class="sym-names">
+          <div class="sym-name">Phi — Golden Ratio</div>
+          <div class="sym-latex">\phi = \frac{1+\sqrt{5}}{2}</div>
+        </div>
+      </div>
+      <div class="sym-say">"phi" &nbsp;·&nbsp; "the golden ratio" &nbsp;·&nbsp; "approximately 1.618"</div>
+      <div class="sym-body">
+        Satisfies $\phi^2 = \phi + 1$. The growth rate of Fibonacci numbers. This identity is the key to strong induction on Fibonacci.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\phi^{k-3}(\phi + 1) = \phi^{k-3} \cdot \phi^2 = \phi^{k-1}$ → <em>"phi to the k minus 3, times phi plus 1, equals phi to the k minus 1"</em>
+        </div>
+        <span class="sym-context-tag">Fibonacci · strong induction</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PROOF SYMBOLS ── -->
+  <div class="sym-group-header">Group 6 — Proof &amp; Structural Symbols</div>
+  <div class="sym-grid">
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∎</div>
+        <div class="sym-names">
+          <div class="sym-name">End of Proof (QED box)</div>
+          <div class="sym-latex">\blacksquare \;\text{or}\; \square</div>
+        </div>
+      </div>
+      <div class="sym-say">"QED" &nbsp;·&nbsp; "end of proof" &nbsp;·&nbsp; "quod erat demonstrandum"</div>
+      <div class="sym-body">
+        Marks the conclusion of a proof. Latin "quod erat demonstrandum" = "which was to be demonstrated." Always include this on exams.
+        <div class="sym-example">
+          <strong>In context</strong>
+          Write $\square$ or $\blacksquare$ at the end of every proof.
+        </div>
+        <span class="sym-context-tag">every proof</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∴</div>
+        <div class="sym-names">
+          <div class="sym-name">Therefore</div>
+          <div class="sym-latex">\therefore</div>
+        </div>
+      </div>
+      <div class="sym-say">"therefore" &nbsp;·&nbsp; "so" &nbsp;·&nbsp; "it follows that"</div>
+      <div class="sym-body">
+        Three dots in a triangle pointing up. Used to signal a logical conclusion follows from preceding statements.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\therefore\, T(n) = O(n\log n)$ → <em>"therefore T of n is O of n log n"</em>
+        </div>
+        <span class="sym-context-tag">conclusions</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">∵</div>
+        <div class="sym-names">
+          <div class="sym-name">Because</div>
+          <div class="sym-latex">\because</div>
+        </div>
+      </div>
+      <div class="sym-say">"because" &nbsp;·&nbsp; "since"</div>
+      <div class="sym-body">
+        Three dots pointing down. Less common in formal proofs but appears in scratch work and textbook justifications.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\because\, k \geq 5$ → <em>"because k is at least 5"</em>
+        </div>
+        <span class="sym-context-tag">justification</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">✓</div>
+        <div class="sym-names">
+          <div class="sym-name">Check Mark — Verified</div>
+          <div class="sym-latex">\checkmark</div>
+        </div>
+      </div>
+      <div class="sym-say">"check" &nbsp;·&nbsp; "verified" &nbsp;·&nbsp; "this is what we wanted"</div>
+      <div class="sym-body">
+        Signals you've confirmed the goal of the step. Gopal uses this to mark when the inductive step's target has been reached.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $= \dfrac{(k+1)(k+2)}{2}\,\checkmark$ → <em>"which equals (k+1)(k+2) over 2 — check, this is exactly P(k+1)"</em>
+        </div>
+        <span class="sym-context-tag">step confirmation</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">≝</div>
+        <div class="sym-names">
+          <div class="sym-name">Defined As / By Definition</div>
+          <div class="sym-latex">\triangleq \;\text{or}\; :=</div>
+        </div>
+      </div>
+      <div class="sym-say">"is defined as" &nbsp;·&nbsp; "equals by definition" &nbsp;·&nbsp; "let ... be"</div>
+      <div class="sym-body">
+        Introduces a definition, not a derived equality. $n_0 := 5$ means "we are defining $n_0$ to be 5."
+        <div class="sym-example">
+          <strong>In context</strong>
+          $T(1) := 1$ → <em>"T of 1 is defined to be 1"</em> (base case of recurrence)
+        </div>
+        <span class="sym-context-tag">definitions</span>
+      </div>
+    </div>
+
+    <div class="sym-card">
+      <div class="sym-top">
+        <div class="sym-glyph">s.t.</div>
+        <div class="sym-names">
+          <div class="sym-name">Such That</div>
+          <div class="sym-latex">\text{s.t.}</div>
+        </div>
+      </div>
+      <div class="sym-say">"such that" &nbsp;·&nbsp; "where"</div>
+      <div class="sym-body">
+        Used after a quantifier to introduce a condition. Also written as $\ni$ or "where" in some texts.
+        <div class="sym-example">
+          <strong>In context</strong>
+          $\exists\, k \in \mathbb{Z}$ s.t. $n = 3k$ → <em>"there exists an integer k such that n equals 3k"</em>
+        </div>
+        <span class="sym-context-tag">quantifier conditions</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── HOW TO READ FULL EXPRESSIONS ── -->
+  <div class="sym-group-header">Group 7 — How to Read Full Proof Expressions</div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $\displaystyle\sum_{i=1}^{k+1} i = \sum_{i=1}^{k} i + (k+1)$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "The sum from i equals 1 to k plus 1 of i equals the sum from i equals 1 to k of i, plus k plus 1."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">Reading strategy: state the big operator name, then say "from [bottom] to [top] of [body]." When you split the last term off, say "plus the last term, k plus 1."</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $P(k) \implies P(k+1)$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "P of k implies P of k plus 1."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">This is the inductive step. You read the function $P$ like "P of n" — just substitute the argument. Never say "P bracket k bracket."</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $T(n) = 2T\!\left(\dfrac{n}{2}\right) + n$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "T of n equals 2 times T of n over 2, plus n."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">Read the argument of T fully before moving on. "T of n-over-2" — not "T n two."</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $\forall\, n \geq n_0,\; \exists\, c > 0 \text{ s.t. } T(n) \leq c \cdot f(n)$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "For all n greater than or equal to n-naught, there exists a constant c greater than zero such that T of n is at most c times f of n."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">This is the formal definition of $O(f(n))$. Reading it aloud forces you to track the quantifier order — $\forall$ before $\exists$ means $n_0$ can depend on $c$, but $c$ does not depend on $n$.</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $\lfloor (lo + hi) / 2 \rfloor$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "The floor of lo plus hi, all over 2."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">Say "floor of" before the whole expression inside the brackets. Don't say "lo plus hi over 2 floor."</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $\phi^{k-2}(\phi + 1) = \phi^{k-2} \cdot \phi^2 = \phi^k$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "Phi to the k minus 2, times the quantity phi plus 1, equals phi to the k minus 2 times phi squared, equals phi to the k."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">Say "the quantity" when reading a parenthesized expression to signal grouping. This helps avoid ambiguity like $\phi^k - 2$ vs $\phi^{k-2}$.</p>
+    </div>
+  </div>
+
+  <div class="phrase-card">
+    <div class="phrase-header">EXPRESSION: $n \equiv 2 \pmod{3}$</div>
+    <div class="phrase-body">
+      <div class="spoken">→ "n is congruent to 2 mod 3." &nbsp; or &nbsp; "n has remainder 2 when divided by 3."</div>
+      <p style="margin-top:0.5rem;font-size:0.88rem;">The "pmod" (parenthesized mod) notation means mod is a modulus, not an operation. Read $\pmod{m}$ as "mod m" tacked at the end of the congruence.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ OVERVIEW ═══════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="part-label">// Part 0 — Gopal Ch. 1–2</div>
+  <div class="section-title">What Is Mathematical Induction?</div>
+
+  <div class="concept-box">
+    <h3>The Core Idea</h3>
+    <p>Induction is the primary tool for proving statements about natural numbers — and in algorithms, for proving <em>correctness</em> and <em>runtime bounds</em>. Every recursive algorithm you analyze has an inductive argument hiding in it.</p>
+    <p style="margin-top:0.6rem;">The domino analogy: if the first domino falls, and every domino that falls causes the next one to fall — all dominoes fall.</p>
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-col weak">
+      <h3>Weak (Simple) Induction</h3>
+      <ul>
+        <li>Assume $P(k)$ is true for a <strong>single</strong> value $k$</li>
+        <li>Use only $P(k)$ to prove $P(k+1)$</li>
+        <li>Good when the step from $k \to k+1$ is <em>self-contained</em></li>
+        <li>Examples: closed-form sums, divisibility, single-step recurrences</li>
+      </ul>
+    </div>
+    <div class="compare-col strong">
+      <h3>Strong (Complete) Induction</h3>
+      <ul>
+        <li>Assume $P(j)$ is true for <strong>all</strong> $j \leq k$</li>
+        <li>You can reach back to any previous case</li>
+        <li>Required when $k+1$ depends on multiple smaller subproblems</li>
+        <li>Examples: Fibonacci, binary search trees, divide-and-conquer</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept-box">
+    <h3>When to Use Which?</h3>
+    <p>Ask: <em>"When proving $P(n+1)$, do I need information from <strong>more than one</strong> previous case?"</em></p>
+    <ul style="margin-top:0.5rem;">
+      <li>No → Weak induction is sufficient</li>
+      <li>Yes → Use strong induction</li>
+      <li>When in doubt → Strong induction is always valid (it's a strictly stronger hypothesis)</li>
+    </ul>
+    <div class="math-box" style="margin-top:0.85rem;">
+      <strong>Gopal's observation (Ch. 1):</strong> Strong induction does not require a separate proof that every $P(j)$ for $j &lt; k$ holds — the inductive structure guarantees it automatically.
+    </div>
+  </div>
+
+  <div class="concept-box">
+    <h3>In Algorithm Analysis (Gopal's Framing)</h3>
+    <p>Gopal uses induction in two primary ways:</p>
+    <ul style="margin-top:0.5rem;">
+      <li><strong>Correctness proofs:</strong> Show an algorithm produces the right output for all valid inputs $n$</li>
+      <li><strong>Recurrence bounds:</strong> Guess a closed form, verify by substitution using induction (the "substitution method")</li>
+    </ul>
+    <p style="margin-top:0.6rem;">Every divide-and-conquer analysis (Merge Sort, Binary Search, etc.) is ultimately an induction argument on input size $n$.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ WEAK INDUCTION ═══════════════════════════ -->
+<div class="page" id="page-weak">
+  <div class="part-label">// Part 1 — Gopal Ch. 1</div>
+  <div class="section-title">Weak (Simple) Induction Problems</div>
+
+  <div class="solved-count" id="weak-progress">Solved: 0 / 6</div>
+
+  <!-- CATEGORY: CLOSED-FORM SUMS -->
+  <div class="category-header">Category A — Closed-Form Summations</div>
+
+  <!-- P1 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P1 — Gauss Sum</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-sum">Summation</span>
+        <span class="diff diff-easy">Easy</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 1$: $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$
+      </div>
+
+      <details>
+        <summary>Prerequisites &amp; Formula Recall</summary>
+        <div class="details-content">
+          <p>This is the simplest closed-form sum and the canonical example of weak induction in Gopal's text. You only need $P(k)$ to prove $P(k+1)$.</p>
+          <p><strong>Key algebraic identity:</strong> $(k+1)(k+2) = k^2 + 3k + 2$</p>
+        </div>
+      </details>
+
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=1$)</span>
+            LHS $= 1$. &nbsp; RHS $= \dfrac{1 \cdot 2}{2} = 1$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis (IH)</span>
+            Assume $P(k)$ holds: $\displaystyle\sum_{i=1}^{k} i = \dfrac{k(k+1)}{2}$ for some arbitrary $k \geq 1$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step — prove $P(k+1)$</span>
+            We want to show $\displaystyle\sum_{i=1}^{k+1} i = \dfrac{(k+1)(k+2)}{2}$.
+            <div class="math-box">
+              $$\sum_{i=1}^{k+1} i = \underbrace{\sum_{i=1}^{k} i}_{\text{apply IH}} + (k+1) = \frac{k(k+1)}{2} + (k+1) = (k+1)\!\left(\frac{k}{2} + 1\right) = \frac{(k+1)(k+2)}{2} \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">By weak induction, ∑ᵢ₌₁ⁿ i = n(n+1)/2 holds for all n ≥ 1. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P2 — Sum of Squares</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-sum">Summation</span>
+        <span class="diff diff-easy">Easy</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 1$: $$\sum_{i=1}^{n} i^2 = \frac{n(n+1)(2n+1)}{6}$$
+      </div>
+      <details>
+        <summary>Key Algebraic Setup</summary>
+        <div class="details-content">
+          <p>In the inductive step, you'll need to factor: $(k+1)(k+2)(2k+3)$. Expand the RHS for $n=k+1$ first, then match from the IH side.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=1$)</span>
+            LHS $= 1$. &nbsp; RHS $= \dfrac{1 \cdot 2 \cdot 3}{6} = 1$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis</span>
+            Assume $\displaystyle\sum_{i=1}^{k} i^2 = \dfrac{k(k+1)(2k+1)}{6}$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$\sum_{i=1}^{k+1} i^2 = \frac{k(k+1)(2k+1)}{6} + (k+1)^2 = \frac{k(k+1)(2k+1) + 6(k+1)^2}{6}$$
+              $$= \frac{(k+1)[k(2k+1) + 6(k+1)]}{6} = \frac{(k+1)(2k^2 + 7k + 6)}{6} = \frac{(k+1)(k+2)(2k+3)}{6} \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">By weak induction, the closed form holds for all n ≥ 1. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P3 — Geometric Series</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-sum">Summation</span>
+        <span class="diff diff-easy">Easy</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 0$ and $r \neq 1$: $$\sum_{i=0}^{n} r^i = \frac{r^{n+1} - 1}{r - 1}$$
+      </div>
+      <details>
+        <summary>Why This Matters for Algorithms</summary>
+        <div class="details-content">
+          <p>This sum appears everywhere in algorithm analysis: the total work in complete binary trees, the number of nodes at all levels of a recursion tree, and in analyzing binary representations.</p>
+          <p>Special case: setting $r=2$ gives $\sum 2^i = 2^{n+1} - 1$, the node count of a full binary tree of height $n$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=0$)</span>
+            LHS $= r^0 = 1$. &nbsp; RHS $= \dfrac{r - 1}{r - 1} = 1$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis</span>
+            Assume $\displaystyle\sum_{i=0}^{k} r^i = \dfrac{r^{k+1}-1}{r-1}$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$\sum_{i=0}^{k+1} r^i = \frac{r^{k+1}-1}{r-1} + r^{k+1} = \frac{r^{k+1}-1 + r^{k+1}(r-1)}{r-1} = \frac{r^{k+2}-1}{r-1} \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Geometric series formula verified by weak induction for all n ≥ 0. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY: DIVISIBILITY -->
+  <div class="category-header">Category B — Divisibility</div>
+
+  <!-- P4 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P4 — Divisibility by 3</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-div">Divisibility</span>
+        <span class="diff diff-easy">Easy</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 0$: $\;n^3 + 2n\;$ is divisible by 3.
+      </div>
+      <details>
+        <summary>Divisibility Notation</summary>
+        <div class="details-content">
+          <p>We write $3 \mid x$ to mean "3 divides $x$", i.e., $x = 3m$ for some integer $m$.</p>
+          <p>In the inductive step, you'll show $(k+1)^3 + 2(k+1) = (k^3 + 2k) + 3k^2 + 3k + 3$. Since each piece is divisible by 3, the sum is too.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=0$)</span>
+            $0^3 + 2(0) = 0 = 3 \cdot 0$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis</span>
+            Assume $3 \mid (k^3 + 2k)$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$(k+1)^3 + 2(k+1) = k^3 + 3k^2 + 3k + 1 + 2k + 2$$
+              $$= \underbrace{(k^3 + 2k)}_{\text{div by 3, IH}} + \underbrace{3k^2 + 3k + 3}_{= 3(k^2+k+1),\;\text{div by 3}}$$
+            </div>
+            Sum of two multiples of 3 is divisible by 3. ✓
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">3 | (n³ + 2n) for all n ≥ 0. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY: INEQUALITIES -->
+  <div class="category-header">Category C — Inequalities</div>
+
+  <!-- P5 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P5 — Exponential Beats Polynomial</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-algo">Algorithm-Relevant</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 5$: $\;2^n > n^2$.
+      </div>
+      <details>
+        <summary>Why This Matters in Algorithms</summary>
+        <div class="details-content">
+          <p>This inequality underpins why exponential-time algorithms are "worse" than polynomial-time ones for large $n$. It also appears when bounding recursion tree depth.</p>
+          <p><strong>Hint for the step:</strong> You need $2^{k+1} > (k+1)^2$. Start from $2^{k+1} = 2 \cdot 2^k > 2k^2$ by IH. Then show $2k^2 \geq (k+1)^2$ for $k \geq 5$, which requires $k^2 \geq 2k + 1$, i.e., $(k-1)^2 \geq 2$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=5$)</span>
+            $2^5 = 32 > 25 = 5^2$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis</span>
+            Assume $2^k > k^2$ for some $k \geq 5$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$2^{k+1} = 2 \cdot 2^k \overset{\text{IH}}{>} 2k^2$$
+              \text{Need: } 2k^2 \geq (k+1)^2 \iff k^2 \geq 2k + 1 \iff (k-1)^2 \geq 2
+            </div>
+            For $k \geq 5$: $(k-1)^2 \geq 16 \geq 2$. ✓ &nbsp; So $2^{k+1} > 2k^2 \geq (k+1)^2$.
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">2ⁿ > n² for all n ≥ 5, proved by weak induction. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P6 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P6 — Bernoulli's Inequality</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-sum">Inequality</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Prove that for all $n \geq 1$ and real $x > -1$: $(1+x)^n \geq 1 + nx$.
+      </div>
+      <details>
+        <summary>Context &amp; Technique</summary>
+        <div class="details-content">
+          <p>This is a classic inequality that shows up in probabilistic analysis of algorithms. The step uses the fact that $(1+x) \geq 0$ when $x > -1$.</p>
+          <p><strong>Key move:</strong> $(1+x)^{k+1} = (1+x)^k \cdot (1+x) \geq (1+kx)(1+x)$. Expand and discard the non-negative $kx^2$ term.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=1$)</span>
+            $(1+x)^1 = 1+x = 1 + 1 \cdot x$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Inductive Hypothesis</span>
+            Assume $(1+x)^k \geq 1 + kx$ for some $k \geq 1$ and $x > -1$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            Since $1+x > 0$:
+            <div class="math-box">
+              $$(1+x)^{k+1} = (1+x)^k \cdot (1+x) \overset{\text{IH}}{\geq} (1+kx)(1+x)$$
+              $$= 1 + kx + x + kx^2 = 1 + (k+1)x + \underbrace{kx^2}_{\geq 0} \geq 1 + (k+1)x \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">(1+x)ⁿ ≥ 1 + nx for all n ≥ 1 and x > −1. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STRONG INDUCTION ═══════════════════════════ -->
+<div class="page" id="page-strong">
+  <div class="part-label">// Part 2 — Gopal Ch. 1, Recursion & D&amp;C</div>
+  <div class="section-title">Strong (Complete) Induction Problems</div>
+
+  <div class="concept-box">
+    <h3>The Critical Difference in Setup</h3>
+    <p>Weak IH: "Assume $P(k)$ is true."</p>
+    <p>Strong IH: "Assume $P(j)$ is true for <strong>all</strong> $1 \leq j \leq k$."</p>
+    <p style="margin-top:0.6rem;">This gives you much more to work with. You can "jump back" to any smaller case, not just the one immediately before $k$.</p>
+  </div>
+
+  <!-- CATEGORY: FIBONACCI -->
+  <div class="category-header">Category D — Fibonacci &amp; Recurrences</div>
+
+  <!-- P7 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P7 — Fibonacci Upper Bound</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-algo">Algorithm-Relevant</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Let $F_n$ be the $n$-th Fibonacci number: $F_1 = 1,\; F_2 = 1,\; F_n = F_{n-1} + F_{n-2}$ for $n \geq 3$. Prove that $F_n \leq 2^n$ for all $n \geq 1$.
+      </div>
+      <details>
+        <summary>Why Strong Induction is Required</summary>
+        <div class="details-content">
+          <p>$F_n$ depends on $F_{n-1}$ <em>and</em> $F_{n-2}$. Weak induction only gives you $F_{n-1}$ in the hypothesis. You need both, which requires a strong hypothesis.</p>
+          <p>This is the canonical example Gopal uses to introduce strong induction.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Cases ($n=1$ and $n=2$)</span>
+            $F_1 = 1 \leq 2^1 = 2$. &nbsp; $F_2 = 1 \leq 2^2 = 4$. &nbsp; ✓ &nbsp; (Two base cases needed because recurrence reaches back 2.)
+          </li>
+          <li>
+            <span class="step-label">Strong Inductive Hypothesis</span>
+            Assume $F_j \leq 2^j$ for all $1 \leq j \leq k$, where $k \geq 2$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step (prove $F_{k+1} \leq 2^{k+1}$)</span>
+            <div class="math-box">
+              $$F_{k+1} = F_k + F_{k-1} \overset{\text{IH}}{\leq} 2^k + 2^{k-1} = 2^{k-1}(2 + 1) = 3 \cdot 2^{k-1} \leq 4 \cdot 2^{k-1} = 2^{k+1} \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Fₙ ≤ 2ⁿ for all n ≥ 1, by strong induction. ∎</div>
+          <div class="math-line">// Note: the tight bound is Fₙ ≤ φⁿ where φ = (1+√5)/2 ≈ 1.618</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P8 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P8 — Fibonacci Closed Form (Binet)</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-algo">Algorithm-Relevant</span>
+        <span class="diff diff-hard">Hard</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Let $\phi = \dfrac{1+\sqrt{5}}{2}$ (the golden ratio). Prove that $F_n \geq \phi^{n-2}$ for all $n \geq 1$.
+      </div>
+      <details>
+        <summary>Key Property of φ</summary>
+        <div class="details-content">
+          <p>The golden ratio satisfies $\phi^2 = \phi + 1$, equivalently $1 = \dfrac{1}{\phi} + \dfrac{1}{\phi^2}$.</p>
+          <p>This is what makes the inductive step close cleanly: $\phi^{k-1} + \phi^{k-2} = \phi^{k-2}(\phi + 1) = \phi^{k-2} \cdot \phi^2 = \phi^k$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Cases</span>
+            $n=1$: $F_1 = 1 \geq \phi^{-1} = \frac{2}{1+\sqrt{5}} \approx 0.618$. ✓<br>
+            $n=2$: $F_2 = 1 \geq \phi^0 = 1$. ✓
+          </li>
+          <li>
+            <span class="step-label">Strong Inductive Hypothesis</span>
+            Assume $F_j \geq \phi^{j-2}$ for all $1 \leq j \leq k$, $k \geq 2$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$F_{k+1} = F_k + F_{k-1} \overset{\text{IH}}{\geq} \phi^{k-2} + \phi^{k-3} = \phi^{k-3}(\phi + 1) = \phi^{k-3} \cdot \phi^2 = \phi^{k-1} \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Fₙ ≥ φⁿ⁻² for all n ≥ 1. Combined with the upper bound, Fₙ = Θ(φⁿ). ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY: TREES -->
+  <div class="category-header">Category E — Trees &amp; Graphs (Structural Induction)</div>
+
+  <!-- P9 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P9 — Binary Tree Node Count</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-tree">Trees</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        A full binary tree of height $h$ (where leaves are at depth $h$, root at depth 0) has exactly $2^{h+1} - 1$ nodes.
+      </div>
+      <details>
+        <summary>Definitions (Gopal Ch. 3)</summary>
+        <div class="details-content">
+          <p><strong>Full binary tree:</strong> Every internal node has exactly 2 children.</p>
+          <p><strong>Height $h$:</strong> The root is at level 0; leaves are at level $h$.</p>
+          <p>The number of nodes at level $i$ is $2^i$. So total nodes $= \sum_{i=0}^{h} 2^i$ — apply the geometric series formula from P3!</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($h=0$)</span>
+            A tree of height 0 is a single node (the root). $2^1 - 1 = 1$. ✓
+          </li>
+          <li>
+            <span class="step-label">Strong IH</span>
+            Assume any full binary tree of height $j \leq k$ has $2^{j+1}-1$ nodes.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step (height $k+1$)</span>
+            A full binary tree of height $k+1$ consists of:
+            <ul style="margin-top:0.4rem; padding-left:1.2rem;">
+              <li>Root (1 node)</li>
+              <li>Left subtree: full binary tree of height $k$ → $2^{k+1}-1$ nodes (by IH)</li>
+              <li>Right subtree: full binary tree of height $k$ → $2^{k+1}-1$ nodes (by IH)</li>
+            </ul>
+            <div class="math-box">
+              $$\text{Total} = 1 + (2^{k+1}-1) + (2^{k+1}-1) = 2^{k+2} - 1 \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Full binary tree of height h has 2^(h+1) − 1 nodes. ∎</div>
+          <div class="math-line">// Corollary: it has 2ʰ leaves and 2ʰ − 1 internal nodes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P10 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P10 — Postage Stamp (Non-representable Integers)</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-div">Combinatorial</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Every integer $n \geq 8$ can be represented as $3a + 5b$ for some non-negative integers $a, b$.
+      </div>
+      <details>
+        <summary>Why This Needs Strong Induction</summary>
+        <div class="details-content">
+          <p>To prove $P(n)$ for $n \geq 8$, you case-split on $n \pmod{3}$. Each case reaches back to $P(n-3)$, not $P(n-1)$, so the IH must cover all values from 8 to $k$.</p>
+          <p>Three cases: $n \equiv 0$, $n \equiv 1$, $n \equiv 2 \pmod{3}$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Cases ($n = 8, 9, 10$)</span>
+            $8 = 3(1) + 5(1)$. &nbsp; $9 = 3(3) + 5(0)$. &nbsp; $10 = 3(0) + 5(2)$. &nbsp; ✓
+          </li>
+          <li>
+            <span class="step-label">Strong IH</span>
+            Assume every integer $8 \leq j \leq k$ can be represented as $3a+5b$, for $k \geq 10$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step (prove $k+1$)</span>
+            Since $k \geq 10$, we have $k+1 \geq 11 > 8$, so $k-2 \geq 8$. Apply IH to $k-2$:
+            <div class="math-box">
+              $$k - 2 = 3a + 5b \implies k + 1 = 3(a+1) + 5b \checkmark$$
+            </div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Every n ≥ 8 is representable as 3a + 5b with a,b ≥ 0. ∎</div>
+          <div class="math-line">// 7 is NOT representable (verify exhaustively).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ ALGORITHM PROOFS ═══════════════════════════ -->
+<div class="page" id="page-algo">
+  <div class="part-label">// Part 3 — Gopal Ch. 2–5 (Recursion, D&amp;C, Correctness)</div>
+  <div class="section-title">Induction in Algorithm Proofs</div>
+
+  <div class="concept-box">
+    <h3>Two Types of Algorithm Induction (Gopal's Framework)</h3>
+    <p><strong>Type 1 — Correctness:</strong> Prove the algorithm always outputs the right answer. Induct on input size $n$.</p>
+    <p style="margin-top:0.5rem;"><strong>Type 2 — Substitution Method:</strong> Guess the closed form for a recurrence $T(n)$, then verify using induction that $T(n) \leq$ (your guess).</p>
+  </div>
+
+  <!-- P11 -->
+  <div class="category-header">Substitution Method — Recurrence Solving</div>
+
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P11 — Merge Sort Recurrence</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-algo">Algorithm Proof</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Let $T(n)$ satisfy $T(1) = 1$ and $T(n) = 2T(n/2) + n$ for $n \geq 2$ (a power of 2). Prove that $T(n) = O(n \log n)$. Specifically, prove $T(n) \leq cn\log_2 n$ for some constant $c &gt; 0$.
+      </div>
+      <details>
+        <summary>Substitution Method Strategy</summary>
+        <div class="details-content">
+          <p><strong>Step 1:</strong> Guess $T(n) \leq cn\log n$ for some $c$ (from the recursion tree or Master Theorem).</p>
+          <p><strong>Step 2:</strong> Assume IH holds for $n/2$: $T(n/2) \leq c(n/2)\log(n/2)$.</p>
+          <p><strong>Step 3:</strong> Substitute into recurrence. Simplify. Find what $c$ must satisfy.</p>
+          <p>Key algebra: $\log(n/2) = \log n - 1$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Base Case ($n=2$)</span>
+            $T(2) = 2T(1) + 2 = 4$. Need $4 \leq c \cdot 2\log_2 2 = 2c$. So $c \geq 2$ works.
+          </li>
+          <li>
+            <span class="step-label">Strong IH</span>
+            Assume $T(m) \leq cm\log_2 m$ for all powers-of-2 $m &lt; n$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step</span>
+            <div class="math-box">
+              $$T(n) = 2T(n/2) + n \overset{\text{IH}}{\leq} 2 \cdot c\frac{n}{2}\log_2\frac{n}{2} + n$$
+              $$= cn(\log_2 n - 1) + n = cn\log_2 n - cn + n = cn\log_2 n + n(1-c)$$
+            </div>
+            For $c \geq 1$: $n(1-c) \leq 0$, so $T(n) \leq cn\log_2 n$. ✓
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">T(n) ≤ cn log₂n for c ≥ 2. Therefore T(n) = O(n log n). ∎</div>
+          <div class="math-line">// This is Merge Sort's runtime — verified formally by induction.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P12 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P12 — Binary Search Correctness</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-algo">Correctness Proof</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Binary Search on a sorted array $A[1..n]$ correctly returns the index of target $x$ (or $-1$ if absent) for all $n \geq 0$.
+      </div>
+      <details>
+        <summary>Algorithm Pseudocode (Gopal Style)</summary>
+        <div class="details-content">
+          <pre style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.5;">
+BinarySearch(A, lo, hi, x):
+  if lo > hi: return -1
+  mid = ⌊(lo + hi) / 2⌋
+  if A[mid] == x: return mid
+  if A[mid] < x:  return BinarySearch(A, mid+1, hi, x)
+  else:            return BinarySearch(A, lo, mid-1, x)
+          </pre>
+          <p>Induct on the subproblem size $n = \text{hi} - \text{lo} + 1$.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li>
+            <span class="step-label">Induction Variable</span>
+            Let $n = \text{hi} - \text{lo} + 1$ (size of the search region).
+          </li>
+          <li>
+            <span class="step-label">Base Case ($n=0$, empty subarray)</span>
+            $\text{lo} &gt; \text{hi}$: returns $-1$. Since $x$ is absent from an empty array, this is correct. ✓
+          </li>
+          <li>
+            <span class="step-label">Strong IH</span>
+            Assume BinarySearch is correct on any subarray of size $m &lt; n$.
+          </li>
+          <li>
+            <span class="step-label">Inductive Step (size $n \geq 1$)</span>
+            $\text{mid} = \lfloor(\text{lo}+\text{hi})/2\rfloor$. Three cases:
+            <ul style="margin-top:0.4rem;padding-left:1.2rem;">
+              <li><strong>$A[\text{mid}] = x$:</strong> Returns correct index. ✓</li>
+              <li><strong>$A[\text{mid}] &lt; x$:</strong> Recurse on $A[\text{mid}+1..\text{hi}]$. Size $&lt; n$. Array is sorted, so $x$ can only be in this half. IH guarantees correctness. ✓</li>
+              <li><strong>$A[\text{mid}] &gt; x$:</strong> Recurse on $A[\text{lo}..\text{mid}-1]$. Size $&lt; n$. By symmetry. ✓</li>
+            </ul>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">Binary Search is correct for all sorted arrays of size n ≥ 0. ∎</div>
+          <div class="math-line">// Runtime T(n) = T(n/2) + 1 = O(log n) by Master Theorem (Case 2).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P13 -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P13 — Substitution: Linear Recurrence</h3>
+      <div class="tag-row">
+        <span class="tag tag-weak">Weak</span>
+        <span class="tag tag-algo">Substitution</span>
+        <span class="diff diff-easy">Easy</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Let $T(n) = T(n-1) + c$ with $T(1) = c$. Prove $T(n) = cn$ for all $n \geq 1$.
+      </div>
+      <details>
+        <summary>When Does This Recurrence Arise?</summary>
+        <div class="details-content">
+          <p>This is the recurrence for any algorithm that does $O(1)$ work per call and reduces the problem size by 1 each time (e.g., linear scan, sequential search).</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li><span class="step-label">Base Case</span> $T(1) = c = c \cdot 1$. ✓</li>
+          <li><span class="step-label">IH</span> Assume $T(k) = ck$.</li>
+          <li>
+            <span class="step-label">Step</span>
+            <div class="math-box">$$T(k+1) = T(k) + c \overset{\text{IH}}{=} ck + c = c(k+1) \checkmark$$</div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">T(n) = cn = Θ(n) for all n ≥ 1. ∎</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P14: n log n via unwinding -->
+  <div class="problem-card">
+    <div class="problem-header">
+      <h3>P14 — Recurrence $T(n) = 2T(n/2) + \Theta(1)$</h3>
+      <div class="tag-row">
+        <span class="tag tag-strong">Strong</span>
+        <span class="tag tag-algo">Substitution</span>
+        <span class="diff diff-med">Medium</span>
+      </div>
+    </div>
+    <div class="problem-body">
+      <div class="problem-statement">
+        <strong>Claim</strong>
+        Let $T(1) = 1$ and $T(n) = 2T(n/2) + 1$ (for $n$ a power of 2). Prove $T(n) = 2n - 1$.
+      </div>
+      <details>
+        <summary>Technique: Guess from Unwinding</summary>
+        <div class="details-content">
+          <p>Unwind: $T(n) = 2T(n/2)+1 = 4T(n/4)+3 = 8T(n/8)+7 = \ldots$</p>
+          <p>After $\log_2 n$ levels: $T(n) = n \cdot T(1) + (n-1) = n + n - 1 = 2n-1$.</p>
+          <p>Now verify this guess by induction.</p>
+        </div>
+      </details>
+      <button class="show-solution-btn" onclick="toggleSolution(this)">Show Full Proof ▼</button>
+      <div class="solution-panel">
+        <ol class="proof-steps">
+          <li><span class="step-label">Base Case</span> $T(1) = 1 = 2(1)-1$. ✓</li>
+          <li><span class="step-label">Strong IH</span> Assume $T(m) = 2m-1$ for all powers-of-2 $m &lt; n$.</li>
+          <li>
+            <span class="step-label">Step</span>
+            <div class="math-box">$$T(n) = 2T(n/2) + 1 \overset{\text{IH}}{=} 2(2 \cdot \tfrac{n}{2} - 1) + 1 = 2(n-1)+1 = 2n-1 \checkmark$$</div>
+          </li>
+        </ol>
+        <div class="answer-block">
+          <div class="ans-label">Conclusion</div>
+          <div class="math-line">T(n) = 2n − 1 = Θ(n). ∎</div>
+          <div class="math-line">// Arises in: tree traversal, heap build, certain D&C algorithms.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ TEMPLATES ═══════════════════════════ -->
+<div class="page" id="page-templates">
+  <div class="part-label">// Quick Reference — Use Before Every Problem</div>
+  <div class="section-title">Proof Templates</div>
+
+  <div class="induction-template">
+    <div class="template-header">Template A — Weak Induction (Standard)</div>
+    <div class="template-body">
+      <div class="template-step">
+        <div class="template-num">0</div>
+        <div class="template-text">
+          <strong>State the claim</strong>
+          <p>Let $P(n)$ be the statement: [write the formula / property]. Claim: $P(n)$ holds for all $n \geq n_0$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">1</div>
+        <div class="template-text">
+          <strong>Base Case ($n = n_0$)</strong>
+          <p>Verify $P(n_0)$ directly by computation. LHS = [compute]. RHS = [compute]. ✓</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">2</div>
+        <div class="template-text">
+          <strong>Inductive Hypothesis (IH)</strong>
+          <p>Assume $P(k)$ holds for some arbitrary $k \geq n_0$: [write exact formula with $k$ substituted].</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">3</div>
+        <div class="template-text">
+          <strong>Inductive Step — prove $P(k+1)$</strong>
+          <p>Write out the LHS of $P(k+1)$. Split off the last term to expose the IH. Apply IH. Simplify to match RHS of $P(k+1)$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">4</div>
+        <div class="template-text">
+          <strong>Conclusion</strong>
+          <p>"By the principle of mathematical induction, $P(n)$ holds for all $n \geq n_0$. $\square$"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="induction-template">
+    <div class="template-header">Template B — Strong Induction</div>
+    <div class="template-body">
+      <div class="template-step">
+        <div class="template-num">0</div>
+        <div class="template-text">
+          <strong>State the claim</strong>
+          <p>Let $P(n)$ be: [property]. Claim: $P(n)$ holds for all $n \geq n_0$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">1</div>
+        <div class="template-text">
+          <strong>Base Case(s)</strong>
+          <p>Verify all $P(n_0), P(n_0+1), \ldots$ that can't be derived from smaller cases. (If $P(k+1)$ uses $P(k)$ and $P(k-1)$, you need TWO base cases.)</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">2</div>
+        <div class="template-text">
+          <strong>Strong IH</strong>
+          <p>Assume $P(j)$ holds for all $n_0 \leq j \leq k$, where $k \geq n_0$ (or $k \geq$ last base case).</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">3</div>
+        <div class="template-text">
+          <strong>Inductive Step — prove $P(k+1)$</strong>
+          <p>Identify which $P(j)$ with $j \leq k$ you need. Apply IH to those specific values. Derive $P(k+1)$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">4</div>
+        <div class="template-text">
+          <strong>Conclusion</strong>
+          <p>"By strong induction, $P(n)$ holds for all $n \geq n_0$. $\square$"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="induction-template">
+    <div class="template-header">Template C — Substitution Method (Algorithm Recurrences)</div>
+    <div class="template-body">
+      <div class="template-step">
+        <div class="template-num">1</div>
+        <div class="template-text">
+          <strong>Guess</strong>
+          <p>Conjecture $T(n) \leq f(n)$ (e.g., from the Master Theorem or recursion tree). Introduce constant $c$: $T(n) \leq c \cdot f(n)$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">2</div>
+        <div class="template-text">
+          <strong>Base Case</strong>
+          <p>Verify $T(1)$ (or smallest valid $n$). Determine the minimum value of $c$ required. This is often where you pin down $c$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">3</div>
+        <div class="template-text">
+          <strong>IH + Step</strong>
+          <p>Assume $T(m) \leq c \cdot f(m)$ for all $m &lt; n$. Substitute into the recurrence. Simplify. Show the result $\leq c \cdot f(n)$ for appropriate $c$.</p>
+        </div>
+      </div>
+      <div class="template-step">
+        <div class="template-num">4</div>
+        <div class="template-text">
+          <strong>State $c$ explicitly</strong>
+          <p>Conclude: "For $c \geq$ [value], $T(n) \leq c \cdot f(n)$ for all $n \geq 1$, so $T(n) = O(f(n))$." $\square$</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-box" style="margin-top:1.5rem;">
+    <h3>Common Mistakes &amp; How to Avoid Them</h3>
+    <ul>
+      <li><strong>Circular reasoning:</strong> Never assume what you're trying to prove in the step. You may only use $P(j)$ for $j &lt; k+1$.</li>
+      <li><strong>Missing base cases (strong induction):</strong> If your recurrence uses $P(k)$ and $P(k-1)$, you need base cases for both $n=n_0$ and $n=n_0+1$.</li>
+      <li><strong>Wrong induction variable:</strong> In algorithm proofs, always induct on input size $n$, not on "steps" or "iterations."</li>
+      <li><strong>Loose substitution:</strong> In the substitution method, the constant $c$ must be pinned explicitly — "$c$ large enough" is not rigorous unless you state how large.</li>
+      <li><strong>Forgetting to close:</strong> Always write a conclusion sentence. On exams, missing this loses points.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ QUIZ ═══════════════════════════ -->
+<div class="page" id="page-quiz">
+  <div class="part-label">// Test Yourself — Conceptual + Proof Mechanics</div>
+  <div class="section-title">Quiz Yourself</div>
+
+  <p style="margin-bottom:1.2rem; font-size:0.93rem;">Click your answer. Immediate feedback with explanation. Reset to retry.</p>
+
+  <div id="quiz-container"></div>
+  <button class="show-solution-btn" onclick="resetQuiz()" style="margin-top:1rem;">Reset Quiz ↺</button>
+</div>
+
+<footer>
+  <span>COSC 3320</span> · Gopal Pandurangan · Efficient Algorithms (Part 1: Fundamentals) ·
+  <span>Mathematical Induction Reference</span> · Cream/Black/Red · MathJax 3
+</footer>
+
+<script>
+// ── PAGE NAVIGATION ──────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const labels = ['overview','symbols','weak','strong','algo','templates','quiz'];
+  btns[labels.indexOf(id)].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── TOGGLE SOLUTIONS ──────────────────────────────────────────────────
+function toggleSolution(btn) {
+  const panel = btn.nextElementSibling;
+  panel.classList.toggle('visible');
+  btn.textContent = panel.classList.contains('visible') ? 'Hide Solution ▲' : 'Show Full Proof ▼';
+  if (panel.classList.contains('visible') && window.MathJax) {
+    MathJax.typesetPromise([panel]);
+  }
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    q: "You want to prove $F_n = F_{n-1} + F_{n-2}$ (Fibonacci) satisfies $F_n < 2^n$. Which induction type do you use and why?",
+    choices: [
+      "Weak — you only need $F_{n-1}$ in the step",
+      "Strong — you need both $F_{n-1}$ and $F_{n-2}$, requiring all prior cases",
+      "Neither — this requires a direct proof by contradiction",
+      "Weak — Fibonacci is always bounded, so any induction works"
+    ],
+    correct: 1,
+    explanation: "Correct! The Fibonacci recurrence uses two previous values. Weak IH only gives you $P(k)$, so you can apply it to $F_k$ but not $F_{k-1}$. Strong IH gives you all $F_j$ for $j \\leq k$, so you can bound both."
+  },
+  {
+    q: "In the substitution method for $T(n) = 2T(n/2) + n$, you guess $T(n) \\leq cn\\log n$. After substituting the IH, you get $T(n) \\leq cn\\log n - cn + n$. What do you conclude?",
+    choices: [
+      "The guess is wrong — there's a leftover $n(1-c)$ term",
+      "For $c \\geq 1$, the term $n(1-c) \\leq 0$, so $T(n) \\leq cn\\log n$ ✓",
+      "You must add a lower-order correction to the guess",
+      "The proof fails unless you set $c = 1$ exactly"
+    ],
+    correct: 1,
+    explanation: "Correct! $n(1-c) \\leq 0$ when $c \\geq 1$. Discarding a non-positive term only makes the bound tighter — the inequality still holds. This is a key technique: absorbing lower-order leftovers by choosing $c$ large enough."
+  },
+  {
+    q: "Weak induction requires exactly ONE base case. Is this always true?",
+    choices: [
+      "Yes — weak induction always needs exactly one base case",
+      "No — if the base of your induction starts at $n_0 > 1$, your base case is $n_0$, which can require checking multiple small values",
+      "No — sometimes you need two base cases even for weak induction, when the step uses $P(k)$ and $P(k-1)$",
+      "Yes, but the base case can be $n = 0$ or $n = 1$ depending on the problem"
+    ],
+    correct: 2,
+    explanation: "Trick: if your inductive step to prove $P(k+1)$ uses BOTH $P(k)$ and $P(k-1)$ (or jumps back further), you need multiple base cases — even in what looks like weak induction. The number of base cases equals the reach of your step."
+  },
+  {
+    q: "Which of the following recurrences gives $T(n) = \\Theta(n\\log n)$ by induction?",
+    choices: [
+      "$T(n) = T(n-1) + 1$",
+      "$T(n) = 2T(n/2) + n$",
+      "$T(n) = 4T(n/2) + n^2$",
+      "$T(n) = T(n/2) + 1$"
+    ],
+    correct: 1,
+    explanation: "$T(n) = 2T(n/2) + n$ is the Merge Sort recurrence, which solves to $T(n) = \\Theta(n \\log n)$ — verified in P11 by substitution induction. The others give $\\Theta(n)$, $\\Theta(n^2 \\log n)$, and $\\Theta(\\log n)$ respectively."
+  },
+  {
+    q: "What is the correct strong inductive hypothesis to prove: every integer $n \\geq 2$ is a product of primes?",
+    choices: [
+      "Assume $k$ is a product of primes",
+      "Assume all integers $2 \\leq j \\leq k$ are products of primes",
+      "Assume $k$ and $k+1$ are products of primes",
+      "Assume $k/2$ is a product of primes"
+    ],
+    correct: 1,
+    explanation: "This is the classic strong induction example from Gopal Ch. 1. If $k+1$ is composite, it factors as $k+1 = ab$ where $2 \\leq a, b \\leq k$. By the strong IH, both $a$ and $b$ are products of primes, so $k+1 = a \\cdot b$ is too. Weak IH on $k$ alone is insufficient."
+  },
+  {
+    q: "In a correctness proof of Binary Search (P12), what do we induct on?",
+    choices: [
+      "The number of recursive calls",
+      "The value of the target element $x$",
+      "The size of the subarray $n = \\text{hi} - \\text{lo} + 1$",
+      "The index mid"
+    ],
+    correct: 2,
+    explanation: "We always induct on the SIZE of the input, not on the index or number of steps. As hi−lo+1 decreases with each recursive call, strong IH on this size lets us apply correctness to the strictly smaller subproblems."
+  },
+  {
+    q: "Why does the proof of $\\sum_{i=1}^{n} i = n(n+1)/2$ use WEAK and not STRONG induction?",
+    choices: [
+      "Weak induction is always preferred",
+      "The $n=k+1$ case only needs $P(k)$ — split off the last term to expose exactly $\\sum_{i=1}^{k}$",
+      "The formula is linear, so strong induction is overkill",
+      "Both work equally well and the choice is arbitrary"
+    ],
+    correct: 1,
+    explanation: "Correct reasoning: $\\sum_{i=1}^{k+1} i = (\\sum_{i=1}^k i) + (k+1)$. The sum $\\sum_{i=1}^k$ is precisely $P(k)$. We only need the immediately preceding case, so weak induction is sufficient and appropriate."
+  },
+  {
+    q: "When using the substitution method, which of the following is an ERROR?",
+    choices: [
+      "Guessing $T(n) = O(n\\log n)$ from the recursion tree before doing induction",
+      "Introducing a constant $c$ and proving $T(n) \\leq cn\\log n$ for $c$ large enough",
+      "Writing: 'Assume $T(n) = cn\\log n$, therefore $T(n) = cn\\log n$'",
+      "Checking that the base case is consistent with the value of $c$"
+    ],
+    correct: 2,
+    explanation: "This is circular reasoning — assuming the conclusion in the hypothesis. The IH must state $T(m) \\leq cm \\log m$ for $m < n$; you then DERIVE it holds for $n$ from the recurrence. Never assume $P(n)$ and use it to prove $P(n)$."
+  }
+];
+
+let answered = [];
+
+function buildQuiz() {
+  answered = new Array(QUESTIONS.length).fill(false);
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = QUESTIONS.map((q, qi) => `
+    <div class="quiz-card" id="qcard-${qi}">
+      <div class="quiz-qheader">Q${qi+1} of ${QUESTIONS.length}</div>
+      <div class="quiz-body">
+        <p style="font-size:0.95rem;margin-bottom:0.8rem;">${q.q}</p>
+        <ul class="quiz-choices">
+          ${q.choices.map((c,ci) => `
+            <li><button class="quiz-btn" onclick="checkAnswer(${qi},${ci},this)">${c}</button></li>
+          `).join('')}
+        </ul>
+        <div class="quiz-feedback" id="qfeedback-${qi}"></div>
+      </div>
+    </div>
+  `).join('');
+  if (window.MathJax) MathJax.typesetPromise([container]);
+}
+
+function checkAnswer(qi, ci, btn) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+  const q = QUESTIONS[qi];
+  const card = document.getElementById('qcard-' + qi);
+  const feedback = document.getElementById('qfeedback-' + qi);
+  const allBtns = card.querySelectorAll('.quiz-btn');
+
+  allBtns[q.correct].classList.add('correct');
+  if (ci !== q.correct) btn.classList.add('wrong');
+
+  feedback.textContent = q.explanation;
+  feedback.className = 'quiz-feedback show ' + (ci === q.correct ? 'ok' : 'bad');
+  allBtns.forEach(b => b.style.cursor = 'default');
+
+  if (window.MathJax) MathJax.typesetPromise([feedback]);
+}
+
+function resetQuiz() {
+  buildQuiz();
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

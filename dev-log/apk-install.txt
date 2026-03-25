@@ -1,16 +1,1 @@
-# 1. Build the web app
-cd ~/rabbit/root/projects/onit/coogs-hub
-pnpm build
-
-# 2. Copy web assets into Capacitor
-npx cap copy android
-
-# 3. Build the debug APK
-cd android
-./gradlew assembleDebug
-
-# 4. APK location
-# app/build/outputs/apk/debug/app-debug.apk
-
-# 5. Install to connected device (optional, if USB debugging on)
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+cd ~/rabbit/root/projects/onit/coogs-hub && pnpm build && npx cap copy android && cd android && ./gradlew clean assembleDebug && cp app/build/outputs/apk/debug/app-debug.apk ~/Downloads/coogs-hub-debug.apk
