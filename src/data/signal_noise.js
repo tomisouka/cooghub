@@ -1,0 +1,271 @@
+export const SIGNAL_NOISE_DATA = {
+  "currentWeek": 2,
+  "history": [
+    {
+      "week": 1,
+      "date": "2026-03-26",
+      "avgVerdict": 86,
+      "skills": {
+        "prompting": 97,
+        "framing": 94,
+        "creative": 72,
+        "writing": 78,
+        "research": 68,
+        "systems": 75,
+        "html": 97,
+        "codelogic": 90,
+        "debugging": 93,
+        "docs": 97,
+        "testing": 95,
+        "dsa": 95,
+        "automata": 85,
+        "linalg": 88,
+        "calc": 68,
+        "stats": 95,
+        "discrete": 78
+      }
+    }
+  ],
+  "examDates": {},
+  "evidence": {},
+  "debateLog": {
+    "prompting": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": 99,
+        "verdict": 97,
+        "youReason": "I prompt everything and give as much context as I can. Only effective with Claude due to file uploads.",
+        "swingPoint": "Prompting everything is evidence of dependency not skill. 3pts for iteration instinct.",
+        "archived": false,
+        "summary": "Wk 1: 97% verdict (AI was 100%). Prompting everything is evidence of dependency not skill.",
+        "shove": "Pick one prompt you sent this week — rewrite it with a clearer constraint and more context, then compare the two outputs side by side."
+      }
+    ],
+    "framing": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 94,
+        "youReason": "I grab errors and paste them. I know to zoom out and get more details before randomly changing something.",
+        "swingPoint": "Knows the principle, paste-to-Claude is still the first reflex.",
+        "archived": false,
+        "summary": "Wk 1: 94% verdict (AI was 100%). Knows the principle, paste reflex confirmed.",
+        "shove": "Next time something breaks, write one sentence describing the problem before you open Claude. Just one sentence."
+      }
+    ],
+    "creative": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 72,
+        "youReason": "Structure and organization are all mine. AI proposed the visual language but I curated it and know when something looks wrong.",
+        "swingPoint": "Information architecture is yours. Visual execution language was AI-proposed — curation not origination.",
+        "archived": false,
+        "summary": "Wk 1: 72% verdict (AI was 100%). Architecture yours. Visual language AI-proposed.",
+        "shove": "Next time you reject a Claude output, write down in 5 words why it looked wrong. That's your taste talking."
+      }
+    ],
+    "writing": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 78,
+        "youReason": "I can express ideas raw — my journal entries prove it. I come short on technical implementation writing.",
+        "swingPoint": "Journal framework (floating, melting, tasking) is strong raw evidence. Technical writing still handed off.",
+        "archived": false,
+        "summary": "Wk 1: 78% verdict (AI was 100%). Journal framework strong. Technical writing handed off.",
+        "shove": "Write a 3-sentence explanation of what a DFA is — no AI, no notes. Raw, imperfect, yours."
+      }
+    ],
+    "research": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 68,
+        "youReason": "LLM first because it's faster but I know it's unreliable. I use a scratchpad to plan learning. I sort by question type — web for facts, AI for logic.",
+        "swingPoint": "Scratchpad habit and question-type sorting earned points. LLM-first reflex confirmed by own words.",
+        "archived": false,
+        "summary": "Wk 1: 68% verdict (AI was 100%). Scratchpad real. LLM-first reflex confirmed.",
+        "shove": "Pick one function you use this week and open the actual docs before asking Claude anything about it."
+      }
+    ],
+    "systems": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 75,
+        "youReason": "I have the mental layout and describe it to Claude. I form my own metaphors and use AI to confirm not structure. I write until I hit a wall then search.",
+        "swingPoint": "Two real modes identified. Mode 1 is genuine systems thinking. Mode 2 is the default when confidence drops.",
+        "archived": false,
+        "summary": "Wk 1: 75% verdict (AI was 100%). Two modes — Mode 1 genuine, Mode 2 dependent.",
+        "shove": "Next new problem — spend 5 minutes drawing boxes and arrows on paper before opening Claude. Any problem counts."
+      }
+    ],
+    "html": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 97,
+        "youReason": "I cannot write a component at all. I only know basic C++ and barely Python.",
+        "swingPoint": "Can't build it solo. 3pts for knowing what a component is.",
+        "archived": false,
+        "summary": "Wk 1: 97% verdict (AI was 100%). Can't build solo.",
+        "shove": "Open a blank file right now and write a nav bar in HTML from memory. Don't open Claude until you've written 10 lines."
+      }
+    ],
+    "codelogic": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 90,
+        "youReason": "I can guess what code points to but I don't know how often I'd be right. Pattern recognition but not line-by-line tracing.",
+        "swingPoint": "Pattern recognition is above zero. Guessing is not owning.",
+        "archived": false,
+        "summary": "Wk 1: 90% verdict (AI was 100%). Pattern recognition real. Guessing not owning.",
+        "shove": "Take the next Claude-generated block, close the chat, and explain out loud what each line does. Record where you get stuck."
+      }
+    ],
+    "debugging": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 93,
+        "youReason": "I know error types — ghost, runtime, compiled, style. But I can't fix them myself at all.",
+        "swingPoint": "Error taxonomy from exposure is real. Can't fix alone confirmed.",
+        "archived": false,
+        "summary": "Wk 1: 93% verdict (AI was 100%). Error taxonomy real. Can't fix alone.",
+        "shove": "Next time something breaks, give yourself 10 minutes before pasting. Read the error. Name the type. One hypothesis."
+      }
+    ],
+    "docs": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 97,
+        "youReason": "Never actual docs. Always LLM first. I have been wrong a lot especially with ChatGPT.",
+        "swingPoint": "Own words: never go to primary sources. Wrong a lot as a result.",
+        "archived": false,
+        "summary": "Wk 1: 97% verdict (AI was 100%). Never primary sources.",
+        "shove": "Open cppreference or MDN once today — look up any function you've used recently. Just read the signature and parameters."
+      }
+    ],
+    "testing": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 95,
+        "youReason": "I never write tests. I am the mailman — I ask Claude for diagnostics and guide the zoom in and out.",
+        "swingPoint": "Directing the process is worth 5pts. Never writes tests confirmed.",
+        "archived": false,
+        "summary": "Wk 1: 95% verdict (AI was 100%). Mailman. Never writes tests.",
+        "shove": "After the next Claude-generated function, write one edge case test yourself before running anything."
+      }
+    ],
+    "dsa": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 95,
+        "youReason": "Maybe just theory. Cannot trace or implement cold at all.",
+        "swingPoint": "Theory only. Exam room has no Claude.",
+        "archived": false,
+        "summary": "Wk 1: 95% verdict (AI was 100%). Theory only.",
+        "shove": "Trace a BFS on paper using a 5-node graph you draw yourself. No AI, no notes. Just you and the graph."
+      }
+    ],
+    "automata": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 85,
+        "youReason": "I know DFA, NFA, GNFA, regular languages, sets. I can draw a DFA. But give me a language and I'm guessing. Concatenation and proofs — not there.",
+        "swingPoint": "Knows the landscape and can draw a DFA. Solving from spec cold is not there.",
+        "archived": false,
+        "summary": "Wk 1: 85% verdict (AI was 100%). Can draw DFA. Solving from spec cold not there.",
+        "shove": "Draw a DFA that accepts strings ending in '01' — from scratch, no help. Check it after."
+      }
+    ],
+    "linalg": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 88,
+        "youReason": "I know basic operations but got lost in row reduction running out of moves. No geometric intuition yet.",
+        "swingPoint": "Basic operations real. Lost mid row-reduction means no geometric foundation yet.",
+        "archived": false,
+        "summary": "Wk 1: 88% verdict (AI was 100%). Basic ops real. Lost in row reduction.",
+        "shove": "Do one row reduction problem by hand from your textbook. Write out every step. Find where you run out of moves."
+      }
+    ],
+    "calc": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 68,
+        "youReason": "Took precalc, calc 1, calc 2. I know derivatives and integrals but need a refresher.",
+        "swingPoint": "Three completed courses is the strongest credential today. Refresher need keeps it at 68.",
+        "archived": false,
+        "summary": "Wk 1: 68% verdict (AI was 100%). Three completed courses. Refresher needed.",
+        "shove": "Solve 3 derivatives cold from a practice sheet — no calculator, no AI. Check after."
+      }
+    ],
+    "stats": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 95,
+        "youReason": "I reverse engineered it. Formula heavy. I don't feel like I learned anything. Barely passed.",
+        "swingPoint": "Reverse engineering formulas without understanding why — exactly what this axis measures against.",
+        "archived": false,
+        "summary": "Wk 1: 95% verdict (AI was 100%). Reverse engineered. Didn't learn it.",
+        "shove": "Pick one stats formula you used in that class and explain in one sentence why it works, not just what it does."
+      }
+    ],
+    "discrete": [
+      {
+        "week": 1,
+        "date": "2026-03-26",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 78,
+        "youReason": "I know propositions and logic decently. Proofs okay but need work on rigorous ones. Sucked at asymptotic and algo problems. Know combperm but need review.",
+        "swingPoint": "Real pockets of knowledge in logic and propositions. Rigorous proofs and asymptotic are the exam gaps.",
+        "archived": false,
+        "summary": "Wk 1: 78% verdict (AI was 100%). Logic solid. Rigorous proofs and asymptotic are the gaps.",
+        "shove": "Write a proof by induction for n >= 1: 1+2+...+n = n(n+1)/2. Cold. No help. Check after."
+      }
+    ]
+  }
+};

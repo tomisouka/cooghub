@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "reindex": "node scripts/index-pdfs.js --force",
-    "manifest": "node scripts/generate-manifest.js"
+    "manifest": "node scripts/generate-manifest.js",
+    "sync-signal": "node -e \"const d=JSON.parse(require('fs').readFileSync('./src/data/signal_noise.json','utf8'));require('fs').writeFileSync('./src/data/signal_noise.js','export const SIGNAL_NOISE_DATA = '+JSON.stringify(d,null,2)+';\\n');\"",
+    "android": "pnpm sync-signal && pnpm build && npx cap sync android"
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",

@@ -1,11 +1,12 @@
 // src/pages/SignalNoisePage.jsx
 // Signal / Noise — AI Reliance Tracker
 // Read-only mirror. All data patched by Claude in weekly debate sessions.
-// Source of truth: src/data/signal_noise.json — read/written via Tauri invoke or /api/ fetch
+// Source of truth: src/data/signal_noise.js (static seed) — written to signal_noise.json on disk via Tauri invoke or /api/ fetch
 // Never add inputs here. Debate happens in Claude.
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { SIGNAL_NOISE_DATA as SIGNAL_NOISE_SEED } from "../data/signal_noise.js";
 
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@300;400;500&display=swap";
 
@@ -181,14 +182,14 @@ async function loadData() {
   try {
     if (isTauri()) {
       const raw = await retryInvoke("load_data_file", { filename: SN_FILE });
-      return raw ? JSON.parse(raw) : null;
+      return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SIGNAL_NOISE_SEED));
     } else {
       const res = await fetch(`/api/load-data-file?filename=${SN_FILE}`);
       const json = await res.json();
-      return json.content ? JSON.parse(json.content) : null;
+      return json.content ? JSON.parse(json.content) : JSON.parse(JSON.stringify(SIGNAL_NOISE_SEED));
     }
   } catch (_) {
-    return null; // file doesn't exist yet — caller will seed
+    return JSON.parse(JSON.stringify(SIGNAL_NOISE_SEED)); // file doesn't exist yet — seed from JS
   }
 }
 
@@ -289,65 +290,135 @@ function Sparkline({ skillId, history }) {
 }
 
 // ── RADAR ────────────────────────────────────────────────────────────────────
-function RadarCanvas({ history, weekIdx }) {
+function RadarCanvas({ history, weekIdx, onLabelClick }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     let cancelled = false;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = 480, H = 380;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + "px"; canvas.style.height = H + "px";
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
+    ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
     if (cancelled) return;
     const snapshot = weekIdx !== null ? history[weekIdx] : history[history.length - 1];
     const prevSnapshot = weekIdx !== null ? history[weekIdx - 1] : history[history.length - 2];
-    const axes = ALL_SKILLS.map(s => ({
-      label: s.name.split("—")[0].trim().replace("/ Frontend","").trim(),
+    const axes = ALL_SKILLS.map((s, i) => ({
+      label: String(i + 1),
       id: s.id,
       ai: s.aiPct,
       verdict: snapshot && snapshot.skills ? snapshot.skills[s.id] : null,
     }));
     const N = axes.length, cx = W/2, cy = H/2;
-    const r = Math.min(W,H) * 0.33;
-    const step = (Math.PI*2)/N, start = -Math.PI/2;
-    const pt = (val, i) => { const a = start+i*step, ratio=val/100; return { x:cx+Math.cos(a)*r*ratio, y:cy+Math.sin(a)*r*ratio }; };
-    const outerPt = (i, rad) => { const a=start+i*step; return { x:cx+Math.cos(a)*rad, y:cy+Math.sin(a)*rad }; };
-    [0.25,0.5,0.75,1].forEach(ratio => {
+    const r = Math.min(W, H) * 0.36;
+    const step = (Math.PI * 2) / N, start = -Math.PI / 2;
+    const pt = (val, i) => {
+      const a = start + i * step, ratio = (100 - val) / 100;
+      return { x: cx + Math.cos(a) * r * ratio, y: cy + Math.sin(a) * r * ratio };
+    };
+    const outerPt = (i, rad) => {
+      const a = start + i * step;
+      return { x: cx + Math.cos(a) * rad, y: cy + Math.sin(a) * rad };
+    };
+    // Grid rings
+    [0.25, 0.5, 0.75, 1].forEach(ratio => {
       ctx.beginPath();
-      for (let i=0;i<N;i++) { const p=outerPt(i,r*ratio); i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); }
-      ctx.closePath(); ctx.strokeStyle=ratio===1?"#242424":"#171717"; ctx.lineWidth=ratio===1?1:0.5; ctx.stroke();
+      for (let i = 0; i < N; i++) {
+        const p = outerPt(i, r * ratio);
+        i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = ratio === 1 ? "#2e2e2e" : "#222";
+      ctx.lineWidth = ratio === 1 ? 1.5 : 0.75;
+      ctx.stroke();
     });
-    for (let i=0;i<N;i++) { const p=outerPt(i,r); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p.x,p.y); ctx.strokeStyle="#171717"; ctx.lineWidth=0.5; ctx.stroke(); }
+    // Spoke lines
+    for (let i = 0; i < N; i++) {
+      const p = outerPt(i, r);
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = "#252525"; ctx.lineWidth = 0.75; ctx.stroke();
+    }
+    // Prev week ghost
     if (prevSnapshot) {
       ctx.beginPath();
-      axes.forEach((a,i) => { const v = prevSnapshot.skills[a.id] != null ? prevSnapshot.skills[a.id] : 0; const p=pt(v,i); i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); });
-      ctx.closePath(); ctx.fillStyle="rgba(50,50,50,0.12)"; ctx.fill();
-      ctx.strokeStyle="rgba(80,80,80,0.25)"; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+      axes.forEach((a, i) => {
+        const v = prevSnapshot.skills[a.id] != null ? prevSnapshot.skills[a.id] : 0;
+        const p = pt(v, i); i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(60,60,60,0.15)"; ctx.fill();
+      ctx.strokeStyle = "rgba(100,100,100,0.3)"; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
     }
+    // AI position polygon
     ctx.beginPath();
-    axes.forEach((a,i) => { const p=pt(a.ai,i); i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); });
-    ctx.closePath(); ctx.fillStyle="rgba(122,184,232,0.04)"; ctx.fill();
-    ctx.strokeStyle="rgba(122,184,232,0.35)"; ctx.lineWidth=1; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
-    if (axes.some(a=>a.verdict!==null)) {
-      ctx.beginPath(); let first=true;
-      axes.forEach((a,i) => { const v = a.verdict != null ? a.verdict : a.ai; const p=pt(v,i); if(first){ctx.moveTo(p.x,p.y);first=false;}else ctx.lineTo(p.x,p.y); });
-      ctx.closePath(); ctx.fillStyle="rgba(122,232,168,0.07)"; ctx.fill();
-      ctx.strokeStyle="rgba(122,232,168,0.75)"; ctx.lineWidth=2; ctx.stroke();
-      axes.forEach((a,i) => { if(a.verdict===null)return; const p=pt(a.verdict,i); ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle="#7ae8a8"; ctx.fill(); });
+    axes.forEach((a, i) => {
+      const p = pt(a.ai, i); i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(122,184,232,0.06)"; ctx.fill();
+    ctx.strokeStyle = "rgba(122,184,232,0.4)"; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+    // Verdict polygon
+    if (axes.some(a => a.verdict !== null)) {
+      ctx.beginPath(); let first = true;
+      axes.forEach((a, i) => {
+        const v = a.verdict != null ? a.verdict : a.ai;
+        const p = pt(v, i);
+        if (first) { ctx.moveTo(p.x, p.y); first = false; } else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = "rgba(122,232,168,0.09)"; ctx.fill();
+      ctx.strokeStyle = "rgba(122,232,168,0.9)"; ctx.lineWidth = 2; ctx.stroke();
+      axes.forEach((a, i) => {
+        if (a.verdict === null) return;
+        const p = pt(a.verdict, i);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#7ae8a8"; ctx.fill();
+        ctx.strokeStyle = "#121212"; ctx.lineWidth = 1; ctx.stroke();
+      });
     }
-    ctx.font="500 8px IBM Plex Mono,monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
-    axes.forEach((a,i) => {
-      const angle=start+i*step; const lx=cx+Math.cos(angle)*(r+22); const ly=cy+Math.sin(angle)*(r+22);
-      ctx.fillStyle="#484848"; ctx.fillText(a.label.length>12?a.label.slice(0,11)+"…":a.label, lx, ly);
+    // Number labels — stored for hit testing
+    canvas._labelHits = [];
+    ctx.font = "700 10px IBM Plex Mono,monospace";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    axes.forEach((a, i) => {
+      const angle = start + i * step;
+      const lx = cx + Math.cos(angle) * (r + 22);
+      const ly = cy + Math.sin(angle) * (r + 22);
+      ctx.fillStyle = "#7ae8a8";
+      ctx.fillText(a.label, lx, ly);
+      canvas._labelHits.push({ x: lx, y: ly, id: a.id, r: 10 });
     });
     return () => { cancelled = true; };
   }, [history, weekIdx]);
-  return <canvas ref={canvasRef} width={400} height={320} />;
+
+  function handleClick(e) {
+    if (!onLabelClick) return;
+    const canvas = canvasRef.current;
+    if (!canvas || !canvas._labelHits) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    for (const h of canvas._labelHits) {
+      if (Math.hypot(mx - h.x, my - h.y) <= h.r) {
+        onLabelClick(h.id);
+        return;
+      }
+    }
+  }
+
+  return <canvas ref={canvasRef} style={{ display:"block", cursor:"pointer" }} onClick={handleClick} />;
 }
 
 // ── SKILL CARD ───────────────────────────────────────────────────────────────
-function SkillCard({ skill, store }) {
+function SkillCard({ skill, store, forceOpen, cardRef }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (forceOpen) setOpen(true); }, [forceOpen]);
+  const isOpen = open;
   const { history, debateLog, evidence, examDates } = store;
   const latestHistory = history[history.length - 1];
   const verdict = latestHistory && latestHistory.skills ? latestHistory.skills[skill.id] : null;
@@ -362,7 +433,7 @@ function SkillCard({ skill, store }) {
   const SANS = "IBM Plex Sans,sans-serif";
   return (
     <>
-      <div onClick={() => setOpen(o=>!o)} style={{ background:M.s1, border:"1px solid "+(open?"#333":M.border), display:"grid", gridTemplateColumns:"1fr auto auto auto", alignItems:"center", gap:"0.8rem", padding:"0.7rem 0.9rem", cursor:"pointer", transition:"border-color 0.15s", userSelect:"none" }}>
+      <div ref={cardRef} onClick={() => { setOpen(o=>!o); }} style={{ background:M.s1, border:"1px solid "+(isOpen?"#333":M.border), display:"grid", gridTemplateColumns:"1fr auto auto auto", alignItems:"center", gap:"0.8rem", padding:"0.7rem 0.9rem", cursor:"pointer", transition:"border-color 0.15s", userSelect:"none" }}>
         <div style={{ minWidth:0 }}>
           <div style={{ fontFamily:MONO, fontSize:"0.55rem", letterSpacing:"0.14em", textTransform:"uppercase", color:M.muted, marginBottom:2 }}>{skill.cat}</div>
           <div style={{ fontFamily:MONO, fontSize:"0.8rem", fontWeight:600, color:M.text, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{skill.name}</div>
@@ -371,12 +442,12 @@ function SkillCard({ skill, store }) {
         </div>
         <div style={{ textAlign:"right", flexShrink:0 }}>
           <div style={{ fontFamily:DISPLAY, fontSize: verdict!==null?"1.6rem":"1rem", fontWeight:800, lineHeight:1, color: verdict!==null?verdictColor:"#555" }}>{verdict!==null?verdict+"%":"—"}</div>
-          <div style={{ fontFamily:MONO, fontSize:"0.52rem", color:M.muted, marginTop:1 }}>AI {skill.aiPct}%</div>
+          <div style={{ fontFamily:MONO, fontSize:"0.52rem", color:M.muted, marginTop:1 }}>YOU {verdict!==null?100-verdict:"—"}% · AI {verdict!==null?verdict:skill.aiPct}%</div>
         </div>
         <Sparkline skillId={skill.id} history={history} />
-        <div style={{ fontFamily:MONO, fontSize:"0.6rem", color:M.muted, transition:"transform 0.18s", transform:open?"rotate(90deg)":"none", marginLeft:"-0.3rem" }}>▶</div>
+        <div style={{ fontFamily:MONO, fontSize:"0.6rem", color:M.muted, transition:"transform 0.18s", transform:isOpen?"rotate(90deg)":"none", marginLeft:"-0.3rem" }}>▶</div>
       </div>
-      {open && (
+      {isOpen && (
         <div style={{ background:M.s2, border:"1px solid "+M.border, borderTop:"none", padding:"0.8rem 0.9rem" }}>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.7rem" }}>
             <div style={{ background:M.s1, border:"1px solid "+M.border, padding:"0.6rem 0.7rem" }}>
@@ -512,6 +583,8 @@ export default function SignalNoisePage() {
   const [logSearch, setLogSearch] = useState("");
   const [radarWeek, setRadarWeek] = useState(null);
   const [toast, setToast]         = useState("");
+  const [openSkillId, setOpenSkillId] = useState(null);
+  const cardRefs = useRef({});
   const [confirmReset, setConfirmReset] = useState(false); // in-UI confirm — safe in Tauri
   const [resetPw,      setResetPw]      = useState("");
   const [resetPwErr,   setResetPwErr]   = useState(false);
@@ -700,7 +773,26 @@ export default function SignalNoisePage() {
                   </span>
                 </div>
                 <div style={{ display:"flex", justifyContent:"center" }}>
-                  <RadarCanvas history={history} weekIdx={radarWeek} />
+                  <RadarCanvas history={history} weekIdx={radarWeek} onLabelClick={id => {
+                    setOpenSkillId(id);
+                    setTimeout(() => {
+                      const el = cardRefs.current[id];
+                      if (el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+                    }, 50);
+                  }} />
+                </div>
+                <div style={{ display:"flex", gap:"0.6rem", marginTop:"0.6rem", flexWrap:"wrap", justifyContent:"center" }}>
+                  {ALL_SKILLS.map((s, i) => (
+                    <span key={s.id} onClick={() => {
+                      setOpenSkillId(s.id);
+                      setTimeout(() => {
+                        const el = cardRefs.current[s.id];
+                        if (el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+                      }, 50);
+                    }} style={{ fontFamily:"IBM Plex Mono,monospace", fontSize:"0.5rem", color:"#7ae8a8", cursor:"pointer", padding:"1px 4px", border:"1px solid #7ae8a822", borderRadius:3 }} title={s.name}>
+                      {i+1} {s.name.split("—")[0].trim().slice(0,10)}
+                    </span>
+                  ))}
                 </div>
                 <div style={{ display:"flex", gap:"1rem", marginTop:"0.8rem", flexWrap:"wrap", justifyContent:"center" }}>
                   {[["rgba(122,184,232,0.7)","AI position"],["#7ae8a8","Verdict"],["#303030","Prev week"]].map(([col,lbl]) => (
@@ -718,7 +810,7 @@ export default function SignalNoisePage() {
                   <div style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"2px 7px", border:"1px solid "+M.border3, color:M.muted }}>{META_SKILLS.length} axes</div>
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-                  {META_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} />)}
+                  {META_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} forceOpen={openSkillId===s.id} cardRef={el=>cardRefs.current[s.id]=el} />)}
                 </div>
               </div>
 
@@ -729,7 +821,7 @@ export default function SignalNoisePage() {
                   <div style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"2px 7px", border:"1px solid "+M.border3, color:M.muted }}>hands-on execution</div>
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-                  {PRACTICAL_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} />)}
+                  {PRACTICAL_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} forceOpen={openSkillId===s.id} cardRef={el=>cardRefs.current[s.id]=el} />)}
                 </div>
               </div>
 
@@ -740,7 +832,7 @@ export default function SignalNoisePage() {
                   <div style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"2px 7px", border:"1px solid "+M.border3, color:M.muted }}>exam-reality</div>
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-                  {ACADEMIC_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} />)}
+                  {ACADEMIC_SKILLS.map(s => <SkillCard key={s.id} skill={s} store={store} forceOpen={openSkillId===s.id} cardRef={el=>cardRefs.current[s.id]=el} />)}
                 </div>
               </div>
             </div>
