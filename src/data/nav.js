@@ -4,4 +4,5 @@ export const NAV = [
   { id: "progress",  icon: "◈", label: "Progress"  },
   { id: "talk2me",   icon: "✦", label: "Talk2Me"   },
   { id: "resources", icon: "◈", label: "Resources" },
+  { id: "signal",    icon: "◎", label: "Signal"    },
 ];

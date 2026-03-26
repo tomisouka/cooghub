@@ -16,6 +16,11 @@
       "label": "Progress"
     },
     {
+      "id": "signal",
+      "icon": "\u25ce",
+      "label": "Signal"
+    },
+    {
       "id": "talk2me",
       "icon": "\u2726",
       "label": "Talk2Me"

@@ -24,6 +24,11 @@
       "id": "resources",
       "icon": "\u25c8",
       "label": "Resources"
+    },
+    {
+      "id": "signal",
+      "icon": "\u25ce",
+      "label": "Signal"
     }
   ]
 }
