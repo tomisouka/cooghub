@@ -303,7 +303,13 @@ export default function DeadlinesPage() {
 
   function applyStatus() {
     if (!confirmStatus) return;
-    const { id, nextStatus } = confirmStatus;
+    const { id, nextStatus, action } = confirmStatus;
+    if (action === "pushToday") {
+      const tod = new Date().toISOString().slice(0,10);
+      setDeadlines(p => p.map(d => d.id === id ? {...d, date: tod} : d).sort((a,b) => a.date.localeCompare(b.date)));
+      setConfirmStatus(null);
+      return;
+    }
     setConfirmStatus(null);
     if (nextStatus === "none") {
       setDeadlines(prev => prev.map(d =>
@@ -441,7 +447,7 @@ export default function DeadlinesPage() {
             <div style={{fontSize:11,color:"#4a5060",fontFamily:FONT}}>{deadlines.find(d=>d.id===confirmStatus.id)?.title}</div>
             <div style={{display:"flex",gap:10}}>
               <button onClick={()=>setConfirmStatus(null)} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>Cancel</button>
-              <button onClick={applyStatus} style={{flex:1,padding:"8px 0",background:"#34d39920",border:"1px solid #34d39944",borderRadius:8,color:"#34d399",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>Confirm</button>
+              <button onClick={applyStatus} style={{flex:1,padding:"8px 0",background:confirmStatus.action==="pushToday"?"#a78bfa20":"#34d39920",border:`1px solid ${confirmStatus.action==="pushToday"?"#a78bfa44":"#34d39944"}`,borderRadius:8,color:confirmStatus.action==="pushToday"?"#a78bfa":"#34d399",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>Confirm</button>
             </div>
           </div>
         </div>
@@ -826,6 +832,14 @@ export default function DeadlinesPage() {
                             <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
                               {!dl.status&&days<=7&&days>=0&&<div title="Not started yet" style={{width:6,height:6,borderRadius:"50%",background:"#fb923c",flexShrink:0,animation:"nudgePulse 1.8s ease-in-out infinite"}}/>}
                               <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",letterSpacing:tier.bold?"0.5px":0}}>{urgencyLabel(days)}</div>
+                              {tab==="moon"&&days<0&&(
+                                <button
+                                  onClick={e=>{e.stopPropagation();setConfirmStatus({id:dl.id,action:"pushToday",label:"Push deadline to today?"});}}
+                                  title="Push to today"
+                                  style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:"#a78bfa",background:"#a78bfa18",border:"1px solid #a78bfa44",borderRadius:6,padding:"3px 8px",cursor:"pointer",flexShrink:0,letterSpacing:"0.5px"}}>
+                                  → today
+                                </button>
+                              )}
                             </div>
                             <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
                           </div>

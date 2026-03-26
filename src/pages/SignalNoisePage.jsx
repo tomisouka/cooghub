@@ -513,6 +513,8 @@ export default function SignalNoisePage() {
   const [radarWeek, setRadarWeek] = useState(null);
   const [toast, setToast]         = useState("");
   const [confirmReset, setConfirmReset] = useState(false); // in-UI confirm — safe in Tauri
+  const [resetPw,      setResetPw]      = useState("");
+  const [resetPwErr,   setResetPwErr]   = useState(false);
 
   // Load from signal_noise.json on mount
   useEffect(() => {
@@ -652,16 +654,26 @@ export default function SignalNoisePage() {
               ↓ Export for Debate
             </button>
             {!confirmReset ? (
-              <button onClick={()=>setConfirmReset(true)} style={{ fontFamily:MONO, fontSize:"0.62rem", padding:"5px 12px", border:"1px solid rgba(232,122,122,0.2)", background:"transparent", color:"rgba(232,122,122,0.45)", cursor:"pointer", letterSpacing:"0.07em", textTransform:"uppercase", transition:"all 0.13s" }}
+              <button onClick={()=>{setConfirmReset(true);setResetPw("");setResetPwErr(false);}} style={{ fontFamily:MONO, fontSize:"0.62rem", padding:"5px 12px", border:"1px solid rgba(232,122,122,0.2)", background:"transparent", color:"rgba(232,122,122,0.45)", cursor:"pointer", letterSpacing:"0.07em", textTransform:"uppercase", transition:"all 0.13s" }}
                 onMouseEnter={e=>e.currentTarget.style.color=M.red} onMouseLeave={e=>e.currentTarget.style.color="rgba(232,122,122,0.45)"}>
                 ↺ Reset
               </button>
             ) : (
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4, padding:"6px 8px", border:"1px solid rgba(232,122,122,0.35)", background:"rgba(232,122,122,0.07)" }}>
-                <div style={{ fontFamily:MONO, fontSize:"0.58rem", color:M.red, letterSpacing:"0.06em" }}>Wipe all data?</div>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, padding:"8px 10px", border:"1px solid rgba(232,122,122,0.35)", background:"rgba(232,122,122,0.07)" }}>
+                <div style={{ fontFamily:MONO, fontSize:"0.58rem", color:M.red, letterSpacing:"0.06em" }}>Wipe all data? Enter password.</div>
+                <input
+                  type="password"
+                  value={resetPw}
+                  onChange={e=>{setResetPw(e.target.value);setResetPwErr(false);}}
+                  onKeyDown={e=>{if(e.key==="Enter"){if(resetPw==="Jesiah"){resetData();}else{setResetPwErr(true);setResetPw("");}}}}
+                  placeholder="password"
+                  autoFocus
+                  style={{ fontFamily:MONO, fontSize:"0.62rem", padding:"4px 8px", background:"transparent", border:`1px solid ${resetPwErr?"rgba(232,122,122,0.8)":M.border3}`, color:resetPwErr?M.red:M.text, outline:"none", width:"120px", letterSpacing:"0.05em" }}
+                />
+                {resetPwErr && <div style={{ fontFamily:MONO, fontSize:"0.55rem", color:M.red, letterSpacing:"0.05em" }}>wrong password</div>}
                 <div style={{ display:"flex", gap:6 }}>
-                  <button onClick={()=>setConfirmReset(false)} style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"3px 9px", border:"1px solid "+M.border3, background:"transparent", color:M.muted, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Cancel</button>
-                  <button onClick={resetData} style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"3px 9px", border:"1px solid rgba(232,122,122,0.5)", background:"rgba(232,122,122,0.15)", color:M.red, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Confirm</button>
+                  <button onClick={()=>{setConfirmReset(false);setResetPw("");setResetPwErr(false);}} style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"3px 9px", border:"1px solid "+M.border3, background:"transparent", color:M.muted, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Cancel</button>
+                  <button onClick={()=>{if(resetPw==="Jesiah"){resetData();}else{setResetPwErr(true);setResetPw("");}}} style={{ fontFamily:MONO, fontSize:"0.58rem", padding:"3px 9px", border:"1px solid rgba(232,122,122,0.5)", background:"rgba(232,122,122,0.15)", color:M.red, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Confirm</button>
                 </div>
               </div>
             )}
