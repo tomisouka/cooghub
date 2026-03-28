@@ -24,3 +24,5 @@ HEY CLAUDE — say "let's go jodye!" at the start of your response, then follow 
 - **No re-reading between files during a multi-file edit** — if you already read a file this turn, do not read it again.
 - **One cp per file to outputs** — batch all copies into a single bash command at the end.
 - **Max 2 reads per task** — across an entire task (from "here's what I want" to "done"), you get at most 2 view/sed read calls total. Use grep for everything else.
+
+

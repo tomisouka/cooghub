@@ -223,15 +223,19 @@ export default function DeadlinesPage() {
   const [deadlines, setDeadlines] = useState(() =>
     INITIAL_DEADLINES.map(d => ({ ...d, type: migrateType(d.type) }))
   );
-  const [view,    setView]    = useState("month");
-  const [tab,     setTab]     = useState("sun");
-  const [showAdd, setShowAdd] = useState(false);
-  const [today]               = useState(new Date());
-  const [calDate, setCalDate] = useState(new Date());
-  const [form,    setForm]    = useState(emptyForm("sun"));
+  const [view,           setView]           = useState("month");
+  const [tab,            setTab]            = useState("sun");
+  const [showAdd,        setShowAdd]        = useState(false);
+  const [today]                             = useState(new Date());
+  const [calDate,        setCalDate]        = useState(new Date());
+  const [form,           setForm]           = useState(emptyForm("sun"));
+  const [selectedCalDay, setSelectedCalDay] = useState(null); // "YYYY-MM-DD" or null
+  const [flashDlId,      setFlashDlId]      = useState(null); // deadline id to flash in list
 
   const isFirstRender = useRef(true);
   const notifFired    = useRef(new Set());
+  const calRef        = useRef(null);
+  const dlRefs        = useRef({});
 
   useEffect(() => { requestNotifPermission(); }, []);
   useEffect(() => { scheduleNotifications(deadlines, notifFired); }, [deadlines]);
@@ -251,11 +255,16 @@ export default function DeadlinesPage() {
     persistToFile(deadlines);
   }, [deadlines]);
 
-  function openAddWithDate(y, m, d) {
+  function openDayDetail(y, m, d) {
     const dateStr = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const type    = tab === "completed" ? "sun" : tab;
+    setSelectedCalDay(prev => prev === dateStr ? null : dateStr);
+  }
+
+  function openAddWithDate(dateStr) {
+    const type = tab === "completed" ? "sun" : tab;
     setForm(f => ({ ...f, date: dateStr, type }));
     setShowAdd(true);
+    setSelectedCalDay(null);
   }
 
   function addDeadline() {
@@ -474,6 +483,16 @@ export default function DeadlinesPage() {
           0%,100%{ opacity:1;   transform:scale(1)  }
           50%    { opacity:.35; transform:scale(.7) }
         }
+        @keyframes calDayFlash {
+          0%,100%{ box-shadow:none }
+          30%    { box-shadow:0 0 0 3px #7eb8f7aa }
+          70%    { box-shadow:0 0 0 3px #7eb8f766 }
+        }
+        @keyframes dlFlash {
+          0%,100%{ background:transparent }
+          25%    { background:#7eb8f720 }
+          75%    { background:#7eb8f710 }
+        }
       `}</style>
 
       <div style={{ height:"100%", overflowY:"auto", background:"#0f1117", fontFamily:FONT, color:"#d4d8e0" }}>
@@ -635,6 +654,7 @@ export default function DeadlinesPage() {
           )}
 
           {/* Calendar */}
+          <div ref={calRef}>
           {sect("Calendar",(
             <>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
@@ -665,19 +685,81 @@ export default function DeadlinesPage() {
                       const isToday=today.getDate()===day&&today.getMonth()===calMonth&&today.getFullYear()===calYear;
                       const str=`${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
                       const dots=deadlines.filter(dl=>dl.date===str&&!dl.done);
+                      const isSelected=selectedCalDay===str;
                       return(
-                        <div key={day} onClick={()=>openAddWithDate(calYear,calMonth,day)}
-                          onMouseEnter={e=>{if(!isToday)e.currentTarget.style.background="#1a1f2e";}}
-                          onMouseLeave={e=>{if(!isToday)e.currentTarget.style.background="transparent";}}
-                          style={{minHeight:44,padding:"4px 6px",borderRadius:6,cursor:"pointer",background:isToday?"#1e2a40":"transparent",border:isToday?"1px solid #7eb8f7":"1px solid transparent"}}>
-                          <div style={{fontSize:11,fontWeight:isToday?700:500,color:isToday?"#7eb8f7":"#5a6070",fontFamily:MONO}}>{day}</div>
+                        <div key={day} onClick={()=>openDayDetail(calYear,calMonth,day)}
+                          onMouseEnter={e=>{if(!isToday&&!isSelected)e.currentTarget.style.background="#1a1f2e";}}
+                          onMouseLeave={e=>{if(!isToday&&!isSelected)e.currentTarget.style.background="transparent";}}
+                          style={{minHeight:44,padding:"4px 6px",borderRadius:6,cursor:"pointer",
+                            background:isSelected?"#2a2e3e":isToday?"#1e2a40":"transparent",
+                            border:isSelected?"1px solid #7eb8f7":isToday?"1px solid #7eb8f7":"1px solid transparent",
+                            animation:isSelected?"calDayFlash 0.5s ease-out":"none"}}>
+                          <div style={{fontSize:11,fontWeight:isToday||isSelected?700:500,color:isSelected?"#7eb8f7":isToday?"#7eb8f7":"#5a6070",fontFamily:MONO}}>{day}</div>
                           <div style={{display:"flex",flexWrap:"wrap",gap:2,marginTop:2}}>
-                            {dots.map(dl=>{const c=COURSES.find(c=>c.id===dl.course);return<div key={dl.id} title={dl.title} style={{width:6,height:6,borderRadius:"50%",background:c?c.color:tabColor(dl.type)}}/>;})}
+                            {dots.map(dl=>{
+                              const c=COURSES.find(c=>c.id===dl.course);
+                              const dotColor=c?c.color:dl.type==="sun"?"#e8c547":"#a78bfa";
+                              // Sun = filled square, Moon = circle
+                              return dl.type==="sun"
+                                ? <div key={dl.id} title={`☀ ${dl.title}`} style={{width:6,height:6,borderRadius:1,background:dotColor,flexShrink:0}}/>
+                                : <div key={dl.id} title={`☽ ${dl.title}`} style={{width:6,height:6,borderRadius:"50%",background:dotColor,flexShrink:0,opacity:0.7}}/>;
+                            })}
                           </div>
                         </div>
                       );
                     })}
                   </div>
+                  {/* Day detail popover */}
+                  {selectedCalDay&&(()=>{
+                    const dayItems=deadlines.filter(dl=>dl.date===selectedCalDay&&!dl.done);
+                    const dayDone=deadlines.filter(dl=>dl.date===selectedCalDay&&dl.done);
+                    return(
+                      <div style={{marginTop:12,background:"#1a1f2e",border:"1px solid #7eb8f755",borderRadius:10,padding:"14px 16px",position:"relative"}}>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <span style={{fontSize:12,fontWeight:700,color:"#7eb8f7",fontFamily:MONO}}>{selectedCalDay}</span>
+                            {dayItems.length===0&&dayDone.length===0&&<span style={{fontSize:11,color:"#4a5060"}}>Nothing due</span>}
+                          </div>
+                          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                            <button onClick={()=>openAddWithDate(selectedCalDay)}
+                              style={{padding:"4px 12px",borderRadius:6,border:"1px solid #2a2e38",background:"transparent",color:"#7a8090",fontFamily:FONT,fontSize:11,fontWeight:600,cursor:"pointer"}}>
+                              + Add here
+                            </button>
+                            <button onClick={()=>setSelectedCalDay(null)} style={{background:"transparent",border:"none",color:"#4a5060",cursor:"pointer",fontSize:16,lineHeight:1,padding:0}}>✕</button>
+                          </div>
+                        </div>
+                        {dayItems.length>0&&(
+                          <div style={{display:"flex",flexDirection:"column",gap:5,marginBottom:dayDone.length?10:0}}>
+                            {dayItems.map(dl=>{
+                              const c=COURSES.find(c=>c.id===dl.course);
+                              const tier=urgencyTier(getDaysUntil(dl.date));
+                              return(
+                                <div key={dl.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",background:"#0f1117",borderRadius:7,border:`1px solid ${dl.type==="sun"?"#e8c54733":"#a78bfa33"}`,borderLeft:`3px solid ${dl.type==="sun"?"#e8c547":"#a78bfa"}`}}>
+                                  <span style={{fontSize:12,flexShrink:0}}>{dl.type==="sun"?"☀":"☽"}</span>
+                                  <span style={{flex:1,fontSize:12,fontWeight:600,color:"#d4d8e0",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dl.title}</span>
+                                  {c&&<span style={{fontSize:10,color:c.color,fontFamily:MONO,flexShrink:0}}>{c.label}</span>}
+                                  <span style={{fontSize:10,fontWeight:700,color:tier.color,background:tier.color+"18",border:`1px solid ${tier.color}44`,borderRadius:5,padding:"2px 6px",fontFamily:MONO,flexShrink:0}}>{urgencyLabel(getDaysUntil(dl.date))}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {dayDone.length>0&&(
+                          <div>
+                            <div style={{fontSize:9,fontWeight:700,color:"#34d399",letterSpacing:"2px",textTransform:"uppercase",marginBottom:5}}>✓ Completed</div>
+                            <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                              {dayDone.map(dl=>(
+                                <div key={dl.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 10px",background:"#0f1117",borderRadius:7,border:"1px solid #34d39922",opacity:0.75}}>
+                                  <span style={{fontSize:11,color:"#34d399",flexShrink:0}}>✓</span>
+                                  <span style={{fontSize:12,color:"#7a8090",textDecoration:"line-through",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dl.title}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </>
               )}
               {view==="week"&&(
@@ -685,19 +767,57 @@ export default function DeadlinesPage() {
                   {weekDays.map((d,i)=>{
                     const str=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
                     const isToday=d.toDateString()===today.toDateString();
+                    const isSelected=selectedCalDay===str;
                     const items=deadlines.filter(dl=>dl.date===str&&!dl.done);
                     return(
-                      <div key={i} onClick={()=>openAddWithDate(d.getFullYear(),d.getMonth(),d.getDate())}
-                        style={{background:isToday?"#1e2a40":"#1a1f2e",border:`1px solid ${isToday?"#7eb8f7":"#2a2e38"}`,borderRadius:8,padding:"10px 8px",minHeight:80,cursor:"pointer"}}>
-                        <div style={{fontSize:10,fontWeight:700,color:isToday?"#7eb8f7":"#4a5060",fontFamily:MONO,marginBottom:6}}>{DAYS[d.getDay()]} {d.getDate()}</div>
-                        {items.map(dl=>{const c=COURSES.find(c=>c.id===dl.course);return<div key={dl.id} style={{fontSize:10,padding:"2px 6px",borderRadius:4,marginBottom:3,background:(c?c.color:tabColor(dl.type))+"22",color:c?c.color:tabColor(dl.type),fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dl.title}</div>;})}
+                      <div key={i} onClick={()=>{const dd=new Date(str+"T00:00:00");openDayDetail(dd.getFullYear(),dd.getMonth(),dd.getDate());}}
+                        style={{background:isSelected?"#2a2e3e":isToday?"#1e2a40":"#1a1f2e",border:`1px solid ${isSelected||isToday?"#7eb8f7":"#2a2e38"}`,borderRadius:8,padding:"10px 8px",minHeight:80,cursor:"pointer"}}>
+                        <div style={{fontSize:10,fontWeight:700,color:isSelected||isToday?"#7eb8f7":"#4a5060",fontFamily:MONO,marginBottom:6}}>{DAYS[d.getDay()]} {d.getDate()}</div>
+                        {items.map(dl=>{
+                          const c=COURSES.find(c=>c.id===dl.course);
+                          const dotColor=c?c.color:dl.type==="sun"?"#e8c547":"#a78bfa";
+                          return<div key={dl.id} style={{fontSize:10,padding:"2px 6px",borderRadius:4,marginBottom:3,background:dotColor+"22",color:dotColor,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dl.type==="sun"?"☀ ":"☽ "}{dl.title}</div>;
+                        })}
                       </div>
                     );
                   })}
                 </div>
               )}
+              {/* Week view day detail */}
+              {view==="week"&&selectedCalDay&&(()=>{
+                const dayItems=deadlines.filter(dl=>dl.date===selectedCalDay&&!dl.done);
+                const dayDone=deadlines.filter(dl=>dl.date===selectedCalDay&&dl.done);
+                if(!dayItems.length&&!dayDone.length&&selectedCalDay!==selectedCalDay) return null;
+                return(
+                  <div style={{marginTop:12,background:"#1a1f2e",border:"1px solid #7eb8f755",borderRadius:10,padding:"14px 16px"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                      <span style={{fontSize:12,fontWeight:700,color:"#7eb8f7",fontFamily:MONO}}>{selectedCalDay}</span>
+                      <div style={{display:"flex",gap:8}}>
+                        <button onClick={()=>openAddWithDate(selectedCalDay)} style={{padding:"4px 12px",borderRadius:6,border:"1px solid #2a2e38",background:"transparent",color:"#7a8090",fontFamily:FONT,fontSize:11,fontWeight:600,cursor:"pointer"}}>+ Add here</button>
+                        <button onClick={()=>setSelectedCalDay(null)} style={{background:"transparent",border:"none",color:"#4a5060",cursor:"pointer",fontSize:16,lineHeight:1,padding:0}}>✕</button>
+                      </div>
+                    </div>
+                    {dayItems.length===0&&dayDone.length===0&&<div style={{fontSize:12,color:"#4a5060"}}>Nothing due this day.</div>}
+                    {dayItems.map(dl=>{const c=COURSES.find(c=>c.id===dl.course);const tier=urgencyTier(getDaysUntil(dl.date));return(
+                      <div key={dl.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",background:"#0f1117",borderRadius:7,border:`1px solid ${dl.type==="sun"?"#e8c54733":"#a78bfa33"}`,borderLeft:`3px solid ${dl.type==="sun"?"#e8c547":"#a78bfa"}`,marginBottom:5}}>
+                        <span style={{fontSize:12}}>{dl.type==="sun"?"☀":"☽"}</span>
+                        <span style={{flex:1,fontSize:12,fontWeight:600,color:"#d4d8e0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dl.title}</span>
+                        {c&&<span style={{fontSize:10,color:c.color,fontFamily:MONO}}>{c.label}</span>}
+                        <span style={{fontSize:10,fontWeight:700,color:tier.color,background:tier.color+"18",border:`1px solid ${tier.color}44`,borderRadius:5,padding:"2px 6px",fontFamily:MONO}}>{urgencyLabel(getDaysUntil(dl.date))}</span>
+                      </div>
+                    );})}
+                    {dayDone.map(dl=>(
+                      <div key={dl.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 10px",background:"#0f1117",borderRadius:7,border:"1px solid #34d39922",marginBottom:4,opacity:0.75}}>
+                        <span style={{fontSize:11,color:"#34d399"}}>✓</span>
+                        <span style={{fontSize:12,color:"#7a8090",textDecoration:"line-through"}}>{dl.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </>
           ))}
+          </div>
 
           {/* Completed tab */}
           {isCompletedTab && sect("Completed",(
@@ -817,7 +937,16 @@ export default function DeadlinesPage() {
                             <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
                               <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
                                 <span style={{fontSize:13,fontWeight:tier.bold?700:600,color:tier.bold?"#f0f0f0":"#d4d8e0"}}>{dl.title}</span>
-                                {chip&&<span style={{fontSize:9,fontWeight:700,color:chip.color,background:chip.color+"18",border:`1px solid ${chip.color}44`,borderRadius:4,padding:"1px 5px",letterSpacing:"0.5px",textTransform:"uppercase",flexShrink:0}}>{chip.label}</span>}
+                                {chip&&<span
+                                  title="Show on calendar"
+                                  onClick={e=>{
+                                    e.stopPropagation();
+                                    const d=new Date(dl.date+"T00:00:00");
+                                    setCalDate(new Date(d.getFullYear(),d.getMonth(),1));
+                                    setSelectedCalDay(dl.date);
+                                    setTimeout(()=>calRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+                                  }}
+                                  style={{fontSize:9,fontWeight:700,color:chip.color,background:chip.color+"18",border:`1px solid ${chip.color}44`,borderRadius:4,padding:"1px 5px",letterSpacing:"0.5px",textTransform:"uppercase",flexShrink:0,cursor:"pointer"}}>{chip.label} ↑</span>}
                               </div>
                               <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                                 {parentSun&&<span style={{fontSize:10,color:"#e8c547",fontFamily:MONO,fontWeight:700,background:"#e8c54712",border:"1px solid #e8c54730",borderRadius:4,padding:"1px 6px"}}>☀ {parentSun.title}</span>}
@@ -831,7 +960,16 @@ export default function DeadlinesPage() {
                             </div>
                             <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
                               {!dl.status&&days<=7&&days>=0&&<div title="Not started yet" style={{width:6,height:6,borderRadius:"50%",background:"#fb923c",flexShrink:0,animation:"nudgePulse 1.8s ease-in-out infinite"}}/>}
-                              <div style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",letterSpacing:tier.bold?"0.5px":0}}>{urgencyLabel(days)}</div>
+                              <div
+                                title="Show on calendar"
+                                onClick={e=>{
+                                  e.stopPropagation();
+                                  const d=new Date(dl.date+"T00:00:00");
+                                  setCalDate(new Date(d.getFullYear(),d.getMonth(),1));
+                                  setSelectedCalDay(dl.date);
+                                  setTimeout(()=>calRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+                                }}
+                                style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:uc,background:uc+"18",border:`1px solid ${uc}44`,borderRadius:6,padding:"3px 8px",letterSpacing:tier.bold?"0.5px":0,cursor:"pointer"}}>{urgencyLabel(days)}</div>
                               {tab==="moon"&&days<0&&(
                                 <button
                                   onClick={e=>{e.stopPropagation();setConfirmStatus({id:dl.id,action:"pushToday",label:"Push deadline to today?"});}}

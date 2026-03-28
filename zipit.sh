@@ -15,6 +15,7 @@ zip -r coogs-hub-clean.zip \
   -x "android/.gradle/*" \
   -x "dist/*" \
   -x ".git/*" \
+  -x ".git/*" \
   -x "*.pdf" \
   -x "*.apk" \
   -x "*.jar"
