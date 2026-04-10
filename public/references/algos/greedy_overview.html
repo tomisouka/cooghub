@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greedy Algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #f5a623; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(245,166,35,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th { background: var(--border2); color: var(--accent); padding: 0.4rem 0.6rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .ok { color: var(--green); } .skip { color: var(--red); }
+  .greedy-card { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+  .gc-name { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+  .gc-strategy { font-size: 0.8rem; color: var(--text); margin-bottom: 0.25rem; }
+  .gc-complexity { font-family: var(--mono); font-size: 0.72rem; color: var(--yellow); }
+  .warn { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.83rem; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Algorithm Paradigm</div>
+  <h1>Greedy Algorithms</h1>
+  <div class="sub">Make the locally optimal choice at each step. Fast — but only correct when the greedy choice property holds.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Two Requirements</div>
+      <div style="font-size:0.85rem; color:var(--sub); line-height:1.8;">
+        <div style="margin-bottom:0.5rem;"><span style="color:var(--accent);font-family:var(--mono);">① Greedy choice property</span><br>A globally optimal solution can be reached by making locally optimal choices</div>
+        <div><span style="color:var(--accent);font-family:var(--mono);">② Optimal substructure</span><br>Optimal solution contains optimal solutions to subproblems (shared with DP)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Properties</div>
+      <div class="kv"><span class="kv-k">Speed</span><span class="kv-v green">Usually O(n log n) or better</span></div>
+      <div class="kv"><span class="kv-k">No backtracking</span><span class="kv-v green">✓ Commit immediately</span></div>
+      <div class="kv"><span class="kv-k">Always optimal?</span><span class="kv-v red">✗ Only with proof</span></div>
+      <div class="kv"><span class="kv-k">vs DP</span><span class="kv-v">Faster but less general</span></div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Key Algorithms</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+        <div class="greedy-card">
+          <div class="gc-name">Activity Selection</div>
+          <div class="gc-strategy">Sort by end time → greedily pick non-overlapping intervals</div>
+          <div class="gc-complexity">O(n log n)</div>
+        </div>
+        <div class="greedy-card">
+          <div class="gc-name">Fractional Knapsack</div>
+          <div class="gc-strategy">Sort by value/weight ratio → take as much as possible greedily</div>
+          <div class="gc-complexity">O(n log n)</div>
+        </div>
+        <div class="greedy-card">
+          <div class="gc-name">Huffman Coding</div>
+          <div class="gc-strategy">Always merge two lowest-frequency nodes; build optimal prefix tree</div>
+          <div class="gc-complexity">O(n log n)</div>
+        </div>
+        <div class="greedy-card">
+          <div class="gc-name">Job Sequencing</div>
+          <div class="gc-strategy">Sort by deadline/profit → schedule to maximize profit within deadlines</div>
+          <div class="gc-complexity">O(n log n)</div>
+        </div>
+        <div class="greedy-card">
+          <div class="gc-name">Kruskal's MST</div>
+          <div class="gc-strategy">Sort edges → greedily add cheapest edge that doesn't form a cycle</div>
+          <div class="gc-complexity">O(E log E)</div>
+        </div>
+        <div class="greedy-card">
+          <div class="gc-name">Dijkstra's</div>
+          <div class="gc-strategy">Greedily always expand the nearest unvisited node</div>
+          <div class="gc-complexity">O((V+E) log V)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Activity Selection Trace</div>
+      <div style="font-size: 1rem; color:var(--sub); margin-bottom:0.5rem;">Activities sorted by end time:</div>
+      <table>
+        <tr><th>Activity</th><th>Start</th><th>End</th><th>Select?</th></tr>
+        <tr><td>A1</td><td>1</td><td>4</td><td class="ok">✓ (first)</td></tr>
+        <tr><td>A2</td><td>3</td><td>5</td><td class="skip">✗ (overlaps A1)</td></tr>
+        <tr><td>A3</td><td>0</td><td>6</td><td class="skip">✗ (overlaps A1)</td></tr>
+        <tr><td>A4</td><td>5</td><td>7</td><td class="ok">✓ (starts after A1 ends)</td></tr>
+        <tr><td>A5</td><td>8</td><td>9</td><td class="ok">✓ (starts after A4 ends)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Greedy vs DP</div>
+      <div class="kv"><span class="kv-k">Fractional Knapsack</span><span class="kv-v green">Greedy ✓</span></div>
+      <div class="kv"><span class="kv-k">0-1 Knapsack</span><span class="kv-v red">Greedy ✗ → DP</span></div>
+      <div class="kv"><span class="kv-k">Activity Selection</span><span class="kv-v green">Greedy ✓</span></div>
+      <div class="kv"><span class="kv-k">Weighted Job Scheduling</span><span class="kv-v red">Greedy ✗ → DP</span></div>
+      <div class="kv"><span class="kv-k">Huffman Coding</span><span class="kv-v green">Greedy ✓</span></div>
+      <div class="kv"><span class="kv-k">Coin Change (general)</span><span class="kv-v red">Greedy ✗ → DP</span></div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Activity Selection Pseudocode</div>
+      <pre><span class="fn">activitySelection</span>(activities):
+  activities.<span class="fn">sort</span>(key=<span class="keyword">lambda</span> a: a.end)   <span class="comment">// sort by end time</span>
+  result ← [activities[0]]
+  last_end ← activities[0].end
+
+  <span class="keyword">for</span> a <span class="keyword">in</span> activities[1:]:
+    <span class="keyword">if</span> a.start >= last_end:              <span class="comment">// no overlap</span>
+      result.<span class="fn">append</span>(a)
+      last_end ← a.end
+
+  <span class="keyword">return</span> result</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

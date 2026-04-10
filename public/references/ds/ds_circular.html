@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circular Linked List — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --accent: #f472b6;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 56px;
+  }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 5px; text-align: right; }
+  .big-o-row { font-size: 12px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 600; }
+  .on { color: var(--red);   font-weight: 600; }
+
+  .label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .annotation { font-size: 11px; color: var(--dim); margin-bottom: 24px; line-height: 1.6; }
+  .annotation span { color: var(--accent); }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 11px; color: var(--dim); line-height: 1.6; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ── inline list ── */
+  .list-diagram {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    gap: 0;
+  }
+
+  .node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .node-label {
+    font-size: 9px; color: var(--dim); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 6px; text-align: center; min-height: 14px;
+  }
+  .node-label.hi { color: var(--accent); }
+  .node-label.yellow { color: var(--yellow); }
+
+  .node-box {
+    display: flex;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .node-data {
+    width: 52px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600; color: var(--text);
+    border-right: 1.5px solid var(--border);
+  }
+  .node-next {
+    width: 36px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--accent); font-weight: 600;
+    background: #f472b60e;
+  }
+  .node-parts {
+    display: flex; font-size: 9px; color: var(--dim);
+    margin-top: 5px; width: 100%; text-align: center;
+  }
+  .part-data { width: 52px; }
+  .part-next { width: 36px; color: var(--accent); }
+
+  .node.yellow .node-box  { border-color: var(--yellow); }
+  .node.yellow .node-data { color: var(--yellow); background: #e8c54712; }
+  .node.green  .node-box  { border-color: var(--green); }
+  .node.green  .node-data { color: var(--green);  background: #6bde8412; }
+  .node.red    .node-box  { border-color: var(--red); }
+  .node.red    .node-data { color: var(--red);    background: #f8717112; }
+  .node.accent .node-box  { border-color: var(--accent); }
+  .node.accent .node-data { color: var(--accent); background: #f472b612; }
+  .node.orange .node-box  { border-color: var(--orange); }
+  .node.orange .node-data { color: var(--orange); background: #fb923c12; }
+
+  .arrow { display: flex; align-items: center; padding: 0 3px; padding-bottom: 26px; color: var(--accent); font-size: 18px; flex-shrink: 0; }
+  .arrow.dim { color: #2a2e38; }
+
+  .head-pointer {
+    display: flex; flex-direction: column; align-items: center;
+    margin-right: 8px; flex-shrink: 0; padding-bottom: 26px;
+  }
+  .head-label { font-size: 10px; color: var(--yellow); font-weight: 600; letter-spacing: 1px; margin-bottom: 4px; }
+  .head-arrow { font-size: 18px; color: var(--yellow); }
+
+  /* ── Circular SVG diagram ── */
+  .circle-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0 16px;
+  }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 24px; margin-bottom: 8px; }
+  .step  { display: flex; align-items: center; gap: 20px; }
+  .step-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; width: 80px; flex-shrink: 0; text-transform: uppercase; line-height: 1.4; }
+
+  /* ── vs table ── */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); }
+  .vs-table .bad  { color: var(--red); }
+  .vs-table .mid  { color: var(--orange); }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--yellow); }
+  .card:nth-child(4) { border-top-color: var(--red); }
+  .card:nth-child(5) { border-top-color: var(--teal); }
+  .card-title { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 11px; color: var(--dim); line-height: 1.65; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 600; }
+
+  /* traversal highlight row */
+  .trav-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .trav-step {
+    font-size: 10px; padding: 4px 10px;
+    border-radius: 4px; border: 1px solid var(--border);
+    color: var(--dim); background: var(--surface);
+  }
+  .trav-step.active { border-color: var(--accent); color: var(--accent); background: #f472b612; }
+  .trav-step.done   { border-color: var(--green);  color: var(--green);  background: #6bde8410; }
+  .trav-arrow { color: var(--dim); font-size: 12px; }
+  .trav-step.stop { border-color: var(--yellow); color: var(--yellow); background: #e8c54712; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Circular<span>↺</span></h1>
+    <div class="subtitle">Circular Linked List · Data Structures</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">access</span>       <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">insert head</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert tail</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert mid</span>   <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">remove head</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">traversal</span>    <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. The key difference -->
+<div class="diagram-section">
+  <div class="label">1 — The Key Difference</div>
+  <div class="annotation">In a singly list the tail's <span>next = null</span>. In a circular list the tail's <span>next = head</span>. No dead end — it loops forever.</div>
+
+  <div style="display:flex; gap: 48px; flex-wrap: wrap; align-items: flex-start;">
+    <!-- Singly (null terminated) -->
+    <div>
+      <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:12px;">Singly — terminates</div>
+      <div class="list-diagram">
+        <div class="head-pointer"><div class="head-label">HEAD</div><div class="head-arrow">→</div></div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">7</div><div class="node-next" style="color:#3a4052">∅</div></div></div>
+        <div style="display:flex;align-items:center;padding-bottom:26px;margin-left:4px;">
+          <div style="height:56px;padding:0 12px;display:flex;align-items:center;border:1.5px dashed #2a2e38;border-radius:6px;font-size:12px;color:#3a4052;">null</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Circular -->
+    <div>
+      <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:12px;">Circular — loops back</div>
+      <div class="list-diagram">
+        <div class="head-pointer"><div class="head-label">HEAD</div><div class="head-arrow">→</div></div>
+        <div class="node accent"><div class="node-label hi">head</div><div class="node-box"><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="node-label hi">tail</div><div class="node-box"><div class="node-data">7</div><div class="node-next" style="color:var(--accent)">↺</div></div></div>
+      </div>
+      <div style="font-size:10px; color:var(--accent); margin-top:4px; padding-left:60px;">tail.next → head</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. Circle diagram (SVG) -->
+<div class="diagram-section">
+  <div class="label">2 — What It Really Looks Like</div>
+  <div class="annotation">Conceptually the nodes form a ring. There is no start or end — only a <span>reference point</span> (head) to anchor traversal.</div>
+
+  <div class="circle-wrap">
+    <svg width="360" height="340" viewBox="0 0 360 340">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#f472b6"/>
+        </marker>
+      </defs>
+
+      <!-- Ring arrows -->
+      <!-- 12 → 35 (top right arc) -->
+      <path d="M 218 90 A 110 110 0 0 1 290 180" fill="none" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+      <!-- 35 → 7 (right bottom arc) -->
+      <path d="M 286 218 A 110 110 0 0 1 218 290" fill="none" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+      <!-- 7 → 48 (bottom left arc) -->
+      <path d="M 162 300 A 110 110 0 0 1 74 232" fill="none" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.7"/>
+      <!-- 48 → 12 (left top arc — the wrap!) -->
+      <path d="M 70 188 A 110 110 0 0 1 142 82" fill="none" stroke="#e8c547" stroke-width="2" marker-end="url(#arrowhead)" opacity="0.9" stroke-dasharray="5,3"/>
+
+      <!-- Node: 12 (top) -->
+      <rect x="148" y="50" width="64" height="52" rx="6" fill="#111318" stroke="#f472b6" stroke-width="1.5"/>
+      <text x="180" y="82" text-anchor="middle" font-family="DM Mono" font-size="20" font-weight="600" fill="#f472b6">12</text>
+      <text x="180" y="44" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#e8c547" letter-spacing="1">HEAD</text>
+
+      <!-- Node: 35 (right) -->
+      <rect x="278" y="160" width="64" height="52" rx="6" fill="#111318" stroke="#1e2230" stroke-width="1.5"/>
+      <text x="310" y="192" text-anchor="middle" font-family="DM Mono" font-size="20" font-weight="600" fill="#d4d8e0">35</text>
+
+      <!-- Node: 7 (bottom right) -->
+      <rect x="200" y="270" width="64" height="52" rx="6" fill="#111318" stroke="#1e2230" stroke-width="1.5"/>
+      <text x="232" y="302" text-anchor="middle" font-family="DM Mono" font-size="20" font-weight="600" fill="#d4d8e0">7</text>
+
+      <!-- Node: 48 (left) -->
+      <rect x="18" y="160" width="64" height="52" rx="6" fill="#111318" stroke="#1e2230" stroke-width="1.5"/>
+      <text x="50" y="192" text-anchor="middle" font-family="DM Mono" font-size="20" font-weight="600" fill="#d4d8e0">48</text>
+
+      <!-- Wrap label -->
+      <text x="88" y="128" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#e8c547" letter-spacing="1">wraps back</text>
+    </svg>
+  </div>
+  <div class="caption" style="text-align:center"><strong style="color:var(--yellow)">Dashed yellow arrow</strong> = tail.next pointing back to head. Every other arrow is a normal next pointer.</div>
+</div>
+
+<hr>
+
+<!-- 3. Traversal — stop condition -->
+<div class="diagram-section">
+  <div class="label">3 — Traversal — Stop at Head</div>
+  <div class="annotation">Start at head, follow <span>next</span> each step. Stop when <span>current == head</span> again. Without this check you'd loop infinitely.</div>
+
+  <div class="trav-row">
+    <div class="trav-step done">start: head(12)</div>
+    <div class="trav-arrow">→</div>
+    <div class="trav-step done">35</div>
+    <div class="trav-arrow">→</div>
+    <div class="trav-step done">7</div>
+    <div class="trav-arrow">→</div>
+    <div class="trav-step done">48</div>
+    <div class="trav-arrow">→</div>
+    <div class="trav-step stop">back at head ✓ stop</div>
+  </div>
+
+  <div class="caption">
+    Loop condition: <strong>do { visit(curr); curr = curr.next; } while (curr != head)</strong><br>
+    Use <code>do…while</code> so head itself gets visited before the check fires.
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Insert at tail — O(1) with tail pointer -->
+<div class="diagram-section">
+  <div class="label">4 — Insert at Tail — O(1)</div>
+  <div class="annotation">With a tail pointer: create node, wire it in, then make sure <span>newNode.next = head</span> to preserve the loop.</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-label">Before</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="head-pointer"><div class="head-label">HEAD</div><div class="head-arrow">→</div></div>
+        <div class="node accent"><div class="node-label hi">head</div><div class="node-box"><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="node-label hi">tail</div><div class="node-box"><div class="node-data">7</div><div class="node-next" style="color:var(--accent)">↺</div></div></div>
+        <div style="font-size:10px;color:var(--accent);padding-bottom:26px;margin-left:6px;">→ head</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-label">After</div>
+      <div class="list-diagram" style="margin-bottom:0">
+        <div class="head-pointer"><div class="head-label">HEAD</div><div class="head-arrow">→</div></div>
+        <div class="node accent"><div class="node-label hi">head</div><div class="node-box"><div class="node-data">12</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">35</div><div class="node-next">→</div></div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="node-label">&nbsp;</div><div class="node-box"><div class="node-data">7</div><div class="node-next">→</div></div></div>
+        <div class="arrow" style="color:var(--green)">→</div>
+        <div class="node green"><div class="node-label" style="color:var(--green)">new tail</div><div class="node-box"><div class="node-data">99</div><div class="node-next" style="color:var(--accent)">↺</div></div></div>
+        <div style="font-size:10px;color:var(--accent);padding-bottom:26px;margin-left:6px;">→ head</div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>newNode.next = head</strong> — keep the loop intact<br>
+    <strong>tail.next = newNode</strong> — wire old tail forward<br>
+    <strong>tail = newNode</strong> — update tail reference
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. vs singly -->
+<div class="diagram-section">
+  <div class="label">Singly vs Circular</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>Singly</th><th>Circular</th></tr>
+    <tr><td>Tail's next</td><td>null</td><td class="good">→ head</td></tr>
+    <tr><td>Traverse from any node</td><td class="bad">✕ lose nodes before start</td><td class="good">✓ reach all nodes</td></tr>
+    <tr><td>Infinite loop risk</td><td class="good">✕ null stops it</td><td class="mid">✓ must check curr == head</td></tr>
+    <tr><td>Empty list check</td><td>head == null</td><td class="mid">head == null or head.next == head</td></tr>
+    <tr><td>Use cases</td><td>general purpose</td><td class="good">round-robin, buffers, game turns</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">No Null Tail</div>
+    <div class="card-body">Tail's <code>next</code> points back to head instead of null. The list forms a closed ring.</div>
+    <div class="card-o" style="color:var(--accent)">↺ loop</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Stop Condition</div>
+    <div class="card-body">Traversal stops when <code>current == head</code>. Use <code>do…while</code> so head is visited before the check.</div>
+    <div class="card-o" style="color:var(--green)">curr == head</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Start Anywhere</div>
+    <div class="card-body">Can begin traversal from any node and still reach the entire list — just stop when you return to your start.</div>
+    <div class="card-o" style="color:var(--yellow)">any entry point</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Infinite Loop Risk</div>
+    <div class="card-body">A missing stop condition means the traversal never ends. Always check <code>curr != head</code>.</div>
+    <div class="card-o" style="color:var(--red)">danger</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Round-robin scheduling, multiplayer game turns, circular buffers, media playlists on repeat.</div>
+    <div class="card-o" style="color:var(--teal)">real world</div>
+  </div>
+</div>
+
+</body>
+</html>

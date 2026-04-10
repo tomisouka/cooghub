@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heap Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#e8c547; --green:#6bde84; --red:#f87171; --blue:#60a5fa; --orange:#fb923c; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  /* heap tree nodes */
+  .tree-wrap { display:flex; justify-content:center; margin-bottom:8px; }
+  svg text { font-family:'Atkinson Hyperlegible',sans-serif; }
+
+  /* array row */
+  .arr-row { display:flex; gap:4px; }
+  .arr-cell { width:44px; height:40px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .arr-cell.root   { background:#e8c54720; border-color:var(--accent); color:var(--accent); }
+  .arr-cell.sorted { background:#6bde8418; border-color:var(--green); color:var(--green); }
+  .arr-cell.active { background:#f8717120; border-color:var(--red); color:var(--red); }
+
+  .step-grid { display:flex; flex-direction:column; gap:16px; }
+  .step-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .step-label { font-size:10px; color:var(--dim); width:80px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .step-note { font-size:11px; color:var(--dim); }
+  .step-note.hl { color:var(--accent); font-weight:700; }
+  .step-note.green { color:var(--green); font-weight:700; }
+  .step-note.red { color:var(--red); font-weight:700; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--blue); }
+  .card:nth-child(4) { border-top-color:var(--orange); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Heap<span>.</span></h1>
+    <div class="subtitle">Comparison Sort · In-Place · Unstable · Uses Max-Heap</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="og">O(n log n)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1)</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">Two phases. First: <span>heapify</span> the array into a max-heap — the largest element sits at index 0. Second: repeatedly <span>swap the root (max) to the end</span>, shrink the heap by one, and sift the new root down to restore the heap property. The sorted region grows from the right.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Phase 1: Build Max-Heap from [4, 1, 3, 5, 2]</div>
+  <div class="annotation">Start from the last non-leaf and sift down each node. This costs <span>O(n)</span> — not O(n log n).</div>
+
+  <div class="tree-wrap">
+    <svg width="340" height="160" viewBox="0 0 340 160">
+      <!-- BEFORE -->
+      <text x="80" y="12" text-anchor="middle" font-size="9" fill="#7a8090" font-weight="700" letter-spacing="1">BEFORE</text>
+      <line x1="80"  y1="42" x2="44"  y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="80"  y1="42" x2="116" y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="44"  y1="102" x2="20" y2="135" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="44"  y1="102" x2="68" y2="135" stroke="#2a2e38" stroke-width="1.5"/>
+      <circle cx="80"  cy="28"  r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="80"  y="34"  text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">4</text>
+      <circle cx="44"  cy="92"  r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="44"  y="98"  text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">1</text>
+      <circle cx="116" cy="92"  r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="116" y="98"  text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">3</text>
+      <circle cx="20"  cy="148" r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="20"  y="154" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">5</text>
+      <circle cx="68"  cy="148" r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="68"  y="154" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">2</text>
+
+      <!-- arrow -->
+      <text x="190" y="90" text-anchor="middle" font-size="24" fill="#2a2e38">→</text>
+
+      <!-- AFTER (max-heap) -->
+      <text x="270" y="12" text-anchor="middle" font-size="9" fill="#e8c547" font-weight="700" letter-spacing="1">MAX-HEAP</text>
+      <line x1="270" y1="42" x2="234" y2="82" stroke="#e8c54740" stroke-width="1.5"/>
+      <line x1="270" y1="42" x2="306" y2="82" stroke="#e8c54740" stroke-width="1.5"/>
+      <line x1="234" y1="102" x2="210" y2="135" stroke="#e8c54740" stroke-width="1.5"/>
+      <line x1="234" y1="102" x2="258" y2="135" stroke="#e8c54740" stroke-width="1.5"/>
+      <circle cx="270" cy="28"  r="18" fill="#e8c54720" stroke="#e8c547" stroke-width="2"/>
+      <text x="270" y="34"  text-anchor="middle" font-size="14" font-weight="700" fill="#e8c547">5</text>
+      <circle cx="234" cy="92"  r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="234" y="98"  text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">4</text>
+      <circle cx="306" cy="92"  r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="306" y="98"  text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">3</text>
+      <circle cx="210" cy="148" r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="210" y="154" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">1</text>
+      <circle cx="258" cy="148" r="18" fill="#21252e" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="258" y="154" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">2</text>
+    </svg>
+  </div>
+
+  <div style="margin-top:4px;">
+    <div class="arr-row">
+      <div class="arr-cell root">5</div>
+      <div class="arr-cell">4</div>
+      <div class="arr-cell">3</div>
+      <div class="arr-cell">1</div>
+      <div class="arr-cell">2</div>
+    </div>
+    <div style="font-size:10px;color:var(--dim);margin-top:6px;">array representation — root = index 0, children(i) = 2i+1, 2i+2</div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — Phase 2: Extract Max Repeatedly</div>
+  <div class="annotation">Swap root (max) to end. Shrink heap. Sift new root down. Repeat until heap size = 1.</div>
+
+  <div class="step-grid">
+
+    <div class="step-row">
+      <span class="step-label">Step 1</span>
+      <div class="arr-row">
+        <div class="arr-cell root">5</div>
+        <div class="arr-cell">4</div>
+        <div class="arr-cell">3</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell">2</div>
+      </div>
+      <span class="step-note hl">swap root 5 ↔ last 2</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label"></span>
+      <div class="arr-row">
+        <div class="arr-cell">4</div>
+        <div class="arr-cell">2</div>
+        <div class="arr-cell">3</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note">sift down 2 → heap [4,2,3,1]</span>
+    </div>
+
+    <div class="step-row">
+      <span class="step-label">Step 2</span>
+      <div class="arr-row">
+        <div class="arr-cell root">4</div>
+        <div class="arr-cell">2</div>
+        <div class="arr-cell">3</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note hl">swap root 4 ↔ last unsorted 1</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label"></span>
+      <div class="arr-row">
+        <div class="arr-cell">3</div>
+        <div class="arr-cell">2</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">4</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note">sift down 1 → heap [3,2,1]</span>
+    </div>
+
+    <div class="step-row">
+      <span class="step-label">Step 3</span>
+      <div class="arr-row">
+        <div class="arr-cell root">3</div>
+        <div class="arr-cell">2</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">4</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note hl">swap 3 ↔ 1</span>
+    </div>
+    <div class="step-row">
+      <span class="step-label"></span>
+      <div class="arr-row">
+        <div class="arr-cell">2</div>
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">3</div>
+        <div class="arr-cell sorted">4</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note">heap [2,1]</span>
+    </div>
+
+    <div class="step-row">
+      <span class="step-label">Step 4</span>
+      <div class="arr-row">
+        <div class="arr-cell">1</div>
+        <div class="arr-cell sorted">2</div>
+        <div class="arr-cell sorted">3</div>
+        <div class="arr-cell sorted">4</div>
+        <div class="arr-cell sorted">5</div>
+      </div>
+      <span class="step-note green">done — sorted ascending ✓</span>
+    </div>
+
+  </div>
+  <div class="caption">Each extraction costs <strong>O(log n)</strong> for the sift-down. n extractions → <strong>O(n log n)</strong> total. Sorted region grows right-to-left.</div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Two Phases</div>
+    <div class="card-body">Build max-heap: O(n). Extract all maximums: O(n log n). Total: O(n log n) — no best/worst case difference.</div>
+    <div class="card-o" style="color:var(--accent)">O(n) + O(n log n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">In-Place</div>
+    <div class="card-body">Heap stored in the original array. The sorted region and the heap share the same array, shrinking/growing in opposite directions.</div>
+    <div class="card-o" style="color:var(--green)">O(1) space</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Poor Cache Performance</div>
+    <div class="card-body">Sift-down jumps between parent and children indices. Memory access pattern is non-sequential — poor cache utilization.</div>
+    <div class="card-o" style="color:var(--blue)">cache unfriendly</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Guaranteed O(n log n)</div>
+    <div class="card-body">Unlike quicksort, no bad input can trigger worst-case behavior. Useful when worst-case guarantees matter more than average speed.</div>
+    <div class="card-o" style="color:var(--orange)">always O(n log n)</div>
+  </div>
+</div>
+
+</body>
+</html>

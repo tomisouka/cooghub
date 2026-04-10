@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floyd-Warshall Algorithm</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #e8c547; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(232,197,71,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(232,197,71,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  .matrix-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th, td { padding: 0.4rem 0.7rem; border: 1px solid var(--border2); text-align: center; }
+  th { background: var(--border2); color: var(--accent); }
+  .upd { color: var(--yellow); font-weight: 700; } .inf { color: var(--muted); } .diag { color: var(--green); }
+  .formula { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; text-align: center; }
+  .formula-eq { font-family: var(--mono); font-size: 1rem; color: var(--accent); }
+  .formula-note { font-size: 1rem; color: var(--sub); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Graph Algorithms · All-Pairs Shortest Path</div>
+  <h1>Floyd-Warshall</h1>
+  <div class="sub">All-pairs shortest paths using dynamic programming. Try every node as an intermediate.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time</span><span class="kv-v yellow">O(V³)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(V²)</span></div>
+      <div class="kv"><span class="kv-k">Negative weights?</span><span class="kv-v green">✓ Yes</span></div>
+      <div class="kv"><span class="kv-k">Negative cycles?</span><span class="kv-v green">✓ Detects (dist[i][i] &lt; 0)</span></div>
+      <div class="kv"><span class="kv-k">Single vs All pairs</span><span class="kv-v">All pairs</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Core Recurrence</div>
+      <div class="formula">
+        <div class="formula-eq">dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</div>
+        <div class="formula-note">For each intermediate node k: can we shorten i→j by going through k?</div>
+      </div>
+      <div style="margin-top:0.75rem; font-size:0.83rem; color:var(--sub);">
+        Three nested loops over k (intermediate), i (source), j (destination). Order matters: k must be outermost.
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Distance Matrix — Graph: 1→2(3), 1→4(7), 2→3(1), 3→4(2), 2→4(8)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div>
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--muted); margin-bottom:0.5rem;">INITIAL</div>
+          <div class="matrix-wrap">
+            <table>
+              <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+              <tr><th>1</th><td class="diag">0</td><td>3</td><td class="inf">∞</td><td>7</td></tr>
+              <tr><th>2</th><td class="inf">∞</td><td class="diag">0</td><td>1</td><td>8</td></tr>
+              <tr><th>3</th><td class="inf">∞</td><td class="inf">∞</td><td class="diag">0</td><td>2</td></tr>
+              <tr><th>4</th><td class="inf">∞</td><td class="inf">∞</td><td class="inf">∞</td><td class="diag">0</td></tr>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--yellow); margin-bottom:0.5rem;">AFTER ALL K</div>
+          <div class="matrix-wrap">
+            <table>
+              <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+              <tr><th>1</th><td class="diag">0</td><td>3</td><td class="upd">4</td><td class="upd">6</td></tr>
+              <tr><th>2</th><td class="inf">∞</td><td class="diag">0</td><td>1</td><td class="upd">3</td></tr>
+              <tr><th>3</th><td class="inf">∞</td><td class="inf">∞</td><td class="diag">0</td><td>2</td></tr>
+              <tr><th>4</th><td class="inf">∞</td><td class="inf">∞</td><td class="inf">∞</td><td class="diag">0</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:0.75rem; font-family:var(--mono); font-size:0.75rem; color:var(--yellow);">
+        Updated: 1→3=4 (1→2→3), 1→4=6 (1→2→3→4), 2→4=3 (2→3→4)
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Pseudocode</div>
+      <pre><span class="fn">FloydWarshall</span>(graph, V):
+  dist ← V×V matrix initialized from adjacency matrix
+  dist[i][i] ← 0 <span class="keyword">for</span> all i
+
+  <span class="keyword">for</span> k <span class="keyword">in</span> 0..V:             <span class="comment">// intermediate node</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> 0..V:           <span class="comment">// source</span>
+      <span class="keyword">for</span> j <span class="keyword">in</span> 0..V:         <span class="comment">// destination</span>
+        <span class="keyword">if</span> dist[i][k] + dist[k][j] < dist[i][j]:
+          dist[i][j] ← dist[i][k] + dist[k][j]
+
+  <span class="comment">// Detect negative cycles</span>
+  <span class="keyword">for</span> i <span class="keyword">in</span> 0..V:
+    <span class="keyword">if</span> dist[i][i] < 0: <span class="keyword">return</span> <span class="fn">Error</span>(<span class="comment">"Negative cycle"</span>)
+
+  <span class="keyword">return</span> dist</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

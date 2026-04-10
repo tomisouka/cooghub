@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#38bdf8; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --orange:#fb923c; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  .step-block { margin-bottom:28px; }
+  .step-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px; }
+
+  .arr-row { display:flex; gap:4px; flex-wrap:wrap; }
+  .cell-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .cell { min-width:40px; height:40px; border-radius:5px; padding:0 8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .cell.hl     { background:#38bdf820; border-color:var(--accent); color:var(--accent); }
+  .cell.sorted { background:#6bde8418; border-color:var(--green); color:var(--green); }
+  .cell.zero   { background:#21252e; color:#3a4052; }
+  .cell.count  { background:#38bdf815; border-color:#38bdf840; color:var(--accent); }
+  .cell.prefix { background:#e8c54715; border-color:#e8c54740; color:var(--yellow); }
+  .cell-idx { font-size:9px; color:var(--dim); }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--yellow); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Counting<span>.</span></h1>
+    <div class="subtitle">Non-Comparison Sort · Stable · Integer Keys Only</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">time</span>    <span class="og">O(n + k)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ob">O(k) — count array</span></div>
+    <div class="big-o-row"><span class="op">n</span>       <span style="color:var(--dim);font-weight:700;">= number of elements</span></div>
+    <div class="big-o-row"><span class="op">k</span>       <span style="color:var(--dim);font-weight:700;">= range of values (max−min)</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">No comparisons — instead, <span>count how many times each value appears</span>. Then convert counts to positions using a prefix sum. Finally, place each element at its computed position in the output array. Beats O(n log n) because it exploits the fact that keys are integers in a known range.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Full Trace on [4, 2, 2, 8, 3, 3, 1] — values 1–8</div>
+
+  <!-- Input -->
+  <div class="step-block">
+    <div class="step-title">Input array</div>
+    <div class="arr-row">
+      <div class="cell-wrap"><div class="cell hl">4</div></div>
+      <div class="cell-wrap"><div class="cell hl">2</div></div>
+      <div class="cell-wrap"><div class="cell hl">2</div></div>
+      <div class="cell-wrap"><div class="cell hl">8</div></div>
+      <div class="cell-wrap"><div class="cell hl">3</div></div>
+      <div class="cell-wrap"><div class="cell hl">3</div></div>
+      <div class="cell-wrap"><div class="cell hl">1</div></div>
+    </div>
+  </div>
+
+  <!-- Step 1: count -->
+  <div class="step-block">
+    <div class="step-title">Step 1 — Count occurrences (count[v]++)</div>
+    <div class="arr-row">
+      <div class="cell-wrap"><div class="cell-idx">idx</div><div class="cell" style="background:none;border:none;color:var(--dim);">→</div></div>
+      <div class="cell-wrap"><div class="cell-idx">1</div><div class="cell count">1</div></div>
+      <div class="cell-wrap"><div class="cell-idx">2</div><div class="cell count">2</div></div>
+      <div class="cell-wrap"><div class="cell-idx">3</div><div class="cell count">2</div></div>
+      <div class="cell-wrap"><div class="cell-idx">4</div><div class="cell count">1</div></div>
+      <div class="cell-wrap"><div class="cell-idx">5</div><div class="cell zero">0</div></div>
+      <div class="cell-wrap"><div class="cell-idx">6</div><div class="cell zero">0</div></div>
+      <div class="cell-wrap"><div class="cell-idx">7</div><div class="cell zero">0</div></div>
+      <div class="cell-wrap"><div class="cell-idx">8</div><div class="cell count">1</div></div>
+    </div>
+    <div class="caption">count[2]=2 because 2 appears twice. count[5]=0 because 5 doesn't appear.</div>
+  </div>
+
+  <!-- Step 2: prefix sum -->
+  <div class="step-block">
+    <div class="step-title">Step 2 — Prefix sum (count[i] += count[i−1]) → gives final positions</div>
+    <div class="arr-row">
+      <div class="cell-wrap"><div class="cell-idx">idx</div><div class="cell" style="background:none;border:none;color:var(--dim);">→</div></div>
+      <div class="cell-wrap"><div class="cell-idx">1</div><div class="cell prefix">1</div></div>
+      <div class="cell-wrap"><div class="cell-idx">2</div><div class="cell prefix">3</div></div>
+      <div class="cell-wrap"><div class="cell-idx">3</div><div class="cell prefix">5</div></div>
+      <div class="cell-wrap"><div class="cell-idx">4</div><div class="cell prefix">6</div></div>
+      <div class="cell-wrap"><div class="cell-idx">5</div><div class="cell prefix">6</div></div>
+      <div class="cell-wrap"><div class="cell-idx">6</div><div class="cell prefix">6</div></div>
+      <div class="cell-wrap"><div class="cell-idx">7</div><div class="cell prefix">6</div></div>
+      <div class="cell-wrap"><div class="cell-idx">8</div><div class="cell prefix">7</div></div>
+    </div>
+    <div class="caption">count[v] now = how many elements are ≤ v. So value 4 will land at output index 6 (1-indexed).</div>
+  </div>
+
+  <!-- Step 3: place -->
+  <div class="step-block">
+    <div class="step-title">Step 3 — Place each element (traverse input right-to-left for stability)</div>
+    <div style="font-size:12px;color:var(--dim);line-height:1.8;">
+      <div>output[count[1]−1] = 1 → output[0] = 1,  decrement count[1]</div>
+      <div>output[count[3]−1] = 3 → output[4] = 3,  decrement count[3]</div>
+      <div>output[count[3]−1] = 3 → output[3] = 3,  decrement count[3]</div>
+      <div>output[count[8]−1] = 8 → output[6] = 8,  decrement count[8]</div>
+      <div>output[count[2]−1] = 2 → output[2] = 2,  decrement count[2]</div>
+      <div>output[count[2]−1] = 2 → output[1] = 2,  decrement count[2]</div>
+      <div>output[count[4]−1] = 4 → output[5] = 4,  decrement count[4]</div>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="step-block">
+    <div class="step-title">Output array</div>
+    <div class="arr-row">
+      <div class="cell-wrap"><div class="cell sorted">1</div></div>
+      <div class="cell-wrap"><div class="cell sorted">2</div></div>
+      <div class="cell-wrap"><div class="cell sorted">2</div></div>
+      <div class="cell-wrap"><div class="cell sorted">3</div></div>
+      <div class="cell-wrap"><div class="cell sorted">3</div></div>
+      <div class="cell-wrap"><div class="cell sorted">4</div></div>
+      <div class="cell-wrap"><div class="cell sorted">8</div></div>
+    </div>
+  </div>
+
+  <div class="caption"><strong>No comparisons made.</strong> O(n) to count + O(k) to build prefix sums + O(n) to place = O(n+k). When k is small relative to n, this beats any comparison sort.</div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">No Comparisons</div>
+    <div class="card-body">Breaks the O(n log n) lower bound for comparison sorts. Uses counting and arithmetic instead. Keys must be integers in a bounded range.</div>
+    <div class="card-o" style="color:var(--accent)">O(n + k)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Stable</div>
+    <div class="card-body">Right-to-left placement preserves relative order of equal elements. Essential for Radix Sort, which uses Counting Sort as its subroutine.</div>
+    <div class="card-o" style="color:var(--green)">stable ✓</div>
+  </div>
+  <div class="card">
+    <div class="card-title">When k is Large</div>
+    <div class="card-body">If k ≫ n the count array wastes space and dominates. Sorting 10 numbers in range 0–1,000,000 is wasteful — use a comparison sort.</div>
+    <div class="card-o" style="color:var(--red)">bad when k ≫ n</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used As Subroutine</div>
+    <div class="card-body">Radix Sort uses Counting Sort digit by digit. TimSort uses insertion sort on small runs. Counting sort rarely used standalone.</div>
+    <div class="card-o" style="color:var(--yellow)">inside Radix Sort</div>
+  </div>
+</div>
+
+</body>
+</html>

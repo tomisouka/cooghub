@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bellman-Ford Algorithm</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #ff6b9d; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255,107,157,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,107,157,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th { background: var(--border2); color: var(--accent); padding: 0.4rem 0.6rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .done { color: var(--green); } .inf { color: var(--muted); } .upd { color: var(--yellow); } .neg { color: var(--red); }
+  .vs-row { display: flex; gap: 1rem; }
+  .vs-col { flex: 1; }
+  .vs-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+  .vs-label.pink { color: var(--accent); } .vs-label.cyan { color: #00e5ff; }
+  .vs-item { font-size: 0.82rem; color: var(--sub); padding: 0.2rem 0; }
+  .alert { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.2); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.83rem; color: var(--green); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Graph Algorithms · Shortest Path</div>
+  <h1>Bellman-Ford</h1>
+  <div class="sub">Shortest path with negative weights. Relaxes all edges V−1 times. Detects negative cycles.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time</span><span class="kv-v yellow">O(V · E)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(V)</span></div>
+      <div class="kv"><span class="kv-k">Negative weights?</span><span class="kv-v green">✓ Yes</span></div>
+      <div class="kv"><span class="kv-k">Negative cycles?</span><span class="kv-v green">✓ Detects them</span></div>
+      <div class="kv"><span class="kv-k">Slower than Dijkstra?</span><span class="kv-v red">✗ Yes, but more powerful</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Key Idea</div>
+      <div style="font-size:0.85rem; line-height:1.7; color:var(--sub);">
+        In any shortest path with V nodes, there are at most <span style="color:var(--accent);font-family:var(--mono);">V−1</span> edges.<br><br>
+        So: relax <em>every edge</em> exactly <span style="color:var(--accent);font-family:var(--mono);">V−1</span> times.<br><br>
+        After that, if any edge can still be relaxed, a negative cycle exists.
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Trace — Edges: A→B(−1), B→C(4), A→C(5), C→D(2), B→D(6)</div>
+      <table>
+        <tr><th>Pass</th><th>dist[A]</th><th>dist[B]</th><th>dist[C]</th><th>dist[D]</th><th>Relaxed</th></tr>
+        <tr><td>Init</td><td class="done">0</td><td class="inf">∞</td><td class="inf">∞</td><td class="inf">∞</td><td>—</td></tr>
+        <tr><td>1</td><td class="done">0</td><td class="upd">−1</td><td class="upd">3</td><td class="upd">5</td><td>A→B, B→C, B→D, A→C</td></tr>
+        <tr><td>2</td><td class="done">0</td><td class="done">−1</td><td class="done">3</td><td class="done">5</td><td>C→D: min(5, 3+2)=5 no change</td></tr>
+        <tr><td>V−1=4</td><td class="done">0</td><td class="done">−1</td><td class="done">3</td><td class="done">5</td><td>No changes — converged</td></tr>
+      </table>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Pseudocode</div>
+      <pre><span class="fn">BellmanFord</span>(graph, edges, src):
+  dist ← {node: ∞ <span class="keyword">for</span> node <span class="keyword">in</span> graph}
+  dist[src] ← 0
+
+  <span class="comment">// Relax all edges V-1 times</span>
+  <span class="keyword">for</span> i <span class="keyword">in</span> range(V − 1):
+    <span class="keyword">for</span> (u, v, w) <span class="keyword">in</span> edges:
+      <span class="keyword">if</span> dist[u] + w < dist[v]:
+        dist[v] ← dist[u] + w
+
+  <span class="comment">// Check for negative cycles (V-th relaxation)</span>
+  <span class="keyword">for</span> (u, v, w) <span class="keyword">in</span> edges:
+    <span class="keyword">if</span> dist[u] + w < dist[v]:
+      <span class="keyword">return</span> <span class="fn">Error</span>(<span class="comment">"Negative cycle detected"</span>)
+
+  <span class="keyword">return</span> dist</pre>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Dijkstra vs Bellman-Ford vs Floyd-Warshall</div>
+      <div class="vs-row">
+        <div class="vs-col">
+          <div class="vs-label cyan">Dijkstra</div>
+          <div class="vs-item">O((V+E) log V)</div>
+          <div class="vs-item">Single source</div>
+          <div class="vs-item">✗ No negative weights</div>
+          <div class="vs-item">✓ Fastest (pos. weights)</div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-label pink">Bellman-Ford</div>
+          <div class="vs-item">O(V · E)</div>
+          <div class="vs-item">Single source</div>
+          <div class="vs-item">✓ Negative weights</div>
+          <div class="vs-item">✓ Detects neg. cycles</div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-label" style="color:var(--yellow);">Floyd-Warshall</div>
+          <div class="vs-item">O(V³)</div>
+          <div class="vs-item">All pairs</div>
+          <div class="vs-item">✓ Negative weights</div>
+          <div class="vs-item">✗ Slowest, dense graphs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

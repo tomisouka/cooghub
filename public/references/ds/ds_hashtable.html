@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hash Table — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #e8c547;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --teal: #4ecdc4;
+    --pink: #f472b6;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1  { color: var(--green);  font-weight: 700; }
+  .on  { color: var(--red);    font-weight: 700; }
+  .oa  { color: var(--orange); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ── Hash function flow ── */
+  .hash-flow {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .flow-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 20px; font-size: 13px; font-weight: 700; color: var(--text);
+    text-align: center;
+  }
+  .flow-box.key    { border-color: var(--blue);   color: var(--blue);   background: #60a5fa10; }
+  .flow-box.fn     { border-color: var(--accent); color: var(--accent); background: #e8c54710; }
+  .flow-box.index  { border-color: var(--green);  color: var(--green);  background: #6bde8410; }
+  .flow-box.value  { border-color: var(--teal);   color: var(--teal);   background: #4ecdc410; }
+  .flow-arrow { font-size: 22px; color: var(--dim); }
+  .flow-sub { font-size: 10px; color: var(--dim); margin-top: 3px; font-weight: 400; }
+
+  /* ── Bucket array ── */
+  .bucket-table { display: flex; flex-direction: column; gap: 0; width: fit-content; }
+  .bucket-row {
+    display: flex; align-items: center; gap: 0; border-bottom: 1px solid var(--border);
+  }
+  .bucket-row:first-child { border-top: 1px solid var(--border); }
+  .bucket-idx {
+    width: 40px; height: 44px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--dim); border-right: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
+  }
+  .bucket-slot {
+    width: 160px; height: 44px; display: flex; align-items: center; padding: 0 14px;
+    background: var(--surface); font-size: 13px; font-weight: 700; color: var(--text);
+    border-right: 1px solid var(--border);
+  }
+  .bucket-slot.filled  { background: #e8c54710; color: var(--accent); }
+  .bucket-slot.filled2 { background: #60a5fa10; color: var(--blue); }
+  .bucket-slot.filled3 { background: #4ecdc410; color: var(--teal); }
+  .bucket-slot.empty   { color: #3a4052; font-size: 11px; }
+  .bucket-slot.collision { background: #f8717110; color: var(--red); }
+
+  /* ── Chaining ── */
+  .chain-node {
+    display: inline-flex; border: 1.5px solid var(--border); border-radius: 5px;
+    overflow: hidden; background: var(--surface); flex-shrink: 0;
+  }
+  .cn-data { padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--text); border-right: 1px solid var(--border); }
+  .cn-ptr  { padding: 6px 8px; font-size: 11px; color: #a78bfa; font-weight: 700; }
+  .chain-arrow { font-size: 14px; color: #a78bfa; margin: 0 3px; display: flex; align-items: center; }
+  .chain-null { padding: 6px 10px; border: 1.5px dashed #2a2e38; border-radius: 5px; font-size: 11px; color: #3a4052; display: flex; align-items: center; }
+  .chain-row { display: flex; align-items: center; gap: 0; }
+
+  /* ── Probe sequence ── */
+  .probe-row { display: flex; align-items: center; gap: 0; margin-bottom: 8px; overflow-x: auto; }
+  .probe-cell {
+    width: 60px; height: 52px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 1.5px solid var(--border); border-right: none;
+    background: var(--surface); font-size: 14px; font-weight: 700; color: var(--text);
+    flex-shrink: 0; gap: 2px;
+  }
+  .probe-cell:last-child { border-right: 1.5px solid var(--border); }
+  .probe-cell .pidx { font-size: 9px; color: var(--dim); font-weight: 400; }
+  .probe-cell.occupied  { background: #f8717110; border-color: var(--red);    color: var(--red); }
+  .probe-cell.target    { background: #e8c54710; border-color: var(--accent); color: var(--accent); }
+  .probe-cell.found     { background: #6bde8410; border-color: var(--green);  color: var(--green); }
+  .probe-cell.probe1    { background: #fb923c10; border-color: var(--orange); color: var(--orange); }
+  .probe-cell.probe2    { background: #60a5fa10; border-color: var(--blue);   color: var(--blue); }
+  .probe-step { font-size: 11px; color: var(--dim); margin-bottom: 4px; }
+
+  /* ── Collision strategies ── */
+  .strategy-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .strategy-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .strategy-box:nth-child(1) { border-top: 2px solid var(--teal); }
+  .strategy-box:nth-child(2) { border-top: 2px solid var(--orange); }
+  .strategy-box:nth-child(3) { border-top: 2px solid var(--pink); }
+  .s-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .s-body  { font-size: 11px; color: var(--dim); line-height: 1.65; margin-bottom: 8px; }
+  .s-formula { font-size: 11px; font-family: monospace; color: var(--accent); background: #e8c54710; padding: 5px 10px; border-radius: 4px; }
+
+  /* load factor */
+  .lf-bar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 28px; margin: 10px 0; }
+  .lf-bar { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 11px; font-weight: 700; transition: width 0.3s; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--red); }
+  .card:nth-child(4) { border-top-color: var(--teal); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Hash<span>#</span></h1>
+    <div class="subtitle">Hash Table · Map ADT</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">insert (avg)</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">search (avg)</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">delete (avg)</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">insert (worst)</span> <span class="on">O(n)</span></div>
+    <div class="big-o-row"><span class="op">search (worst)</span> <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. How it works -->
+<div class="diagram-section">
+  <div class="label">1 — The Shoe Rack Idea</div>
+  <div class="annotation">A hash function takes your <span>key</span>, does math on it, and produces an <span>index</span>. You store the value at that index. Lookup is O(1) — no searching, just compute and jump.</div>
+
+  <div class="hash-flow">
+    <div class="flow-box key">"alice"<div class="flow-sub">key</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box fn">hash(key) % 7<div class="flow-sub">hash function</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box index">index 3<div class="flow-sub">bucket</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box value">$500<div class="flow-sub">value stored</div></div>
+  </div>
+  <div class="caption"><strong>hash("alice") % 7 = 3</strong> — Alice's value goes in slot 3. To look it up later: same function, same slot, O(1).</div>
+</div>
+
+<hr>
+
+<!-- 2. The array (bucket array) -->
+<div class="diagram-section">
+  <div class="label">2 — The Bucket Array</div>
+  <div class="annotation">Internally it's just an array. Each slot is a <span>bucket</span>. Keys hash to indices, values sit at those indices.</div>
+
+  <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start;">
+    <div class="bucket-table">
+      <div class="bucket-row">
+        <div class="bucket-idx">0</div>
+        <div class="bucket-slot empty">— empty —</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">1</div>
+        <div class="bucket-slot filled2">"bob" → 200</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">2</div>
+        <div class="bucket-slot empty">— empty —</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">3</div>
+        <div class="bucket-slot filled">"alice" → 500</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">4</div>
+        <div class="bucket-slot filled3">"carol" → 750</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">5</div>
+        <div class="bucket-slot empty">— empty —</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">6</div>
+        <div class="bucket-slot empty">— empty —</div>
+      </div>
+    </div>
+    <div style="padding-top:8px;">
+      <div style="font-size:11px;color:var(--dim);line-height:2;">
+        <div>hash("alice") % 7 = <strong style="color:var(--accent)">3</strong></div>
+        <div>hash("bob")   % 7 = <strong style="color:var(--blue)">1</strong></div>
+        <div>hash("carol") % 7 = <strong style="color:var(--teal)">4</strong></div>
+        <div style="margin-top:12px;color:#3a4052">slots 0, 2, 5, 6 unused</div>
+        <div style="margin-top:8px;">load factor = 3/7 ≈ <strong style="color:var(--accent)">0.43</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Collision -->
+<div class="diagram-section">
+  <div class="label">3 — Collision — Two Keys, Same Slot</div>
+  <div class="annotation">A <span>collision</span> happens when two different keys hash to the same index. Inevitable — there are more possible keys than slots. Must be handled.</div>
+
+  <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start;">
+    <div>
+      <div style="font-size:11px;color:var(--dim);line-height:2;margin-bottom:12px;">
+        <div>hash("alice") % 7 = <strong style="color:var(--accent)">3</strong></div>
+        <div>hash("dave")  % 7 = <strong style="color:var(--red)">3</strong> ← collision!</div>
+      </div>
+      <div class="bucket-table">
+        <div class="bucket-row"><div class="bucket-idx">0</div><div class="bucket-slot empty">— empty —</div></div>
+        <div class="bucket-row"><div class="bucket-idx">1</div><div class="bucket-slot filled2">"bob" → 200</div></div>
+        <div class="bucket-row"><div class="bucket-idx">2</div><div class="bucket-slot empty">— empty —</div></div>
+        <div class="bucket-row"><div class="bucket-idx">3</div><div class="bucket-slot collision">COLLISION: alice + dave</div></div>
+        <div class="bucket-row"><div class="bucket-idx">4</div><div class="bucket-slot filled3">"carol" → 750</div></div>
+        <div class="bucket-row"><div class="bucket-idx">5</div><div class="bucket-slot empty">— empty —</div></div>
+        <div class="bucket-row"><div class="bucket-idx">6</div><div class="bucket-slot empty">— empty —</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">Two different keys land on slot 3. Three strategies to resolve this: <strong>chaining</strong>, <strong>linear probing</strong>, <strong>quadratic probing</strong>.</div>
+</div>
+
+<hr>
+
+<!-- 4. Chaining -->
+<div class="diagram-section">
+  <div class="label">4 — Collision Strategy: Chaining</div>
+  <div class="annotation">Each bucket holds a <span>linked list</span>. Colliding entries are chained together. Lookup walks the list at the hashed slot.</div>
+
+  <div style="display:flex; gap: 24px; flex-wrap:wrap; align-items: flex-start;">
+    <div class="bucket-table">
+      <div class="bucket-row">
+        <div class="bucket-idx">0</div>
+        <div class="bucket-slot empty" style="width:80px;">null</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">1</div>
+        <div class="bucket-slot" style="width:80px; background:#60a5fa10; color:var(--blue);">→</div>
+        <div style="display:flex;align-items:center;padding:0 8px;">
+          <div class="chain-row">
+            <div class="chain-node"><div class="cn-data">bob:200</div><div class="cn-ptr">→</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-null">null</div>
+          </div>
+        </div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">2</div>
+        <div class="bucket-slot empty" style="width:80px;">null</div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx" style="border-color:var(--red)">3</div>
+        <div class="bucket-slot" style="width:80px; background:#f8717110; color:var(--red);">→</div>
+        <div style="display:flex;align-items:center;padding:0 8px;">
+          <div class="chain-row">
+            <div class="chain-node" style="border-color:var(--accent)"><div class="cn-data" style="color:var(--accent)">alice:500</div><div class="cn-ptr">→</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-node" style="border-color:var(--red)"><div class="cn-data" style="color:var(--red)">dave:300</div><div class="cn-ptr">→</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-null">null</div>
+          </div>
+        </div>
+      </div>
+      <div class="bucket-row">
+        <div class="bucket-idx">4</div>
+        <div class="bucket-slot" style="width:80px; background:#4ecdc410; color:var(--teal);">→</div>
+        <div style="display:flex;align-items:center;padding:0 8px;">
+          <div class="chain-row">
+            <div class="chain-node"><div class="cn-data">carol:750</div><div class="cn-ptr">→</div></div>
+            <div class="chain-arrow">→</div>
+            <div class="chain-null">null</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>Slot 3 holds a linked list</strong> with both alice and dave. Lookup: hash to slot 3, walk the list comparing keys.<br>
+    Worst case: all keys collide → O(n). Average with good hash function: O(1).
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. Linear probing -->
+<div class="diagram-section">
+  <div class="label">5 — Collision Strategy: Linear Probing</div>
+  <div class="annotation">If the target slot is taken, <span>try the next slot</span>, then the next, until you find an empty one. All entries stay in the main array — no linked lists.</div>
+
+  <div>
+    <div class="probe-step">Inserting "dave" — hash = 3, but slot 3 is taken. Probe forward:</div>
+    <div class="probe-row">
+      <div class="probe-cell"><span>bob</span><span class="pidx">[0]</span></div>
+      <div class="probe-cell"><span>—</span><span class="pidx">[1]</span></div>
+      <div class="probe-cell"><span>—</span><span class="pidx">[2]</span></div>
+      <div class="probe-cell occupied"><span>alice</span><span class="pidx">[3] ✕</span></div>
+      <div class="probe-cell probe1"><span>—?</span><span class="pidx">[4] try</span></div>
+      <div class="probe-cell found"><span>dave</span><span class="pidx">[4] ✓</span></div>
+      <div class="probe-cell"><span>carol</span><span class="pidx">[5]</span></div>
+      <div class="probe-cell"><span>—</span><span class="pidx">[6]</span></div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>Probe sequence:</strong> (hash + i) % capacity for i = 0, 1, 2...<br>
+    Risk: <strong>clustering</strong> — a run of filled slots forms, making future probes longer.
+  </div>
+</div>
+
+<hr>
+
+<!-- 6. Quadratic probing -->
+<div class="diagram-section">
+  <div class="label">6 — Collision Strategy: Quadratic Probing</div>
+  <div class="annotation">Same idea as linear but probe at <span>increasing distances</span> — 1, 4, 9, 16... This spreads entries out and reduces clustering.</div>
+
+  <div>
+    <div class="probe-step">Inserting "dave" — hash = 3, occupied. Probe at +1², +2², +3²:</div>
+    <div class="probe-row">
+      <div class="probe-cell"><span>—</span><span class="pidx">[0]</span></div>
+      <div class="probe-cell"><span>bob</span><span class="pidx">[1]</span></div>
+      <div class="probe-cell"><span>—</span><span class="pidx">[2]</span></div>
+      <div class="probe-cell occupied"><span>alice</span><span class="pidx">[3] ✕</span></div>
+      <div class="probe-cell probe1"><span>—?</span><span class="pidx">[4] +1²</span></div>
+      <div class="probe-cell probe2"><span>—?</span><span class="pidx">[7] +2²</span></div>
+      <div class="probe-cell found"><span>dave</span><span class="pidx">[4] ✓</span></div>
+    </div>
+  </div>
+  <div class="caption">
+    <strong>Probe sequence:</strong> (hash + i²) % capacity for i = 0, 1, 2...<br>
+    Reduces primary clustering. Still possible to miss empty slots if table is too full — keep load factor below 0.5.
+  </div>
+</div>
+
+<hr>
+
+<!-- 7. Load factor -->
+<div class="diagram-section">
+  <div class="label">7 — Load Factor</div>
+  <div class="annotation"><span>Load factor = n / capacity</span> — the fraction of slots that are filled. Too high and collisions skyrocket. When it crosses a threshold the table <span>resizes</span>.</div>
+
+  <div style="max-width:500px;">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:4px;">
+      <span>0.0 — empty</span><span>0.5 — ideal</span><span>1.0 — full</span>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;height:28px;">
+      <div style="width:43%;height:100%;background:linear-gradient(90deg,#6bde84,#e8c547);display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:11px;font-weight:700;color:#0a0c0f;">0.43</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-top:8px;">3 entries / 7 slots = 0.43 — healthy. Most implementations resize at 0.7–0.75.</div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <div class="strategy-grid">
+      <div class="strategy-box">
+        <div class="s-title">Chaining</div>
+        <div class="s-body">Can exceed load factor 1.0 — lists just get longer. Degrades gracefully.</div>
+        <div class="s-formula">resize at α > 1.0</div>
+      </div>
+      <div class="strategy-box">
+        <div class="s-title">Linear Probing</div>
+        <div class="s-body">Clustering worsens rapidly above 0.7. Keep it below that.</div>
+        <div class="s-formula">resize at α > 0.7</div>
+      </div>
+      <div class="strategy-box">
+        <div class="s-title">Quadratic Probing</div>
+        <div class="s-body">Must stay below 0.5 to guarantee an empty slot is always found.</div>
+        <div class="s-formula">resize at α > 0.5</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Hash Function</div>
+    <div class="card-body">Converts a key into an array index. Good hash functions distribute keys uniformly to minimize collisions.</div>
+    <div class="card-o" style="color:var(--accent)">key → index</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Average O(1)</div>
+    <div class="card-body">With a good hash function and low load factor, insert, search, and delete are all constant time on average.</div>
+    <div class="card-o" style="color:var(--green)">O(1) average</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Collisions</div>
+    <div class="card-body">Unavoidable — more keys than slots exist. Handled by chaining (linked lists) or open addressing (probing).</div>
+    <div class="card-o" style="color:var(--red)">O(n) worst case</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Load Factor</div>
+    <div class="card-body">n / capacity. Controls when to resize. High load factor = more collisions. Resize doubles the array and rehashes all entries.</div>
+    <div class="card-o" style="color:var(--teal)">α = n / capacity</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Dictionaries, sets, caches, database indexes, symbol tables in compilers, password hashing.</div>
+    <div class="card-o" style="color:var(--orange)">everywhere fast lookup</div>
+  </div>
+</div>
+
+</body>
+</html>

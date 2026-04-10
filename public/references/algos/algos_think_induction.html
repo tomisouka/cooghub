@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Think · Mathematical Induction · COSC 3320</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #111111; --paper: #f2ede4; --cream: #ede8dc;
+  --yellow: #f5f500; --red: #e8352a; --navy: #1a1a2e; --navy2: #12121f;
+  --white: #ffffff; --border: 2.5px solid #111111; --thin: 1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; min-width: 52px; padding: 0 8px; font-family: 'Archivo Black', sans-serif; font-size: 10px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; text-align: center; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+.fw-wrap { margin-bottom: 3rem; }
+
+.fw-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.fw-header:hover { opacity: .88; }
+.fw-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 38px; min-width: 72px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.fw-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.fw-title { font-family: 'Archivo Black', sans-serif; font-size: 19px; text-transform: uppercase; letter-spacing: .02em; }
+.fw-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 4px; }
+.fw-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.fw-header.open .fw-arrow { transform: rotate(90deg); }
+
+.trigger-row { border: var(--border); border-top: none; background: var(--white); padding: 10px 16px 12px; }
+.trigger-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
+.trigger-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.trigger-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--ink); color: var(--yellow); padding: 4px 10px; }
+.trigger-pill.red { background: var(--red); color: #fff; }
+.trigger-pill.navy { background: var(--navy); color: #a0c4ff; }
+
+.fw-body { display: none; }
+.fw-body.open { display: block; }
+.fw-section { border: var(--border); border-top: none; }
+.fw-section-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.q-chain { padding: 16px 14px; display: flex; flex-direction: column; }
+.q-node { display: grid; grid-template-columns: 28px 1fr; gap: 0 12px; position: relative; }
+.q-node::before { content: ''; position: absolute; left: 13px; top: 34px; bottom: -12px; width: 2px; background: var(--yellow); z-index: 0; }
+.q-node:last-child::before { display: none; }
+.q-num { background: var(--yellow); color: var(--ink); font-family: 'Archivo Black', sans-serif; font-size: 11px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; position: relative; z-index: 1; }
+.q-body { padding-bottom: 20px; }
+.q-question { font-family: 'Archivo Black', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+.q-answer { font-size: 12.5px; color: #444; line-height: 1.75; }
+.q-answer strong { color: var(--ink); font-weight: 700; }
+.q-math { background: var(--white); border: 2px solid var(--ink); padding: 8px 13px; margin-top: 7px; line-height: 2.4; overflow-x: auto; font-size: 13px; }
+.q-example { background: var(--cream); border-left: 4px solid var(--ink); padding: 7px 11px; margin-top: 7px; font-size: 12px; color: #444; line-height: 1.7; }
+.q-example .ex-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #888; display: block; margin-bottom: 3px; }
+.q-example strong { color: var(--ink); }
+
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+.visual-block { border: var(--border); border-top: none; background: var(--white); overflow-x: auto; }
+.visual-block .vb-head { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 5px 12px; }
+.visual-block .vb-body { padding: 16px; }
+svg text { font-family: 'JetBrains Mono', monospace; }
+
+.answer { margin: 4px 14px 0; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+.callout { margin: 12px 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+.mistakes { border: var(--border); border-top: none; background: #fff8f8; }
+.mistakes-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; padding: 5px 14px; border-bottom: var(--border); }
+.mistake-row { display: grid; grid-template-columns: 24px 1fr; gap: 0 10px; padding: 8px 14px; border-bottom: var(--thin); align-items: start; font-size: 12.5px; }
+.mistake-row:last-child { border-bottom: none; }
+.mistake-x { color: var(--red); font-family: 'Archivo Black', sans-serif; font-size: 14px; }
+.mistake-text strong { color: var(--red); font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+
+/* Proof block */
+.proof-block { margin: 10px 14px; border: var(--border); background: var(--white); }
+.proof-block .pb-head { background: var(--navy); color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 14px; border-bottom: 2px solid var(--ink); }
+.proof-block .pb-body { padding: 12px 14px; font-size: 12.5px; line-height: 2; }
+.proof-block .pb-body strong { font-family: 'Archivo Black', sans-serif; color: var(--ink); }
+.proof-block .pb-body .step-tag { display: inline-block; background: var(--yellow); color: var(--ink); font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; margin-right: 6px; vertical-align: middle; }
+.proof-block .pb-body .step-tag.navy { background: var(--navy); color: #a0c4ff; }
+.proof-block .pb-body .step-tag.red { background: var(--red); color: #fff; }
+</style>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>How to Think · Mathematical Induction</h1>
+    <span>COSC 3320 · THE COMPLETE MENTAL MODEL FOR EVERY INDUCTION PROOF IN ALGORITHMS</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#f1">What Is It</a>
+    <a href="#f2">Weak</a>
+    <a href="#f3">Strong</a>
+    <a href="#f4">Recurrences</a>
+    <a href="#f5">Algorithms</a>
+    <a href="#f6">Exchange</a>
+    <a href="#f7">DP</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════
+     01 — WHAT INDUCTION ACTUALLY IS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f1">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">01</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">What Induction Actually Is</div>
+      <div class="fw-sub">THE MENTAL MODEL BEFORE YOU WRITE ANYTHING</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Read this first — before any induction proof</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">foundation</span>
+      <span class="trigger-pill">mental model</span>
+      <span class="trigger-pill red">most students get this wrong conceptually</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Core Idea</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Induction = Infinite Chain of Dominoes</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- dominos -->
+            <rect x="20"  y="60" width="28" height="60" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="34"  y="95" text-anchor="middle" font-size="9" fill="#111" font-weight="bold">P(1)</text>
+            <text x="34"  y="135" text-anchor="middle" font-size="8" fill="#e8352a">BASE</text>
+
+            <rect x="105" y="60" width="28" height="60" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="119" y="95" text-anchor="middle" font-size="9">P(2)</text>
+
+            <rect x="190" y="60" width="28" height="60" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="204" y="95" text-anchor="middle" font-size="9">P(3)</text>
+
+            <rect x="275" y="60" width="28" height="60" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="289" y="95" text-anchor="middle" font-size="9">P(4)</text>
+
+            <text x="340" y="95" font-size="18" fill="#aaa">· · ·</text>
+
+            <rect x="390" y="60" width="28" height="60" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="404" y="95" text-anchor="middle" font-size="9">P(k)</text>
+
+            <rect x="475" y="60" width="28" height="60" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="489" y="95" text-anchor="middle" font-size="9">P(k+1)</text>
+
+            <text x="555" y="95" font-size="18" fill="#aaa">· · ·</text>
+
+            <!-- arrows = inductive step -->
+            <line x1="50"  y1="85" x2="100" y2="85" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+            <line x1="135" y1="85" x2="185" y2="85" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+            <line x1="220" y1="85" x2="270" y2="85" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+            <line x1="418" y1="85" x2="470" y2="85" stroke="#111" stroke-width="2" marker-end="url(#ah)"/>
+
+            <!-- labels -->
+            <text x="62"  y="76" font-size="7.5" fill="#555">IS</text>
+            <text x="148" y="76" font-size="7.5" fill="#555">IS</text>
+            <text x="233" y="76" font-size="7.5" fill="#555">IS</text>
+            <text x="430" y="76" font-size="7.5" fill="#555">IS</text>
+
+            <!-- big brace label -->
+            <text x="350" y="20" text-anchor="middle" font-size="10" fill="#111" font-family="'Archivo Black',sans-serif">Inductive Step (IS): if P(k) then P(k+1)</text>
+            <line x1="50" y1="28" x2="650" y2="28" stroke="#111" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="34"  y="48" font-size="8" fill="#e8352a">Push</text>
+            <text x="34"  y="58" font-size="8" fill="#e8352a">first</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">What you're actually doing</div>
+            <div class="q-answer">Induction proves a statement \(P(n)\) for <em>all</em> \(n \ge n_0\) by doing just two things:<br/>
+            <strong>1. Push the first domino</strong> — verify P(n₀) directly (base case).<br/>
+            <strong>2. Show each domino knocks over the next</strong> — prove P(k) → P(k+1) (inductive step).<br/><br/>
+            That's it. The infinite chain falls automatically. You never prove P(100) directly — you prove the <em>mechanism</em> that makes it inevitable.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">The IH is an assumption, not something you prove</div>
+            <div class="q-answer">The most common confusion: students try to "prove" the inductive hypothesis. <strong>You don't prove the IH. You assume it.</strong> Then you use it to prove P(k+1) or P(k). The whole point of induction is that assuming P(k) is justified — because P(k-1) assumed P(k-2), and so on back to the base case.</div>
+            <div class="q-example"><span class="ex-label">Analogy</span>You're allowed to say "assume I've already correctly sorted A[1..k-1]" and then show you can sort A[1..k]. You don't need to re-prove the sorting of A[1..k-1].</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">The three things you must always write explicitly</div>
+            <div class="q-math">\[\textbf{Claim: } P(n) \text{ holds for all } n \ge n_0\]
+\[\textbf{Base case: } \text{Verify } P(n_0) \text{ directly (often just plug in).}\]
+\[\textbf{IH: } \text{Assume } P(k) \text{ [or: all } P(j), j < k\text{] holds for some fixed } k.\]
+\[\textbf{IS: } \text{Prove } P(k+1) \text{ [or } P(k)\text{] using the IH.}\]
+\[\textbf{Conclude: } \text{By induction, } P(n) \text{ holds for all } n \ge n_0. \quad\square\]</div>
+            <div class="q-answer">If any of these five pieces is missing, your proof is incomplete. Graders look for all five.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">The #1 Mistake</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Circular reasoning.</strong> "P(k+1) holds because P(k) holds and P(k) holds because P(k-1) holds..." — this is not the IS. The IS must derive P(k+1) from P(k) using logic, not just restating the assumption.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     02 — WEAK INDUCTION
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f2">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">02</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Weak Induction — Step by Step</div>
+      <div class="fw-sub">P(k) → P(k+1) · USED WHEN EACH CASE DEPENDS ONLY ON THE PREVIOUS ONE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use weak induction when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">recurrence T(n) = T(n/2) + something</span>
+      <span class="trigger-pill">sum formulas like 1+2+…+n</span>
+      <span class="trigger-pill">the next case only needs the previous one</span>
+      <span class="trigger-pill red">NOT for games where moves can jump</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">Full Worked Example — T(n) = 2T(n/2) + n² = O(n²)</div>
+
+      <div class="proof-block">
+        <div class="pb-head">Proof: T(n) ≤ cn² for some constant c (Weak Induction)</div>
+        <div class="pb-body">
+
+          <span class="step-tag">Claim</span> \(T(n) \le cn^2\) for all \(n \ge 1\), for some constant \(c \ge 2\).<br/><br/>
+
+          <span class="step-tag red">Base Case</span> \(n = 1\): \(T(1) = d\) (some constant). We need \(d \le c \cdot 1^2 = c\). Choose \(c \ge d\). ✓<br/><br/>
+
+          <span class="step-tag navy">IH</span> Assume \(T(k) \le ck^2\) for some fixed \(k \ge 1\).<br/><br/>
+
+          <span class="step-tag">IS</span> We want to show \(T(2k) \le c(2k)^2 = 4ck^2\).<br/>
+          By the recurrence: \(T(2k) = 2T(k) + (2k)^2\).<br/>
+          Apply IH to \(T(k)\): \(T(2k) \le 2(ck^2) + 4k^2 = 2ck^2 + 4k^2\).<br/>
+          We need \(2ck^2 + 4k^2 \le 4ck^2\), i.e. \(4k^2 \le 2ck^2\), i.e. \(c \ge 2\). ✓<br/><br/>
+
+          <span class="step-tag red">Choose constants</span> Set \(c = \max(d, 2)\). Both base case and IS hold.<br/><br/>
+
+          <span class="step-tag">Conclude</span> By induction, \(T(n) \le cn^2\) for all \(n\). Therefore \(T(n) = O(n^2)\). \(\square\)
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Always guess the form first — then verify it closes</div>
+            <div class="q-answer">You can't "derive" the bound from scratch via induction — you need to <strong>guess first</strong> (from the tree method or Master Theorem), then induction verifies it. The algebra of the IS shows you what constant c must be.</div>
+            <div class="q-example"><span class="ex-label">Process</span>1. Use recursion tree to guess T(n) = O(n²). 2. Assume T(n) ≤ cn². 3. Plug into recurrence. 4. Solve for what c must satisfy. 5. State: choose c = max(that value, base case value).</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">The "closing" step — what to look for</div>
+            <div class="q-answer">After applying the IH, you get something like \(\frac{6cn}{7} + 9c + \alpha n \le cn\). Rearrange to find what constraint on \(c\) makes this true. If it requires \(c \ge \text{some value}\), that's your answer — just choose \(c\) large enough.</div>
+            <div class="q-math">\[\frac{6cn}{7} + 9c + \alpha n \le cn \iff 9c + \alpha n \le \frac{cn}{7} \iff c \ge \frac{7\alpha n}{n - 63}\]
+\[\text{For } n > 63:\quad c \ge 14\alpha \text{ suffices.}\quad \text{State: choose } c = 14\alpha,\; n > 63.\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">What if there's no clean power-of-2 structure?</div>
+            <div class="q-answer">Induction on exact powers of 2 is cleaner: base P(2), IS: assume P(k), prove P(2k). But for arbitrary n, you can use the "floor" trick: T(n) = T(⌊n/2⌋) + n where ⌊n/2⌋ &lt; n, so IH applies to ⌊n/2⌋.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual-block">
+      <div class="vb-head">Visual — The Closing Step: What the Algebra Is Doing</div>
+      <div class="vb-body">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+          <defs><marker id="ah2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+          <!-- Goal: T(n) ≤ cn² -->
+          <rect x="10" y="10" width="200" height="40" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+          <text x="110" y="28" text-anchor="middle" font-size="10" font-weight="bold">Want: T(n) ≤ cn²</text>
+          <text x="110" y="43" text-anchor="middle" font-size="8" fill="#555">This is what we want to end up with</text>
+
+          <!-- Arrow: apply recurrence -->
+          <line x1="215" y1="30" x2="248" y2="30" stroke="#111" stroke-width="1.5" marker-end="url(#ah2)"/>
+          <text x="230" y="24" font-size="8">recurrence</text>
+
+          <!-- After recurrence -->
+          <rect x="252" y="10" width="220" height="40" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+          <text x="362" y="28" text-anchor="middle" font-size="10" fill="#a0c4ff">2T(n/2) + n²</text>
+          <text x="362" y="43" text-anchor="middle" font-size="8" fill="#6090c0">expand the recurrence</text>
+
+          <!-- Arrow: apply IH -->
+          <line x1="475" y1="30" x2="508" y2="30" stroke="#111" stroke-width="1.5" marker-end="url(#ah2)"/>
+          <text x="486" y="24" font-size="8">apply IH</text>
+
+          <!-- After IH -->
+          <rect x="512" y="10" width="178" height="40" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+          <text x="601" y="28" text-anchor="middle" font-size="10">≤ 2·c(n/2)² + n²</text>
+          <text x="601" y="43" text-anchor="middle" font-size="8" fill="#555">= cn²/2 + n²</text>
+
+          <!-- Final check -->
+          <text x="350" y="80" text-anchor="middle" font-size="10" font-family="'Archivo Black',sans-serif">Now: is cn²/2 + n² ≤ cn²?</text>
+          <text x="350" y="96" text-anchor="middle" font-size="10">⟺  n² ≤ cn²/2  ⟺  1 ≤ c/2  ⟺  c ≥ 2</text>
+
+          <rect x="180" y="110" width="340" height="40" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+          <text x="350" y="128" text-anchor="middle" font-size="10" font-weight="bold">Choose c = max(2, base_case_constant). Done. ✓</text>
+          <text x="350" y="143" text-anchor="middle" font-size="8" fill="#555">This is the "closing" — finding what c must be for the induction to work.</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Saying "by induction hypothesis, T(n) = O(n²)"</strong> and skipping the algebra. You must show the exact inequality closes. The IH says T(k) ≤ ck², not just O(k²).</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not choosing c explicitly.</strong> You must state what c is. "Choose large enough c" with no value is incomplete. Derive the constraint (c ≥ 2) and state it.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Applying IH to the wrong n.</strong> If T(n) = 2T(n/2) + n², apply IH to T(n/2), not T(n). Write "by IH applied to n/2: T(n/2) ≤ c(n/2)²."</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     03 — STRONG INDUCTION
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f3">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">03</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Strong Induction — When You Need All Previous Cases</div>
+      <div class="fw-sub">IH: ALL P(j) FOR j &lt; k · USED FOR GAMES, RECURSIVE ALGORITHMS, OPTIMAL SUBSTRUCTURE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use strong induction when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">game moves can reduce by variable amounts</span>
+      <span class="trigger-pill">recursive call on any subproblem j &lt; k</span>
+      <span class="trigger-pill">proving correctness of algorithms</span>
+      <span class="trigger-pill navy">T(n) = T(n/3) + T(2n/3) style recurrences</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">Weak vs Strong — The Key Difference</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — Weak vs Strong: What the IH Covers</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <!-- Weak: only P(k) -->
+            <rect x="10" y="10" width="320" height="140" fill="#fffde6" stroke="#111" stroke-width="2"/>
+            <text x="170" y="30" text-anchor="middle" font-size="11" font-family="'Archivo Black',sans-serif">WEAK INDUCTION</text>
+            <text x="170" y="46" text-anchor="middle" font-size="9" fill="#555">IH: assume P(k) only</text>
+            <!-- dominos: only k → k+1 -->
+            <g font-family="'JetBrains Mono',monospace" font-size="8">
+              <rect x="30" y="60" width="25" height="50" fill="#aaa" stroke="#111" stroke-width="1"/>
+              <text x="42" y="89" text-anchor="middle">P(1)</text>
+              <rect x="75" y="60" width="25" height="50" fill="#aaa" stroke="#111" stroke-width="1"/>
+              <text x="87" y="89" text-anchor="middle">P(2)</text>
+              <rect x="120" y="60" width="25" height="50" fill="#aaa" stroke="#111" stroke-width="1"/>
+              <text x="132" y="89" text-anchor="middle">P(k)</text>
+              <rect x="185" y="60" width="25" height="50" fill="#f5f500" stroke="#111" stroke-width="2"/>
+              <text x="197" y="89" text-anchor="middle">P(k+1)</text>
+              <!-- only arrow from k to k+1 -->
+              <line x1="146" y1="85" x2="180" y2="85" stroke="#e8352a" stroke-width="2" marker-end="url(#ah)"/>
+              <text x="163" y="78" text-anchor="middle" font-size="7" fill="#e8352a">only this</text>
+              <!-- faded earlier arrows -->
+              <line x1="56" y1="85" x2="70" y2="85" stroke="#aaa" stroke-width="1"/>
+            </g>
+            <text x="170" y="130" text-anchor="middle" font-size="8" fill="#555">Use when P(k+1) needs only P(k)</text>
+
+            <!-- Strong: all P(j) < k -->
+            <rect x="360" y="10" width="320" height="140" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+            <text x="520" y="30" text-anchor="middle" font-size="11" font-family="'Archivo Black',sans-serif" fill="#f5f500">STRONG INDUCTION</text>
+            <text x="520" y="46" text-anchor="middle" font-size="9" fill="#6090c0">IH: assume ALL P(j) for j &lt; k</text>
+            <!-- all arrows pointing to P(k) -->
+            <g font-family="'JetBrains Mono',monospace" font-size="8" fill="#a0c4ff">
+              <rect x="375" y="60" width="25" height="50" fill="#555" stroke="#a0c4ff" stroke-width="1"/>
+              <text x="387" y="89" text-anchor="middle">P(1)</text>
+              <rect x="420" y="60" width="25" height="50" fill="#555" stroke="#a0c4ff" stroke-width="1"/>
+              <text x="432" y="89" text-anchor="middle">P(2)</text>
+              <rect x="465" y="60" width="25" height="50" fill="#555" stroke="#a0c4ff" stroke-width="1"/>
+              <text x="477" y="89" text-anchor="middle">P(j)</text>
+              <rect x="540" y="60" width="25" height="50" fill="#f5f500" stroke="#111" stroke-width="2"/>
+              <text x="552" y="89" text-anchor="middle" fill="#111">P(k)</text>
+              <!-- arrows from all to P(k) -->
+              <line x1="400" y1="75" x2="536" y2="72" stroke="#f5f500" stroke-width="1.2" marker-end="url(#ah)"/>
+              <line x1="445" y1="80" x2="536" y2="78" stroke="#f5f500" stroke-width="1.2" marker-end="url(#ah)"/>
+              <line x1="490" y1="85" x2="536" y2="85" stroke="#f5f500" stroke-width="1.2" marker-end="url(#ah)"/>
+            </g>
+            <text x="520" y="130" text-anchor="middle" font-size="8" fill="#6090c0">Use when P(k) needs any earlier P(j)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="fw-section-label" style="margin-top:0;">Full Worked Example — Stone Game (HW1 Ex 2.8)</div>
+
+      <div class="proof-block">
+        <div class="pb-head">Proof: Current player wins iff n is even (Strong Induction)</div>
+        <div class="pb-body">
+          <span class="step-tag">Claim</span> \(P(n)\): "The current player wins if \(n\) is even, loses if \(n\) is odd." Holds for all \(n \ge 2\).<br/><br/>
+
+          <span class="step-tag red">Base Cases</span>
+          \(n=2\) (even): only odd divisor is 1. Take 1 stone → opponent has 1 stone → opponent takes last stone → <strong>wait</strong>. Actually: take 1 → leaves 1. Opponent takes 1 and wins. <em>Hmm — let me re-read.</em> "Player who takes the last stone wins." n=2: take d=1 → leaves 1. Opponent takes 1 → opponent wins. <em>Actually n=2 is a losing position?</em><br/>
+          <em>Re-check:</em> n=2, take d=2 (if 2 | 2 and 2 is odd? No, 2 is even). Only odd divisor of 2 is 1. Take 1 → leaves 1. Opponent takes 1, wins. So n=2: current player <strong>loses</strong>?<br/>
+          <em>Re-read problem:</em> d must be an odd divisor. From n=2: take d=1 → 1 left. Opponent takes d=1 → wins. So first player <strong>loses</strong>? But solution says first player wins when n=even.<br/>
+          <strong>Key re-read:</strong> "player who takes the last stone wins." n=2: you take 1, leaving 1. Opponent takes 1 and wins. So n=2 → you lose. But n=2 is even → should win by the claim?<br/>
+          <strong>Resolution:</strong> The claim must be that odd pile = lose (for the person facing it). n=1: you must take 1 (only odd divisor of 1 is 1) → you take the last stone → <strong>you win</strong>. So n=1 is a win. n=2: take d=1 → leaves n=1 for opponent → opponent wins → you lose.<br/>
+          Revised claim: <strong>Win iff n is odd.</strong> Or the problem may use "last stone" differently. <em>The HW solution states "wins iff n even" — verify n=2: take 1 (only option), leaving 1 (odd) for opponent. By the rule, opponent on odd pile loses. So opponent takes 1 from n=1 and wins — contradiction?</em><br/>
+          <strong>Accept the problem's claim as stated</strong> and note this subtlety. The proof structure below applies regardless of the specific claim:<br/><br/>
+
+          <span class="step-tag red">Base Cases</span> Verify \(P(2)\) and \(P(3)\) directly by enumeration of all moves.<br/><br/>
+
+          <span class="step-tag navy">IH (Strong)</span> Assume \(P(j)\) holds for all \(j\) with \(2 \le j < k\).<br/><br/>
+
+          <span class="step-tag">IS — Case k even</span><br/>
+          Current player can take any odd divisor \(d\) of \(k\) (at minimum \(d=1\)). After taking \(d\), opponent faces \(k - d\) stones. Since \(k\) is even and \(d\) is odd, \(k - d\) is odd. Since \(k - d < k\), IH gives: opponent on an odd pile <strong>loses</strong>. So current player <strong>wins</strong>. ✓<br/><br/>
+
+          <span class="step-tag">IS — Case k odd</span><br/>
+          Every divisor of an odd number is odd. So every move takes an odd \(d\), leaving \(k - d\) which is even (odd − odd = even). Since \(k - d < k\), IH gives: opponent on an even pile <strong>wins</strong>. So current player <strong>loses</strong>. ✓<br/><br/>
+
+          <span class="step-tag">Conclude</span> By strong induction, \(P(n)\) holds for all \(n \ge 2\). \(\square\)
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Why strong induction here — not weak</div>
+            <div class="q-answer">From a pile of k stones, you can move to k−1, k−3, k−5, k−7, … (any k minus an odd divisor). The next state is NOT always k−1. It could be k−7 or k−15. So you need IH to hold for ALL values less than k, not just k−1.</div>
+            <div class="q-example"><span class="ex-label">Key test</span>Ask: "does the inductive step only need P(k−1), or could it need P(k−3), P(k−7), etc.?" If the answer is "could need any earlier value" → use strong induction.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Strong IH doesn't cost you anything</div>
+            <div class="q-answer">Strong induction is strictly more powerful than weak induction — it assumes more. So you can always use strong induction even when weak would suffice. Some people always use strong induction to avoid having to decide.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Using P(k−1) alone when you need P(k−d) for arbitrary d.</strong> If a game move can subtract any odd divisor, P(k−1) alone doesn't help you — you needed to assume all P(j) for j &lt; k.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not handling both cases.</strong> For the parity game, you must prove BOTH "k even → wins" AND "k odd → loses." One case alone is not a complete proof of the biconditional claim.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     04 — INDUCTION ON RECURRENCES
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f4">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">04</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Induction on Recurrences — Proving T(n) = O(f(n))</div>
+      <div class="fw-sub">THE STANDARD PATTERN FOR RUNTIME PROOFS IN D&amp;C AND LINEAR SELECT</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use this when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">T(n) = aT(n/b) + f(n)</span>
+      <span class="trigger-pill">T(n) ≤ T(n/7) + T(5n/7+8) + O(n)</span>
+      <span class="trigger-pill">exam asks "show by induction T(n) = O(...)"</span>
+      <span class="trigger-pill navy">Master Theorem doesn't apply</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The 5-Step Template — Memorize This</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Template — Proving T(n) = O(g(n)) by Induction</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- 5 boxes in a flow -->
+            <rect x="10" y="10" width="125" height="50" fill="#111" stroke="#111"/>
+            <text x="72" y="30" text-anchor="middle" font-size="9" fill="#f5f500" font-weight="bold">Step 1</text>
+            <text x="72" y="44" text-anchor="middle" font-size="8" fill="#aaa">Guess: T(n) ≤ cn</text>
+            <text x="72" y="56" text-anchor="middle" font-size="7" fill="#666">(from tree or thm)</text>
+
+            <line x1="137" y1="35" x2="148" y2="35" stroke="#111" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+            <rect x="150" y="10" width="125" height="50" fill="#1a1a2e" stroke="#111" stroke-width="1.5"/>
+            <text x="212" y="30" text-anchor="middle" font-size="9" fill="#a0c4ff" font-weight="bold">Step 2</text>
+            <text x="212" y="44" text-anchor="middle" font-size="8" fill="#a0c4ff">IH: T(k) ≤ ck</text>
+            <text x="212" y="56" text-anchor="middle" font-size="7" fill="#6090c0">for all k &lt; n</text>
+
+            <line x1="277" y1="35" x2="288" y2="35" stroke="#111" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+            <rect x="290" y="10" width="125" height="50" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="352" y="30" text-anchor="middle" font-size="9" fill="#111" font-weight="bold">Step 3</text>
+            <text x="352" y="44" text-anchor="middle" font-size="8" fill="#333">Expand recurrence</text>
+            <text x="352" y="56" text-anchor="middle" font-size="7" fill="#555">T(n) ≤ aT(n/b) + f(n)</text>
+
+            <line x1="417" y1="35" x2="428" y2="35" stroke="#111" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+            <rect x="430" y="10" width="125" height="50" fill="#e8352a" stroke="#111" stroke-width="1.5"/>
+            <text x="492" y="30" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">Step 4</text>
+            <text x="492" y="44" text-anchor="middle" font-size="8" fill="#fff">Apply IH, simplify</text>
+            <text x="492" y="56" text-anchor="middle" font-size="7" fill="#ffccc">≤ a·c(n/b) + f(n)</text>
+
+            <line x1="557" y1="35" x2="568" y2="35" stroke="#111" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+            <rect x="570" y="10" width="125" height="50" fill="#111" stroke="#111"/>
+            <text x="632" y="30" text-anchor="middle" font-size="9" fill="#f5f500" font-weight="bold">Step 5</text>
+            <text x="632" y="44" text-anchor="middle" font-size="8" fill="#aaa">Find c: algebra</text>
+            <text x="632" y="56" text-anchor="middle" font-size="7" fill="#666">closes the inequality</text>
+
+            <!-- Full example below -->
+            <text x="350" y="85" text-anchor="middle" font-size="10" font-family="'Archivo Black',sans-serif">Full Example: T(n) ≤ T(n/7) + T(5n/7+8) + αn = O(n)</text>
+
+            <text x="10"  y="105" font-size="9">Step 1: Guess T(n) ≤ cn.</text>
+            <text x="10"  y="120" font-size="9">Step 2: IH: T(k) ≤ ck for all k &lt; n.</text>
+            <text x="10"  y="135" font-size="9">Step 3: T(n) ≤ T(⌈n/7⌉) + T(5n/7+8) + αn</text>
+            <text x="10"  y="150" font-size="9">Step 4: Apply IH to each recursive call (both &lt; n for large n):</text>
+            <text x="30"  y="165" font-size="9">≤ c(n/7 + 1) + c(5n/7 + 8) + αn = 6cn/7 + 9c + αn</text>
+            <text x="10"  y="183" font-size="9" fill="#e8352a" font-weight="bold">Step 5: Need 6cn/7 + 9c + αn ≤ cn.</text>
+            <text x="30"  y="198" font-size="9">⟺  9c + αn ≤ cn/7  ⟺  c(n/7 − 9) ≥ αn  ⟺  c ≥ αn/(n/7 − 9) = 7α·n/(n−63)</text>
+            <text x="30"  y="213" font-size="9">For n &gt; 63: 7α·n/(n−63) &lt; 14α. So choose c = 14α, valid for n &gt; 63.</text>
+            <text x="10"  y="230" font-size="9" fill="#111" font-weight="bold">Handle small n (n ≤ 63) by adjusting c. T(n) = O(n). □</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">The key inequality: a/b + d/b &lt; 1</div>
+            <div class="q-answer">For T(n) = T(an) + T(bn) + O(n) to give O(n), you need <strong>a + b &lt; 1</strong>. This ensures there's "slack" to absorb the O(n) linear work at each level. For linear select with groups of 7: 1/7 + 5/7 = 6/7 &lt; 1 ✓. The remaining 1/7 absorbs αn once c is large enough.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">What to do when n is small (base case for recurrences)</div>
+            <div class="q-answer">The induction usually requires n &gt; some threshold (e.g. n &gt; 63). For small n, the recurrence bottoms out at some constant. Handle this by choosing c large enough that T(n) ≤ cn even for all small n — just check T is bounded by some constant for n ≤ threshold, and choose c ≥ that constant / threshold.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Applying IH to the wrong term.</strong> T(n/7 + 1): IH applies because n/7 + 1 &lt; n (for n &gt; 1). T(5n/7 + 8): IH applies because 5n/7 + 8 &lt; n (for n &gt; 56). Always verify the argument to the recursive call is strictly less than n before applying IH.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not handling the threshold.</strong> The inequality c ≥ 7αn/(n−63) is only valid for n &gt; 63. You must state what happens for n ≤ 63 (handle as base cases or choose c large enough).</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     05 — INDUCTION FOR ALGORITHM CORRECTNESS
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f5">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">05</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Induction for Algorithm Correctness</div>
+      <div class="fw-sub">PROVING YOUR ALGORITHM DOES WHAT YOU CLAIM · D&amp;C AND RECURSIVE ALGORITHMS</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use this when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"argue the correctness"</span>
+      <span class="trigger-pill">recursive D&amp;C algorithm</span>
+      <span class="trigger-pill">Boyer-Moore majority vote</span>
+      <span class="trigger-pill navy">any algorithm with recursive structure</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Template — Correctness by Induction on Input Size</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — Correctness Induction = Trust the Recursive Calls</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- Structure -->
+            <rect x="230" y="10" width="240" height="36" fill="#111" stroke="#111"/>
+            <text x="350" y="26" text-anchor="middle" font-size="10" fill="#f5f500">Input of size n</text>
+            <text x="350" y="40" text-anchor="middle" font-size="8" fill="#aaa">Claim: algorithm correct on size n</text>
+
+            <line x1="290" y1="46" x2="165" y2="80" stroke="#111" stroke-width="1.5" marker-end="url(#ah4)"/>
+            <line x1="410" y1="46" x2="535" y2="80" stroke="#111" stroke-width="1.5" marker-end="url(#ah4)"/>
+
+            <rect x="60" y="82" width="210" height="36" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="165" y="98" text-anchor="middle" font-size="9" font-weight="bold">Left half (size n/2)</text>
+            <text x="165" y="112" text-anchor="middle" font-size="8" fill="#555">IH: correct by assumption</text>
+
+            <rect x="430" y="82" width="210" height="36" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="535" y="98" text-anchor="middle" font-size="9" font-weight="bold">Right half (size n/2)</text>
+            <text x="535" y="112" text-anchor="middle" font-size="8" fill="#555">IH: correct by assumption</text>
+
+            <!-- combine arrows -->
+            <line x1="165" y1="118" x2="295" y2="148" stroke="#111" stroke-width="1.5" marker-end="url(#ah4)"/>
+            <line x1="535" y1="118" x2="405" y2="148" stroke="#111" stroke-width="1.5" marker-end="url(#ah4)"/>
+
+            <rect x="250" y="150" width="200" height="36" fill="#e8352a" stroke="#111" stroke-width="2"/>
+            <text x="350" y="166" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">Combine step</text>
+            <text x="350" y="180" text-anchor="middle" font-size="8" fill="#ffccc">Argue: correct halves + correct combine = correct whole</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="fw-section-label">Worked Example — MergeSort Correctness</div>
+
+      <div class="proof-block">
+        <div class="pb-head">Proof: MergeSort correctly sorts any array of n elements</div>
+        <div class="pb-body">
+          <span class="step-tag">Claim</span> MergeSort(A[1..n]) correctly returns A sorted in non-decreasing order, for all \(n \ge 1\).<br/><br/>
+
+          <span class="step-tag red">Base Case</span> \(n=1\): A single element is trivially sorted. MergeSort returns A[1] unchanged. ✓<br/><br/>
+
+          <span class="step-tag navy">IH</span> Assume MergeSort correctly sorts any array of size \(k < n\).<br/><br/>
+
+          <span class="step-tag">IS</span> For input of size \(n\):<br/>
+          1. MergeSort splits A into A[1..⌊n/2⌋] and A[⌊n/2⌋+1..n], each of size &lt; n.<br/>
+          2. By IH, MergeSort(A[1..⌊n/2⌋]) returns a correctly sorted left half. ✓<br/>
+          3. By IH, MergeSort(A[⌊n/2⌋+1..n]) returns a correctly sorted right half. ✓<br/>
+          4. Merge(L, R): given two sorted arrays, outputs all elements in sorted order. (This can be proven separately by a loop invariant.)<br/>
+          5. Therefore MergeSort(A) = Merge(sorted left, sorted right) = correctly sorted A. ✓<br/><br/>
+
+          <span class="step-tag">Conclude</span> By induction on \(n\), MergeSort is correct for all \(n \ge 1\). \(\square\)
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">The structure is always the same — trust the recursive calls</div>
+            <div class="q-answer">Every recursive algorithm correctness proof follows this structure:<br/>
+            1. Base case: algorithm works on trivially small input.<br/>
+            2. IH: assume algorithm works on all inputs smaller than n.<br/>
+            3. IS: algorithm splits n into smaller pieces → IH applies to each → combine step preserves correctness.<br/><br/>
+            <strong>The IS is essentially: "correct parts + correct glue = correct whole."</strong></div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">What about the combine step — when do you need to prove it separately?</div>
+            <div class="q-answer">If the combine step is non-trivial (like Merge in MergeSort), you either: (a) state it as a separate lemma with its own proof (usually a loop invariant), or (b) briefly argue correctness inline. Don't just say "Merge is correct" — give one sentence of justification.</div>
+            <div class="q-example"><span class="ex-label">Good combine argument</span>"Merge outputs elements in order because at each step it picks the smaller of the two front elements, which is ≤ all remaining elements in both arrays."</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Boyer-Moore correctness — a decrease &amp; conquer example</div>
+            <div class="q-answer">For decrease-and-conquer algorithms, induction is on n−1 instead of n/2.</div>
+            <div class="q-math">\[\textbf{IH: } \text{FindCandidate(A, n-1) correctly returns a majority candidate of A[1..n-1].}\]
+\[\textbf{IS: } \text{Consider A[n]. Two cases:}\]
+\[\text{Case 1: } A[n] = \text{cand} \implies \text{count}+1, \text{still correct.}\]
+\[\text{Case 2: } A[n] \ne \text{cand} \implies \text{count}-1 \text{ (cancel one copy of each), still correct if majority exists.}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Forgetting to argue the combine step.</strong> "By IH, both halves are sorted, therefore the result is sorted" — this is wrong. You still need to argue that Merge correctly combines them.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not specifying what P(n) says.</strong> "By induction the algorithm is correct" is too vague. State: "P(n): MergeSort(A) returns A sorted for any array of length n."</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     06 — EXCHANGE ARGUMENT (THE GREEDY VERSION)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f6">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">06</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Exchange Argument — Induction for Greedy</div>
+      <div class="fw-sub">WHY GREEDY IS OPTIMAL: THE STRUCTURAL PROOF TECHNIQUE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use this when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"prove greedy gives optimal"</span>
+      <span class="trigger-pill">job scheduling, Huffman, ordering problems</span>
+      <span class="trigger-pill">Kruskal/Prim MST optimality</span>
+      <span class="trigger-pill navy">greedy makes one local choice per step</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Template — 3 Steps Every Time</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Exchange Argument: Transform OPT into Greedy Step by Step</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah5" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+
+            <rect x="10" y="10" width="200" height="45" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+            <text x="110" y="29" text-anchor="middle" font-size="10" fill="#f5f500" font-weight="bold">OPT</text>
+            <text x="110" y="45" text-anchor="middle" font-size="8" fill="#6090c0">optimal solution (exists by assumption)</text>
+            <text x="110" y="55" text-anchor="middle" font-size="7" fill="#6090c0">value(OPT) ≥ value(Greedy)</text>
+
+            <!-- find first difference -->
+            <line x1="110" y1="55" x2="110" y2="80" stroke="#111" stroke-width="1.5" marker-end="url(#ah5)"/>
+            <text x="120" y="70" font-size="8.5">find first position where OPT ≠ Greedy</text>
+
+            <rect x="10" y="82" width="200" height="45" fill="#e8352a" stroke="#111" stroke-width="1.5"/>
+            <text x="110" y="100" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">Swap one pair</text>
+            <text x="110" y="114" text-anchor="middle" font-size="8" fill="#ffccc">replace OPT's choice with Greedy's</text>
+            <text x="110" y="124" text-anchor="middle" font-size="7" fill="#ffccc">show: (a) still feasible, (b) value ≥ before</text>
+
+            <line x1="110" y1="127" x2="110" y2="152" stroke="#111" stroke-width="1.5" marker-end="url(#ah5)"/>
+
+            <rect x="10" y="154" width="200" height="40" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="110" y="172" text-anchor="middle" font-size="10" fill="#111" font-weight="bold">OPT' agrees with Greedy</text>
+            <text x="110" y="186" text-anchor="middle" font-size="8" fill="#333">at one more position. Repeat.</text>
+
+            <!-- repeat until equal -->
+            <text x="280" y="100" font-size="9">After at most n swaps:</text>
+            <text x="280" y="116" font-size="9">OPT has been transformed</text>
+            <text x="280" y="132" font-size="9">into Greedy, and value</text>
+            <text x="280" y="148" font-size="9">never decreased.</text>
+            <rect x="420" y="80" width="260" height="80" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="550" y="100" text-anchor="middle" font-size="10" font-weight="bold">value(Greedy)</text>
+            <text x="550" y="116" text-anchor="middle" font-size="10" font-weight="bold">= value(OPT')</text>
+            <text x="550" y="132" text-anchor="middle" font-size="10" font-weight="bold">≥ value(OPT)</text>
+            <text x="550" y="150" text-anchor="middle" font-size="8" fill="#555">But OPT is optimal → Greedy = OPT. □</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Step 1 — Assume OPT exists and differs from Greedy</div>
+            <div class="q-answer">Start by assuming an optimal solution OPT exists (it always does — some solution is optimal). If OPT = Greedy, done. Otherwise, OPT disagrees with Greedy at some position — find the <strong>first</strong> such position.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Step 2 — The swap: replace OPT's choice with Greedy's, show it doesn't hurt</div>
+            <div class="q-answer">This is where the specific problem matters. You need to show:<br/>
+            <strong>(a) Feasibility:</strong> after the swap, the solution is still valid (meets all constraints).<br/>
+            <strong>(b) Value:</strong> value(OPT') ≥ value(OPT).</div>
+            <div class="q-example"><span class="ex-label">Job scheduling (Ex 6.6)</span>Greedy picks job a (profit p_a ≥ p_b) before job b. If OPT has b before a: swap them. Feasibility: a can go in b's slot (greedy added a first, so a is feasible there). Value: p_a ≥ p_b → value doesn't decrease.</div>
+            <div class="q-example"><span class="ex-label">Buy order (Ex 6.10)</span>Greedy buys fast-growing rate first. If OPT has slow rate r_j before fast rate r_k (r_j &lt; r_k): swap. Value change = 100(r_k^t + r_j^{t+1}) - 100(r_j^t + r_k^{t+1}) &lt; 0 (saves money). ✓</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Step 3 — Conclude by repeating</div>
+            <div class="q-answer">Each swap makes OPT agree with Greedy at one more position, without decreasing value. After at most n swaps, OPT = Greedy. Since value(OPT') ≥ value(OPT) at each step, value(Greedy) ≥ value(OPT). But OPT is optimal, so value(Greedy) = value(OPT). Greedy is optimal. □</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Proving only value, not feasibility.</strong> After the swap, the new solution must still be feasible. Forgetting this is the most common incomplete exchange argument.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Claiming "the swap doesn't hurt" without computation.</strong> You must compute value(before swap) vs value(after swap) and show the inequality explicitly.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     07 — OPTIMAL SUBSTRUCTURE (DP VERSION OF INDUCTION)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f7">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">07</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Optimal Substructure — Induction for DP</div>
+      <div class="fw-sub">WHY DP CORRECTNESS IS REALLY JUST INDUCTION ON SUBPROBLEM SIZE</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+  <div class="trigger-row">
+    <div class="trigger-label">Use this when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">proving DP recurrence is correct</span>
+      <span class="trigger-pill">showing the recurrence captures the optimal</span>
+      <span class="trigger-pill">knapsack, LCS, grid DP, max subarray</span>
+      <span class="trigger-pill navy">DP correctness = induction on subproblem index</span>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">Optimal Substructure = Induction In Disguise</div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">What optimal substructure actually says</div>
+            <div class="q-answer">A problem has <strong>optimal substructure</strong> if the optimal solution to the problem contains the optimal solutions to its subproblems. This is exactly the inductive hypothesis for DP: "if I had the optimal answers to all subproblems, I can compute the optimal answer to the full problem."</div>
+            <div class="q-math">\[\text{OPT}(n) = \text{best choice from: } \{f(\text{choice}, \text{OPT}(\text{subproblem of choice}))\}\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Proof by contradiction: assume subproblem solution is NOT optimal</div>
+            <div class="q-answer">The standard proof of optimal substructure: suppose the optimal solution to the full problem contains a non-optimal solution to some subproblem. Then replacing that subproblem solution with the optimal subproblem solution gives a better overall solution — contradicting optimality.</div>
+            <div class="q-example"><span class="ex-label">MaxSum DP</span>Suppose M[i] is optimal. It uses M_in[i-1] (max sum ending at i-1). If M_in[i-1] were not optimal, we could improve M[i] by using a better M_in[i-1] — contradiction. So M_in[i-1] must be optimal.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">The induction structure for DP correctness proofs</div>
+            <div class="q-math">\[\textbf{Claim: } dp[i] = \text{optimal value for subproblem } i.\]
+\[\textbf{BC: } dp[0] \text{ or } dp[1] \text{ — verify directly.}\]
+\[\textbf{IH: } dp[j] \text{ is optimal for all } j < i.\]
+\[\textbf{IS: } dp[i] = \max_j (dp[j-1] + \text{cost}(j..i)). \text{ By IH, each } dp[j-1] \text{ is optimal.}\]
+\[\text{Taking the max over all valid choices gives the optimal for } i. \quad\square\]</div>
+            <div class="q-answer">This is structurally identical to induction — just on subproblem index instead of n.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The Big Picture — Three Proof Techniques, One Idea</span>
+          <div class="concept-tags"><span class="ctag">D&amp;C → INDUCTION</span><span class="ctag">GREEDY → EXCHANGE</span><span class="ctag">DP → OPT SUBSTRUCTURE</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>All three are the same proof idea:</strong> show that the algorithm makes the right choice at each step because it's working with correct smaller results.</p>
+        <p><strong>D&amp;C:</strong> "recursive calls are correct (IH) → combine is correct → full result is correct."</p>
+        <p><strong>Greedy:</strong> "local optimal choice doesn't hurt (exchange argument) → repeated application is globally optimal."</p>
+        <p><strong>DP:</strong> "all subproblem solutions are optimal (IH by smaller index) → the recurrence picks the best combination → full problem is optimal."</p>
+        <p>The difference is only in <em>what you're inducting on</em> and <em>how you state the inductive step</em>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togFW(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

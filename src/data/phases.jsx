@@ -52,6 +52,7 @@ export const PHASES = [
     number: "8b",
     title: "Self-Hosted Content Server",
     status: "next",
+    eta: "2025-05-15",
     summary: "Host notes, references, and PDFs on a self-hosted server. App fetches new/changed files directly over HTTPS on launch — no APK rebuild needed for content updates. Manifest drives delta downloads. Files cached locally in app storage.",
   },
   {
@@ -64,24 +65,28 @@ export const PHASES = [
     number: "9b",
     title: "Desktop App — Persistence Layer",
     status: "next",
+    eta: "2025-05-30",
     summary: "Complete the file-based persistence architecture. Talk2Me entries currently work in browser via Express but not verified in Tauri. Need talk2me.js as dedicated persistence file, load_talk2me and save_talk2me Rust commands, and first-render guard matching the deadlines pattern. Then verify end-to-end on both machines.",
   },
   {
     number: 10,
     title: "Database",
     status: "next",
+    eta: "2025-06-30",
     summary: "Once sync is stable, the manifest becomes the seed. Migrate to a real DB for queryability, user progress, flashcard history, PDF bookmarks, and highlight tracking. Offline-first — DB lives on device, syncs passively.",
   },
   {
     number: 11,
     title: "Frontend Polish",
     status: "upcoming",
+    eta: "2025-08-01",
     summary: "Design system, CSS vars, loading skeletons, flashcard modes, dark/light toggle.",
   },
   {
     number: 12,
     title: "Android APK",
     status: "upcoming",
+    eta: "2025-08-15",
     summary: "Capacitor build, self-signed APK, biometric lock, local PDF bundle, sideload to Samsung.",
   },
 ];

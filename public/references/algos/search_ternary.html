@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ternary Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#a78bfa; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --blue:#60a5fa; --teal:#4ecdc4; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  .step-grid { display:flex; flex-direction:column; gap:24px; }
+  .step-row { display:flex; flex-direction:column; gap:8px; }
+  .step-top { display:flex; align-items:center; gap:12px; }
+  .step-label { font-size:10px; color:var(--dim); width:60px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .cells { display:flex; gap:4px; flex-wrap:wrap; }
+  .cell-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .cell { width:40px; height:40px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .cell.m1     { background:#a78bfa30; border-color:var(--accent); color:var(--accent); }
+  .cell.m2     { background:#4ecdc430; border-color:var(--teal); color:var(--teal); }
+  .cell.elim   { background:#1a1d24; border-color:#1e2230; color:#2a3040; }
+  .cell.active { background:#21252e; border-color:#2a2e38; }
+  .cell.found  { background:#6bde8430; border-color:var(--green); color:var(--green); }
+  .cell-idx  { font-size:9px; color:var(--dim); }
+  .cell-ptr  { font-size:9px; font-weight:700; }
+
+  .step-note { font-size:12px; color:var(--dim); margin-left:72px; line-height:1.7; }
+  .step-note .m1 { color:var(--accent); font-weight:700; }
+  .step-note .m2 { color:var(--teal); font-weight:700; }
+  .step-note .go { color:var(--blue); font-weight:700; }
+  .step-note .win { color:var(--green); font-weight:700; }
+
+  .vs-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+  .vs-table th { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+  .vs-table td { padding:8px 12px; border-bottom:1px solid var(--border); color:var(--dim); }
+  .vs-table td:first-child { color:var(--text); }
+  .good { color:var(--green); font-weight:700; }
+  .bad  { color:var(--red); font-weight:700; }
+  .ok   { color:var(--yellow); font-weight:700; }
+  .vs-table tr:last-child td { border-bottom:none; }
+
+  /* unimodal use case diagram */
+  .unimodal-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px 24px; border-left:3px solid var(--accent); }
+  .unimodal-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:12px; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--teal); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Ternary<span>.</span></h1>
+    <div class="subtitle">Three-Way Divide · Sorted Array or Unimodal Functions</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="og">O(log₃ n) = O(log n)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="og">O(log₃ n)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1)</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">Like binary search, but divide into <span>three parts</span> instead of two. Pick two midpoints — <span>m1</span> at 1/3 and <span>m2</span> at 2/3 of the search range. Compare target to both. This eliminates one third of the range each step instead of one half. Counterintuitively, this is <span>not faster than binary search</span> — it uses more comparisons per step.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Search for 37 in [2, 5, 9, 14, 20, 27, 37, 46, 58, 71, 83, 95]</div>
+  <div class="annotation"><span style="color:var(--accent)">Purple</span> = m1 (1/3 point), <span style="color:var(--teal)">Teal</span> = m2 (2/3 point), faded = eliminated.</div>
+
+  <div class="step-grid">
+
+    <!-- Step 1 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 1</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell active">2</div><div class="cell-idx">0</div><div class="cell-ptr" style="color:var(--dim)">L</div></div>
+          <div class="cell-wrap"><div class="cell active">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell active">9</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell m1">14</div><div class="cell-idx">3</div><div class="cell-ptr" style="color:var(--accent)">m1</div></div>
+          <div class="cell-wrap"><div class="cell active">20</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell active">27</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell active">37</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell m2">46</div><div class="cell-idx">7</div><div class="cell-ptr" style="color:var(--teal)">m2</div></div>
+          <div class="cell-wrap"><div class="cell active">58</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell active">71</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell active">83</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell active">95</div><div class="cell-idx">11</div><div class="cell-ptr" style="color:var(--dim)">R</div></div>
+        </div>
+      </div>
+      <div class="step-note">
+        m1 = L+(R−L)/3 = 3, arr[3] = <span class="m1">14</span>. &nbsp; m2 = R−(R−L)/3 = 7, arr[7] = <span class="m2">46</span>.<br>
+        37 &gt; 14 and 37 &lt; 46 → <span class="go">target is in middle third [m1+1 .. m2−1]</span>, L=4, R=6
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 2</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell elim">2</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell elim">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell elim">9</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell elim">14</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell active">20</div><div class="cell-idx">4</div><div class="cell-ptr" style="color:var(--dim)">L</div></div>
+          <div class="cell-wrap"><div class="cell m1">27</div><div class="cell-idx">5</div><div class="cell-ptr" style="color:var(--accent)">m1/m2</div></div>
+          <div class="cell-wrap"><div class="cell active">37</div><div class="cell-idx">6</div><div class="cell-ptr" style="color:var(--dim)">R</div></div>
+          <div class="cell-wrap"><div class="cell elim">46</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell elim">58</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell elim">71</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell elim">83</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell elim">95</div><div class="cell-idx">11</div></div>
+        </div>
+      </div>
+      <div class="step-note">
+        Range [4..6], m1=5, m2=5 (same when range is small).<br>
+        arr[5] = <span class="m1">27</span>. 37 &gt; 27 → <span class="go">search right: L=6</span>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 3</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell elim">2</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell elim">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell elim">9</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell elim">14</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell elim">20</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell elim">27</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell found">37</div><div class="cell-idx">6</div><div class="cell-ptr" style="color:var(--green)">✓</div></div>
+          <div class="cell-wrap"><div class="cell elim">46</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell elim">58</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell elim">71</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell elim">83</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell elim">95</div><div class="cell-idx">11</div></div>
+        </div>
+      </div>
+      <div class="step-note"><span class="win">L = R = 6, arr[6] = 37 — found ✓</span></div>
+    </div>
+
+  </div>
+  <div class="caption">Found in 3 steps using ~5 comparisons. Binary search would also take ~4 comparisons. Ternary uses <strong>more comparisons per step</strong> (2 midpoints vs 1), making it slower than binary in practice despite the smaller number of iterations.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — Ternary vs Binary: The Comparison Math</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>Binary Search</th><th>Ternary Search</th></tr>
+    <tr><td>Comparisons per step</td><td class="good">1</td><td class="bad">2</td></tr>
+    <tr><td>Fraction eliminated</td><td style="color:var(--yellow);font-weight:700;">1/2</td><td class="good">1/3 (keeps 2/3)</td></tr>
+    <tr><td>Steps to solve</td><td style="color:var(--dim)">log₂ n</td><td style="color:var(--dim)">log₃ n = log₂n / log₂3</td></div></tr>
+    <tr><td>Total comparisons</td><td class="good">log₂ n</td><td class="bad">2 × log₃ n ≈ 1.26 × log₂ n</td></tr>
+    <tr><td>Real-world speed</td><td class="good">Faster</td><td class="bad">~26% more comparisons</td></tr>
+    <tr><td>Best use case</td><td>Sorted arrays</td><td class="good">Unimodal function optimization</td></tr>
+  </table>
+  <div class="caption">Binary search wins for array searching. Ternary wins for finding the maximum of a unimodal (single-peaked) function where you can't check equality — only greater/less.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">4 — Real Use Case: Unimodal Function Optimization</div>
+  <div class="unimodal-box">
+    <div class="unimodal-title">Finding the maximum of f(x) = −(x−5)² + 25 over [0, 10]</div>
+    <svg width="480" height="120" viewBox="0 0 480 120">
+      <!-- curve -->
+      <path d="M 20,110 Q 120,10 240,10 Q 360,10 460,110" fill="none" stroke="#a78bfa" stroke-width="2.5"/>
+      <!-- m1 line -->
+      <line x1="147" y1="10" x2="147" y2="115" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- m2 line -->
+      <line x1="333" y1="10" x2="333" y2="115" stroke="#4ecdc4" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- peak marker -->
+      <circle cx="240" cy="10" r="4" fill="#6bde84"/>
+      <!-- labels -->
+      <text x="147" y="112" text-anchor="middle" font-size="9" fill="#a78bfa" font-family="Atkinson Hyperlegible,sans-serif">m1 = x+1/3</text>
+      <text x="333" y="112" text-anchor="middle" font-size="9" fill="#4ecdc4" font-family="Atkinson Hyperlegible,sans-serif">m2 = x+2/3</text>
+      <text x="240" y="8"  text-anchor="middle" font-size="9" fill="#6bde84" font-family="Atkinson Hyperlegible,sans-serif">peak (unknown)</text>
+      <text x="20"  y="112" font-size="9" fill="#7a8090" font-family="Atkinson Hyperlegible,sans-serif">L</text>
+      <text x="455" y="112" font-size="9" fill="#7a8090" font-family="Atkinson Hyperlegible,sans-serif">R</text>
+      <text x="200" y="70" font-size="10" fill="#7a8090" font-family="Atkinson Hyperlegible,sans-serif">f(m1) &lt; f(m2)</text>
+      <text x="200" y="84" font-size="10" fill="#7a8090" font-family="Atkinson Hyperlegible,sans-serif">→ peak is right of m1</text>
+    </svg>
+    <div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7;">
+      If f(m1) &lt; f(m2): peak is in [m1, R] → eliminate left third.<br>
+      If f(m1) &gt; f(m2): peak is in [L, m2] → eliminate right third.<br>
+      No equality comparison needed — just which side is higher.
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Eliminates 1/3 Per Step</div>
+    <div class="card-body">Two midpoints split the range into thirds. Each step eliminates one third — the smallest or largest third depending on which side the target is in.</div>
+    <div class="card-o" style="color:var(--accent)">O(log₃ n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Slower Than Binary for Arrays</div>
+    <div class="card-body">2 comparisons per step vs 1. Despite fewer iterations, total comparison count is ~26% higher than binary search.</div>
+    <div class="card-o" style="color:var(--green)">use binary instead</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Unimodal Optimization</div>
+    <div class="card-body">Shines when finding the max/min of a function with one peak. No equality check needed — just compare f(m1) vs f(m2).</div>
+    <div class="card-o" style="color:var(--red)">best for functions</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Competitive programming for optimization problems, golden-section search, some machine learning hyperparameter tuning approaches.</div>
+    <div class="card-o" style="color:var(--teal)">optimization</div>
+  </div>
+</div>
+
+</body>
+</html>

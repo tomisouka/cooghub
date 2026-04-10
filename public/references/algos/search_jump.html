@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jump Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#f472b6; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --blue:#60a5fa; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  .cells { display:flex; gap:5px; flex-wrap:wrap; }
+  .cell-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .cell { width:44px; height:44px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .cell.jump    { background:#f472b630; border-color:var(--accent); color:var(--accent); }
+  .cell.skipped { background:#1a1d24; border-color:#1e2230; color:#2a3040; }
+  .cell.linear  { background:#60a5fa20; border-color:var(--blue); color:var(--blue); }
+  .cell.found   { background:#6bde8430; border-color:var(--green); color:var(--green); }
+  .cell.block   { background:#e8c54712; border-color:#e8c54740; color:var(--yellow); }
+  .cell-idx { font-size:9px; color:var(--dim); }
+  .cell-ptr { font-size:9px; font-weight:700; }
+
+  .phase { display:flex; flex-direction:column; gap:16px; }
+  .phase-row { display:flex; align-items:flex-start; gap:14px; }
+  .phase-label { font-size:10px; color:var(--dim); width:72px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding-top:14px; }
+  .phase-note { font-size:11px; color:var(--dim); margin-top:6px; }
+  .phase-note .hl { color:var(--accent); font-weight:700; }
+  .phase-note .go { color:var(--blue); font-weight:700; }
+  .phase-note .win { color:var(--green); font-weight:700; }
+
+  /* arc arrows via SVG */
+  .arc-wrap { position:relative; }
+
+  .formula-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px 24px; border-left:3px solid var(--accent); }
+  .formula { font-size:16px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .formula span { color:var(--accent); }
+  .formula-note { font-size:12px; color:var(--dim); line-height:1.7; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--blue); }
+  .card:nth-child(4) { border-top-color:var(--yellow); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Jump<span>.</span></h1>
+    <div class="subtitle">Block Search · Sorted Array · Step = √n</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="og">O(√n)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="og">O(√n)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1)</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">Jump ahead by <span>√n steps</span> at a time until you overshoot the target. Then <span>linear search backwards</span> in the block you overshot into. Two phases: jump phase (O(√n) jumps) + linear phase (O(√n) steps within the block). Total: O(√n). Sits between linear O(n) and binary O(log n).</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Why √n is Optimal</div>
+  <div class="formula-box">
+    <div class="formula">step = <span>√n</span></div>
+    <div class="formula-note">
+      Jump phase makes at most n/step = n/√n = <strong style="color:var(--text)">√n</strong> jumps.<br>
+      Linear phase backtracks at most step−1 = <strong style="color:var(--text)">√n − 1</strong> steps.<br>
+      Total comparisons: √n + √n − 1 ≈ <strong style="color:var(--text)">2√n</strong> = O(√n).<br>
+      Any other step size makes one of the phases worse. √n balances them perfectly.
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — Search for 55 in 16-element sorted array, step = √16 = 4</div>
+  <div class="annotation"><span style="color:var(--accent)">Pink</span> = jump checkpoint, <span style="color:var(--blue)">Blue</span> = linear scan, skipped = not visited.</div>
+
+  <div class="phase">
+
+    <!-- Jump phase -->
+    <div class="phase-row">
+      <span class="phase-label">Jump 1</span>
+      <div>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell skipped">3</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell skipped">7</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell skipped">12</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell jump">18</div><div class="cell-idx">3</div><div class="cell-ptr" style="color:var(--accent)">↑</div></div>
+          <div class="cell-wrap"><div class="cell">24</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell">31</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell">39</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell">47</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell">55</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell">63</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell">70</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell">78</div><div class="cell-idx">11</div></div>
+          <div class="cell-wrap"><div class="cell">85</div><div class="cell-idx">12</div></div>
+          <div class="cell-wrap"><div class="cell">91</div><div class="cell-idx">13</div></div>
+          <div class="cell-wrap"><div class="cell">96</div><div class="cell-idx">14</div></div>
+          <div class="cell-wrap"><div class="cell">99</div><div class="cell-idx">15</div></div>
+        </div>
+        <div class="phase-note">Check index 3: arr[3] = 18. <span class="hl">18 &lt; 55</span> → keep jumping</div>
+      </div>
+    </div>
+
+    <div class="phase-row">
+      <span class="phase-label">Jump 2</span>
+      <div>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell skipped">3</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell skipped">7</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell skipped">12</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell block">18</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell skipped">24</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell skipped">31</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell skipped">39</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell jump">47</div><div class="cell-idx">7</div><div class="cell-ptr" style="color:var(--accent)">↑</div></div>
+          <div class="cell-wrap"><div class="cell">55</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell">63</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell">70</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell">78</div><div class="cell-idx">11</div></div>
+          <div class="cell-wrap"><div class="cell">85</div><div class="cell-idx">12</div></div>
+          <div class="cell-wrap"><div class="cell">91</div><div class="cell-idx">13</div></div>
+          <div class="cell-wrap"><div class="cell">96</div><div class="cell-idx">14</div></div>
+          <div class="cell-wrap"><div class="cell">99</div><div class="cell-idx">15</div></div>
+        </div>
+        <div class="phase-note">Check index 7: arr[7] = 47. <span class="hl">47 &lt; 55</span> → keep jumping</div>
+      </div>
+    </div>
+
+    <div class="phase-row">
+      <span class="phase-label">Jump 3</span>
+      <div>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell skipped">3</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell skipped">7</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell skipped">12</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell skipped">18</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell skipped">24</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell skipped">31</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell skipped">39</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell block">47</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell skipped">55</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell skipped">63</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell skipped">70</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell jump">78</div><div class="cell-idx">11</div><div class="cell-ptr" style="color:var(--accent)">↑</div></div>
+          <div class="cell-wrap"><div class="cell">85</div><div class="cell-idx">12</div></div>
+          <div class="cell-wrap"><div class="cell">91</div><div class="cell-idx">13</div></div>
+          <div class="cell-wrap"><div class="cell">96</div><div class="cell-idx">14</div></div>
+          <div class="cell-wrap"><div class="cell">99</div><div class="cell-idx">15</div></div>
+        </div>
+        <div class="phase-note">Check index 11: arr[11] = 78. <span class="hl">78 &gt; 55</span> → <span class="go">overshot! linear search back from index 7</span></div>
+      </div>
+    </div>
+
+    <!-- Linear phase -->
+    <div class="phase-row">
+      <span class="phase-label">Linear</span>
+      <div>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell skipped">3</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell skipped">7</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell skipped">12</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell skipped">18</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell skipped">24</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell skipped">31</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell skipped">39</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell linear">47</div><div class="cell-idx">7</div><div class="cell-ptr" style="color:var(--blue)">start</div></div>
+          <div class="cell-wrap"><div class="cell found">55</div><div class="cell-idx">8</div><div class="cell-ptr" style="color:var(--green)">✓</div></div>
+          <div class="cell-wrap"><div class="cell skipped">63</div><div class="cell-idx">9</div></div>
+          <div class="cell-wrap"><div class="cell skipped">70</div><div class="cell-idx">10</div></div>
+          <div class="cell-wrap"><div class="cell skipped">78</div><div class="cell-idx">11</div></div>
+          <div class="cell-wrap"><div class="cell skipped">85</div><div class="cell-idx">12</div></div>
+          <div class="cell-wrap"><div class="cell skipped">91</div><div class="cell-idx">13</div></div>
+          <div class="cell-wrap"><div class="cell skipped">96</div><div class="cell-idx">14</div></div>
+          <div class="cell-wrap"><div class="cell skipped">99</div><div class="cell-idx">15</div></div>
+        </div>
+        <div class="phase-note"><span class="win">arr[8] = 55 — found at index 8 ✓</span>  Total: 3 jumps + 2 linear = 5 comparisons</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="caption">√16 = 4 step size. 3 jump comparisons + 2 linear = <strong>5 total</strong>. Linear search would take 9 comparisons. Binary would take 4 but requires more complex logic.</div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Two Phases</div>
+    <div class="card-body">Jump by √n until overshoot, then linear scan backward. Simple logic — no recursion, no pointer arithmetic beyond index math.</div>
+    <div class="card-o" style="color:var(--accent)">jump → linear</div>
+  </div>
+  <div class="card">
+    <div class="card-title">O(√n) Sweet Spot</div>
+    <div class="card-body">Faster than linear O(n), simpler than binary O(log n). Good when binary search is overkill but linear is too slow.</div>
+    <div class="card-o" style="color:var(--green)">O(√n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Forward Only</div>
+    <div class="card-body">Only jumps forward. Better than binary search when jumping backward (seeking) is expensive — e.g., magnetic tape storage.</div>
+    <div class="card-o" style="color:var(--blue)">forward-only</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sorted Required</div>
+    <div class="card-body">Must be sorted. The jump decision (keep going or stop) depends on the array being ordered.</div>
+    <div class="card-o" style="color:var(--yellow)">sorted only</div>
+  </div>
+</div>
+
+</body>
+</html>

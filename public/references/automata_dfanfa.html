@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theory of Computation — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #111; font-family: 'Archivo', sans-serif; }
+
+/* ── STYLE PICKER ── */
+.picker { background: #0a0a0a; border-bottom: 3px solid #222; display: flex; position: sticky; top: 0; z-index: 999; }
+.pick-btn { flex: 1; padding: 15px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #555; background: transparent; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: all .2s; }
+.pick-btn:hover { color: #999; }
+.pick-btn.a-on { color: #f5f500; border-bottom-color: #f5f500; }
+.pick-btn.b-on { color: #e8352a; border-bottom-color: #e8352a; }
+.pick-btn.c-on { color: #7dd3fc; border-bottom-color: #7dd3fc; }
+.demo { display: none; }
+.demo.active { display: block; }
+
+/* ════════════════════════════════════════
+   STYLE A — INK & PAPER
+════════════════════════════════════════ */
+#dA { background: #f2ede4; min-height: 100vh; }
+.aH { background: #111; display: flex; align-items: stretch; position: sticky; top: 46px; z-index: 100; border-bottom: 4px solid #111; }
+.aH-brand { padding: 13px 22px; font-family: 'Archivo Black', sans-serif; font-size: 17px; text-transform: uppercase; letter-spacing: .04em; color: #f5f500; display: flex; align-items: center; gap: 14px; flex: 1; }
+.aH-brand span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(245,245,0,.4); letter-spacing: .1em; }
+.aH-nav { display: flex; }
+.aH-nav a { display: flex; align-items: center; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.4); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.aH-nav a:hover { background: #e8352a; color: #fff; }
+
+.aW { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* Top-level section */
+.aS { margin-bottom: 48px; }
+.aS-head { display: flex; align-items: stretch; border: 2.5px solid #111; }
+.aS-num { background: #111; color: #f5f500; font-family: 'Archivo Black', sans-serif; font-size: 30px; min-width: 60px; display: flex; align-items: center; justify-content: center; }
+.aS-meta { padding: 9px 14px; border-left: 2.5px solid #111; flex: 1; }
+.aS-meta h2 { font-family: 'Archivo Black', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: .02em; }
+.aS-meta p { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #888; letter-spacing: .08em; margin-top: 2px; }
+.aS-tag { display: flex; align-items: center; padding: 0 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.6); background: #111; border-left: 2px solid rgba(245,245,0,.15); }
+
+/* Sub-section (nested topic within a section) */
+.aSub-block { border: 2.5px solid #111; border-top: none; }
+.aSub-head { background: #e8352a; color: #fff; font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 14px; border-bottom: 2.5px solid #111; display: flex; align-items: center; justify-content: space-between; }
+.aSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,.5); font-weight: 400; letter-spacing: .06em; }
+.aSub-inner { padding: 0; }
+
+/* Deeper sub-label (within a sub-section) */
+.aLabel { background: #ede8dc; border-bottom: 1.5px solid #ddd; padding: 5px 14px; font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+
+/* Symbol / notation table */
+.aT { border-collapse: collapse; width: 100%; }
+.aT-wrap { border-bottom: 1.5px solid #ddd; }
+.aT tr { border-top: 1px solid #e0dbd2; }
+.aT tr:first-child { border-top: none; background: #ede8dc; }
+.aT tr:hover { background: #ede8dc; }
+.aT td, .aT th { padding: 9px 12px; border-right: 1px solid #e0dbd2; font-size: 12px; line-height: 1.5; vertical-align: middle; }
+.aT td:last-child, .aT th:last-child { border-right: none; }
+.aT .sym { font-family: 'JetBrains Mono', monospace; font-size: 18px; text-align: center; border-right: 2.5px solid #111; width: 60px; }
+.aT .plain { font-size: 11px; font-weight: 700; color: #e8352a; font-style: italic; width: 120px; }
+.aT .name { font-family: 'Archivo Black', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.aT .desc { font-size: 12px; color: #555; }
+.aT .desc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aT th { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+
+/* Definition / concept box */
+.aDef { padding: 11px 14px; background: #fffde6; font-size: 12.5px; color: #111; line-height: 1.8; border-bottom: 1.5px solid #ddd; }
+.aDef strong { font-family: 'Archivo Black', sans-serif; }
+.aDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+
+/* Note / callout */
+.aNote { border-left-width: 6px; border-left-color: #f5f500; border-left-style: solid; background: #fff; padding: 11px 14px; font-size: 12.5px; color: #333; line-height: 1.75; border-bottom: 1.5px solid #ddd; }
+.aNote strong { font-family: 'Archivo Black', sans-serif; color: #111; }
+.aNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+
+/* SVG diagram container */
+.aSvg { background: #fff; padding: 20px 18px 14px; border-bottom: 1.5px solid #ddd; overflow-x: auto; }
+.aSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+
+/* Two-column layout */
+.a2col { display: grid; grid-template-columns: 1fr 1fr; }
+.a2col-cell { padding: 12px 14px; border-right: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; font-size: 12px; color: #444; line-height: 1.8; }
+.a2col-cell:last-child { border-right: none; }
+.a2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #111; margin-bottom: 6px; }
+.a2col-cell ul { padding-left: 16px; }
+.a2col-cell li { margin-bottom: 3px; }
+.a2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+
+/* Pseudocode */
+.aPseudo { background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; overflow-x: auto; border-bottom: 1.5px solid #ddd; }
+.aPseudo .ph { background: #f5f500; border-bottom: 2px solid #111; padding: 6px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+.aPseudo .pn { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #111; }
+.aPseudo .ps { font-size: 9px; color: #777; }
+.aPseudo .pb { padding: 6px 0 10px; }
+.aPseudo .lr { display: grid; grid-template-columns: 30px 1fr; padding-right: 14px; line-height: 2; }
+.aPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; user-select: none; }
+.aPseudo .cd { padding-left: 12px; }
+.aPseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.aPseudo .cm { font-size: 10px; color: #bbb; }
+.aPseudo .cm::before { content: '▷ '; }
+.aPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #e8c800; margin-left: .4em; }
+.aPseudo .i2 { padding-left: 2.9em; border-left: 2px solid #e8c800; margin-left: 2em; }
+
+
+/* ════════════════════════════════════════
+   STYLE B — EDITORIAL LIGHT
+════════════════════════════════════════ */
+#dB { background: #fafaf8; min-height: 100vh; }
+.bH { background: #fff; border-bottom: 1px solid #e8e5df; padding: 0 28px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 46px; z-index: 100; }
+.bH-brand { font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; color: #1a1a1a; }
+.bH-brand::before { content: ''; width: 7px; height: 7px; background: #e8352a; border-radius: 1px; display: block; }
+.bH-nav a { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #999; text-decoration: none; padding: 4px 9px; border-radius: 100px; letter-spacing: .06em; text-transform: uppercase; transition: all .15s; }
+.bH-nav a:hover { background: #f0ede8; color: #1a1a1a; }
+.bW { max-width: 960px; margin: 0 auto; padding: 40px 28px 80px; }
+
+/* Top-level section B */
+.bS { margin-bottom: 52px; }
+.bS-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 12px; border-bottom: 2px solid #1a1a1a; margin-bottom: 24px; }
+.bS-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e8352a; letter-spacing: .1em; }
+.bS-head h2 { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 300; }
+.bS-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #bbb; letter-spacing: .08em; text-transform: uppercase; margin-left: auto; }
+
+/* Sub-section B */
+.bSub-block { background: #fff; border: 1px solid #e8e5df; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+.bSub-head { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.bSub-head h3 { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #1a1a1a; }
+.bSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #e8352a; letter-spacing: .08em; text-transform: uppercase; }
+
+/* Deeper label B */
+.bLabel { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #e8352a; padding: 5px 16px 0; display: flex; align-items: center; gap: 6px; margin-top: 16px; }
+.bLabel::before { content: '–'; }
+
+/* Symbol grid B */
+.bGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1px; background: #e8e5df; margin: 12px 0; }
+.bCard { background: #fff; padding: 14px; }
+.bCard:hover { background: #faf5ee; }
+.bGlyph { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; color: #1a1a1a; margin-bottom: 4px; line-height: 1; }
+.bPlain { font-size: 11px; font-weight: 700; color: #e8352a; font-style: italic; margin-bottom: 2px; }
+.bName { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+.bDesc { font-size: 11px; color: #999; line-height: 1.4; }
+
+/* Def B */
+.bDef { padding: 12px 16px; font-size: 12.5px; color: #444; line-height: 1.8; border-top: 1px solid #e8e5df; }
+.bDef strong { color: #1a1a1a; font-weight: 700; }
+.bDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+
+/* Note B */
+.bNote { background: #fff8f0; border-left: 3px solid #e8352a; margin: 0 16px 14px; padding: 10px 12px; font-size: 12px; color: #444; line-height: 1.75; border-radius: 0 6px 6px 0; }
+.bNote strong { color: #1a1a1a; font-weight: 700; }
+.bNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+
+/* SVG B */
+.bSvg { margin: 0 16px 16px; background: #faf5ee; border: 1px solid #e8e5df; border-radius: 8px; padding: 16px; overflow-x: auto; }
+.bSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #bbb; margin-bottom: 8px; }
+
+/* 2col B */
+.b2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 16px; }
+.b2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #e8352a; margin-bottom: 6px; }
+.b2col-cell ul { padding-left: 16px; }
+.b2col-cell li { margin-bottom: 3px; font-size: 12px; color: #555; }
+.b2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+
+/* Pseudocode B */
+.bPseudo { border: 1px solid #e8e5df; border-radius: 8px; overflow: hidden; background: #fff; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin: 0 16px 16px; }
+.bPseudo .ph { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 8px 12px; display: flex; justify-content: space-between; align-items: baseline; }
+.bPseudo .pn { font-family: 'Archivo', sans-serif; font-size: 12px; font-weight: 700; color: #1a1a1a; }
+.bPseudo .ps { font-size: 9px; color: #bbb; }
+.bPseudo .pb { padding: 6px 0 10px; }
+.bPseudo .lr { display: grid; grid-template-columns: 28px 1fr; padding-right: 12px; line-height: 2; }
+.bPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #ddd; user-select: none; }
+.bPseudo .cd { padding-left: 10px; color: #333; }
+.bPseudo .kw { color: #e8352a; font-weight: 700; }
+.bPseudo .cm { font-size: 10px; color: #ccc; font-style: italic; }
+.bPseudo .cm::before { content: '# '; }
+.bPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #f0ede8; margin-left: .4em; }
+
+
+/* ════════════════════════════════════════
+   STYLE C — DARK STRUCTURED
+════════════════════════════════════════ */
+#dC { background: #0d0d0f; min-height: 100vh; color: #e0e0e8; }
+.cH { background: #0d0d0f; border-bottom: 1px solid #1e1e2e; padding: 0 26px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 46px; z-index: 100; }
+.cH-brand { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #7dd3fc; display: flex; align-items: center; gap: 8px; }
+.cH-brand::before { content: ''; width: 6px; height: 6px; background: #7dd3fc; border-radius: 50%; box-shadow: 0 0 6px #7dd3fc; }
+.cH-nav a { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #444; text-decoration: none; padding: 5px 9px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid transparent; transition: all .15s; }
+.cH-nav a:hover { color: #7dd3fc; border-color: #1e1e2e; }
+.cW { max-width: 960px; margin: 0 auto; padding: 36px 26px 80px; }
+
+/* Top-level section C */
+.cS { margin-bottom: 48px; }
+.cS-head { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #1e1e2e; margin-bottom: 20px; }
+.cS-num { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #1e1e2e; letter-spacing: .1em; border: 1px solid #1e1e2e; padding: 3px 7px; }
+.cS-head h2 { font-family: 'Archivo Black', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #7dd3fc; }
+.cS-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #2a2a3a; letter-spacing: .06em; margin-left: auto; text-transform: uppercase; }
+
+/* Sub-section C */
+.cSub-block { border: 1px solid #1e1e2e; overflow: hidden; margin-bottom: 16px; }
+.cSub-head { background: #111118; border-bottom: 1px solid #1e1e2e; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+.cSub-head h3 { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7dd3fc; }
+.cSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #2a2a3a; letter-spacing: .08em; text-transform: uppercase; }
+
+/* Deeper label C */
+.cLabel { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #2a2a3a; padding: 14px 14px 6px; display: flex; align-items: center; gap: 6px; }
+.cLabel::before { content: '//'; color: #7dd3fc; opacity: .4; }
+
+/* Symbol table C */
+.cTW { margin: 0 0 1px; }
+.cT { width: 100%; border-collapse: collapse; }
+.cT thead tr { background: #141420; }
+.cT th { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #2a2a3a; padding: 7px 12px; text-align: left; border-right: 1px solid #1e1e2e; font-weight: 400; }
+.cT td { padding: 9px 12px; border-top: 1px solid #141420; border-right: 1px solid #141420; font-size: 12px; color: #888; line-height: 1.5; vertical-align: middle; }
+.cT tr:hover td { background: #111118; }
+.cT td.sym { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #7dd3fc; text-align: center; width: 70px; border-right: 1px solid #1e1e2e; background: #0a0a12; }
+.cT td.plain { font-size: 10px; font-style: italic; color: #f59e0b; font-weight: 600; width: 110px; }
+.cT td.name { font-family: 'Archivo Black', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #ccc; }
+.cT td.desc { font-size: 12px; color: #555; }
+.cT td.desc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(125,211,252,.07); color: #7dd3fc; padding: 1px 5px; border: 1px solid rgba(125,211,252,.15); }
+
+/* Def C */
+.cDef { padding: 12px 14px; background: #0a0a12; font-size: 12px; color: #666; line-height: 1.8; border-top: 1px solid #1e1e2e; }
+.cDef strong { color: #7dd3fc; font-family: 'Archivo Black', sans-serif; font-size: 10px; }
+.cDef code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(125,211,252,.07); color: #7dd3fc; padding: 1px 5px; border: 1px solid rgba(125,211,252,.15); }
+
+/* Note C */
+.cNote { background: #0d1520; border-left: 3px solid #7dd3fc; margin: 0 0 1px; padding: 10px 14px; font-size: 12px; color: #6a9abd; line-height: 1.75; }
+.cNote strong { color: #7dd3fc; font-family: 'Archivo Black', sans-serif; font-size: 10px; }
+.cNote code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(125,211,252,.07); color: #7dd3fc; padding: 1px 5px; border: 1px solid rgba(125,211,252,.15); }
+
+/* SVG C */
+.cSvg { background: #0a0a12; padding: 18px 14px 14px; border-top: 1px solid #1e1e2e; overflow-x: auto; }
+.cSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #2a2a3a; margin-bottom: 8px; }
+
+/* 2col C */
+.c2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #1e1e2e; border-top: 1px solid #1e1e2e; }
+.c2col-cell { background: #0d0d0f; padding: 12px 14px; }
+.c2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #7dd3fc; margin-bottom: 6px; }
+.c2col-cell ul { padding-left: 16px; }
+.c2col-cell li { margin-bottom: 4px; font-size: 11.5px; color: #555; }
+.c2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(125,211,252,.07); color: #7dd3fc; padding: 1px 5px; border: 1px solid rgba(125,211,252,.15); }
+
+/* Pseudocode C */
+.cPseudo { border-top: 1px solid #1e1e2e; background: #0a0a12; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; overflow-x: auto; }
+.cPseudo .ph { background: #111118; border-bottom: 1px solid #1e1e2e; padding: 7px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+.cPseudo .pn { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #7dd3fc; }
+.cPseudo .ps { font-size: 9px; color: #333; }
+.cPseudo .pb { padding: 6px 0 10px; }
+.cPseudo .lr { display: grid; grid-template-columns: 28px 1fr; padding-right: 14px; line-height: 2; }
+.cPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #1e1e2e; user-select: none; border-right: 1px solid #1e1e2e; }
+.cPseudo .cd { padding-left: 12px; color: #888; }
+.cPseudo .kw { color: #7dd3fc; font-weight: 700; font-style: italic; }
+.cPseudo .cm { font-size: 10px; color: #252535; }
+.cPseudo .cm::before { content: '-- '; }
+.cPseudo .i1 { padding-left: 1.5em; border-left: 1px solid #1a1a26; margin-left: .4em; }
+</style>
+</head>
+<body>
+
+<div class="picker">
+  <button class="pick-btn active a-on" onclick="sw('A',this)">A · Ink &amp; Paper</button>
+  <button class="pick-btn" onclick="sw('B',this)">B · Editorial Light</button>
+  <button class="pick-btn" onclick="sw('C',this)">C · Dark Structured</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE A
+════════════════════════════════════════════════════════ -->
+<div id="dA" class="demo active">
+  <div class="aH">
+    <div class="aH-brand">TOC REF <span>AUTOMATA · LANGUAGES · COMPUTABILITY · SPRING 2026</span></div>
+    <nav class="aH-nav">
+      <a href="#">Notation</a>
+      <a href="#">Regular Lang</a>
+      <a href="#">DFA/NFA</a>
+      <a href="#">GNFA</a>
+      <a href="#">Closure</a>
+      <a href="#">Pumping</a>
+      <a href="#">Operations</a>
+    </nav>
+  </div>
+  <div class="aW">
+
+    <!-- ══ §01 NOTATION ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">01</div>
+        <div class="aS-meta">
+          <h2>Core Notation</h2>
+          <p>ALPHABETS · STRINGS · LANGUAGES · FORMAL SYMBOLS</p>
+        </div>
+        <div class="aS-tag">symbols</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr>
+              <th class="sym">SYM</th><th class="plain">PLAIN ENGLISH</th><th class="name">NAME</th><th class="desc">MEANING / EXAMPLE</th>
+            </tr>
+            <tr><td class="sym">Σ</td><td class="plain">the alphabet</td><td class="name">Sigma</td><td class="desc">Finite non-empty set of symbols. <code>Σ = {0,1}</code></td></tr>
+            <tr><td class="sym">Σ*</td><td class="plain">all strings ever</td><td class="name">Kleene Star</td><td class="desc">Every finite string over Σ, including ε. <code>{ε, 0, 1, 00, 01 …}</code></td></tr>
+            <tr><td class="sym">ε</td><td class="plain">empty string</td><td class="name">Epsilon</td><td class="desc">The string of length zero. <strong>ε ≠ ∅</strong>.</td></tr>
+            <tr><td class="sym">L</td><td class="plain">a language</td><td class="name">Language</td><td class="desc">Any subset of Σ*. <code>L = {0ⁿ1ⁿ | n ≥ 0}</code></td></tr>
+            <tr><td class="sym">δ</td><td class="plain">where to go next</td><td class="name">Transition fn</td><td class="desc">DFA: Q×Σ→Q. NFA: Q×Σ_ε→𝒫(Q). GNFA: Q×Q→ℛ</td></tr>
+            <tr><td class="sym">q₀</td><td class="plain">start here</td><td class="name">Start state</td><td class="desc">The initial state. Exactly one per machine.</td></tr>
+            <tr><td class="sym">F</td><td class="plain">accept states</td><td class="name">Final states</td><td class="desc">F ⊆ Q. Machine accepts iff it halts in F.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div><!-- §01 -->
+
+
+    <!-- ══ §02 REGULAR LANGUAGES & REGULAR EXPRESSIONS ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">02</div>
+        <div class="aS-meta">
+          <h2>Regular Languages &amp; Regular Expressions</h2>
+          <p>WHAT IS REGULAR · REGEX SYNTAX · IS / ISN'T REGULAR</p>
+        </div>
+        <div class="aS-tag">regular</div>
+      </div>
+
+      <!-- What is a regular language -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>What is a Regular Language?</span>
+          <span>recognized by a DFA · closed class</span>
+        </div>
+        <div class="aDef">
+          A language L is <strong>regular</strong> if and only if some DFA recognizes it. Equivalently, L is regular iff some NFA recognizes it, iff some regular expression describes it. These three characterizations are all equivalent — converting between them is exactly what GNFA / state ripping and subset construction do.
+        </div>
+        <div class="aLabel">Is it regular? — quick guide</div>
+        <div class="a2col">
+          <div class="a2col-cell">
+            <h4>✓ Regular — a DFA can count / track it</h4>
+            <ul>
+              <li>All finite languages (any finite set of strings)</li>
+              <li>Strings ending in a fixed pattern — <code>…01</code></li>
+              <li>Strings with an even number of 0s</li>
+              <li>Strings containing a fixed substring — <code>…011…</code></li>
+              <li>Any language described by a regex</li>
+            </ul>
+          </div>
+          <div class="a2col-cell">
+            <h4>✗ Not Regular — needs unbounded memory</h4>
+            <ul>
+              <li><code>{0ⁿ1ⁿ | n ≥ 0}</code> — equal counts, no finite bound</li>
+              <li><code>{ww | w ∈ Σ*}</code> — must remember first half</li>
+              <li><code>{aⁿbⁿcⁿ | n ≥ 0}</code> — three matched counts</li>
+              <li>Balanced parentheses</li>
+              <li>Any language requiring unbounded counting or matching</li>
+            </ul>
+          </div>
+        </div>
+        <div class="aNote"><strong>The test:</strong> if a DFA would need to remember an unbounded amount of information (an ever-growing counter, a matching of arbitrary depth), the language is not regular. Use the Pumping Lemma to prove it formally.</div>
+      </div>
+
+      <!-- Regular Expressions -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Regular Expressions</span>
+          <span>6 building blocks · describes exactly the regular languages</span>
+        </div>
+        <div class="aLabel">The 6 atomic / combining forms</div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr>
+              <th class="sym">FORM</th><th class="plain">PLAIN ENGLISH</th><th class="name">NAME</th><th class="desc">MEANING / EXAMPLE</th>
+            </tr>
+            <tr><td class="sym">∅</td><td class="plain">nothing at all</td><td class="name">Empty language</td><td class="desc">Matches no string. L(∅) = {}</td></tr>
+            <tr><td class="sym">ε</td><td class="plain">just the empty string</td><td class="name">Empty string</td><td class="desc">Matches only ε. L(ε) = {ε}</td></tr>
+            <tr><td class="sym">a</td><td class="plain">exactly this symbol</td><td class="name">Single character</td><td class="desc">Matches the one-character string "a". <code>a ∈ Σ</code></td></tr>
+            <tr><td class="sym">R₁∪R₂</td><td class="plain">either one</td><td class="name">Union / alternation</td><td class="desc">Matches any string in R₁ OR R₂. <code>0∪1</code> matches "0" or "1"</td></tr>
+            <tr><td class="sym">R₁∘R₂</td><td class="plain">one then the other</td><td class="name">Concatenation</td><td class="desc">Matches any string in R₁ followed by any string in R₂. <code>01</code></td></tr>
+            <tr><td class="sym">R*</td><td class="plain">zero or more copies</td><td class="name">Kleene star</td><td class="desc">Zero or more repetitions of R. <code>0*</code> matches ε, 0, 00, 000 …</td></tr>
+          </table>
+        </div>
+        <div class="aLabel">Worked examples</div>
+        <div class="aDef">
+          <strong>(0∪1)*</strong> — zero or more of any bit → all binary strings (= Σ*)<br>
+          <strong>(0∪1)*01(0∪1)*</strong> — any string containing "01" as a substring<br>
+          <strong>0*10*10*</strong> — binary strings with exactly two 1s<br>
+          <strong>(0∪ε)1*</strong> — an optional 0 followed by any number of 1s<br><br>
+          Operator precedence: <strong>*</strong> binds tightest, then <strong>∘</strong> (concatenation), then <strong>∪</strong>. Use parentheses to override.
+        </div>
+        <div class="aNote"><strong>Key theorem (Kleene):</strong> A language is regular ↔ some regular expression describes it. The proof goes both ways: regex → NFA (Thompson's construction), DFA → regex (GNFA / state ripping).</div>
+      </div>
+
+    </div><!-- §02 regular -->
+
+
+    <!-- ══ §03 FINITE AUTOMATA ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">03</div>
+        <div class="aS-meta">
+          <h2>Finite Automata</h2>
+          <p>DFA · NFA · ε-CLOSURE · SUBSET CONSTRUCTION · EQUIVALENCE</p>
+        </div>
+        <div class="aS-tag">regular</div>
+      </div>
+
+      <!-- ── 02a DFA ── -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Deterministic Finite Automaton (DFA)</span>
+          <span>5-tuple · total function · no ε-moves</span>
+        </div>
+
+        <div class="aLabel">Definition</div>
+        <div class="aDef">
+          A DFA is a 5-tuple <strong>(Q, Σ, δ, q₀, F)</strong> where Q is a finite set of states, Σ is the input alphabet, <strong>δ: Q × Σ → Q</strong> is a total transition function (exactly one next state per symbol), q₀ ∈ Q is the start state, and F ⊆ Q is the set of accept states. A string w is <strong>accepted</strong> iff reading w from q₀ lands in F.
+        </div>
+
+        <div class="aLabel">State diagram — accepts strings ending in "01" over {0,1}</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">DFA · 3 states · q₂ is the sole accept state · double ring = accept</div>
+          <svg viewBox="0 0 560 188" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <!-- start arrow -->
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw)"/>
+            <text x="39" y="85" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <!-- q0 self-loop on 1 -->
+            <path d="M103,62 C103,22 158,22 158,62" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw)"/>
+            <text x="130" y="17" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <!-- q0→q1 on 0 -->
+            <line x1="177" y1="92" x2="249" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw)"/>
+            <text x="213" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <!-- q1 self-loop on 0 -->
+            <path d="M267,62 C267,22 322,22 322,62" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw)"/>
+            <text x="294" y="17" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <!-- q1→q2 on 1 -->
+            <line x1="340" y1="92" x2="413" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw)"/>
+            <text x="376" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <!-- q2→q1 on 0 (arc back above) -->
+            <path d="M423,73 C423,38 313,38 313,73" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw)"/>
+            <text x="368" y="34" text-anchor="middle" font-size="12" fill="#888" font-family="JetBrains Mono,monospace">0</text>
+            <!-- q2→q0 on 1 (long arc below) -->
+            <path d="M423,111 C423,154 158,154 158,111" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw)"/>
+            <text x="290" y="170" text-anchor="middle" font-size="12" fill="#888" font-family="JetBrains Mono,monospace">1</text>
+            <!-- States -->
+            <circle cx="130" cy="92" r="30" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₀</text>
+            <circle cx="294" cy="92" r="30" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="294" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₁</text>
+            <!-- q2 = accept = double circle -->
+            <circle cx="453" cy="92" r="30" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="453" cy="92" r="24" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="453" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₂</text>
+            <text x="453" y="136" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">accept</text>
+          </svg>
+        </div>
+
+        <div class="aNote"><strong>Key property:</strong> Always halts after exactly |w| steps. For every (state, symbol) pair there is exactly one next state — no ambiguity, no guessing.</div>
+      </div><!-- DFA sub-block -->
+
+      <!-- ── 02b NFA ── -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Nondeterministic Finite Automaton (NFA)</span>
+          <span>ε-moves · 𝒫(Q) transitions · same power</span>
+        </div>
+
+        <div class="aLabel">Definition</div>
+        <div class="aDef">
+          An NFA is a 5-tuple <strong>(Q, Σ, δ, q₀, F)</strong> where <strong>δ: Q × Σ_ε → 𝒫(Q)</strong>. Each transition now returns a <em>set</em> of states; zero or many choices are allowed. ε-transitions (no symbol consumed) are permitted. The machine <strong>accepts</strong> if <em>at least one</em> computation path ends in F. NFAs recognize exactly the same class of languages as DFAs — the <strong>regular languages</strong>.
+        </div>
+
+        <div class="aLabel">State diagram — accepts strings over {0,1} containing "01" as a substring</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">NFA · 3 states · nondeterministic branch on 0 at q₀</div>
+          <svg viewBox="0 0 520 186" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw2)"/>
+            <text x="39" y="85" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <!-- q0 self on 0,1 -->
+            <path d="M102,62 C102,20 158,20 158,62" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw2)"/>
+            <text x="130" y="15" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0, 1</text>
+            <!-- q0→q1 on 0 -->
+            <line x1="166" y1="92" x2="239" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw2)"/>
+            <text x="202" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <!-- q1→q2 on 1 -->
+            <line x1="323" y1="92" x2="396" y2="92" stroke="#111" stroke-width="2" marker-end="url(#aArw2)"/>
+            <text x="360" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <!-- q2 self on 0,1 -->
+            <path d="M416,62 C416,20 472,20 472,62" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArw2)"/>
+            <text x="444" y="15" text-anchor="middle" font-size="12" fill="#888" font-family="JetBrains Mono,monospace">0, 1</text>
+            <!-- States -->
+            <circle cx="130" cy="92" r="30" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₀</text>
+            <circle cx="281" cy="92" r="30" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="281" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₁</text>
+            <circle cx="450" cy="92" r="30" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="450" cy="92" r="24" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="450" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₂</text>
+            <text x="450" y="136" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">accept</text>
+          </svg>
+        </div>
+
+        <div class="aLabel">ε-Closure algorithm</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">ε-Closure(S)</span><span class="ps">all states reachable from S on ε alone</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">result ← S;  stack ← list(S)</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd"><span class="kw">while</span> stack not empty</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd i1">q ← stack.pop()</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1"><span class="kw">for each</span> r ∈ δ(q, ε): <span class="kw">if</span> r ∉ result → result.add(r); stack.push(r)</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd"><span class="kw">return</span> result</span></div>
+          </div>
+        </div>
+
+        <div class="aLabel">Union construction (ε-NFA visual)</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">New start state q_s with ε → q₀_A and ε → q₀_B</div>
+          <svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArwU" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <!-- start -->
+            <line x1="28" y1="100" x2="63" y2="100" stroke="#111" stroke-width="2" marker-end="url(#aArwU)"/>
+            <circle cx="90" cy="100" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <text x="90" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q_s</text>
+            <!-- ε to M_A -->
+            <line x1="112" y1="88" x2="168" y2="58" stroke="#111" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aArwU)"/>
+            <text x="128" y="64" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- ε to M_B -->
+            <line x1="112" y1="112" x2="168" y2="142" stroke="#111" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aArwU)"/>
+            <text x="124" y="140" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- M_A box -->
+            <rect x="172" y="26" width="188" height="58" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="266" y="53" text-anchor="middle" font-size="14" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">M_A</text>
+            <text x="266" y="70" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_A → … → accept_A</text>
+            <!-- M_B box -->
+            <rect x="172" y="118" width="188" height="58" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="266" y="145" text-anchor="middle" font-size="14" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">M_B</text>
+            <text x="266" y="162" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_B → … → accept_B</text>
+            <!-- arrows out to shared accept -->
+            <line x1="360" y1="56" x2="418" y2="92" stroke="#888" stroke-width="1.5" marker-end="url(#aArwU)"/>
+            <line x1="360" y1="148" x2="418" y2="110" stroke="#888" stroke-width="1.5" marker-end="url(#aArwU)"/>
+            <circle cx="447" cy="100" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="447" cy="100" r="18" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="447" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q_f</text>
+            <text x="447" y="136" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">accept</text>
+            <text x="32" y="94" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+          </svg>
+        </div>
+
+        <div class="aNote"><strong>Exponential blowup:</strong> An n-state NFA may require up to 2ⁿ DFA states after subset construction. Same languages, potentially far fewer states in NFA form.</div>
+      </div><!-- NFA sub-block -->
+
+    </div><!-- §03 -->
+
+
+    <!-- ══ §04 GNFA & STATE RIPPING ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">04</div>
+        <div class="aS-meta">
+          <h2>GNFA &amp; State Ripping</h2>
+          <p>GENERALIZED NFA · REGEX EDGES · DFA → REGEX CONVERSION</p>
+        </div>
+        <div class="aS-tag">regex equiv</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Generalized NFA (GNFA)</span>
+          <span>transitions carry regular expressions</span>
+        </div>
+
+        <div class="aLabel">Definition</div>
+        <div class="aDef">
+          A <strong>GNFA</strong> is like an NFA but every transition is labeled with a <em>regular expression</em> instead of a single symbol. It has a unique <strong>start state</strong> with no incoming edges and a unique <strong>accept state</strong> with no outgoing edges (start ≠ accept). Every pair of states has exactly one edge label (∅ if no direct path). GNFAs are used to convert any DFA into an equivalent regular expression via <strong>state ripping</strong>.
+        </div>
+
+        <div class="aLabel">State diagram — GNFA with regex-labeled edges</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">GNFA · dashed start state · double-ring accept · regex on every edge</div>
+          <svg viewBox="0 0 600 192" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArwG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="28" y1="96" x2="60" y2="96" stroke="#111" stroke-width="2" marker-end="url(#aArwG)"/>
+            <!-- q_s → q1 -->
+            <line x1="112" y1="96" x2="184" y2="96" stroke="#111" stroke-width="2" marker-end="url(#aArwG)"/>
+            <text x="148" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- q1 → q2 -->
+            <line x1="248" y1="96" x2="320" y2="96" stroke="#111" stroke-width="2" marker-end="url(#aArwG)"/>
+            <text x="284" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">a*b</text>
+            <!-- q2 self-loop -->
+            <path d="M337,66 C337,26 382,26 382,66" fill="none" stroke="#888" stroke-width="1.5" marker-end="url(#aArwG)"/>
+            <text x="360" y="22" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">a</text>
+            <!-- q2 → q3 -->
+            <line x1="392" y1="96" x2="464" y2="96" stroke="#111" stroke-width="2" marker-end="url(#aArwG)"/>
+            <text x="428" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">b∪c</text>
+            <!-- q1 → q3 skip (∅) -->
+            <path d="M222,114 C222,158 448,158 466,114" fill="none" stroke="#ccc" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aArwG)"/>
+            <text x="344" y="174" text-anchor="middle" font-size="11" fill="#ccc" font-family="JetBrains Mono,monospace">∅</text>
+            <!-- q3 → q_acc -->
+            <line x1="520" y1="96" x2="554" y2="96" stroke="#111" stroke-width="2" marker-end="url(#aArwG)"/>
+            <text x="537" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- Circles -->
+            <circle cx="86" cy="96" r="25" fill="#fffde6" stroke="#e8352a" stroke-width="2" stroke-dasharray="5,3"/>
+            <text x="86" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#e8352a" font-family="Archivo Black,sans-serif">q_s</text>
+            <circle cx="216" cy="96" r="28" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="216" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₁</text>
+            <circle cx="356" cy="96" r="28" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="356" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₂</text>
+            <circle cx="492" cy="96" r="28" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="492" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q₃</text>
+            <circle cx="580" cy="96" r="22" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="580" cy="96" r="16" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="580" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">q_a</text>
+            <text x="32" y="90" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <text x="580" y="130" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">accept</text>
+          </svg>
+        </div>
+
+        <div class="aLabel">The rip formula</div>
+        <div class="aDef">
+          When ripping state <strong>q_rip</strong>, for every remaining pair of states (qᵢ, qⱼ) where neither is q_rip, update the edge label:<br><br>
+          <strong>R(qᵢ, qⱼ) ← R(qᵢ, qⱼ) ∪ R(qᵢ, q_rip) · R(q_rip, q_rip)* · R(q_rip, qⱼ)</strong><br><br>
+          In plain English: keep any direct path from qᵢ to qⱼ, <em>plus</em> any path that goes through q_rip — entering via R₁, looping on q_rip's self-loop zero or more times (R₂*), then exiting via R₃.
+        </div>
+
+        <div class="aLabel">Before and after ripping q_rip</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">3 edges involving q_rip collapse into 1 merged label on qᵢ → qⱼ</div>
+          <svg viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArwR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <!-- BEFORE -->
+            <text x="130" y="18" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#aaa" letter-spacing="2">BEFORE</text>
+            <circle cx="60" cy="95" r="26" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="60" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">qᵢ</text>
+            <circle cx="200" cy="95" r="26" fill="#fff0e6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="200" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#e8352a" font-family="Archivo Black,sans-serif">q_rip</text>
+            <circle cx="60" cy="195" r="26" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="60" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">qⱼ</text>
+            <!-- q_rip self-loop -->
+            <path d="M185,67 C185,25 225,25 225,67" fill="none" stroke="#e8352a" stroke-width="1.8" marker-end="url(#aArwR)"/>
+            <text x="205" y="21" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace" font-style="italic">R₂ (loop)</text>
+            <!-- qi → qrip: R1 -->
+            <line x1="86" y1="95" x2="172" y2="95" stroke="#111" stroke-width="2" marker-end="url(#aArwR)"/>
+            <text x="129" y="85" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace" font-style="italic">R₁</text>
+            <!-- qrip → qj: R3 -->
+            <line x1="188" y1="115" x2="78" y2="178" stroke="#111" stroke-width="2" marker-end="url(#aArwR)"/>
+            <text x="150" y="158" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace" font-style="italic">R₃</text>
+            <!-- qi → qj direct: R4 dashed -->
+            <line x1="60" y1="123" x2="60" y2="167" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#aArwR)"/>
+            <text x="42" y="152" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace" font-style="italic">R₄</text>
+            <!-- arrow separator -->
+            <text x="312" y="118" text-anchor="middle" font-size="30" fill="#e8352a" font-family="Archivo Black,sans-serif">→</text>
+            <text x="312" y="140" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">rip q_rip</text>
+            <!-- AFTER -->
+            <text x="488" y="18" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#aaa" letter-spacing="2">AFTER</text>
+            <circle cx="420" cy="95" r="26" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="420" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">qᵢ</text>
+            <circle cx="420" cy="195" r="26" fill="#f2ede4" stroke="#111" stroke-width="2.5"/>
+            <text x="420" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#111" font-family="Archivo Black,sans-serif">qⱼ</text>
+            <line x1="420" y1="123" x2="420" y2="167" stroke="#111" stroke-width="2.5" marker-end="url(#aArwR)"/>
+            <text x="510" y="148" text-anchor="middle" font-size="11" fill="#111" font-family="JetBrains Mono,monospace">R₄ ∪ R₁R₂*R₃</text>
+          </svg>
+        </div>
+
+        <div class="aLabel">DFA → Regex — step by step</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">Convert DFA to Regex via State Ripping</span><span class="ps">result = single regex on q_s → q_acc</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Add new start q_s with ε → q₀. Add new accept q_acc with ε ← each old accept state.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Label each existing transition with its symbol as a regex. Fill ∅ for all missing pairs.</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">while</span> |Q| &gt; 2 <span class="cm">more than just q_s and q_acc remain</span></span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Pick any q_rip ∉ {q_s, q_acc}</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd i1"><span class="kw">for each</span> pair (qᵢ, qⱼ) ≠ q_rip:</span></div>
+            <div class="lr"><span class="ln">6</span><span class="cd i2">R(qᵢ,qⱼ) ← R(qᵢ,qⱼ) ∪ R(qᵢ,q_rip) · R(q_rip,q_rip)* · R(q_rip,qⱼ)</span></div>
+            <div class="lr"><span class="ln">7</span><span class="cd i1">Remove q_rip and all its edges</span></div>
+            <div class="lr"><span class="ln">8</span><span class="cd"><span class="kw">return</span> R(q_s, q_acc) <span class="cm">this single label IS the regex</span></span></div>
+          </div>
+        </div>
+
+        <div class="aNote"><strong>Key theorem:</strong> A language is regular if and only if it is described by a regular expression. State ripping constructs the proof of the (→) direction.</div>
+      </div><!-- GNFA sub-block -->
+
+    </div><!-- §04 -->
+
+
+    <!-- ══ §05 CLOSURE PROPERTIES ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">05</div>
+        <div class="aS-meta">
+          <h2>Closure Properties</h2>
+          <p>REGULAR LANGUAGES · CFL · WHAT OPERATIONS PRESERVE MEMBERSHIP</p>
+        </div>
+        <div class="aS-tag">closure</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Regular Languages</span>
+          <span>closed under all these</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">OP</th><th class="plain">RESULT</th><th class="name">PROOF METHOD</th><th class="desc">NOTES</th></tr>
+            <tr><td class="sym">A∪B</td><td class="plain">regular</td><td class="name">ε-NFA new start</td><td class="desc">New q_s with ε → q₀_A and ε → q₀_B</td></tr>
+            <tr><td class="sym">A∘B</td><td class="plain">regular</td><td class="name">ε from A's accepts → q₀_B</td><td class="desc">Concatenation: A's accept states get ε to B's start</td></tr>
+            <tr><td class="sym">A*</td><td class="plain">regular</td><td class="name">NFA loop-back</td><td class="desc">New accept-start; accepts loop ε back to q₀_A</td></tr>
+            <tr><td class="sym">Ā</td><td class="plain">regular</td><td class="name">Complete DFA, flip F</td><td class="desc">Must make DFA complete first, then swap F ↔ Q\F</td></tr>
+            <tr><td class="sym">A∩B</td><td class="plain">regular</td><td class="name">Product DFA</td><td class="desc">States Q_A × Q_B. Accept: p∈F_A <em>and</em> q∈F_B</td></tr>
+            <tr><td class="sym">A\B</td><td class="plain">regular</td><td class="name">A ∩ B̄</td><td class="desc">Accept: p∈F_A <em>and</em> q∉F_B</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Union construction -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Union — NFA construction</span>
+          <span>new start state · ε-moves to both machines</span>
+        </div>
+        <div class="aDef">To show A ∪ B is regular: build a new NFA whose start state q_s has ε-transitions to both q₀_A and q₀_B. The new machine accepts anything M_A or M_B accepts. The accept states of both machines remain unchanged.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Union — new q_s with ε → q₀_A and ε → q₀_B</div>
+          <svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="uArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="28" y1="100" x2="64" y2="100" stroke="#111" stroke-width="2" marker-end="url(#uArw)"/>
+            <text x="32" y="93" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <circle cx="88" cy="100" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <text x="88" y="105" text-anchor="middle" font-size="12" font-family="Archivo Black,sans-serif" fill="#111">q_s</text>
+            <line x1="110" y1="88" x2="166" y2="58" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#uArw)"/>
+            <text x="126" y="62" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <line x1="110" y1="112" x2="166" y2="142" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#uArw)"/>
+            <text x="122" y="140" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="170" y="26" width="180" height="56" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="260" y="52" text-anchor="middle" font-size="14" font-family="Archivo Black,sans-serif" fill="#111">M_A</text>
+            <text x="260" y="68" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_A → … → F_A</text>
+            <rect x="170" y="118" width="180" height="56" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="260" y="144" text-anchor="middle" font-size="14" font-family="Archivo Black,sans-serif" fill="#111">M_B</text>
+            <text x="260" y="160" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_B → … → F_B</text>
+            <text x="260" y="192" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">Accept states of M_A and M_B remain unchanged</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Concatenation construction -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Concatenation — NFA construction</span>
+          <span>ε from every accept state of A to q₀_B</span>
+        </div>
+        <div class="aDef">To show A ∘ B is regular: connect M_A to M_B by adding an ε-transition from every accept state of M_A to the start state q₀_B. M_A's accept states become non-accepting (they pass control to M_B). The new machine accepts if M_A accepts some prefix and M_B accepts the remaining suffix.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Concatenation — ε from F_A to q₀_B · F_A states become non-accepting</div>
+          <svg viewBox="0 0 560 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="cArwC" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="18" y1="70" x2="52" y2="70" stroke="#111" stroke-width="2" marker-end="url(#cArwC)"/>
+            <text x="22" y="63" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <rect x="56" y="28" width="180" height="84" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="146" y="66" text-anchor="middle" font-size="14" font-family="Archivo Black,sans-serif" fill="#111">M_A</text>
+            <text x="146" y="82" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_A → … → F_A</text>
+            <!-- accept states of A (now non-accepting) -->
+            <circle cx="236" cy="70" r="18" fill="#ede8dc" stroke="#111" stroke-width="2"/>
+            <text x="236" y="75" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">F_A</text>
+            <line x1="256" y1="70" x2="292" y2="70" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#cArwC)"/>
+            <text x="274" y="62" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="296" y="28" width="180" height="84" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="386" y="66" text-anchor="middle" font-size="14" font-family="Archivo Black,sans-serif" fill="#111">M_B</text>
+            <text x="386" y="82" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀_B → … → F_B ✓</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Kleene Star construction -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Kleene Star — NFA construction</span>
+          <span>new accept-start · loop ε back from accepts to q₀</span>
+        </div>
+        <div class="aDef">To show A* is regular: add a new start state q_s that is also an accept state (handles ε ∈ A*). Add ε-transitions from every accept state of M_A back to q₀_A (allowing repetition). Also add ε from q_s to q₀_A.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Kleene Star — new accept-start q_s · ε-loop back from F_A to q₀_A</div>
+          <svg viewBox="0 0 520 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="kArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="18" y1="85" x2="54" y2="85" stroke="#111" stroke-width="2" marker-end="url(#kArw)"/>
+            <text x="22" y="78" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">start</text>
+            <!-- q_s = new start AND accept -->
+            <circle cx="78" cy="85" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="78" cy="85" r="18" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="78" y="90" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">q_s</text>
+            <!-- ε to q₀_A -->
+            <line x1="102" y1="85" x2="154" y2="85" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#kArw)"/>
+            <text x="128" y="77" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- M_A box -->
+            <rect x="158" y="36" width="200" height="98" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="258" y="84" text-anchor="middle" font-size="14" font-family="Archivo Black,sans-serif" fill="#111">M_A</text>
+            <!-- q₀_A -->
+            <circle cx="192" cy="85" r="16" fill="#fff" stroke="#111" stroke-width="2"/>
+            <text x="192" y="90" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">q₀</text>
+            <!-- F_A accept circle -->
+            <circle cx="332" cy="85" r="20" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="332" cy="85" r="14" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="332" y="90" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">F_A</text>
+            <!-- loop back arrow from F_A to q₀_A -->
+            <path d="M330,64 C330,20 190,20 192,68" fill="none" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#kArw)"/>
+            <text x="260" y="15" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε (loop back)</text>
+            <text x="258" y="155" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q_s accepts ε · each loop through M_A accepts one copy of a string in A</text>
+          </svg>
+        </div>
+        <div class="aNote"><strong>Why q_s must be a new state:</strong> if we just made q₀_A an accept state, we'd accept strings we shouldn't. The new q_s handles ε (zero repetitions) cleanly.</div>
+      </div>
+
+      <!-- Intersection / Product -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Intersection — Product DFA construction</span>
+          <span>run both DFAs in parallel · accept only if both accept</span>
+        </div>
+        <div class="aDef">To show A ∩ B is regular: build a DFA whose states are <strong>pairs (p, q)</strong> where p ∈ Q_A and q ∈ Q_B. Transition: <code>δ((p,q), a) = (δ_A(p,a), δ_B(q,a))</code>. Accept state: (p,q) is accepting iff <strong>both</strong> p ∈ F_A and q ∈ F_B. For difference A \ B: accept iff p ∈ F_A <em>and</em> q ∉ F_B.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Product DFA — state (p,q) tracks both machines simultaneously</div>
+          <svg viewBox="0 0 540 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:540px;font-family:'Archivo',sans-serif">
+            <defs><marker id="pArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <!-- M_A states top row -->
+            <text x="10" y="26" font-size="9" font-family="Archivo Black,sans-serif" fill="#888" letter-spacing="1">M_A STATES →</text>
+            <circle cx="130" cy="50" r="22" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="130" y="55" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">p₀</text>
+            <circle cx="250" cy="50" r="22" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="250" cy="50" r="16" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="250" y="55" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">p₁✓</text>
+            <!-- M_B states left col -->
+            <text x="10" y="115" font-size="9" font-family="Archivo Black,sans-serif" fill="#888" letter-spacing="1">M_B</text>
+            <circle cx="50" cy="100" r="22" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="50" y="105" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">q₀</text>
+            <circle cx="50" cy="158" r="22" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="50" cy="158" r="16" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="50" y="163" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">q₁✓</text>
+            <!-- Product states -->
+            <circle cx="130" cy="100" r="24" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="130" y="105" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₀,q₀)</text>
+            <circle cx="250" cy="100" r="24" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="250" y="105" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₁,q₀)</text>
+            <circle cx="130" cy="158" r="24" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="130" y="163" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₀,q₁)</text>
+            <!-- ACCEPT state: both accept -->
+            <circle cx="250" cy="158" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="250" cy="158" r="18" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="250" y="163" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#111">(p₁,q₁)</text>
+            <!-- labels -->
+            <text x="380" y="80" font-size="11" fill="#111" font-family="Archivo Black,sans-serif">← ACCEPT</text>
+            <text x="380" y="96" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">both p₁∈F_A</text>
+            <text x="380" y="110" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">and q₁∈F_B</text>
+            <line x1="276" y1="155" x2="374" y2="118" stroke="#e8352a" stroke-width="1.5" stroke-dasharray="4,2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- CFL table -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Context-Free Languages (CFLs)</span>
+          <span>closed under some, not all</span>
+        </div>
+        <div class="a2col">
+          <div class="a2col-cell">
+            <h4>✓ Closed Under</h4>
+            <ul>
+              <li>Union — S → S₁ | S₂</li>
+              <li>Concatenation — S → S₁S₂</li>
+              <li>Kleene star — S → SS | ε</li>
+              <li>Homomorphism &amp; inverse homomorphism</li>
+              <li>Intersection with a <em>regular</em> language</li>
+            </ul>
+          </div>
+          <div class="a2col-cell">
+            <h4>✗ NOT Closed Under</h4>
+            <ul>
+              <li>Intersection of two CFLs</li>
+              <li>Complement</li>
+              <li>Set difference (in general)</li>
+            </ul>
+            <br>
+            <div style="font-size:11px;color:#888;font-family:'JetBrains Mono',monospace">counterexample: {aⁿbⁿ} ∩ {aⁿbⁿcⁿ} is not CFL</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- §05 -->
+
+
+    <!-- ══ §06 PUMPING LEMMA / PROOF BY CONTRADICTION ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">06</div>
+        <div class="aS-meta">
+          <h2>Pumping Lemma &amp; Non-Regularity Proofs</h2>
+          <p>PROOF BY CONTRADICTION · ADVERSARIAL GAME · NON-REGULARITY · NON-CFL</p>
+        </div>
+        <div class="aS-tag">proofs</div>
+      </div>
+
+      <!-- ── 05a Regular ── -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Pumping Lemma — Regular Languages</span>
+          <span>s = xyz · pigeonhole on states</span>
+        </div>
+
+        <div class="aLabel">Statement</div>
+        <div class="aDef">
+          If A is a regular language then there exists a pumping length <strong>p ≥ 1</strong> such that every string <strong>s ∈ A</strong> with |s| ≥ p can be written as <strong>s = xyz</strong> satisfying three conditions:<br><br>
+          <strong>(1)</strong> xyⁱz ∈ A for all i ≥ 0 &nbsp;·&nbsp; <strong>(2)</strong> |y| ≥ 1 &nbsp;·&nbsp; <strong>(3)</strong> |xy| ≤ p
+        </div>
+
+        <div class="aLabel">Why it's true — visual (pigeonhole on states)</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Path of length ≥ p through p states must repeat some state — that cycle is y</div>
+          <svg viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="aArwP" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#111"/></marker></defs>
+            <!-- chain of states -->
+            <line x1="28" y1="62" x2="54" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <circle cx="70" cy="62" r="16" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="70" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₀</text>
+            <line x1="86" y1="62" x2="110" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <circle cx="126" cy="62" r="16" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="126" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₁</text>
+            <line x1="142" y1="62" x2="166" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <!-- qr first occurrence — highlighted -->
+            <circle cx="182" cy="62" r="16" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="182" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="198" y1="62" x2="222" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <circle cx="238" cy="62" r="16" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="238" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₃</text>
+            <line x1="254" y1="62" x2="278" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <!-- qr second occurrence -->
+            <circle cx="294" cy="62" r="16" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/>
+            <text x="294" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#e8352a">qᵣ</text>
+            <line x1="310" y1="62" x2="334" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <circle cx="350" cy="62" r="16" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="350" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₅</text>
+            <line x1="366" y1="62" x2="390" y2="62" stroke="#111" stroke-width="2" marker-end="url(#aArwP)"/>
+            <circle cx="406" cy="62" r="16" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="406" cy="62" r="11" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="406" y="67" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">qₐ</text>
+            <!-- braces / labels -->
+            <text x="98"  y="96" text-anchor="middle" font-size="10" fill="#111" font-family="JetBrains Mono,monospace">← x →</text>
+            <text x="238" y="96" text-anchor="middle" font-size="10" fill="#e8352a" font-family="JetBrains Mono,monospace">←— y —→</text>
+            <text x="378" y="96" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">← z →</text>
+            <!-- arc showing y pumps -->
+            <path d="M182,46 C182,8 294,8 294,46" fill="none" stroke="#e8352a" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aArwP)"/>
+            <text x="238" y="5" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">pump this cycle</text>
+          </svg>
+        </div>
+
+        <div class="aLabel">Proof template — proof by contradiction</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">Non-Regularity Proof</span><span class="ps">adversarial game · you pick s, adversary picks split</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume A is regular. Let p be its pumping length (given by the lemma).</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Choose s ∈ A with |s| ≥ p. <span class="cm">pick cleverly to force contradiction</span></span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">For all</span> ways to write s = xyz with |y| ≥ 1 and |xy| ≤ p:</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Find some i ≥ 0 such that xyⁱz ∉ A. <span class="cm">pump up or pump down</span></span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd">This contradicts condition (1). Therefore A is <strong>not</strong> regular. □</span></div>
+          </div>
+        </div>
+
+        <div class="aLabel">Worked example — L = {0ⁿ1ⁿ | n ≥ 0}</div>
+        <div class="aDef">
+          Assume L is regular; let p be its pumping length. Choose <strong>s = 0ᵖ1ᵖ</strong> (length 2p ≥ p, so s ∈ L). Since |xy| ≤ p, both x and y lie entirely within the block of 0s. Write <strong>y = 0ᵏ</strong> (k ≥ 1). Pump up with i = 2: <strong>xy²z = 0^(p+k) 1ᵖ</strong> — now there are more 0s than 1s, so this string ∉ L. Contradiction. Therefore L is not regular. □
+        </div>
+
+        <div class="aNote"><strong>Remember:</strong> You must handle <em>every</em> valid split xyz (every choice the adversary could make), not just one. Condition (3) |xy| ≤ p is what forces y into a specific region — use it.</div>
+      </div><!-- pumping regular -->
+
+      <!-- ── 05b CFL ── -->
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Pumping Lemma — Context-Free Languages</span>
+          <span>s = uvxyz · parse tree · tall path</span>
+        </div>
+
+        <div class="aLabel">Statement</div>
+        <div class="aDef">
+          If A is a CFL then there exists a pumping length <strong>p</strong> such that every <strong>s ∈ A</strong> with |s| ≥ p can be written as <strong>s = uvxyz</strong> satisfying:<br><br>
+          <strong>(1)</strong> uvⁱxyⁱz ∈ A for all i ≥ 0 &nbsp;·&nbsp; <strong>(2)</strong> |vy| ≥ 1 &nbsp;·&nbsp; <strong>(3)</strong> |vxy| ≤ p<br><br>
+          <em>Intuition:</em> if a parse tree is tall enough, some variable must repeat on a root-to-leaf path. You can copy or delete that subtree (pumping v and y together) and stay in the language.
+        </div>
+
+        <div class="aNote"><strong>Classic non-CFL:</strong> L = {aⁿbⁿcⁿ | n ≥ 0}. Choose s = aᵖbᵖcᵖ. Any valid split forces v and y to land within at most two of the three blocks — pumping then unbalances at least one count. Contradiction.</div>
+      </div><!-- pumping CFL -->
+
+    </div><!-- §06 -->
+
+
+    <!-- ══ §07 LANGUAGE OPERATIONS ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">07</div>
+        <div class="aS-meta">
+          <h2>Language Operations</h2>
+          <p>UNION · CONCATENATION · KLEENE STAR · INTERSECTION · DEFINITIONS</p>
+        </div>
+        <div class="aS-tag">operations</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Formal definitions</span>
+          <span>operations on languages as sets of strings</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">OP</th><th class="plain">PLAIN ENGLISH</th><th class="name">FORMAL DEFINITION</th><th class="desc">EXAMPLE</th></tr>
+            <tr>
+              <td class="sym">A ∪ B</td>
+              <td class="plain">either language</td>
+              <td class="name">Union</td>
+              <td class="desc">{w | w ∈ A or w ∈ B}. Any string in A or B.</td>
+            </tr>
+            <tr>
+              <td class="sym">A ∘ B</td>
+              <td class="plain">A then B</td>
+              <td class="name">Concatenation</td>
+              <td class="desc">{xy | x ∈ A and y ∈ B}. Split string into A-part then B-part.</td>
+            </tr>
+            <tr>
+              <td class="sym">A*</td>
+              <td class="plain">zero or more</td>
+              <td class="name">Kleene Star</td>
+              <td class="desc">{x₁x₂…xₖ | k ≥ 0, each xᵢ ∈ A}. Includes ε (k=0).</td>
+            </tr>
+            <tr>
+              <td class="sym">A ∩ B</td>
+              <td class="plain">both languages</td>
+              <td class="name">Intersection</td>
+              <td class="desc">{w | w ∈ A and w ∈ B}. Strings in A that are also in B.</td>
+            </tr>
+            <tr>
+              <td class="sym">Ā</td>
+              <td class="plain">everything else</td>
+              <td class="name">Complement</td>
+              <td class="desc">Σ* \ A = {w ∈ Σ* | w ∉ A}. All strings not in A.</td>
+            </tr>
+            <tr>
+              <td class="sym">A \ B</td>
+              <td class="plain">A but not B</td>
+              <td class="name">Difference</td>
+              <td class="desc">{w | w ∈ A and w ∉ B} = A ∩ B̄.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Union — A ∪ B</span>
+          <span>new ε-NFA start → both machines</span>
+        </div>
+        <div class="aDef">Accept if M_A accepts OR M_B accepts. New start state q_s with ε-transitions to q₀_A and q₀_B. Accept states of both machines remain.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Union construction — q_s fans out to both machines via ε</div>
+          <svg viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="u2Arw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="20" y1="90" x2="56" y2="90" stroke="#111" stroke-width="2" marker-end="url(#u2Arw)"/>
+            <circle cx="80" cy="90" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <text x="80" y="95" text-anchor="middle" font-size="12" font-family="Archivo Black,sans-serif" fill="#111">q_s</text>
+            <line x1="102" y1="78" x2="158" y2="50" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#u2Arw)"/>
+            <text x="118" y="54" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <line x1="102" y1="102" x2="158" y2="130" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#u2Arw)"/>
+            <text x="114" y="128" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="162" y="18" width="160" height="54" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="242" y="48" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#111">M_A</text>
+            <text x="242" y="63" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">q₀_A → … → F_A ✓</text>
+            <rect x="162" y="108" width="160" height="54" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="242" y="138" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#111">M_B</text>
+            <text x="242" y="153" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">q₀_B → … → F_B ✓</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Concatenation — A ∘ B</span>
+          <span>ε from F_A to q₀_B · F_A becomes non-accepting</span>
+        </div>
+        <div class="aDef">Accept if some split xy has x ∈ A and y ∈ B. Wire M_A's accept states to M_B's start via ε. M_A's accept states lose their accepting status — only F_B accepts.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Concatenation — ε bridges A's accept to B's start · only F_B accepts</div>
+          <svg viewBox="0 0 520 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="ccArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="10" y1="60" x2="46" y2="60" stroke="#111" stroke-width="2" marker-end="url(#ccArw)"/>
+            <rect x="50" y="20" width="160" height="80" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="130" y="58" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#111">M_A</text>
+            <text x="130" y="73" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">q₀_A → … → F_A</text>
+            <!-- F_A no longer accepts -->
+            <circle cx="216" cy="60" r="20" fill="#ede8dc" stroke="#888" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="216" y="65" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#888">F_A</text>
+            <line x1="238" y1="60" x2="274" y2="60" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ccArw)"/>
+            <text x="256" y="52" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="278" y="20" width="160" height="80" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <text x="358" y="58" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#111">M_B</text>
+            <text x="358" y="73" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">q₀_B → … → F_B ✓</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Kleene Star — A*</span>
+          <span>new accept-start · ε-loop back from F_A to q₀_A</span>
+        </div>
+        <div class="aDef">Accept zero or more strings from A concatenated together. New start q_s is also an accept state (for ε). Add ε from q_s to q₀_A, and ε from every accept state in F_A back to q₀_A (to loop).</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Kleene Star — q_s handles ε · loop-back ε from F_A to q₀_A enables repetition</div>
+          <svg viewBox="0 0 520 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="ksArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <line x1="10" y1="80" x2="46" y2="80" stroke="#111" stroke-width="2" marker-end="url(#ksArw)"/>
+            <!-- q_s = start + accept -->
+            <circle cx="70" cy="80" r="24" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="70" cy="80" r="18" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="70" y="85" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#111">q_s</text>
+            <text x="70" y="118" text-anchor="middle" font-size="8" fill="#888" font-family="JetBrains Mono,monospace">start + accept</text>
+            <!-- ε to q₀_A -->
+            <line x1="94" y1="80" x2="142" y2="80" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ksArw)"/>
+            <text x="118" y="72" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε</text>
+            <!-- M_A box -->
+            <rect x="146" y="34" width="230" height="92" rx="4" fill="#f2ede4" stroke="#111" stroke-width="2"/>
+            <circle cx="178" cy="80" r="16" fill="#fff" stroke="#111" stroke-width="2"/>
+            <text x="178" y="85" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">q₀_A</text>
+            <line x1="194" y1="80" x2="310" y2="80" stroke="#111" stroke-width="1.5" marker-end="url(#ksArw)"/>
+            <text x="252" y="72" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">…runs M_A…</text>
+            <circle cx="334" cy="80" r="20" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="334" cy="80" r="14" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="334" y="85" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#111">F_A</text>
+            <!-- loop back arrow -->
+            <path d="M332,58 C332,14 178,14 180,62" fill="none" stroke="#111" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#ksArw)"/>
+            <text x="256" y="10" text-anchor="middle" font-size="11" fill="#9a7d00" font-family="JetBrains Mono,monospace">ε (loop back for repetition)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Intersection — A ∩ B</span>
+          <span>product DFA · states are pairs · both must accept</span>
+        </div>
+        <div class="aDef">Run M_A and M_B simultaneously. States = pairs (p, q). Transition: <code>δ((p,q), a) = (δ_A(p,a), δ_B(q,a))</code>. Accept iff <strong>both</strong> p ∈ F_A and q ∈ F_B. For A \ B: accept iff p ∈ F_A and q ∉ F_B.</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Product DFA — each state (p,q) tracks where both machines are simultaneously</div>
+          <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;font-family:'Archivo',sans-serif">
+            <defs><marker id="pdArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#111"/></marker></defs>
+            <!-- headers -->
+            <text x="170" y="22" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">p₀ (not accept)</text>
+            <text x="310" y="22" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">p₁ (accept in A)</text>
+            <text x="44" y="72" text-anchor="end" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₀</text>
+            <text x="44" y="142" text-anchor="end" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">q₁ ✓</text>
+            <!-- grid states -->
+            <circle cx="170" cy="70" r="28" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="170" y="75" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₀,q₀)</text>
+            <circle cx="310" cy="70" r="28" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="310" y="75" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₁,q₀)</text>
+            <circle cx="170" cy="145" r="28" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="170" y="150" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#888">(p₀,q₁)</text>
+            <!-- accept: both p₁ and q₁ -->
+            <circle cx="310" cy="145" r="28" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="310" cy="145" r="22" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="310" y="150" text-anchor="middle" font-size="10" font-family="JetBrains Mono,monospace" fill="#111">(p₁,q₁)</text>
+            <text x="310" y="186" text-anchor="middle" font-size="9" fill="#111" font-family="Archivo Black,sans-serif">ACCEPT</text>
+            <text x="310" y="198" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">p₁∈F_A and q₁∈F_B</text>
+          </svg>
+        </div>
+      </div>
+
+    </div><!-- §07 -->
+
+  </div><!-- .aW -->
+</div><!-- #dA -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE B — EDITORIAL LIGHT
+════════════════════════════════════════════════════════ -->
+<div id="dB" class="demo">
+  <div class="bH">
+    <div class="bH-brand">Theory of Computation</div>
+    <nav class="bH-nav">
+      <a href="#">Notation</a>
+      <a href="#">Regular Lang</a>
+      <a href="#">DFA/NFA</a>
+      <a href="#">GNFA</a>
+      <a href="#">Closure</a>
+      <a href="#">Pumping</a>
+      <a href="#">Operations</a>
+    </nav>
+  </div>
+  <div class="bW">
+
+    <!-- §01 Notation -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">01</span><h2>Core Notation</h2><span>Alphabets · Strings · Languages</span></div>
+      <div class="bSub-block">
+        <div class="bGrid">
+          <div class="bCard"><div class="bGlyph">Σ</div><div class="bPlain">the alphabet</div><div class="bName">Sigma</div><div class="bDesc">Finite non-empty set of symbols. Σ = {0,1}</div></div>
+          <div class="bCard"><div class="bGlyph">Σ*</div><div class="bPlain">all strings ever</div><div class="bName">Kleene Star</div><div class="bDesc">Every finite string over Σ including ε.</div></div>
+          <div class="bCard"><div class="bGlyph">ε</div><div class="bPlain">empty string</div><div class="bName">Epsilon</div><div class="bDesc">String of length 0. ε ≠ ∅.</div></div>
+          <div class="bCard"><div class="bGlyph">δ</div><div class="bPlain">where to go</div><div class="bName">Transition fn</div><div class="bDesc">DFA: Q×Σ→Q. NFA: Q×Σ_ε→𝒫(Q).</div></div>
+          <div class="bCard"><div class="bGlyph">q₀</div><div class="bPlain">start here</div><div class="bName">Start state</div><div class="bDesc">Exactly one per automaton.</div></div>
+          <div class="bCard"><div class="bGlyph">F</div><div class="bPlain">accept states</div><div class="bName">Final states</div><div class="bDesc">F ⊆ Q. Accept iff final state ∈ F.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- §02 Regular Languages & Regular Expressions -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">02</span><h2>Regular Languages &amp; Regular Expressions</h2><span>What's regular · Regex syntax · Is / isn't regular</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>What is a Regular Language?</h3><span>recognized by a DFA · three equivalent views</span></div>
+        <div class="bDef">A language L is <strong>regular</strong> iff a DFA recognizes it. Equivalently: some NFA recognizes it, or some regular expression describes it. These three views are all equivalent — converting between them is what subset construction and state ripping do.</div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>✓ Regular</h4>
+            <ul>
+              <li>All finite languages</li>
+              <li>Strings ending in a fixed pattern</li>
+              <li>Strings with an even number of 0s</li>
+              <li>Strings containing a fixed substring</li>
+              <li>Anything a regex can describe</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>✗ Not Regular</h4>
+            <ul>
+              <li><code>{0ⁿ1ⁿ | n ≥ 0}</code> — equal counts</li>
+              <li><code>{ww | w ∈ Σ*}</code> — must remember first half</li>
+              <li>Balanced parentheses</li>
+              <li>Anything needing unbounded counting or matching</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bNote"><strong>The test:</strong> if a DFA would need to track an ever-growing counter or an unbounded match, the language is not regular. Prove it formally with the Pumping Lemma.</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Regular Expressions</h3><span>6 building blocks · describes exactly the regular languages</span></div>
+        <div class="bGrid">
+          <div class="bCard"><div class="bGlyph">∅</div><div class="bPlain">nothing</div><div class="bName">Empty language</div><div class="bDesc">Matches no string. L(∅) = {}</div></div>
+          <div class="bCard"><div class="bGlyph">ε</div><div class="bPlain">just empty string</div><div class="bName">Epsilon</div><div class="bDesc">Matches only ε. L(ε) = {ε}</div></div>
+          <div class="bCard"><div class="bGlyph">a</div><div class="bPlain">this symbol</div><div class="bName">Single char</div><div class="bDesc">Matches the one-char string "a".</div></div>
+          <div class="bCard"><div class="bGlyph">R₁∪R₂</div><div class="bPlain">either one</div><div class="bName">Union</div><div class="bDesc">Matches strings in R₁ OR R₂.</div></div>
+          <div class="bCard"><div class="bGlyph">R₁∘R₂</div><div class="bPlain">one then other</div><div class="bName">Concatenation</div><div class="bDesc">R₁ string followed by R₂ string.</div></div>
+          <div class="bCard"><div class="bGlyph">R*</div><div class="bPlain">zero or more</div><div class="bName">Kleene star</div><div class="bDesc">Zero or more repetitions of R.</div></div>
+        </div>
+        <div class="bLabel">Examples</div>
+        <div class="bDef">
+          <strong>(0∪1)*</strong> → all binary strings &nbsp;·&nbsp; <strong>(0∪1)*01(0∪1)*</strong> → contains "01" &nbsp;·&nbsp; <strong>0*10*10*</strong> → exactly two 1s<br>
+          Precedence: <strong>*</strong> tightest, then <strong>∘</strong>, then <strong>∪</strong>.
+        </div>
+        <div class="bNote"><strong>Kleene's theorem:</strong> L is regular ↔ some regex describes it. Regex → NFA (Thompson's construction). DFA → regex (state ripping).</div>
+      </div>
+    </div>
+
+    <!-- §03 Finite Automata -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">03</span><h2>Finite Automata</h2><span>DFA · NFA · ε-closure · Equivalence</span></div>
+
+      <!-- 02a DFA -->
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Deterministic Finite Automaton (DFA)</h3><span>5-tuple · total · no ε</span></div>
+        <div class="bDef">A DFA <strong>(Q, Σ, δ, q₀, F)</strong> has <strong>δ: Q×Σ→Q</strong> total — exactly one next state per (state, symbol) pair. Accepts w iff reading w from q₀ lands in F. Recognizes exactly the <strong>regular languages</strong>.</div>
+        <div class="bLabel">State diagram — accepts strings ending in "01"</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">DFA · q₂ = accept state (double ring)</div>
+          <svg viewBox="0 0 560 184" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw)"/>
+            <path d="M103,62 C103,22 158,22 158,62" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw)"/>
+            <text x="130" y="17" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <line x1="177" y1="92" x2="249" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw)"/>
+            <text x="213" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <path d="M267,62 C267,22 322,22 322,62" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw)"/>
+            <text x="294" y="17" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <line x1="340" y1="92" x2="413" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw)"/>
+            <text x="376" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <path d="M423,73 C423,38 313,38 313,73" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw)"/>
+            <text x="368" y="34" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">0</text>
+            <path d="M423,111 C423,154 158,154 158,111" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw)"/>
+            <text x="290" y="170" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">1</text>
+            <circle cx="130" cy="92" r="30" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a1a">q₀</text>
+            <circle cx="294" cy="92" r="30" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="294" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a1a">q₁</text>
+            <circle cx="453" cy="92" r="30" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="453" cy="92" r="24" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="453" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e8352a">q₂</text>
+            <text x="40" y="86" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">start</text>
+            <text x="453" y="136" text-anchor="middle" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">accept</text>
+          </svg>
+        </div>
+        <div class="bNote"><strong>Always halts.</strong> Exactly |w| steps. Complete decision procedure.</div>
+      </div>
+
+      <!-- 02b NFA -->
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Nondeterministic Finite Automaton (NFA)</h3><span>ε-moves · 𝒫(Q) · same power as DFA</span></div>
+        <div class="bDef"><strong>δ: Q × Σ_ε → 𝒫(Q)</strong> — each transition returns a <em>set</em>. ε-moves allowed. Accepts if <em>any</em> path ends in F. Equivalent to DFA — same regular languages — but can be exponentially more concise.</div>
+        <div class="bLabel">State diagram — accepts strings containing "01"</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">NFA · nondeterministic branch on 0 at q₀</div>
+          <svg viewBox="0 0 520 184" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bArw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw2)"/>
+            <path d="M102,62 C102,20 158,20 158,62" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw2)"/>
+            <text x="130" y="15" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0, 1</text>
+            <line x1="166" y1="92" x2="239" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw2)"/>
+            <text x="202" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">0</text>
+            <line x1="323" y1="92" x2="396" y2="92" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArw2)"/>
+            <text x="360" y="83" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace">1</text>
+            <path d="M416,62 C416,20 472,20 472,62" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArw2)"/>
+            <text x="444" y="15" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">0, 1</text>
+            <circle cx="130" cy="92" r="30" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a1a">q₀</text>
+            <circle cx="281" cy="92" r="30" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="281" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#1a1a1a">q₁</text>
+            <circle cx="450" cy="92" r="30" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="450" cy="92" r="24" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="450" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e8352a">q₂</text>
+            <text x="40" y="86" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">start</text>
+          </svg>
+        </div>
+        <div class="bNote"><strong>Subset construction:</strong> DFA states = subsets of NFA states. n-state NFA → up to 2ⁿ DFA states worst case.</div>
+      </div>
+    </div><!-- §03 B -->
+
+    <!-- §04 GNFA B -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">04</span><h2>GNFA &amp; State Ripping</h2><span>Generalized NFA · DFA → Regex</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Generalized NFA (GNFA)</h3><span>regex edges · unique start/accept</span></div>
+        <div class="bDef">A <strong>GNFA</strong> is an NFA whose transitions are labeled with <em>regular expressions</em>. It has a unique start (no incoming edges) and a unique accept (no outgoing edges). Every pair of states has exactly one edge label (∅ if no path). Used to convert any DFA into a regular expression.</div>
+        <div class="bLabel">State diagram — GNFA</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">GNFA · dashed start · double-ring accept · regex on every edge</div>
+          <svg viewBox="0 0 600 192" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bArwG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="28" y1="96" x2="60" y2="96" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwG)"/>
+            <line x1="112" y1="96" x2="184" y2="96" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwG)"/>
+            <text x="148" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <line x1="248" y1="96" x2="320" y2="96" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwG)"/>
+            <text x="284" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">a*b</text>
+            <path d="M337,66 C337,26 382,26 382,66" fill="none" stroke="#ccc" stroke-width="1.5" marker-end="url(#bArwG)"/>
+            <text x="360" y="22" text-anchor="middle" font-size="11" fill="#aaa" font-family="JetBrains Mono,monospace">a</text>
+            <line x1="392" y1="96" x2="464" y2="96" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwG)"/>
+            <text x="428" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">b∪c</text>
+            <path d="M222,114 C222,158 448,158 466,114" fill="none" stroke="#e8e5df" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#bArwG)"/>
+            <text x="344" y="174" text-anchor="middle" font-size="11" fill="#ddd" font-family="JetBrains Mono,monospace">∅</text>
+            <line x1="520" y1="96" x2="554" y2="96" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwG)"/>
+            <text x="537" y="87" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <circle cx="86" cy="96" r="25" fill="#fff8f0" stroke="#e8352a" stroke-width="2" stroke-dasharray="5,3"/>
+            <text x="86" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#e8352a">q_s</text>
+            <circle cx="216" cy="96" r="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="216" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1a1a">q₁</text>
+            <circle cx="356" cy="96" r="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="356" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1a1a">q₂</text>
+            <circle cx="492" cy="96" r="28" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+            <text x="492" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#1a1a1a">q₃</text>
+            <circle cx="580" cy="96" r="22" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="580" cy="96" r="16" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="580" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#e8352a">q_a</text>
+            <text x="32" y="90" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">start</text>
+          </svg>
+        </div>
+        <div class="bLabel">The rip formula</div>
+        <div class="bDef">When ripping <strong>q_rip</strong>, for every remaining pair (qᵢ, qⱼ):<br><br>
+        <strong>R(qᵢ,qⱼ) ← R(qᵢ,qⱼ) ∪ R(qᵢ,q_rip) · R(q_rip,q_rip)* · R(q_rip,qⱼ)</strong><br><br>
+        Keep direct path <em>plus</em> any path through q_rip (enter R₁, loop R₂*, exit R₃). Then delete q_rip. Repeat until only q_s and q_acc remain — the final edge label is the regex.</div>
+        <div class="bPseudo">
+          <div class="ph"><span class="pn">State Ripping — DFA to Regex</span><span class="ps">O(k³) rips for k interior states</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Add q_s → q₀ (ε) and accepts → q_acc (ε). Fill ∅ for missing edges.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd"><span class="kw">while</span> interior states remain:</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd i1">Pick q_rip. Update all (qᵢ,qⱼ) pairs using the rip formula.</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Delete q_rip and its edges.</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd"><span class="kw">return</span> R(q_s, q_acc)</span></div>
+          </div>
+        </div>
+        <div class="bNote"><strong>Theorem:</strong> L is regular ↔ L is described by a regular expression. State ripping proves the (→) direction constructively.</div>
+      </div>
+    </div><!-- §04 B -->
+
+    <!-- §05 Pumping B -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">05</span><h2>Pumping Lemma &amp; Proof by Contradiction</h2><span>Regular · CFL · Non-regularity proofs</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Pumping Lemma — Regular Languages</h3><span>s = xyz · pigeonhole · contradiction</span></div>
+        <div class="bDef">If A is regular, ∃ pumping length <strong>p</strong> s.t. every s ∈ A with |s|≥p can be written <strong>s = xyz</strong>: <strong>(1)</strong> xyⁱz ∈ A ∀i≥0 · <strong>(2)</strong> |y|≥1 · <strong>(3)</strong> |xy|≤p. Use to prove non-regularity by contradiction.</div>
+        <div class="bLabel">Pigeonhole visual — repeated state forces pumping</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">Path of length ≥ p must repeat a state → that cycle is y</div>
+          <svg viewBox="0 0 560 116" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bArwP" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="28" y1="60" x2="54" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="70" cy="60" r="16" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><text x="70" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a1a">q₀</text>
+            <line x1="86" y1="60" x2="110" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="126" cy="60" r="16" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><text x="126" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a1a">q₁</text>
+            <line x1="142" y1="60" x2="166" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="182" cy="60" r="16" fill="#fff8f0" stroke="#e8352a" stroke-width="2.5"/><text x="182" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#e8352a">qᵣ</text>
+            <line x1="198" y1="60" x2="222" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="238" cy="60" r="16" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><text x="238" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a1a">q₃</text>
+            <line x1="254" y1="60" x2="278" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="294" cy="60" r="16" fill="#fff8f0" stroke="#e8352a" stroke-width="2.5"/><text x="294" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#e8352a">qᵣ</text>
+            <line x1="310" y1="60" x2="334" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="350" cy="60" r="16" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><text x="350" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a1a">q₅</text>
+            <line x1="366" y1="60" x2="390" y2="60" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bArwP)"/>
+            <circle cx="406" cy="60" r="16" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/><circle cx="406" cy="60" r="11" fill="none" stroke="#e8352a" stroke-width="1.5"/><text x="406" y="65" text-anchor="middle" font-size="10" font-weight="700" fill="#e8352a">qₐ</text>
+            <text x="98" y="94" text-anchor="middle" font-size="10" fill="#1a1a1a" font-family="JetBrains Mono,monospace">x</text>
+            <text x="238" y="94" text-anchor="middle" font-size="10" fill="#e8352a" font-family="JetBrains Mono,monospace">y (pumped)</text>
+            <text x="378" y="94" text-anchor="middle" font-size="10" fill="#aaa" font-family="JetBrains Mono,monospace">z</text>
+            <path d="M182,44 C182,8 294,8 294,44" fill="none" stroke="#e8352a" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#bArwP)"/>
+          </svg>
+        </div>
+        <div class="bPseudo">
+          <div class="ph"><span class="pn">Non-Regularity Proof</span><span class="ps">proof by contradiction</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume A regular; p = pumping length.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Choose s ∈ A with |s| ≥ p. <span class="cm"># pick to force contradiction</span></span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">For all</span> splits s=xyz with |y|≥1, |xy|≤p:</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Find i ≥ 0 s.t. xyⁱz ∉ A.</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd">Contradiction. A is not regular. □</span></div>
+          </div>
+        </div>
+        <div class="bNote"><strong>Classic:</strong> L={0ⁿ1ⁿ}. s=0ᵖ1ᵖ. Since |xy|≤p, y=0ᵏ. Pump up: 0^(p+k)1ᵖ ∉ L. Contradiction.</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Pumping Lemma — Context-Free Languages</h3><span>s = uvxyz · parse tree</span></div>
+        <div class="bDef">If A is CFL, ∃ pumping length <strong>p</strong> s.t. every s ∈ A with |s|≥p can be written <strong>s=uvxyz</strong>: <strong>(1)</strong> uvⁱxyⁱz ∈ A ∀i≥0 · <strong>(2)</strong> |vy|≥1 · <strong>(3)</strong> |vxy|≤p. Intuition: a repeated variable on a tall parse tree path can be pumped. Classic non-CFL: <code>{aⁿbⁿcⁿ}</code>.</div>
+      </div>
+    </div><!-- §05 B -->
+
+    <!-- §06 Closure B -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">06</span><h2>Closure Properties</h2><span>Regular · CFL · NFA constructions</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Regular Languages — NFA Constructions</h3><span>closed under all these operations</span></div>
+        <div class="bLabel">Union — new ε-NFA start fans to both machines</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">New q_s with ε → q₀_A and ε → q₀_B · accept states of both unchanged</div>
+          <svg viewBox="0 0 500 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;font-family:'Archivo',sans-serif">
+            <defs><marker id="buArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="16" y1="85" x2="52" y2="85" stroke="#1a1a1a" stroke-width="2" marker-end="url(#buArw)"/>
+            <circle cx="76" cy="85" r="24" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <text x="76" y="90" text-anchor="middle" font-size="12" font-family="Archivo Black,sans-serif" fill="#e8352a">q_s</text>
+            <line x1="98" y1="73" x2="150" y2="46" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#buArw)"/>
+            <text x="112" y="49" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <line x1="98" y1="97" x2="150" y2="124" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#buArw)"/>
+            <text x="108" y="122" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="154" y="16" width="160" height="50" rx="6" fill="#fff" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="234" y="40" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#1a1a1a">M_A</text>
+            <text x="234" y="55" text-anchor="middle" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">q₀_A → … → F_A ✓</text>
+            <rect x="154" y="104" width="160" height="50" rx="6" fill="#fff" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="234" y="128" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#1a1a1a">M_B</text>
+            <text x="234" y="143" text-anchor="middle" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">q₀_B → … → F_B ✓</text>
+          </svg>
+        </div>
+        <div class="bLabel">Concatenation — ε from F_A to q₀_B</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">F_A states become non-accepting · ε bridges to M_B · only F_B accepts</div>
+          <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bcArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="10" y1="55" x2="44" y2="55" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bcArw)"/>
+            <rect x="48" y="18" width="148" height="74" rx="6" fill="#fff" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="122" y="55" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#1a1a1a">M_A</text>
+            <text x="122" y="70" text-anchor="middle" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">q₀_A → … → F_A</text>
+            <circle cx="202" cy="55" r="18" fill="#faf5ee" stroke="#ccc" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="202" y="60" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#ccc">F_A</text>
+            <line x1="222" y1="55" x2="256" y2="55" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#bcArw)"/>
+            <text x="238" y="47" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="260" y="18" width="148" height="74" rx="6" fill="#fff" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="334" y="55" text-anchor="middle" font-size="13" font-family="Archivo Black,sans-serif" fill="#1a1a1a">M_B</text>
+            <text x="334" y="70" text-anchor="middle" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">q₀_B → … → F_B ✓</text>
+          </svg>
+        </div>
+        <div class="bLabel">Kleene Star — new accept-start · loop-back ε</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">q_s is start AND accept (handles ε) · F_A loops back to q₀_A via ε</div>
+          <svg viewBox="0 0 500 148" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;font-family:'Archivo',sans-serif">
+            <defs><marker id="bksArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a1a1a"/></marker></defs>
+            <line x1="10" y1="74" x2="44" y2="74" stroke="#1a1a1a" stroke-width="2" marker-end="url(#bksArw)"/>
+            <circle cx="68" cy="74" r="24" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="68" cy="74" r="18" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="68" y="79" text-anchor="middle" font-size="11" font-family="Archivo Black,sans-serif" fill="#e8352a">q_s</text>
+            <text x="68" y="110" text-anchor="middle" font-size="8" fill="#bbb" font-family="JetBrains Mono,monospace">start + accept</text>
+            <line x1="92" y1="74" x2="136" y2="74" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#bksArw)"/>
+            <text x="114" y="65" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε</text>
+            <rect x="140" y="30" width="220" height="88" rx="6" fill="#fff" stroke="#e8e5df" stroke-width="1.5"/>
+            <circle cx="172" cy="74" r="16" fill="#faf5ee" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="172" y="79" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#1a1a1a">q₀_A</text>
+            <line x1="188" y1="74" x2="304" y2="74" stroke="#ccc" stroke-width="1.5" marker-end="url(#bksArw)"/>
+            <circle cx="328" cy="74" r="20" fill="#fff8f0" stroke="#e8352a" stroke-width="2"/>
+            <circle cx="328" cy="74" r="14" fill="none" stroke="#e8352a" stroke-width="1.5"/>
+            <text x="328" y="79" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#e8352a">F_A</text>
+            <path d="M326,53 C326,12 172,12 174,57" fill="none" stroke="#1a1a1a" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#bksArw)"/>
+            <text x="250" y="8" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">ε (loop back)</text>
+          </svg>
+        </div>
+        <div class="bLabel">Intersection — product DFA</div>
+        <div class="bDef">States = pairs (p, q). Transition: <code>δ((p,q),a) = (δ_A(p,a), δ_B(q,a))</code>. Accept iff both p ∈ F_A and q ∈ F_B. For A \ B: accept iff p ∈ F_A and q ∉ F_B.</div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>✓ Regular — Closed Under</h4>
+            <ul>
+              <li>Union, Concatenation, Kleene Star</li>
+              <li>Complement (flip F in complete DFA)</li>
+              <li>Intersection (product DFA)</li>
+              <li>Difference A \ B = A ∩ B̄</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>CFL — NOT Closed Under</h4>
+            <ul>
+              <li>Intersection of two CFLs</li>
+              <li>Complement</li>
+              <li>Difference (in general)</li>
+            </ul>
+            <h4 style="margin-top:8px">CFL — Closed Under</h4>
+            <ul><li>Union, Concatenation, Star, Intersection with regular</li></ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- §06 B -->
+
+    <!-- §07 Operations B -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">07</span><h2>Language Operations</h2><span>Union · Concatenation · Kleene Star · Intersection</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Formal Definitions</h3><span>operations on languages as sets of strings</span></div>
+        <div class="bDef">
+          <strong>Union &nbsp; A ∪ B</strong> = {w | w ∈ A or w ∈ B}<br>
+          <strong>Concatenation &nbsp; A ∘ B</strong> = {xy | x ∈ A and y ∈ B}<br>
+          <strong>Kleene Star &nbsp; A*</strong> = {x₁x₂…xₖ | k ≥ 0, each xᵢ ∈ A} &nbsp;— includes ε when k=0<br>
+          <strong>Intersection &nbsp; A ∩ B</strong> = {w | w ∈ A and w ∈ B}<br>
+          <strong>Complement &nbsp; Ā</strong> = Σ* \ A = {w ∈ Σ* | w ∉ A}<br>
+          <strong>Difference &nbsp; A \ B</strong> = {w | w ∈ A and w ∉ B} = A ∩ B̄
+        </div>
+        <div class="bNote">All six operations preserve regularity. For CFLs, only union, concatenation, and Kleene star are guaranteed — intersection and complement can produce non-CFLs.</div>
+      </div>
+    </div><!-- §07 B -->
+
+  </div>
+</div><!-- #dB -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE C — DARK STRUCTURED
+════════════════════════════════════════════════════════ -->
+<div id="dC" class="demo">
+  <div class="cH">
+    <div class="cH-brand">TOC Reference</div>
+    <nav class="cH-nav">
+      <a href="#">Notation</a><a href="#">Regular Lang</a><a href="#">DFA/NFA</a><a href="#">GNFA</a><a href="#">Closure</a><a href="#">Pumping</a><a href="#">Operations</a>
+    </nav>
+  </div>
+  <div class="cW">
+
+    <!-- §01 -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">01</span><h2>Core Notation</h2><span>Alphabets · Strings · Languages</span></div>
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Symbols &amp; Definitions</h3><span>formal language theory</span></div>
+        <div class="cTW">
+          <table class="cT">
+            <thead><tr><th>Sym</th><th>Plain English</th><th>Name</th><th>Meaning / Example</th></tr></thead>
+            <tbody>
+              <tr><td class="sym">Σ</td><td class="plain">the alphabet</td><td class="name">Sigma</td><td class="desc">Finite non-empty set of symbols. <code>Σ={0,1}</code></td></tr>
+              <tr><td class="sym">Σ*</td><td class="plain">all strings ever</td><td class="name">Kleene Star</td><td class="desc">All finite strings over Σ, including ε.</td></tr>
+              <tr><td class="sym">ε</td><td class="plain">empty string</td><td class="name">Epsilon</td><td class="desc">String of length 0. ε ≠ ∅.</td></tr>
+              <tr><td class="sym">δ</td><td class="plain">where to go</td><td class="name">Transition fn</td><td class="desc">DFA: <code>Q×Σ→Q</code>. NFA: <code>Q×Σ_ε→𝒫(Q)</code>. GNFA: <code>Q×Q→ℛ</code></td></tr>
+              <tr><td class="sym">q₀</td><td class="plain">start here</td><td class="name">Start state</td><td class="desc">Exactly one per machine. q₀ ∈ Q.</td></tr>
+              <tr><td class="sym">F</td><td class="plain">accept states</td><td class="name">Final states</td><td class="desc">F ⊆ Q. Accept iff final state ∈ F.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- §02 Regular Languages & Regular Expressions -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">02</span><h2>Regular Languages &amp; Regular Expressions</h2><span>What's regular · Regex syntax · Is / isn't regular</span></div>
+
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>What is a Regular Language?</h3><span>recognized by DFA · three equivalent views</span></div>
+        <div class="cDef">A language L is <strong>regular</strong> iff a DFA recognizes it. Equivalently: some NFA recognizes it, or some regular expression describes it. All three are equivalent — converting between them is what subset construction and state ripping do.</div>
+        <div class="c2col">
+          <div class="c2col-cell">
+            <h4>✓ Regular</h4>
+            <ul>
+              <li>All finite languages</li>
+              <li>Strings ending in a fixed pattern</li>
+              <li>Strings with an even number of 0s</li>
+              <li>Strings containing a fixed substring</li>
+              <li>Anything a regex can describe</li>
+            </ul>
+          </div>
+          <div class="c2col-cell">
+            <h4>✗ Not Regular</h4>
+            <ul>
+              <li><code>{0ⁿ1ⁿ | n ≥ 0}</code> — equal counts</li>
+              <li><code>{ww | w ∈ Σ*}</code> — remember first half</li>
+              <li>Balanced parentheses</li>
+              <li>Anything needing unbounded memory</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cNote"><strong>The test:</strong> if a DFA would need to track an ever-growing counter or unbounded match, the language is not regular. Prove it formally with the Pumping Lemma.</div>
+      </div>
+
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Regular Expressions</h3><span>6 building blocks · describes exactly the regular languages</span></div>
+        <div class="cTW">
+          <table class="cT">
+            <thead><tr><th>Form</th><th>Plain English</th><th>Name</th><th>Meaning / Example</th></tr></thead>
+            <tbody>
+              <tr><td class="sym">∅</td><td class="plain">nothing</td><td class="name">Empty language</td><td class="desc">Matches no string. <code>L(∅) = {}</code></td></tr>
+              <tr><td class="sym">ε</td><td class="plain">just empty string</td><td class="name">Epsilon</td><td class="desc">Matches only ε. <code>L(ε) = {ε}</code></td></tr>
+              <tr><td class="sym">a</td><td class="plain">this symbol</td><td class="name">Single char</td><td class="desc">Matches the one-char string "a", where <code>a ∈ Σ</code></td></tr>
+              <tr><td class="sym">R₁∪R₂</td><td class="plain">either one</td><td class="name">Union</td><td class="desc">Matches strings in R₁ OR R₂</td></tr>
+              <tr><td class="sym">R₁∘R₂</td><td class="plain">one then other</td><td class="name">Concatenation</td><td class="desc">R₁ string followed by R₂ string</td></tr>
+              <tr><td class="sym">R*</td><td class="plain">zero or more</td><td class="name">Kleene star</td><td class="desc">Zero or more repetitions of R. <code>0*</code> → ε, 0, 00 …</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cLabel">Examples</div>
+        <div class="cDef"><code>(0∪1)*</code> → all binary strings &nbsp;·&nbsp; <code>(0∪1)*01(0∪1)*</code> → contains "01" &nbsp;·&nbsp; <code>0*10*10*</code> → exactly two 1s<br>Precedence: <strong>*</strong> tightest, then <strong>∘</strong>, then <strong>∪</strong>.</div>
+        <div class="cNote"><strong>Kleene's theorem:</strong> L is regular ↔ some regex describes it. Regex → NFA (Thompson's construction). DFA → regex (state ripping).</div>
+      </div>
+    </div>
+
+    <!-- §03 -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">03</span><h2>Finite Automata</h2><span>DFA · NFA · ε-closure · Equivalence</span></div>
+
+      <!-- DFA -->
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Deterministic Finite Automaton (DFA)</h3><span>5-tuple · total · regular languages</span></div>
+        <div class="cDef"><strong>DFA = (Q, Σ, δ, q₀, F)</strong> where <strong>δ: Q×Σ→Q</strong> is total. Exactly one next state per (state, symbol). Accepts w iff reading w from q₀ lands in F. Recognizes exactly the <strong>regular languages</strong>.</div>
+        <div class="cLabel">State diagram — accepts strings ending in "01"</div>
+        <div class="cSvg">
+          <div class="cSvg-lbl">DFA · q₂ = accept state</div>
+          <svg viewBox="0 0 560 184" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <defs><marker id="cArw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7dd3fc"/></marker></defs>
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw)"/>
+            <path d="M103,62 C103,22 158,22 158,62" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw)"/>
+            <text x="130" y="17" text-anchor="middle" font-size="12" fill="#f59e0b" font-family="JetBrains Mono,monospace">1</text>
+            <line x1="177" y1="92" x2="249" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw)"/>
+            <text x="213" y="83" text-anchor="middle" font-size="12" fill="#7dd3fc" font-family="JetBrains Mono,monospace">0</text>
+            <path d="M267,62 C267,22 322,22 322,62" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw)"/>
+            <text x="294" y="17" text-anchor="middle" font-size="12" fill="#f59e0b" font-family="JetBrains Mono,monospace">0</text>
+            <line x1="340" y1="92" x2="413" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw)"/>
+            <text x="376" y="83" text-anchor="middle" font-size="12" fill="#7dd3fc" font-family="JetBrains Mono,monospace">1</text>
+            <path d="M423,73 C423,38 313,38 313,73" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw)"/>
+            <text x="368" y="34" text-anchor="middle" font-size="12" fill="#2a4a6a" font-family="JetBrains Mono,monospace">0</text>
+            <path d="M423,111 C423,154 158,154 158,111" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw)"/>
+            <text x="290" y="170" text-anchor="middle" font-size="12" fill="#2a4a6a" font-family="JetBrains Mono,monospace">1</text>
+            <circle cx="130" cy="92" r="30" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">q₀</text>
+            <circle cx="294" cy="92" r="30" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="294" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">q₁</text>
+            <circle cx="453" cy="92" r="30" fill="#0d1520" stroke="#7dd3fc" stroke-width="2"/>
+            <circle cx="453" cy="92" r="24" fill="none" stroke="#7dd3fc" stroke-width="1.5"/>
+            <text x="453" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#7dd3fc" font-family="Archivo Black,sans-serif">q₂</text>
+            <text x="40" y="86" font-size="9" fill="#2a2a3a" font-family="JetBrains Mono,monospace">start</text>
+            <text x="453" y="136" text-anchor="middle" font-size="9" fill="#7dd3fc" font-family="JetBrains Mono,monospace">accept</text>
+          </svg>
+        </div>
+        <div class="cNote"><strong>Always halts</strong> after exactly |w| steps. Complete deterministic decision procedure.</div>
+      </div>
+
+      <!-- NFA -->
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Nondeterministic Finite Automaton (NFA)</h3><span>ε-moves · 𝒫(Q) · same power as DFA</span></div>
+        <div class="cDef"><strong>δ: Q × Σ_ε → 𝒫(Q)</strong> — returns a set of states. ε-moves allowed. Accepts if any path ends in F. Recognizes the same regular languages as DFA, but can be exponentially more concise.</div>
+        <div class="cLabel">State diagram — accepts strings containing "01"</div>
+        <div class="cSvg">
+          <div class="cSvg-lbl">NFA · nondeterministic · q₂ accept</div>
+          <svg viewBox="0 0 520 184" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="cArw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7dd3fc"/></marker></defs>
+            <line x1="36" y1="92" x2="73" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw2)"/>
+            <path d="M102,62 C102,20 158,20 158,62" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw2)"/>
+            <text x="130" y="15" text-anchor="middle" font-size="12" fill="#f59e0b" font-family="JetBrains Mono,monospace">0, 1</text>
+            <line x1="166" y1="92" x2="239" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw2)"/>
+            <text x="202" y="83" text-anchor="middle" font-size="12" fill="#7dd3fc" font-family="JetBrains Mono,monospace">0</text>
+            <line x1="323" y1="92" x2="396" y2="92" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArw2)"/>
+            <text x="360" y="83" text-anchor="middle" font-size="12" fill="#7dd3fc" font-family="JetBrains Mono,monospace">1</text>
+            <path d="M416,62 C416,20 472,20 472,62" fill="none" stroke="#1e1e2e" stroke-width="1.5" marker-end="url(#cArw2)"/>
+            <text x="444" y="15" text-anchor="middle" font-size="12" fill="#2a4a6a" font-family="JetBrains Mono,monospace">0, 1</text>
+            <circle cx="130" cy="92" r="30" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="130" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">q₀</text>
+            <circle cx="281" cy="92" r="30" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="281" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">q₁</text>
+            <circle cx="450" cy="92" r="30" fill="#0d1520" stroke="#7dd3fc" stroke-width="2"/>
+            <circle cx="450" cy="92" r="24" fill="none" stroke="#7dd3fc" stroke-width="1.5"/>
+            <text x="450" y="97" text-anchor="middle" font-size="13" font-weight="700" fill="#7dd3fc" font-family="Archivo Black,sans-serif">q₂</text>
+            <text x="40" y="86" font-size="9" fill="#2a2a3a" font-family="JetBrains Mono,monospace">start</text>
+          </svg>
+        </div>
+        <div class="cNote"><strong>Subset construction:</strong> DFA states = subsets of NFA states. n-state NFA → up to 2ⁿ DFA states worst case.</div>
+      </div>
+    </div><!-- §03 C -->
+
+    <!-- §04 GNFA C -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">04</span><h2>GNFA &amp; State Ripping</h2><span>Generalized NFA · DFA → Regex</span></div>
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Generalized NFA (GNFA)</h3><span>regex edges · unique start/accept</span></div>
+        <div class="cDef"><strong>GNFA</strong> — NFA with transitions labeled by <em>regular expressions</em>. Unique start (no incoming) and unique accept (no outgoing). Every state pair has exactly one edge label (∅ if no path). Used to convert DFAs to regular expressions.</div>
+        <div class="cLabel">State ripping — the formula</div>
+        <div class="cDef">When ripping q_rip, for every remaining pair (qᵢ, qⱼ):<br><br>
+        <strong>R(qᵢ,qⱼ) ← R(qᵢ,qⱼ) ∪ R(qᵢ,q_rip) · R(q_rip,q_rip)* · R(q_rip,qⱼ)</strong></div>
+        <div class="cLabel">Before &amp; after ripping q_rip</div>
+        <div class="cSvg">
+          <div class="cSvg-lbl">3 edges through q_rip collapse into 1 merged label</div>
+          <svg viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;font-family:'Archivo',sans-serif">
+            <defs><marker id="cArwR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7dd3fc"/></marker></defs>
+            <text x="130" y="18" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#2a2a3a" letter-spacing="2">BEFORE</text>
+            <circle cx="60" cy="96" r="26" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="60" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">qᵢ</text>
+            <circle cx="200" cy="96" r="26" fill="#0a0a12" stroke="#7dd3fc" stroke-width="2"/>
+            <text x="200" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#7dd3fc" font-family="Archivo Black,sans-serif">q_rip</text>
+            <circle cx="60" cy="196" r="26" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="60" y="201" text-anchor="middle" font-size="12" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">qⱼ</text>
+            <path d="M185,68 C185,26 225,26 225,68" fill="none" stroke="#7dd3fc" stroke-width="1.8" marker-end="url(#cArwR)"/>
+            <text x="205" y="22" text-anchor="middle" font-size="11" fill="#7dd3fc" font-family="JetBrains Mono,monospace" font-style="italic">R₂</text>
+            <line x1="86" y1="96" x2="172" y2="96" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArwR)"/>
+            <text x="129" y="86" text-anchor="middle" font-size="11" fill="#7dd3fc" font-family="JetBrains Mono,monospace" font-style="italic">R₁</text>
+            <line x1="188" y1="116" x2="78" y2="178" stroke="#7dd3fc" stroke-width="2" marker-end="url(#cArwR)"/>
+            <text x="150" y="158" text-anchor="middle" font-size="11" fill="#7dd3fc" font-family="JetBrains Mono,monospace" font-style="italic">R₃</text>
+            <line x1="60" y1="124" x2="60" y2="168" stroke="#1e1e2e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#cArwR)"/>
+            <text x="42" y="152" font-size="11" fill="#2a4a6a" font-family="JetBrains Mono,monospace" font-style="italic">R₄</text>
+            <text x="310" y="118" text-anchor="middle" font-size="28" fill="#7dd3fc" font-family="Archivo Black,sans-serif">→</text>
+            <text x="310" y="140" text-anchor="middle" font-size="9" fill="#2a2a3a" font-family="JetBrains Mono,monospace">rip q_rip</text>
+            <text x="488" y="18" text-anchor="middle" font-size="9" font-family="Archivo Black,sans-serif" fill="#2a2a3a" letter-spacing="2">AFTER</text>
+            <circle cx="420" cy="96" r="26" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="420" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">qᵢ</text>
+            <circle cx="420" cy="196" r="26" fill="#0a0a12" stroke="#1e1e2e" stroke-width="2"/>
+            <text x="420" y="201" text-anchor="middle" font-size="12" font-weight="700" fill="#e0e0e8" font-family="Archivo Black,sans-serif">qⱼ</text>
+            <line x1="420" y1="124" x2="420" y2="168" stroke="#7dd3fc" stroke-width="2.5" marker-end="url(#cArwR)"/>
+            <text x="498" y="150" text-anchor="middle" font-size="10" fill="#7dd3fc" font-family="JetBrains Mono,monospace">R₄ ∪ R₁R₂*R₃</text>
+          </svg>
+        </div>
+        <div class="cPseudo">
+          <div class="ph"><span class="pn">State Ripping</span><span class="ps">O(k³) rips · result = single regex</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Add q_s →(ε) q₀ and each accept →(ε) q_acc. Fill ∅ for missing pairs.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd"><span class="kw">while</span> interior states remain: pick q_rip, apply formula, remove q_rip.</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">return</span> R(q_s, q_acc)</span></div>
+          </div>
+        </div>
+        <div class="cNote"><strong>Theorem:</strong> L is regular ↔ L is described by a regular expression. State ripping proves (→).</div>
+      </div>
+    </div>
+
+    <!-- §05 Pumping C -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">05</span><h2>Pumping Lemma &amp; Proof by Contradiction</h2><span>Regular · CFL · Non-regularity</span></div>
+
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Pumping Lemma — Regular Languages</h3><span>s = xyz · pigeonhole</span></div>
+        <div class="cDef">If A is regular, ∃ pumping length <strong>p</strong> s.t. every s ∈ A with |s|≥p can be written <strong>s = xyz</strong>: <strong>(1)</strong> xyⁱz ∈ A ∀i≥0 · <strong>(2)</strong> |y|≥1 · <strong>(3)</strong> |xy|≤p.</div>
+        <div class="cLabel">Proof by contradiction — template</div>
+        <div class="cPseudo">
+          <div class="ph"><span class="pn">Non-Regularity Proof</span><span class="ps">contradiction · adversarial game</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume A regular; p = pumping length (given).</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Choose s ∈ A with |s| ≥ p. <span class="cm">-- pick to force contradiction</span></span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd"><span class="kw">for all</span> splits s=xyz with |y|≥1, |xy|≤p:</span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">find i ≥ 0: xyⁱz ∉ A. <span class="cm">-- pump up or down</span></span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd">Contradiction → A not regular. □</span></div>
+          </div>
+        </div>
+        <div class="cNote"><strong>Classic:</strong> L={0ⁿ1ⁿ}. s=0ᵖ1ᵖ. |xy|≤p → y=0ᵏ. xy²z = 0^(p+k)1ᵖ ∉ L. Contradiction.</div>
+      </div>
+
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Pumping Lemma — Context-Free Languages</h3><span>s = uvxyz · parse tree</span></div>
+        <div class="cDef">If A is CFL, ∃ p s.t. every s ∈ A with |s|≥p can be written <strong>s=uvxyz</strong>: <strong>(1)</strong> uvⁱxyⁱz ∈ A ∀i≥0 · <strong>(2)</strong> |vy|≥1 · <strong>(3)</strong> |vxy|≤p. Classic non-CFL: <code>{aⁿbⁿcⁿ}</code>.</div>
+      </div>
+    </div>
+
+    <!-- §06 Closure C -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">06</span><h2>Closure Properties</h2><span>Regular · CFL · NFA constructions</span></div>
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>NFA Constructions for Regular Languages</h3><span>union · concatenation · star · intersection</span></div>
+        <div class="cLabel">Union — new start q_s with ε to both machines</div>
+        <div class="cDef">New q_s with ε → q₀_A and ε → q₀_B. Accept states of both machines unchanged. Accepts if M_A or M_B accepts.</div>
+        <div class="cLabel">Concatenation — ε from F_A to q₀_B</div>
+        <div class="cDef">Wire M_A's accept states to M_B's start via ε. F_A becomes non-accepting. Only F_B accepts. Machine accepts xy where x ∈ A, y ∈ B.</div>
+        <div class="cLabel">Kleene Star — new accept-start + loop-back ε</div>
+        <div class="cDef">New q_s is start AND accept (handles ε). Add ε: q_s → q₀_A, and F_A → q₀_A (loop). Machine accepts zero or more strings from A concatenated.</div>
+        <div class="cLabel">Intersection — product DFA</div>
+        <div class="cDef">States = Q_A × Q_B. Transition: <code>δ((p,q),a) = (δ_A(p,a), δ_B(q,a))</code>. Accept iff p ∈ F_A AND q ∈ F_B. For difference: accept iff p ∈ F_A AND q ∉ F_B.</div>
+        <div class="c2col">
+          <div class="c2col-cell">
+            <h4>✓ Regular — Closed Under</h4>
+            <ul>
+              <li>Union, Concatenation, Kleene Star</li>
+              <li>Complement (flip F in complete DFA)</li>
+              <li>Intersection (product DFA)</li>
+              <li>Difference A \ B = A ∩ B̄</li>
+            </ul>
+          </div>
+          <div class="c2col-cell">
+            <h4>CFL — NOT Closed Under</h4>
+            <ul>
+              <li>Intersection of two CFLs</li>
+              <li>Complement · Difference</li>
+            </ul>
+            <h4 style="margin-top:8px">CFL — Closed Under</h4>
+            <ul><li>Union, Concat, Star, ∩ with regular</li></ul>
+          </div>
+        </div>
+      </div>
+    </div><!-- §06 C -->
+
+    <!-- §07 Operations C -->
+    <div class="cS">
+      <div class="cS-head"><span class="cS-num">07</span><h2>Language Operations</h2><span>Union · Concatenation · Kleene Star · Intersection</span></div>
+      <div class="cSub-block">
+        <div class="cSub-head"><h3>Formal Definitions</h3><span>set operations on Σ*</span></div>
+        <div class="cTW">
+          <table class="cT">
+            <thead><tr><th>Op</th><th>Plain English</th><th>Name</th><th>Formal Definition</th></tr></thead>
+            <tbody>
+              <tr><td class="sym">A ∪ B</td><td class="plain">either language</td><td class="name">Union</td><td class="desc">{w | w ∈ A or w ∈ B}</td></tr>
+              <tr><td class="sym">A ∘ B</td><td class="plain">A then B</td><td class="name">Concatenation</td><td class="desc">{xy | x ∈ A and y ∈ B}</td></tr>
+              <tr><td class="sym">A*</td><td class="plain">zero or more</td><td class="name">Kleene Star</td><td class="desc">{x₁…xₖ | k≥0, each xᵢ ∈ A}. Includes ε.</td></tr>
+              <tr><td class="sym">A ∩ B</td><td class="plain">both languages</td><td class="name">Intersection</td><td class="desc">{w | w ∈ A and w ∈ B}</td></tr>
+              <tr><td class="sym">Ā</td><td class="plain">everything else</td><td class="name">Complement</td><td class="desc">Σ* \ A = {w ∈ Σ* | w ∉ A}</td></tr>
+              <tr><td class="sym">A \ B</td><td class="plain">A but not B</td><td class="name">Difference</td><td class="desc">A ∩ B̄ = {w | w ∈ A and w ∉ B}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cNote">All six operations preserve regularity. For CFLs, only union, concatenation, and Kleene star are closed — intersection and complement can produce non-CFLs.</div>
+      </div>
+    </div><!-- §07 C -->
+
+  </div>
+</div><!-- #dC -->
+
+<script>
+function sw(letter, btn) {
+  document.querySelectorAll('.demo').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('active','a-on','b-on','c-on'));
+  document.getElementById('d'+letter).classList.add('active');
+  btn.classList.add('active', letter.toLowerCase()+'-on');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Algorithm Visualizer</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--bg2:#111318;--bg3:#161920;--bg4:#1a1d24;--border:#2a2e38;--border2:#21252e;--text:#d4d8e0;--dim:#7a8090;--dimmer:#4a5060;--accent:#e8c547;--green:#34d399;--red:#e85454;--blue:#60a5fa;--purple:#a78bfa;--orange:#fb923c;--mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono)}
+#app{display:flex;flex-direction:column;height:100%}
+header{display:flex;align-items:center;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;overflow-x:auto}
+.logo{padding:0 16px;font-family:var(--display);font-size:12px;font-weight:800;color:var(--accent);letter-spacing:1px;white-space:nowrap;border-right:1px solid var(--border);height:44px;display:flex;align-items:center;flex-shrink:0}
+.tab-btn{height:44px;padding:0 14px;background:none;border:none;border-right:1px solid var(--border);color:var(--dimmer);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;white-space:nowrap;border-bottom:2px solid transparent;position:relative;top:1px;flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--bg3)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg3)}
+.panel{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+.panel.active{display:flex;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0}
+.btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--bg4);color:var(--text);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .12s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.pri:hover{opacity:.85}
+label{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
+select,input[type=text]{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;border-radius:5px;padding:4px 8px}
+select:focus,input:focus{outline:1px solid var(--accent)}
+input[type=range]{padding:0;width:80px;accent-color:var(--accent)}
+.stag{margin-left:auto;font-size:10px;letter-spacing:1px;color:var(--dimmer);white-space:nowrap}
+.stag span{color:var(--accent)}
+.cwrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.legend{position:absolute;bottom:10px;right:12px;display:flex;flex-direction:column;gap:4px}
+.lr{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim)}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.log{height:34px;flex-shrink:0;border-top:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;padding:0 14px;font-size:11px;color:var(--dim);overflow:hidden;white-space:nowrap;gap:8px}
+.slbl{color:var(--accent);font-weight:700;flex-shrink:0}
+.dsbar{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border2);background:var(--bg2);flex-shrink:0;overflow-x:auto;padding:0 14px;height:32px;scrollbar-width:none}
+.dsbar::-webkit-scrollbar{display:none}
+.ds-name{font-size:11px;font-weight:700;color:var(--text);letter-spacing:.5px;white-space:nowrap;margin-right:14px;flex-shrink:0}
+.ds-pill{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:12px;border:1.5px solid;white-space:nowrap;margin-right:6px;flex-shrink:0}
+.ds-pill.paradigm{border-color:#fb923c;color:#fb923c;background:#fb923c22}
+.ds-pill.struct{border-color:#60a5fa;color:#93c5fd;background:#1d4ed833}
+.ds-pill.time{border-color:#34d399;color:#6ee7b7;background:#06543333;text-transform:none;letter-spacing:.3px}
+.ds-pill.space{border-color:#c084fc;color:#d8b4fe;background:#6b21a833;text-transform:none;letter-spacing:.3px}
+.ds-pill.adt{border-color:#f472b6;color:#f9a8d4;background:#9d174d33}
+.ds-note{font-size:10px;color:var(--dimmer);white-space:nowrap;flex-shrink:0;margin-left:8px}
+.split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+.viz-side{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.viz-side canvas{position:absolute;inset:0;width:100%;height:100%}
+.code-side{width:280px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.code-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);font-family:var(--mono)}
+.code-toggle{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dimmer);background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--mono);transition:all .12s}
+.code-toggle:hover{color:var(--accent);border-color:var(--accent)}
+.code-scroll{flex:1;overflow-y:auto;padding:8px 0}
+.code-line{display:flex;align-items:flex-start;gap:0;padding:2px 0;transition:background .12s;position:relative}
+.code-line .ln{width:32px;text-align:right;padding-right:10px;font-size:10px;color:var(--dimmer);font-family:var(--mono);flex-shrink:0;user-select:none;line-height:1.7}
+.code-line .src{font-size:11px;font-family:var(--mono);color:var(--dim);white-space:pre;line-height:1.7;flex:1;padding-right:8px}
+.code-line.active{background:#e8c54718}
+.code-line.active .src{color:var(--accent)}
+.code-line.active .ln{color:var(--accent)}
+.code-line.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent)}
+.kw{color:#60a5fa}.fn{color:#34d399}.cm{color:#4a5060;font-style:italic}.nm{color:#a78bfa}.st{color:#e8c547}
+
+/* DP */
+#dp-tw{overflow:auto;padding:14px}
+#dp-t{border-collapse:collapse;font-size:11px}
+#dp-t th,#dp-t td{width:36px;height:36px;text-align:center;border:1px solid var(--border2);font-family:var(--mono);transition:background .2s,color .2s}
+#dp-t th{background:var(--bg3);color:var(--dim);font-size:9px;letter-spacing:1px}
+#dp-t td{background:var(--bg4);color:var(--text)}
+#dp-t td.ac{background:#e8c54733;color:var(--accent);font-weight:700}
+#dp-t td.fi{background:#60a5fa1a;color:var(--blue)}
+#dp-t td.pa{background:#34d39933;color:var(--green);font-weight:700}
+#dp-ss{padding:12px 14px 0;display:flex;gap:14px;flex-wrap:wrap}
+.sch{display:inline-block;width:20px;height:20px;text-align:center;line-height:20px;border-radius:3px;border:1px solid var(--border);background:var(--bg4);font-size:12px}
+.sch.hl{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+
+/* DFA */
+#dfa-ir{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.tcell{width:30px;height:30px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s;background:var(--bg4)}
+.tcell.act{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.tcell.past{opacity:.4}
+.tcell.acc{border-color:var(--green);background:#34d39922;color:var(--green)}
+.tcell.rej{border-color:var(--red);background:#e8545422;color:var(--red)}
+
+/* PUMPING */
+#pb{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.pcard{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.pcard h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.pcard p{font-size:12px;color:var(--dim);line-height:1.75}
+.pcard p b{color:var(--text)}
+.plbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.psv{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-height:44px}
+.pch{width:32px;height:32px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;transition:all .25s;background:var(--bg4);color:var(--text)}
+.pch.xs{background:#60a5fa18;border-color:var(--blue);color:var(--blue)}
+.pch.ys{background:#e8c54718;border-color:var(--accent);color:var(--accent)}
+.pch.zs{background:#a78bfa18;border-color:var(--purple);color:var(--purple)}
+.pch.ok{background:#34d39918;border-color:var(--green);color:var(--green)}
+.pch.bad{background:#e8545418;border-color:var(--red);color:var(--red)}
+.pdec{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.spill{font-size:11px;padding:4px 12px;border-radius:5px;border:1px solid}
+.spill.x{border-color:var(--blue);color:var(--blue);background:#60a5fa11}
+.spill.y{border-color:var(--accent);color:var(--accent);background:#e8c54711}
+.spill.z{border-color:var(--purple);color:var(--purple);background:#a78bfa11}
+.pres{font-size:13px;font-weight:700;padding:8px 16px;border-radius:7px;border:1px solid;display:inline-block;margin-top:6px}
+.pres.ok{border-color:var(--green);color:var(--green);background:#34d39911}
+.pres.bad{border-color:var(--red);color:var(--red);background:#e8545411}
+
+/* TURING */
+#tm-tw{padding:16px 18px 6px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tm-tape{display:flex;align-items:flex-end;gap:2px;overflow-x:auto;padding-bottom:22px}
+.tmcell{width:38px;height:42px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;transition:all .2s;background:var(--bg4);color:var(--text);position:relative}
+.tmcell.head{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.tmcell.wr{border-color:var(--blue);background:#60a5fa14;color:var(--blue)}
+.tmcell.ha{border-color:var(--green);background:#34d39922;color:var(--green)}
+.tmcell.hr{border-color:var(--red);background:#e8545422;color:var(--red)}
+.tmarr{position:absolute;bottom:-18px;font-size:12px;color:var(--accent);left:50%;transform:translateX(-50%)}
+.tmidx{position:absolute;top:2px;right:3px;font-size:8px;color:var(--dimmer)}
+#tm-sr{display:flex;gap:6px;flex-wrap:wrap;padding:8px 18px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;align-items:center}
+.tmchip{padding:4px 12px;border-radius:16px;border:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:1px;background:var(--bg4);color:var(--dim);transition:all .2s}
+.tmchip.cur{border-color:var(--accent);color:var(--accent);background:#e8c54711}
+.tmchip.acc{border-color:var(--green);color:var(--green);background:#34d39911}
+.tmchip.rej{border-color:var(--red);color:var(--red);background:#e8545411}
+#tm-log{flex:1;overflow-y:auto;padding:10px 18px;font-size:11px}
+.tme{padding:4px 0;border-bottom:1px solid var(--border2);color:var(--dimmer)}
+.tme.cur{color:var(--accent)}
+
+/* SEARCH */
+#srch-aw{padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg2)}
+.scell{width:44px;height:44px;border-radius:6px;border:1px solid var(--border);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin:2px;transition:all .2s;background:var(--bg4);color:var(--text);position:relative;vertical-align:top}
+.scell .si{position:absolute;bottom:2px;font-size:8px;color:var(--dimmer)}
+.scell.cur{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.scell.lo{border-color:var(--blue);background:#60a5fa14;color:var(--blue)}
+.scell.hi{border-color:var(--purple);background:#a78bfa14;color:var(--purple)}
+.scell.mid{border-color:var(--orange);background:#fb923c22;color:var(--orange)}
+.scell.found{border-color:var(--green);background:#34d39922;color:var(--green)}
+.scell.elim{opacity:.25}
+#srch-rest{flex:1;overflow:hidden;position:relative}
+/* TIME COMPLEXITY OVERLAY */
+
+.cx-row{display:flex;align-items:center;gap:6px;font-size:10px;font-family:var(--mono)}
+.cx-label{color:var(--dimmer);letter-spacing:1px;text-transform:uppercase;width:36px;font-size:9px}
+.cx-val{padding:2px 8px;border-radius:4px;border:1px solid;font-weight:700;letter-spacing:.5px}
+.cx-best{border-color:#34d399;color:#6ee7b7;background:#06543333}
+.cx-avg{border-color:#e8c547;color:#fde68a;background:#78350f33}
+.cx-worst{border-color:#e85454;color:#fca5a5;background:#7f1d1d33}
+.cx-space{border-color:#c084fc;color:#d8b4fe;background:#6b21a833}
+/* TREES */
+#panel-trees .split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+/* GREEDY */
+#panel-greedy .split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+/* DS DIAGRAM PANEL */
+.ds-panel{width:200px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.ds-panel-hdr{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);padding:7px 12px 4px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ds-panel-hdr::after{content:'updates with each step';display:block;font-size:8px;letter-spacing:0;text-transform:none;color:var(--dimmer);opacity:0.6;margin-top:1px;padding-bottom:3px}
+.ds-panel-body{flex:1;position:relative;overflow:hidden}
+.ds-panel-body canvas{position:absolute;inset:0;width:100%;height:100%}
+.ds-ops{flex-shrink:0;border-top:1px solid var(--border);padding:8px 10px;font-size:10px;color:var(--dim);min-height:58px;line-height:1.7}
+.ds-op-entry{padding:1px 0;transition:color .12s}
+.ds-op-entry.cur{color:var(--accent);font-weight:700}
+
+
+/* CX footer inside code panel */
+.cx-footer{flex-shrink:0;border-top:1px solid var(--border2);padding:8px 12px;display:flex;flex-direction:column;gap:3px;background:var(--bg2)}
+.cx-row{display:flex;align-items:center;gap:6px;font-size:10px;font-family:var(--mono)}
+.cx-label{color:var(--dimmer);letter-spacing:1px;text-transform:uppercase;width:36px;font-size:9px;flex-shrink:0}
+.cx-val{padding:2px 8px;border-radius:4px;border:1.5px solid;font-weight:700;letter-spacing:.3px;font-size:10px}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="logo">ALGO VIZ</div>
+  <button class="tab-btn active" data-tab="sort">Sorting</button>
+  <button class="tab-btn" data-tab="search">Searching</button>
+  <button class="tab-btn" data-tab="trees">Trees</button>
+  <button class="tab-btn" data-tab="graph">Graph</button>
+  <button class="tab-btn" data-tab="greedy">Greedy</button>
+  <button class="tab-btn" data-tab="dp">Dynamic Prog.</button>
+  <button id="snd-btn" onclick="toggleSound()" style="margin-left:auto;height:44px;padding:0 16px;background:none;border:none;border-left:1px solid var(--border);color:var(--dimmer);font-family:var(--mono);font-size:10px;letter-spacing:1px;cursor:pointer;flex-shrink:0;transition:color .15s">🔊 SOUND</button>
+</header>
+
+
+<!-- SORTING -->
+<div class="panel active" id="panel-sort">
+  <div class="ctrls">
+    <button class="btn pri" id="s-play">▶ RUN</button>
+    <button class="btn" id="s-step">STEP</button>
+    <button class="btn" id="s-reset">RESET</button>
+    <label>algo</label>
+    <select id="s-algo"><option value="bubble">Bubble</option><option value="selection">Selection</option><option value="insertion">Insertion</option><option value="merge">Merge</option><option value="quick">Quick</option><option value="heap">Heap</option></select>
+    <label>structure</label>
+    <select id="s-ds" onchange="sDSU()">
+      <option value="array">Array (in-place)</option>
+      <option value="array_oop">Array (out-of-place)</option>
+      <option value="linked">Linked List</option>
+      <option value="heap_tree">Binary Heap</option>
+    </select>
+    <label>size</label><input type="range" id="s-size" min="8" max="60" value="30"/>
+    <label>speed</label><input type="range" id="s-spd" min="1" max="10" value="5"/>
+    <div class="stag">cmp:<span id="s-cmp">0</span> swaps:<span id="s-swp">0</span></div>
+  </div>
+  <div class="dsbar" id="s-dsbar"></div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="s-cv"></canvas>
+      <div class="legend" style="top:10px;bottom:auto;right:12px">
+        <div class="lr"><div class="ld" style="background:var(--accent)"></div>comparing</div>
+        <div class="lr"><div class="ld" style="background:var(--red)"></div>swapping</div>
+        <div class="lr"><div class="ld" style="background:var(--green)"></div>sorted</div>
+        <div class="lr"><div class="ld" style="background:var(--blue)"></div>pivot</div>
+      </div>
+    </div>
+    <div class="code-side" id="s-code-side">
+      <div class="code-header"><span class="code-title" id="s-code-title">bubble sort</span><button class="code-toggle" onclick="toggleCode('s')">hide</button></div>
+      <div class="code-scroll" id="s-code"></div>
+      <div class="cx-footer" id="s-cx"></div>
+    </div></div>
+  <div class="log"><span class="slbl" id="s-lbl">READY</span><span id="s-log">select algorithm and press RUN</span></div>
+</div>
+
+
+<!-- SEARCHING -->
+<div class="panel" id="panel-search">
+  <div class="ctrls">
+    <button class="btn pri" id="q-play">▶ RUN</button>
+    <button class="btn" id="q-step">STEP</button>
+    <button class="btn" id="q-reset">RESET</button>
+    <label>algo</label>
+    <select id="q-algo"><option value="linear">Linear</option><option value="binary">Binary</option><option value="jump">Jump</option><option value="ternary">Ternary</option><option value="expo">Exponential</option></select>
+    <label>structure</label>
+    <select id="q-ds" onchange="qDSU()">
+      <option value="array">Sorted Array</option>
+      <option value="bst">BST</option>
+    </select>
+    <label>target</label><input type="text" id="q-target" value="42" style="width:50px"/>
+    <button class="btn" id="q-new">NEW ARRAY</button>
+    <label>speed</label><input type="range" id="q-spd" min="1" max="10" value="5"/>
+    <div class="stag">comparisons: <span id="q-cmp">0</span></div>
+  </div>
+  <div class="dsbar" id="q-dsbar"></div>
+  <div class="split-view" style="flex-direction:column">
+    <div id="srch-aw" style="flex-shrink:0;padding:12px 14px 8px">
+      <div style="font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">SORTED ARRAY</div>
+      <div id="q-cells"></div>
+    </div>
+    <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+      <div style="flex:1;position:relative;overflow:hidden;background:var(--bg)" id="srch-rest">
+      <div class="legend" style="top:10px;bottom:auto;right:12px">
+        <div class="lr"><div class="ld" style="background:var(--accent);border-radius:3px"></div>current</div>
+        <div class="lr"><div class="ld" style="background:var(--orange);border-radius:3px"></div>mid / pivot</div>
+        <div class="lr"><div class="ld" style="background:var(--green);border-radius:3px"></div>found</div>
+        <div class="lr"><div class="ld" style="background:var(--blue);border-radius:3px"></div>lo bound</div>
+        <div class="lr"><div class="ld" style="background:var(--purple);border-radius:3px"></div>hi bound</div>
+        <div class="lr"><div class="ld" style="background:var(--dimmer);border-radius:3px"></div>eliminated</div>
+      </div></div>
+      <div class="code-side" id="q-code-side">
+        <div class="code-header"><span class="code-title" id="q-code-title">linear search</span><button class="code-toggle" onclick="toggleCode('q')">hide</button></div>
+        <div class="code-scroll" id="q-code"></div>
+        <div class="cx-footer" id="q-cx"></div>
+      </div>
+      
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="q-lbl">READY</span><span id="q-log">press RUN to start</span></div>
+</div>
+
+
+<!-- TREES -->
+<div class="panel" id="panel-trees">
+  <div class="ctrls">
+    <button class="btn pri" id="tr-play">&#9654; RUN</button>
+    <button class="btn" id="tr-step">STEP</button>
+    <button class="btn" id="tr-reset">RESET</button>
+    <label>algo</label>
+    <select id="tr-algo">
+      <option value="inorder">Inorder</option>
+      <option value="preorder">Preorder</option>
+      <option value="postorder">Postorder</option>
+      <option value="levelorder">Level-order</option>
+      <option value="bst_search">BST Search</option>
+      <option value="bst_insert">BST Insert</option>
+      <option value="bst_delete">BST Delete</option>
+      <option value="avl">AVL Rotation</option>
+      <option value="height">Tree Height</option>
+    </select>
+    <label>value</label>
+    <input type="text" id="tr-val" value="42" style="width:50px"/>
+    <button class="btn" id="tr-new">NEW TREE</button>
+    <label>speed</label>
+    <input type="range" id="tr-spd" min="1" max="10" value="5"/>
+    <div class="stag">visited: <span id="tr-vis">0</span></div>
+  </div>
+  <div class="dsbar" id="tr-dsbar"></div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="tr-cv"></canvas>
+      <div class="legend" style="top:10px;bottom:auto;right:12px">
+        <div class="lr"><div class="ld" style="background:var(--accent);border-radius:50%"></div>active / visiting</div>
+        <div class="lr"><div class="ld" style="background:var(--green);border-radius:50%"></div>done / visited</div>
+        <div class="lr"><div class="ld" style="background:var(--blue);border-radius:3px"></div>searched path</div>
+        <div class="lr"><div class="ld" style="background:var(--red);border-radius:3px"></div>delete target</div>
+        <div class="lr"><div class="ld" style="background:var(--green);border-radius:50%"></div>inserted node</div>
+      </div></div>
+    <div class="code-side" id="tr-code-side">
+      <div class="code-header"><span class="code-title" id="tr-code-title">inorder</span><button class="code-toggle" onclick="toggleCode('tr')">hide</button></div>
+      <div class="code-scroll" id="tr-code"></div>
+      <div class="cx-footer" id="tr-cx"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="tr-lbl">READY</span><span id="tr-log">select algorithm and press RUN</span></div>
+</div>
+
+
+<!-- GRAPH -->
+<div class="panel" id="panel-graph">
+  <div class="ctrls">
+    <button class="btn pri" id="g-play">▶ RUN</button>
+    <button class="btn" id="g-step">STEP</button>
+    <button class="btn" id="g-reset">RESET</button>
+    <button class="btn" id="g-new">NEW GRAPH</button>
+    <label>algo</label><select id="g-algo"><option value="bfs">BFS</option><option value="dfs">DFS</option><option value="dijkstra">Dijkstra</option></select>
+    <label>structure</label>
+    <select id="g-ds" onchange="gDSU()">
+      <option value="adj_list">Adjacency List</option>
+      <option value="adj_matrix">Adjacency Matrix</option>
+    </select>
+    <label>start</label><select id="g-start"></select>
+    <label>speed</label><input type="range" id="g-spd" min="1" max="10" value="5"/>
+    <div class="stag">visited: <span id="g-vis">0</span></div>
+  </div>
+  <div class="dsbar" id="g-dsbar"></div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="g-cv"></canvas>
+      <div class="legend" style="top:10px;bottom:auto;right:12px">
+        <div class="lr"><div class="ld" style="background:var(--accent);border-radius:50%"></div>queue/stack</div>
+        <div class="lr"><div class="ld" style="background:var(--green);border-radius:50%"></div>visited</div>
+        <div class="lr"><div class="ld" style="background:var(--blue);border-radius:50%"></div>current</div>
+      </div>
+    </div>
+    <div class="code-side" id="g-code-side">
+      <div class="code-header"><span class="code-title" id="g-code-title">bfs</span><button class="code-toggle" onclick="toggleCode('g')">hide</button></div>
+      <div class="code-scroll" id="g-code"></div>
+      <div class="cx-footer" id="g-cx"></div>
+    </div>
+    <div class="ds-panel" id="g-ds-panel">
+      <div class="ds-panel-hdr" id="g-ds-panel-title">live queue / stack</div>
+      <div class="ds-panel-body"><canvas id="g-ds-cv"></canvas></div>
+      <div class="ds-ops" id="g-ds-ops"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="g-lbl">READY</span><span id="g-log">press RUN</span></div>
+</div>
+
+
+<!-- GREEDY -->
+<div class="panel" id="panel-greedy">
+  <div class="ctrls">
+    <button class="btn pri" id="gr-play">&#9654; RUN</button>
+    <button class="btn" id="gr-step">STEP</button>
+    <button class="btn" id="gr-reset">RESET</button>
+    <label>algo</label>
+    <select id="gr-algo">
+      <option value="activity">Activity Selection</option>
+      <option value="job_schedule">Job Scheduling</option>
+      <option value="fractional_ks">Fractional Knapsack</option>
+      <option value="huffman">Huffman Coding</option>
+      <option value="prim">Prim's MST</option>
+      <option value="kruskal">Kruskal's MST</option>
+      <option value="coin">Coin Change</option>
+    </select>
+    <button class="btn" id="gr-random">RANDOMIZE</button>
+    <label>speed</label>
+    <input type="range" id="gr-spd" min="1" max="10" value="5"/>
+    <div class="stag">step: <span id="gr-cnt">0</span></div>
+  </div>
+  <div class="dsbar" id="gr-dsbar"></div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="gr-cv"></canvas>
+      <div class="legend" style="top:10px;bottom:auto;right:12px">
+        <div class="lr"><div class="ld" style="background:var(--green);border-radius:3px"></div>selected</div>
+        <div class="lr"><div class="ld" style="background:var(--accent);border-radius:3px"></div>checking</div>
+        <div class="lr"><div class="ld" style="background:var(--red);border-radius:3px"></div>rejected</div>
+        <div class="lr"><div class="ld" style="background:var(--blue);border-radius:3px"></div>candidate</div>
+      </div></div>
+    <div class="code-side" id="gr-code-side">
+      <div class="code-header"><span class="code-title" id="gr-code-title">activity selection</span><button class="code-toggle" onclick="toggleCode('gr')">hide</button></div>
+      <div class="code-scroll" id="gr-code"></div>
+      <div class="cx-footer" id="gr-cx"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="gr-lbl">READY</span><span id="gr-log">press RUN to start</span></div>
+</div>
+
+
+<!-- DP -->
+<div class="panel" id="panel-dp">
+  <div class="ctrls">
+    <button class="btn pri" id="d-play">▶ RUN</button>
+    <button class="btn" id="d-step">STEP</button>
+    <button class="btn" id="d-reset">RESET</button>
+    <label>algo</label><select id="d-algo"><option value="lcs">LCS</option><option value="ks">0/1 Knapsack</option><option value="edit">Edit Distance</option></select>
+    <button class="btn" id="d-rand">RANDOMIZE</button>
+    <label>speed</label><input type="range" id="d-spd" min="1" max="10" value="5"/>
+    <div class="stag">filled: <span id="d-fill">0</span></div>
+  </div>
+  <div class="dsbar" id="d-dsbar"></div>
+  <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative">
+      <div id="dp-ss"></div>
+      <div style="position:absolute;top:10px;right:12px;display:flex;flex-direction:column;gap:4px">
+        <div class="lr"><div class="ld" style="background:#e8c54733"></div>active cell</div>
+        <div class="lr"><div class="ld" style="background:#60a5fa1a"></div>fill from</div>
+        <div class="lr"><div class="ld" style="background:#34d39933"></div>path match</div>
+      </div>
+      <div id="dp-tw" style="flex:1;overflow:auto;padding:14px"><table id="dp-t"></table></div>
+    </div>
+    <div class="code-side" id="d-code-side">
+      <div class="code-header"><span class="code-title" id="d-code-title">lcs</span><button class="code-toggle" onclick="toggleCode('d')">hide</button></div>
+      <div class="code-scroll" id="d-code"></div>
+      <div class="cx-footer" id="d-cx"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="d-lbl">READY</span><span id="d-log">press RUN to fill DP table</span></div>
+</div>
+
+</div>
+<script>
+
+
+
+const $=id=>document.getElementById(id);
+const C={bg:'#0d0f14',bg2:'#111318',bg3:'#161920',bg4:'#1a1d24',border:'#2a2e38',text:'#d4d8e0',dim:'#7a8090',dimmer:'#4a5060',accent:'#e8c547',green:'#34d399',red:'#e85454',blue:'#60a5fa',purple:'#a78bfa',orange:'#fb923c'};
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function rsz(c){const w=c.parentElement.clientWidth,h=c.parentElement.clientHeight;if(c.width!==w||c.height!==h){c.width=w;c.height=h;}}
+
+// ══════════════════ TOKEN HELPERS (must be defined before CODES) ══════════════════
+// token: kw=keyword fn=function nm=number st=string cm=comment
+function tok(s,cls){return `<span class="${cls}">${s}</span>`;}
+const kw=s=>tok(s,'kw'), fn=s=>tok(s,'fn'), nm=s=>tok(s,'nm'), cm=s=>tok(s,'cm'), st=s=>tok(s,'st');
+
+// ══════════════════ DATA TABLES (hoisted to top) ══════════════════
+const CODES = {
+  // ── SORTING ──
+  bubble:[
+    [`function bubbleSort(arr) {`,                            ''],
+    [`  for (let i = 0; i < arr.length - 1; i++) {`,         'outer'],
+    [`    for (let j = 0; j < arr.length-1-i; j++) {`,       'inner'],
+    [`      if (arr[j] > arr[j+1]) {`,                       'compare'],
+    [`        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];`,     'swap'],
+    [`      }`,                                               ''],
+    [`    }`,                                                  ''],
+    [`    // arr[n-1-i] is now in final position`,            'sorted'],
+    [`  }`,                                                   ''],
+    [`}`,                                                      ''],
+  ],
+  selection:[
+    [`function selectionSort(arr) {`,                         ''],
+    [`  for (let i = 0; i < arr.length - 1; i++) {`,         'outer'],
+    [`    let minIdx = i;`,                                   'outer'],
+    [`    for (let j = i+1; j < arr.length; j++) {`,         'inner'],
+    [`      if (arr[j] < arr[minIdx]) minIdx = j;`,          'compare'],
+    [`    }`,                                                  ''],
+    [`    [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];`,   'swap'],
+    [`    // arr[0..i] is sorted`,                            'sorted'],
+    [`  }`,                                                   ''],
+    [`}`,                                                      ''],
+  ],
+  insertion:[
+    [`function insertionSort(arr) {`,                         ''],
+    [`  for (let i = 1; i < arr.length; i++) {`,             'outer'],
+    [`    const key = arr[i];`,                               'outer'],
+    [`    let j = i - 1;`,                                    'outer'],
+    [`    while (j >= 0 && arr[j] > key) {`,                 'compare'],
+    [`      arr[j+1] = arr[j];  // shift right`,             'swap'],
+    [`      j--;`,                                            'swap'],
+    [`    }`,                                                  ''],
+    [`    arr[j+1] = key;  // insert`,                       'sorted'],
+    [`  }`,                                                   ''],
+    [`}`,                                                      ''],
+  ],
+  merge:[
+    [`function mergeSort(arr, l, r) {`,                       ''],
+    [`  if (r - l < 1) return;`,                             ''],
+    [`  const mid = Math.floor((l + r) / 2);`,               ''],
+    [`  mergeSort(arr, l, mid);    // recurse left`,          ''],
+    [`  mergeSort(arr, mid+1, r);  // recurse right`,         ''],
+    [`  // merge two sorted halves`,                          ''],
+    [`  while (i < left.length && j < right.length) {`,      'compare'],
+    [`    arr[k++] = left[i] <= right[j] ? left[i++] : right[j++];`, 'swap'],
+    [`  }`,                                                   ''],
+    [`  // copy remaining elements`,                          'swap'],
+    [`}`,                                                      ''],
+  ],
+  quick:[
+    [`function quickSort(arr, l, r) {`,                       ''],
+    [`  if (l >= r) return;`,                                 ''],
+    [`  const pivot = arr[r];  // rightmost element`,         'pivot'],
+    [`  let i = l - 1;`,                                      'pivot'],
+    [`  for (let j = l; j < r; j++) {`,                      'compare'],
+    [`    if (arr[j] <= pivot) {`,                            'compare'],
+    [`      i++;`,                                            'compare'],
+    [`      [arr[i], arr[j]] = [arr[j], arr[i]];`,           'swap'],
+    [`    }`,                                                  ''],
+    [`  }`,                                                   ''],
+    [`  [arr[i+1], arr[r]] = [arr[r], arr[i+1]]; // pivot`,  'pivot'],
+    [`  quickSort(arr, l, i);      // recurse left`,          ''],
+    [`  quickSort(arr, i+2, r);    // recurse right`,         ''],
+    [`}`,                                                      ''],
+  ],
+  heap:[
+    [`function heapSort(arr) {`,                              ''],
+    [`  buildMaxHeap(arr);`,                                  'compare'],
+    [`  for (let i = arr.length-1; i > 0; i--) {`,           ''],
+    [`    [arr[0], arr[i]] = [arr[i], arr[0]]; // extract`,  'swap'],
+    [`    siftDown(arr, 0, i);`,                              'compare'],
+    [`  }`,                                                   ''],
+    [`}`,                                                      ''],
+    [`function siftDown(arr, i, size) {`,                     ''],
+    [`  const l = 2*i+1, r = 2*i+2;`,                        'compare'],
+    [`  let largest = i;`,                                    'compare'],
+    [`  if (l < size && arr[l] > arr[largest]) largest = l;`,'compare'],
+    [`  if (r < size && arr[r] > arr[largest]) largest = r;`,'compare'],
+    [`  if (largest !== i) {`,                                'compare'],
+    [`    [arr[i], arr[largest]] = [arr[largest], arr[i]];`, 'swap'],
+    [`    siftDown(arr, largest, size);`,                     'swap'],
+    [`  }`,                                                   ''],
+    [`}`,                                                      ''],
+  ],
+  // ── SEARCHING ──
+  linear:[
+    [`function linearSearch(arr, target) {`,                  ''],
+    [`  for (let i = 0; i < arr.length; i++) {`,             ''],
+    [`    if (arr[i] === target) return i;  // found`,        'found'],
+    [`  }`,                                                   ''],
+    [`  return -1;  // not found`,                            'notfound'],
+    [`}`,                                                      ''],
+  ],
+  binary:[
+    [`function binarySearch(arr, target) {`,                  ''],
+    [`  let lo = 0, hi = arr.length - 1;`,                   ''],
+    [`  while (lo <= hi) {`,                                  ''],
+    [`    const mid = Math.floor((lo + hi) / 2);`,           'compare'],
+    [`    if (arr[mid] === target) return mid;`,              'found'],
+    [`    else if (arr[mid] < target) lo = mid + 1;`,        'compare'],
+    [`    else hi = mid - 1;`,                               'compare'],
+    [`  }`,                                                   ''],
+    [`  return -1;`,                                         'notfound'],
+    [`}`,                                                      ''],
+  ],
+  jump:[
+    [`function jumpSearch(arr, target) {`,                    ''],
+    [`  const step = Math.floor(Math.sqrt(arr.length));`,    ''],
+    [`  let prev = 0, cur = 0;`,                             ''],
+    [`  while (arr[cur] <= target && cur < arr.length) {`,   'compare'],
+    [`    if (arr[cur] === target) return cur;`,              'found'],
+    [`    prev = cur; cur += step;`,                         'compare'],
+    [`  }`,                                                   ''],
+    [`  for (let i = prev; i < Math.min(cur, arr.length); i++) {`, ''],
+    [`    if (arr[i] === target) return i;`,                 'found'],
+    [`  }`,                                                   ''],
+    [`  return -1;`,                                         'notfound'],
+    [`}`,                                                      ''],
+  ],
+  ternary:[
+    [`${kw('function')} ${fn('ternarySearch')}(arr, target) {`,''],
+    [`  lo=0, hi=n-1`,                                           ''],
+    [`  ${kw('while')} lo <= hi {`,                              ''],
+    [`    m1 = lo + ⌊(hi-lo)/3⌋`,                               'compare'],
+    [`    m2 = hi - ⌊(hi-lo)/3⌋`,                               'compare'],
+    [`    ${kw('if')} arr[m1] === target: return m1`,            'found'],
+    [`    ${kw('if')} arr[m2] === target: return m2`,            'found'],
+    [`    ${kw('if')} target < arr[m1]:`,                        'compare'],
+    [`      hi = m1 - 1`,                                        'compare'],
+    [`    ${kw('else if')} target > arr[m2]:`,                   'compare'],
+    [`      lo = m2 + 1`,                                        'compare'],
+    [`    ${kw('else')}: lo=m1+1; hi=m2-1`,                     'compare'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} -1`,                                     'notfound'],
+    [`}`,                                                         ''],
+  ],
+  expo:[
+    [`${kw('function')} ${fn('exponentialSearch')}(arr, t) {`, ''],
+    [`  ${kw('if')} arr[0] === t: ${kw('return')} 0`,           'found'],
+    [`  i = 1`,                                                  ''],
+    [`  ${kw('while')} i < n && arr[i] <= t {`,                 'compare'],
+    [`    ${kw('if')} arr[i] === t: ${kw('return')} i`,         'found'],
+    [`    i *= 2  ${cm('// double range')}`,                     'compare'],
+    [`  }`,                                                       ''],
+    [`  ${cm('// binary search in [i/2, min(i,n-1)]')}`,        ''],
+    [`  lo=i/2, hi=min(i, n-1)`,                                 ''],
+    [`  ${kw('return')} binarySearch(arr, t, lo, hi)`,          'compare'],
+    [`}`,                                                         ''],
+  ],
+  // ── GRAPH ──
+  bfs:[
+    [`${kw('function')} ${fn('BFS')}(graph, start) {`,         ''],
+    [`  queue = Queue()`,                                        ''],
+    [`  visited = Set()`,                                        ''],
+    [`  queue.enqueue(start)`,                                   ''],
+    [`  visited.add(start)`,                                     ''],
+    [`  ${kw('while')} queue.notEmpty() {`,                     ''],
+    [`    cur = queue.dequeue()`,                                'visit'],
+    [`    process(cur)  ${cm('// visit node')}`,                'visit'],
+    [`    ${kw('for')} nb ${kw('in')} graph[cur] {`,            ''],
+    [`      ${kw('if')} nb ${kw('not in')} visited {`,          'enqueue'],
+    [`        queue.enqueue(nb)`,                                'enqueue'],
+    [`        visited.add(nb)`,                                  'enqueue'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`}`,                                                         ''],
+  ],
+  dijkstra:[
+    [`${kw('function')} ${fn('dijkstra')}(graph, src) {`,      ''],
+    [`  dist = {src: 0, all others: ∞}`,                        ''],
+    [`  pq = MinHeap()  ${cm('// priority queue')}`,            ''],
+    [`  pq.push({node: src, cost: 0})`,                         ''],
+    [`  ${kw('while')} pq.notEmpty() {`,                        ''],
+    [`    {u, d} = pq.popMin()  ${cm('// greedy pick')}`,       'visit'],
+    [`    ${kw('if')} d > dist[u]: continue`,                   'visit'],
+    [`    ${kw('for')} (v, w) ${kw('in')} graph[u] {`,          'relax'],
+    [`      ${kw('if')} dist[u] + w < dist[v] {`,               'relax'],
+    [`        dist[v] = dist[u] + w`,                           'relax'],
+    [`        pq.push({node: v, cost: dist[v]})`,               'relax'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} dist  ${cm('// shortest distances')}`,  ''],
+    [`}`,                                                         ''],
+  ],
+  dfs:[
+    [`${kw('function')} ${fn('DFS')}(graph, start) {`,         ''],
+    [`  stack = Stack()`,                                        ''],
+    [`  visited = Set()`,                                        ''],
+    [`  stack.push(start)`,                                      ''],
+    [`  ${kw('while')} stack.notEmpty() {`,                     ''],
+    [`    cur = stack.pop()`,                                    'visit'],
+    [`    ${kw('if')} cur ${kw('in')} visited: continue`,       'visit'],
+    [`    visited.add(cur)`,                                     'visit'],
+    [`    process(cur)  ${cm('// visit node')}`,                'visit'],
+    [`    ${kw('for')} nb ${kw('in')} graph[cur] {`,            ''],
+    [`      ${kw('if')} nb ${kw('not in')} visited:`,           'enqueue'],
+    [`        stack.push(nb)`,                                   'enqueue'],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`}`,                                                         ''],
+  ],
+  // ── DFA ──
+  dfa_sim:[
+    [`${kw('function')} ${fn('runDFA')}(machine, input) {`,    ''],
+    [`  state = machine.start`,                                  ''],
+    [`  ${kw('for')} symbol ${kw('in')} input {`,              ''],
+    [`    trans = delta[state][symbol]`,                         'step'],
+    [`    ${kw('if')} trans === undefined {`,                    'step'],
+    [`      ${kw('return')} REJECT  ${cm('// dead state')}`,    'dead'],
+    [`    }`,                                                     ''],
+    [`    state = trans  ${cm('// advance state')}`,             'step'],
+    [`  }`,                                                       ''],
+    [`  ${kw('if')} state ${kw('in')} machine.accept {`,        'done'],
+    [`    ${kw('return')} ACCEPT`,                               'done'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} REJECT`,                                 'done'],
+    [`}`,                                                         ''],
+  ],
+  nfa_sim:[
+    [`${kw('function')} ${fn('runNFA')}(machine, input) {`,    ''],
+    [`  states = Set([machine.start])`,                         ''],
+    [`  ${kw('for')} symbol ${kw('in')} input {`,              ''],
+    [`    next = Set()`,                                         'step'],
+    [`    ${kw('for')} s ${kw('in')} states {`,                 'step'],
+    [`      ${kw('for')} t ${kw('in')} delta[s][symbol] {`,     'step'],
+    [`        next.add(t)  ${cm('// track all paths')}`,        'step'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`    states = next`,                                        'step'],
+    [`    ${kw('if')} states.isEmpty(): return REJECT`,          'dead'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} states ∩ accept ≠ ∅ ? ACCEPT : REJECT`,'done'],
+    [`}`,                                                         ''],
+  ],
+  // ── DP ──
+  lcs:[
+    [`${kw('function')} ${fn('lcs')}(a, b) {`,                 ''],
+    [`  dp[0..m][0..n] = 0`,                                    ''],
+    [`  ${kw('for')} i = 1 → m {`,                             ''],
+    [`    ${kw('for')} j = 1 → n {`,                           ''],
+    [`      ${kw('if')} a[i] == b[j] {`,                       'match'],
+    [`        dp[i][j] = dp[i-1][j-1] + 1`,                   'match'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        dp[i][j] = max(dp[i-1][j], dp[i][j-1])`,        'fill'],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[m][n]  ${cm('// traceback for seq')}`,'done'],
+    [`}`,                                                         ''],
+  ],
+  ks:[
+    [`${kw('function')} ${fn('knapsack')}(w, v, W) {`,         ''],
+    [`  dp[0..n][0..W] = 0`,                                    ''],
+    [`  ${kw('for')} i = 1 → n {`,                             ''],
+    [`    ${kw('for')} c = 0 → W {`,                           ''],
+    [`      ${kw('if')} w[i] > c {`,                           'fill'],
+    [`        dp[i][c] = dp[i-1][c]  ${cm('// skip')}`,        'fill'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        include = v[i] + dp[i-1][c-w[i]]`,               'fill'],
+    [`        dp[i][c] = max(dp[i-1][c], include)`,            'fill'],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[n][W]`,                              'done'],
+    [`}`,                                                         ''],
+  ],
+  edit:[
+    [`${kw('function')} ${fn('editDistance')}(a, b) {`,        ''],
+    [`  dp[i][0] = i, dp[0][j] = j`,                           ''],
+    [`  ${kw('for')} i = 1 → m {`,                             ''],
+    [`    ${kw('for')} j = 1 → n {`,                           ''],
+    [`      ${kw('if')} a[i] == b[j] {`,                       'match'],
+    [`        dp[i][j] = dp[i-1][j-1]  ${cm('// match')}`,     'match'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        dp[i][j] = 1 + min(`,                            'fill'],
+    [`          dp[i-1][j],   ${cm('// delete')}`,              'fill'],
+    [`          dp[i][j-1],   ${cm('// insert')}`,              'fill'],
+    [`          dp[i-1][j-1]  ${cm('// substitute')}`,          'fill'],
+    [`        )`,                                                ''],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[m][n]`,                              'done'],
+    [`}`,                                                         ''],
+  ],
+  // ── PUMPING LEMMA ──
+  pump_proof:[
+    [`${cm('// Proof by contradiction:')}`,                     ''],
+    [`${kw('assume')} L is regular`,                            'intro'],
+    [`${cm('// ∃ pumping length p')}`,                          ''],
+    [`choose s ∈ L with |s| ≥ p`,                              'choose'],
+    [`${cm('// ∀ splits s = xyz:')}`,                           ''],
+    [`|y| ≥ 1  and  |xy| ≤ p`,                                 'split'],
+    [`${cm('// must hold: ∀i ≥ 0, xyⁱz ∈ L')}`,               ''],
+    [`pick i that breaks condition`,                             'pump'],
+    [`${kw('if')} xyⁱz ∉ L for some i {`,                     'pump'],
+    [`  ${cm('// contradiction!')}`,                            ''],
+    [`  L cannot be regular  ∎`,                               'conclude'],
+    [`}`,                                                        ''],
+  ],
+  // ── TURING MACHINE ──
+  anbn_tm:[
+    [`${cm('// Mark a→X, match b→Y, repeat')}`,                ''],
+    [`q0: scan X rightward  ${cm('// skip marked')}`,          'step'],
+    [`q0: read a → write X, move R → q1`,                     'step'],
+    [`q0: read □ → ACCEPT  ${cm('// all matched')}`,           'halt'],
+    [`q1: scan past a, Y rightward`,                            'step'],
+    [`q1: read b → write Y, move L → q2`,                     'step'],
+    [`q1: read □ → REJECT  ${cm('// unmatched b')}`,           'halt'],
+    [`q2: scan left to X`,                                      'step'],
+    [`q2: read X → move R → q0  ${cm('// next pair')}`,        'step'],
+  ],
+  palindrome_tm:[
+    [`${cm('// Strip outer chars, check match')}`,             ''],
+    [`q0: read a → erase, move R → q1a`,                      'step'],
+    [`q0: read b → erase, move R → q1b`,                      'step'],
+    [`q0: read □ → ACCEPT  ${cm('// empty/single')}`,         'halt'],
+    [`q1a/q1b: scan to rightmost char`,                        'step'],
+    [`q2a: last must be a → erase → q3`,                      'step'],
+    [`q2b: last must be b → erase → q3`,                      'step'],
+    [`mismatch → REJECT`,                                      'halt'],
+    [`q3: scan left to □ → q0  ${cm('// recurse')}`,          'step'],
+  ],
+  increment_tm:[
+    [`${cm('// Scan right, carry from end')}`,                 ''],
+    [`q0: scan 0,1 rightward`,                                 'step'],
+    [`q0: read □ → move L → q1`,                              'step'],
+    [`q1: read 1 → write 0, move L`,                          'step'],
+    [`     ${cm('// carry: keep going left')}`,                ''],
+    [`q1: read 0 → write 1, move R → qA`,                    'halt'],
+    [`q1: read □ → write 1, move R → qA`,                    'halt'],
+    [`     ${cm('// overflow: prepend 1')}`,                   ''],
+  ],
+  copy_tm:[
+    [`${cm('// Mark symbol, jump past #, append')}`,           ''],
+    [`q0: read a → write X, move R → q1`,                    'step'],
+    [`q0: read b → write X, move R → q2`,                    'step'],
+    [`q0: read # → move R → q3  ${cm('// cleanup')}`,         'step'],
+    [`q1/q2: scan to end of tape`,                             'step'],
+    [`q1: read □ → write a, move L → q4`,                    'step'],
+    [`q2: read □ → write b, move L → q4`,                    'step'],
+    [`q4: scan left to X → move R → q0`,                     'step'],
+    [`q3: X→a, cleanup  ${cm('// restore')}`,                 'halt'],
+  ],
+};
+
+const TR_CODES={
+  inorder:[
+    [`function inorder(node) {`,                              ''],
+    [`  if (node === null) return;`,                          ''],
+    [`  inorder(node.left);`,                                 'visit'],
+    [`  console.log(node.val);  // visit`,                    'visit'],
+    [`  inorder(node.right);`,                                'visit'],
+    [`}`,                                                     ''],
+  ],
+  preorder:[
+    [`function preorder(node) {`,                             ''],
+    [`  if (node === null) return;`,                          ''],
+    [`  console.log(node.val);  // visit`,                    'visit'],
+    [`  preorder(node.left);`,                                'visit'],
+    [`  preorder(node.right);`,                               'visit'],
+    [`}`,                                                     ''],
+  ],
+  postorder:[
+    [`function postorder(node) {`,                            ''],
+    [`  if (node === null) return;`,                          ''],
+    [`  postorder(node.left);`,                               'visit'],
+    [`  postorder(node.right);`,                              'visit'],
+    [`  console.log(node.val);  // visit`,                    'visit'],
+    [`}`,                                                     ''],
+  ],
+  levelorder:[
+    [`function levelOrder(root) {`,                           ''],
+    [`  const queue = [root];`,                               ''],
+    [`  while (queue.length > 0) {`,                          ''],
+    [`    const cur = queue.shift();`,                        'visit'],
+    [`    console.log(cur.val);  // visit`,                   'visit'],
+    [`    if (cur.left)  queue.push(cur.left);`,              'visit'],
+    [`    if (cur.right) queue.push(cur.right);`,             'visit'],
+    [`  }`,                                                   ''],
+    [`}`,                                                     ''],
+  ],
+  bst_search:[
+    [`function bstSearch(node, target) {`,                    ''],
+    [`  if (node === null) return null;`,                      'notfound'],
+    [`  if (node.val === target) return node;`,               'found'],
+    [`  if (target < node.val)`,                              'visit'],
+    [`    return bstSearch(node.left, target);`,              'visit'],
+    [`  else`,                                                'visit'],
+    [`    return bstSearch(node.right, target);`,             'visit'],
+    [`}`,                                                     ''],
+  ],
+  bst_insert:[
+    [`function bstInsert(node, val) {`,                       ''],
+    [`  if (node === null)`,                                  'insert'],
+    [`    return new Node(val);`,                             'insert'],
+    [`  if (val < node.val)`,                                 'visit'],
+    [`    node.left = bstInsert(node.left, val);`,            'visit'],
+    [`  else if (val > node.val)`,                            'visit'],
+    [`    node.right = bstInsert(node.right, val);`,          'visit'],
+    [`  return node;`,                                        ''],
+    [`}`,                                                     ''],
+  ],
+  bst_delete:[
+    [`function bstDelete(node, val) {`,                       ''],
+    [`  if (node === null) return null;`,                     ''],
+    [`  if (val < node.val)`,                                 'visit'],
+    [`    node.left = bstDelete(node.left, val);`,            'visit'],
+    [`  else if (val > node.val)`,                            'visit'],
+    [`    node.right = bstDelete(node.right, val);`,          'visit'],
+    [`  else {`,                                              ''],
+    [`    if (!node.left) return node.right;`,                'visit'],
+    [`    if (!node.right) return node.left;`,                'visit'],
+    [`    const succ = minNode(node.right);`,                 'visit'],
+    [`    node.val = succ.val;`,                              'visit'],
+    [`    node.right = bstDelete(node.right, succ.val);`,     'visit'],
+    [`  }`,                                                   ''],
+    [`  return node;`,                                        ''],
+    [`}`,                                                     ''],
+  ],
+  height:[
+    [`function height(node) {`,                               ''],
+    [`  if (node === null) return 0;`,                        ''],
+    [`  const lh = height(node.left);`,                       'visit'],
+    [`  const rh = height(node.right);`,                      'visit'],
+    [`  return 1 + Math.max(lh, rh);`,                       'visit'],
+    [`}`,                                                     ''],
+  ],
+  avl:[
+    [`function getBalance(node) {`,                           ''],
+    [`  return height(node.left) - height(node.right);`,      'visit'],
+    [`}`,                                                     ''],
+    [`function rebalance(node) {`,                            ''],
+    [`  const balance = getBalance(node);`,                   'visit'],
+    [`  if (balance > 1 && getBalance(node.left) >= 0)`,     'visit'],
+    [`    return rotateRight(node);   // LL`,                 'visit'],
+    [`  if (balance > 1)`,                                    'visit'],
+    [`    return rotateLeftRight(node); // LR`,               'visit'],
+    [`  if (balance < -1 && getBalance(node.right) <= 0)`,   'visit'],
+    [`    return rotateLeft(node);    // RR`,                 'visit'],
+    [`  if (balance < -1)`,                                   'visit'],
+    [`    return rotateRightLeft(node); // RL`,               'visit'],
+    [`  return node;`,                                        ''],
+    [`}`,                                                     ''],
+  ],
+};
+
+const GR_CODES={
+  activity:[
+    [`sort activities by finish time`,  'sort'],
+    [`lastEnd = -∞`,                    ''],
+    [`selected = []`,                   ''],
+    [`for each activity a {`,           ''],
+    [`  if a.start >= lastEnd {`,       'check'],
+    [`    selected.add(a)  // greedy`,  'select'],
+    [`    lastEnd = a.finish`,          'select'],
+    [`  }`,                             ''],
+    [`}`,                               ''],
+    [`return selected`,                 ''],
+  ],
+  fractional_ks:[
+    [`sort items by value/weight desc`, 'sort'],
+    [`remaining = capacity`,            ''],
+    [`for each item i {`,               ''],
+    [`  frac = min(1, remaining/i.w)`,  'check'],
+    [`  take frac of item i  // greedy`,'select'],
+    [`  value += frac * i.v`,           'select'],
+    [`  remaining -= frac * i.w`,       'select'],
+    [`  if remaining == 0: break`,      'check'],
+    [`}`,                               ''],
+  ],
+  coin:[
+    [`coins = [25, 10, 5, 1]`,          ''],
+    [`for each coin c (largest first){`,''],
+    [`  while amount >= c {`,           'check'],
+    [`    use coin c  // greedy`,       'select'],
+    [`    amount -= c`,                 'select'],
+    [`  }`,                             ''],
+    [`}`,                               ''],
+  ],
+  prim:[
+    [`mst = {start}`,                   ''],
+    [`while mst.size < V {`,            ''],
+    [`  find cheapest edge e`,          'check'],
+    [`    crossing mst boundary`,       'check'],
+    [`  add e to MST  // greedy pick`,  'select'],
+    [`  add new node to mst`,           'select'],
+    [`}`,                               ''],
+  ],
+  kruskal:[
+    [`sort all edges by weight`,        'sort'],
+    [`uf = UnionFind(V)`,               ''],
+    [`for each edge e (sorted) {`,      ''],
+    [`  if !uf.connected(e.a, e.b) {`, 'check'],
+    [`    mst.add(e)  // greedy`,       'select'],
+    [`    uf.union(e.a, e.b)`,          'select'],
+    [`  }  // else: skip (cycle)`,      ''],
+    [`}`,                               ''],
+  ],
+  job_schedule:[
+    [`sort jobs by profit (descending)`,  'sort'],
+    [`slots = array[maxDeadline]`,         ''],
+    [`for each job j (highest profit 1st){`,''],
+    [`  for t = j.deadline → 1 {`,         'check'],
+    [`    if slot[t] is free {`,            'check'],
+    [`      slot[t] = j  // greedy place`, 'select'],
+    [`      break`,                         'select'],
+    [`    }`,                               ''],
+    [`  }  // else: drop job`,             ''],
+    [`}`,                                   ''],
+    [`return filled slots`,                 ''],
+  ],
+  huffman:[
+    [`pq = MinHeap(all chars by freq)`, ''],
+    [`while pq.size > 1 {`,             ''],
+    [`  a = pq.popMin()  // greedy`,    'check'],
+    [`  b = pq.popMin()`,               'check'],
+    [`  merge = Node(a.f + b.f)`,       'select'],
+    [`  merge.left=a; merge.right=b`,   'select'],
+    [`  pq.push(merge)`,                'select'],
+    [`}`,                               ''],
+    [`return pq.pop()  // huffman tree`,''],
+  ],
+};
+
+// ══ TIME COMPLEXITY TABLE ══
+// ══ TIME COMPLEXITY TABLE ══
+const CX = {
+  // Sorting
+  bubble:    {best:'O(n)',      avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  selection: {best:'O(n²)',     avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  insertion: {best:'O(n)',      avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  merge:     {best:'O(n log n)',avg:'O(n log n)', worst:'O(n log n)', space:'O(n)'},
+  quick:     {best:'O(n log n)',avg:'O(n log n)', worst:'O(n²)',      space:'O(log n)'},
+  heap:      {best:'O(n log n)',avg:'O(n log n)', worst:'O(n log n)', space:'O(1)'},
+  // Searching
+  linear:    {best:'O(1)',      avg:'O(n)',        worst:'O(n)',        space:'O(1)'},
+  binary:    {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  jump:      {best:'O(1)',      avg:'O(√n)',       worst:'O(√n)',       space:'O(1)'},
+  ternary:   {best:'O(1)',      avg:'O(log₃ n)',   worst:'O(log₃ n)',   space:'O(1)'},
+  expo:      {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  // Graph
+  bfs:       {best:'O(V+E)',    avg:'O(V+E)',      worst:'O(V+E)',      space:'O(V)'},
+  dfs:       {best:'O(V+E)',    avg:'O(V+E)',      worst:'O(V+E)',      space:'O(V)'},
+  dijkstra:  {best:'O((V+E)log V)',avg:'O((V+E)log V)',worst:'O((V+E)log V)',space:'O(V)'},
+  // Trees
+  inorder:   {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  preorder:  {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  postorder: {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  levelorder:{best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(w)'},
+  bst_search:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  bst_insert:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  bst_delete:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  avl:       {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  height:    {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  // DP
+  lcs:       {best:'O(m·n)',    avg:'O(m·n)',      worst:'O(m·n)',      space:'O(m·n)'},
+  ks:        {best:'O(n·W)',    avg:'O(n·W)',      worst:'O(n·W)',      space:'O(n·W)'},
+  edit:      {best:'O(m·n)',    avg:'O(m·n)',      worst:'O(m·n)',      space:'O(m·n)'},
+  // Greedy
+  activity:     {best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(1)'},
+  job_schedule: {best:'O(n²)',    avg:'O(n²)',      worst:'O(n²)',      space:'O(n)'},
+  fractional_ks:{best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(n)'},
+  huffman:      {best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(n)'},
+  prim:         {best:'O((V+E)log V)',avg:'O((V+E)log V)',worst:'O((V+E)log V)',space:'O(V)'},
+  kruskal:      {best:'O(E log E)',avg:'O(E log E)',worst:'O(E log E)',space:'O(V)'},
+  coin:         {best:'O(n)',     avg:'O(n)',        worst:'O(n)',       space:'O(1)'},
+};
+
+function showCX(id, key){
+  const el=$(id); if(!el) return;
+  const d=CX[key]; if(!d){el.innerHTML='';return;}
+  el.innerHTML=
+    `<div class="cx-row"><span class="cx-label">best</span><span class="cx-val cx-best">${d.best}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">avg</span><span class="cx-val cx-avg">${d.avg}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">worst</span><span class="cx-val cx-worst">${d.worst}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">space</span><span class="cx-val cx-space">${d.space}</span></div>`;
+}
+
+function renderCode(containerId, codeKey, titleId, titleText) {
+  const el=$(containerId); if(!el) return;
+  const titleEl=$(titleId); if(titleEl) titleEl.textContent=titleText;
+  const allCodes={...CODES,...TR_CODES,...GR_CODES};
+  const lines=allCodes[codeKey]||[];
+  el.innerHTML=lines.map(([src,tag],i)=>
+    `<div class="code-line" id="${containerId}-L${i}" data-tag="${tag}">`+
+    `<span class="ln">${i+1}</span>`+
+    `<span class="src">${src}</span>`+
+    `</div>`
+  ).join('');
+}
+
+
+// ══════════════════ SORTING ══════════════════
+const sCV=$('s-cv'),sCX=sCV.getContext('2d');
+let sArr=[],sSteps=[],sI=0,sRun=false,sTmr=null,sCmp=0,sSwp=0;
+const sSpd=()=>600/+$('s-spd').value;
+function sGen(){const n=+$('s-size').value;sArr=Array.from({length:n},()=>rnd(4,98));}
+function* bubG(a){const r=[...a],n=r.length,d=new Set();for(let i=0;i<n-1;i++){for(let j=0;j<n-i-1;j++){yield{r:[...r],h:[j,j+1],d:[...d],log:`cmp [${j}]=${r[j]} [${j+1}]=${r[j+1]}`};if(r[j]>r[j+1]){[r[j],r[j+1]]=[r[j+1],r[j]];yield{r:[...r],lo:[j,j+1],d:[...d],sw:1,log:`swap`};}}d.add(n-1-i);}d.add(0);yield{r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'};}
+function* selG(a){const r=[...a],n=r.length,d=new Set();for(let i=0;i<n-1;i++){let m=i;for(let j=i+1;j<n;j++){yield{r:[...r],h:[j,m],pv:[i],d:[...d],log:`min? [${j}]=${r[j]}`};if(r[j]<r[m])m=j;}if(m!==i){[r[i],r[m]]=[r[m],r[i]];yield{r:[...r],lo:[i,m],d:[...d],sw:1,log:`swap to pos ${i}`};}d.add(i);}d.add(n-1);yield{r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'};}
+function* insG(a){const r=[...a],n=r.length,d=new Set([0]);for(let i=1;i<n;i++){let j=i;yield{r:[...r],h:[i],pv:[i],d:[...d],log:`insert ${r[i]}`};while(j>0&&r[j-1]>r[j]){[r[j],r[j-1]]=[r[j-1],r[j]];yield{r:[...r],lo:[j,j-1],d:[...d],sw:1,log:`shift`};j--;}d.add(i);}yield{r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'};}
+function* merG(a){const r=[...a],n=r.length,ss=[];function ms(l,e){if(e-l<1)return;const m=Math.floor((l+e)/2);ms(l,m);ms(m+1,e);const L=r.slice(l,m+1),R=r.slice(m+1,e+1);let i=0,j=0,k=l;while(i<L.length&&j<R.length){ss.push({r:[...r],h:[l+i,m+1+j],log:`merge cmp ${L[i]} vs ${R[j]}`});r[k++]=L[i]<=R[j]?L[i++]:R[j++];ss.push({r:[...r],lo:[k-1],log:`place`});}while(i<L.length){r[k++]=L[i++];ss.push({r:[...r],lo:[k-1],log:`copy`});}while(j<R.length){r[k++]=R[j++];ss.push({r:[...r],lo:[k-1],log:`copy`});}}ms(0,n-1);ss.push({r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'});for(const s of ss)yield s;}
+function* quiG(a){const r=[...a],n=r.length,d=new Set(),stk=[[0,n-1]];while(stk.length){const[l,e]=stk.pop();if(l>=e){if(l===e)d.add(l);continue;}const pv=r[e];let i=l-1;yield{r:[...r],pv:[e],d:[...d],log:`pivot=${pv}`};for(let j=l;j<e;j++){yield{r:[...r],h:[j,e],pv:[e],d:[...d],log:`cmp ${r[j]} vs ${pv}`};if(r[j]<=pv){i++;if(i!==j){[r[i],r[j]]=[r[j],r[i]];yield{r:[...r],lo:[i,j],pv:[e],d:[...d],sw:1,log:`swap`};}}}[r[i+1],r[e]]=[r[e],r[i+1]];d.add(i+1);yield{r:[...r],pv:[i+1],d:[...d],sw:1,log:`pivot→[${i+1}]`};stk.push([l,i],[i+2,e]);}yield{r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'};}
+function* heaG(a){const r=[...a],n=r.length,d=new Set();function* sd(i,sz){while(true){let lg=i,l=2*i+1,e=2*i+2;yield{r:[...r],h:[i,l,e].filter(x=>x<sz),d:[...d],log:`heapify ${i}`};if(l<sz&&r[l]>r[lg])lg=l;if(e<sz&&r[e]>r[lg])lg=e;if(lg===i)break;[r[i],r[lg]]=[r[lg],r[i]];yield{r:[...r],lo:[i,lg],d:[...d],sw:1,log:`swap`};i=lg;}}for(let i=Math.floor(n/2)-1;i>=0;i--)yield* sd(i,n);for(let i=n-1;i>0;i--){[r[0],r[i]]=[r[i],r[0]];d.add(i);yield{r:[...r],lo:[0,i],d:[...d],sw:1,log:`extract max`};yield* sd(0,i);}d.add(0);yield{r:[...r],d:[...Array.from({length:n},(_,i)=>i)],fin:1,log:'sorted!'};}
+const SGENS={bubble:bubG,selection:selG,insertion:insG,merge:merG,quick:quiG,heap:heaG};
+function sBuild(){const g=SGENS[$('s-algo').value](sArr);sSteps=[];for(const s of g)sSteps.push(s);sI=0;sCmp=0;sSwp=0;}
+function sDraw(){rsz(sCV);const ctx=sCX,W=sCV.width,H=sCV.height;ctx.clearRect(0,0,W,H);if(!sArr.length)return;const f=sSteps[sI]||{r:sArr,h:[],lo:[],d:[],pv:[]};const r=f.r||sArr,n=r.length,pad=18,gap=2,bW=Math.max(2,(W-pad*2-gap*(n-1))/n);r.forEach((v,i)=>{const x=pad+i*(bW+gap),bh=((H-pad*2-22)*v)/100,y=H-pad-bh;let fill='#1e2230';if(f.fin)fill=C.green+'aa';else if(f.d?.includes?.(i))fill=C.green+'88';else if(f.pv?.includes?.(i))fill=C.blue;else if(f.h?.includes?.(i))fill=C.accent;else if(f.lo?.includes?.(i))fill=C.red;ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,bW,bh,[3,3,0,0]);ctx.fill();});}
+function sReset(){sRun=false;clearTimeout(sTmr);$('s-play').textContent='▶ RUN';sGen();sBuild();$('s-lbl').textContent='READY';$('s-log').textContent='press RUN';$('s-cmp').textContent=0;$('s-swp').textContent=0;sDraw();}
+function sAdv(){if(sI>=sSteps.length-1){sRun=false;return;}sI++;const f=sSteps[sI];if(f.h?.length)sCmp++;if(f.sw)sSwp++;$('s-cmp').textContent=sCmp;$('s-swp').textContent=sSwp;$('s-lbl').textContent=f.fin?'DONE':`STEP ${sI}`;$('s-log').textContent=f.log||'';sDraw();sndAfterSort();}
+function sAuto(){if(!sRun)return;if(sI>=sSteps.length-1){sRun=false;$('s-play').textContent='▶ RUN';return;}sAdv();sTmr=setTimeout(sAuto,sSpd());}
+$('s-play').addEventListener('click',()=>{if(sRun){sRun=false;$('s-play').textContent='▶ RUN';clearTimeout(sTmr);return;}if(sI>=sSteps.length-1)sReset();sRun=true;$('s-play').textContent='⏸ PAUSE';sAuto();});
+$('s-step').addEventListener('click',()=>{sRun=false;clearTimeout(sTmr);$('s-play').textContent='▶ RUN';sAdv();});
+$('s-reset').addEventListener('click',sReset);
+$('s-algo').addEventListener('change',sReset);
+$('s-size').addEventListener('input',sReset);
+window.addEventListener('resize',()=>{if($('panel-sort').classList.contains('active'))sDraw();});
+sGen();sBuild();sDraw();
+
+// ══════════════════ SEARCHING ══════════════════
+let qArr=[],qSteps=[],qI=0,qRun=false,qTmr=null,qCmp=0;
+const qSpd=()=>700/+$('q-spd').value;
+function qGenArr(){const a=new Set();while(a.size<20)a.add(rnd(1,99));qArr=[...a].sort((a,b)=>a-b);}
+function* linG(arr,t){for(let i=0;i<arr.length;i++){yield{cur:i,found:arr[i]===t,log:`[${i}]=${arr[i]}${arr[i]===t?' ✓ FOUND':''}`,cmp:1};if(arr[i]===t)return;}yield{nf:1,log:`${t} not found`};}
+function* binG(arr,t){let lo=0,hi=arr.length-1;while(lo<=hi){const mid=Math.floor((lo+hi)/2);yield{lo,hi,mid,found:arr[mid]===t,log:`lo=${lo} hi=${hi} mid=${mid}(${arr[mid]})`,cmp:1};if(arr[mid]===t)return;else if(arr[mid]<t)lo=mid+1;else hi=mid-1;}yield{nf:1,lo:-1,hi:-1,log:`not found`};}
+function* jmpG(arr,t){const n=arr.length,step=Math.floor(Math.sqrt(n));let prev=0,cur=0;while(cur<n&&arr[cur]<=t){yield{blk:cur,log:`jump [${cur}]=${arr[cur]}`,cmp:1};if(arr[cur]===t){yield{found:cur,log:`✓ FOUND [${cur}]`};return;}prev=cur;cur=Math.min(cur+step,n-1);}for(let i=prev;i<=cur&&i<n;i++){yield{lin:i,blk:cur,log:`linear [${i}]=${arr[i]}`,cmp:1};if(arr[i]===t){yield{found:i,log:`✓ FOUND [${i}]`};return;}}yield{nf:1,log:`not found`};}
+function* terG(arr,t){let lo=0,hi=arr.length-1;while(lo<=hi){const m1=lo+Math.floor((hi-lo)/3),m2=hi-Math.floor((hi-lo)/3);yield{lo,hi,m1,m2,log:`lo=${lo} hi=${hi} m1=${m1}(${arr[m1]}) m2=${m2}(${arr[m2]})`,cmp:1};if(arr[m1]===t){yield{found:m1,log:`✓ FOUND m1=[${m1}]`};return;}if(arr[m2]===t){yield{found:m2,log:`✓ FOUND m2=[${m2}]`};return;}if(t<arr[m1])hi=m1-1;else if(t>arr[m2])lo=m2+1;else{lo=m1+1;hi=m2-1;}}yield{nf:1,log:`not found`};}
+function* expG(arr,t){if(arr[0]===t){yield{found:0,log:`✓ FOUND [0]`};return;}let i=1;while(i<arr.length&&arr[i]<=t){yield{exp:i,log:`exp check [${i}]=${arr[i]}`,cmp:1};if(arr[i]===t){yield{found:i,log:`✓ FOUND [${i}]`};return;}i*=2;}let lo=Math.floor(i/2),hi=Math.min(i,arr.length-1);while(lo<=hi){const mid=Math.floor((lo+hi)/2);yield{lo,hi,mid,log:`bin phase mid=${mid}(${arr[mid]})`,cmp:1};if(arr[mid]===t){yield{found:mid,log:`✓ FOUND [${mid}]`};return;}else if(arr[mid]<t)lo=mid+1;else hi=mid-1;}yield{nf:1,log:`not found`};}
+const QGENS={linear:linG,binary:binG,jump:jmpG,ternary:terG,expo:expG};
+function qBuild(){const t=+$('q-target').value||42;const g=QGENS[$('q-algo').value](qArr,t);qSteps=[];for(const s of g)qSteps.push(s);qI=0;qCmp=0;}
+function qRender(){const f=qSteps[qI];const el=$('q-cells');if(!el)return;el.innerHTML='';qArr.forEach((v,i)=>{const c=document.createElement('div');c.className='scell';c.textContent=v;const ix=document.createElement('div');ix.className='si';ix.textContent=i;c.appendChild(ix);if(f){if(f.found===i)c.classList.add('found');else if(f.cur===i)c.classList.add('cur');else if(f.mid===i)c.classList.add('mid');else if(f.m1===i||f.m2===i)c.classList.add('mid');else if(f.lo!==undefined&&f.hi!==undefined&&f.lo>=0&&(i<f.lo||i>f.hi))c.classList.add('elim');else if(f.lo===i)c.classList.add('lo');else if(f.hi===i)c.classList.add('hi');else if(f.blk===i)c.classList.add('mid');else if(f.lin===i)c.classList.add('cur');else if(f.exp===i)c.classList.add('cur');}el.appendChild(c);});}
+function qReset(){qRun=false;clearTimeout(qTmr);$('q-play').textContent='▶ RUN';qGenArr();qBuild();qRender();$('q-lbl').textContent='READY';$('q-log').textContent='press RUN';$('q-cmp').textContent=0;drawSearchDS();if(typeof updateSearchView==='function')updateSearchView();}
+function qAdv(){if(qI>=qSteps.length-1){qRun=false;return;}qI++;const f=qSteps[qI];if(f.cmp)qCmp++;$('q-cmp').textContent=qCmp;$('q-lbl').textContent=(f.found!==undefined)?'FOUND':f.nf?'NOT FOUND':`STEP ${qI}`;$('q-log').textContent=f.log||'';qRender();sndAfterSearch();
+  const qtag=f.found!==undefined?'found':f.nf?'notfound':'compare';
+  hlCode('q-code',qtag);
+  if($('q-ds')?.value==='bst') drawSearchBST(parseInt($('q-target').value), f.found!==undefined?qArr[f.found]:undefined, f.cur!==undefined?qArr[f.cur]:f.lin!==undefined?qArr[f.lin]:f.mid!==undefined?qArr[f.mid]:undefined);
+}
+function qAuto(){if(!qRun)return;if(qI>=qSteps.length-1){qRun=false;$('q-play').textContent='▶ RUN';return;}qAdv();qTmr=setTimeout(qAuto,qSpd());}
+$('q-play').addEventListener('click',()=>{if(qRun){qRun=false;$('q-play').textContent='▶ RUN';clearTimeout(qTmr);return;}if(qI>=qSteps.length-1)qReset();qRun=true;$('q-play').textContent='⏸ PAUSE';qAuto();});
+$('q-step').addEventListener('click',()=>{qRun=false;clearTimeout(qTmr);$('q-play').textContent='▶ RUN';qAdv();});
+$('q-reset').addEventListener('click',qReset);
+$('q-new').addEventListener('click',qReset);
+$('q-algo').addEventListener('change',()=>{
+  qSyncCode();qDSU();
+  qBuild();qRender();qI=0;qCmp=0;$('q-lbl').textContent='READY';$('q-log').textContent='press RUN';$('q-cmp').textContent=0;
+});
+qGenArr();qBuild();qRender();
+
+// ══════════════════ GRAPH ══════════════════
+const gCV=$('g-cv'),gCX=gCV.getContext('2d');
+let gN=[],gE=[],gS=[],gI=0,gRun=false,gTmr=null;
+const gSpd=()=>700/+$('g-spd').value;
+function gInit(){rsz(gCV);const W=gCV.width,H=gCV.height,n=9,cx=W/2,cy=H/2,r=Math.min(W,H)*.33;gN=Array.from({length:n},(_,i)=>({id:i,lbl:String.fromCharCode(65+i),x:cx+r*Math.cos(i/n*Math.PI*2-Math.PI/2),y:cy+r*Math.sin(i/n*Math.PI*2-Math.PI/2)}));const es=new Set();for(let i=0;i<n;i++)es.add(`${Math.min(i,(i+1)%n)}-${Math.max(i,(i+1)%n)}`);for(let k=0;k<7;k++){const a=rnd(0,n-1),b=rnd(0,n-1);if(a!==b)es.add(`${Math.min(a,b)}-${Math.max(a,b)}`);}gE=[...es].map(e=>{const[a,b]=e.split('-').map(Number);return{a,b,w:rnd(1,9)};});const sel=$('g-start');sel.innerHTML='';gN.forEach(n=>{const o=document.createElement('option');o.value=n.id;o.textContent=n.lbl;sel.appendChild(o);});gS=[];gI=0;}
+function gBuild(){
+  const st=+$('g-start').value,al=$('g-algo').value;
+  // Build weighted adjacency for Dijkstra, unweighted for BFS/DFS
+  const adj=Array.from({length:gN.length},()=>[]);
+  gE.forEach(e=>{
+    const w=e.w||1;
+    adj[e.a].push({nb:e.b,w});adj[e.b].push({nb:e.a,w});
+  });
+  const ss=[];
+  if(al==='bfs'){
+    const vis=new Set([st]),q=[st];
+    while(q.length){const cur=q.shift();ss.push({cur,vis:new Set(vis),log:`BFS visit ${gN[cur].lbl}`});for(const {nb} of adj[cur].sort((a,b)=>a.nb-b.nb))if(!vis.has(nb)){vis.add(nb);q.push(nb);ss.push({cur,vis:new Set(vis),fr:nb,log:`enqueue ${gN[nb].lbl}`});}}
+  } else if(al==='dfs'){
+    const vis=new Set(),stk=[st];
+    while(stk.length){const cur=stk.pop();if(vis.has(cur))continue;vis.add(cur);ss.push({cur,vis:new Set(vis),log:`DFS visit ${gN[cur].lbl}`});for(const {nb} of adj[cur].sort((a,b)=>b.nb-a.nb))if(!vis.has(nb))stk.push(nb);}
+  } else {
+    // Dijkstra — simple min-heap via sorted array
+    const INF=Infinity,dist=Array(gN.length).fill(INF);
+    dist[st]=0;
+    const pq=[{node:st,cost:0}];
+    const vis=new Set();
+    ss.push({cur:st,vis:new Set(vis),dist:[...dist],log:`start: dist[${gN[st].lbl}]=0`,dijkstra:1});
+    while(pq.length){
+      pq.sort((a,b)=>a.cost-b.cost);
+      const {node:u,cost:d}=pq.shift();
+      if(vis.has(u))continue;
+      vis.add(u);
+      ss.push({cur:u,vis:new Set(vis),dist:[...dist],log:`visit ${gN[u].lbl} — dist=${d}`,dijkstra:1,tag:'visit'});
+      for(const {nb:v,w} of adj[u]){
+        if(dist[u]+w<dist[v]){
+          dist[v]=dist[u]+w;
+          pq.push({node:v,cost:dist[v]});
+          ss.push({cur:u,fr:v,vis:new Set(vis),dist:[...dist],log:`relax ${gN[u].lbl}→${gN[v].lbl}: dist=${dist[v]}`,dijkstra:1,tag:'relax'});
+        }
+      }
+    }
+  }
+  ss.push({done:1,vis:new Set(gN.map((_,i)=>i).filter(i=>ss.some(s=>s.vis?.has(i)))),log:'done'});
+  gS=ss;gI=0;
+}
+function gDraw(){rsz(gCV);const ctx=gCX,W=gCV.width,H=gCV.height;ctx.clearRect(0,0,W,H);if(!gN.length)return;const f=gS[gI]||{vis:new Set(),cur:-1};const NR=22;const isDijk=f.dijkstra||$('g-algo').value==='dijkstra';
+gE.forEach(e=>{const a=gN[e.a],b=gN[e.b],tr=f.vis?.has(e.a)&&f.vis?.has(e.b);ctx.strokeStyle=tr?C.green+'66':C.border;ctx.lineWidth=tr?2:1.5;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  if(isDijk&&e.w){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;ctx.fillStyle=C.dimmer;ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.w,mx,my);}
+});gN.forEach(n=>{let fill=C.bg4,stroke=C.border,tc=C.dim;if(f.vis?.has(n.id)){fill='#34d39918';stroke=C.green;tc=C.green;}if(f.cur===n.id){fill='#60a5fa22';stroke=C.blue;tc=C.blue;}if(f.fr===n.id){fill='#e8c54718';stroke=C.accent;tc=C.accent;}if(f.done){fill='#34d39918';stroke=C.green;tc=C.green;}ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.beginPath();ctx.arc(n.x,n.y,NR,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=tc;ctx.font=`700 12px 'JetBrains Mono',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n.lbl,n.x,n.y);});}
+function gAdv(){if(gI>=gS.length-1){gRun=false;return;}gI++;const f=gS[gI];$('g-lbl').textContent=`STEP ${gI}`;$('g-log').textContent=f.log||'';$('g-vis').textContent=f.vis?.size||0;gDraw();sndAfterGraph();
+  const gtag=f.done?'visit':f.fr!==undefined?'enqueue':f.tag||'visit';
+  hlCode('g-code',gtag);
+}
+function gAuto(){if(!gRun)return;if(gI>=gS.length-1){gRun=false;$('g-play').textContent='▶ RUN';return;}gAdv();gTmr=setTimeout(gAuto,gSpd());}
+function gReset(){gRun=false;clearTimeout(gTmr);$('g-play').textContent='▶ RUN';gS=[];gI=0;$('g-lbl').textContent='READY';$('g-log').textContent='press RUN';$('g-vis').textContent=0;gDraw();drawGraphDS();}
+$('g-play').addEventListener('click',()=>{if(gRun){gRun=false;$('g-play').textContent='▶ RUN';clearTimeout(gTmr);return;}gBuild();gRun=true;$('g-play').textContent='⏸ PAUSE';gAuto();});
+$('g-step').addEventListener('click',()=>{if(!gS.length)gBuild();gRun=false;clearTimeout(gTmr);$('g-play').textContent='▶ RUN';gAdv();});
+$('g-reset').addEventListener('click',gReset);
+$('g-new').addEventListener('click',()=>{gReset();gInit();gDraw();});
+window.addEventListener('resize',()=>{if($('panel-graph').classList.contains('active')){gInit();gDraw();}});
+
+// ══════════════════ DP ══════════════════
+let dS=[],dI=0,dRun=false,dTmr=null,dA='',dB='',dKS={};
+const dSpd=()=>400/+$('d-spd').value;
+function dRandStr(){const ch='ABCDE';dA=Array.from({length:rnd(4,7)},()=>ch[rnd(0,4)]).join('');dB=Array.from({length:rnd(4,7)},()=>ch[rnd(0,4)]).join('');}
+function dRandKS(){const n=rnd(4,6);dKS={w:Array.from({length:n},()=>rnd(1,6)),v:Array.from({length:n},()=>rnd(3,12)),c:rnd(8,15)};}
+function* lcsG(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){yield{i,j,dp:dp.map(r=>[...r]),log:`dp[${i}][${j}]: '${a[i-1]}' vs '${b[j-1]}' → ${a[i-1]===b[j-1]?'match +1':'max'}`};dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);}let i=m,j=n;const path=new Set();while(i>0&&j>0){if(a[i-1]===b[j-1]){path.add(`${i},${j}`);i--;j--;}else if(dp[i-1][j]>dp[i][j-1])i--;else j--;}yield{fin:1,dp:dp.map(r=>[...r]),path,log:`LCS = ${dp[m][n]}`};}
+function* ksG(w,v,W){const n=w.length,dp=Array.from({length:n+1},()=>Array(W+1).fill(0));for(let i=1;i<=n;i++)for(let c=0;c<=W;c++){yield{i,wc:c,dp:dp.map(r=>[...r]),log:`item${i}(w=${w[i-1]},v=${v[i-1]}) cap=${c}`};dp[i][c]=w[i-1]<=c?Math.max(dp[i-1][c],v[i-1]+dp[i-1][c-w[i-1]]):dp[i-1][c];}yield{fin:1,dp:dp.map(r=>[...r]),log:`max value = ${dp[n][W]}`};}
+function* edtG(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=i;for(let j=0;j<=n;j++)dp[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){yield{i,j,dp:dp.map(r=>[...r]),log:`dp[${i}][${j}]: '${a[i-1]}' vs '${b[j-1]}'`};dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);}yield{fin:1,dp:dp.map(r=>[...r]),log:`edit distance = ${dp[m][n]}`};}
+function dInit(){const al=$('d-algo').value;dRandStr();dRandKS();dS=[];dI=0;$('d-lbl').textContent='READY';$('d-log').textContent='press RUN';$('d-fill').textContent=0;const ss=$('dp-ss');if(al!=='ks'){ss.innerHTML=`<div><span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-right:6px">A</span>${dA.split('').map(c=>`<span class="sch">${c}</span>`).join('')}</div><div><span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-right:6px">B</span>${dB.split('').map(c=>`<span class="sch">${c}</span>`).join('')}</div>`;}else{const{w,v,c}=dKS;ss.innerHTML=`<div style="font-size:11px;color:var(--dim)">items: ${w.map((x,i)=>`<span style="color:var(--text)">(w=${x},v=${v[i]})</span>`).join(' ')} cap:<span style="color:var(--accent)">${c}</span></div>`;}dBuildTbl(al);dBuildSteps(al);}
+function dBuildTbl(al){const t=$('dp-t');let rows,cols,rl,cl;if(al!=='ks'){rows=dA.length+1;cols=dB.length+1;rl=['ε',...dA];cl=['ε',...dB];}else{rows=dKS.w.length+1;cols=dKS.c+1;rl=['ε',...dKS.w.map((_,i)=>`i${i+1}`)];cl=Array.from({length:cols},(_,i)=>i);}t.innerHTML=`<tr><th></th>${cl.map(c=>`<th>${c}</th>`).join('')}</tr>${Array.from({length:rows},(_,i)=>`<tr><th>${rl[i]}</th>${Array.from({length:cols},(_,j)=>`<td id="dp${i}_${j}">-</td>`).join('')}</tr>`).join('')}`;}
+function dBuildSteps(al){let g;if(al==='lcs')g=lcsG(dA,dB);else if(al==='ks')g=ksG(dKS.w,dKS.v,dKS.c);else g=edtG(dA,dB);dS=[];for(const s of g)dS.push(s);}
+function dDraw(){const f=dS[dI];if(!f||!f.dp)return;f.dp.forEach((row,i)=>row.forEach((v,j)=>{const c=$(`dp${i}_${j}`);if(!c)return;c.textContent=(v===0&&i!==0&&j!==0&&!f.fin)?'-':v;c.className='';if(f.path?.has(`${i},${j}`))c.classList.add('pa');else if(i===f.i&&(j===f.j||j===f.wc))c.classList.add('ac');else if(v!==0||(i===0||j===0))c.classList.add('fi');}));$('d-fill').textContent=document.querySelectorAll('#dp-t td.fi,#dp-t td.pa').length;$('d-lbl').textContent=f.fin?'DONE':`STEP ${dI}`;$('d-log').textContent=f.log||'';}
+function dAdv(){if(dI>=dS.length-1){dRun=false;return;}dI++;dDraw();sndAfterDP();
+  const f=dS[dI]; if(!f) return;
+  const dtag=f.fin?'done':f.path?.size?'match':(f.i||f.wc)?'fill':'';
+  hlCode('d-code',dtag);
+}
+function dAuto(){if(!dRun)return;if(dI>=dS.length-1){dRun=false;$('d-play').textContent='▶ RUN';return;}dAdv();dTmr=setTimeout(dAuto,dSpd());}
+$('d-play').addEventListener('click',()=>{if(dRun){dRun=false;$('d-play').textContent='▶ RUN';clearTimeout(dTmr);return;}if(dI>=dS.length-1)dInit();dRun=true;$('d-play').textContent='⏸ PAUSE';dAuto();});
+$('d-step').addEventListener('click',()=>{dRun=false;clearTimeout(dTmr);$('d-play').textContent='▶ RUN';dAdv();});
+$('d-reset').addEventListener('click',()=>{dRun=false;clearTimeout(dTmr);$('d-play').textContent='▶ RUN';dInit();});
+$('d-rand').addEventListener('click',()=>{dRun=false;clearTimeout(dTmr);$('d-play').textContent='▶ RUN';dInit();});
+$('d-algo').addEventListener('change',()=>{dRun=false;clearTimeout(dTmr);$('d-play').textContent='▶ RUN';dInit();});
+dInit();
+
+// ══════════════════ SOUND ENGINE ══════════════════
+let audioCtx=null,soundOn=true;
+function getACtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function toggleSound(){soundOn=!soundOn;const b=$('snd-btn');b.textContent=soundOn?'🔊 SOUND':'🔇 SOUND';b.style.color=soundOn?'var(--accent)':'var(--dimmer)';if(soundOn)getACtx();}
+document.addEventListener('DOMContentLoaded',()=>{const b=$('snd-btn');if(b){b.textContent='🔊 SOUND';b.style.color='var(--accent)';}});
+function playTone(freq,type='sine',dur=60,vol=0.15,delay=0){
+  if(!soundOn)return;
+  const ac=getACtx(),osc=ac.createOscillator(),gain=ac.createGain();
+  osc.connect(gain);gain.connect(ac.destination);
+  osc.type=type;osc.frequency.setValueAtTime(freq,ac.currentTime+delay);
+  gain.gain.setValueAtTime(0,ac.currentTime+delay);
+  gain.gain.linearRampToValueAtTime(vol,ac.currentTime+delay+0.008);
+  gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur/1000);
+  osc.start(ac.currentTime+delay);osc.stop(ac.currentTime+delay+dur/1000+0.01);
+}
+const sndCmp=(v)=>playTone(200+v*4,'sine',35,0.08);
+const sndSwp=(a,b)=>{playTone(180+a*3,'triangle',55,0.16);playTone(180+b*3,'triangle',55,0.16,0.03);};
+const sndSorted=()=>playTone(880,'sine',70,0.10);
+const sndDone=()=>[523,659,784,1047].forEach((f,i)=>playTone(f,'sine',200,0.11,i*0.07));
+const sndVisit=(id)=>playTone(300+id*40,'sine',50,0.10);
+const sndEnq=(id)=>playTone(500+id*30,'triangle',28,0.06);
+const sndFound=()=>{playTone(1047,'sine',180,0.14);playTone(1319,'sine',180,0.11,0.09);};
+const sndSrchStep=(i,n)=>playTone(300+(i/Math.max(n,1))*400,'square',22,0.05);
+const sndDPCell=(v)=>playTone(220+v*7,'sine',32,0.06);
+const sndDFATrans=(ac2)=>playTone(ac2?880:220,'sine',120,0.11);
+const sndTMWrite=()=>playTone(440,'square',38,0.07);
+const sndTMHalt=(ac2)=>ac2?sndDone():playTone(150,'sawtooth',280,0.14);
+const sndPump=(ph)=>playTone(300+ph*120,'sine',80,0.09);
+
+// ── Sound + code highlight hooks (called from advance functions) ──
+function sndAfterSort(){
+  const f=sSteps[sI]; if(!f) return;
+  if(f.h?.length&&f.r) sndCmp(f.r[f.h[0]]||50);
+  if(f.sw&&f.lo?.length&&f.r) sndSwp(f.r[f.lo[0]]||50,f.r[f.lo[1]]||50);
+  if(f.fin) sndDone();
+  const tag=f.fin?'sorted':f.sw?'swap':f.h?.length?'compare':f.pv?.length?'pivot':'outer';
+  hlCode('s-code',tag);
+}
+function sndAfterSearch(){
+  const f=qSteps[qI]; if(!f) return;
+  if(f.found!==undefined) sndFound(); else if(f.cmp) sndSrchStep(qI,qSteps.length);
+  const tag=f.found!==undefined?'found':f.nf?'notfound':'compare';
+  hlCode('q-code',tag);
+  drawSearchDS();
+}
+function sndAfterGraph(){
+  const f=gS[gI]; if(!f) return;
+  if(f.done) sndDone(); else if(f.fr!==undefined) sndEnq(f.fr); else if(f.cur!==undefined) sndVisit(f.cur);
+  const tag=f.done?'visit':f.fr!==undefined?'enqueue':'visit';
+  hlCode('g-code',tag);
+  drawGraphDS();
+}
+function sndAfterDP(){
+  const f=dS[dI]; if(!f) return;
+  if(f.fin) sndDone(); else if(f.dp) sndDPCell((f.i||0)+(f.j||f.wc||0));
+  const dtag=f.fin?'done':f.path?.size?'match':(f.i||f.wc)?'fill':'';
+  hlCode('d-code',dtag);
+}
+
+function sndAfterTM(){
+  const f=tS[tI]; if(!f) return;
+  if(f.done) sndTMHalt(f.state===tDef.acc); else if(f.wi>=0) sndTMWrite();
+}
+function sndAfterPump(){
+  sndPump(pI);
+}
+
+// ══════════════════ CODE PANEL ENGINE ══════════════════
+
+// Code definitions: each entry is [displayText, stepTag]
+// stepTag is what we store in the step frame to know which line to highlight
+
+
+
+// Highlight a line by tag in a container
+function hlCode(containerId, tag) {
+  const el=$(containerId); if(!el||!tag) return;
+  el.querySelectorAll('.code-line').forEach(l=>l.classList.remove('active'));
+  if(!tag) return;
+  const match=[...el.querySelectorAll('.code-line')].filter(l=>l.dataset.tag===tag);
+  match.forEach(l=>{
+    l.classList.add('active');
+    l.scrollIntoView({block:'nearest',behavior:'smooth'});
+  });
+}
+
+// Toggle code panel visibility
+function toggleCode(prefix) {
+  const side=$(prefix+'-code-side');
+  const btn=side?.querySelector('.code-toggle');
+  if(!side||!btn) return;
+  const hidden=side.style.width==='0px'||side.style.display==='none';
+  if(hidden){side.style.width='';side.style.display='';btn.textContent='hide';}
+  else{side.style.width='0px';side.style.borderLeft='none';btn.textContent='show';}
+}
+
+// ── Wire code panels to each step ──
+
+// Sorting: map step tags to algo
+const SORT_CODE_MAP={bubble:'bubble',selection:'selection',insertion:'insertion',merge:'merge',quick:'quick',heap:'heap'};
+function sSyncCode(){
+  const algo=$('s-algo').value;
+  renderCode('s-code',algo,'s-code-title',algo+' sort');
+}
+// Call on algo change
+$('s-algo').addEventListener('change',sSyncCode);
+sSyncCode();
+
+
+
+// ══════════════════ DS DIAGRAM PANEL ENGINE ══════════════════
+// Draws a live visual of the active data structure alongside each viz.
+// Each panel has its own canvas + ops log updated on every step.
+
+function dsPanelRsz(cv){
+  const p=cv.parentElement;
+  if(cv.width!==p.clientWidth||cv.height!==p.clientHeight){
+    cv.width=p.clientWidth; cv.height=p.clientHeight;
+  }
+}
+function dsOpsLog(id, lines){
+  const el=$(id); if(!el) return;
+  el.innerHTML=lines.map(l=>`<div style="padding:1px 0">${l}</div>`).join('');
+}
+
+// ── SORTING DS panel ──
+// Draws the array as boxes with index labels, or a heap tree, or linked list
+// based on the selected DS picker
+function drawSortDS(){}  // panel removed
+
+// ── SEARCHING DS panel ──
+function drawSearchDS(){
+  const cv=$('q-ds-cv'); if(!cv) return;
+}
+
+function drawGraphDS(){
+  const cv=$('g-ds-cv'); if(!cv) return;
+  const p=cv.parentElement; cv.width=p.clientWidth||200; cv.height=p.clientHeight||120;
+  dsPanelRsz(cv);
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const algo=$('g-algo').value;
+  const f=gS[gI];
+  const items=f?(algo==='bfs'?(f.q||[]):(f.stk||[])):[];
+  const maxShow=6,cW=W-20,cH=22,gap=2;
+
+  if(algo==='bfs'){
+    ctx.fillStyle=C.dimmer;ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';
+    ctx.fillText('FRONT (dequeue)',8,10);
+    ctx.textAlign='right';ctx.fillText('REAR (enqueue)',W-8,10);
+    if(!f){ctx.fillStyle=C.dimmer;ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText('press RUN to see queue',W/2,H/2);return;}
+    const show=items.slice(0,maxShow);
+    const iW=Math.min(38,(W-16)/Math.max(show.length,1)-gap);
+    show.forEach((id,i)=>{
+      const x=8+i*(iW+gap),y=16;
+      const isNext=i===0;
+      ctx.fillStyle=isNext?'#60a5fa18':'#1e2230';
+      ctx.strokeStyle=isNext?C.blue:C.border;ctx.lineWidth=1;
+      ctx.beginPath();ctx.roundRect(x,y,iW,cH,3);ctx.fill();ctx.stroke();
+      ctx.fillStyle=isNext?C.blue:C.text;
+      ctx.font='bold 10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(gN[id]?.lbl||'?',x+iW/2,y+cH/2);
+      if(i<show.length-1){
+        ctx.strokeStyle=C.dimmer;ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(x+iW+1,y+cH/2);ctx.lineTo(x+iW+gap,y+cH/2);ctx.stroke();
+      }
+    });
+    if(!items.length){
+      ctx.fillStyle=C.dimmer;ctx.font='10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.fillText('queue empty',W/2,28);
+    }
+    dsOpsLog('g-ds-ops',[
+      `size: <span style="color:var(--accent)">${items.length}</span>`,
+      items.length?`front: <span style="color:var(--blue)">${gN[items[0]]?.lbl}</span> → next dequeue`:'—',
+      `BFS guarantees shortest path`,
+    ]);
+  } else {
+    ctx.fillStyle=C.dimmer;ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('TOP (pop/push)',W/2,10);
+    if(!f){ctx.fillStyle=C.dimmer;ctx.font='9px JetBrains Mono,monospace';ctx.fillText('press RUN to see stack',W/2,H/2);return;}
+    const show=items.slice(-maxShow).reverse();
+    show.forEach((id,i)=>{
+      const y=14+i*(cH+gap),isTop=i===0;
+      ctx.fillStyle=isTop?'#a78bfa18':'#1e2230';
+      ctx.strokeStyle=isTop?C.accent:C.border;ctx.lineWidth=1;
+      ctx.beginPath();ctx.roundRect(8,y,cW,cH,3);ctx.fill();ctx.stroke();
+      ctx.fillStyle=isTop?C.accent:C.text;
+      ctx.font='bold 10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(gN[id]?.lbl||'?',8+cW/2,y+cH/2);
+    });
+    if(!items.length){
+      ctx.fillStyle=C.dimmer;ctx.font='10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.fillText('stack empty',W/2,28);
+    }
+    dsOpsLog('g-ds-ops',[
+      `size: <span style="color:var(--accent)">${items.length}</span>`,
+      items.length?`top: <span style="color:var(--accent)">${gN[items[items.length-1]]?.lbl}</span> → next pop`:'—',
+      `DFS explores deepest path first`,
+    ]);
+  }
+}
+
+// ── DFA/NFA DS panel ──
+// Shows the active state set as chips
+function drawDFADS(){
+  const cv=$('f-ds-cv'); if(!cv) return;
+  dsPanelRsz(cv);
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const f=fS[fI]; if(!f||!fM) return;
+  const active=f.act||new Set();
+  const states=fM.states;
+  const R=18,cols=Math.floor(W/(R*2+12)),startX=14;
+  states.forEach((s,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    const x=startX+col*(R*2+12), y=22+row*(R*2+14);
+    const isActive=active.has(s), isAccept=fM.accept.has(s);
+    let fill=C.bg4,stroke=C.border,tc=C.dim;
+    if(isActive&&!f.dead){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+    if(f.done&&isActive&&f.ac){fill='#34d39918';stroke=C.green;tc=C.green;}
+    if(f.done&&isActive&&!f.ac){fill='#e8545418';stroke=C.red;tc=C.red;}
+    if(f.dead&&isActive){fill='#e8545411';stroke=C.red+'66';tc=C.red;}
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=isActive?1.5:1;
+    ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(isAccept){
+      ctx.strokeStyle=stroke;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(x,y,R-4,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.fillStyle=tc;ctx.font=`bold 9px JetBrains Mono,monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  });
+  const verdict=f.done?(f.ac?'✓ ACCEPTED':'✗ REJECTED'):f.dead?'DEAD STATE':'running…';
+  const vcol=f.done?(f.ac?C.green:C.red):f.dead?C.red:C.dim;
+  dsOpsLog('f-ds-ops',[
+    `<span style="color:${vcol}">${verdict}</span>`,
+    `active: <span style="color:var(--accent)">{${[...active].join(', ')||'∅'}}</span>`,
+    f.sym?`read: <span style="color:var(--text)">'${f.sym}'</span>`:`pos: ${f.pos+1}/${fStr.length}`,
+  ]);
+}
+
+// Update DS panel title based on picker
+function updateDSPanelTitles(){
+  const ds=$('s-ds')?.value||'array';
+  const titles={array:'memory layout',linked:'linked list',heap_tree:'heap tree'};
+
+  const gAlgo=$('g-algo')?.value||'bfs';
+  const gel=$('g-ds-panel-title'); if(gel) gel.textContent=gAlgo==='bfs'?'queue (fifo)':'stack (lifo)';
+}
+
+$('s-ds')?.addEventListener('change',()=>{sDSU();updateDSPanelTitles();});
+$('g-algo')?.addEventListener('change',()=>{updateDSPanelTitles();drawGraphDS();});
+updateDSPanelTitles();
+
+// Hook DS draws into each sndAfter call (already called on every step)
+const _origSndSort=sndAfterSort;
+// Instead, inline: drawSortDS is called from sndAfterSort via a separate hook
+// Use a postStep registry to avoid re-wrapping
+
+
+// ══════════════════════════════════════════════════════
+// TREES TAB
+// ══════════════════════════════════════════════════════
+const trCV=$('tr-cv'), trCX=trCV?trCV.getContext('2d'):null;
+let trNodes=[], trRoot=null, trSteps=[], trI=0, trRun=false, trTmr=null, trVisN=0;
+const trSpd=()=>600/+$('tr-spd').value;
+
+// ── BST node ──
+function mkNode(v){return{v,l:null,r:null,x:0,y:0,state:'none'};}
+function bstInsertNode(root,v){
+  if(!root){return mkNode(v);}
+  if(v<root.v) root.l=bstInsertNode(root.l,v);
+  else if(v>root.v) root.r=bstInsertNode(root.r,v);
+  return root;
+}
+function bstBuildRandom(){
+  const vals=new Set();
+  while(vals.size<10) vals.add(Math.floor(Math.random()*90)+5);
+  let root=null;
+  for(const v of vals) root=bstInsertNode(root,v);
+  return root;
+}
+function layoutTree(node,x,y,gap){
+  if(!node) return;
+  node.x=x; node.y=y;
+  layoutTree(node.l, x-gap, y+60, gap/2);
+  layoutTree(node.r, x+gap, y+60, gap/2);
+}
+function collectNodes(root, arr=[]){
+  if(!root) return arr;
+  arr.push(root);
+  collectNodes(root.l,arr);
+  collectNodes(root.r,arr);
+  return arr;
+}
+function cloneTree(node){
+  if(!node) return null;
+  return{v:node.v,l:cloneTree(node.l),r:cloneTree(node.r),x:node.x,y:node.y,state:'none'};
+}
+function findNodeByVal(root,v){
+  if(!root) return null;
+  if(root.v===v) return root;
+  return findNodeByVal(root.l,v)||findNodeByVal(root.r,v);
+}
+
+// ── Step generators ──
+function* inorderGen(node, snap){
+  if(!node) return;
+  yield* inorderGen(node.l, snap);
+  node.state='active';
+  yield snap({log:`visit ${node.v}`});
+  node.state='done';
+  yield* inorderGen(node.r, snap);
+}
+function* preorderGen(node, snap){
+  if(!node) return;
+  node.state='active';
+  yield snap({log:`visit ${node.v}`});
+  node.state='done';
+  yield* preorderGen(node.l, snap);
+  yield* preorderGen(node.r, snap);
+}
+function* postorderGen(node, snap){
+  if(!node) return;
+  yield* postorderGen(node.l, snap);
+  yield* postorderGen(node.r, snap);
+  node.state='active';
+  yield snap({log:`visit ${node.v}`});
+  node.state='done';
+}
+function* levelorderGen(root, snap){
+  if(!root) return;
+  const q=[root];
+  while(q.length){
+    const cur=q.shift();
+    cur.state='active';
+    yield snap({log:`visit ${cur.v}`});
+    cur.state='done';
+    if(cur.l) q.push(cur.l);
+    if(cur.r) q.push(cur.r);
+  }
+}
+function* bstSearchGen(root, target, snap){
+  let cur=root;
+  while(cur){
+    cur.state='active';
+    yield snap({log:`check ${cur.v} vs target ${target}`});
+    if(cur.v===target){ yield snap({log:`found ${target}!`, tag:'found'}); return; }
+    cur.state='searched';
+    if(target<cur.v){ yield snap({log:`${target} < ${cur.v} → go left`}); cur=cur.l; }
+    else { yield snap({log:`${target} > ${cur.v} → go right`}); cur=cur.r; }
+  }
+  yield snap({log:`${target} not found`, tag:'notfound'});
+}
+function* bstInsertGen(root, val, snap){
+  let cur=root, par=null, dir=null;
+  while(cur){
+    cur.state='active';
+    yield snap({log:`check ${cur.v}`});
+    cur.state='searched';
+    if(val===cur.v){ yield snap({log:`${val} already exists`}); return; }
+    par=cur; dir=val<cur.v?'l':'r';
+    yield snap({log:`${val} ${val<cur.v?'<':'>'} ${cur.v} → go ${val<cur.v?'left':'right'}`});
+    cur=cur[dir];
+  }
+  if(par){
+    const nn=mkNode(val);
+    par[dir]=nn;
+    layoutTree(root, trCV.width/2, 40, trCV.width/4);
+    nn.state='new';
+    yield snap({log:`insert ${val} as ${dir==='l'?'left':'right'} child of ${par.v}`, tag:'insert'});
+  }
+}
+function bstMin(node){return node.l?bstMin(node.l):node;}
+function* bstDeleteGen(root, val, snap){
+  function* del(node, v){
+    if(!node){ yield snap({log:`${v} not found`}); return; }
+    node.state='active';
+    yield snap({log:`check ${node.v}`});
+    if(v<node.v){ node.state='searched'; yield snap({log:`${v} < ${node.v} → go left`}); yield* del(node.l,v); node.l=delResult; }
+    else if(v>node.v){ node.state='searched'; yield snap({log:`${v} > ${node.v} → go right`}); yield* del(node.r,v); node.r=delResult; }
+    else {
+      node.state='delete';
+      if(!node.l&&!node.r){ yield snap({log:`delete leaf ${node.v}`}); delResult=null; return; }
+      if(!node.l){ yield snap({log:`${node.v} has only right child — replace`}); delResult=node.r; return; }
+      if(!node.r){ yield snap({log:`${node.v} has only left child — replace`}); delResult=node.l; return; }
+      const succ=bstMin(node.r);
+      yield snap({log:`${node.v} has 2 children — successor is ${succ.v}`});
+      node.v=succ.v; node.state='active';
+      yield snap({log:`replace ${v} with successor ${succ.v}`});
+      yield* del(node.r, succ.v); node.r=delResult;
+    }
+    delResult=node;
+  }
+  let delResult=null;
+  yield* del(root, val);
+}
+function* heightGen(node, snap){
+  if(!node){ return; }
+  node.state='active';
+  yield snap({log:`enter node ${node.v}`});
+  yield* heightGen(node.l, snap);
+  yield* heightGen(node.r, snap);
+  node.state='done';
+  const lh=node.l?node.l._h||0:0, rh=node.r?node.r._h||0:0;
+  node._h=1+Math.max(lh,rh);
+  yield snap({log:`height(${node.v}) = 1 + max(${lh},${rh}) = ${node._h}`});
+}
+
+
+// ── AVL rotation visualizer ──
+function* avlGen(root, snap){
+  // Compute heights bottom-up, find first unbalanced node, show rotation type
+  function height(n){ return n?1+Math.max(height(n.l),height(n.r)):0; }
+  function bf(n){ return n?height(n.l)-height(n.r):0; }
+  function* walk(node){
+    if(!node) return;
+    yield* walk(node.l);
+    yield* walk(node.r);
+    const b=bf(node);
+    node._h=height(node); node._bf=b;
+    node.state= Math.abs(b)>1?'delete': Math.abs(b)===1?'active':'done';
+    yield snap({log:`node ${node.v}: height=${node._h} balance=${b>=0?'+':''}${b}`,
+                tag: Math.abs(b)>1?'compare':'visit'});
+    if(Math.abs(b)>1){
+      let rotType='';
+      if(b>1)  rotType=bf(node.l)>=0?'LL rotation (Right)':'LR rotation (Left-Right)';
+      else     rotType=bf(node.r)<=0?'RR rotation (Left)':'RL rotation (Right-Left)';
+      node.state='delete';
+      yield snap({log:`⚠ imbalance at ${node.v}: ${rotType} needed`,tag:'compare'});
+    }
+  }
+  yield* walk(root);
+  yield snap({log:'AVL check complete — imbalanced nodes shown in red',fin:true});
+}
+
+function trBuildSteps(){
+  const algo=$('tr-algo').value;
+  const val=parseInt($('tr-val').value)||42;
+  const root=cloneTree(trRoot);
+  layoutTree(root, trCV.width/2, 40, trCV.width/4);
+  trSteps=[]; trI=0; trVisN=0;
+  let stepIdx=0;
+  function snap(info){
+    const nodes=collectNodes(root);
+    stepIdx++;
+    return{...info, snap:nodes.map(n=>({v:n.v,x:n.x,y:n.y,state:n.state,_h:n._h})), idx:stepIdx};
+  }
+  let gen;
+  if(algo==='inorder') gen=inorderGen(root, snap);
+  else if(algo==='preorder') gen=preorderGen(root, snap);
+  else if(algo==='postorder') gen=postorderGen(root, snap);
+  else if(algo==='levelorder') gen=levelorderGen(root, snap);
+  else if(algo==='bst_search') gen=bstSearchGen(root, val, snap);
+  else if(algo==='bst_insert') gen=bstInsertGen(root, val, snap);
+  else if(algo==='bst_delete') gen=bstDeleteGen(root, val, snap);
+  else if(algo==='height') gen=heightGen(root, snap);
+  else if(algo==='avl') gen=avlGen(root, snap);
+  else gen=(function*(){yield snap({log:'ready'});})();
+  for(const s of gen) trSteps.push(s);
+  trSteps.push({...snap({log:'done', fin:true}), fin:true});
+}
+
+// ── Draw tree ──
+function trDraw(){
+  if(!trCV||!trCX) return;
+  rsz(trCV);
+  const ctx=trCX, W=trCV.width, H=trCV.height;
+  ctx.clearRect(0,0,W,H);
+  const f=trSteps[trI]; if(!f||!f.snap) return;
+  const nodes=f.snap;
+  // Build map for edge drawing
+  const map={}; nodes.forEach(n=>map[n.v]=n);
+  const orig=collectNodes(cloneTree(trRoot));
+  // Draw edges first
+  function drawEdges(root){
+    if(!root) return;
+    if(root.l){
+      const a=map[root.v], b=map[root.l.v];
+      if(a&&b){ ctx.strokeStyle=C.border; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      drawEdges(root.l);
+    }
+    if(root.r){
+      const a=map[root.v], b=map[root.r.v];
+      if(a&&b){ ctx.strokeStyle=C.border; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      drawEdges(root.r);
+    }
+  }
+  // Reconstruct structure from original for edge drawing
+  function drawEdgesFromOrig(node){
+    if(!node) return;
+    const a=map[node.v];
+    if(node.l){ const b=map[node.l.v]; if(a&&b){ ctx.strokeStyle=C.border; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } drawEdgesFromOrig(node.l); }
+    if(node.r){ const b=map[node.r.v]; if(a&&b){ ctx.strokeStyle=C.border; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } drawEdgesFromOrig(node.r); }
+  }
+  const cloned=cloneTree(trRoot);
+  layoutTree(cloned, W/2, 40, W/4);
+  drawEdgesFromOrig(cloned);
+  // Draw nodes
+  const NR=18;
+  nodes.forEach(n=>{
+    let fill=C.bg4, stroke=C.border, tc=C.dim;
+    if(n.state==='active'){ fill='#e8c54722'; stroke=C.accent; tc=C.accent; }
+    else if(n.state==='done'){ fill='#34d39918'; stroke=C.green; tc=C.green; }
+    else if(n.state==='searched'){ fill='#60a5fa18'; stroke=C.blue; tc=C.blue; }
+    else if(n.state==='new'){ fill='#34d39922'; stroke=C.green; tc=C.green; }
+    else if(n.state==='delete'){ fill='#e8545422'; stroke=C.red; tc=C.red; }
+    ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(n.x,n.y,NR,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=tc; ctx.font='bold 11px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n.v,n.x,n.y);
+    if(n._h!==undefined){
+      ctx.fillStyle=C.dimmer; ctx.font='8px JetBrains Mono,monospace';
+      ctx.fillText(`h=${n._h}`,n.x,n.y+NR+9);
+    }
+  });
+}
+
+function trReset(){
+  trRun=false; clearTimeout(trTmr); $('tr-play').textContent='▶ RUN';
+  trRoot=bstBuildRandom();
+  rsz(trCV); layoutTree(trRoot, trCV.width/2, 40, trCV.width/4);
+  trBuildSteps(); trI=0; trVisN=0;
+  $('tr-lbl').textContent='READY'; $('tr-log').textContent='press RUN';
+  $('tr-vis').textContent=0; trDraw();
+}
+function trAdv(){
+  if(trI>=trSteps.length-1){ trRun=false; return; }
+  trI++;
+  const f=trSteps[trI];
+  trVisN++;
+  $('tr-vis').textContent=trVisN;
+  $('tr-lbl').textContent=f.fin?'DONE':`STEP ${trI}`;
+  $('tr-log').textContent=f.log||'';
+  trDraw();
+  const tagMap={found:'found',notfound:'notfound',insert:'insert'};
+  hlCode('tr-code', tagMap[f.tag]||(f.fin?'':'visit'));
+  if(soundOn){ if(f.fin) sndDone(); else if(f.tag==='found') sndFound(); else sndVisit(trI%9); }
+}
+function trAuto(){
+  if(!trRun) return;
+  if(trI>=trSteps.length-1){ trRun=false; $('tr-play').textContent='▶ RUN'; return; }
+  trAdv(); trTmr=setTimeout(trAuto, trSpd());
+}
+$('tr-play').addEventListener('click',()=>{ if(trRun){ trRun=false; $('tr-play').textContent='▶ RUN'; clearTimeout(trTmr); return; } if(trI>=trSteps.length-1) trReset(); trRun=true; $('tr-play').textContent='⏸ PAUSE'; trAuto(); });
+$('tr-step').addEventListener('click',()=>{ trRun=false; clearTimeout(trTmr); $('tr-play').textContent='▶ RUN'; trAdv(); });
+$('tr-reset').addEventListener('click',trReset);
+$('tr-new').addEventListener('click',trReset);
+$('tr-algo').addEventListener('change',()=>{ trBuildSteps(); trI=0; trVisN=0; $('tr-lbl').textContent='READY'; $('tr-log').textContent='press RUN'; $('tr-vis').textContent=0; trDraw(); trDSU(); trSyncCode(); });
+window.addEventListener('resize',()=>{ if($('panel-trees').classList.contains('active')){ rsz(trCV); layoutTree(trRoot,trCV.width/2,40,trCV.width/4); trBuildSteps(); trI=0; trDraw(); }});
+
+// ── Tree DS info ──
+const TR_DS_INFO={
+  inorder:    {name:'Inorder Traversal',    paradigm:'decrease & conquer', adt:'BST / binary tree',  struct:'Call Stack (implicit recursion)', time:'O(n)', space:'O(h)', note:'left→root→right — gives sorted output on a BST'},
+  preorder:   {name:'Preorder Traversal',   paradigm:'decrease & conquer', adt:'BST / binary tree',  struct:'Call Stack (implicit recursion)', time:'O(n)', space:'O(h)', note:'root→left→right — useful for tree copy & serialization'},
+  postorder:  {name:'Postorder Traversal',  paradigm:'decrease & conquer', adt:'BST / binary tree',  struct:'Call Stack (implicit recursion)', time:'O(n)', space:'O(h)', note:'left→right→root — children processed before parent'},
+  levelorder: {name:'Level-order Traversal',paradigm:'iterative',          adt:'BST / binary tree',  struct:'Queue (FIFO) — explicit',         time:'O(n)', space:'O(w)', note:'BFS applied to a tree — visits by depth level'},
+  bst_search: {name:'BST Search',           paradigm:'decrease & conquer', adt:'ADT: BST',           struct:'BST (heap-allocated linked nodes)',time:'O(h)', space:'O(1)', note:'ADT operation — halves search space at each node'},
+  bst_insert: {name:'BST Insert',           paradigm:'decrease & conquer', adt:'ADT: BST',           struct:'BST (heap-allocated linked nodes)',time:'O(h)', space:'O(1)', note:'ADT operation — walks to leaf, attaches new node'},
+  bst_delete: {name:'BST Delete',           paradigm:'decrease & conquer', adt:'ADT: BST',           struct:'BST (heap-allocated linked nodes)',time:'O(h)', space:'O(1)', note:'ADT operation — 3 cases: leaf / 1 child / inorder successor'},
+  avl:        {name:'AVL Rotation',         paradigm:'decrease & conquer', adt:'ADT: AVL Tree',      struct:'Self-balancing BST (linked nodes)',time:'O(log n)', space:'O(1)', note:'ADT invariant: |height(L)-height(R)| ≤ 1 — 4 rotation cases'},
+  height:     {name:'Tree Height',          paradigm:'divide & conquer',   adt:'BST / binary tree',  struct:'Call Stack (implicit recursion)', time:'O(n)', space:'O(h)', note:'D&C: h = 1 + max(height(left), height(right))'},
+};
+function trDSUBar(al){
+  const d=TR_DS_INFO[al]; if(!d) return;
+  const el=$('tr-dsbar'); if(!el) return;
+  const adtPill=d.adt?`<span class="ds-pill" style="border-color:var(--orange);color:var(--orange);background:#fb923c11">${d.adt}</span>`:'';
+  el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.paradigm}</span>${adtPill}<span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('tr-cx',al);
+}
+function trDSU(){ trDSUBar($('tr-algo').value); }
+
+// ── Tree code pseudocode ──
+
+function trSyncCode(){
+  const al=$('tr-algo').value;
+  const lines=(TR_CODES[al]||[]).map(([src,tag],i)=>
+    `<div class="code-line" id="tr-code-L${i}" data-tag="${tag}"><span class="ln">${i+1}</span><span class="src">${src}</span></div>`
+  ).join('');
+  const el=$('tr-code'); if(el) el.innerHTML=lines;
+  const t=$('tr-code-title'); if(t) t.textContent=al.replace('_',' ');
+}
+$('tr-algo').addEventListener('change', trSyncCode);
+
+// ── SyncCode for all missing tabs ──
+function qSyncCode(){
+  const al=$('q-algo').value;
+  const titles={linear:'linear search',binary:'binary search',jump:'jump search',ternary:'ternary search',expo:'exponential search'};
+  renderCode('q-code',al,'q-code-title',titles[al]||al);
+}
+function gSyncCode(){
+  const al=$('g-algo').value;
+  renderCode('g-code',al,'g-code-title',al==='dijkstra'?'dijkstra':al);
+}
+function dSyncCode(){
+  const al=$('d-algo').value;
+  const titles={lcs:'lcs — longest common subsequence',ks:'0/1 knapsack',edit:'edit distance (levenshtein)'};
+  renderCode('d-code',al,'d-code-title',titles[al]||al);
+  showCX('d-cx',al);
+}
+$('q-algo').addEventListener('change',()=>{
+  const al=$('q-algo').value;
+  const bstOpt=$('q-ds')?.querySelector('option[value="bst"]');
+  if(bstOpt) bstOpt.disabled=(al!=='binary');
+  qSyncCode();qDSU();
+});
+$('g-algo').addEventListener('change',()=>{gSyncCode();gDSU();});
+$('d-algo').addEventListener('change',()=>{dSyncCode();dDSU();});
+// syncCode inits deferred to end of script
+
+
+
+// ══════════════════════════════════════════════════════
+// GREEDY TAB
+// ══════════════════════════════════════════════════════
+const grCV=$('gr-cv'), grCX=grCV?grCV.getContext('2d'):null;
+let grSteps=[], grI=0, grRun=false, grTmr=null, grData={};
+const grSpd=()=>600/+$('gr-spd').value;
+
+function grRandomize(){
+  const al=$('gr-algo').value;
+  if(al==='activity'){
+    const n=8;
+    grData.activities=Array.from({length:n},(_,i)=>{
+      const s=rnd(0,14), e=s+rnd(1,5);
+      return{id:i,s,e,label:String.fromCharCode(65+i),state:'none'};
+    }).sort((a,b)=>a.e-b.e);
+  } else if(al==='fractional_ks'){
+    const n=6;
+    grData.items=Array.from({length:n},(_,i)=>({
+      id:i, w:rnd(1,8), v:rnd(4,20), state:'none',
+      get ratio(){ return this.v/this.w; }
+    }));
+    grData.capacity=rnd(12,18);
+    grData.items.sort((a,b)=>b.ratio-a.ratio);
+  } else if(al==='coin'){
+    grData.coins=[25,10,5,1];
+    grData.amount=rnd(30,99);
+  } else if(al==='huffman'){
+    const chars='ABCDEFGH';
+    grData.huffNodes=Array.from({length:rnd(5,7)},(_,i)=>({
+      c:chars[i], f:rnd(1,15), state:'none', left:null, right:null
+    })).sort((a,b)=>a.f-b.f);
+  } else if(al==='job_schedule'){
+    const n=7;
+    grData.jobs=Array.from({length:n},(_,i)=>({
+      id:i, name:String.fromCharCode(65+i),
+      deadline:rnd(1,5), profit:rnd(5,20), slot:-1, state:'none'
+    })).sort((a,b)=>b.profit-a.profit);
+    grData.maxDeadline=Math.max(...grData.jobs.map(j=>j.deadline));
+  } else if(al==='prim'||al==='kruskal'){
+    const n=6;
+    grData.nodes=Array.from({length:n},(_,i)=>({
+      id:i, lbl:String.fromCharCode(65+i),
+      x:0, y:0, state:'none'
+    }));
+    // Layout in circle
+    const cx=grCV.width/2, cy=grCV.height/2, r=Math.min(grCV.width,grCV.height)*0.35;
+    grData.nodes.forEach((nd,i)=>{
+      nd.x=cx+r*Math.cos(i/n*Math.PI*2-Math.PI/2);
+      nd.y=cy+r*Math.sin(i/n*Math.PI*2-Math.PI/2);
+    });
+    const edges=new Set();
+    for(let i=0;i<n;i++) edges.add(`${Math.min(i,(i+1)%n)}-${Math.max(i,(i+1)%n)}`);
+    for(let k=0;k<4;k++){const a=rnd(0,n-1),b=rnd(0,n-1);if(a!==b) edges.add(`${Math.min(a,b)}-${Math.max(a,b)}`);}
+    grData.edges=[...edges].map(e=>{const[a,b]=e.split('-').map(Number);return{a,b,w:rnd(1,9),state:'none'};});
+  }
+}
+
+function* activityGen(acts){
+  const selected=[];
+  let lastEnd=-1;
+  yield{snap:[...acts.map(a=>({...a}))], log:'sort by finish time (already sorted)', tag:'sort'};
+  for(const act of acts){
+    act.state='checking';
+    yield{snap:[...acts.map(a=>({...a}))], log:`check ${act.label}: start=${act.s}, end=${act.e}, lastEnd=${lastEnd}`};
+    if(act.s>=lastEnd){
+      act.state='selected'; selected.push(act);
+      lastEnd=act.e;
+      yield{snap:[...acts.map(a=>({...a}))], log:`✓ select ${act.label} (greedy: earliest finish)`, tag:'select'};
+    } else {
+      act.state='rejected';
+      yield{snap:[...acts.map(a=>({...a}))], log:`✗ skip ${act.label} (overlaps with selected)`};
+    }
+  }
+  yield{snap:[...acts.map(a=>({...a}))], fin:true, log:`done — ${selected.length} activities selected`};
+}
+
+function* fracKSGen(items, cap){
+  let remaining=cap, totalVal=0;
+  yield{snap:items.map(it=>({...it,taken:0})), log:`sort by value/weight ratio (already sorted)`, cap:remaining, total:totalVal};
+  const snaps=items.map(it=>({...it,taken:0}));
+  for(let i=0;i<items.length;i++){
+    const it=items[i];
+    snaps[i].state='checking';
+    yield{snap:snaps.map(s=>({...s})), log:`item ${i+1}: w=${it.w} v=${it.v} ratio=${it.ratio.toFixed(2)}, capacity left=${remaining.toFixed(1)}`, cap:remaining, total:totalVal};
+    if(remaining<=0){ snaps[i].state='skipped'; continue; }
+    const frac=Math.min(1, remaining/it.w);
+    const val=frac*it.v;
+    snaps[i].taken=frac; snaps[i].state='selected';
+    remaining-=frac*it.w; totalVal+=val;
+    yield{snap:snaps.map(s=>({...s})), log:`take ${(frac*100).toFixed(0)}% of item ${i+1}: +${val.toFixed(1)} value`, cap:remaining, total:totalVal, tag:'select'};
+  }
+  yield{snap:snaps.map(s=>({...s})), fin:true, log:`total value = ${totalVal.toFixed(1)}`, cap:remaining, total:totalVal};
+}
+
+function* coinGen(coins, amount){
+  let rem=amount; const used=[];
+  yield{coins:[...coins], used:[], rem, log:`make change for ${amount} cents`};
+  for(const c of coins){
+    while(rem>=c){
+      used.push(c); rem-=c;
+      yield{coins:[...coins], used:[...used], rem, log:`use ${c}¢ — remaining: ${rem}¢`, tag:'select', active:c};
+    }
+  }
+  yield{coins:[...coins], used:[...used], rem, fin:true, log:`done — ${used.length} coins: [${used.join(', ')}]`};
+}
+
+function* primGen(nodes, edges){
+  const inMST=new Set([0]), mstEdges=[];
+  nodes[0].state='mst';
+  yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`start at node ${nodes[0].lbl}`, mstEdges:[]};
+  while(inMST.size<nodes.length){
+    const candidates=edges.filter(e=>(inMST.has(e.a)&&!inMST.has(e.b))||(inMST.has(e.b)&&!inMST.has(e.a)));
+    if(!candidates.length) break;
+    candidates.forEach(e=>{ edges[edges.indexOf(e)].state='candidate'; });
+    yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`find cheapest edge crossing MST boundary`, mstEdges:[...mstEdges]};
+    const best=candidates.sort((a,b)=>a.w-b.w)[0];
+    const newNode=inMST.has(best.a)?best.b:best.a;
+    inMST.add(newNode); mstEdges.push(best);
+    edges.forEach(e=>{ if(e.state==='candidate') e.state='none'; });
+    best.state='mst'; nodes[newNode].state='mst';
+    yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`add edge ${nodes[best.a].lbl}-${nodes[best.b].lbl} (w=${best.w}) — greedy pick`, mstEdges:[...mstEdges], tag:'select'};
+  }
+  const total=mstEdges.reduce((s,e)=>s+e.w,0);
+  yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), fin:true, log:`MST complete — total weight=${total}`, mstEdges:[...mstEdges]};
+}
+
+function* kruskalGen(nodes, edges){
+  const sorted=[...edges].sort((a,b)=>a.w-b.w);
+  const parent=nodes.map((_,i)=>i);
+  function find(x){ return parent[x]===x?x:parent[x]=find(parent[x]); }
+  function union(a,b){ parent[find(a)]=find(b); }
+  const mst=[];
+  yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`sort all edges by weight`, mstEdges:[]};
+  for(const e of sorted){
+    e.state='checking';
+    yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`check edge ${nodes[e.a].lbl}-${nodes[e.b].lbl} w=${e.w}`, mstEdges:[...mst]};
+    if(find(e.a)!==find(e.b)){
+      union(e.a,e.b); mst.push(e); e.state='mst';
+      nodes[e.a].state='mst'; nodes[e.b].state='mst';
+      yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`✓ add ${nodes[e.a].lbl}-${nodes[e.b].lbl} — no cycle`, mstEdges:[...mst], tag:'select'};
+    } else {
+      e.state='rejected';
+      yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), log:`✗ skip ${nodes[e.a].lbl}-${nodes[e.b].lbl} — would create cycle`};
+    }
+  }
+  const total=mst.reduce((s,e)=>s+e.w,0);
+  yield{nodes:nodes.map(n=>({...n})), edges:edges.map(e=>({...e})), fin:true, log:`MST complete — total weight=${total}`, mstEdges:[...mst]};
+}
+
+function* jobScheduleGen(jobs, maxD){
+  const slots=Array(maxD).fill(null);
+  yield{jobs:jobs.map(j=>({...j})), slots:[...slots], log:`sort by profit desc (already sorted). ${maxD} deadline slots.`};
+  for(const job of jobs){
+    job.state='checking';
+    yield{jobs:jobs.map(j=>({...j})), slots:[...slots], log:`try job ${job.name}: profit=${job.profit}, deadline=${job.deadline}`};
+    let placed=false;
+    for(let t=Math.min(job.deadline,maxD)-1; t>=0; t--){
+      if(!slots[t]){
+        slots[t]=job; job.slot=t; job.state='selected';
+        yield{jobs:jobs.map(j=>({...j})), slots:[...slots], log:`✓ schedule ${job.name} in slot ${t+1} (profit=${job.profit}) — greedy`, tag:'select'};
+        placed=true; break;
+      }
+    }
+    if(!placed){ job.state='rejected'; yield{jobs:jobs.map(j=>({...j})), slots:[...slots], log:`✗ drop ${job.name} — no free slot before deadline ${job.deadline}`}; }
+  }
+  const total=slots.filter(Boolean).reduce((s,j)=>s+j.profit,0);
+  yield{jobs:jobs.map(j=>({...j})), slots:[...slots], fin:true, log:`total profit = ${total}`, tag:'done'};
+}
+
+
+function* huffmanGen(initNodes){
+  const pq=[...initNodes.map(n=>({...n}))].sort((a,b)=>a.f-b.f);
+  const allNodes=[...pq];
+  yield{nodes:[...allNodes], log:`start: ${pq.length} nodes in priority queue`};
+  while(pq.length>1){
+    pq.sort((a,b)=>a.f-b.f);
+    const a=pq.shift(), b=pq.shift();
+    a.state='merging'; b.state='merging';
+    yield{nodes:[...allNodes], log:`merge ${a.c||a.f}(${a.f}) + ${b.c||b.f}(${b.f})`};
+    const merged={f:a.f+b.f,c:'',left:a,right:b,state:'done',x:0,y:0};
+    a.state='done'; b.state='done';
+    pq.push(merged); allNodes.push(merged);
+    yield{nodes:[...allNodes], log:`new node: freq=${merged.f}`, tag:'select'};
+  }
+  if(pq[0]) pq[0].state='done';
+  yield{nodes:[...allNodes], fin:true, log:`huffman tree complete`};
+}
+
+function grBuildSteps(){
+  const al=$('gr-algo').value;
+  grSteps=[]; grI=0;
+  if(al==='activity') for(const s of activityGen(grData.activities)) grSteps.push(s);
+  else if(al==='job_schedule') for(const s of jobScheduleGen(grData.jobs, grData.maxDeadline)) grSteps.push(s);
+  else if(al==='fractional_ks') for(const s of fracKSGen(grData.items, grData.capacity)) grSteps.push(s);
+  else if(al==='coin') for(const s of coinGen(grData.coins, grData.amount)) grSteps.push(s);
+  else if(al==='prim') for(const s of primGen(grData.nodes, grData.edges)) grSteps.push(s);
+  else if(al==='kruskal') for(const s of kruskalGen(grData.nodes, grData.edges)) grSteps.push(s);
+  else grSteps=[{log:'ready', fin:false}];
+}
+
+function grDraw(){
+  if(!grCV||!grCX) return;
+  rsz(grCV);
+  const ctx=grCX, W=grCV.width, H=grCV.height;
+  ctx.clearRect(0,0,W,H);
+  const f=grSteps[grI]; if(!f) return;
+  const al=$('gr-algo').value;
+
+  if(al==='activity'&&f.snap){
+    const acts=f.snap, maxEnd=Math.max(...acts.map(a=>a.e));
+    const PAD=50, BAR_H=22, GAP=6;
+    const scaleX=(W-PAD*2)/maxEnd;
+    ctx.fillStyle=C.dim; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+    for(let t=0;t<=maxEnd;t+=2){ ctx.fillText(t, PAD+t*scaleX, H-10); ctx.strokeStyle=C.border; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(PAD+t*scaleX,20); ctx.lineTo(PAD+t*scaleX,H-20); ctx.stroke(); }
+    acts.forEach((a,i)=>{
+      const x=PAD+a.s*scaleX, w=(a.e-a.s)*scaleX, y=20+i*(BAR_H+GAP);
+      let fill=C.bg4, stroke=C.border, tc=C.dim;
+      if(a.state==='selected'){ fill='#34d39922'; stroke=C.green; tc=C.green; }
+      else if(a.state==='rejected'){ fill='#e8545418'; stroke=C.red; tc=C.red+'88'; }
+      else if(a.state==='checking'){ fill='#e8c54718'; stroke=C.accent; tc=C.accent; }
+      ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(x,y,Math.max(w,2),BAR_H,3); ctx.fill(); ctx.stroke();
+      if(w>24){ ctx.fillStyle=tc; ctx.font='bold 10px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(a.label,x+w/2,y+BAR_H/2); }
+    });
+
+  } else if(al==='fractional_ks'&&f.snap){
+    const items=f.snap;
+    const barW=Math.min(60,(W-60)/items.length-8);
+    const maxV=Math.max(...items.map(it=>it.v));
+    items.forEach((it,i)=>{
+      const x=30+i*(barW+8), maxH=H-80;
+      let fill=C.bg4, stroke=C.border, tc=C.dim;
+      if(it.state==='selected'){ fill='#34d39922'; stroke=C.green; tc=C.green; }
+      else if(it.state==='skipped'){ fill='#1e2230'; stroke=C.dimmer; tc=C.dimmer; }
+      else if(it.state==='checking'){ fill='#e8c54718'; stroke=C.accent; tc=C.accent; }
+      // full bar
+      ctx.fillStyle='#1e2230'; ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+      ctx.fillRect(x, 20, barW, maxH); ctx.strokeRect(x, 20, barW, maxH);
+      // taken portion
+      if(it.taken>0){
+        const takenH=it.taken*maxH*(it.v/maxV);
+        ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1;
+        ctx.fillRect(x, 20+maxH-takenH, barW, takenH);
+        ctx.strokeRect(x, 20+maxH-takenH, barW, takenH);
+      }
+      ctx.fillStyle=tc; ctx.font='bold 9px JetBrains Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(`v=${it.v}`,x+barW/2, 18);
+      ctx.fillStyle=C.dim; ctx.font='8px JetBrains Mono,monospace';
+      ctx.fillText(`w=${it.w}`,x+barW/2, H-50);
+      ctx.fillText(`${it.ratio.toFixed(1)}`,x+barW/2, H-40);
+    });
+    ctx.fillStyle=C.dim; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText(`capacity: ${grData.capacity}  used: ${(grData.capacity-(f.cap||grData.capacity)).toFixed(1)}  value: ${(f.total||0).toFixed(1)}`, 20, H-20);
+
+  } else if(al==='coin'&&f.coins){
+    const coins=f.coins, used=f.used||[], active=f.active;
+    const cx=W/2, coinY=H/2-30;
+    // Coin denominations
+    coins.forEach((c,i)=>{
+      const x=50+i*80, isActive=c===active;
+      ctx.fillStyle=isActive?'#e8c54722':C.bg4; ctx.strokeStyle=isActive?C.accent:C.border; ctx.lineWidth=isActive?2:1;
+      ctx.beginPath(); ctx.arc(x,coinY,24,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=isActive?C.accent:C.dim; ctx.font='bold 12px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(`${c}¢`,x,coinY);
+    });
+    // Used coins
+    ctx.fillStyle=C.dim; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText(`target: ${grData.amount}¢  remaining: ${f.rem}¢`, 20, H-40);
+    ctx.fillText(`coins used [${used.join(', ')}]`, 20, H-22);
+    // Count per denomination
+    coins.forEach((c,i)=>{
+      const cnt=used.filter(u=>u===c).length;
+      if(cnt>0){
+        ctx.fillStyle=C.accent; ctx.font='bold 11px JetBrains Mono,monospace'; ctx.textAlign='center';
+        ctx.fillText(`×${cnt}`, 50+i*80, coinY+34);
+      }
+    });
+
+  } else if(al==='job_schedule'&&f.jobs){
+    const jobs=f.jobs, slots=f.slots||[], maxD=grData.maxDeadline||5;
+    const slotW=Math.min(70,(W-60)/(maxD))-6, slotH=44, slotY=30;
+    const PAD=30;
+    // Draw slots header
+    for(let t=0;t<maxD;t++){
+      const x=PAD+t*(slotW+6);
+      ctx.fillStyle=C.bg3; ctx.strokeStyle=C.border; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(x,slotY,slotW,slotH,4); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=C.dim; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(`slot ${t+1}`, x+slotW/2, slotY-8);
+      if(slots[t]){
+        const j=slots[t];
+        ctx.fillStyle='#34d39922'; ctx.strokeStyle=C.green; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.roundRect(x,slotY,slotW,slotH,4); ctx.fill(); ctx.stroke();
+        ctx.fillStyle=C.green; ctx.font='bold 12px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(j.name, x+slotW/2, slotY+slotH/2-6);
+        ctx.font='9px JetBrains Mono,monospace'; ctx.fillText(`+${j.profit}`, x+slotW/2, slotY+slotH/2+8);
+      }
+    }
+    // Draw jobs list
+    const jY=slotY+slotH+24;
+    ctx.fillStyle=C.dim; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText('JOBS (sorted by profit):', PAD, jY-8);
+    jobs.forEach((j,i)=>{
+      const x=PAD+i*(slotW+6), y=jY;
+      let fill=C.bg4, stroke=C.border, tc=C.dim;
+      if(j.state==='selected'){ fill='#34d39918'; stroke=C.green; tc=C.green; }
+      else if(j.state==='rejected'){ fill='#1e2230'; stroke=C.dimmer+'88'; tc=C.dimmer; }
+      else if(j.state==='checking'){ fill='#e8c54718'; stroke=C.accent; tc=C.accent; }
+      ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(x,y,slotW,slotH+6,4); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=tc; ctx.font='bold 11px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(j.name, x+slotW/2, y+14);
+      ctx.font='9px JetBrains Mono,monospace';
+      ctx.fillText(`p=${j.profit}`, x+slotW/2, y+28);
+      ctx.fillText(`d=${j.deadline}`, x+slotW/2, y+40);
+    });
+    const total=(f.slots||[]).filter(Boolean).reduce((s,j)=>s+j.profit,0);
+    if(total>0||f.fin){ ctx.fillStyle=C.green; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='left'; ctx.fillText(`total profit: ${total}`, PAD, H-14); }
+  } else if(al==='huffman'&&f.nodes){
+    // Huffman tree — draw nodes as a tree with freq labels
+    const nodes=f.nodes||[];
+    function hLayout(node,x,y,spread){
+      if(!node)return; node.x=x; node.y=y;
+      if(node.left) hLayout(node.left,x-spread,y+55,spread/2);
+      if(node.right) hLayout(node.right,x+spread,y+55,spread/2);
+    }
+    const root2=nodes[nodes.length-1];
+    if(root2) hLayout(root2,W/2,30,W/4);
+    // edges
+    function drawEdges(nd){
+      if(!nd)return;
+      [nd.left,nd.right].forEach(ch=>{
+        if(ch){
+          ctx.strokeStyle=C.border;ctx.lineWidth=1.5;
+          ctx.beginPath();ctx.moveTo(nd.x,nd.y);ctx.lineTo(ch.x,ch.y);ctx.stroke();
+          drawEdges(ch);
+        }
+      });
+    }
+    if(root2)drawEdges(root2);
+    // nodes
+    nodes.forEach(nd=>{
+      if(nd.x===undefined)return;
+      const isLeaf=!nd.left&&!nd.right;
+      let fill=isLeaf?'#60a5fa18':'#1e2230', stroke=isLeaf?C.blue:C.border, tc=isLeaf?C.blue:C.dim;
+      if(nd.state==='merging'){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+      if(nd.state==='done'){fill='#34d39918';stroke=C.green;tc=C.green;}
+      ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(nd.x,nd.y,16,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle=tc;ctx.font='bold 10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(isLeaf?nd.c:nd.f,nd.x,nd.y);
+      if(isLeaf){ctx.fillStyle=C.dimmer;ctx.font='8px JetBrains Mono,monospace';ctx.fillText(nd.f,nd.x,nd.y+22);}
+    });
+    if(f.log){ctx.fillStyle=C.dim;ctx.font='10px JetBrains Mono,monospace';ctx.textAlign='left';ctx.fillText(f.log,12,H-12);}
+  } else if((al==='prim'||al==='kruskal')&&f.nodes){
+    const nodes=f.nodes, edges=f.edges;
+    // Edges
+    edges.forEach(e=>{
+      const a=nodes[e.a], b=nodes[e.b];
+      let stroke=C.border, lw=1.5;
+      if(e.state==='mst'){ stroke=C.green; lw=3; }
+      else if(e.state==='candidate'){ stroke=C.accent; lw=2; }
+      else if(e.state==='checking'){ stroke=C.orange; lw=2; }
+      else if(e.state==='rejected'){ stroke=C.red+'66'; lw=1; }
+      ctx.strokeStyle=stroke; ctx.lineWidth=lw;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+      ctx.fillStyle=e.state==='mst'?C.green:C.dim; ctx.font='10px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(e.w,mx,my);
+    });
+    // Nodes
+    const NR=20;
+    nodes.forEach(n=>{
+      let fill=C.bg4, stroke=C.border, tc=C.dim;
+      if(n.state==='mst'){ fill='#34d39922'; stroke=C.green; tc=C.green; }
+      ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(n.x,n.y,NR,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=tc; ctx.font='bold 12px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n.lbl,n.x,n.y);
+    });
+    if(f.mstEdges&&f.mstEdges.length){
+      const total=f.mstEdges.reduce((s,e)=>s+e.w,0);
+      ctx.fillStyle=C.green; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='left';
+      ctx.fillText(`MST weight: ${total}`, 14, H-14);
+    }
+  }
+}
+
+function grReset(){
+  grRun=false; clearTimeout(grTmr); $('gr-play').textContent='▶ RUN';
+  rsz(grCV); grRandomize(); grBuildSteps(); grI=0;
+  $('gr-lbl').textContent='READY'; $('gr-log').textContent='press RUN';
+  $('gr-cnt').textContent=0; grDraw();
+}
+function grAdv(){
+  if(grI>=grSteps.length-1){ grRun=false; return; }
+  grI++;
+  const f=grSteps[grI];
+  $('gr-cnt').textContent=grI;
+  $('gr-lbl').textContent=f.fin?'DONE':`STEP ${grI}`;
+  $('gr-log').textContent=f.log||'';
+  grDraw();
+  const grtag=f.tag==='select'?'select':f.tag==='sort'?'sort':f.fin?'done':'check';
+  hlCode('gr-code', grtag);
+  if(soundOn){ if(f.fin) sndDone(); else if(f.tag==='select') sndFound(); else sndCmp(grI*10%100); }
+}
+function grAuto(){
+  if(!grRun) return;
+  if(grI>=grSteps.length-1){ grRun=false; $('gr-play').textContent='▶ RUN'; return; }
+  grAdv(); grTmr=setTimeout(grAuto, grSpd());
+}
+$('gr-play').addEventListener('click',()=>{ if(grRun){ grRun=false; $('gr-play').textContent='▶ RUN'; clearTimeout(grTmr); return; } if(grI>=grSteps.length-1) grReset(); grRun=true; $('gr-play').textContent='⏸ PAUSE'; grAuto(); });
+$('gr-step').addEventListener('click',()=>{ grRun=false; clearTimeout(grTmr); $('gr-play').textContent='▶ RUN'; grAdv(); });
+$('gr-reset').addEventListener('click',grReset);
+$('gr-random').addEventListener('click',grReset);
+$('gr-algo').addEventListener('change',()=>{ grReset(); grDSU(); grSyncCode(); });
+window.addEventListener('resize',()=>{ if($('panel-greedy').classList.contains('active')){ rsz(grCV); grRandomize(); grBuildSteps(); grI=0; grDraw(); }});
+
+// ── Greedy DS info ──
+const GR_DS_INFO={
+  activity:      {name:'Activity Selection',  paradigm:'greedy', struct:'Sorted Array + pointer',       time:'O(n log n)', space:'O(1)', note:'Sort by finish time — greedy choice is always locally optimal'},
+  job_schedule:  {name:'Job Scheduling',       paradigm:'greedy', struct:'Sorted Array + Slot Array',   time:'O(n²)',      space:'O(n)', note:'Sort by profit desc, assign to latest free slot before deadline'},
+  fractional_ks: {name:'Fractional Knapsack',paradigm:'greedy', struct:'Sorted Array',          time:'O(n log n)', space:'O(n)', note:'Take highest value/weight ratio first — fractions allowed'},
+  huffman:       {name:'Huffman Coding',     paradigm:'greedy', struct:'Min-Heap (priority queue)', time:'O(n log n)', space:'O(n)', note:'Always merge two lowest-frequency nodes — builds optimal prefix code'},
+  prim:          {name:'Prim\'s MST',        paradigm:'greedy', struct:'Min-Heap + Visited Set',  time:'O((V+E) log V)', space:'O(V)', note:'Grow MST one edge at a time — always pick cheapest crossing edge'},
+  kruskal:       {name:'Kruskal\'s MST',     paradigm:'greedy', struct:'Sorted Edges + Union-Find', time:'O(E log E)', space:'O(V)', note:'Sort all edges, add cheapest that doesn\'t form a cycle'},
+  coin:          {name:'Coin Change (greedy)',paradigm:'greedy', struct:'Array + counter',         time:'O(n)',       space:'O(1)', note:'Take largest coin possible at each step — works for standard denominations'},
+};
+function grDSU(){
+  const al=$('gr-algo').value;
+  const d=GR_DS_INFO[al]; if(!d) return;
+  const el=$('gr-dsbar'); if(!el) return;
+  el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.paradigm}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('gr-cx',al);
+}
+
+// ── Greedy code pseudocode ──
+
+function grSyncCode(){
+  const al=$('gr-algo').value;
+  const titles={activity:'activity selection',job_schedule:'job scheduling',
+    fractional_ks:'fractional knapsack',huffman:'huffman coding',
+    prim:"prim's mst",kruskal:"kruskal's mst",coin:'coin change'};
+  renderCode('gr-code',al,'gr-code-title',titles[al]||al.replace(/_/g,' '));
+}
+$('gr-algo').addEventListener('change', grSyncCode);
+
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('panel-'+btn.dataset.tab).classList.add('active');
+    const t=btn.dataset.tab;
+    if(t==='sort'){sDraw();sDSU();sSyncCode();showCX('s-cx',$('s-algo').value);}
+    if(t==='search'){qRender();qSyncCode();showCX('q-cx',$('q-algo').value);qDSU();drawSearchDS();}
+    if(t==='graph'){gInit();gDraw();gSyncCode();showCX('g-cx',$('g-algo').value);gDSU();drawGraphDS();}
+    if(t==='dp'){dInit();dSyncCode();dDSU();}
+    if(t==='trees'){if(!trRoot){trReset();}else{trDraw();trDSU();trSyncCode();}}
+    if(t==='greedy'){grReset();grDSU();grSyncCode();}
+  });
+});
+
+
+// ══════════════════ DS INFO BAR UPDATERS ══════════════════
+function sDSU(){
+  const dsEl=$('s-ds'); const ds=dsEl?dsEl.value:'array';
+  const al=$('s-algo').value;
+  const paradigms={bubble:'iterative',selection:'decrease & conquer',insertion:'decrease & conquer',merge:'divide & conquer',quick:'divide & conquer',heap:'decrease & conquer'};
+  const para=paradigms[al]||'';
+  const override={
+    array:    {name:'Array (in-place)',      para,struct:'Contiguous memory — no allocation',     time:'O(n²~n log n)',space:'O(1~log n)',  note:'Sorted in-place — no extra array needed'},
+    array_oop:{name:'Array (out-of-place)',  para,struct:'Contiguous memory + auxiliary array',   time:'O(n log n)',   space:'O(n)',         note:'Copies into new array each merge — cleaner but uses O(n) extra memory'},
+    linked:   {name:'Singly Linked List',    para,struct:'Heap-allocated nodes + next pointers',  time:'O(n²)',        space:'O(n)',          note:'No random access — must traverse from head to reach index'},
+    heap_tree:{name:'Binary Max-Heap',       para,struct:'Complete binary tree (stored in array)',time:'O(n log n)',   space:'O(1)',          note:'Parent ≥ children — siftDown restores heap property in O(log n)'},
+  };
+  const d=override[ds]; const el=$('s-dsbar'); if(!el) return;
+  if(d) el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.para}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('s-cx', al);
+}
+
+function qDSU(){
+  const al=$('q-algo').value;
+  const dsEl=$('q-ds');
+  // Note: BST structure is valid for binary search; for others we still render array
+  const ds=dsEl?dsEl.value:'array';
+  const paradigms={linear:'brute force',binary:'divide & conquer',jump:'decrease & conquer',ternary:'divide & conquer',expo:'divide & conquer'};
+  const para=paradigms[al]||'';
+  const override={
+    array:{name:'Sorted Array',        para,struct:'Contiguous sorted block',      time:'O(1~n)',      space:'O(1)', note:'Index-based O(1) access — sorted order required for binary/ternary/jump'},
+    bst:  {name:'Binary Search Tree',  para,struct:'Linked nodes (heap-allocated)',time:'O(log n) avg',space:'O(n)', note:'Each comparison halves the search space — same D&C paradigm as binary search'},
+  };
+  const d=override[ds]; const el=$('q-dsbar'); if(!el) return;
+  if(d) el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.para}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('q-cx', al);
+  updateSearchView();
+}
+
+function gDSU(){
+  const dsEl=$('g-ds'); const ds=dsEl?dsEl.value:'adj_list';
+  const algo=$('g-algo').value;
+  const gpara=algo==='dijkstra'?'greedy':algo==='bfs'?'iterative':'decrease & conquer';
+  const qds=algo==='dijkstra'?'Priority Queue (Min-Heap)':algo==='bfs'?'Queue (FIFO)':'Stack (LIFO)';
+  const override={
+    adj_list:  {name:`Adjacency List + ${qds}`,   struct:'Array of linked lists + '+qds,  time:algo==='dijkstra'?'O((V+E) log V)':'O(V+E)', space:'O(V+E)', note:algo==='dijkstra'?'Greedy: always relax cheapest unvisited node':'Space-efficient for sparse graphs'},
+    adj_matrix:{name:`Adjacency Matrix + ${qds}`,  struct:'V×V weight matrix + '+qds,      time:algo==='dijkstra'?'O(V²)':'O(V²)',           space:'O(V²)',   note:algo==='dijkstra'?'Dense graphs: scan all nodes instead of heap':'O(1) edge lookup but costly memory for sparse graphs'},
+  };
+  const d=override[ds]; const el=$('g-dsbar'); if(!el) return;
+  if(d) el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${gpara}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('g-cx', algo);
+}
+
+function dDSU(){
+  const al=$('d-algo').value;
+  const info={
+    lcs: {name:'Longest Common Subsequence',paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',time:'O(m·n)',space:'O(m·n)',note:'Match chars or take max of left/up neighbors — traceback gives the sequence'},
+    ks:  {name:'0/1 Knapsack',             paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',time:'O(n·W)',space:'O(n·W)',note:'For each item + capacity: include if it fits, or skip — optimal substructure'},
+    edit:{name:'Edit Distance (Levenshtein)',paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',time:'O(m·n)',space:'O(m·n)',note:'Min cost of insert/delete/substitute — built from smaller subproblem costs'},
+  };
+  const d=info[al]; const el=$('d-dsbar'); if(!el||!d) return;
+  el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.paradigm}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('d-cx', al);
+}
+
+// ── BST view for searching ──
+let qBSTRoot=null;
+
+function updateSearchView(){
+  const ds=$('q-ds')?.value||'array';
+  // The search panel split-view has: srch-aw (array row, flex-shrink:0) on top,
+  // then a flex:1 row containing srch-rest + code-side + ds-panel below.
+  // For BST mode: hide srch-aw, replace srch-rest content with BST canvas.
+  const arrView=$('srch-aw');
+  const srchRest=$('srch-rest');
+  let bstCV=$('q-bst-cv');
+  if(ds==='bst'){
+    if(arrView) arrView.style.display='none';
+    if(!bstCV){
+      const cv=document.createElement('canvas');
+      cv.id='q-bst-cv';
+      cv.style.cssText='position:absolute;inset:0;width:100%;height:100%';
+      if(srchRest) srchRest.appendChild(cv);
+      bstCV=cv;
+    }
+    bstCV.style.display='';
+    buildSearchBST();
+    drawSearchBST();
+  } else {
+    if(arrView) arrView.style.display='';
+    if(bstCV) bstCV.style.display='none';
+  }
+}
+
+function buildSearchBST(){
+  qBSTRoot=null;
+  for(const v of qArr) qBSTRoot=bstInsertNode(qBSTRoot, v);
+}
+
+function drawSearchBST(target, foundVal, currentVal){
+  const cv=$('q-bst-cv'); if(!cv) return;
+  const p=cv.parentElement;
+  if(cv.width!==p.clientWidth||cv.height!==p.clientHeight){cv.width=p.clientWidth;cv.height=p.clientHeight;}
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  if(!qBSTRoot) return;
+  // Layout
+  function layout(node,x,y,gap){
+    if(!node)return; node.x=x; node.y=y;
+    layout(node.l,x-gap,y+52,gap/2);
+    layout(node.r,x+gap,y+52,gap/2);
+  }
+  layout(qBSTRoot,W/2,30,W/4);
+  // Draw edges
+  function drawEdges(node){
+    if(!node)return;
+    [node.l,node.r].forEach(ch=>{
+      if(ch){
+        ctx.strokeStyle=C.border;ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(node.x,node.y);ctx.lineTo(ch.x,ch.y);ctx.stroke();
+        drawEdges(ch);
+      }
+    });
+  }
+  drawEdges(qBSTRoot);
+  // Draw nodes
+  function drawNodes(node){
+    if(!node)return;
+    let fill=C.bg4, stroke=C.border, tc=C.dim;
+    if(node.v===foundVal){fill='#34d39922';stroke=C.green;tc=C.green;}
+    else if(node.v===currentVal){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+    else if(target!==undefined&&node.v===target&&foundVal===undefined){fill='#60a5fa18';stroke=C.blue;tc=C.blue;}
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(node.x,node.y,16,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=tc;ctx.font='bold 11px JetBrains Mono,monospace';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(node.v,node.x,node.y);
+    drawNodes(node.l);drawNodes(node.r);
+  }
+  drawNodes(qBSTRoot);
+}
+
+// ══ DEFERRED INITS ══
+(function(){
+  if(typeof sSyncCode==='function') sSyncCode();
+  if(typeof qSyncCode==='function') qSyncCode();
+  if(typeof gSyncCode==='function') gSyncCode();
+  if(typeof dSyncCode==='function') dSyncCode();
+  if(typeof trSyncCode==='function') trSyncCode();
+  if(typeof grSyncCode==='function') grSyncCode();
+  if(typeof showCX==='function'){
+    showCX('s-cx', document.getElementById('s-algo')?.value||'bubble');
+    showCX('q-cx', document.getElementById('q-algo')?.value||'linear');
+    showCX('g-cx', document.getElementById('g-algo')?.value||'bfs');
+    showCX('d-cx', document.getElementById('d-algo')?.value||'lcs');
+    showCX('tr-cx', document.getElementById('tr-algo')?.value||'inorder');
+    showCX('gr-cx', document.getElementById('gr-algo')?.value||'activity');
+  }
+  if(typeof sDSU==='function') sDSU();
+  if(typeof qDSU==='function') qDSU();
+  if(typeof gDSU==='function') gDSU();
+  if(typeof dDSU==='function') dDSU();
+  if(typeof trDSU==='function') trDSU();
+  if(typeof grDSU==='function') grDSU();
+  // BST option enable/disable handled by q-algo change listener
+  const sndBtn=document.getElementById('snd-btn');
+  if(sndBtn){ sndBtn.textContent='🔊 SOUND'; sndBtn.style.color='var(--accent)'; }
+  if(typeof sReset==='function') sReset();
+  if(typeof qReset==='function') qReset();
+  // Draw DS panels immediately so they're not blank on first load
+  setTimeout(()=>{
+    if(typeof drawSortDS==='function')
+    if(typeof drawSearchDS==='function') drawSearchDS();
+  }, 100);
+})();
+
+</script>
+</body>
+</html>

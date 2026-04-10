@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVL Tree — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #a78bfa;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --yellow: #e8c547;
+    --orange: #fb923c;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .oh { color: var(--green);  font-weight: 700; }
+  .on { color: var(--red);    font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 16px; }
+  .caption strong { color: var(--text); }
+
+  .tree-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+  /* rotation grid */
+  .rot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .rot-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .rot-box:nth-child(1) { border-top: 2px solid var(--blue); }
+  .rot-box:nth-child(2) { border-top: 2px solid var(--orange); }
+  .rot-box:nth-child(3) { border-top: 2px solid var(--teal); }
+  .rot-box:nth-child(4) { border-top: 2px solid var(--pink, #f472b6); }
+  .rot-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .rot-when  { font-size: 11px; color: var(--dim); margin-bottom: 12px; }
+  .rot-scene { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .rot-label { font-size: 20px; color: var(--dim); }
+
+  /* bf badge */
+  .bf-ok  { fill: #6bde84; }
+  .bf-bad { fill: #f87171; }
+  .bf-warn{ fill: #e8c547; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--red); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>AVL<span>↻</span></h1>
+    <div class="subtitle">Self-Balancing Binary Search Tree</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">search</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">insert</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">remove</span>  <span class="oh">O(log n) guaranteed</span></div>
+    <div class="big-o-row"><span class="op">height</span>  <span class="oh">≤ 1.44 log n</span></div>
+  </div>
+</div>
+
+<!-- 1. Balance factor -->
+<div class="diagram-section">
+  <div class="label">1 — Balance Factor</div>
+  <div class="annotation">Every node stores a <span>balance factor</span> = height(left) − height(right). If any node's balance factor leaves the range <span>−1 to +1</span>, the tree rotates to fix it.</div>
+
+  <div class="tree-wrap">
+    <svg width="480" height="260" viewBox="0 0 480 260">
+      <!-- edges -->
+      <line x1="240" y1="52" x2="130" y2="112" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="240" y1="52" x2="350" y2="112" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="130" y1="132" x2="72"  y2="192" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="130" y1="132" x2="188" y2="192" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="350" y1="132" x2="310" y2="192" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- root bf=0 -->
+      <circle cx="240" cy="36" r="26" fill="#a78bfa18" stroke="#a78bfa" stroke-width="2"/>
+      <text x="240" y="42" text-anchor="middle" font-size="16" font-weight="700" fill="#a78bfa">50</text>
+      <rect x="258" y="14" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="272" y="26" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=0</text>
+      <text x="240" y="8" text-anchor="middle" font-size="9" fill="#e8c547" font-weight="700" letter-spacing="1">root</text>
+
+      <!-- 30 bf=1 -->
+      <circle cx="130" cy="122" r="24" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="130" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">30</text>
+      <rect x="148" y="104" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="162" y="116" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=1</text>
+
+      <!-- 70 bf=1 -->
+      <circle cx="350" cy="122" r="24" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="350" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">70</text>
+      <rect x="368" y="104" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="382" y="116" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=1</text>
+
+      <!-- leaves -->
+      <circle cx="72"  cy="204" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="72"  y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">20</text>
+      <rect x="84" y="188" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="98" y="200" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=0</text>
+
+      <circle cx="188" cy="204" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="188" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">40</text>
+      <rect x="200" y="188" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="214" y="200" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=0</text>
+
+      <circle cx="310" cy="204" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="310" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">60</text>
+      <rect x="322" y="188" width="28" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="336" y="200" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=0</text>
+
+      <!-- legend -->
+      <rect x="10" y="240" width="56" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+      <text x="38" y="252" text-anchor="middle" font-size="10" fill="#6bde84" font-weight="700">bf ∈ {-1,0,1}</text>
+      <text x="72" y="252" font-size="10" fill="#7a8090"> = balanced ✓</text>
+    </svg>
+  </div>
+  <div class="caption"><strong>Balance factor = height(left) − height(right).</strong> Every node here is balanced. If any node reaches ±2 after an insert or delete, a rotation fires.</div>
+</div>
+
+<hr>
+
+<!-- 2. What triggers a rotation -->
+<div class="diagram-section">
+  <div class="label">2 — Triggering a Rotation</div>
+  <div class="annotation">Insert <span>10</span> into the tree above. It goes left of 20. Now 30's balance factor becomes +2 — violation. Rotate right at 30.</div>
+
+  <div style="display:flex; gap:48px; flex-wrap:wrap; align-items:flex-start; justify-content:center;">
+
+    <!-- Before -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;text-align:center;margin-bottom:8px;">After insert(10) — UNBALANCED</div>
+      <svg width="220" height="220" viewBox="0 0 220 220">
+        <line x1="110" y1="42" x2="60"  y2="92"  stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="110" y1="42" x2="160" y2="92"  stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="60"  y1="108" x2="30" y2="158" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="60"  y1="108" x2="90" y2="158" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="30"  y1="174" x2="14" y2="208" stroke="#f87171" stroke-width="1.5"/>
+
+        <circle cx="110" cy="28" r="22" fill="#a78bfa18" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="110" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="#a78bfa">50</text>
+
+        <!-- 30 — bf=+2 violation -->
+        <circle cx="60" cy="100" r="22" fill="#f8717118" stroke="#f87171" stroke-width="2"/>
+        <text x="60" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#f87171">30</text>
+        <rect x="75" y="84" width="34" height="16" rx="4" fill="#f8717122" stroke="#f87171" stroke-width="1"/>
+        <text x="92" y="96" text-anchor="middle" font-size="10" font-weight="700" class="bf-bad">bf=+2 !</text>
+
+        <circle cx="160" cy="100" r="22" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="160" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">70</text>
+
+        <circle cx="30" cy="168" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="30" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">20</text>
+        <circle cx="90" cy="168" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="90" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">40</text>
+
+        <!-- new node -->
+        <circle cx="14" cy="208" r="16" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="14" y="214" text-anchor="middle" font-size="11" font-weight="700" fill="#f87171">10</text>
+        <text x="14" y="228" text-anchor="middle" font-size="8" fill="#f87171">new</text>
+      </svg>
+    </div>
+
+    <div style="display:flex;align-items:center;font-size:32px;color:var(--accent);padding-top:80px;">→</div>
+
+    <!-- After right rotation at 30 -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;text-align:center;margin-bottom:8px;">After right rotation at 30 — BALANCED</div>
+      <svg width="220" height="220" viewBox="0 0 220 220">
+        <line x1="110" y1="42" x2="60"  y2="92"  stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="110" y1="42" x2="160" y2="92"  stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="60"  y1="108" x2="28" y2="158" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="60"  y1="108" x2="92" y2="158" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="92"  y1="174" x2="118" y2="204" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <circle cx="110" cy="28" r="22" fill="#a78bfa18" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="110" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="#a78bfa">50</text>
+
+        <!-- 20 is now the subtree root -->
+        <circle cx="60" cy="100" r="22" fill="#6bde8418" stroke="#6bde84" stroke-width="2"/>
+        <text x="60" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#6bde84">20</text>
+        <rect x="75" y="84" width="34" height="16" rx="4" fill="#6bde8422" stroke="#6bde84" stroke-width="1"/>
+        <text x="92" y="96" text-anchor="middle" font-size="10" font-weight="700" class="bf-ok">bf=0 ✓</text>
+
+        <circle cx="160" cy="100" r="22" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="160" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#d4d8e0">70</text>
+
+        <circle cx="28" cy="168" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="28" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">10</text>
+
+        <circle cx="92" cy="168" r="20" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="92" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#d4d8e0">30</text>
+
+        <circle cx="118" cy="204" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="118" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">40</text>
+      </svg>
+    </div>
+  </div>
+  <div class="caption"><strong>Right rotation at 30:</strong> 20 takes 30's place. 30 becomes 20's right child. 20's old right child (if any) becomes 30's left child. Balance restored.</div>
+</div>
+
+<hr>
+
+<!-- 3. Four rotation cases -->
+<div class="diagram-section">
+  <div class="label">3 — Four Rotation Cases</div>
+  <div class="annotation">The shape of the imbalance determines which rotation to apply. Two are single rotations, two are double rotations.</div>
+
+  <div class="rot-grid">
+
+    <!-- Left rotation -->
+    <div class="rot-box">
+      <div class="rot-title">Left Rotation</div>
+      <div class="rot-when">When: right-right heavy (bf = −2, right child bf ≤ 0)</div>
+      <svg width="260" height="130" viewBox="0 0 260 130">
+        <!-- before -->
+        <line x1="40" y1="32" x2="65" y2="62" stroke="#f87171" stroke-width="1.5"/>
+        <line x1="65" y1="78" x2="85" y2="108" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="40" cy="20" r="18" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="40" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <text x="40" y="4" text-anchor="middle" font-size="8" fill="#f87171">bf=−2</text>
+        <circle cx="65" cy="70" r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="65" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="85" cy="112" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="85" y="118" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <!-- arrow -->
+        <text x="118" y="68" text-anchor="middle" font-size="22" fill="#a78bfa">→</text>
+        <!-- after -->
+        <line x1="178" y1="62" x2="158" y2="92" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="178" y1="62" x2="198" y2="92" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="178" cy="50" r="18" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="178" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">B</text>
+        <circle cx="158" cy="98" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="158" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">A</text>
+        <circle cx="198" cy="98" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="198" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <text x="178" y="30" text-anchor="middle" font-size="8" fill="#6bde84">B is new root</text>
+      </svg>
+    </div>
+
+    <!-- Right rotation -->
+    <div class="rot-box">
+      <div class="rot-title">Right Rotation</div>
+      <div class="rot-when">When: left-left heavy (bf = +2, left child bf ≥ 0)</div>
+      <svg width="260" height="130" viewBox="0 0 260 130">
+        <!-- before -->
+        <line x1="80" y1="32" x2="55" y2="62" stroke="#f87171" stroke-width="1.5"/>
+        <line x1="55" y1="78" x2="35" y2="108" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="80" cy="20" r="18" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="80" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <text x="80" y="4" text-anchor="middle" font-size="8" fill="#f87171">bf=+2</text>
+        <circle cx="55" cy="70" r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="55" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="35" cy="112" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="35" y="118" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <!-- arrow -->
+        <text x="118" y="68" text-anchor="middle" font-size="22" fill="#a78bfa">→</text>
+        <!-- after -->
+        <line x1="178" y1="62" x2="158" y2="92" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="178" y1="62" x2="198" y2="92" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="178" cy="50" r="18" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="178" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">B</text>
+        <circle cx="158" cy="98" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="158" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="198" cy="98" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="198" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">A</text>
+        <text x="178" y="30" text-anchor="middle" font-size="8" fill="#6bde84">B is new root</text>
+      </svg>
+    </div>
+
+    <!-- Left-Right rotation -->
+    <div class="rot-box">
+      <div class="rot-title">Left-Right Rotation</div>
+      <div class="rot-when">When: left-right heavy (bf = +2, left child bf = −1). Rotate left child left first, then rotate root right.</div>
+      <svg width="260" height="140" viewBox="0 0 260 140">
+        <!-- step 1: before -->
+        <line x1="38" y1="30" x2="22" y2="65" stroke="#f87171" stroke-width="1.5"/>
+        <line x1="22" y1="80" x2="38" y2="110" stroke="#f87171" stroke-width="1.5"/>
+        <circle cx="38" cy="18" r="16" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="38" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <circle cx="22" cy="72" r="14" fill="#111318" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="22" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#fb923c">B</text>
+        <circle cx="38" cy="116" r="13" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="38" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <text x="38" y="4" text-anchor="middle" font-size="8" fill="#f87171">bf=+2</text>
+        <!-- step arrow -->
+        <text x="72" y="75" text-anchor="middle" font-size="14" fill="#a78bfa">①→</text>
+        <!-- step 2: after left rot on B -->
+        <line x1="118" y1="30" x2="102" y2="65" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="102" y1="80" x2="118" y2="110" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="118" cy="18" r="16" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="118" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <circle cx="102" cy="72" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="102" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="88" cy="108" r="13" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="88" y="114" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <text x="118" y="4" text-anchor="middle" font-size="8" fill="#fb923c">left rot B</text>
+        <!-- step arrow 2 -->
+        <text x="154" y="75" text-anchor="middle" font-size="14" fill="#a78bfa">②→</text>
+        <!-- step 3: final -->
+        <line x1="200" y1="52" x2="182" y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="200" y1="52" x2="218" y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="200" cy="40" r="16" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="200" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">C</text>
+        <circle cx="182" cy="90" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="182" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="218" cy="90" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="218" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">A</text>
+        <text x="200" y="24" text-anchor="middle" font-size="8" fill="#6bde84">right rot A</text>
+      </svg>
+    </div>
+
+    <!-- Right-Left rotation -->
+    <div class="rot-box">
+      <div class="rot-title">Right-Left Rotation</div>
+      <div class="rot-when">When: right-left heavy (bf = −2, right child bf = +1). Rotate right child right first, then rotate root left.</div>
+      <svg width="260" height="140" viewBox="0 0 260 140">
+        <!-- step 1 -->
+        <line x1="38" y1="30" x2="54" y2="65" stroke="#f87171" stroke-width="1.5"/>
+        <line x1="54" y1="80" x2="38" y2="110" stroke="#f87171" stroke-width="1.5"/>
+        <circle cx="38" cy="18" r="16" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="38" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <circle cx="54" cy="72" r="14" fill="#111318" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="54" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#fb923c">B</text>
+        <circle cx="38" cy="116" r="13" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="38" y="122" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <text x="38" y="4" text-anchor="middle" font-size="8" fill="#f87171">bf=−2</text>
+        <!-- arrow 1 -->
+        <text x="78" y="75" text-anchor="middle" font-size="14" fill="#a78bfa">①→</text>
+        <!-- step 2 -->
+        <line x1="114" y1="30" x2="130" y2="65" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="130" y1="80" x2="146" y2="110" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="114" cy="18" r="16" fill="#f8717118" stroke="#f87171" stroke-width="1.5"/>
+        <text x="114" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="#f87171">A</text>
+        <circle cx="130" cy="72" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="130" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="146" cy="108" r="13" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="146" y="114" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <text x="114" y="4" text-anchor="middle" font-size="8" fill="#fb923c">right rot B</text>
+        <!-- arrow 2 -->
+        <text x="170" y="75" text-anchor="middle" font-size="14" fill="#a78bfa">②→</text>
+        <!-- step 3 -->
+        <line x1="210" y1="52" x2="192" y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="210" y1="52" x2="228" y2="82" stroke="#2a2e38" stroke-width="1.5"/>
+        <circle cx="210" cy="40" r="16" fill="#6bde8418" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="210" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#6bde84">C</text>
+        <circle cx="192" cy="90" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="192" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">A</text>
+        <circle cx="228" cy="90" r="14" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="228" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <text x="210" y="24" text-anchor="middle" font-size="8" fill="#6bde84">left rot A</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. AVL vs BST vs Red-Black -->
+<div class="diagram-section">
+  <div class="label">4 — AVL vs Plain BST vs Red-Black</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">
+    <tr>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">Property</th>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">Plain BST</th>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">AVL Tree</th>
+      <th style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">Red-Black Tree</th>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Search</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);font-weight:700;">O(log n) avg</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">O(log n) always</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">O(log n) always</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Balance strictness</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--red);font-weight:700;">none</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">strict (bf ∈ {-1,0,1})</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);font-weight:700;">relaxed</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);">Rotations on insert</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);">none</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--yellow);font-weight:700;">up to O(log n)</td>
+      <td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700;">at most 2</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 12px;color:var(--text);">Best for</td>
+      <td style="padding:8px 12px;color:var(--dim);">random data</td>
+      <td style="padding:8px 12px;color:var(--accent);font-weight:700;">read-heavy workloads</td>
+      <td style="padding:8px 12px;color:var(--blue);font-weight:700;">write-heavy workloads</td>
+    </tr>
+  </table>
+  <div class="caption">AVL is <strong>more strictly balanced</strong> than Red-Black — faster lookups, but more rotations on insert/delete. Red-Black trades a little height for fewer rotations.</div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Balance Factor</div>
+    <div class="card-body">height(left) − height(right) at every node. Must stay in {−1, 0, +1}. If it hits ±2, rotate.</div>
+    <div class="card-o" style="color:var(--accent)">bf ∈ {-1, 0, 1}</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Guaranteed O(log n)</div>
+    <div class="card-body">No degenerate case. Height is always ≤ 1.44 log₂ n. Search, insert, delete are all O(log n) always.</div>
+    <div class="card-o" style="color:var(--green)">always O(log n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Four Rotations</div>
+    <div class="card-body">Left, Right, Left-Right, Right-Left. Single rotations fix LL and RR cases. Double rotations fix LR and RL cases.</div>
+    <div class="card-o" style="color:var(--red)">1 or 2 rotations</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Still a BST</div>
+    <div class="card-body">All BST properties hold — left &lt; node &lt; right. AVL just adds the self-balancing guarantee on top.</div>
+    <div class="card-o" style="color:var(--yellow)">BST + balance</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Read-Heavy Best</div>
+    <div class="card-body">Stricter balance = faster lookups than Red-Black. But more rotations on insert/delete. Best when reads dominate.</div>
+    <div class="card-o" style="color:var(--orange)">search-optimized</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning — How Machines Learn from Data</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0d1b2e;
+  --navy2:   #132035;
+  --navy3:   #1c2e47;
+  --navy4:   #243554;
+  --grid:    rgba(90,150,220,0.08);
+  --rule:    rgba(90,150,220,0.18);
+  --rule2:   rgba(90,150,220,0.32);
+  --text:    #e8f0fc;
+  --text2:   #9ab0d0;
+  --text3:   #5a7a9a;
+  --blue:    #4a9eff;
+  --cyan:    #40d9f0;
+  --orange:  #ff8c42;
+  --green:   #42d9a0;
+  --red:     #ff5a70;
+  --yellow:  #ffd060;
+  --sans:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --serif:   'DM Serif Display', Georgia, serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13,27,46,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  gap: 40px;
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--blue);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  overflow-x: auto;
+}
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: var(--blue); }
+
+/* ── HERO ── */
+.hero {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 80px 48px 72px;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 64px;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+
+/* Blueprint corner marks */
+.hero::before, .hero::after {
+  content: '';
+  position: absolute;
+  width: 24px; height: 24px;
+  border-color: var(--rule2);
+  border-style: solid;
+}
+.hero::before { top: 24px; left: 24px; border-width: 1px 0 0 1px; }
+.hero::after  { bottom: 24px; right: 24px; border-width: 0 1px 1px 0; }
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--blue);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-tag::before { content: '▶'; font-size: 0.5rem; }
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+
+.hero h1 .accent { color: var(--blue); font-style: italic; }
+.hero h1 .accent2 { color: var(--cyan); }
+
+.hero-lead {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 540px;
+  margin-bottom: 40px;
+}
+
+.hero-def {
+  background: var(--navy3);
+  border: 1px solid var(--rule2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  position: relative;
+}
+
+.hero-def::before {
+  content: 'DEFINITION';
+  position: absolute;
+  top: -9px;
+  left: 16px;
+  background: var(--navy3);
+  padding: 0 8px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  color: var(--blue);
+}
+
+.hero-def p {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.65;
+}
+.hero-def strong { color: var(--blue); font-weight: 500; }
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.h-stat {
+  background: var(--navy3);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 16px 18px;
+  position: relative;
+}
+
+.h-stat::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 0 0 4px 4px;
+}
+
+.h-stat.s-blue::after { background: var(--blue); }
+.h-stat.s-cyan::after { background: var(--cyan); }
+.h-stat.s-orange::after { background: var(--orange); }
+.h-stat.s-green::after { background: var(--green); }
+
+.h-stat .num {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.h-stat.s-blue .num { color: var(--blue); }
+.h-stat.s-cyan .num { color: var(--cyan); }
+.h-stat.s-orange .num { color: var(--orange); }
+.h-stat.s-green .num { color: var(--green); }
+
+.h-stat .lbl {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 1160px; margin: 0 auto; padding: 0 48px; }
+
+.section {
+  padding: 76px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sec-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text3);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-label::before { content: '//'; color: var(--blue); }
+
+.section h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 32px;
+}
+
+.acc-blue { color: var(--blue); font-style: italic; }
+.acc-cyan { color: var(--cyan); font-style: italic; }
+.acc-orange { color: var(--orange); font-style: italic; }
+
+.prose {
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--text2);
+  max-width: 660px;
+}
+.prose p { margin-bottom: 1.1em; }
+.prose strong { color: var(--text); font-weight: 600; }
+
+/* ── GRIDS ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* ── PANEL ── */
+.panel {
+  background: var(--navy2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 26px;
+  position: relative;
+}
+
+.panel-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--text3);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── CALLOUT ── */
+.callout {
+  border-left: 2px solid var(--blue);
+  padding: 16px 22px;
+  background: rgba(74,158,255,0.05);
+  border-radius: 0 6px 6px 0;
+  margin: 28px 0;
+}
+.callout-lbl {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.callout p { font-size: 0.95rem; color: var(--text2); line-height: 1.7; }
+.callout strong { color: var(--text); font-weight: 600; }
+
+/* ── SCATTER DEMO ── */
+#scatterCanvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--navy3);
+  cursor: crosshair;
+}
+
+.scatter-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.sc-btn {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
+  border: 1px solid var(--rule2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+.sc-btn:hover { border-color: var(--blue); color: var(--blue); }
+.sc-btn.active { background: var(--blue); border-color: var(--blue); color: var(--navy); }
+.sc-btn.orange { }
+.sc-btn.orange.active { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+
+/* ── ALGORITHM CARDS ── */
+.algo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.algo-card {
+  background: var(--navy2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.algo-card:hover { border-color: var(--rule2); transform: translateY(-2px); }
+.algo-card.active { border-color: var(--blue); }
+
+.algo-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.algo-icon {
+  width: 32px; height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.algo-name {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.algo-type {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 1px;
+}
+
+.algo-body {
+  padding: 14px 18px;
+}
+
+.algo-desc {
+  font-size: 0.87rem;
+  color: var(--text2);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+.algo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.algo-chip {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 3px 9px;
+  border: 1px solid var(--rule2);
+  border-radius: 3px;
+  color: var(--text3);
+}
+
+/* ── PARADIGMS ── */
+.paradigm-tabs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  width: fit-content;
+}
+
+.par-tab {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 10px 22px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  border-right: 1px solid var(--rule);
+  transition: all 0.15s;
+}
+.par-tab:last-child { border-right: none; }
+.par-tab:hover { background: var(--navy3); color: var(--text); }
+.par-tab.active { background: var(--blue); color: var(--navy); }
+
+.par-panel { display: none; }
+.par-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+
+/* ── BIAS-VARIANCE DEMO ── */
+#bvCanvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--navy3);
+}
+
+.bv-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 16px 0 8px;
+}
+
+.bv-slider-wrap input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--rule2);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: 2px solid var(--navy);
+}
+
+.bv-val {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--blue);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ── DECISION TREE ── */
+.tree-wrap {
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 480px;
+}
+
+.tree-level {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.tree-node {
+  background: var(--navy3);
+  border: 1px solid var(--rule2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 120px;
+  position: relative;
+}
+.tree-node:hover { border-color: var(--blue); color: var(--blue); }
+.tree-node.active { background: rgba(74,158,255,0.12); border-color: var(--blue); color: var(--text); }
+.tree-node.leaf { border-color: var(--green); color: var(--green); }
+.tree-node.leaf.no { border-color: var(--red); color: var(--red); }
+
+.tree-connector {
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+}
+
+.tree-line {
+  width: 1px;
+  background: var(--rule2);
+  height: 100%;
+}
+
+.tree-edge-label {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── METRICS ── */
+.metric-row {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.metric-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text2);
+  text-align: right;
+}
+
+.metric-bar-bg {
+  height: 16px;
+  background: var(--navy3);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0;
+}
+
+.metric-val {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text3);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── HISTORY TIMELINE ── */
+.history-track {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  padding-top: 28px;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--navy4) transparent;
+}
+
+.history-track::before {
+  content: '';
+  position: absolute;
+  top: 64px;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--rule2);
+}
+
+.h-event {
+  flex-shrink: 0;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.h-event.visible { opacity: 1; transform: translateY(0); }
+
+.h-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.h-year {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.h-title {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.h-body {
+  font-size: 0.78rem;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.55;
+}
+
+/* ── GLOSSARY ── */
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.gloss-card {
+  background: var(--navy2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.gloss-card:hover { border-color: var(--rule2); }
+
+.gloss-term {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--blue);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gloss-def {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* ── FADE ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 36px 48px;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-logo { font-family: var(--mono); font-size: 0.68rem; color: var(--blue); }
+.footer-note { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); text-align: right; }
+
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; padding: 48px 24px; }
+  .page { padding: 0 24px; }
+  .two-col, .par-panel.active, .three-col { grid-template-columns: 1fr; }
+  nav { padding: 0 16px; gap: 16px; }
+  footer { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">machine_learning.spec</span>
+  <ul class="nav-links">
+    <li><a href="#what">What is ML</a></li>
+    <li><a href="#paradigms">Paradigms</a></li>
+    <li><a href="#classify">Classification</a></li>
+    <li><a href="#algorithms">Algorithms</a></li>
+    <li><a href="#bias-variance">Bias-Variance</a></li>
+    <li><a href="#tree">Decision Trees</a></li>
+    <li><a href="#metrics">Evaluation</a></li>
+    <li><a href="#history">History</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero page">
+  <div>
+    <div class="hero-tag">Technical Primer · AI Series</div>
+    <h1>Machine<br><span class="accent">Learning</span><br>from <span class="accent2">Data</span></h1>
+    <p class="hero-lead">Not programmed — trained. ML systems find patterns in examples rather than following hand-written rules. The foundation beneath Deep Learning, LLMs, and most of modern AI.</p>
+    <div class="hero-def">
+      <p>A computer program is said to learn from experience E with respect to task T and performance measure P, if its performance at T, as measured by P, <strong>improves with experience E.</strong></p>
+      <p style="margin-top:10px;font-size:0.75rem;color:var(--text3);">— Tom Mitchell, 1997</p>
+    </div>
+  </div>
+  <div>
+    <div class="hero-stats">
+      <div class="h-stat s-blue">
+        <div class="num">3</div>
+        <div class="lbl">Learning<br>paradigms</div>
+      </div>
+      <div class="h-stat s-cyan">
+        <div class="num">1950s</div>
+        <div class="lbl">Field's<br>origins</div>
+      </div>
+      <div class="h-stat s-orange">
+        <div class="num">Data</div>
+        <div class="lbl">The essential<br>ingredient</div>
+      </div>
+      <div class="h-stat s-green">
+        <div class="num">≠ DL</div>
+        <div class="lbl">ML ≠ neural<br>networks</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ── 01. WHAT IS ML ── -->
+<section class="section fade-in" id="what">
+  <div class="sec-label">01 — What is Machine Learning?</div>
+  <h2>Programs that learn rules<br>instead of <span class="acc-blue">being given them</span></h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Traditional software is explicit: a programmer writes rules — IF the email contains "congratulations you've won" THEN mark as spam. <strong>Machine Learning flips this</strong>: you provide thousands of examples of spam and not-spam, and the algorithm figures out the rules itself.</p>
+      <p>ML is not magic and it's not AI sentience. It's <strong>statistical pattern finding at scale</strong>. Given enough examples, well-designed algorithms can find patterns too complex for humans to write by hand — patterns in images, language, financial data, genomes, anything that can be represented numerically.</p>
+      <p>Critically: <strong>ML ≠ Deep Learning.</strong> Deep learning is one subset of ML using multi-layer neural networks. ML also includes decision trees, random forests, support vector machines, linear regression, k-means clustering, and dozens of other techniques — many of which outperform neural networks on structured tabular data.</p>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-label">Traditional vs ML approach</div>
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div>
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Traditional Programming</div>
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.8rem;flex-wrap:wrap;">
+              <div style="background:var(--navy3);border:1px solid var(--rule2);padding:8px 12px;border-radius:4px;color:var(--text2);">Rules</div>
+              <span style="color:var(--text3);">+</span>
+              <div style="background:var(--navy3);border:1px solid var(--rule2);padding:8px 12px;border-radius:4px;color:var(--text2);">Data</div>
+              <span style="color:var(--text3);">→</span>
+              <div style="background:var(--navy3);border:1px solid var(--blue);padding:8px 12px;border-radius:4px;color:var(--blue);">Answers</div>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--rule);padding-top:20px;">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Machine Learning</div>
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.8rem;flex-wrap:wrap;">
+              <div style="background:var(--navy3);border:1px solid var(--rule2);padding:8px 12px;border-radius:4px;color:var(--text2);">Answers</div>
+              <span style="color:var(--text3);">+</span>
+              <div style="background:var(--navy3);border:1px solid var(--rule2);padding:8px 12px;border-radius:4px;color:var(--text2);">Data</div>
+              <span style="color:var(--text3);">→</span>
+              <div style="background:var(--navy3);border:1px solid var(--green);padding:8px 12px;border-radius:4px;color:var(--green);">Rules</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;background:var(--navy2);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;">
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--rule);">Where ML sits</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="padding:10px 14px;border:1px solid rgba(74,158,255,0.25);border-radius:4px;background:rgba(74,158,255,0.04);">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--blue);margin-right:8px;">OUTER</span>
+            <span style="font-size:0.88rem;font-weight:500;">Artificial Intelligence</span>
+          </div>
+          <div style="padding:10px 14px;border:2px solid var(--blue);border-radius:4px;background:rgba(74,158,255,0.08);margin-left:14px;">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--blue);margin-right:8px;">YOU ARE HERE</span>
+            <span style="font-size:0.88rem;font-weight:600;color:var(--blue);">Machine Learning</span>
+          </div>
+          <div style="padding:10px 14px;border:1px solid rgba(64,217,240,0.25);border-radius:4px;background:rgba(64,217,240,0.04);margin-left:28px;">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--cyan);margin-right:8px;">SUBSET</span>
+            <span style="font-size:0.88rem;font-weight:500;color:var(--cyan);">Deep Learning</span>
+          </div>
+          <div style="padding:10px 14px;border:1px solid rgba(64,217,240,0.15);border-radius:4px;background:rgba(64,217,240,0.03);margin-left:42px;">
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-right:8px;">SUBSET</span>
+            <span style="font-size:0.88rem;color:var(--text2);">LLMs, CNNs…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02. PARADIGMS ── -->
+<section class="section fade-in" id="paradigms">
+  <div class="sec-label">02 — Learning Paradigms</div>
+  <h2>Three ways a machine can <span class="acc-cyan">learn</span></h2>
+
+  <div class="paradigm-tabs" id="parTabs">
+    <button class="par-tab active" data-par="supervised">Supervised</button>
+    <button class="par-tab" data-par="unsupervised">Unsupervised</button>
+    <button class="par-tab" data-par="rl">Reinforcement</button>
+  </div>
+
+  <div id="parPanels"></div>
+</section>
+
+<!-- ── 03. CLASSIFICATION DEMO ── -->
+<section class="section fade-in" id="classify">
+  <div class="sec-label">03 — Classification</div>
+  <h2>Drawing <span class="acc-blue">decision boundaries</span> in data space</h2>
+  <div class="two-col">
+    <div>
+      <div class="prose">
+        <p>Classification is the most common ML task: given an input, assign it to one of N categories. A model learns a <strong>decision boundary</strong> — a surface in feature space that separates classes.</p>
+        <p>The shape of this boundary depends on the algorithm. <strong>Linear classifiers</strong> draw a straight line. <strong>SVMs</strong> find the maximum-margin boundary. <strong>Decision trees</strong> draw axis-aligned boxes. <strong>Neural networks</strong> can draw arbitrarily curved boundaries.</p>
+        <p>The key question: does the boundary generalize? A boundary that perfectly separates training data may fail on new data (overfitting). Finding the <strong>right level of complexity</strong> is the central challenge of supervised learning.</p>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-label">
+          <span>Interactive classifier — click to add points</span>
+          <span id="scatterMode" style="color:var(--blue);">Class A</span>
+        </div>
+        <div class="scatter-controls">
+          <button class="sc-btn active" id="btnA">● Class A</button>
+          <button class="sc-btn orange" id="btnB">● Class B</button>
+          <button class="sc-btn" id="btnClassify">Run classifier</button>
+          <button class="sc-btn" id="btnClearScatter">Clear</button>
+        </div>
+        <canvas id="scatterCanvas" height="280"></canvas>
+        <div id="scatterHint" style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-top:10px;">Add at least 4 points per class, then click "Run classifier"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04. ALGORITHMS ── -->
+<section class="section fade-in" id="algorithms">
+  <div class="sec-label">04 — Core Algorithms</div>
+  <h2>The ML <span class="acc-orange">toolkit</span> — beyond neural networks</h2>
+  <div class="prose">
+    <p>Deep learning gets the headlines, but for structured tabular data — the most common data type in industry — classical ML algorithms often win. These are battle-tested, interpretable, and fast to train.</p>
+  </div>
+  <div class="algo-grid" id="algoGrid"></div>
+</section>
+
+<!-- ── 05. BIAS-VARIANCE ── -->
+<section class="section fade-in" id="bias-variance">
+  <div class="sec-label">05 — Bias-Variance Tradeoff</div>
+  <h2>The fundamental <span class="acc-blue">tension</span> in ML</h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Every ML model faces a tradeoff between two sources of error:</p>
+      <p><strong>Bias</strong> — error from wrong assumptions. A too-simple model that can't capture the true pattern (underfitting). Low complexity → high bias. A linear model trying to fit a curve has high bias.</p>
+      <p><strong>Variance</strong> — error from sensitivity to training data noise. A too-complex model that memorizes the training set (overfitting). High complexity → high variance. A degree-20 polynomial fits the training points perfectly but wildly oscillates between them.</p>
+      <p>The goal: find the <strong>sweet spot</strong> — a model complex enough to capture the real pattern, but not so complex it memorizes noise. This is controlled by model choice, regularization, and training data size.</p>
+      <div class="callout" style="margin-top:0;">
+        <div class="callout-lbl">The formula</div>
+        <p><strong>Total Error = Bias² + Variance + Irreducible Noise</strong><br>Irreducible noise is the floor — it cannot be eliminated regardless of model quality.</p>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-label">
+          <span>Model complexity</span>
+          <span id="bvLabel" style="color:var(--blue);">Polynomial degree 3</span>
+        </div>
+        <canvas id="bvCanvas" height="260"></canvas>
+        <div class="bv-slider-wrap">
+          <span style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);">Simple</span>
+          <input type="range" min="1" max="12" value="3" id="bvSlider">
+          <span style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);">Complex</span>
+          <span class="bv-val" id="bvVal">deg 3</span>
+        </div>
+        <div id="bvDesc" style="font-family:var(--mono);font-size:0.72rem;margin-top:6px;line-height:1.5;padding:10px 14px;background:var(--navy3);border-radius:4px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06. DECISION TREE ── -->
+<section class="section fade-in" id="tree">
+  <div class="sec-label">06 — Decision Trees</div>
+  <h2>ML you can <span class="acc-green">read like a flowchart</span></h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>A decision tree is the most interpretable ML model — it literally asks questions and branches based on answers. Starting at the root, each node asks a question about one feature (e.g., "Is age > 30?"). Based on the answer, you follow a branch until you reach a leaf node that gives the prediction.</p>
+      <p>Trees are trained greedily: at each node, find the split (feature + threshold) that best separates the classes, measured by impurity metrics like <strong>Gini impurity</strong> or <strong>information gain (entropy)</strong>.</p>
+      <p>Single trees overfit easily. <strong>Random Forests</strong> (ensembles of hundreds of trees, each trained on a random sample) are dramatically more accurate — one of the most powerful general-purpose algorithms in ML.</p>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-label">Will this person buy the product? — click nodes to explore</div>
+        <div class="tree-wrap" id="treeWrap"></div>
+        <div id="treePath" style="font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-top:14px;padding:10px 14px;background:var(--navy3);border-radius:4px;min-height:36px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07. EVALUATION ── -->
+<section class="section fade-in" id="metrics">
+  <div class="sec-label">07 — Evaluation</div>
+  <h2>How we measure if a model <span class="acc-orange">actually works</span></h2>
+  <div class="two-col">
+    <div class="prose">
+      <p>Accuracy alone is deceptive. If 99% of your data is class A, a model that always predicts A is "99% accurate" but completely useless. Good evaluation requires understanding the full picture.</p>
+      <p><strong>Train / Validation / Test split</strong> is the foundation. You train on the training set, tune on validation, and evaluate final performance on a held-out test set the model has never seen.</p>
+      <p><strong>Cross-validation</strong> rotates the validation set across multiple folds — giving a more reliable performance estimate especially when data is limited.</p>
+      <p><strong>Confusion matrix</strong> reveals the pattern of errors: false positives (predicted positive, actually negative) vs false negatives (predicted negative, actually positive). In medicine, a false negative (missed diagnosis) is far worse than a false positive — the metric you optimize should reflect this.</p>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="panel-label">Classification metrics — example model</div>
+        <div id="metricsGrid"></div>
+        <div style="margin-top:24px;">
+          <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--rule);">Confusion Matrix</div>
+          <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:6px;font-family:var(--mono);font-size:0.72rem;">
+            <div></div>
+            <div style="text-align:center;color:var(--text3);">Pred: Pos</div>
+            <div style="text-align:center;color:var(--text3);">Pred: Neg</div>
+            <div style="color:var(--text3);display:flex;align-items:center;">Actual: Pos</div>
+            <div style="background:rgba(66,217,160,0.15);border:1px solid rgba(66,217,160,0.3);border-radius:4px;padding:12px;text-align:center;color:var(--green);">TP<br><span style="font-size:1.1rem;font-weight:500;">85</span></div>
+            <div style="background:rgba(255,90,112,0.1);border:1px solid rgba(255,90,112,0.25);border-radius:4px;padding:12px;text-align:center;color:var(--red);">FN<br><span style="font-size:1.1rem;font-weight:500;">15</span></div>
+            <div style="color:var(--text3);display:flex;align-items:center;">Actual: Neg</div>
+            <div style="background:rgba(255,90,112,0.1);border:1px solid rgba(255,90,112,0.25);border-radius:4px;padding:12px;text-align:center;color:var(--red);">FP<br><span style="font-size:1.1rem;font-weight:500;">12</span></div>
+            <div style="background:rgba(66,217,160,0.15);border:1px solid rgba(66,217,160,0.3);border-radius:4px;padding:12px;text-align:center;color:var(--green);">TN<br><span style="font-size:1.1rem;font-weight:500;">88</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 08. HISTORY ── -->
+<section class="section fade-in" id="history">
+  <div class="sec-label">08 — History</div>
+  <h2>From <span class="acc-blue">statistics to intelligence</span></h2>
+  <div class="history-track" id="historyTrack"></div>
+</section>
+
+<!-- ── 09. GLOSSARY ── -->
+<section class="section fade-in" id="glossary">
+  <div class="sec-label">09 — Glossary</div>
+  <h2>Core terms <span class="acc-cyan">defined</span></h2>
+  <div class="glossary-grid" id="glossaryGrid"></div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-logo">machine_learning.spec</div>
+  <div class="footer-note">Part of the AI Landscape series · 2025</div>
+</footer>
+
+<script>
+/* ═══════════════ DATA ═══════════════ */
+
+const paradigms = {
+  supervised: {
+    title: "Supervised Learning",
+    color: "#4a9eff",
+    tagline: "Learn from labeled examples",
+    desc: "You provide pairs of (input, correct answer). The model learns a mapping from input to output by minimizing error on those examples. This is the most common type — classification and regression are both supervised. The 'supervisor' is the labeled dataset.",
+    howItWorks: "For each training example: make a prediction, compare to the true label, compute error, update model weights to reduce error. Repeat across all examples (an epoch) many times until the model converges.",
+    examples: ["Email spam detection", "Image classification (cat vs dog)", "House price prediction", "Medical diagnosis from scans", "Language translation"],
+    algorithms: ["Linear/Logistic Regression", "Decision Trees / Random Forest", "SVM", "Neural Networks", "Gradient Boosting (XGBoost)"],
+    requires: "Labeled data — a dataset where every example has a correct answer. Labeling is expensive and time-consuming. This is the main bottleneck in supervised ML."
+  },
+  unsupervised: {
+    title: "Unsupervised Learning",
+    color: "#40d9f0",
+    tagline: "Find hidden structure, no labels needed",
+    desc: "No labels — the model explores raw data and discovers structure on its own. The algorithm finds patterns, clusters, or compressed representations without being told what to look for. Much harder to evaluate (there's no 'right answer').",
+    howItWorks: "The model defines an objective (e.g., minimize within-cluster distance for k-means, or maximize reconstruction quality for autoencoders) and optimizes it. Without labels, evaluation is often qualitative or uses proxy metrics.",
+    examples: ["Customer segmentation", "Topic modeling in documents", "Anomaly/fraud detection", "Dimensionality reduction (PCA, UMAP)", "Word embeddings (Word2Vec)"],
+    algorithms: ["k-means clustering", "DBSCAN", "PCA / SVD", "Autoencoders", "Gaussian Mixture Models"],
+    requires: "Raw unlabeled data — which is plentiful. The main challenge is defining meaningful objectives and evaluating whether discovered structure is useful or spurious."
+  },
+  rl: {
+    title: "Reinforcement Learning",
+    color: "#ff8c42",
+    tagline: "Learn by trial, error, and reward",
+    desc: "An agent interacts with an environment, takes actions, and receives reward signals. It learns a policy — a mapping from states to actions — that maximizes cumulative reward over time. No dataset of labeled examples; the data is generated by the agent's own experience.",
+    howItWorks: "Agent observes state → selects action → environment transitions to new state → agent receives reward → repeat. The agent uses this experience to improve its policy. Q-learning and policy gradients are common algorithms.",
+    examples: ["Game playing (AlphaGo, Atari, Chess)", "Robot locomotion and manipulation", "RLHF for LLM fine-tuning", "Trading strategies", "Resource scheduling / logistics"],
+    algorithms: ["Q-Learning / DQN", "Policy Gradient (REINFORCE)", "PPO (Proximal Policy Optimization)", "Actor-Critic (A3C)", "AlphaZero (MCTS + RL)"],
+    requires: "A reward function (what counts as good?) and an environment to interact with. Reward shaping — defining the right reward signal — is notoriously hard and critically important."
+  }
+};
+
+const algorithms = [
+  {
+    icon: "📈", name: "Linear Regression", type: "Supervised · Regression",
+    color: "#4a9eff",
+    desc: "Fits a line (or hyperplane) through data to predict a continuous value. The simplest ML model. Interpretable: every coefficient has a direct meaning. Fails when the true relationship is non-linear.",
+    chips: ["House prices", "Sales forecasting", "Baseline model"]
+  },
+  {
+    icon: "🔀", name: "Logistic Regression", type: "Supervised · Classification",
+    color: "#4a9eff",
+    desc: "Despite the name, it's a classifier — not regression. Uses a sigmoid to squash a linear combination to (0,1) probability. Outputs class probabilities. Fast, interpretable, works well when features are linearly separable.",
+    chips: ["Spam detection", "Credit scoring", "Medical risk"]
+  },
+  {
+    icon: "🌲", name: "Decision Tree", type: "Supervised · Both",
+    color: "#42d9a0",
+    desc: "A flowchart of binary questions about features, leading to a prediction at each leaf. Fully interpretable — you can trace any prediction. Prone to overfitting; almost always used as part of an ensemble.",
+    chips: ["Loan approval", "Medical triage", "Rules extraction"]
+  },
+  {
+    icon: "🌳", name: "Random Forest", type: "Supervised · Both",
+    color: "#42d9a0",
+    desc: "Hundreds of decision trees, each trained on a random subset of data and features, averaged for the final prediction. One of the most powerful general-purpose algorithms. Strong baseline for any tabular ML task.",
+    chips: ["Tabular data", "Feature importance", "Robust baseline"]
+  },
+  {
+    icon: "⚡", name: "Gradient Boosting (XGBoost)", type: "Supervised · Both",
+    color: "#ffd060",
+    desc: "Sequentially builds trees where each tree corrects the residual errors of all previous trees. XGBoost, LightGBM, and CatBoost dominate Kaggle competitions. Consistently beats neural networks on tabular data.",
+    chips: ["Kaggle winner", "Tabular champion", "High accuracy"]
+  },
+  {
+    icon: "📐", name: "Support Vector Machine", type: "Supervised · Classification",
+    color: "#ff8c42",
+    desc: "Finds the decision boundary with the maximum margin between classes. Uses the 'kernel trick' to handle non-linear data without explicitly computing high-dimensional features. Elegant theory; less scalable than modern approaches.",
+    chips: ["Text classification", "Image kernels", "Small datasets"]
+  },
+  {
+    icon: "🔵", name: "K-Means Clustering", type: "Unsupervised · Clustering",
+    color: "#40d9f0",
+    desc: "Partitions data into K clusters by iteratively assigning each point to its nearest centroid and updating centroids. Simple and fast but requires K specified upfront and assumes spherical clusters.",
+    chips: ["Customer segments", "Image compression", "Document grouping"]
+  },
+  {
+    icon: "📉", name: "PCA", type: "Unsupervised · Dimensionality Reduction",
+    color: "#c07df9",
+    desc: "Principal Component Analysis finds the directions of maximum variance in data and projects onto them, reducing dimensions while preserving information. Used for visualization, noise reduction, and feature compression.",
+    chips: ["Visualization", "Noise reduction", "Preprocessing"]
+  },
+  {
+    icon: "🏘️", name: "K-Nearest Neighbors", type: "Supervised · Both",
+    color: "#ff5a70",
+    desc: "Classifies a new point by finding its K nearest neighbors in the training set and taking a majority vote. No training phase — it's 'lazy learning'. Slow at prediction time; sensitive to irrelevant features and scale.",
+    chips: ["Recommendation", "Anomaly detection", "Interpretable"]
+  },
+];
+
+const historyEvents = [
+  { year: "1943", color: "#4a9eff", title: "McCulloch-Pitts", body: "First mathematical model of a neuron. Sets the conceptual foundation." },
+  { year: "1950", color: "#4a9eff", title: "Turing Test", body: "Alan Turing proposes the imitation game as a test for machine intelligence." },
+  { year: "1957", color: "#4a9eff", title: "Perceptron", body: "Rosenblatt's learning algorithm. First algorithm that could adapt from data." },
+  { year: "1960s", color: "#40d9f0", title: "Linear models", body: "Linear discriminant analysis, logistic regression formalized. Statistical foundations established." },
+  { year: "1984", color: "#40d9f0", title: "Decision Trees (ID3)", body: "Quinlan introduces ID3. Interpretable ML becomes practical." },
+  { year: "1986", color: "#42d9a0", title: "Backpropagation", body: "Rumelhart, Hinton & Williams enable multi-layer neural networks to be trained." },
+  { year: "1992", color: "#42d9a0", title: "SVM invented", body: "Vapnik & Chervonenkis publish support vector machines. Strong theoretical guarantees." },
+  { year: "1995", color: "#ffd060", title: "Random Forests", body: "Breiman develops bagging → eventual Random Forests. Ensemble methods take off." },
+  { year: "1997", color: "#ffd060", title: "Tom Mitchell's definition", body: "Canonical definition of ML: programs that improve with experience." },
+  { year: "2001", color: "#ffd060", title: "Random Forests published", body: "Breiman formally publishes Random Forests. Becomes the gold standard for tabular ML." },
+  { year: "2012", color: "#ff8c42", title: "Deep Learning era", body: "AlexNet breaks ImageNet. Neural nets become the dominant ML paradigm for unstructured data." },
+  { year: "2016", color: "#ff8c42", title: "XGBoost dominates", body: "XGBoost wins most Kaggle competitions involving structured data. Tree-based models hold their ground." },
+  { year: "2020s", color: "#ff5a70", title: "Foundation models", body: "Pre-trained ML at scale. Transfer learning and fine-tuning become the dominant paradigm." },
+];
+
+const glossaryTerms = [
+  { term: "Feature", def: "An individual measurable input variable used by a model. In a house price model: square footage, number of rooms, location are features. Feature engineering is choosing and transforming features." },
+  { term: "Label / Target", def: "The correct answer the model is trained to predict. For email: spam or not-spam. For house prices: the sale price. Labels are required for supervised learning." },
+  { term: "Training Set", def: "The data used to fit the model. Never used for final evaluation. The model 'sees' this data and learns from it." },
+  { term: "Test Set", def: "Held-out data the model has never seen. Used only for final performance evaluation. Using the test set during development contaminates your estimate of generalization." },
+  { term: "Overfitting", def: "The model memorizes training data and fails to generalize. Training accuracy is high; test accuracy is low. Caused by too much complexity relative to the amount of data." },
+  { term: "Underfitting", def: "The model is too simple to capture the true pattern. Both training and test accuracy are low. Caused by insufficient model complexity or too little training." },
+  { term: "Cross-validation", def: "Split data into K folds, train on K-1, test on the remaining fold, rotate K times. Gives a more reliable performance estimate than a single train/test split." },
+  { term: "Hyperparameter", def: "Configuration set before training: tree depth, learning rate, number of estimators. Not learned from data — tuned by the practitioner via search or intuition." },
+  { term: "Regularization", def: "Penalties that discourage overly complex models. L1 (Lasso) penalizes the sum of absolute weights. L2 (Ridge) penalizes sum of squared weights. Both push weights toward zero." },
+  { term: "Precision", def: "Of all positive predictions, what fraction were correct? TP / (TP + FP). High precision = few false alarms. Important when false positives are costly." },
+  { term: "Recall", def: "Of all actual positives, what fraction did we find? TP / (TP + FN). High recall = few missed cases. Important when false negatives are costly (e.g., medical diagnosis)." },
+  { term: "Ensemble", def: "Combine multiple models to get a better prediction than any single model. Random Forests (bagging) and Gradient Boosting (boosting) are the two main ensemble strategies." },
+];
+
+/* ═══════════════ RENDER PARADIGMS ═══════════════ */
+const parPanels = document.getElementById('parPanels');
+
+function renderParadigm(key) {
+  const p = paradigms[key];
+  parPanels.innerHTML = `
+    <div class="par-panel active">
+      <div>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:${p.color};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">${p.tagline}</div>
+        <div style="font-size:0.97rem;color:var(--text2);line-height:1.78;margin-bottom:20px;font-family:var(--sans);">${p.desc}</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:10px;">How it works</div>
+        <div style="font-size:0.93rem;color:var(--text2);line-height:1.75;margin-bottom:20px;border-left:2px solid ${p.color};padding-left:16px;">${p.howItWorks}</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:10px;">Requires</div>
+        <div style="font-size:0.88rem;color:var(--text2);line-height:1.65;background:var(--navy3);border:1px solid var(--rule);border-radius:4px;padding:14px 16px;">${p.requires}</div>
+      </div>
+      <div>
+        <div style="background:var(--navy2);border:1px solid var(--rule);border-radius:6px;overflow:hidden;">
+          <div style="padding:14px 18px;background:${p.color}18;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:${p.color};">Examples in the wild</div>
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+            ${p.examples.map(ex => `<div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;color:var(--text2);"><span style="color:${p.color};font-size:0.7rem;">▶</span>${ex}</div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:16px;background:var(--navy2);border:1px solid var(--rule);border-radius:6px;overflow:hidden;">
+          <div style="padding:14px 18px;background:${p.color}18;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:${p.color};">Common algorithms</div>
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:8px;">
+            ${p.algorithms.map(a => `<div style="font-family:var(--mono);font-size:0.78rem;color:var(--text2);padding:6px 10px;background:var(--navy3);border-radius:3px;">${a}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+document.querySelectorAll('.par-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.par-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderParadigm(tab.dataset.par);
+  });
+});
+renderParadigm('supervised');
+
+/* ═══════════════ SCATTER PLOT ═══════════════ */
+const sc = document.getElementById('scatterCanvas');
+const sCtx = sc.getContext('2d');
+let scPoints = [], scMode = 'A', scW, scH, scClassified = false;
+
+function initScatter() {
+  scW = sc.offsetWidth;
+  scH = 280;
+  sc.width = scW * window.devicePixelRatio;
+  sc.height = scH * window.devicePixelRatio;
+  sc.style.width = scW + 'px'; sc.style.height = scH + 'px';
+  sCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function drawScatter() {
+  sCtx.clearRect(0, 0, scW, scH);
+  // Grid
+  sCtx.strokeStyle = 'rgba(90,150,220,0.06)';
+  sCtx.lineWidth = 0.5;
+  for (let x = 0; x < scW; x += 32) {
+    sCtx.beginPath(); sCtx.moveTo(x,0); sCtx.lineTo(x,scH); sCtx.stroke();
+  }
+  for (let y = 0; y < scH; y += 32) {
+    sCtx.beginPath(); sCtx.moveTo(0,y); sCtx.lineTo(scW,y); sCtx.stroke();
+  }
+  // Axes
+  sCtx.strokeStyle = 'rgba(90,150,220,0.2)';
+  sCtx.lineWidth = 1;
+  sCtx.beginPath(); sCtx.moveTo(0,scH/2); sCtx.lineTo(scW,scH/2); sCtx.stroke();
+  sCtx.beginPath(); sCtx.moveTo(scW/2,0); sCtx.lineTo(scW/2,scH); sCtx.stroke();
+
+  // Decision boundary if classified
+  if (scClassified && scPoints.length >= 8) {
+    drawDecisionBoundary();
+  }
+
+  // Points
+  scPoints.forEach(p => {
+    sCtx.beginPath();
+    sCtx.arc(p.x, p.y, 7, 0, Math.PI*2);
+    sCtx.fillStyle = p.cls === 'A' ? 'rgba(74,158,255,0.85)' : 'rgba(255,140,66,0.85)';
+    sCtx.fill();
+    sCtx.strokeStyle = p.cls === 'A' ? '#7db8ff' : '#ffb070';
+    sCtx.lineWidth = 1.5;
+    sCtx.stroke();
+  });
+}
+
+function drawDecisionBoundary() {
+  const aPoints = scPoints.filter(p => p.cls === 'A');
+  const bPoints = scPoints.filter(p => p.cls === 'B');
+  if (aPoints.length < 2 || bPoints.length < 2) return;
+
+  // Simple: draw the perpendicular bisector of centroids as decision boundary
+  const aCx = aPoints.reduce((s,p) => s+p.x, 0) / aPoints.length;
+  const aCy = aPoints.reduce((s,p) => s+p.y, 0) / aPoints.length;
+  const bCx = bPoints.reduce((s,p) => s+p.x, 0) / bPoints.length;
+  const bCy = bPoints.reduce((s,p) => s+p.y, 0) / bPoints.length;
+
+  const mx = (aCx + bCx) / 2;
+  const my = (aCy + bCy) / 2;
+  const dx = bCx - aCx, dy = bCy - aCy;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  if (len === 0) return;
+  const nx = -dy/len, ny = dx/len;
+  const ext = Math.max(scW, scH) * 2;
+
+  sCtx.beginPath();
+  sCtx.strokeStyle = 'rgba(66,217,160,0.6)';
+  sCtx.lineWidth = 2;
+  sCtx.setLineDash([8,4]);
+  sCtx.moveTo(mx - nx*ext, my - ny*ext);
+  sCtx.lineTo(mx + nx*ext, my + ny*ext);
+  sCtx.stroke();
+  sCtx.setLineDash([]);
+
+  // Shade regions
+  sCtx.save();
+  sCtx.globalAlpha = 0.05;
+  sCtx.fillStyle = '#4a9eff';
+  sCtx.fillRect(0, 0, scW, scH);
+  sCtx.restore();
+
+  document.getElementById('scatterHint').textContent = `Decision boundary found. Blue region → Class A, Orange region → Class B`;
+  document.getElementById('scatterHint').style.color = 'var(--green)';
+}
+
+sc.addEventListener('click', e => {
+  const rect = sc.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  scPoints.push({ x, y, cls: scMode });
+  scClassified = false;
+  document.getElementById('scatterHint').style.color = 'var(--text3)';
+  document.getElementById('scatterHint').textContent = `${scPoints.length} point${scPoints.length!==1?'s':''} added. Add at least 4 per class, then classify.`;
+  drawScatter();
+});
+
+document.getElementById('btnA').addEventListener('click', () => {
+  scMode = 'A';
+  document.getElementById('btnA').classList.add('active');
+  document.getElementById('btnB').classList.remove('active');
+  document.getElementById('scatterMode').textContent = 'Class A';
+  document.getElementById('scatterMode').style.color = 'var(--blue)';
+});
+
+document.getElementById('btnB').addEventListener('click', () => {
+  scMode = 'B';
+  document.getElementById('btnB').classList.add('active');
+  document.getElementById('btnA').classList.remove('active');
+  document.getElementById('scatterMode').textContent = 'Class B';
+  document.getElementById('scatterMode').style.color = 'var(--orange)';
+});
+
+document.getElementById('btnClassify').addEventListener('click', () => {
+  const a = scPoints.filter(p => p.cls === 'A');
+  const b = scPoints.filter(p => p.cls === 'B');
+  if (a.length < 2 || b.length < 2) {
+    document.getElementById('scatterHint').textContent = 'Need at least 2 points per class.';
+    return;
+  }
+  scClassified = true;
+  drawScatter();
+});
+
+document.getElementById('btnClearScatter').addEventListener('click', () => {
+  scPoints = []; scClassified = false;
+  document.getElementById('scatterHint').textContent = 'Cleared. Click to add points.';
+  document.getElementById('scatterHint').style.color = 'var(--text3)';
+  drawScatter();
+});
+
+setTimeout(() => { initScatter(); drawScatter(); }, 100);
+
+/* ═══════════════ ALGO CARDS ═══════════════ */
+const algoGrid = document.getElementById('algoGrid');
+algorithms.forEach(a => {
+  const card = document.createElement('div');
+  card.className = 'algo-card';
+  card.innerHTML = `
+    <div class="algo-header">
+      <div class="algo-icon" style="background:${a.color}20;color:${a.color}">${a.icon}</div>
+      <div>
+        <div class="algo-name">${a.name}</div>
+        <div class="algo-type">${a.type}</div>
+      </div>
+    </div>
+    <div class="algo-body">
+      <div class="algo-desc">${a.desc}</div>
+      <div class="algo-chips">${a.chips.map(c => `<span class="algo-chip">${c}</span>`).join('')}</div>
+    </div>
+  `;
+  algoGrid.appendChild(card);
+});
+
+/* ═══════════════ BIAS-VARIANCE ═══════════════ */
+const bvCanvas = document.getElementById('bvCanvas');
+const bvCtx = bvCanvas.getContext('2d');
+const bvSlider = document.getElementById('bvSlider');
+const bvVal = document.getElementById('bvVal');
+const bvDesc = document.getElementById('bvDesc');
+
+// True function: sin curve
+const trueFunc = x => Math.sin(x * 1.5) * 0.6;
+
+// Generate noisy data points
+const bvData = [];
+for (let i = 0; i < 20; i++) {
+  const x = -2 + Math.random() * 4;
+  const y = trueFunc(x) + (Math.random() - 0.5) * 0.35;
+  bvData.push({ x, y });
+}
+
+function drawBV(degree) {
+  const W = bvCanvas.offsetWidth, H = 260;
+  bvCanvas.width = W * window.devicePixelRatio;
+  bvCanvas.height = H * window.devicePixelRatio;
+  bvCanvas.style.width = W + 'px'; bvCanvas.style.height = H + 'px';
+  bvCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const padX = 36, padY = 20;
+  const plotW = W - padX*2, plotH = H - padY*2;
+  const xRange = 2.2, yRange = 1.1;
+  const toSX = x => padX + ((x + xRange) / (xRange*2)) * plotW;
+  const toSY = y => padY + ((yRange - y) / (yRange*2)) * plotH;
+
+  bvCtx.clearRect(0, 0, W, H);
+
+  // Grid
+  bvCtx.strokeStyle = 'rgba(90,150,220,0.07)';
+  bvCtx.lineWidth = 0.5;
+  for (let x = -2; x <= 2; x++) {
+    bvCtx.beginPath(); bvCtx.moveTo(toSX(x),padY); bvCtx.lineTo(toSX(x),H-padY); bvCtx.stroke();
+  }
+  for (let y = -1; y <= 1; y += 0.5) {
+    bvCtx.beginPath(); bvCtx.moveTo(padX,toSY(y)); bvCtx.lineTo(W-padX,toSY(y)); bvCtx.stroke();
+  }
+
+  // Axes
+  bvCtx.strokeStyle = 'rgba(90,150,220,0.25)';
+  bvCtx.lineWidth = 1;
+  bvCtx.beginPath(); bvCtx.moveTo(padX,toSY(0)); bvCtx.lineTo(W-padX,toSY(0)); bvCtx.stroke();
+  bvCtx.beginPath(); bvCtx.moveTo(toSX(0),padY); bvCtx.lineTo(toSX(0),H-padY); bvCtx.stroke();
+
+  // True function
+  bvCtx.beginPath();
+  bvCtx.strokeStyle = 'rgba(66,217,160,0.5)';
+  bvCtx.lineWidth = 1.5;
+  bvCtx.setLineDash([6,4]);
+  for (let px = 0; px <= plotW; px++) {
+    const x = -xRange + (px / plotW) * xRange * 2;
+    const y = trueFunc(x);
+    px === 0 ? bvCtx.moveTo(toSX(x),toSY(y)) : bvCtx.lineTo(toSX(x),toSY(y));
+  }
+  bvCtx.stroke();
+  bvCtx.setLineDash([]);
+
+  // Polynomial fit
+  // Build vandermonde and fit (simplified: use least squares)
+  const pts = bvData.map(p => [p.x, p.y]);
+  const coeffs = polyFit(pts.map(p=>p[0]), pts.map(p=>p[1]), degree);
+
+  const fittedColor = degree <= 2 ? '#4a9eff' : degree <= 5 ? '#42d9a0' : '#ff5a70';
+  bvCtx.beginPath();
+  bvCtx.strokeStyle = fittedColor;
+  bvCtx.lineWidth = 2.5;
+  bvCtx.shadowColor = fittedColor;
+  bvCtx.shadowBlur = 6;
+  let first = true;
+  for (let px = 0; px <= plotW; px++) {
+    const x = -xRange + (px/plotW) * xRange * 2;
+    let y = 0;
+    for (let d = 0; d <= degree; d++) y += (coeffs[d] || 0) * Math.pow(x, d);
+    const sy = toSY(Math.max(-1.5, Math.min(1.5, y)));
+    if (first) { bvCtx.moveTo(toSX(x), sy); first = false; }
+    else bvCtx.lineTo(toSX(x), sy);
+  }
+  bvCtx.stroke();
+  bvCtx.shadowBlur = 0;
+
+  // Data points
+  bvData.forEach(p => {
+    bvCtx.beginPath();
+    bvCtx.arc(toSX(p.x), toSY(p.y), 5, 0, Math.PI*2);
+    bvCtx.fillStyle = 'rgba(255,208,96,0.85)';
+    bvCtx.fill();
+    bvCtx.strokeStyle = '#ffe090';
+    bvCtx.lineWidth = 1;
+    bvCtx.stroke();
+  });
+
+  // Legend
+  bvCtx.fillStyle = 'rgba(66,217,160,0.6)';
+  bvCtx.font = '10px DM Mono, monospace';
+  bvCtx.fillText('— True function', padX+4, padY+14);
+  bvCtx.fillStyle = fittedColor;
+  bvCtx.fillText(`— Degree ${degree} fit`, padX+4, padY+28);
+}
+
+// Simple polynomial least squares (Vandermonde)
+function polyFit(xs, ys, deg) {
+  const n = xs.length, d = deg + 1;
+  const A = [], b = [];
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let j = 0; j < d; j++) row.push(Math.pow(xs[i], j));
+    A.push(row); b.push(ys[i]);
+  }
+  // Normal equations: (A'A)c = A'b  — simple Gaussian elimination
+  const AT = A[0].map((_,ci) => A.map(r=>r[ci]));
+  const ATA = AT.map(row => AT[0].map((_,ci) => row.reduce((s,v,ri) => s+v*AT[ci][ri],0)));
+  const ATb = AT.map(row => row.reduce((s,v,i) => s+v*b[i],0));
+  // Solve ATA * c = ATb
+  const m = ATA.map((row,i) => [...row, ATb[i]]);
+  const size = m.length;
+  for (let col = 0; col < size; col++) {
+    let max = col;
+    for (let row = col+1; row < size; row++) if (Math.abs(m[row][col]) > Math.abs(m[max][col])) max = row;
+    [m[col], m[max]] = [m[max], m[col]];
+    for (let row = col+1; row < size; row++) {
+      const factor = m[row][col] / (m[col][col] || 1e-10);
+      for (let k = col; k <= size; k++) m[row][k] -= factor * m[col][k];
+    }
+  }
+  const c = new Array(size).fill(0);
+  for (let i = size-1; i >= 0; i--) {
+    c[i] = m[i][size];
+    for (let j = i+1; j < size; j++) c[i] -= m[i][j] * c[j];
+    c[i] /= (m[i][i] || 1e-10);
+  }
+  return c;
+}
+
+function updateBV() {
+  const deg = +bvSlider.value;
+  bvVal.textContent = `deg ${deg}`;
+  document.getElementById('bvLabel').textContent = `Polynomial degree ${deg}`;
+  let status, color;
+  if (deg <= 2) { status = `Underfitting (high bias) — too simple to capture the curve's shape.`; color = 'var(--blue)'; }
+  else if (deg <= 5) { status = `Good fit — balanced bias and variance, captures the true pattern without overfitting.`; color = 'var(--green)'; }
+  else if (deg <= 9) { status = `Starting to overfit (rising variance) — fitting noise alongside signal.`; color = 'var(--yellow)'; }
+  else { status = `Severe overfitting (high variance) — perfectly fits training data, wildly wrong on new points.`; color = 'var(--red)'; }
+  bvDesc.innerHTML = `<span style="color:${color}">${status}</span>`;
+  drawBV(deg);
+}
+
+bvSlider.addEventListener('input', updateBV);
+setTimeout(() => updateBV(), 200);
+
+/* ═══════════════ DECISION TREE ═══════════════ */
+const treeData = {
+  id: 'root',
+  question: 'Age > 35?',
+  path: '',
+  children: [
+    {
+      id: 'L1',
+      question: 'Income > $50k?',
+      path: 'Age ≤ 35',
+      children: [
+        { id: 'L1L', leaf: true, result: 'YES — Buy', yes: true, path: 'Age ≤ 35 → Income > $50k' },
+        { id: 'L1R', leaf: true, result: 'NO — Skip', yes: false, path: 'Age ≤ 35 → Income ≤ $50k' },
+      ]
+    },
+    {
+      id: 'R1',
+      question: 'Owns a home?',
+      path: 'Age > 35',
+      children: [
+        { id: 'R1L', leaf: true, result: 'YES — Buy', yes: true, path: 'Age > 35 → Owns home' },
+        {
+          id: 'R1R',
+          question: 'Has loyalty card?',
+          path: 'Age > 35 → No home',
+          children: [
+            { id: 'R1RL', leaf: true, result: 'YES — Buy', yes: true, path: 'Age > 35 → No home → Has card' },
+            { id: 'R1RR', leaf: true, result: 'NO — Skip', yes: false, path: 'Age > 35 → No home → No card' },
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+let treePathText = '';
+
+function buildTree(node, container) {
+  const el = document.createElement('div');
+  el.className = node.leaf ? `tree-node leaf${node.yes ? '' : ' no'}` : 'tree-node';
+  el.id = 'tn-' + node.id;
+  el.textContent = node.leaf ? node.result : node.question;
+  el.dataset.path = node.path;
+
+  if (!node.leaf) {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('treePath').innerHTML = `<span style="color:var(--blue)">Path: </span>${node.path || 'Root'} → ${node.question}`;
+    });
+  } else {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      const color = node.yes ? 'var(--green)' : 'var(--red)';
+      document.getElementById('treePath').innerHTML = `<span style="color:${color}">Decision path: </span>${node.path} → <strong>${node.result}</strong>`;
+    });
+  }
+  container.appendChild(el);
+}
+
+function renderTree() {
+  const wrap = document.getElementById('treeWrap');
+  wrap.innerHTML = '';
+  const tree = document.createElement('div');
+  tree.className = 'tree';
+  // Level 0
+  const l0 = document.createElement('div'); l0.className = 'tree-level';
+  buildTree(treeData, l0);
+  tree.appendChild(l0);
+
+  // Connector
+  const c01 = document.createElement('div'); c01.className = 'tree-connector';
+  c01.innerHTML = `<div class="tree-line"></div>`;
+  tree.appendChild(c01);
+
+  // Level 1
+  const l1 = document.createElement('div'); l1.className = 'tree-level'; l1.style.gap='48px';
+  treeData.children.forEach(ch => buildTree(ch, l1));
+  tree.appendChild(l1);
+
+  // Connector
+  const c12 = document.createElement('div'); c12.className = 'tree-connector'; c12.style.gap='48px';
+  c12.innerHTML = `<div class="tree-line"></div><div class="tree-line"></div>`;
+  tree.appendChild(c12);
+
+  // Level 2
+  const l2 = document.createElement('div'); l2.className = 'tree-level'; l2.style.gap='12px';
+  treeData.children.forEach(ch => {
+    ch.children.forEach(gc => buildTree(gc, l2));
+  });
+  tree.appendChild(l2);
+
+  // Level 2b (last right branch has children)
+  const c23 = document.createElement('div'); c23.className = 'tree-connector'; c23.style.gap='12px';
+  c23.innerHTML = `<div class="tree-line" style="opacity:0"></div><div class="tree-line" style="opacity:0"></div><div class="tree-line" style="opacity:0"></div><div class="tree-line"></div>`;
+  tree.appendChild(c23);
+
+  const l3 = document.createElement('div'); l3.className = 'tree-level'; l3.style.justifyContent='flex-end'; l3.style.paddingRight='16px'; l3.style.gap='12px';
+  treeData.children[1].children[1].children.forEach(gc => buildTree(gc, l3));
+  tree.appendChild(l3);
+
+  wrap.appendChild(tree);
+}
+renderTree();
+
+/* ═══════════════ METRICS ═══════════════ */
+const metricsData = [
+  { name: "Accuracy",  val: 86,  color: "#4a9eff",  display: "86%" },
+  { name: "Precision", val: 88,  color: "#42d9a0",  display: "88%" },
+  { name: "Recall",    val: 85,  color: "#ffd060",  display: "85%" },
+  { name: "F1 Score",  val: 86,  color: "#ff8c42",  display: "0.86" },
+  { name: "AUC-ROC",   val: 92,  color: "#c07df9",  display: "0.92" },
+];
+
+const metricsGrid = document.getElementById('metricsGrid');
+metricsData.forEach(m => {
+  const row = document.createElement('div');
+  row.className = 'metric-row';
+  row.innerHTML = `
+    <div class="metric-name">${m.name}</div>
+    <div class="metric-bar-bg"><div class="metric-bar-fill" style="background:${m.color};width:0%"></div></div>
+    <div class="metric-val">${m.display}</div>
+  `;
+  metricsGrid.appendChild(row);
+  setTimeout(() => row.querySelector('.metric-bar-fill').style.width = m.val+'%', 300);
+});
+
+/* ═══════════════ HISTORY ═══════════════ */
+const histTrack = document.getElementById('historyTrack');
+historyEvents.forEach((ev, i) => {
+  const el = document.createElement('div');
+  el.className = 'h-event';
+  el.innerHTML = `
+    <div class="h-dot" style="border-color:${ev.color};background:${ev.color}30"></div>
+    <div class="h-year">${ev.year}</div>
+    <div class="h-title" style="color:${ev.color}">${ev.title}</div>
+    <div class="h-body">${ev.body}</div>
+  `;
+  histTrack.appendChild(el);
+});
+
+/* ═══════════════ GLOSSARY ═══════════════ */
+const glossGrid = document.getElementById('glossaryGrid');
+glossaryTerms.forEach(t => {
+  const card = document.createElement('div');
+  card.className = 'gloss-card';
+  card.innerHTML = `<div class="gloss-term">${t.term}</div><div class="gloss-def">${t.def}</div>`;
+  glossGrid.appendChild(card);
+});
+
+/* ═══════════════ OBSERVERS ═══════════════ */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.07 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+const histObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.h-event').forEach((ev,i) => setTimeout(() => ev.classList.add('visible'), i*60));
+      histObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+histObs.observe(histTrack);
+</script>
+</body>
+</html>

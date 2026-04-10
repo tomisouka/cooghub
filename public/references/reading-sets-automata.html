@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Sets · Automata & Computability</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #17171b;
+    --surface2: #1f1f25;
+    --border: #2e2e38;
+    --accent: #7df0a0;
+    --accent2: #f0d07d;
+    --accent3: #7db8f0;
+    --accent4: #f07db8;
+    --accent5: #c07df0;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --text-code: #b8f0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14,14,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(125,240,160,0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .intro {
+    background: rgba(125,240,160,0.05);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 3rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .intro strong { color: var(--accent); }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.35rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  .section-subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.25rem;
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  p { margin-bottom: 1rem; color: var(--text); }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(125,240,160,0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  /* Breakdown blocks */
+  .breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.25rem 0;
+  }
+
+  .expr-line {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--text-code);
+    background: var(--surface2);
+    padding: 0.6rem 0.9rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    word-break: break-all;
+  }
+
+  .expr-line + .expr-line { margin-top: 0.75rem; }
+
+  .reading-line {
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.93rem;
+    line-height: 1.7;
+    margin-top: 0.5rem;
+  }
+
+  /* Color-coded annotation */
+  .ann {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 2.6;
+    margin: 0.75rem 0;
+  }
+
+  .chunk {
+    display: inline-block;
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+    margin: 0.1em 0.05em;
+  }
+
+  .chunk-set   { background: rgba(240,125,184,0.15); color: var(--accent4); border-bottom: 2px solid var(--accent4); }
+  .chunk-elem  { background: rgba(125,184,240,0.15); color: var(--accent3); border-bottom: 2px solid var(--accent3); }
+  .chunk-cond  { background: rgba(125,240,160,0.12); color: var(--accent);  border-bottom: 2px solid var(--accent); }
+  .chunk-op    { background: rgba(192,125,240,0.15); color: var(--accent5); border-bottom: 2px solid var(--accent5); }
+  .chunk-quant { background: rgba(240,208,125,0.15); color: var(--accent2); border-bottom: 2px solid var(--accent2); }
+  .chunk-plain { color: var(--text-dim); }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    margin: 0.75rem 0 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .dot-set   { background: rgba(240,125,184,0.3);  border: 1.5px solid var(--accent4); }
+  .dot-elem  { background: rgba(125,184,240,0.3);  border: 1.5px solid var(--accent3); }
+  .dot-cond  { background: rgba(125,240,160,0.2);  border: 1.5px solid var(--accent); }
+  .dot-op    { background: rgba(192,125,240,0.3);  border: 1.5px solid var(--accent5); }
+  .dot-quant { background: rgba(240,208,125,0.3);  border: 1.5px solid var(--accent2); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin: 0.75rem 0 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.7rem 1rem;
+    font-weight: 400;
+  }
+
+  td {
+    padding: 0.6rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  tr:hover td { background: rgba(125,240,160,0.025); }
+
+  td.mono { font-family: 'DM Mono', monospace; font-size: 0.88rem; color: var(--text-code); }
+  td.say  { font-style: italic; color: var(--text-dim); }
+  td.sym  { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--accent); white-space: nowrap; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.2rem;
+    margin: 1.25rem 0;
+    font-size: 0.91rem;
+    line-height: 1.7;
+    border-left: 3px solid var(--accent3);
+    background: rgba(125,184,240,0.07);
+  }
+  .callout.warn { border-left-color: var(--accent2); background: rgba(240,208,125,0.07); }
+  .callout.tip  { border-left-color: var(--accent);  background: rgba(125,240,160,0.07); }
+
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 0.35rem;
+    display: block;
+  }
+  .callout.warn .callout-label { color: var(--accent2); }
+  .callout.tip  .callout-label { color: var(--accent); }
+
+  /* Steps */
+  ol.steps { counter-reset: step; list-style: none; padding: 0; margin: 0.75rem 0; }
+  ol.steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.93rem;
+    align-items: flex-start;
+    color: var(--text);
+  }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps li::before {
+    content: counter(step);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--bg);
+    background: var(--text-dim);
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.18rem;
+  }
+
+  /* Quiz cards */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .quiz-q {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.92rem;
+    color: var(--text-code);
+    margin-bottom: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .quiz-reveal {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent3);
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--accent3);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    transition: background 0.15s;
+  }
+  .quiz-reveal:hover { background: rgba(125,184,240,0.1); }
+
+  .quiz-answer {
+    display: none;
+    margin-top: 0.9rem;
+    padding: 0.85rem 1rem;
+    background: rgba(125,240,160,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    font-size: 0.91rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .quiz-answer.open { display: block; }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">𝕊et Reading</a>
+  <nav>
+    <a href="#anatomy">Anatomy</a>
+    <a href="#domains">Domains</a>
+    <a href="#conditions">Conditions</a>
+    <a href="#languages">Languages</a>
+    <a href="#operations">Operations</a>
+    <a href="#quantifiers">Quantifiers</a>
+    <a href="#method">Method</a>
+    <a href="#practice">Practice</a>
+    <a href="#gotchas">Gotchas</a>
+  </nav>
+</header>
+
+<div class="hero" id="top">
+  <span class="hero-tag">Companion Guide · Automata &amp; Computability</span>
+  <h1>Reading<br><span>Sets</span></h1>
+  <p class="subtitle">Formal Languages &nbsp;·&nbsp; Automata Theory &nbsp;·&nbsp; Computability</p>
+</div>
+
+<main>
+
+  <div class="intro">
+    <strong>Why sets feel weird:</strong> Set notation in automata theory packs a lot of meaning into a small space. The trick is learning to read left-to-right like a sentence — <em>what are we collecting → where are elements drawn from → under what conditions.</em> This guide builds that instinct step by step, grounded in computability examples.
+  </div>
+
+  <!-- 1. Anatomy -->
+  <section id="anatomy">
+    <div class="section-header">
+      <span class="section-icon">🔬</span>
+      <h2>Anatomy of a Set Expression</h2>
+    </div>
+    <p class="section-subtitle">The three-part structure behind almost every set definition</p>
+
+    <p>Most sets in automata theory follow one template. Once you recognize it, any set expression becomes readable:</p>
+
+    <div class="breakdown">
+      <div class="expr-line">{ w ∈ Σ* | |w|ₐ = |w|_b }</div>
+      <div class="ann">
+        <span class="chunk chunk-set">{&nbsp;&nbsp;&nbsp;</span>
+        <span class="chunk chunk-elem">w ∈ Σ*</span>
+        <span class="chunk chunk-plain">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+        <span class="chunk chunk-cond">|w|ₐ = |w|_b</span>
+        <span class="chunk chunk-set">&nbsp;}</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot dot-set"></div>braces — "the set of"</div>
+        <div class="legend-item"><div class="legend-dot dot-elem"></div>element + domain</div>
+        <div class="legend-item"><div class="legend-dot dot-cond"></div>condition — the "such that"</div>
+      </div>
+      <div class="reading-line">"The set of all strings w drawn from Σ*, such that the number of a's in w equals the number of b's in w."</div>
+    </div>
+
+    <h3>The Four Parts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Part</th><th>Symbol / Form</th><th>What it says</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collector</strong></td><td class="sym">{ ... }</td><td>"The set of all..."</td></tr>
+          <tr><td><strong>Variable + Domain</strong></td><td class="sym">w ∈ Σ*</td><td>"...strings w, drawn from Σ*..." — tells you what <em>type</em> of thing you're collecting</td></tr>
+          <tr><td><strong>Separator</strong></td><td class="sym">| &nbsp; or &nbsp; :</td><td>"...such that..." — both mean the same thing; usage is convention</td></tr>
+          <tr><td><strong>Condition</strong></td><td class="sym">P(w)</td><td>"...the condition P holds." — the filter that decides what gets included</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-label">Reading Strategy</span>
+      Always say <strong>"the set of all ___ such that ___"</strong> out loud. The variable tells you the type; the condition tells you the filter. If you can't verbalize it naturally, you haven't fully parsed it yet.
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 2. Domains -->
+  <section id="domains">
+    <div class="section-header">
+      <span class="section-icon">🗺</span>
+      <h2>Domains in Automata Theory</h2>
+    </div>
+    <p class="section-subtitle">What the element's domain tells you about what you're working with</p>
+
+    <p>The domain after <code>∈</code> is your first clue about what kind of object you're dealing with:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Type of object</th><th>Example set definition</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">Σ*</td><td>Any string over alphabet Σ</td><td class="mono">{ w ∈ Σ* | w starts with 0 }</td></tr>
+          <tr><td class="mono">Σ⁺</td><td>Non-empty strings</td><td class="mono">{ w ∈ Σ⁺ | |w| is even }</td></tr>
+          <tr><td class="mono">Q</td><td>States of an automaton</td><td class="mono">{ q ∈ Q | δ(q, a) = q }</td></tr>
+          <tr><td class="mono">ℕ</td><td>Natural numbers</td><td class="mono">{ n ∈ ℕ | n is prime }</td></tr>
+          <tr><td class="mono">L</td><td>Strings inside a language L</td><td class="mono">{ w ∈ L | |w| &gt; 5 }</td></tr>
+          <tr><td class="mono">⟨M, w⟩</td><td>Encoded TM-input pairs</td><td class="mono">{ ⟨M, w⟩ | M accepts w }</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">Watch Out</span>
+      When the domain is omitted — like <code>{ w | P(w) }</code> — it's implied from context. In automata this almost always means <code>w ∈ Σ*</code>. Always check what the surrounding text is discussing before assuming.
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 3. Conditions -->
+  <section id="conditions">
+    <div class="section-header">
+      <span class="section-icon">🔍</span>
+      <h2>Reading the Condition</h2>
+    </div>
+    <p class="section-subtitle">The part after the | — what actually filters membership</p>
+
+    <h3>Simple Conditions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Condition</th><th>Say it as</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">|w| = n</td><td class="say">"the length of w is n"</td></tr>
+          <tr><td class="mono">|w| is even</td><td class="say">"the length of w is even"</td></tr>
+          <tr><td class="mono">w starts with 0</td><td class="say">"w starts with 0"</td></tr>
+          <tr><td class="mono">w = wʳ</td><td class="say">"w is a palindrome" — equals its own reverse</td></tr>
+          <tr><td class="mono">δ*(q₀, w) ∈ F</td><td class="say">"the DFA accepts w" — extended transition reaches an accepting state</td></tr>
+          <tr><td class="mono">M accepts w</td><td class="say">"Turing machine M halts and accepts w"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Conditions with Counting</h3>
+    <p>A subscript on <code>|w|</code> means "count of that symbol in w":</p>
+
+    <div class="breakdown">
+      <div class="expr-line">|w|ₐ = |w|_b</div>
+      <div class="reading-line">"The number of a's in w equals the number of b's in w."</div>
+      <div class="expr-line" style="margin-top:0.75rem;">|w|₀ ≥ |w|₁</div>
+      <div class="reading-line">"The number of 0's in w is at least the number of 1's in w."</div>
+    </div>
+
+    <h3>The nᵐ Exponent Pattern</h3>
+    <p>The notation <code>0ⁿ1ⁿ</code> means "n zeros followed by n ones." The variable <code>n</code> is implicitly existentially quantified:</p>
+
+    <div class="breakdown">
+      <div class="expr-line">{ 0ⁿ1ⁿ | n ≥ 0 }</div>
+      <div class="reading-line">"Strings of the form n zeros followed by n ones, for some n ≥ 0." Includes ε when n = 0.</div>
+      <div class="expr-line" style="margin-top:0.75rem;">{ aⁿbⁿcⁿ | n ≥ 1 }</div>
+      <div class="reading-line">"Strings with n a's, n b's, and n c's, for any n ≥ 1." Classic context-sensitive language — not context-free.</div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-label">Key Insight</span>
+      When you see <code>0ⁿ1ⁿ</code>, the same <em>n</em> is linking both counts together. That coupling is exactly what a DFA cannot check — it would need unbounded memory. Recognizing this linkage lets you immediately reason about computational power required.
+    </div>
+
+    <h3>Compound Conditions (∧ and ∨)</h3>
+    <div class="breakdown">
+      <div class="expr-line">{ w ∈ Σ* | w starts with 1 ∧ |w| ≥ 3 }</div>
+      <div class="reading-line">"The set of strings that start with 1 AND have length at least 3." Both conditions must hold.</div>
+      <div class="expr-line" style="margin-top:0.75rem;">{ w ∈ {0,1}* | w contains 00 ∨ w contains 11 }</div>
+      <div class="reading-line">"Strings over {0,1} that contain '00' or '11' (or both)."</div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 4. Languages -->
+  <section id="languages">
+    <div class="section-header">
+      <span class="section-icon">🤖</span>
+      <h2>Languages as Sets</h2>
+    </div>
+    <p class="section-subtitle">How automata theorists define what their machines recognize</p>
+
+    <p>A <strong>language</strong> is just a set of strings. <code>L = { ... }</code> defines which strings belong — equivalently, which inputs a machine should accept.</p>
+
+    <h3>The Language of a Machine</h3>
+    <div class="breakdown">
+      <div class="expr-line">L(M) = { w ∈ Σ* | M accepts w }</div>
+      <div class="ann">
+        <span class="chunk chunk-set">L(M) = {</span>
+        <span class="chunk chunk-elem">w ∈ Σ*</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-cond">M accepts w</span>
+        <span class="chunk chunk-set">}</span>
+      </div>
+      <div class="reading-line">"The language of M is the set of all strings w over Σ that machine M accepts."</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Part</th><th>Means</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">L(M)</td><td>The language recognized by M — just a name for the resulting set</td></tr>
+          <tr><td class="sym">w ∈ Σ*</td><td>w is any string over the input alphabet</td></tr>
+          <tr><td class="sym">M accepts w</td><td>Running M on w reaches an accepting state (DFA/NFA) or halt-accepts (TM)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Classic Computability Problems as Sets</h3>
+
+    <div class="breakdown">
+      <div class="expr-line">A_DFA = { ⟨B, w⟩ | B is a DFA and B accepts w }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">⟨B, w⟩</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-cond">B is a DFA</span>
+        <span class="chunk chunk-op">&nbsp;∧&nbsp;</span>
+        <span class="chunk chunk-cond">B accepts w</span>
+      </div>
+      <div class="reading-line">"The acceptance problem for DFAs." This language is <strong>decidable</strong> — we can simulate B on w in finite time.</div>
+    </div>
+
+    <div class="breakdown">
+      <div class="expr-line">A_TM = { ⟨M, w⟩ | M is a TM and M accepts w }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">⟨M, w⟩</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-cond">M is a TM</span>
+        <span class="chunk chunk-op">&nbsp;∧&nbsp;</span>
+        <span class="chunk chunk-cond">M accepts w</span>
+      </div>
+      <div class="reading-line">"The acceptance problem for Turing machines." Turing-recognizable but <strong>not decidable</strong> — M might loop forever on non-accepting inputs.</div>
+    </div>
+
+    <div class="breakdown">
+      <div class="expr-line">HALT_TM = { ⟨M, w⟩ | M is a TM and M halts on w }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">⟨M, w⟩</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-cond">M is a TM</span>
+        <span class="chunk chunk-op">&nbsp;∧&nbsp;</span>
+        <span class="chunk chunk-cond">M halts on w</span>
+      </div>
+      <div class="reading-line">"The halting problem: all (M, w) pairs where M eventually halts — accept or reject." Also <strong>undecidable</strong>.</div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">Note on ⟨M, w⟩ encoding</span>
+      The angle brackets <code>⟨M, w⟩</code> denote an <em>encoding</em> — M and w serialized into a single string a TM can read. When a set is defined over <code>⟨M, w⟩</code>, you're in the realm of computability. The condition after <code>|</code> is a statement about what M does when given input w.
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 5. Operations -->
+  <section id="operations">
+    <div class="section-header">
+      <span class="section-icon">⚙️</span>
+      <h2>Set Operations on Languages</h2>
+    </div>
+    <p class="section-subtitle">Building new languages from existing ones</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Operation</th><th>Written as</th><th>Read as / Means</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Union</strong></td><td class="mono">L₁ ∪ L₂</td><td>"strings in L₁ or L₂ (or both)" — NFA with ε-transitions to both machines</td></tr>
+          <tr><td><strong>Intersection</strong></td><td class="mono">L₁ ∩ L₂</td><td>"strings in both L₁ and L₂" — product construction on DFAs</td></tr>
+          <tr><td><strong>Complement</strong></td><td class="mono">L̄ or Σ* \ L</td><td>"all strings NOT in L" — swap accepting/non-accepting states in a DFA</td></tr>
+          <tr><td><strong>Concatenation</strong></td><td class="mono">L₁L₂ or L₁ · L₂</td><td>"any string xy where x ∈ L₁ and y ∈ L₂"</td></tr>
+          <tr><td><strong>Kleene star</strong></td><td class="mono">L*</td><td>"zero or more concatenations of strings from L" — includes ε</td></tr>
+          <tr><td><strong>Difference</strong></td><td class="mono">L₁ \ L₂</td><td>"strings in L₁ but not in L₂" — same as L₁ ∩ L̄₂</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Reading a Complement</h3>
+    <div class="breakdown">
+      <div class="expr-line">L̄ = Σ* \ L = { w ∈ Σ* | w ∉ L }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">w ∈ Σ*</span>
+        <span class="chunk chunk-plain">&nbsp;such that&nbsp;</span>
+        <span class="chunk chunk-cond">w ∉ L</span>
+      </div>
+      <div class="reading-line">"The set of all strings over Σ that are NOT in L." Complement flips membership. Regular and decidable languages are both closed under complement.</div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-label">Closure Tip</span>
+      Regular: closed under ∪, ∩, complement, concatenation, and *. Context-free: closed under ∪, concatenation, and * — but <em>not</em> ∩ or complement. Decidable: closed under all Boolean operations. Recognizable: closed under ∪ and ∩ — but <strong>not complement</strong>.
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 6. Quantifiers -->
+  <section id="quantifiers">
+    <div class="section-header">
+      <span class="section-icon">∀</span>
+      <h2>Quantifiers Inside Set Conditions</h2>
+    </div>
+    <p class="section-subtitle">When ∀ and ∃ appear inside the condition — read carefully</p>
+
+    <div class="breakdown">
+      <div class="expr-line">{ w ∈ Σ* | ∃x ∈ Σ*, w = 0x1 }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">w ∈ Σ*</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-quant">∃x ∈ Σ*</span>
+        <span class="chunk chunk-plain">,&nbsp;</span>
+        <span class="chunk chunk-cond">w = 0x1</span>
+      </div>
+      <div class="reading-line">"Strings w such that THERE EXISTS some string x where w is '0' followed by x followed by '1'." Plain English: all strings that start with 0 and end with 1.</div>
+    </div>
+
+    <div class="breakdown">
+      <div class="expr-line">{ M | ∀w ∈ Σ*, M rejects w }</div>
+      <div class="ann">
+        <span class="chunk chunk-elem">M</span>
+        <span class="chunk chunk-plain">&nbsp;|&nbsp;</span>
+        <span class="chunk chunk-quant">∀w ∈ Σ*</span>
+        <span class="chunk chunk-plain">,&nbsp;</span>
+        <span class="chunk chunk-cond">M rejects w</span>
+      </div>
+      <div class="reading-line">"The set of Turing machines M such that FOR ALL strings w, M rejects w." This is TMs recognizing the empty language — undecidable by Rice's theorem.</div>
+    </div>
+
+    <h3>∃ vs ∀ — The Key Distinction</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Quantifier</th><th>Meaning</th><th>To verify membership...</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">∃x, P(x)</td><td>"there exists at least one x satisfying P"</td><td>Find <em>one</em> witness — just needs one example</td></tr>
+          <tr><td class="mono">∀x, P(x)</td><td>"for every x, P holds"</td><td>Must rule out <em>all</em> counterexamples — much harder</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">Computability Implication</span>
+      When the condition has <code>∀w</code> ranging over an infinite domain like Σ*, you generally can't check it by enumeration — this is why many universality and totality problems are undecidable. <code>∀</code> over an infinite set in a condition is a red flag for undecidability.
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 7. Method -->
+  <section id="method">
+    <div class="section-header">
+      <span class="section-icon">📋</span>
+      <h2>Step-by-Step Reading Method</h2>
+    </div>
+    <p class="section-subtitle">A repeatable procedure for any set expression you encounter</p>
+
+    <ol class="steps">
+      <li><strong>Find the braces.</strong> Everything inside <code>{ }</code> defines the set. Note whether there's a <code>|</code> or <code>:</code> separator.</li>
+      <li><strong>Read the variable and domain.</strong> What type of object is this? (<code>w ∈ Σ*</code> = string, <code>q ∈ Q</code> = state, <code>⟨M, w⟩</code> = encoded TM-input pair)</li>
+      <li><strong>Say "such that" at the separator.</strong> The <code>|</code> is always "such that". Say it aloud — it forces you to connect both halves.</li>
+      <li><strong>Parse the condition left-to-right.</strong> Is it a predicate? A count? An equation? A quantified statement? Identify any ∧, ∨, ∀, ∃.</li>
+      <li><strong>Reconstruct in plain English.</strong> "The set of all [type] such that [condition]." If it sounds awkward, revisit step 4.</li>
+      <li><strong>Ask: what machine could recognize this?</strong> Checkable in finite memory (→ regular), with a stack (→ CFL), TM in finite time (→ decidable), or not at all (→ undecidable)?</li>
+    </ol>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 8. Practice -->
+  <section id="practice">
+    <div class="section-header">
+      <span class="section-icon">🎯</span>
+      <h2>Practice: Read These Sets</h2>
+    </div>
+    <p class="section-subtitle">Try each one yourself first — click to reveal the reading</p>
+
+    <div class="quiz-card">
+      <div class="quiz-q">{ w ∈ {0,1}* | w contains equal numbers of 0s and 1s }</div>
+      <span class="quiz-reveal" onclick="toggle(this)">▶ Show reading</span>
+      <div class="quiz-answer">"The set of all binary strings that have exactly as many 0s as 1s." For example: ε, 01, 10, 0011, 0101, 1100... This language is <strong>context-free</strong> (recognized by a PDA) but not regular — a DFA can't count arbitrarily.</div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">{ ⟨M⟩ | M is a TM and L(M) = ∅ }</div>
+      <span class="quiz-reveal" onclick="toggle(this)">▶ Show reading</span>
+      <div class="quiz-answer">"The set of all encodings of Turing machines M whose language is empty — i.e., M rejects every possible input." This is EMPTY_TM. By Rice's theorem, since "L(M) = ∅" is a non-trivial semantic property of TMs, this problem is <strong>undecidable</strong>.</div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">{ w ∈ {a,b}* | w = xyx for some x, y ∈ Σ* with |x| ≥ 1 }</div>
+      <span class="quiz-reveal" onclick="toggle(this)">▶ Show reading</span>
+      <div class="quiz-answer">"Strings over {a,b} that can be written in the form xyx, where x is a non-empty string and y is any (possibly empty) string." In other words: strings where some non-empty prefix also appears again starting somewhere in the middle. This is <strong>non-regular</strong>.</div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">EQ_DFA = { ⟨A, B⟩ | A and B are DFAs and L(A) = L(B) }</div>
+      <span class="quiz-reveal" onclick="toggle(this)">▶ Show reading</span>
+      <div class="quiz-answer">"The set of pairs of DFAs (A, B) that recognize exactly the same language." This is the DFA equivalence problem. It's <strong>decidable</strong> — check whether L(A) △ L(B) = ∅ using DFA minimization or product construction.</div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">{ w | ∃u ∈ Σ*, uu = w }</div>
+      <span class="quiz-reveal" onclick="toggle(this)">▶ Show reading</span>
+      <div class="quiz-answer">"Strings w such that there exists some string u where w equals u concatenated with itself." In other words: strings that are perfect squares — two identical halves. Examples: abab, 0101, aa, 00. Not recognizable by a DFA, and <strong>not even context-free</strong>.</div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- 9. Gotchas -->
+  <section id="gotchas">
+    <div class="section-header">
+      <span class="section-icon">⚠️</span>
+      <h2>Common Confusions</h2>
+    </div>
+    <p class="section-subtitle">Notation that regularly trips people up</p>
+
+    <h3>The empty string ε is in Σ*</h3>
+    <p>When a set is defined over <code>Σ*</code>, the empty string <code>ε</code> is always a candidate. Always check whether <code>ε</code> satisfies the condition. For <code>{ 0ⁿ1ⁿ | n ≥ 0 }</code>, yes — ε is included (n=0). For <code>{ w ∈ Σ* | |w| ≥ 1 }</code>, no — ε is excluded.</p>
+
+    <h3>Σ* vs Σ⁺</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Includes ε?</th><th>Means</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">Σ*</td><td>Yes</td><td>All strings including the empty string</td></tr>
+          <tr><td class="mono">Σ⁺</td><td>No</td><td>All non-empty strings — Σ* minus {ε}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>The | symbol has two meanings in the same expression</h3>
+    <div class="breakdown">
+      <div class="expr-line">{ w ∈ Σ* | |w| = 3 }</div>
+      <div class="reading-line">The first <code>|</code> is the set-builder separator ("such that"). The <code>|w|</code> is length notation ("the length of w"). They look identical — the set-builder <code>|</code> sits between the variable clause and the condition; the length bars <code>|·|</code> surround a term.</div>
+    </div>
+
+    <h3>L(M) is a set, not a machine</h3>
+    <p><code>L(M)</code> names the language (set of strings) that machine M recognizes. When you write <code>L(M) = L(N)</code>, you're saying the two machines recognize <em>the same set</em> — not that the machines are identical or even similar in structure.</p>
+
+    <h3>The condition can define a pattern, not just a predicate</h3>
+    <p>In <code>{ w ∈ Σ* | w = 0ⁿ1ⁿ for some n ≥ 0 }</code>, the condition describes a structural pattern — not an equation to solve. "w = 0ⁿ1ⁿ" means "w has the shape: exactly n zeros then n ones, for some specific n."</p>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+</main>
+
+<footer>
+  Reading Sets &nbsp;·&nbsp; Automata &amp; Computability &nbsp;·&nbsp; Companion Guide &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+  function toggle(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.toggle('open');
+    btn.textContent = isOpen ? '▼ Hide reading' : '▶ Show reading';
+  }
+</script>
+
+</body>
+</html>

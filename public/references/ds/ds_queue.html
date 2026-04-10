@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Queue ADT — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #161920;
+    --border: #1e2230;
+    --accent: #60a5fa;
+    --green: #6bde84;
+    --red: #f87171;
+    --orange: #fb923c;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px;
+    padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  .header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px;
+  }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+  .adt-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px; border: 1px solid var(--accent);
+    color: var(--accent); background: #60a5fa12; margin-top: 10px;
+  }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 700; }
+  .on { color: var(--red);   font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ── ADT box ── */
+  .adt-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; border-left: 3px solid var(--accent); }
+  .adt-title { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .adt-op { font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; align-items: baseline; }
+  .adt-op:last-child { border-bottom: none; }
+  .adt-op .sig  { color: var(--text); font-weight: 700; font-family: monospace; font-size: 14px; }
+  .adt-op .desc { color: var(--dim); font-size: 12px; }
+
+  /* ── Queue horizontal ── */
+  .queue-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .queue-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  .q-person {
+    width: 72px; height: 64px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border: 1.5px solid var(--border);
+    border-right: none;
+    background: var(--surface);
+    font-size: 17px; font-weight: 700; color: var(--text);
+    flex-shrink: 0;
+    gap: 2px;
+  }
+  .q-person:last-of-type { border-right: 1.5px solid var(--border); }
+  .q-person.front { background: #f8717118; border-color: var(--red);   color: var(--red); }
+  .q-person.back  { background: #6bde8418; border-color: var(--green); color: var(--green); }
+  .q-person.new   { background: #60a5fa18; border-color: var(--accent);color: var(--accent); }
+  .q-person.gone  { background: #16192060; border-style: dashed; color: #3a4052; }
+  .q-person .pname { font-size: 10px; font-weight: 700; }
+
+  .q-end-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 0 10px; padding-bottom: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    flex-shrink: 0;
+  }
+  .front-label { color: var(--red); }
+  .back-label  { color: var(--green); }
+
+  .q-arrow-label {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 20px; padding: 0 8px; padding-bottom: 20px; flex-shrink: 0;
+  }
+  .dequeue-arrow { color: var(--red); }
+  .enqueue-arrow { color: var(--green); }
+  .op-text { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  .q-pointer {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    margin-top: 6px; text-align: center; width: 72px;
+  }
+
+  .row-label {
+    font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+
+  /* ── Impl grid ── */
+  .impl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .impl-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
+  .impl-box.array-impl  { border-top: 2px solid var(--yellow); }
+  .impl-box.linked-impl { border-top: 2px solid var(--orange); }
+  .impl-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .impl-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--dim); gap: 12px; }
+  .impl-row:last-child { border-bottom: none; }
+  .impl-row .key { color: var(--text); flex-shrink: 0; }
+  .impl-row .val-good { color: var(--green); font-weight: 700; text-align: right; }
+  .impl-row .val-mid  { color: var(--orange); font-weight: 700; text-align: right; }
+
+  /* ── Array circular buffer ── */
+  .arr-cell {
+    width: 58px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700;
+    border: 1.5px solid var(--border); border-right: none;
+    background: var(--surface); color: var(--text);
+  }
+  .arr-cell:last-child { border-right: 1.5px solid var(--border); }
+  .arr-cell.front-cell { background: #f8717118; border-color: var(--red);   color: var(--red); }
+  .arr-cell.back-cell  { background: #6bde8418; border-color: var(--green); color: var(--green); }
+  .arr-cell.empty { background: #16192080; border-style: dashed; color: #3a4052; font-size: 12px; }
+  .arr-idx { font-size: 10px; color: var(--dim); text-align: center; margin-top: 6px; width: 58px; }
+  .arr-idx.front-idx { color: var(--red); }
+  .arr-idx.back-idx  { color: var(--green); }
+
+  /* ── Node ── */
+  .node-box { display: flex; border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface); flex-shrink: 0; }
+  .node-data { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--text); border-right: 1.5px solid var(--border); }
+  .node-ptr  { width: 36px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #a78bfa; }
+  .node-box.front-node { border-color: var(--red); }
+  .node-box.front-node .node-data { color: var(--red); background: #f8717112; }
+  .node-box.back-node  { border-color: var(--green); }
+  .node-box.back-node  .node-data { color: var(--green); background: #6bde8412; }
+  .ll-arrow { font-size: 18px; color: #a78bfa; padding: 0 4px; display: flex; align-items: center; }
+  .ll-null  { height: 52px; padding: 0 12px; display: flex; align-items: center; border: 1.5px dashed #2a2e38; border-radius: 6px; font-size: 12px; color: #3a4052; }
+
+  .ptr-row { display: flex; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-top: 6px; }
+  .ptr-item { display: flex; align-items: center; justify-content: center; width: 88px; }
+  .ptr-item.front-ptr { color: var(--red); }
+  .ptr-item.back-ptr  { color: var(--green); }
+
+  /* ── vs Stack ── */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); font-weight: 700; }
+  .vs-table .bad  { color: var(--red);   font-weight: 700; }
+  .vs-table .mid  { color: var(--orange);font-weight: 700; }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--red); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Queue<span>.</span></h1>
+    <div class="subtitle">First In, First Out</div>
+    <div class="adt-badge">Abstract Data Type</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">enqueue</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">dequeue</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">peek</span>    <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">search</span>  <span class="on">O(n)</span></div>
+  </div>
+</div>
+
+<!-- 1. ADT interface -->
+<div class="diagram-section">
+  <div class="label">1 — The ADT Interface</div>
+  <div class="annotation">A Queue is an <span>Abstract Data Type</span> — defines behavior, not implementation. Add to the back, remove from the front. Can be built with an array or linked list.</div>
+  <div class="adt-box">
+    <div class="adt-title">Queue ADT — Operations</div>
+    <div class="adt-op"><span class="sig">enqueue(val)</span> <span class="desc">Add val to the back of the queue</span></div>
+    <div class="adt-op"><span class="sig">dequeue()</span>    <span class="desc">Remove and return the front element</span></div>
+    <div class="adt-op"><span class="sig">peek()</span>       <span class="desc">Return the front element without removing it</span></div>
+    <div class="adt-op"><span class="sig">isEmpty()</span>    <span class="desc">Return true if the queue has no elements</span></div>
+    <div class="adt-op"><span class="sig">size()</span>       <span class="desc">Return the number of elements</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. The line analogy -->
+<div class="diagram-section">
+  <div class="label">2 — FIFO — The Line at the Store</div>
+  <div class="annotation">Join at the <span style="color:var(--green)">back</span>, leave from the <span style="color:var(--red)">front</span>. First person in line is first person served. No cutting — order is preserved.</div>
+
+  <div class="queue-wrap">
+
+    <!-- Current queue -->
+    <div>
+      <div class="row-label">Current Queue</div>
+      <div style="display:flex; align-items:flex-end; gap:0;">
+        <div class="q-arrow-label dequeue-arrow" style="padding-right:4px;">
+          <div>←</div>
+          <div class="op-text" style="color:var(--red)">dequeue</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex;">
+            <div class="q-person front"><div class="pname">Ana</div></div>
+            <div class="q-person"><div class="pname">Ben</div></div>
+            <div class="q-person"><div class="pname">Cal</div></div>
+            <div class="q-person back"><div class="pname">Deb</div></div>
+          </div>
+          <div style="display:flex;">
+            <div class="q-pointer" style="color:var(--red);">front</div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer" style="color:var(--green);">back</div>
+          </div>
+        </div>
+        <div class="q-arrow-label enqueue-arrow" style="padding-left:4px;">
+          <div>→</div>
+          <div class="op-text" style="color:var(--green)">enqueue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- After enqueue -->
+    <div>
+      <div class="row-label">After enqueue(Eve)</div>
+      <div style="display:flex; align-items:flex-end; gap:0;">
+        <div style="width:60px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex;">
+            <div class="q-person front"><div class="pname">Ana</div></div>
+            <div class="q-person"><div class="pname">Ben</div></div>
+            <div class="q-person"><div class="pname">Cal</div></div>
+            <div class="q-person"><div class="pname">Deb</div></div>
+            <div class="q-person new"><div class="pname">Eve</div></div>
+          </div>
+          <div style="display:flex;">
+            <div class="q-pointer" style="color:var(--red);">front</div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer" style="color:var(--accent);">← new</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- After dequeue -->
+    <div>
+      <div class="row-label">After dequeue() → Ana</div>
+      <div style="display:flex; align-items:flex-end; gap:0;">
+        <div style="width:60px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div style="display:flex;">
+            <div class="q-person gone"><div class="pname">Ana</div></div>
+            <div class="q-person front"><div class="pname">Ben</div></div>
+            <div class="q-person"><div class="pname">Cal</div></div>
+            <div class="q-person back"><div class="pname">Deb</div></div>
+          </div>
+          <div style="display:flex;">
+            <div class="q-pointer" style="color:#3a4052;">gone</div>
+            <div class="q-pointer" style="color:var(--red);">front</div>
+            <div class="q-pointer"></div>
+            <div class="q-pointer" style="color:var(--green);">back</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="caption" style="margin-top:16px"><strong style="color:var(--red)">front</strong> — where items leave. <strong style="color:var(--green)">back</strong> — where items join. Order is always preserved.</div>
+</div>
+
+<hr>
+
+<!-- 3. Two implementations -->
+<div class="diagram-section">
+  <div class="label">3 — Two Implementations, Same Interface</div>
+  <div class="annotation">Array uses two indices (<span>front</span> and <span style="color:var(--green)">back</span>). Linked list uses head and tail pointers. Both O(1).</div>
+  <div class="impl-grid">
+    <div class="impl-box array-impl">
+      <div class="impl-title">Array-Based (Circular Buffer)</div>
+      <div class="impl-row"><span class="key">front index</span>  <span class="val-good">points to first element</span></div>
+      <div class="impl-row"><span class="key">back index</span>   <span class="val-good">points to next empty slot</span></div>
+      <div class="impl-row"><span class="key">enqueue</span>      <span class="val-good">arr[back++ % cap] = val</span></div>
+      <div class="impl-row"><span class="key">dequeue</span>      <span class="val-good">return arr[front++ % cap]</span></div>
+      <div class="impl-row"><span class="key">wraps around</span> <span class="val-mid">circular — reuses slots</span></div>
+    </div>
+    <div class="impl-box linked-impl">
+      <div class="impl-title">Linked List-Based</div>
+      <div class="impl-row"><span class="key">front</span>        <span class="val-good">head node</span></div>
+      <div class="impl-row"><span class="key">back</span>         <span class="val-good">tail node</span></div>
+      <div class="impl-row"><span class="key">enqueue</span>      <span class="val-good">insert at tail</span></div>
+      <div class="impl-row"><span class="key">dequeue</span>      <span class="val-good">remove head</span></div>
+      <div class="impl-row"><span class="key">overflow</span>     <span class="val-good">dynamic — no resize needed</span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Array circular buffer -->
+<div class="diagram-section">
+  <div class="label">4 — Array Implementation — Circular Buffer</div>
+  <div class="annotation">Two indices track the <span style="color:var(--red)">front</span> and <span style="color:var(--green)">back</span>. When back reaches the end it wraps around using modulo — no shifting needed.</div>
+
+  <div>
+    <div style="display:flex;">
+      <div class="arr-cell empty">—</div>
+      <div class="arr-cell empty">—</div>
+      <div class="arr-cell front-cell">Ben</div>
+      <div class="arr-cell">Cal</div>
+      <div class="arr-cell back-cell">Deb</div>
+      <div class="arr-cell empty">—</div>
+      <div class="arr-cell empty">—</div>
+    </div>
+    <div style="display:flex;">
+      <div class="arr-idx">[0]</div>
+      <div class="arr-idx">[1]</div>
+      <div class="arr-idx front-idx">[2] front</div>
+      <div class="arr-idx">[3]</div>
+      <div class="arr-idx back-idx">[4] back</div>
+      <div class="arr-idx">[5]</div>
+      <div class="arr-idx">[6]</div>
+    </div>
+  </div>
+  <div class="caption" style="margin-top:16px">
+    <strong>dequeue()</strong> → return arr[2], front becomes 3. &nbsp;|&nbsp;
+    <strong>enqueue(X)</strong> → arr[5] = X, back becomes 5.<br>
+    When back hits capacity it wraps: <strong>back = (back + 1) % capacity</strong>
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. Linked list impl -->
+<div class="diagram-section">
+  <div class="label">5 — Linked List Implementation</div>
+  <div class="annotation"><span style="color:var(--red)">Head</span> = front (dequeue here). <span style="color:var(--green)">Tail</span> = back (enqueue here). Both pointers give O(1) access to both ends.</div>
+
+  <div style="display:flex; align-items:center; gap:0; flex-wrap:wrap;">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-right:10px;padding-bottom:20px;">
+      <div style="font-size:10px;color:var(--red);font-weight:700;letter-spacing:1px;margin-bottom:4px;">FRONT</div>
+      <div style="font-size:20px;color:var(--red);">→</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="node-box front-node">
+        <div class="node-data" style="font-size:13px;width:60px;">Ben</div>
+        <div class="node-ptr">→</div>
+      </div>
+      <div style="font-size:9px;color:var(--red);margin-top:5px;font-weight:700;">dequeue here</div>
+    </div>
+    <div class="ll-arrow">→</div>
+    <div class="node-box">
+      <div class="node-data" style="font-size:13px;width:60px;">Cal</div>
+      <div class="node-ptr">→</div>
+    </div>
+    <div class="ll-arrow">→</div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="node-box back-node">
+        <div class="node-data" style="font-size:13px;width:60px;">Deb</div>
+        <div class="node-ptr" style="color:#3a4052;">∅</div>
+      </div>
+      <div style="font-size:9px;color:var(--green);margin-top:5px;font-weight:700;">enqueue here</div>
+    </div>
+    <div class="ll-arrow" style="color:#3a4052;">→</div>
+    <div class="ll-null">null</div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-left:10px;padding-bottom:20px;">
+      <div style="font-size:10px;color:var(--green);font-weight:700;letter-spacing:1px;margin-bottom:4px;">BACK</div>
+      <div style="font-size:20px;color:var(--green);">←</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 6. Queue vs Stack -->
+<div class="diagram-section">
+  <div class="label">Queue vs Stack</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>Queue</th><th>Stack</th></tr>
+    <tr><td>Order</td><td class="good">FIFO — first in, first out</td><td class="mid">LIFO — last in, first out</td></tr>
+    <tr><td>Add element</td><td>enqueue → back</td><td>push → top</td></tr>
+    <tr><td>Remove element</td><td>dequeue ← front</td><td>pop ← top</td></tr>
+    <tr><td>Access ends</td><td>two ends — front and back</td><td>one end — top only</td></tr>
+    <tr><td>Used in</td><td>BFS, scheduling, print queue</td><td>DFS, undo, call stack</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">ADT — Not a Structure</div>
+    <div class="card-body">Queue defines behavior: enqueue, dequeue, peek. Implemented with array or linked list — same interface either way.</div>
+    <div class="card-o" style="color:var(--accent)">abstraction</div>
+  </div>
+  <div class="card">
+    <div class="card-title">FIFO</div>
+    <div class="card-body">First In, First Out. The first element enqueued is always the first to be dequeued. Order is preserved.</div>
+    <div class="card-o" style="color:var(--green)">first in = first out</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Two Ends</div>
+    <div class="card-body">Unlike a stack (top only), a queue operates at both ends — enqueue at back, dequeue at front.</div>
+    <div class="card-o" style="color:var(--red)">front + back</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Circular Buffer</div>
+    <div class="card-body">Array implementation uses modulo wrapping to reuse slots. Avoids shifting by letting front and back indices advance.</div>
+    <div class="card-o" style="color:var(--yellow)">% capacity</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">BFS traversal, OS process scheduling, print queues, network packet buffers, message queues.</div>
+    <div class="card-o" style="color:var(--orange)">everywhere ordered</div>
+  </div>
+</div>
+
+</body>
+</html>

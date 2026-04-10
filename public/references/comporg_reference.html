@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Organization — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #fb923c;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+/* ── Layout ── */
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.sidebar-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Timeline ── */
+.tl-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.timeline {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 18px;
+  cursor: default;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -18px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--dot);
+  transition: transform 0.15s;
+}
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--dot);
+  margin-bottom: 2px;
+}
+.tl-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tl-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Sources ── */
+.src-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.src-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.src-card:hover { border-color: var(--accent); }
+.src-card span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.src-card small {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  outline: none;
+  width: 180px;
+}
+#search-input:focus { border-color: var(--accent); }
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 80px;
+}
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Content sections ── */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 48px 0 6px;
+  letter-spacing: -0.3px;
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--card-color, var(--accent));
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code {
+  font-family: 'DM Mono', monospace;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+  color: #e8c547;
+}
+pre.code-block {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: #c8d0e0;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
+
+
+
+
+
+
+/* ── Mobile collapsible sidebar ───────────────────────────────────────────── */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 300;
+  background: var(--surface, #161920);
+  color: var(--text, #d4d8e0);
+  border: 1px solid var(--border, #2a2e38);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 250 !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 85vw !important;
+    max-width: 300px !important;
+    min-width: unset !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
+  }
+
+  /* Main content fills full width since sidebar is out of flow */
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Give topbar left padding so toggle button doesn't overlap text */
+  .topbar {
+    padding-left: 48px !important;
+    flex-wrap: wrap !important;
+  }
+}
+</style>
+</head>
+<body>
+<button id="sidebar-toggle">☰ Timeline</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+
+
+
+
+<div class="layout">
+
+  <!-- ── Sidebar: Timeline + Sources ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Computer Organization History</h1>
+      <p class="sidebar-subtitle">From room-sized calculators to billion-transistor chips</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1945</div>
+          <div class="tl-title">Von Neumann Architecture</div>
+          <div class="tl-desc">John von Neumann's "First Draft" describes the stored-program computer — CPU, memory, I/O, with program and data in the same memory. Almost every computer since follows this model.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1947</div>
+          <div class="tl-title">Transistor Invented</div>
+          <div class="tl-desc">Shockley, Bardeen, and Brattain at Bell Labs. Replaced fragile vacuum tubes. Enabled reliable, fast, compact switching. The transistor is the atom of modern computing.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1958</div>
+          <div class="tl-title">Integrated Circuit</div>
+          <div class="tl-desc">Jack Kilby at TI and Robert Noyce at Fairchild independently invent the IC. Moore's Law (1965) predicts transistor count doubles every ~2 years — held for 50+ years.</div>
+        </div>
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">1971</div>
+          <div class="tl-title">Intel 4004 — First Microprocessor</div>
+          <div class="tl-desc">4-bit processor, 2,300 transistors, 740 KHz. Entire CPU on a single chip. Designed by Federico Faggin. Launched the era of general-purpose programmable chips.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1980</div>
+          <div class="tl-title">RISC Revolution</div>
+          <div class="tl-desc">Patterson (Berkeley) and Hennessy (Stanford) independently develop RISC. Simpler instructions, faster clock speeds, better compiler optimization. MIPS architecture is still what most courses teach.</div>
+        </div>
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1989–1993</div>
+          <div class="tl-title">Superscalar & Out-of-Order Execution</div>
+          <div class="tl-desc">Intel 486 and Pentium introduce superscalar execution — multiple instructions per clock cycle. Out-of-order execution lets the CPU reorder instructions to avoid stalls.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">2005</div>
+          <div class="tl-title">Multi-Core Era</div>
+          <div class="tl-desc">Power wall hits — clock speed stops scaling. Intel and AMD pivot to multi-core. Software must now be parallel to use new hardware. The free lunch of single-threaded speedup is over.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e85454">
+          <div class="tl-year">2018–present</div>
+          <div class="tl-title">Spectre/Meltdown & Security</div>
+          <div class="tl-desc">Branch prediction and speculative execution — techniques that made CPUs fast — create side-channel attacks. Microarchitecture security becomes a first-class concern.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://www.elsevier.com/books/computer-organization-and-design-arm-edition/patterson/978-0-12-801733-3" target="_blank" rel="noopener">
+        <span>Computer Organization & Design — Patterson & Hennessy</span>
+        <small>elsevier.com</small>
+      </a>
+      <a class="src-card" href="https://www.nand2tetris.org/" target="_blank" rel="noopener">
+        <span>Nand to Tetris (free course)</span>
+        <small>nand2tetris.org</small>
+      </a>
+      <a class="src-card" href="https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/" target="_blank" rel="noopener">
+        <span>MIT 6.004 Computation Structures</span>
+        <small>ocw.mit.edu</small>
+      </a>
+      <a class="src-card" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html" target="_blank" rel="noopener">
+        <span>Intel 64 and IA-32 Architectures Manual</span>
+        <small>intel.com</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main: nav + content ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Computer Organization Reference</span>
+      <nav>
+        <a href="#architecture">Architecture</a>
+        <a href="#memory">Memory</a>
+        <a href="#isa">ISA</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#io">I/O</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+<div id="architecture">
+  <div class="section-title">CPU Architecture</div>
+  <div class="section-sub">How a processor is structured — the hardware that executes every instruction</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">ALU</div><div class="card-title">Arithmetic Logic Unit</div>
+      <div class="card-desc">Performs all arithmetic (<code>+</code> <code>-</code> <code>×</code> <code>÷</code>) and logic (<code>AND</code> <code>OR</code> <code>NOT</code> <code>XOR</code>) operations. Takes two inputs + opcode, outputs result + condition flags (zero, carry, overflow, negative). The computational core of the CPU.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Registers</div><div class="card-title">Fastest Memory — On-Chip</div>
+      <div class="card-desc">Tiny storage directly on the CPU. Access in a single clock cycle. MIPS has 32 general-purpose 32-bit registers. x86-64 has 16 64-bit registers (RAX, RBX, RCX…).<br><br><strong>Special registers:</strong> PC (program counter), SP (stack pointer), IR (instruction register), MAR/MDR (memory address/data).</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Control Unit</div><div class="card-title">Instruction Director</div>
+      <div class="card-desc">Fetches, decodes, and coordinates execution of instructions. Generates control signals that tell the ALU, registers, and memory what to do each cycle.<br><br><strong>Hardwired CU:</strong> fixed logic, fast.<br><strong>Microprogrammed CU:</strong> flexible, uses microcode lookup table.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Fetch-Decode-Execute</div><div class="card-title">The Instruction Cycle</div>
+      <div class="card-desc"><strong>1. Fetch:</strong> PC → MAR → memory → MDR → IR, increment PC.<br><strong>2. Decode:</strong> CU interprets opcode in IR, identifies operands.<br><strong>3. Execute:</strong> ALU computes, result written to register or memory.<br><br>Every instruction on every processor follows this loop.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="memory">
+  <div class="section-title">Memory Hierarchy</div>
+  <div class="section-sub">Faster = smaller = more expensive. The hierarchy exploits locality to hide latency.</div>
+  <table class="ref-table">
+    <thead><tr><th>Level</th><th>Type</th><th>Size</th><th>Latency</th><th>Managed by</th></tr></thead>
+    <tbody>
+      <tr><td>Registers</td><td>SRAM (flip-flops)</td><td>~1 KB</td><td><strong style="color:#34d399">1 cycle</strong></td><td>Compiler / programmer</td></tr>
+      <tr><td>L1 Cache</td><td>SRAM</td><td>32–64 KB</td><td><strong style="color:#34d399">4 cycles</strong></td><td>Hardware (transparent)</td></tr>
+      <tr><td>L2 Cache</td><td>SRAM</td><td>256 KB–1 MB</td><td><strong style="color:#e8c547">12 cycles</strong></td><td>Hardware</td></tr>
+      <tr><td>L3 Cache</td><td>SRAM (shared)</td><td>4–64 MB</td><td><strong style="color:#e8c547">40 cycles</strong></td><td>Hardware</td></tr>
+      <tr><td>RAM (DRAM)</td><td>DRAM</td><td>4–64+ GB</td><td><strong style="color:#fb923c">~100 cycles</strong></td><td>OS + hardware</td></tr>
+      <tr><td>SSD</td><td>NAND Flash</td><td>100 GB–4 TB</td><td><strong style="color:#f472b6">~100 µs</strong></td><td>OS + filesystem</td></tr>
+      <tr><td>HDD</td><td>Magnetic disk</td><td>1–20 TB</td><td><strong style="color:#f472b6">~10 ms</strong></td><td>OS + filesystem</td></tr>
+    </tbody>
+  </table>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Temporal Locality</div><div class="card-title">Recently used → used again soon</div>
+      <div class="card-desc">If you access address X, you'll probably access it again. Caches keep recently-used data hot. <strong>Example:</strong> a loop variable accessed thousands of times stays in a register or L1.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Spatial Locality</div><div class="card-title">Nearby addresses accessed together</div>
+      <div class="card-desc">If you access address X, you'll probably access X+1, X+2, etc. Caches load blocks (cache lines, typically 64 bytes) at a time. <strong>Why arrays beat linked lists</strong> for iteration — array elements are adjacent; pointer nodes are scattered.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Cache Mapping</div><div class="card-title">Where does a block go in cache?</div>
+      <div class="card-desc"><strong>Direct-mapped:</strong> each block has exactly one cache slot (fast, but conflicts).<br><strong>Fully associative:</strong> block can go anywhere (flexible, expensive to search).<br><strong>N-way set associative:</strong> middle ground — most real CPUs use 4–16-way.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="isa">
+  <div class="section-title">Instruction Set Architecture</div>
+  <div class="section-sub">The contract between hardware and software</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">RISC vs CISC</div><div class="card-title">Two philosophies</div>
+      <div class="card-desc"><strong>RISC</strong> (ARM, MIPS): few simple fixed-length instructions, load/store architecture, many registers. Each instruction takes 1 cycle. Compilers do the work.<br><br><strong>CISC</strong> (x86): many complex variable-length instructions, memory operands allowed. Hardware does more per instruction. Internally translated to micro-ops anyway.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Addressing Modes</div><div class="card-title">How operands are specified</div>
+      <div class="card-desc"><strong>Immediate:</strong> <code>ADD R1, #5</code> — value in instruction.<br><strong>Register:</strong> <code>ADD R1, R2</code> — value in register.<br><strong>Direct:</strong> <code>LOAD R1, 0x1000</code> — address in instruction.<br><strong>Indirect:</strong> <code>LOAD R1, [R2]</code> — register holds address.<br><strong>Base+offset:</strong> <code>LOAD R1, 8[SP]</code> — for stack frames.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">MIPS R-Format</div><div class="card-title">32-bit instruction encoding</div>
+      <div class="card-desc"><code>op[6] | rs[5] | rt[5] | rd[5] | shamt[5] | funct[6]</code><br><br><strong>op:</strong> opcode (0 for R-type).<br><strong>rs/rt:</strong> source registers.<br><strong>rd:</strong> destination register.<br><strong>shamt:</strong> shift amount.<br><strong>funct:</strong> specific operation (add, sub, and, or…).</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="pipeline">
+  <div class="section-title">Pipelining</div>
+  <div class="section-sub">Overlap instruction execution — throughput over latency</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">5-Stage Pipeline</div><div class="card-title">IF → ID → EX → MEM → WB</div>
+      <div class="card-desc"><strong>IF:</strong> Instruction Fetch — load from memory.<br><strong>ID:</strong> Instruction Decode — read registers.<br><strong>EX:</strong> Execute — ALU operation.<br><strong>MEM:</strong> Memory access — read/write data.<br><strong>WB:</strong> Write Back — result → register.<br><br>Like an assembly line — 5 instructions in flight simultaneously.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Data Hazards</div><div class="card-title">Read-after-Write dependencies</div>
+      <div class="card-desc">Instruction needs a result that hasn't been written yet.<br><br><strong>Solution 1 — Stalling:</strong> insert NOPs (bubbles) — wastes cycles.<br><strong>Solution 2 — Forwarding:</strong> route result directly from EX/MEM output back to EX input — avoids most stalls.<br><strong>Still needs 1 stall:</strong> load-use hazard (MEM hasn't run yet).</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Control Hazards</div><div class="card-title">Branches disrupt the pipeline</div>
+      <div class="card-desc">When a branch is taken, the 2–3 instructions already fetched may be wrong — must be flushed.<br><br><strong>Branch prediction:</strong> CPU guesses which way a branch goes. Modern CPUs: >95% accuracy. Mispredict penalty: 15–20 cycles. Spectre/Meltdown exploited this.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="io">
+  <div class="section-title">I/O & Bus</div>
+  <div class="section-sub">How the CPU talks to everything else</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Programmed I/O</div><div class="card-title">CPU polls the device</div>
+      <div class="card-desc">CPU spins in a loop checking if the device is ready (<strong>busy-waiting</strong>). Simple but wastes 100% of CPU time waiting. Acceptable only for very fast devices or embedded systems where idle spinning is fine.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Interrupt-Driven I/O</div><div class="card-title">Device signals the CPU</div>
+      <div class="card-desc">CPU starts I/O, goes off and does other work. Device sends an interrupt when done. CPU saves context, runs Interrupt Service Routine (ISR), resumes. <strong>Much more efficient</strong> — used for keyboards, network cards, timers.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">DMA</div><div class="card-title">Direct Memory Access</div>
+      <div class="card-desc">A separate DMA controller handles large data transfers (disk → RAM) without CPU involvement. CPU gives the DMA controller: source, destination, size. DMA does the transfer and interrupts CPU when done. <strong>CPU is fully free during the transfer.</strong></div>
+    </div></div>
+  </div>
+</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+
+<script>
+(function() {
+  var btn     = document.getElementById('sidebar-toggle');
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰ Timeline';
+  }
+
+  btn.addEventListener('click', function() {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  sidebar.querySelectorAll('.tl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

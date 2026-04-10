@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deque ADT — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #a78bfa;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+  .adt-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--accent); color: var(--accent); background: #a78bfa12; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .o1 { color: var(--green); font-weight: 700; }
+  .on { color: var(--red); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 12px; }
+  .caption strong { color: var(--text); }
+
+  /* ADT box */
+  .adt-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; border-left: 3px solid var(--accent); }
+  .adt-title { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .adt-op { font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 16px; align-items: baseline; }
+  .adt-op:last-child { border-bottom: none; }
+  .adt-op .sig  { color: var(--text); font-weight: 700; font-family: monospace; font-size: 14px; min-width: 200px; }
+  .adt-op .desc { color: var(--dim); font-size: 12px; }
+
+  /* Deque cells */
+  .deque-row { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .cell {
+    width: 72px; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--border); border-right: none;
+    background: var(--surface); font-size: 17px; font-weight: 700; color: var(--text);
+    flex-shrink: 0;
+  }
+  .cell:last-of-type { border-right: 1.5px solid var(--border); }
+  .cell.front { background: #f8717118; border-color: var(--red);    color: var(--red); }
+  .cell.back  { background: #6bde8418; border-color: var(--green);  color: var(--green); }
+  .cell.new-f { background: #a78bfa18; border-color: var(--accent);  color: var(--accent); }
+  .cell.new-b { background: #60a5fa18; border-color: var(--blue);   color: var(--blue); }
+  .cell.gone  { background: #16192060; border-style: dashed; color: #3a4052; font-size: 12px; }
+
+  .cell-ptr { font-size: 10px; font-weight: 700; text-align: center; margin-top: 6px; width: 72px; flex-shrink: 0; }
+
+  .end-label { display: flex; flex-direction: column; align-items: center; padding: 0 10px; padding-bottom: 20px; flex-shrink: 0; }
+  .end-label .lbl { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .end-label .arr { font-size: 20px; margin-top: 2px; }
+
+  .row-label { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+
+  /* Generalization box */
+  .gen-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .gen-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .gen-box.deque-box  { border-top: 2px solid var(--accent); }
+  .gen-box.queue-box  { border-top: 2px solid var(--blue); }
+  .gen-box.stack-box  { border-top: 2px solid var(--green); }
+  .gen-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .gen-row { font-size: 11px; color: var(--dim); padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .gen-row:last-child { border-bottom: none; }
+  .gen-row .k { color: var(--text); }
+  .allowed   { color: var(--green); font-weight: 700; }
+  .blocked   { color: var(--red);   font-weight: 700; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--blue); }
+  .card:nth-child(4) { border-top-color: var(--red); }
+  .card:nth-child(5) { border-top-color: var(--orange); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Deque<span>⇄</span></h1>
+    <div class="subtitle">Double-Ended Queue</div>
+    <div class="adt-badge">Abstract Data Type</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">addFront</span>    <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">addBack</span>     <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">removeFront</span> <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">removeBack</span>  <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">peekFront</span>   <span class="o1">O(1)</span></div>
+    <div class="big-o-row"><span class="op">peekBack</span>    <span class="o1">O(1)</span></div>
+  </div>
+</div>
+
+<!-- 1. ADT interface -->
+<div class="diagram-section">
+  <div class="label">1 — The ADT Interface</div>
+  <div class="annotation">A Deque (pronounced "deck") is a <span>double-ended queue</span>. Unlike a regular queue (back only for add, front only for remove), a deque lets you add and remove from <span>either end</span>.</div>
+  <div class="adt-box">
+    <div class="adt-title">Deque ADT — Operations</div>
+    <div class="adt-op"><span class="sig">addFront(val)</span>    <span class="desc">Add val to the front</span></div>
+    <div class="adt-op"><span class="sig">addBack(val)</span>     <span class="desc">Add val to the back</span></div>
+    <div class="adt-op"><span class="sig">removeFront()</span>    <span class="desc">Remove and return the front element</span></div>
+    <div class="adt-op"><span class="sig">removeBack()</span>     <span class="desc">Remove and return the back element</span></div>
+    <div class="adt-op"><span class="sig">peekFront()</span>      <span class="desc">Return front element without removing</span></div>
+    <div class="adt-op"><span class="sig">peekBack()</span>       <span class="desc">Return back element without removing</span></div>
+    <div class="adt-op"><span class="sig">isEmpty()</span>        <span class="desc">Return true if empty</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 2. The four operations -->
+<div class="diagram-section">
+  <div class="label">2 — All Four Operations</div>
+  <div class="annotation">Both ends are open. You can push and pop from the <span style="color:var(--red)">front</span> or the <span style="color:var(--green)">back</span> — all in O(1).</div>
+
+  <div style="display:flex; flex-direction:column; gap:32px;">
+
+    <!-- Base -->
+    <div>
+      <div class="row-label">Current Deque</div>
+      <div style="display:flex; align-items:flex-end;">
+        <div class="end-label"><span class="lbl" style="color:var(--red)">front</span><span class="arr" style="color:var(--red)">→</span></div>
+        <div>
+          <div class="deque-row">
+            <div class="cell front">12</div>
+            <div class="cell">35</div>
+            <div class="cell">7</div>
+            <div class="cell back">48</div>
+          </div>
+          <div style="display:flex;">
+            <div class="cell-ptr" style="color:var(--red)">front</div>
+            <div class="cell-ptr"></div>
+            <div class="cell-ptr"></div>
+            <div class="cell-ptr" style="color:var(--green)">back</div>
+          </div>
+        </div>
+        <div class="end-label"><span class="lbl" style="color:var(--green)">back</span><span class="arr" style="color:var(--green)">←</span></div>
+      </div>
+    </div>
+
+    <!-- addFront -->
+    <div>
+      <div class="row-label" style="color:var(--accent)">addFront(99) — insert at front</div>
+      <div class="deque-row">
+        <div class="cell new-f">99</div>
+        <div class="cell front">12</div>
+        <div class="cell">35</div>
+        <div class="cell">7</div>
+        <div class="cell back">48</div>
+      </div>
+      <div style="display:flex;">
+        <div class="cell-ptr" style="color:var(--accent)">← new</div>
+        <div class="cell-ptr" style="color:var(--red)">front</div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr" style="color:var(--green)">back</div>
+      </div>
+    </div>
+
+    <!-- addBack -->
+    <div>
+      <div class="row-label" style="color:var(--blue)">addBack(77) — insert at back</div>
+      <div class="deque-row">
+        <div class="cell front">12</div>
+        <div class="cell">35</div>
+        <div class="cell">7</div>
+        <div class="cell back">48</div>
+        <div class="cell new-b">77</div>
+      </div>
+      <div style="display:flex;">
+        <div class="cell-ptr" style="color:var(--red)">front</div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr" style="color:var(--green)">back</div>
+        <div class="cell-ptr" style="color:var(--blue)">new →</div>
+      </div>
+    </div>
+
+    <!-- removeFront -->
+    <div>
+      <div class="row-label" style="color:var(--red)">removeFront() → 12</div>
+      <div class="deque-row">
+        <div class="cell gone">12</div>
+        <div class="cell front">35</div>
+        <div class="cell">7</div>
+        <div class="cell back">48</div>
+      </div>
+      <div style="display:flex;">
+        <div class="cell-ptr" style="color:#3a4052">gone</div>
+        <div class="cell-ptr" style="color:var(--red)">front</div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr" style="color:var(--green)">back</div>
+      </div>
+    </div>
+
+    <!-- removeBack -->
+    <div>
+      <div class="row-label" style="color:var(--green)">removeBack() → 48</div>
+      <div class="deque-row">
+        <div class="cell front">12</div>
+        <div class="cell">35</div>
+        <div class="cell back">7</div>
+        <div class="cell gone">48</div>
+      </div>
+      <div style="display:flex;">
+        <div class="cell-ptr" style="color:var(--red)">front</div>
+        <div class="cell-ptr"></div>
+        <div class="cell-ptr" style="color:var(--green)">back</div>
+        <div class="cell-ptr" style="color:#3a4052">gone</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Deque generalizes Stack and Queue -->
+<div class="diagram-section">
+  <div class="label">3 — Deque Generalizes Stack and Queue</div>
+  <div class="annotation">A Stack and a Queue are just <span>restricted deques</span>. Restrict which end you use and you get one of the simpler ADTs.</div>
+
+  <div class="gen-grid">
+    <div class="gen-box deque-box">
+      <div class="gen-title">Deque</div>
+      <div class="gen-row"><span class="k">addFront</span>    <span class="allowed">✓</span></div>
+      <div class="gen-row"><span class="k">addBack</span>     <span class="allowed">✓</span></div>
+      <div class="gen-row"><span class="k">removeFront</span> <span class="allowed">✓</span></div>
+      <div class="gen-row"><span class="k">removeBack</span>  <span class="allowed">✓</span></div>
+    </div>
+    <div class="gen-box queue-box">
+      <div class="gen-title">Queue (restricted)</div>
+      <div class="gen-row"><span class="k">addFront</span>    <span class="blocked">✕</span></div>
+      <div class="gen-row"><span class="k">addBack</span>     <span class="allowed">✓</span></div>
+      <div class="gen-row"><span class="k">removeFront</span> <span class="allowed">✓</span></div>
+      <div class="gen-row"><span class="k">removeBack</span>  <span class="blocked">✕</span></div>
+    </div>
+    <div class="gen-box stack-box">
+      <div class="gen-title">Stack (restricted)</div>
+      <div class="gen-row"><span class="k">addFront</span>    <span class="allowed">✓</span> (push)</div>
+      <div class="gen-row"><span class="k">addBack</span>     <span class="blocked">✕</span></div>
+      <div class="gen-row"><span class="k">removeFront</span> <span class="allowed">✓</span> (pop)</div>
+      <div class="gen-row"><span class="k">removeBack</span>  <span class="blocked">✕</span></div>
+    </div>
+  </div>
+  <div class="caption" style="margin-top:12px">Deque is the most flexible. Use only back-add + front-remove and you have a queue. Use only front-add + front-remove and you have a stack.</div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Both Ends Open</div>
+    <div class="card-body">Add and remove from either the front or the back. All four operations are O(1).</div>
+    <div class="card-o" style="color:var(--accent)">O(1) both ends</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Generalizes Stack + Queue</div>
+    <div class="card-body">A stack and a queue are restricted deques. Restrict one end and you get the simpler structure.</div>
+    <div class="card-o" style="color:var(--green)">most flexible ADT</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Implementation</div>
+    <div class="card-body">Best implemented with a doubly linked list — O(1) insert and remove at both head and tail. Circular array also works.</div>
+    <div class="card-o" style="color:var(--blue)">doubly linked list</div>
+  </div>
+  <div class="card">
+    <div class="card-title">No Middle Access</div>
+    <div class="card-body">Like stack and queue — you can only operate on the two ends. No random access to the middle.</div>
+    <div class="card-o" style="color:var(--red)">ends only</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Sliding window algorithms, undo/redo with history, palindrome checking, browser history (back and forward).</div>
+    <div class="card-o" style="color:var(--orange)">real world</div>
+  </div>
+</div>
+
+</body>
+</html>

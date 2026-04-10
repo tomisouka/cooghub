@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operating Systems — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #f472b6;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+/* ── Layout ── */
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.sidebar-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Timeline ── */
+.tl-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.timeline {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 18px;
+  cursor: default;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -18px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--dot);
+  transition: transform 0.15s;
+}
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--dot);
+  margin-bottom: 2px;
+}
+.tl-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tl-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Sources ── */
+.src-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.src-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.src-card:hover { border-color: var(--accent); }
+.src-card span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.src-card small {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  outline: none;
+  width: 180px;
+}
+#search-input:focus { border-color: var(--accent); }
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 80px;
+}
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Content sections ── */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 48px 0 6px;
+  letter-spacing: -0.3px;
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--card-color, var(--accent));
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code {
+  font-family: 'DM Mono', monospace;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+  color: #e8c547;
+}
+pre.code-block {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: #c8d0e0;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
+
+
+
+
+
+
+/* ── Mobile collapsible sidebar ───────────────────────────────────────────── */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 300;
+  background: var(--surface, #161920);
+  color: var(--text, #d4d8e0);
+  border: 1px solid var(--border, #2a2e38);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 250 !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 85vw !important;
+    max-width: 300px !important;
+    min-width: unset !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
+  }
+
+  /* Main content fills full width since sidebar is out of flow */
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Give topbar left padding so toggle button doesn't overlap text */
+  .topbar {
+    padding-left: 48px !important;
+    flex-wrap: wrap !important;
+  }
+}
+</style>
+</head>
+<body>
+<button id="sidebar-toggle">☰ Timeline</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+
+
+
+
+<div class="layout">
+
+  <!-- ── Sidebar: Timeline + Sources ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Operating Systems History</h1>
+      <p class="sidebar-subtitle">From bare metal batch processing to containerized cloud infrastructure</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#7a8090">
+          <div class="tl-year">1950s</div>
+          <div class="tl-title">No OS — Bare Metal</div>
+          <div class="tl-desc">Programmers booked time on the machine, loaded programs by hand, and ran them directly. One program at a time. The "OS" was the human operator.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1956–1965</div>
+          <div class="tl-title">Batch Systems</div>
+          <div class="tl-desc">Jobs collected on punch cards, submitted in batches, run sequentially. GM-NAA I/O (1956) is considered the first OS. IBM OS/360 (1964): one OS for an entire product line.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1961–1967</div>
+          <div class="tl-title">Time-Sharing & Multiprogramming</div>
+          <div class="tl-desc">CTSS (MIT, 1961) first time-sharing system. Multics attempts ambitious multi-user OS — too complex, but spawns Unix.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1969–1971</div>
+          <div class="tl-title">Unix</div>
+          <div class="tl-desc">Ken Thompson and Dennis Ritchie write Unix on a discarded PDP-7. Rewritten in C (1973) — first portable OS. "Everything is a file." Parent of Linux, macOS, Android, iOS.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1981–1985</div>
+          <div class="tl-title">Personal Computing OS</div>
+          <div class="tl-desc">MS-DOS ships with IBM PC. Apple Lisa and Macintosh bring GUI to consumers. The OS becomes something ordinary people interact with daily.</div>
+        </div>
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">1991</div>
+          <div class="tl-title">Linux</div>
+          <div class="tl-desc">Linus Torvalds, age 21: "I'm doing a (free) operating system (just a hobby)." Linux becomes the most widely deployed OS kernel in history — runs most of the internet and all Android phones.</div>
+        </div>
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">2000–2010</div>
+          <div class="tl-title">Virtualization & Cloud</div>
+          <div class="tl-desc">VMware brings x86 virtualization to enterprises. Amazon EC2 (2006) launches cloud computing. You rent CPU time, not machines.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">2013–present</div>
+          <div class="tl-title">Containers & Beyond</div>
+          <div class="tl-desc">Docker (2013) popularizes Linux containers using namespaces and cgroups. Kubernetes (2014) orchestrates containers at scale. The OS boundary blurs.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://pages.cs.wisc.edu/~remzi/OSTEP/" target="_blank" rel="noopener">
+        <span>Operating Systems: Three Easy Pieces (free)</span>
+        <small>pages.cs.wisc.edu</small>
+      </a>
+      <a class="src-card" href="https://www.kernel.org/doc/html/latest/" target="_blank" rel="noopener">
+        <span>Linux Kernel Docs</span>
+        <small>kernel.org</small>
+      </a>
+      <a class="src-card" href="https://wiki.osdev.org/" target="_blank" rel="noopener">
+        <span>OSDev Wiki</span>
+        <small>wiki.osdev.org</small>
+      </a>
+      <a class="src-card" href="https://man7.org/tlpi/" target="_blank" rel="noopener">
+        <span>The Linux Programming Interface — Kerrisk</span>
+        <small>man7.org</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main: nav + content ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Operating Systems Reference</span>
+      <nav>
+        <a href="#processes">Processes</a>
+        <a href="#scheduling">Scheduling</a>
+        <a href="#memory">Memory</a>
+        <a href="#sync">Sync</a>
+        <a href="#filesystem">Filesystem</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+<div id="processes">
+  <div class="section-title">Processes & Threads</div>
+  <div class="section-sub">The OS illusion: each program thinks it owns the whole machine</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Process</div><div class="card-title">Program in execution</div>
+      <div class="card-desc">A process has its own: <strong>address space</strong> (virtual memory), open files, PCB (Process Control Block), PID. Isolated — one process can't touch another's memory by default.<br><br><strong>States:</strong> New → Ready → Running → Waiting → Terminated. Context switch saves/restores PCB.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Thread</div><div class="card-title">Lightweight process — shared memory</div>
+      <div class="card-desc">Threads within a process share: code, heap, global data, open files. Each thread has its own: <strong>stack, registers, program counter.</strong><br><br>Cheaper to create than processes (no address space copy). Race conditions are the price of shared memory.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">fork() & exec()</div><div class="card-title">Unix process creation</div>
+      <div class="card-desc"><code>fork()</code> — creates a copy of the current process. Returns 0 to child, PID to parent. Uses <strong>copy-on-write</strong> — pages only copied when written.<br><br><code>exec()</code> — replaces current process image with a new program. Shell: fork to create child, exec to run the command.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">IPC</div><div class="card-title">Inter-Process Communication</div>
+      <div class="card-desc"><strong>Pipes:</strong> unidirectional byte stream. <code>|</code> in shell.<br><strong>Message queues:</strong> structured messages, OS-buffered.<br><strong>Shared memory:</strong> fastest — processes map same physical page.<br><strong>Sockets:</strong> work across machines too.<br><strong>Signals:</strong> async notifications (SIGKILL, SIGTERM, SIGSEGV).</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="scheduling">
+  <div class="section-title">CPU Scheduling</div>
+  <div class="section-sub">Who runs next? The policy shapes everything users experience as "speed"</div>
+  <table class="ref-table">
+    <thead><tr><th>Algorithm</th><th>How it works</th><th>Pros</th><th>Cons</th></tr></thead>
+    <tbody>
+      <tr><td>FCFS</td><td>First-come, first-served. Non-preemptive.</td><td>Simple, fair</td><td><strong>Convoy effect</strong> — short jobs stuck behind long ones</td></tr>
+      <tr><td>SJF</td><td>Shortest job first. Non-preemptive.</td><td>Optimal avg wait time</td><td>Starvation of long jobs; requires knowing burst time</td></tr>
+      <tr><td>SRTF</td><td>Preemptive SJF — preempt if new job is shorter</td><td>Best avg waiting time</td><td>High context-switch overhead; starvation</td></tr>
+      <tr><td>Round Robin</td><td>Each process gets a time quantum q. Preempt at expiry.</td><td>Fair, responsive, no starvation</td><td>High context switches if q too small; q too large → FCFS</td></tr>
+      <tr><td>Priority</td><td>Highest priority runs. Preemptive or not.</td><td>Important work runs first</td><td><strong>Starvation</strong> — fix with aging (increase priority over time)</td></tr>
+      <tr><td>MLFQ</td><td>Multiple queues, different priorities + time quanta. Processes move between queues.</td><td>Best of all worlds — approximates SJF without knowing burst</td><td>Complex to tune</td></tr>
+    </tbody>
+  </table>
+  <div style="color:var(--muted);font-size:0.85rem;margin-top:-20px;margin-bottom:32px"><strong style="color:var(--text)">Linux CFS</strong> (Completely Fair Scheduler): uses a red-black tree ordered by virtual runtime. Every process gets equal CPU time weighted by priority — no quantum, just fair shares.</div>
+</div>
+
+<div id="memory">
+  <div class="section-title">Memory Management</div>
+  <div class="section-sub">Virtual memory — the illusion that every process has the whole address space</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Virtual Memory</div><div class="card-title">Isolation + more RAM than you have</div>
+      <div class="card-desc">Each process has a private virtual address space (e.g., 0 to 2⁴⁸ on 64-bit). The MMU translates virtual → physical via <strong>page tables.</strong><br><br>Benefits: process isolation, can use more memory than physical RAM (swap), easier linking/loading, copy-on-write.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Paging</div><div class="card-title">Fixed-size chunks</div>
+      <div class="card-desc">Virtual and physical memory divided into fixed-size <strong>pages</strong> (typically 4 KB). Page table maps virtual page → physical frame. OS stores pages on disk when RAM is full (swapping).<br><br><strong>TLB</strong> (Translation Lookaside Buffer): hardware cache of recent virtual→physical translations. TLB miss = expensive page table walk.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Page Replacement</div><div class="card-title">Which page to evict when RAM is full?</div>
+      <div class="card-desc"><strong>OPT:</strong> evict page not used for longest time — optimal but requires future knowledge.<br><strong>LRU:</strong> evict least recently used — excellent in practice, expensive to implement exactly.<br><strong>Clock (≈LRU):</strong> circular buffer with reference bits — approximates LRU cheaply. Used by Linux.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Thrashing</div><div class="card-title">When swapping dominates</div>
+      <div class="card-desc">If a process's working set doesn't fit in RAM, it constantly page-faults and swaps. CPU spends all time on paging, zero on useful work.<br><br><strong>Fix:</strong> working set model — only run as many processes as can fit their working sets in RAM. Suspend the rest.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="sync">
+  <div class="section-title">Synchronization & Deadlocks</div>
+  <div class="section-sub">Concurrent access to shared data is the source of the hardest bugs</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Race Condition</div><div class="card-title">Outcome depends on timing</div>
+      <div class="card-desc">Two threads read-modify-write the same variable without synchronization. Result depends on scheduling — non-deterministic, hard to reproduce.<br><br><strong>Critical section:</strong> the code that accesses shared data. Must be executed by at most one thread at a time.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Mutex & Semaphore</div><div class="card-title">The two fundamental locks</div>
+      <div class="card-desc"><strong>Mutex</strong> (mutual exclusion): binary lock. Only the thread that locked it can unlock it. For protecting critical sections.<br><br><strong>Semaphore:</strong> integer counter. <code>wait()</code> decrements (blocks if 0), <code>signal()</code> increments. Used for resource counting and producer-consumer.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Deadlock</div><div class="card-title">Four necessary conditions (Coffman)</div>
+      <div class="card-desc"><strong>1. Mutual exclusion:</strong> resource held by one at a time.<br><strong>2. Hold and wait:</strong> holding one, waiting for another.<br><strong>3. No preemption:</strong> can't force release.<br><strong>4. Circular wait:</strong> A waits for B, B waits for A.<br><br>Break <strong>any one</strong> condition to prevent deadlock.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Classic Problems</div><div class="card-title">The three you'll be asked about</div>
+      <div class="card-desc"><strong>Producer-Consumer:</strong> bounded buffer — semaphores for empty/full slots + mutex for buffer access.<br><strong>Readers-Writers:</strong> multiple readers OR one writer — readers don't block each other.<br><strong>Dining Philosophers:</strong> 5 philosophers, 5 forks — circular wait → deadlock if all grab left fork first.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="filesystem">
+  <div class="section-title">File Systems</div>
+  <div class="section-sub">Persistent storage abstraction — files and directories on top of raw blocks</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">inode</div><div class="card-title">The metadata node (Unix)</div>
+      <div class="card-desc">Every file/directory has an inode: permissions, owner, timestamps, size, and <strong>pointers to data blocks.</strong> Filename is stored in the directory, not the inode — this is why hard links work (two names, one inode).<br><br>Indirect blocks extend addressing to huge files.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">FAT vs ext4 vs NTFS</div><div class="card-title">Common filesystem formats</div>
+      <div class="card-desc"><strong>FAT32:</strong> simple, universal, max 4 GB file — used for USB drives, embedded.<br><strong>ext4:</strong> Linux default. Journaling, extents, large file support.<br><strong>NTFS:</strong> Windows. Journaling, ACLs, compression, encryption.<br><strong>APFS:</strong> Apple. Copy-on-write, snapshots, native encryption.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Journaling</div><div class="card-title">Crash recovery without fsck</div>
+      <div class="card-desc">Before modifying filesystem structures, write the intended changes to a <strong>journal</strong> (log). If a crash occurs mid-write, replay the journal on boot to reach a consistent state.<br><br><strong>Write-ahead logging</strong> — the same concept powers database durability (the D in ACID).</div>
+    </div></div>
+  </div>
+</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+
+<script>
+(function() {
+  var btn     = document.getElementById('sidebar-toggle');
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰ Timeline';
+  }
+
+  btn.addEventListener('click', function() {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  sidebar.querySelectorAll('.tl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

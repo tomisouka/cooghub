@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Linux Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #181820;
+    --surface2: #202030;
+    --border: #2e2e48;
+    --accent: #7eb8f7;
+    --accent2: #f5c06a;
+    --accent3: #a8e6a3;
+    --text: #eeeeff;
+    --text-dim: #9090b8;
+    --text-code: #b8d8ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 18, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(126, 184, 247, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    margin-top: 1.2rem;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(126, 184, 247, 0.05); }
+  tr:hover td:first-child { color: #b8d8ff; text-shadow: 0 0 20px rgba(126, 184, 247, 0.5); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 160px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+    border-right: 1px solid var(--border);
+    background: rgba(126, 184, 247, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(126, 184, 247, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    position: relative;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+  }
+  .example-block .reading { font-size: 0.95rem; color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code { font-family: 'DM Mono', monospace; color: var(--accent); white-space: nowrap; min-width: 130px; font-size: 0.95rem; }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">Linux Ref</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#files">Files</a>
+    <a href="#permissions">Permissions</a>
+    <a href="#processes">Processes</a>
+    <a href="#text">Text Tools</a>
+    <a href="#networking">Networking</a>
+    <a href="#users">Users</a>
+    <a href="#packages">Packages</a>
+    <a href="#shell">Shell</a>
+    <a href="#redirection">Redirection</a>
+    <a href="#disk">Disk</a>
+    <a href="#memory">Memory</a>
+    <a href="#ssh">SSH</a>
+    <a href="#systemd">Systemd</a>
+    <a href="#tips">Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero" id="top">
+  <span class="hero-tag">Systems / Shell / DevOps</span>
+  <h1>Linux <span>Quick Reference</span></h1>
+  <p class="subtitle">Commands, flags, patterns · bash &amp; POSIX · kernel 6.x · 2026</p>
+</div>
+
+<main>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <a href="#basics"><span class="toc-num">01</span>Shell Basics</a>
+  <a href="#files"><span class="toc-num">02</span>File &amp; Directory Commands</a>
+  <a href="#permissions"><span class="toc-num">03</span>Permissions &amp; Ownership</a>
+  <a href="#processes"><span class="toc-num">04</span>Processes &amp; Jobs</a>
+  <a href="#text"><span class="toc-num">05</span>Text Processing</a>
+  <a href="#networking"><span class="toc-num">06</span>Networking</a>
+  <a href="#users"><span class="toc-num">07</span>Users &amp; Groups</a>
+  <a href="#packages"><span class="toc-num">08</span>Package Management</a>
+  <a href="#shell"><span class="toc-num">09</span>Shell Scripting</a>
+  <a href="#redirection"><span class="toc-num">10</span>Redirection &amp; Pipes</a>
+  <a href="#disk"><span class="toc-num">11</span>Disk &amp; Storage</a>
+  <a href="#memory"><span class="toc-num">12</span>Memory &amp; RAM</a>
+  <a href="#ssh"><span class="toc-num">13</span>SSH &amp; Remote</a>
+  <a href="#systemd"><span class="toc-num">14</span>Systemd &amp; Services</a>
+  <a href="#tips"><span class="toc-num">15</span>Pro Tips</a>
+  <a href="#index"><span class="toc-num">16</span>Command Index</a>
+</div>
+
+<!-- 01 SHELL BASICS -->
+<section id="basics">
+  <div class="section-header"><span class="section-icon">🐚</span><h2>Shell Basics</h2></div>
+  <p class="prose">The shell interprets commands you type. <strong>bash</strong> is the default on most distros; <strong>zsh</strong> on macOS. Commands follow the pattern: <code>command [options] [arguments]</code></p>
+
+  <h3>Navigation</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>pwd</td><td>Print current working directory</td><td><code>pwd</code> → <code>/home/alice</code></td></tr>
+      <tr><td>cd &lt;dir&gt;</td><td>Change directory</td><td><code>cd /etc</code></td></tr>
+      <tr><td>cd ~</td><td>Go to home directory</td><td><code>cd ~</code></td></tr>
+      <tr><td>cd -</td><td>Go to previous directory</td><td><code>cd -</code></td></tr>
+      <tr><td>cd ..</td><td>Go up one level</td><td><code>cd ../..</code> (up two)</td></tr>
+      <tr><td>ls</td><td>List directory contents</td><td><code>ls -la /var/log</code></td></tr>
+      <tr><td>ls -l</td><td>Long listing with permissions, sizes</td><td><code>ls -lh</code> (human sizes)</td></tr>
+      <tr><td>ls -a</td><td>Show hidden files (dotfiles)</td><td><code>ls -la</code></td></tr>
+      <tr><td>tree</td><td>Visual directory tree</td><td><code>tree -L 2</code> (2 levels)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Getting Help</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>man &lt;cmd&gt;</td><td>Full manual page for a command</td></tr>
+      <tr><td>tldr &lt;cmd&gt;</td><td>Community-written practical examples (install separately)</td></tr>
+      <tr><td>&lt;cmd&gt; --help</td><td>Quick usage summary</td></tr>
+      <tr><td>whatis &lt;cmd&gt;</td><td>One-line description</td></tr>
+      <tr><td>which &lt;cmd&gt;</td><td>Show full path of an executable</td></tr>
+      <tr><td>type &lt;cmd&gt;</td><td>Tell if it's a builtin, alias, or binary</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>History &amp; Shortcuts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Key / Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>↑ / ↓</td><td>Scroll through command history</td></tr>
+      <tr><td>Ctrl+R</td><td>Reverse search history (type to find)</td></tr>
+      <tr><td>!!</td><td>Repeat last command</td></tr>
+      <tr><td>!&lt;n&gt;</td><td>Run command #n from history</td></tr>
+      <tr><td>history</td><td>Show command history list</td></tr>
+      <tr><td>Ctrl+C</td><td>Kill running process</td></tr>
+      <tr><td>Ctrl+Z</td><td>Suspend process (send to background)</td></tr>
+      <tr><td>Ctrl+D</td><td>EOF / exit shell</td></tr>
+      <tr><td>Ctrl+L</td><td>Clear screen (same as <code>clear</code>)</td></tr>
+      <tr><td>Tab</td><td>Autocomplete commands and paths</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 FILES -->
+<section id="files">
+  <div class="section-header"><span class="section-icon">📁</span><h2>File &amp; Directory Commands</h2></div>
+
+  <h3>Creating &amp; Removing</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>touch &lt;file&gt;</td><td>Create empty file or update timestamp</td><td><code>touch notes.txt</code></td></tr>
+      <tr><td>mkdir &lt;dir&gt;</td><td>Create directory</td><td><code>mkdir -p a/b/c</code></td></tr>
+      <tr><td>rm &lt;file&gt;</td><td>Remove file</td><td><code>rm old.log</code></td></tr>
+      <tr><td>rm -r &lt;dir&gt;</td><td>Remove directory recursively</td><td><code>rm -rf /tmp/build</code></td></tr>
+      <tr><td>rmdir &lt;dir&gt;</td><td>Remove empty directory</td><td><code>rmdir empty/</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Copying &amp; Moving</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>cp &lt;src&gt; &lt;dst&gt;</td><td>Copy file</td><td><code>cp file.txt backup.txt</code></td></tr>
+      <tr><td>cp -r &lt;src&gt; &lt;dst&gt;</td><td>Copy directory recursively</td><td><code>cp -r src/ dst/</code></td></tr>
+      <tr><td>mv &lt;src&gt; &lt;dst&gt;</td><td>Move or rename file/dir</td><td><code>mv old.txt new.txt</code></td></tr>
+      <tr><td>rsync -av &lt;src&gt; &lt;dst&gt;</td><td>Efficient sync/copy with progress</td><td><code>rsync -av ~/docs /backup</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Viewing Files</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>cat &lt;file&gt;</td><td>Print entire file to stdout</td></tr>
+      <tr><td>less &lt;file&gt;</td><td>Scrollable pager (q to quit, /search, n next)</td></tr>
+      <tr><td>head -n 20 &lt;file&gt;</td><td>Show first 20 lines</td></tr>
+      <tr><td>tail -n 20 &lt;file&gt;</td><td>Show last 20 lines</td></tr>
+      <tr><td>tail -f &lt;file&gt;</td><td>Follow file in real-time (great for logs)</td></tr>
+      <tr><td>wc -l &lt;file&gt;</td><td>Count lines (also -w words, -c bytes)</td></tr>
+      <tr><td>file &lt;path&gt;</td><td>Detect file type by magic bytes</td></tr>
+      <tr><td>stat &lt;file&gt;</td><td>Show inode metadata, timestamps, permissions</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Finding Files</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>find . -name "*.log"</td><td>Find files by name pattern under current dir</td></tr>
+      <tr><td>find / -type f -size +100M</td><td>Find files larger than 100 MB</td></tr>
+      <tr><td>find . -mtime -1</td><td>Files modified in the last 24 hours</td></tr>
+      <tr><td>locate &lt;name&gt;</td><td>Fast search using prebuilt index (updatedb to refresh)</td></tr>
+      <tr><td>fd &lt;pattern&gt;</td><td>Modern, user-friendly find alternative</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="example-block">
+    <div class="expr">find /var/log -name "*.log" -mtime -7 -exec gzip {} \;</div>
+    <div class="reading">Find all .log files modified in the last 7 days under /var/log and compress them in-place.</div>
+  </div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 PERMISSIONS -->
+<section id="permissions">
+  <div class="section-header"><span class="section-icon">🔐</span><h2>Permissions &amp; Ownership</h2></div>
+  <p class="prose">Linux uses a <strong>User / Group / Other</strong> permission model. Each file has read (<code>r</code>), write (<code>w</code>), and execute (<code>x</code>) bits for each of the three classes.</p>
+
+  <div class="example-block">
+    <div class="expr">-rwxr-xr--  1  alice  staff  4096  Jan 10  script.sh</div>
+    <div class="reading">Owner (alice) can rwx · Group (staff) can rx · Others can only r</div>
+  </div>
+
+  <h3>chmod — Change Mode</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>chmod 755 &lt;file&gt;</td><td>rwxr-xr-x — owner full, others read+exec</td></tr>
+      <tr><td>chmod 644 &lt;file&gt;</td><td>rw-r--r-- — owner read+write, others read only</td></tr>
+      <tr><td>chmod 600 &lt;file&gt;</td><td>rw------- — private file (keys, secrets)</td></tr>
+      <tr><td>chmod +x &lt;file&gt;</td><td>Add execute bit for all</td></tr>
+      <tr><td>chmod -R 755 &lt;dir&gt;</td><td>Apply recursively to directory</td></tr>
+      <tr><td>chmod u+x,g-w &lt;file&gt;</td><td>Symbolic: user add exec, group remove write</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>chown / chgrp</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>chown alice &lt;file&gt;</td><td>Change owner to alice</td></tr>
+      <tr><td>chown alice:staff &lt;file&gt;</td><td>Change owner and group</td></tr>
+      <tr><td>chown -R alice: &lt;dir&gt;</td><td>Recursively change owner (keep group)</td></tr>
+      <tr><td>chgrp staff &lt;file&gt;</td><td>Change group only</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Special Bits</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Bit</th><th>Octal</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>setuid</td><td>4000</td><td>Run as file owner (e.g., <code>sudo</code>, <code>passwd</code>)</td></tr>
+      <tr><td>setgid</td><td>2000</td><td>Run as file group; on dirs: new files inherit group</td></tr>
+      <tr><td>sticky bit</td><td>1000</td><td>Only owner can delete files in dir (e.g., <code>/tmp</code>)</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 PROCESSES -->
+<section id="processes">
+  <div class="section-header"><span class="section-icon">⚙️</span><h2>Processes &amp; Jobs</h2></div>
+
+  <h3>Viewing Processes</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>ps aux</td><td>Snapshot of all running processes</td></tr>
+      <tr><td>ps aux | grep nginx</td><td>Find process by name</td></tr>
+      <tr><td>top</td><td>Live process monitor (q to quit)</td></tr>
+      <tr><td>htop</td><td>Better interactive process viewer (install separately)</td></tr>
+      <tr><td>pgrep &lt;name&gt;</td><td>Get PID(s) of process by name</td></tr>
+      <tr><td>pstree</td><td>Show process hierarchy as a tree</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Signals &amp; Killing</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Signal</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>kill &lt;pid&gt;</td><td>SIGTERM (15)</td><td>Graceful shutdown request</td></tr>
+      <tr><td>kill -9 &lt;pid&gt;</td><td>SIGKILL (9)</td><td>Force kill — cannot be caught or ignored</td></tr>
+      <tr><td>kill -HUP &lt;pid&gt;</td><td>SIGHUP (1)</td><td>Reload config (many daemons listen for this)</td></tr>
+      <tr><td>pkill &lt;name&gt;</td><td>SIGTERM</td><td>Kill by process name</td></tr>
+      <tr><td>killall &lt;name&gt;</td><td>SIGTERM</td><td>Kill all processes with that name</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Background &amp; Foreground Jobs</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>command &amp;</td><td>Run command in background</td></tr>
+      <tr><td>jobs</td><td>List background jobs in current shell</td></tr>
+      <tr><td>fg %1</td><td>Bring job 1 to foreground</td></tr>
+      <tr><td>bg %1</td><td>Resume stopped job 1 in background</td></tr>
+      <tr><td>nohup command &amp;</td><td>Run immune to hangup (survives logout)</td></tr>
+      <tr><td>disown %1</td><td>Detach job from shell (won't be killed on exit)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Priority</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>nice -n 10 command</td><td>Start command at lower priority (+19 = lowest)</td></tr>
+      <tr><td>renice -n -5 &lt;pid&gt;</td><td>Adjust priority of running process (needs root for negative)</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 TEXT TOOLS -->
+<section id="text">
+  <div class="section-header"><span class="section-icon">✂️</span><h2>Text Processing</h2></div>
+  <p class="prose">Linux has a rich suite of text tools. Chaining them with pipes (<code>|</code>) is where the real power emerges.</p>
+
+  <h3>Search &amp; Filter</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>grep &lt;pat&gt; &lt;file&gt;</td><td>Search for pattern in file</td><td><code>grep -i "error" app.log</code></td></tr>
+      <tr><td>grep -r &lt;pat&gt; &lt;dir&gt;</td><td>Recursive search</td><td><code>grep -r "TODO" ./src</code></td></tr>
+      <tr><td>grep -n</td><td>Show line numbers</td><td><code>grep -n "def " script.py</code></td></tr>
+      <tr><td>grep -v &lt;pat&gt;</td><td>Invert — show non-matching lines</td><td><code>grep -v "^#" config</code></td></tr>
+      <tr><td>grep -E</td><td>Extended regex (or use <code>egrep</code>)</td><td><code>grep -E "foo|bar"</code></td></tr>
+      <tr><td>rg &lt;pat&gt;</td><td>ripgrep — blazing-fast recursive grep</td><td><code>rg "error" --type py</code></td></tr>
+      <tr><td>ag &lt;pat&gt;</td><td>The Silver Searcher — fast grep alternative</td><td><code>ag "TODO"</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Transform</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>sed 's/old/new/g' &lt;file&gt;</td><td>Stream editor — replace all occurrences of old with new</td></tr>
+      <tr><td>sed -i 's/foo/bar/g' &lt;file&gt;</td><td>In-place substitution (edit file directly)</td></tr>
+      <tr><td>awk '{print $2}' &lt;file&gt;</td><td>Print second field of each line</td></tr>
+      <tr><td>awk -F: '{print $1}' /etc/passwd</td><td>Use : as delimiter, print first field</td></tr>
+      <tr><td>cut -d: -f1 /etc/passwd</td><td>Cut field 1 from colon-delimited file</td></tr>
+      <tr><td>sort &lt;file&gt;</td><td>Sort lines alphabetically</td></tr>
+      <tr><td>sort -n</td><td>Numeric sort</td></tr>
+      <tr><td>sort -k2</td><td>Sort by second field</td></tr>
+      <tr><td>uniq</td><td>Remove consecutive duplicate lines (pipe from sort)</td></tr>
+      <tr><td>uniq -c</td><td>Count occurrences of each unique line</td></tr>
+      <tr><td>tr 'a-z' 'A-Z'</td><td>Translate characters (e.g., lowercase to uppercase)</td></tr>
+      <tr><td>tr -d '\r'</td><td>Delete carriage returns (fix Windows line endings)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"># Count most common IPs in a web log:
+awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -10</div>
+
+  <h3>Comparing Files</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>diff &lt;a&gt; &lt;b&gt;</td><td>Show line-by-line differences between files</td></tr>
+      <tr><td>diff -u &lt;a&gt; &lt;b&gt;</td><td>Unified diff (patch-style output)</td></tr>
+      <tr><td>comm &lt;a&gt; &lt;b&gt;</td><td>Lines unique to a, unique to b, or common (sorted files)</td></tr>
+      <tr><td>md5sum &lt;file&gt;</td><td>Compute MD5 hash</td></tr>
+      <tr><td>sha256sum &lt;file&gt;</td><td>Compute SHA-256 hash</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 NETWORKING -->
+<section id="networking">
+  <div class="section-header"><span class="section-icon">🌐</span><h2>Networking</h2></div>
+
+  <h3>Diagnostics</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>ip addr</td><td>Show network interfaces and IP addresses (modern ifconfig)</td></tr>
+      <tr><td>ip route</td><td>Show routing table</td></tr>
+      <tr><td>ping &lt;host&gt;</td><td>Test connectivity (ICMP echo)</td></tr>
+      <tr><td>traceroute &lt;host&gt;</td><td>Show network hops to destination</td></tr>
+      <tr><td>ss -tuln</td><td>Show listening ports/sockets (modern netstat)</td></tr>
+      <tr><td>netstat -tuln</td><td>Legacy port listing</td></tr>
+      <tr><td>nmap &lt;host&gt;</td><td>Port scan (install separately)</td></tr>
+      <tr><td>dig &lt;domain&gt;</td><td>DNS lookup</td></tr>
+      <tr><td>nslookup &lt;domain&gt;</td><td>Simple DNS query</td></tr>
+      <tr><td>host &lt;domain&gt;</td><td>DNS lookup (concise output)</td></tr>
+      <tr><td>curl ifconfig.me</td><td>Get your public IP address</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Data Transfer</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>curl -O &lt;url&gt;</td><td>Download file preserving remote name</td></tr>
+      <tr><td>curl -L -o file &lt;url&gt;</td><td>Download with redirect following and custom name</td></tr>
+      <tr><td>curl -I &lt;url&gt;</td><td>Show HTTP response headers only</td></tr>
+      <tr><td>wget &lt;url&gt;</td><td>Download file (supports resuming with -c)</td></tr>
+      <tr><td>scp &lt;src&gt; user@host:&lt;dst&gt;</td><td>Secure copy over SSH</td></tr>
+      <tr><td>rsync -avz &lt;src&gt; user@host:&lt;dst&gt;</td><td>Efficient remote sync with compression</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Firewall (UFW / iptables)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>ufw status</td><td>Show firewall rules and status</td></tr>
+      <tr><td>ufw allow 22/tcp</td><td>Allow SSH</td></tr>
+      <tr><td>ufw allow 80,443/tcp</td><td>Allow HTTP and HTTPS</td></tr>
+      <tr><td>ufw deny 3306</td><td>Block MySQL port</td></tr>
+      <tr><td>ufw enable</td><td>Activate firewall</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 USERS -->
+<section id="users">
+  <div class="section-header"><span class="section-icon">👤</span><h2>Users &amp; Groups</h2></div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>whoami</td><td>Print current username</td></tr>
+      <tr><td>id</td><td>Show UID, GID, and group memberships</td></tr>
+      <tr><td>sudo &lt;command&gt;</td><td>Run command as root</td></tr>
+      <tr><td>su - &lt;user&gt;</td><td>Switch to another user (full login shell)</td></tr>
+      <tr><td>useradd -m alice</td><td>Create user with home directory</td></tr>
+      <tr><td>usermod -aG docker alice</td><td>Add alice to docker group</td></tr>
+      <tr><td>userdel -r alice</td><td>Delete user and home directory</td></tr>
+      <tr><td>passwd alice</td><td>Set password for user</td></tr>
+      <tr><td>groupadd devs</td><td>Create a new group</td></tr>
+      <tr><td>groups alice</td><td>List groups alice belongs to</td></tr>
+      <tr><td>last</td><td>Show recent login history</td></tr>
+      <tr><td>w</td><td>Who is logged in and what they're doing</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 PACKAGES -->
+<section id="packages">
+  <div class="section-header"><span class="section-icon">📦</span><h2>Package Management</h2></div>
+
+  <h3>apt (Debian / Ubuntu)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>apt update</td><td>Refresh package index from repositories</td></tr>
+      <tr><td>apt upgrade</td><td>Upgrade all installed packages</td></tr>
+      <tr><td>apt full-upgrade</td><td>Upgrade + remove/add packages as needed (dist-upgrade)</td></tr>
+      <tr><td>apt install &lt;pkg&gt;</td><td>Install a package</td></tr>
+      <tr><td>apt install &lt;pkg&gt;=&lt;version&gt;</td><td>Install specific version</td></tr>
+      <tr><td>apt remove &lt;pkg&gt;</td><td>Remove package (keep config files)</td></tr>
+      <tr><td>apt purge &lt;pkg&gt;</td><td>Remove package and config files</td></tr>
+      <tr><td>apt search &lt;term&gt;</td><td>Search available packages</td></tr>
+      <tr><td>apt show &lt;pkg&gt;</td><td>Show package details, dependencies, description</td></tr>
+      <tr><td>apt list --installed</td><td>List installed packages</td></tr>
+      <tr><td>apt list --upgradable</td><td>Show packages with pending upgrades</td></tr>
+      <tr><td>apt autoremove</td><td>Remove unused dependency packages</td></tr>
+      <tr><td>apt clean</td><td>Delete cached .deb files from /var/cache/apt</td></tr>
+      <tr><td>apt autoclean</td><td>Remove only outdated cached packages</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>dpkg — Low-Level Package Tool</h3>
+  <p class="prose"><strong>dpkg</strong> is the underlying tool that apt sits on top of. Use it for manual .deb installs and deeper inspection.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>dpkg -i package.deb</td><td>Install a downloaded .deb file</td></tr>
+      <tr><td>dpkg -r &lt;pkg&gt;</td><td>Remove package (keep config)</td></tr>
+      <tr><td>dpkg -P &lt;pkg&gt;</td><td>Purge package and config</td></tr>
+      <tr><td>dpkg -l</td><td>List all installed packages (with version)</td></tr>
+      <tr><td>dpkg -l | grep &lt;name&gt;</td><td>Check if a specific package is installed</td></tr>
+      <tr><td>dpkg -L &lt;pkg&gt;</td><td>List all files installed by a package</td></tr>
+      <tr><td>dpkg -S /path/to/file</td><td>Which package owns this file?</td></tr>
+      <tr><td>dpkg --get-selections</td><td>Export all installed package names</td></tr>
+      <tr><td>dpkg-reconfigure &lt;pkg&gt;</td><td>Re-run package configuration wizard</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Linux Mint — mintinstall &amp; mint-specific tools</h3>
+  <p class="prose">Linux Mint is based on Ubuntu (LTS). All <code>apt</code> and <code>dpkg</code> commands work natively. Mint adds its own layer of tools on top.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command / Tool</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>mintupdate-cli upgrade</td><td>CLI for Mint Update Manager — update all packages</td></tr>
+      <tr><td>mintupdate-cli list</td><td>List available updates with Mint's stability ratings</td></tr>
+      <tr><td>apt install mintinstall</td><td>Software Manager (GUI). Launch with <code>mintinstall</code></td></tr>
+      <tr><td>mint-upgrade-info</td><td>Check if a new Mint release is available</td></tr>
+      <tr><td>inxi -Fxz</td><td>Full system info (pre-installed on Mint). Great for support threads</td></tr>
+      <tr><td>timeshift --create</td><td>Create a system snapshot (Mint's built-in backup tool)</td></tr>
+      <tr><td>timeshift --restore</td><td>Restore from a snapshot</td></tr>
+      <tr><td>timeshift --list</td><td>List available snapshots</td></tr>
+      <tr><td>xed &lt;file&gt;</td><td>Mint's default text editor (Cinnamon)</td></tr>
+      <tr><td>nemo &lt;path&gt;</td><td>Open Nemo file manager at path (Cinnamon)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Repositories &amp; PPAs</h3>
+  <p class="prose">PPAs (Personal Package Archives) let you install software not in the official Ubuntu/Mint repos. Use with caution — they can override system packages.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>add-apt-repository ppa:user/name</td><td>Add a PPA repository</td></tr>
+      <tr><td>add-apt-repository --remove ppa:user/name</td><td>Remove a PPA</td></tr>
+      <tr><td>cat /etc/apt/sources.list</td><td>View main repo list</td></tr>
+      <tr><td>ls /etc/apt/sources.list.d/</td><td>View additional repos (PPAs, third-party)</td></tr>
+      <tr><td>apt-key list</td><td>List trusted repository signing keys</td></tr>
+      <tr><td>apt-cache policy &lt;pkg&gt;</td><td>Show available versions and which repo they come from</td></tr>
+      <tr><td>apt-cache depends &lt;pkg&gt;</td><td>Show package dependencies</td></tr>
+      <tr><td>apt-cache rdepends &lt;pkg&gt;</td><td>Show packages that depend on this one</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"># Add a third-party repo using the modern signed-by method (recommended)
+curl -fsSL https://example.com/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/example.gpg
+echo "deb [signed-by=/etc/apt/keyrings/example.gpg] https://repo.example.com stable main" \
+  | sudo tee /etc/apt/sources.list.d/example.list
+sudo apt update
+
+# Pin a package to prevent it from being upgraded
+sudo apt-mark hold &lt;pkg&gt;
+sudo apt-mark unhold &lt;pkg&gt;
+apt-mark showhold          # list held packages</div>
+
+  <h3>Snap &amp; Flatpak (Ubuntu/Mint)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>snap find &lt;app&gt;</td><td>Search Snap Store</td></tr>
+      <tr><td>snap install &lt;app&gt;</td><td>Install a snap package</td></tr>
+      <tr><td>snap remove &lt;app&gt;</td><td>Remove snap package</td></tr>
+      <tr><td>snap list</td><td>List installed snaps</td></tr>
+      <tr><td>snap refresh</td><td>Update all snaps</td></tr>
+      <tr><td>flatpak install flathub &lt;app&gt;</td><td>Install from Flathub (Mint preferred)</td></tr>
+      <tr><td>flatpak update</td><td>Update all Flatpak apps</td></tr>
+      <tr><td>flatpak list</td><td>List installed Flatpaks</td></tr>
+      <tr><td>flatpak uninstall &lt;app&gt;</td><td>Remove a Flatpak</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose"><strong>Note for Linux Mint users:</strong> Mint disables Snap by default and recommends Flatpak instead. To enable Snap: <code>sudo rm /etc/apt/preferences.d/nosnap.pref &amp;&amp; sudo apt update</code>.</p>
+
+  <h3>dnf / yum (RHEL / Fedora / CentOS)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>dnf install &lt;pkg&gt;</td><td>Install a package</td></tr>
+      <tr><td>dnf update</td><td>Update all packages</td></tr>
+      <tr><td>dnf remove &lt;pkg&gt;</td><td>Remove a package</td></tr>
+      <tr><td>dnf search &lt;term&gt;</td><td>Search for packages</td></tr>
+      <tr><td>rpm -qa</td><td>List all installed RPM packages</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>pacman (Arch Linux)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>pacman -Syu</td><td>Sync and full system upgrade</td></tr>
+      <tr><td>pacman -S &lt;pkg&gt;</td><td>Install package</td></tr>
+      <tr><td>pacman -R &lt;pkg&gt;</td><td>Remove package</td></tr>
+      <tr><td>pacman -Ss &lt;term&gt;</td><td>Search packages</td></tr>
+      <tr><td>pacman -Q</td><td>List installed packages</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 SHELL SCRIPTING -->
+<section id="shell">
+  <div class="section-header"><span class="section-icon">📜</span><h2>Shell Scripting</h2></div>
+
+  <h3>Script Structure</h3>
+  <div class="code-block">#!/usr/bin/env bash
+set -euo pipefail   # exit on error, unset var, pipe fail
+
+NAME="${1:-World}"  # first arg or default "World"
+echo "Hello, $NAME!"</div>
+
+  <h3>Variables &amp; Strings</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>VAR=value</td><td>Assign (no spaces around =)</td></tr>
+      <tr><td>$VAR or ${VAR}</td><td>Expand variable</td></tr>
+      <tr><td>${VAR:-default}</td><td>Use default if VAR is unset or empty</td></tr>
+      <tr><td>${VAR:?error msg}</td><td>Exit with error if VAR is unset</td></tr>
+      <tr><td>${#VAR}</td><td>Length of string</td></tr>
+      <tr><td>${VAR%suffix}</td><td>Strip shortest suffix match</td></tr>
+      <tr><td>${VAR#prefix}</td><td>Strip shortest prefix match</td></tr>
+      <tr><td>"$(command)"</td><td>Command substitution — capture output</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Control Flow</h3>
+  <div class="code-block"># if / elif / else
+if [[ $x -gt 10 ]]; then
+  echo "big"
+elif [[ $x -eq 0 ]]; then
+  echo "zero"
+else
+  echo "small"
+fi
+
+# for loop
+for f in *.txt; do
+  echo "Processing $f"
+done
+
+# while loop
+while read -r line; do
+  echo "$line"
+done < input.txt
+
+# case
+case "$OS" in
+  linux)  echo "Linux" ;;
+  darwin) echo "macOS" ;;
+  *)      echo "Unknown" ;;
+esac</div>
+
+  <h3>Test Conditions [[ ]]</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Expression</th><th>True when</th></tr></thead>
+    <tbody>
+      <tr><td>-f &lt;file&gt;</td><td>File exists and is a regular file</td></tr>
+      <tr><td>-d &lt;dir&gt;</td><td>Directory exists</td></tr>
+      <tr><td>-z "$VAR"</td><td>String is empty</td></tr>
+      <tr><td>-n "$VAR"</td><td>String is non-empty</td></tr>
+      <tr><td>"$a" == "$b"</td><td>String equality</td></tr>
+      <tr><td>$a -eq $b</td><td>Numeric equality</td></tr>
+      <tr><td>$a -lt $b</td><td>a less than b</td></tr>
+      <tr><td>$a -gt $b</td><td>a greater than b</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Functions &amp; Arrays</h3>
+  <div class="code-block"># Function
+greet() {
+  local name="$1"
+  echo "Hello, $name"
+}
+greet "Alice"
+
+# Array
+fruits=("apple" "banana" "cherry")
+echo "${fruits[0]}"       # apple
+echo "${#fruits[@]}"      # 3 (length)
+for f in "${fruits[@]}"; do echo "$f"; done</div>
+
+  <h3>Exit Codes &amp; Error Handling</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>$?</td><td>Exit code of last command (0 = success, non-zero = error)</td></tr>
+      <tr><td>exit 0</td><td>Exit script with success</td></tr>
+      <tr><td>exit 1</td><td>Exit script with error</td></tr>
+      <tr><td>|| echo "failed"</td><td>Run right side only if left side fails</td></tr>
+      <tr><td>&amp;&amp; echo "ok"</td><td>Run right side only if left side succeeds</td></tr>
+      <tr><td>trap 'cleanup' EXIT</td><td>Run cleanup function on any exit</td></tr>
+      <tr><td>trap 'echo "Error on line $LINENO"' ERR</td><td>Catch and report errors</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block">#!/usr/bin/env bash
+set -euo pipefail
+
+# Trap for cleanup on exit or error
+cleanup() {
+  echo "Cleaning up temp files..."
+  rm -f /tmp/work_$$
+}
+trap cleanup EXIT
+
+# Die helper — print error and exit
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+# Validate argument
+[[ $# -lt 1 ]] && die "Usage: $0 &lt;filename&gt;"
+[[ -f "$1" ]]  || die "File not found: $1"
+
+echo "Processing $1..."</div>
+
+  <h3>Input, Arguments &amp; Menus</h3>
+  <div class="code-block">#!/usr/bin/env bash
+# Reading user input
+read -rp "Enter your name: " name
+echo "Hello, $name"
+
+# Secret input (passwords)
+read -rsp "Password: " pass
+echo  # newline after hidden input
+
+# Script arguments
+echo "Script: $0"
+echo "First arg: $1"
+echo "All args: $@"
+echo "Arg count: $#"
+
+# Shift through arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v|--verbose) VERBOSE=1 ;;
+    -o|--output)  OUTPUT="$2"; shift ;;
+    --) shift; break ;;
+    -*) die "Unknown option: $1" ;;
+    *)  POSITIONAL+=("$1") ;;
+  esac
+  shift
+done
+
+# Simple select menu
+PS3="Pick an option: "
+select opt in "Start" "Stop" "Status" "Quit"; do
+  case $opt in
+    Start)  echo "Starting..."; break ;;
+    Stop)   echo "Stopping..."; break ;;
+    Status) echo "Checking..."; break ;;
+    Quit)   exit 0 ;;
+    *)      echo "Invalid choice" ;;
+  esac
+done</div>
+
+  <h3>String Manipulation</h3>
+  <div class="code-block">str="Hello, World!"
+echo "${str,,}"             # hello, world! (lowercase)
+echo "${str^^}"             # HELLO, WORLD! (uppercase)
+echo "${str/World/Linux}"   # Hello, Linux!
+echo "${str:0:5}"           # Hello (substring: start, length)
+echo "${str: -6}"           # orld!  (last 6 chars)
+echo "${#str}"              # 13 (length)
+
+path="/var/log/nginx/access.log"
+echo "${path##*/}"          # access.log  (basename)
+echo "${path%/*}"           # /var/log/nginx (dirname)
+echo "${path%.log}.gz"      # /var/log/nginx/access.gz</div>
+
+  <h3>Logging &amp; Output</h3>
+  <div class="code-block">#!/usr/bin/env bash
+# Colored output helpers
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+
+log()   { echo -e "${GREEN}[INFO]${NC}  $*"; }
+warn()  { echo -e "${YELLOW}[WARN]${NC}  $*" >&2; }
+error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
+
+log   "Starting backup..."
+warn  "Disk space is low"
+error "Connection refused" && exit 1
+
+# Timestamped log with tee
+exec > >(tee -a /var/log/myscript.log) 2>&1
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Script started"</div>
+
+  <h3>Useful Script Patterns</h3>
+  <div class="code-block">#!/usr/bin/env bash
+# Check if running as root
+[[ $EUID -ne 0 ]] && { echo "Run as root"; exit 1; }
+
+# Lock file — prevent duplicate runs
+LOCK=/tmp/myscript.lock
+exec 9>"$LOCK"
+flock -n 9 || { echo "Already running"; exit 1; }
+
+# Retry logic — try a command up to N times
+retry() {
+  local n=3 delay=5 cmd="$*"
+  for ((i=1; i<=n; i++)); do
+    "$@" && return 0
+    echo "Attempt $i/$n failed. Retrying in ${delay}s..."
+    sleep "$delay"
+  done
+  return 1
+}
+retry curl -sf https://example.com
+
+# Process a file line by line safely
+while IFS= read -r line || [[ -n "$line" ]]; do
+  echo "Line: $line"
+done < "input.txt"
+
+# Run tasks in parallel and wait
+for host in server1 server2 server3; do
+  ssh "$host" uptime &
+done
+wait  # waits for all background jobs
+
+# Temp file that auto-deletes
+tmpfile=$(mktemp /tmp/work.XXXXXX)
+trap "rm -f $tmpfile" EXIT</div>
+
+  <h3>Cron &amp; Scheduling</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>crontab -e</td><td>Edit current user's cron jobs</td></tr>
+      <tr><td>crontab -l</td><td>List current user's cron jobs</td></tr>
+      <tr><td>crontab -r</td><td>Remove all cron jobs for current user</td></tr>
+      <tr><td>sudo crontab -e</td><td>Edit root's cron jobs</td></tr>
+      <tr><td>cat /etc/crontab</td><td>System-wide cron schedule</td></tr>
+      <tr><td>ls /etc/cron.d/</td><td>Per-package cron drop-ins</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"># Cron time format:  MIN HOUR DOM MON DOW  COMMAND
+# ┌──────────── minute (0-59)
+# │ ┌────────── hour (0-23)
+# │ │ ┌──────── day of month (1-31)
+# │ │ │ ┌────── month (1-12)
+# │ │ │ │ ┌──── day of week (0=Sun, 6=Sat)
+# │ │ │ │ │
+  0 2 * * *    /opt/scripts/backup.sh          # every day at 2:00am
+*/15 * * * *   /opt/scripts/check_health.sh    # every 15 minutes
+  0 9 * * 1    /opt/scripts/weekly_report.sh   # every Monday at 9am
+  0 0 1 * *    /opt/scripts/monthly_clean.sh   # 1st of every month
+
+# Redirect cron output to log (otherwise it emails you)
+0 2 * * * /opt/scripts/backup.sh >> /var/log/backup.log 2>&1</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 REDIRECTION -->
+<section id="redirection">
+  <div class="section-header"><span class="section-icon">↔️</span><h2>Redirection &amp; Pipes</h2></div>
+  <p class="prose">Every process has three standard streams: <strong>stdin</strong> (0), <strong>stdout</strong> (1), and <strong>stderr</strong> (2). Redirection wires these to files or other commands.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Syntax</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>cmd &gt; file</td><td>Redirect stdout to file (overwrite)</td></tr>
+      <tr><td>cmd &gt;&gt; file</td><td>Redirect stdout to file (append)</td></tr>
+      <tr><td>cmd &lt; file</td><td>Use file as stdin for cmd</td></tr>
+      <tr><td>cmd 2&gt; err.log</td><td>Redirect stderr to file</td></tr>
+      <tr><td>cmd 2&gt;&amp;1</td><td>Merge stderr into stdout</td></tr>
+      <tr><td>cmd &gt; out.log 2&gt;&amp;1</td><td>Redirect both stdout and stderr to file</td></tr>
+      <tr><td>cmd &gt;/dev/null</td><td>Discard stdout</td></tr>
+      <tr><td>cmd1 | cmd2</td><td>Pipe stdout of cmd1 to stdin of cmd2</td></tr>
+      <tr><td>cmd1 |&amp; cmd2</td><td>Pipe both stdout and stderr (bash)</td></tr>
+      <tr><td>tee file</td><td>Write to file AND pass through to stdout</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Here Documents &amp; Strings</h3>
+  <div class="code-block"># Here document (multi-line stdin)
+cat << 'EOF'
+Line one
+Line two
+EOF
+
+# Here string (single-line stdin)
+grep "pattern" <<< "some text to search"</div>
+
+  <h3>Process Substitution</h3>
+  <div class="code-block"># Treat command output as a file
+diff &lt;(sort file1.txt) &lt;(sort file2.txt)
+
+# Parallel processing with tee
+tee &gt;(gzip -c > backup.gz) > live_output.txt</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 DISK -->
+<section id="disk">
+  <div class="section-header"><span class="section-icon">💾</span><h2>Disk &amp; Storage</h2></div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>df -h</td><td>Show disk space usage for all mounted filesystems</td></tr>
+      <tr><td>du -sh &lt;dir&gt;</td><td>Total disk usage of a directory</td></tr>
+      <tr><td>du -sh * | sort -h</td><td>Size of each item, sorted</td></tr>
+      <tr><td>lsblk</td><td>List block devices (disks, partitions)</td></tr>
+      <tr><td>fdisk -l</td><td>List partition tables (requires root)</td></tr>
+      <tr><td>mount /dev/sdb1 /mnt</td><td>Mount a partition</td></tr>
+      <tr><td>umount /mnt</td><td>Unmount a filesystem</td></tr>
+      <tr><td>blkid</td><td>Show UUIDs and filesystem types</td></tr>
+      <tr><td>lsof &lt;file&gt;</td><td>List processes with that file open</td></tr>
+      <tr><td>lsof -i :80</td><td>What process is using port 80</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Archives &amp; Compression</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>tar -czf out.tar.gz &lt;dir&gt;</td><td>Create gzip-compressed tar archive</td></tr>
+      <tr><td>tar -xzf file.tar.gz</td><td>Extract gzip tar archive</td></tr>
+      <tr><td>tar -cjf out.tar.bz2 &lt;dir&gt;</td><td>Create bzip2-compressed tar archive</td></tr>
+      <tr><td>tar -tf file.tar.gz</td><td>List contents without extracting</td></tr>
+      <tr><td>gzip &lt;file&gt;</td><td>Compress file (replaces original with .gz)</td></tr>
+      <tr><td>gunzip &lt;file&gt;.gz</td><td>Decompress .gz file</td></tr>
+      <tr><td>zip -r out.zip &lt;dir&gt;</td><td>Create ZIP archive</td></tr>
+      <tr><td>unzip file.zip</td><td>Extract ZIP archive</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11b MEMORY & RAM -->
+<section id="memory">
+  <div class="section-header"><span class="section-icon">🧠</span><h2>Memory &amp; RAM</h2></div>
+  <p class="prose">Linux memory management is nuanced. <strong>Used</strong> memory includes cache — that's intentional and healthy. What matters is <strong>available</strong> memory (what the kernel can free if an app needs it).</p>
+
+  <h3>Key Commands</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>free -h</td><td>Human-readable RAM and swap usage overview</td></tr>
+      <tr><td>free -m</td><td>RAM usage in megabytes</td></tr>
+      <tr><td>free -s 2</td><td>Continuously refresh every 2 seconds</td></tr>
+      <tr><td>cat /proc/meminfo</td><td>Detailed kernel memory statistics (raw)</td></tr>
+      <tr><td>vmstat -s</td><td>Virtual memory stats summary (pages, swaps, etc.)</td></tr>
+      <tr><td>vmstat 2 5</td><td>5 snapshots of VM stats, every 2 seconds</td></tr>
+      <tr><td>smem -r</td><td>Per-process physical memory (RSS/PSS). Install: <code>apt install smem</code></td></tr>
+      <tr><td>pmap &lt;pid&gt;</td><td>Memory map of a specific process</td></tr>
+      <tr><td>pmap -x &lt;pid&gt;</td><td>Extended map with dirty/RSS breakdown</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Reading <code>free -h</code> Output</h3>
+  <div class="code-block">               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.2Gi       1.1Gi       512Mi       9.8Gi      10.8Gi
+Swap:          2.0Gi          0B       2.0Gi
+
+# "available" = what apps can actually use (free + reclaimable cache)
+# "buff/cache" = disk cache — Linux uses spare RAM here intentionally
+# "free" being small is NORMAL — don't panic</div>
+
+  <h3>Process Memory</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>ps aux --sort=-%mem | head -10</td><td>Top 10 processes by memory %</td></tr>
+      <tr><td>ps aux --sort=-%mem | awk 'NR&lt;=11{print $0}'</td><td>Same, with header row</td></tr>
+      <tr><td>top -o %MEM</td><td>Sort top by memory usage</td></tr>
+      <tr><td>htop → F6 → MEM%</td><td>Sort htop by memory interactively</td></tr>
+      <tr><td>cat /proc/&lt;pid&gt;/status | grep VmRSS</td><td>Resident memory of a specific PID (in kB)</td></tr>
+      <tr><td>cat /proc/&lt;pid&gt;/status | grep -i mem</td><td>All memory fields for that PID</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Swap Management</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>swapon --show</td><td>List active swap devices and usage</td></tr>
+      <tr><td>cat /proc/swaps</td><td>Raw swap partition info</td></tr>
+      <tr><td>swapoff -a</td><td>Disable all swap (data moves back to RAM)</td></tr>
+      <tr><td>swapon -a</td><td>Re-enable all swap from /etc/fstab</td></tr>
+      <tr><td>cat /proc/sys/vm/swappiness</td><td>Current swappiness value (0–100)</td></tr>
+      <tr><td>sysctl vm.swappiness=10</td><td>Reduce swap tendency (10 = prefer RAM)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"># Create a 2GB swapfile (if you're low on swap)
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+# To persist across reboots, add to /etc/fstab:
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</div>
+
+  <h3>OOM (Out of Memory) Killer</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>dmesg | grep -i "oom\|killed"</td><td>See if OOM killer has run recently</td></tr>
+      <tr><td>journalctl -k | grep -i oom</td><td>OOM events in kernel journal</td></tr>
+      <tr><td>cat /proc/&lt;pid&gt;/oom_score</td><td>OOM score of a process (higher = more likely to be killed)</td></tr>
+      <tr><td>echo -17 > /proc/&lt;pid&gt;/oom_adj</td><td>Protect a critical process from OOM kills (needs root)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Memory Diagnostics</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>dmidecode -t memory</td><td>Physical RAM slots, type, speed, manufacturer (needs root)</td></tr>
+      <tr><td>dmidecode -t memory | grep -i "size\|speed\|type"</td><td>Summary: RAM size, DDR type, MHz</td></tr>
+      <tr><td>lshw -class memory</td><td>Hardware-level memory info. Install: <code>apt install lshw</code></td></tr>
+      <tr><td>nproc</td><td>Number of CPU cores (relevant for per-core memory pressure)</td></tr>
+      <tr><td>numactl --hardware</td><td>NUMA topology: memory nodes and CPU affinity</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"># Quick one-liner: total RAM in GB
+awk '/MemTotal/ {printf "Total RAM: %.1f GB\n", $2/1024/1024}' /proc/meminfo
+
+# Available vs total
+awk '/MemTotal|MemAvailable/ {printf "%s: %.1f GB\n", $1, $2/1024/1024}' /proc/meminfo
+
+# Show all RAM sticks installed
+sudo dmidecode -t memory | grep -E "Size:|Speed:|Type:" | grep -v "No Module"</div>
+
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 SSH -->
+<section id="ssh">
+  <div class="section-header"><span class="section-icon">🔑</span><h2>SSH &amp; Remote</h2></div>
+
+  <h3>Connecting</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>ssh user@host</td><td>Connect to remote host</td></tr>
+      <tr><td>ssh -p 2222 user@host</td><td>Connect on non-standard port</td></tr>
+      <tr><td>ssh -i key.pem user@host</td><td>Use specific private key file</td></tr>
+      <tr><td>ssh -A user@host</td><td>Forward SSH agent (for chained SSH)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Key Management</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>ssh-keygen -t ed25519</td><td>Generate ED25519 key pair (recommended)</td></tr>
+      <tr><td>ssh-keygen -t rsa -b 4096</td><td>Generate RSA 4096-bit key pair</td></tr>
+      <tr><td>ssh-copy-id user@host</td><td>Install public key on remote server</td></tr>
+      <tr><td>ssh-add ~/.ssh/id_ed25519</td><td>Add key to SSH agent</td></tr>
+      <tr><td>ssh-add -l</td><td>List keys loaded in agent</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Tunneling &amp; Port Forwarding</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>ssh -L 8080:localhost:80 user@host</td><td>Local forward: localhost:8080 → remote:80</td></tr>
+      <tr><td>ssh -R 9090:localhost:3000 user@host</td><td>Remote forward: remote:9090 → local:3000</td></tr>
+      <tr><td>ssh -D 1080 user@host</td><td>Dynamic SOCKS proxy on local port 1080</td></tr>
+      <tr><td>ssh -N -f user@host</td><td>Background tunnel without shell</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>~/.ssh/config</h3>
+  <div class="code-block">Host myserver
+    HostName 192.168.1.100
+    User alice
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60</div>
+  <p class="prose">After setting up config, connect with just <code>ssh myserver</code>.</p>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 SYSTEMD -->
+<section id="systemd">
+  <div class="section-header"><span class="section-icon">🔧</span><h2>Systemd &amp; Services</h2></div>
+  <p class="prose"><strong>systemd</strong> is the init system on most modern Linux distros (Ubuntu, Fedora, Debian, Arch). It manages services, boot targets, and logs.</p>
+
+  <h3>Service Management</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>systemctl start &lt;svc&gt;</td><td>Start a service now</td></tr>
+      <tr><td>systemctl stop &lt;svc&gt;</td><td>Stop a service</td></tr>
+      <tr><td>systemctl restart &lt;svc&gt;</td><td>Restart a service</td></tr>
+      <tr><td>systemctl reload &lt;svc&gt;</td><td>Reload config without restarting</td></tr>
+      <tr><td>systemctl status &lt;svc&gt;</td><td>Show service status and recent logs</td></tr>
+      <tr><td>systemctl enable &lt;svc&gt;</td><td>Start at boot (creates symlink)</td></tr>
+      <tr><td>systemctl disable &lt;svc&gt;</td><td>Don't start at boot</td></tr>
+      <tr><td>systemctl is-active &lt;svc&gt;</td><td>Check if service is running</td></tr>
+      <tr><td>systemctl list-units</td><td>List all active units</td></tr>
+      <tr><td>systemctl daemon-reload</td><td>Reload unit files after editing</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Journald Logs</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>journalctl -u nginx</td><td>Logs for nginx service</td></tr>
+      <tr><td>journalctl -f</td><td>Follow journal in real-time</td></tr>
+      <tr><td>journalctl -n 100</td><td>Last 100 log entries</td></tr>
+      <tr><td>journalctl --since "1 hour ago"</td><td>Logs from last hour</td></tr>
+      <tr><td>journalctl -p err</td><td>Show only error-level entries</td></tr>
+      <tr><td>journalctl --disk-usage</td><td>Show how much space logs use</td></tr>
+      <tr><td>journalctl --vacuum-time=7d</td><td>Delete logs older than 7 days</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Unit File Template</h3>
+  <div class="code-block">[Unit]
+Description=My Application
+After=network.target
+
+[Service]
+Type=simple
+User=myapp
+WorkingDirectory=/opt/myapp
+ExecStart=/opt/myapp/bin/server
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</div>
+  <p class="prose">Place in <code>/etc/systemd/system/myapp.service</code>, then run <code>systemctl daemon-reload &amp;&amp; systemctl enable --now myapp</code>.</p>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 TIPS -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">💡</span><h2>Pro Tips</h2></div>
+  <ul class="tip-list">
+    <li><span class="tip-code">set -euo pipefail</span><span>Put this at the top of every bash script. <code>-e</code> exits on error, <code>-u</code> treats unset vars as errors, <code>-o pipefail</code> catches errors in piped commands.</span></li>
+    <li><span class="tip-code">sudo !!</span><span>Repeat the last command with sudo. Saves retyping when you forgot to elevate.</span></li>
+    <li><span class="tip-code">Ctrl+R</span><span>Reverse-search your shell history. Start typing to narrow results, press Ctrl+R again to cycle through matches.</span></li>
+    <li><span class="tip-code">2&gt;&amp;1 | tee</span><span>Capture both stdout and stderr to a file while still seeing output: <code>command 2&gt;&amp;1 | tee output.log</code></span></li>
+    <li><span class="tip-code">&&  vs  ;</span><span><code>cmd1 &amp;&amp; cmd2</code> runs cmd2 only if cmd1 succeeds. <code>cmd1 ; cmd2</code> always runs both. Use <code>&amp;&amp;</code> for dependency chains.</span></li>
+    <li><span class="tip-code">alias</span><span>Put frequently-used long commands in <code>~/.bashrc</code>: <code>alias ll='ls -lah'</code>. Run <code>source ~/.bashrc</code> to reload.</span></li>
+    <li><span class="tip-code">xargs</span><span>Convert lines of stdin to arguments: <code>find . -name "*.bak" | xargs rm</code>. Use <code>-P 4</code> to parallelize with 4 workers.</span></li>
+    <li><span class="tip-code">screen / tmux</span><span>Terminal multiplexers let you detach sessions that keep running after logout. Essential for long-running remote tasks.</span></li>
+    <li><span class="tip-code">chmod 600 keys</span><span>SSH keys must be owner-read-only. SSH will refuse to use keys that are too permissive.</span></li>
+    <li><span class="tip-code">dmesg | tail</span><span>See recent kernel messages — useful for diagnosing hardware issues, driver errors, or OOM kills.</span></li>
+    <li><span class="tip-code">/dev/null</span><span>The void. Redirect anything here to silence it. <code>command &gt; /dev/null 2&gt;&amp;1</code> suppresses all output.</span></li>
+    <li><span class="tip-code">strace / ltrace</span><span>Trace system calls (<code>strace</code>) or library calls (<code>ltrace</code>) for a running process. Invaluable for debugging mystery failures.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 INDEX -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂</span><h2>Command Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">Common Linux commands listed alphabetically with plain-English descriptions.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>dmidecode</td><td class="plain-def">display hardware info from BIOS/UEFI (RAM slots, speed, type)</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>free -h</td><td class="plain-def">show RAM and swap usage in human-readable form</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>pmap</td><td class="plain-def">memory map of a process</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>smem</td><td class="plain-def">per-process physical memory usage</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>swapon</td><td class="plain-def">show or enable swap devices</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>vmstat</td><td class="plain-def">virtual memory and system activity stats</td><td><a class="idx-link" href="#memory">Memory</a></td></tr>
+      <tr><td>dpkg</td><td class="plain-def">low-level Debian package installer/inspector</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>dpkg-reconfigure</td><td class="plain-def">re-run a package's post-install configuration</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>flatpak</td><td class="plain-def">install and manage Flatpak sandboxed apps</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>snap</td><td class="plain-def">install and manage Snap packages</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>timeshift</td><td class="plain-def">create/restore Linux Mint system snapshots</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>crontab</td><td class="plain-def">schedule recurring commands</td><td><a class="idx-link" href="#shell">Shell</a></td></tr>
+      <tr><td>trap</td><td class="plain-def">run commands on shell signals or exit</td><td><a class="idx-link" href="#shell">Shell</a></td></tr>
+      <tr><td>flock</td><td class="plain-def">manage lock files to prevent duplicate script runs</td><td><a class="idx-link" href="#shell">Shell</a></td></tr>
+      <tr><td>apt</td><td class="plain-def">install and manage packages</td><td><a class="idx-link" href="#packages">Packages</a></td></tr>
+      <tr><td>awk</td><td class="plain-def">pattern-based field processor</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>bg</td><td class="plain-def">resume job in background</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>cat</td><td class="plain-def">print file contents</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>cd</td><td class="plain-def">change directory</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>chmod</td><td class="plain-def">change file permissions</td><td><a class="idx-link" href="#permissions">Permissions</a></td></tr>
+      <tr><td>chown</td><td class="plain-def">change file owner</td><td><a class="idx-link" href="#permissions">Permissions</a></td></tr>
+      <tr><td>cp</td><td class="plain-def">copy files or directories</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>curl</td><td class="plain-def">transfer data from/to URLs</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>cut</td><td class="plain-def">extract columns from text</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>df</td><td class="plain-def">disk free space by filesystem</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>diff</td><td class="plain-def">compare two files line by line</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>dig</td><td class="plain-def">DNS lookup tool</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>du</td><td class="plain-def">disk usage of files and directories</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>echo</td><td class="plain-def">print text to stdout</td><td><a class="idx-link" href="#shell">Shell</a></td></tr>
+      <tr><td>fg</td><td class="plain-def">bring job to foreground</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>file</td><td class="plain-def">detect file type</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>find</td><td class="plain-def">search filesystem for files</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>grep</td><td class="plain-def">search text for patterns</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>groups</td><td class="plain-def">list user's groups</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>head</td><td class="plain-def">show first N lines of file</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>history</td><td class="plain-def">show command history</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>htop</td><td class="plain-def">interactive process viewer</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>id</td><td class="plain-def">show user identity and groups</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>ip</td><td class="plain-def">configure network interfaces and routes</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>jobs</td><td class="plain-def">list background jobs</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>journalctl</td><td class="plain-def">query systemd journal logs</td><td><a class="idx-link" href="#systemd">Systemd</a></td></tr>
+      <tr><td>kill</td><td class="plain-def">send signal to process by PID</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>killall</td><td class="plain-def">kill all processes by name</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>less</td><td class="plain-def">scrollable file viewer</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>ln</td><td class="plain-def">create hard or symbolic links</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>locate</td><td class="plain-def">fast file search by name (index-based)</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>ls</td><td class="plain-def">list directory contents</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>lsblk</td><td class="plain-def">list block devices and partitions</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>lsof</td><td class="plain-def">list open files and sockets</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>man</td><td class="plain-def">show command manual page</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>mkdir</td><td class="plain-def">create a directory</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>mount</td><td class="plain-def">attach filesystem to directory tree</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>mv</td><td class="plain-def">move or rename files</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>netstat</td><td class="plain-def">show network connections (legacy, use ss)</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>nice</td><td class="plain-def">run process with modified priority</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>nmap</td><td class="plain-def">network port and host scanner</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>nohup</td><td class="plain-def">run command immune to hangup</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>passwd</td><td class="plain-def">change user password</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>pgrep</td><td class="plain-def">find processes by name</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>ping</td><td class="plain-def">test network connectivity</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>pkill</td><td class="plain-def">kill process by name</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>ps</td><td class="plain-def">snapshot of running processes</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>pwd</td><td class="plain-def">print working directory</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>renice</td><td class="plain-def">change priority of running process</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>rm</td><td class="plain-def">remove files or directories</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>rsync</td><td class="plain-def">efficient file sync (local or remote)</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>scp</td><td class="plain-def">secure copy over SSH</td><td><a class="idx-link" href="#ssh">SSH</a></td></tr>
+      <tr><td>sed</td><td class="plain-def">stream editor for transforming text</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>sort</td><td class="plain-def">sort lines of text</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>ss</td><td class="plain-def">show socket statistics</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>ssh</td><td class="plain-def">remote login over encrypted connection</td><td><a class="idx-link" href="#ssh">SSH</a></td></tr>
+      <tr><td>ssh-keygen</td><td class="plain-def">generate SSH key pair</td><td><a class="idx-link" href="#ssh">SSH</a></td></tr>
+      <tr><td>stat</td><td class="plain-def">show detailed file metadata</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>su</td><td class="plain-def">switch user identity</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>sudo</td><td class="plain-def">run command as superuser</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>systemctl</td><td class="plain-def">control systemd services</td><td><a class="idx-link" href="#systemd">Systemd</a></td></tr>
+      <tr><td>tail</td><td class="plain-def">show last N lines of file</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>tar</td><td class="plain-def">archive and compress files</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>tee</td><td class="plain-def">split output to file and stdout</td><td><a class="idx-link" href="#redirection">Redirection</a></td></tr>
+      <tr><td>top</td><td class="plain-def">live process and resource monitor</td><td><a class="idx-link" href="#processes">Processes</a></td></tr>
+      <tr><td>touch</td><td class="plain-def">create empty file or update timestamp</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>tr</td><td class="plain-def">translate or delete characters</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>traceroute</td><td class="plain-def">show network path to host</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>tree</td><td class="plain-def">display directory tree visually</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>type</td><td class="plain-def">describe a command (builtin, alias, binary)</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>ufw</td><td class="plain-def">manage firewall rules</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>umount</td><td class="plain-def">detach a mounted filesystem</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+      <tr><td>uname -a</td><td class="plain-def">show kernel and system info</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>uniq</td><td class="plain-def">filter adjacent duplicate lines</td><td><a class="idx-link" href="#text">Text</a></td></tr>
+      <tr><td>useradd</td><td class="plain-def">create a new user account</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>userdel</td><td class="plain-def">delete a user account</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>usermod</td><td class="plain-def">modify a user account</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>w</td><td class="plain-def">who is logged in and what they're doing</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>wc</td><td class="plain-def">count lines, words, bytes in a file</td><td><a class="idx-link" href="#files">Files</a></td></tr>
+      <tr><td>wget</td><td class="plain-def">download files from the web</td><td><a class="idx-link" href="#networking">Networking</a></td></tr>
+      <tr><td>which</td><td class="plain-def">locate an executable in PATH</td><td><a class="idx-link" href="#basics">Basics</a></td></tr>
+      <tr><td>whoami</td><td class="plain-def">print current username</td><td><a class="idx-link" href="#users">Users</a></td></tr>
+      <tr><td>xargs</td><td class="plain-def">build command from stdin arguments</td><td><a class="idx-link" href="#shell">Shell</a></td></tr>
+      <tr><td>zip / unzip</td><td class="plain-def">create/extract ZIP archives</td><td><a class="idx-link" href="#disk">Disk</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  Linux Command Quick Reference  ·  Systems Administration  ·  2026
+</footer>
+</body>
+</html>

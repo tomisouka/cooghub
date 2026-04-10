@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimum Spanning Tree — Kruskal & Prim</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #34d399; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(52,211,153,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(52,211,153,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th { background: var(--border2); color: var(--accent); padding: 0.4rem 0.6rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .ok { color: var(--green); } .skip { color: var(--red); } .upd { color: var(--yellow); }
+  .vs-row { display: flex; gap: 1rem; }
+  .vs-col { flex: 1; }
+  .vs-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+  .vs-item { font-size: 0.82rem; color: var(--sub); padding: 0.2rem 0; }
+  .sec-header { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); margin: 1.25rem 0 0.5rem; border-bottom: 1px solid var(--border2); padding-bottom: 0.25rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Graph Algorithms · MST</div>
+  <h1>Minimum Spanning Tree</h1>
+  <div class="sub">Connect all V nodes with exactly V−1 edges, minimizing total weight. Two greedy approaches: Kruskal and Prim.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">MST Properties</div>
+      <div class="kv"><span class="kv-k">Edges in MST</span><span class="kv-v yellow">V − 1</span></div>
+      <div class="kv"><span class="kv-k">No cycles</span><span class="kv-v green">✓ By definition</span></div>
+      <div class="kv"><span class="kv-k">Directed?</span><span class="kv-v red">✗ Undirected only</span></div>
+      <div class="kv"><span class="kv-k">Negative weights?</span><span class="kv-v green">✓ Both handle them</span></div>
+      <div class="kv"><span class="kv-k">Unique?</span><span class="kv-v">Only if all weights distinct</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">At a Glance</div>
+      <div class="vs-row">
+        <div class="vs-col">
+          <div class="vs-label" style="color:var(--accent);">Kruskal</div>
+          <div class="vs-item">Sort all edges</div>
+          <div class="vs-item">Add if no cycle</div>
+          <div class="vs-item">Uses Union-Find</div>
+          <div class="vs-item">O(E log E)</div>
+          <div class="vs-item">Good: sparse graphs</div>
+        </div>
+        <div class="vs-col">
+          <div class="vs-label" style="color:var(--blue);">Prim</div>
+          <div class="vs-item">Grow from a node</div>
+          <div class="vs-item">Add cheapest edge out</div>
+          <div class="vs-item">Uses Min-Heap</div>
+          <div class="vs-item">O(E log V)</div>
+          <div class="vs-item">Good: dense graphs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Kruskal Trace — Edges sorted by weight</div>
+      <div style="font-size: 1rem; color:var(--sub); margin-bottom:0.5rem;">Graph: A-B(1), C-D(2), A-C(3), B-C(4), B-D(5)</div>
+      <table>
+        <tr><th>Edge</th><th>Weight</th><th>Action</th><th>Why</th></tr>
+        <tr><td>A-B</td><td>1</td><td class="ok">✓ Add</td><td>No cycle</td></tr>
+        <tr><td>C-D</td><td>2</td><td class="ok">✓ Add</td><td>No cycle</td></tr>
+        <tr><td>A-C</td><td>3</td><td class="ok">✓ Add</td><td>Connects components</td></tr>
+        <tr><td>B-C</td><td>4</td><td class="skip">✗ Skip</td><td>A,B,C already connected</td></tr>
+      </table>
+      <div style="margin-top:0.5rem; font-family:var(--mono); font-size:0.75rem; color:var(--accent);">MST weight = 1+2+3 = 6</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Prim Trace — Start from A</div>
+      <div style="font-size: 1rem; color:var(--sub); margin-bottom:0.5rem;">Same graph as Kruskal above.</div>
+      <table>
+        <tr><th>Step</th><th>In MST</th><th>Edge Added</th><th>Weight</th></tr>
+        <tr><td>0</td><td>A</td><td>—</td><td>—</td></tr>
+        <tr><td>1</td><td>A,B</td><td class="ok">A-B</td><td class="ok">1</td></tr>
+        <tr><td>2</td><td>A,B,C</td><td class="ok">A-C</td><td class="ok">3</td></tr>
+        <tr><td>3</td><td>A,B,C,D</td><td class="ok">C-D</td><td class="ok">2</td></tr>
+      </table>
+      <div style="margin-top:0.5rem; font-family:var(--mono); font-size:0.75rem; color:var(--accent);">MST weight = 1+3+2 = 6</div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Kruskal Pseudocode</div>
+      <pre><span class="fn">Kruskal</span>(graph):
+  edges ← sorted(all edges by weight)
+  uf ← <span class="fn">UnionFind</span>(all nodes)
+  mst ← []
+
+  <span class="keyword">for</span> (u, v, w) <span class="keyword">in</span> edges:
+    <span class="keyword">if</span> uf.<span class="fn">find</span>(u) ≠ uf.<span class="fn">find</span>(v):  <span class="comment">// no cycle</span>
+      mst.<span class="fn">append</span>((u, v, w))
+      uf.<span class="fn">union</span>(u, v)
+    <span class="keyword">if</span> len(mst) == V − 1: <span class="keyword">break</span>
+  <span class="keyword">return</span> mst</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Automata Visualizer</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--bg2:#111318;--bg3:#161920;--bg4:#1a1d24;--border:#2a2e38;--border2:#21252e;--text:#d4d8e0;--dim:#7a8090;--dimmer:#4a5060;--accent:#e8c547;--green:#34d399;--red:#e85454;--blue:#60a5fa;--purple:#a78bfa;--orange:#fb923c;--mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono)}
+#app{display:flex;flex-direction:column;height:100%}
+header{display:flex;align-items:center;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;overflow-x:auto}
+.logo{padding:0 16px;font-family:var(--display);font-size:12px;font-weight:800;color:var(--accent);letter-spacing:1px;white-space:nowrap;border-right:1px solid var(--border);height:44px;display:flex;align-items:center;flex-shrink:0}
+.tab-btn{height:44px;padding:0 14px;background:none;border:none;border-right:1px solid var(--border);color:var(--dimmer);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;white-space:nowrap;border-bottom:2px solid transparent;position:relative;top:1px;flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--bg3)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg3)}
+.panel{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+.panel.active{display:flex;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0}
+.btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--bg4);color:var(--text);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .12s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.pri:hover{opacity:.85}
+label{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
+select,input[type=text]{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;border-radius:5px;padding:4px 8px}
+select:focus,input:focus{outline:1px solid var(--accent)}
+input[type=range]{padding:0;width:80px;accent-color:var(--accent)}
+.stag{margin-left:auto;font-size:10px;letter-spacing:1px;color:var(--dimmer);white-space:nowrap}
+.stag span{color:var(--accent)}
+.cwrap{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.legend{position:absolute;bottom:10px;right:12px;display:flex;flex-direction:column;gap:4px}
+.lr{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim)}
+.ld{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.log{height:34px;flex-shrink:0;border-top:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;padding:0 14px;font-size:11px;color:var(--dim);overflow:hidden;white-space:nowrap;gap:8px}
+.slbl{color:var(--accent);font-weight:700;flex-shrink:0}
+.dsbar{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border2);background:var(--bg2);flex-shrink:0;overflow-x:auto;padding:0 14px;height:32px;scrollbar-width:none}
+.dsbar::-webkit-scrollbar{display:none}
+.ds-name{font-size:11px;font-weight:700;color:var(--text);letter-spacing:.5px;white-space:nowrap;margin-right:14px;flex-shrink:0}
+.ds-pill{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 9px;border-radius:12px;border:1px solid;white-space:nowrap;margin-right:6px;flex-shrink:0}
+.ds-pill.struct{border-color:var(--blue);color:var(--blue);background:#60a5fa11}
+.ds-pill.time{border-color:var(--green);color:var(--green);background:#34d39911;text-transform:none;letter-spacing:.5px}
+.ds-pill.space{border-color:var(--purple);color:var(--purple);background:#a78bfa11;text-transform:none;letter-spacing:.5px}
+.ds-pill.paradigm{border-color:var(--orange);color:var(--orange);background:#fb923c11}
+.ds-note{font-size:10px;color:var(--dimmer);white-space:nowrap;flex-shrink:0;margin-left:8px}
+.split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+.viz-side{flex:1;position:relative;overflow:hidden;background:var(--bg)}
+.viz-side canvas{position:absolute;inset:0;width:100%;height:100%}
+.code-side{width:280px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.code-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);font-family:var(--mono)}
+.code-toggle{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dimmer);background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--mono);transition:all .12s}
+.code-toggle:hover{color:var(--accent);border-color:var(--accent)}
+.code-scroll{flex:1;overflow-y:auto;padding:8px 0}
+.code-line{display:flex;align-items:flex-start;gap:0;padding:2px 0;transition:background .12s;position:relative}
+.code-line .ln{width:32px;text-align:right;padding-right:10px;font-size:10px;color:var(--dimmer);font-family:var(--mono);flex-shrink:0;user-select:none;line-height:1.7}
+.code-line .src{font-size:11px;font-family:var(--mono);color:var(--dim);white-space:pre;line-height:1.7;flex:1;padding-right:8px}
+.code-line.active{background:#e8c54718}
+.code-line.active .src{color:var(--accent)}
+.code-line.active .ln{color:var(--accent)}
+.code-line.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent)}
+.kw{color:#60a5fa}.fn{color:#34d399}.cm{color:#4a5060;font-style:italic}.nm{color:#a78bfa}.st{color:#e8c547}
+
+/* DP */
+#dp-tw{overflow:auto;padding:14px}
+#dp-t{border-collapse:collapse;font-size:11px}
+#dp-t th,#dp-t td{width:36px;height:36px;text-align:center;border:1px solid var(--border2);font-family:var(--mono);transition:background .2s,color .2s}
+#dp-t th{background:var(--bg3);color:var(--dim);font-size:9px;letter-spacing:1px}
+#dp-t td{background:var(--bg4);color:var(--text)}
+#dp-t td.ac{background:#e8c54733;color:var(--accent);font-weight:700}
+#dp-t td.fi{background:#60a5fa1a;color:var(--blue)}
+#dp-t td.pa{background:#34d39933;color:var(--green);font-weight:700}
+#dp-ss{padding:12px 14px 0;display:flex;gap:14px;flex-wrap:wrap}
+.sch{display:inline-block;width:20px;height:20px;text-align:center;line-height:20px;border-radius:3px;border:1px solid var(--border);background:var(--bg4);font-size:12px}
+.sch.hl{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+
+/* DFA */
+#dfa-ir{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.tcell{width:30px;height:30px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s;background:var(--bg4)}
+.tcell.act{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.tcell.past{opacity:.4}
+.tcell.acc{border-color:var(--green);background:#34d39922;color:var(--green)}
+.tcell.rej{border-color:var(--red);background:#e8545422;color:var(--red)}
+
+/* PUMPING */
+#pb{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+.pcard{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.pcard h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.pcard p{font-size:12px;color:var(--dim);line-height:1.75}
+.pcard p b{color:var(--text)}
+.plbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.psv{display:flex;align-items:center;gap:3px;flex-wrap:wrap;min-height:44px}
+.pch{width:32px;height:32px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;transition:all .25s;background:var(--bg4);color:var(--text)}
+.pch.xs{background:#60a5fa18;border-color:var(--blue);color:var(--blue)}
+.pch.ys{background:#e8c54718;border-color:var(--accent);color:var(--accent)}
+.pch.zs{background:#a78bfa18;border-color:var(--purple);color:var(--purple)}
+.pch.ok{background:#34d39918;border-color:var(--green);color:var(--green)}
+.pch.bad{background:#e8545418;border-color:var(--red);color:var(--red)}
+.pdec{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.spill{font-size:11px;padding:4px 12px;border-radius:5px;border:1px solid}
+.spill.x{border-color:var(--blue);color:var(--blue);background:#60a5fa11}
+.spill.y{border-color:var(--accent);color:var(--accent);background:#e8c54711}
+.spill.z{border-color:var(--purple);color:var(--purple);background:#a78bfa11}
+.pres{font-size:13px;font-weight:700;padding:8px 16px;border-radius:7px;border:1px solid;display:inline-block;margin-top:6px}
+.pres.ok{border-color:var(--green);color:var(--green);background:#34d39911}
+.pres.bad{border-color:var(--red);color:var(--red);background:#e8545411}
+
+/* TURING */
+#tm-tw{padding:16px 18px 6px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tm-tape{display:flex;align-items:flex-end;gap:2px;overflow-x:auto;padding-bottom:22px}
+.tmcell{width:38px;height:42px;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;transition:all .2s;background:var(--bg4);color:var(--text);position:relative}
+.tmcell.head{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.tmcell.wr{border-color:var(--blue);background:#60a5fa14;color:var(--blue)}
+.tmcell.ha{border-color:var(--green);background:#34d39922;color:var(--green)}
+.tmcell.hr{border-color:var(--red);background:#e8545422;color:var(--red)}
+.tmarr{position:absolute;bottom:-18px;font-size:12px;color:var(--accent);left:50%;transform:translateX(-50%)}
+.tmidx{position:absolute;top:2px;right:3px;font-size:8px;color:var(--dimmer)}
+#tm-sr{display:flex;gap:6px;flex-wrap:wrap;padding:8px 18px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;align-items:center}
+.tmchip{padding:4px 12px;border-radius:16px;border:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:1px;background:var(--bg4);color:var(--dim);transition:all .2s}
+.tmchip.cur{border-color:var(--accent);color:var(--accent);background:#e8c54711}
+.tmchip.acc{border-color:var(--green);color:var(--green);background:#34d39911}
+.tmchip.rej{border-color:var(--red);color:var(--red);background:#e8545411}
+#tm-log{flex:1;overflow-y:auto;padding:10px 18px;font-size:11px}
+.tme{padding:4px 0;border-bottom:1px solid var(--border2);color:var(--dimmer)}
+.tme.cur{color:var(--accent)}
+
+/* SEARCH */
+#srch-aw{padding:14px 18px 8px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg2)}
+.scell{width:44px;height:44px;border-radius:6px;border:1px solid var(--border);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin:2px;transition:all .2s;background:var(--bg4);color:var(--text);position:relative;vertical-align:top}
+.scell .si{position:absolute;bottom:2px;font-size:8px;color:var(--dimmer)}
+.scell.cur{border-color:var(--accent);background:#e8c54722;color:var(--accent)}
+.scell.lo{border-color:var(--blue);background:#60a5fa14;color:var(--blue)}
+.scell.hi{border-color:var(--purple);background:#a78bfa14;color:var(--purple)}
+.scell.mid{border-color:var(--orange);background:#fb923c22;color:var(--orange)}
+.scell.found{border-color:var(--green);background:#34d39922;color:var(--green)}
+.scell.elim{opacity:.25}
+#srch-rest{flex:1;overflow:hidden;position:relative}
+/* TIME COMPLEXITY OVERLAY */
+.complexity-overlay{position:absolute;top:10px;left:12px;display:flex;flex-direction:column;gap:3px;pointer-events:none}
+.cx-row{display:flex;align-items:center;gap:6px;font-size:10px;font-family:var(--mono)}
+.cx-label{color:var(--dimmer);letter-spacing:1px;text-transform:uppercase;width:36px;font-size:9px}
+.cx-val{padding:2px 8px;border-radius:4px;border:1px solid;font-weight:700;letter-spacing:.5px}
+.cx-best{border-color:#34d39966;color:var(--green);background:#34d39911}
+.cx-avg{border-color:#e8c54766;color:var(--accent);background:#e8c54711}
+.cx-worst{border-color:#e8545466;color:var(--red);background:#e8545411}
+.cx-space{border-color:#a78bfa66;color:var(--purple);background:#a78bfa11}
+/* TREES */
+#panel-trees .split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+/* GREEDY */
+#panel-greedy .split-view{flex:1;display:flex;min-height:0;overflow:hidden}
+/* DS DIAGRAM PANEL */
+.ds-panel{width:200px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.ds-panel-hdr{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dimmer);padding:7px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ds-panel-body{flex:1;position:relative;overflow:hidden}
+.ds-panel-body canvas{position:absolute;inset:0;width:100%;height:100%}
+.ds-ops{flex-shrink:0;border-top:1px solid var(--border);padding:8px 10px;font-size:10px;color:var(--dim);min-height:58px;line-height:1.7}
+.ds-op-entry{padding:1px 0;transition:color .12s}
+.ds-op-entry.cur{color:var(--accent);font-weight:700}
+
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="logo">AUTOMATA</div>
+  <button class="tab-btn active" data-tab="dfa">DFA / NFA</button>
+  <button class="tab-btn" data-tab="construct">Constructions</button>
+  <button class="tab-btn" data-tab="pump">Pumping Lemma</button>
+  <button class="tab-btn" data-tab="turing">Turing Machine</button>
+  <button id="snd-btn" onclick="toggleSound()" style="margin-left:auto;height:44px;padding:0 16px;background:none;border:none;border-left:1px solid var(--border);color:var(--dimmer);font-family:var(--mono);font-size:10px;letter-spacing:1px;cursor:pointer;flex-shrink:0;transition:color .15s">🔊 SOUND</button>
+</header>
+
+
+<!-- DFA -->
+<div class="panel active" id="panel-dfa">
+  <div class="ctrls">
+    <button class="btn pri" id="f-play">▶ RUN</button>
+    <button class="btn" id="f-step">STEP</button>
+    <button class="btn" id="f-reset">RESET</button>
+    <label>machine</label>
+    <select id="f-mach">
+      <optgroup label="── DFA: Pattern Matching ──">
+        <option value="ends01">DFA — ends in "01"</option>
+        <option value="starts1">DFA — starts with 1</option>
+        <option value="len3">DFA — length divisible by 3</option>
+      </optgroup>
+      <optgroup label="── DFA: Counting ──">
+        <option value="even0">DFA — even # of 0s</option>
+        <option value="exact2z">DFA — exactly two 0s</option>
+        <option value="div3">DFA — binary value ÷ 3</option>
+      </optgroup>
+      <optgroup label="── NFA / ε-NFA ──">
+        <option value="nfa_ab">NFA — contains "ab"</option>
+        <option value="nfa_aba">NFA — ends in "aba"</option>
+        <option value="nfa_00or11">NFA — contains "00" or "11"</option>
+        <option value="nfa_eps">ε-NFA — (a|b)*b</option>
+      </optgroup>
+    </select>
+    <label>speed</label><input type="range" id="f-spd" min="1" max="10" value="5"/>
+  </div>
+  <div class="dsbar" id="f-dsbar"></div>
+  <div id="dfa-ir">
+    <label>input</label>
+    <input type="text" id="f-str" value="1001" maxlength="30" style="width:130px"/>
+    <button class="btn" id="f-load">LOAD</button>
+    <div style="display:flex;align-items:center;gap:3px;flex-wrap:nowrap;overflow-x:auto" id="f-tape"></div>
+  </div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="f-cv"></canvas>
+      <div class="complexity-overlay" id="f-cx"></div>
+    </div>
+    <div class="code-side" id="f-code-side">
+      <div class="code-header"><span class="code-title" id="f-code-title">dfa simulation</span><button class="code-toggle" onclick="toggleCode('f')">hide</button></div>
+      <div class="code-scroll" id="f-code"></div>
+    </div>
+    <div class="ds-panel" id="f-ds-panel">
+      <div class="ds-panel-hdr">active states</div>
+      <div class="ds-panel-body"><canvas id="f-ds-cv"></canvas></div>
+      <div class="ds-ops" id="f-ds-ops"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="f-lbl">READY</span><span id="f-log">load string and press RUN</span></div>
+</div>
+
+
+<!-- CONSTRUCTIONS -->
+<div class="panel" id="panel-construct">
+  <div class="ctrls">
+    <button class="btn pri" id="cx-play">&#9654; RUN</button>
+    <button class="btn" id="cx-step">STEP</button>
+    <button class="btn" id="cx-reset">RESET</button>
+    <label>construction</label>
+    <select id="cx-algo">
+      <option value="subset">Subset Construction (NFA → DFA)</option>
+      <option value="eclosure">ε-Closure (ε-NFA → NFA)</option>
+      <option value="gnfa">GNFA State Elimination (DFA → RegEx)</option>
+      <option value="closure">Closure Properties (★ · ∪)</option>
+    </select>
+    <label>example</label>
+    <select id="cx-example-select" style="max-width:220px"></select>
+    <label>speed</label>
+    <input type="range" id="cx-spd" min="1" max="10" value="5"/>
+    <div class="stag">step: <span id="cx-cnt">0</span></div>
+  </div>
+  <div class="dsbar" id="cx-dsbar"></div>
+  <div class="split-view">
+    <div class="viz-side"><canvas id="cx-cv"></canvas>
+      <div class="complexity-overlay" id="cx-cx"></div>
+    </div>
+    <div class="code-side" id="cx-code-side">
+      <div class="code-header">
+        <span class="code-title" id="cx-code-title">subset construction</span>
+        <button class="code-toggle" onclick="toggleCode('cx')">hide</button>
+      </div>
+      <div class="code-scroll" id="cx-code"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="cx-lbl">READY</span><span id="cx-log">select a construction and press RUN</span></div>
+</div>
+<!-- PUMPING LEMMA -->
+<div class="panel" id="panel-pump">
+  <div class="ctrls">
+    <button class="btn pri" id="p-play">▶ RUN</button>
+    <button class="btn" id="p-step">STEP</button>
+    <button class="btn" id="p-reset">RESET</button>
+    <label>language</label>
+    <select id="p-lang"><option value="anbn">L = aⁿbⁿ (not regular)</option><option value="a2n">L = a²ⁿ (regular)</option><option value="anbncn">L = aⁿbⁿcⁿ (not CFL)</option><option value="ww">L = ww (not regular)</option></select>
+    <label>pump i =</label>
+    <select id="p-i"><option value="0">0</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
+    <label>speed</label><input type="range" id="p-spd" min="1" max="10" value="5"/>
+  </div>
+  <div class="dsbar" id="p-dsbar"></div>
+  <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative">
+      <div class="complexity-overlay" id="p-cx"></div>
+      <div id="pb" style="flex:1;overflow-y:auto">
+        <div class="pcard"><h3>Pumping Lemma for Regular Languages</h3><p>If <b>L</b> is regular, ∃ pumping length <b>p</b> such that every <b>s ∈ L</b> with |s| ≥ p splits as <b>s = xyz</b> where:<br/>&nbsp;&nbsp;① |y| ≥ 1 &nbsp; ② |xy| ≤ p &nbsp; ③ ∀i ≥ 0, xyⁱz ∈ L<br/>To prove L <b>not regular</b>: assume it is, choose s, show every valid split fails ③.</p></div>
+        <div><div class="plbl" id="p-lo" style="display:none">string s (|s| ≥ p)</div><div class="psv" id="p-vo"></div></div>
+        <div class="pdec" id="p-dec" style="display:none"><span class="spill x" id="p-px">x</span><span class="spill y" id="p-py">y</span><span class="spill z" id="p-pz">z</span></div>
+        <div><div class="plbl" id="p-lp" style="display:none">pumped string xyⁱz</div><div class="psv" id="p-vp"></div></div>
+        <div id="p-res"></div>
+      </div>
+    </div>
+    <div class="code-side" id="p-code-side">
+      <div class="code-header"><span class="code-title" id="p-code-title">pumping lemma</span><button class="code-toggle" onclick="toggleCode('p')">hide</button></div>
+      <div class="code-scroll" id="p-code"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="p-lbl">READY</span><span id="p-log">choose a language and press RUN</span></div>
+</div>
+
+<!-- TURING MACHINE -->
+<div class="panel" id="panel-turing">
+  <div class="ctrls">
+    <button class="btn pri" id="t-play">▶ RUN</button>
+    <button class="btn" id="t-step">STEP</button>
+    <button class="btn" id="t-reset">RESET</button>
+    <label>machine</label>
+    <select id="t-mach">
+      <optgroup label="── DTM Recognizers ──">
+        <option value="anbn">DTM — aⁿbⁿ recognizer</option>
+        <option value="palindrome">DTM — palindrome (a/b)</option>
+        <option value="anbncn">DTM — aⁿbⁿcⁿ (context-sensitive)</option>
+        <option value="balanced">DTM — balanced parentheses</option>
+      </optgroup>
+      <optgroup label="── DTM Transducers ──">
+        <option value="increment">DTM — binary +1</option>
+        <option value="copy">DTM — string copier</option>
+        <option value="reverse">DTM — reverse string</option>
+      </optgroup>
+      <optgroup label="── NTM (simulated) ──">
+        <option value="ntm_substr">NTM — substring search</option>
+        <option value="ntm_even">NTM — even-length strings</option>
+      </optgroup>
+    </select>
+    <label>input</label><input type="text" id="t-in" value="aabb" maxlength="18" style="width:100px"/>
+    <button class="btn" id="t-load">LOAD</button>
+    <label>speed</label><input type="range" id="t-spd" min="1" max="10" value="5"/>
+    <div class="stag">step: <span id="t-cnt">0</span></div>
+  </div>
+  <div class="dsbar" id="t-dsbar"></div>
+  <div id="tm-tw">
+    <div style="font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">TAPE &nbsp;<span style="color:var(--dimmer);font-size:9px">(□ = blank)</span></div>
+    <div class="tm-tape" id="t-tape"></div>
+  </div>
+  <div id="tm-sr"></div>
+  <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative">
+      <div class="complexity-overlay" id="t-cx"></div>
+      <div id="tm-log" style="flex:1;overflow-y:auto;padding:10px 18px;font-size:11px"><div style="font-size:10px;color:var(--dimmer);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">TRANSITION LOG</div><div id="t-entries"></div></div>
+    </div>
+    <div class="code-side" id="t-code-side">
+      <div class="code-header"><span class="code-title" id="t-code-title">turing machine</span><button class="code-toggle" onclick="toggleCode('t')">hide</button></div>
+      <div class="code-scroll" id="t-code"></div>
+    </div>
+  </div>
+  <div class="log"><span class="slbl" id="t-lbl">READY</span><span id="t-log">load input and press RUN</span></div>
+</div>
+
+
+</div>
+<script>
+
+
+const $=id=>document.getElementById(id);
+const C={bg:'#0d0f14',bg2:'#111318',bg3:'#161920',bg4:'#1a1d24',border:'#2a2e38',text:'#d4d8e0',dim:'#7a8090',dimmer:'#4a5060',accent:'#e8c547',green:'#34d399',red:'#e85454',blue:'#60a5fa',purple:'#a78bfa',orange:'#fb923c'};
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function rsz(c){const w=c.parentElement.clientWidth,h=c.parentElement.clientHeight;if(c.width!==w||c.height!==h){c.width=w;c.height=h;}}
+
+// ══════════════════ TOKEN HELPERS (must be defined before CODES) ══════════════════
+// token: kw=keyword fn=function nm=number st=string cm=comment
+function tok(s,cls){return `<span class="${cls}">${s}</span>`;}
+const kw=s=>tok(s,'kw'), fn=s=>tok(s,'fn'), nm=s=>tok(s,'nm'), cm=s=>tok(s,'cm'), st=s=>tok(s,'st');
+
+// ══════════════════ DATA TABLES (hoisted to top) ══════════════════
+const CODES = {
+  // ── SORTING ──
+  bubble:[
+    [`${kw('function')} ${fn('bubbleSort')}(arr) {`,          ''],
+    [`  ${kw('for')} i = 0 → n-2 {`,                           'outer'],
+    [`    ${kw('for')} j = 0 → n-i-2 {`,                       'inner'],
+    [`      ${cm('// compare adjacent pair')}`,                 ''],
+    [`      ${kw('if')} arr[j] > arr[j+1] {`,                  'compare'],
+    [`        swap(arr[j], arr[j+1])`,                          'swap'],
+    [`      }`,                                                 ''],
+    [`    }`,                                                    ''],
+    [`    ${cm('// arr[n-1-i] is now sorted')}`,                'sorted'],
+    [`  }`,                                                      ''],
+    [`}`,                                                        ''],
+  ],
+  selection:[
+    [`${kw('function')} ${fn('selectionSort')}(arr) {`,        ''],
+    [`  ${kw('for')} i = 0 → n-2 {`,                           'outer'],
+    [`    minIdx = i`,                                          'outer'],
+    [`    ${kw('for')} j = i+1 → n-1 {`,                       'inner'],
+    [`      ${kw('if')} arr[j] < arr[minIdx] {`,               'compare'],
+    [`        minIdx = j  ${cm('// new min')}`,                 'compare'],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`    swap(arr[i], arr[minIdx])`,                           'swap'],
+    [`    ${cm('// arr[0..i] sorted')}`,                        'sorted'],
+    [`  }`,                                                      ''],
+    [`}`,                                                        ''],
+  ],
+  insertion:[
+    [`${kw('function')} ${fn('insertionSort')}(arr) {`,        ''],
+    [`  ${kw('for')} i = 1 → n-1 {`,                           'outer'],
+    [`    key = arr[i]`,                                        'outer'],
+    [`    j = i`,                                               'outer'],
+    [`    ${kw('while')} j > 0 && arr[j-1] > key {`,           'compare'],
+    [`      arr[j] = arr[j-1]  ${cm('// shift right')}`,       'swap'],
+    [`      j--`,                                               'swap'],
+    [`    }`,                                                    ''],
+    [`    arr[j] = key  ${cm('// insert')}`,                    'sorted'],
+    [`  }`,                                                      ''],
+    [`}`,                                                        ''],
+  ],
+  merge:[
+    [`${kw('function')} ${fn('mergeSort')}(arr, l, r) {`,      ''],
+    [`  ${kw('if')} r - l < 1 ${kw('return')}`,                ''],
+    [`  mid = ⌊(l+r)/2⌋`,                                      ''],
+    [`  mergeSort(arr, l, mid)   ${cm('// recurse left')}`,     ''],
+    [`  mergeSort(arr, mid+1, r) ${cm('// recurse right')}`,    ''],
+    [`  ${cm('// merge two sorted halves')}`,                   ''],
+    [`  ${kw('while')} i < left.len && j < right.len {`,        'compare'],
+    [`    arr[k++] = min(left[i], right[j])`,                   'swap'],
+    [`  }`,                                                      ''],
+    [`  copy remaining elements`,                               'swap'],
+    [`}`,                                                        ''],
+  ],
+  quick:[
+    [`${kw('function')} ${fn('quickSort')}(arr, l, r) {`,      ''],
+    [`  ${kw('if')} l >= r ${kw('return')}`,                    ''],
+    [`  pivot = arr[r]  ${cm('// rightmost element')}`,         'pivot'],
+    [`  i = l - 1`,                                             'pivot'],
+    [`  ${kw('for')} j = l → r-1 {`,                            'compare'],
+    [`    ${kw('if')} arr[j] <= pivot {`,                       'compare'],
+    [`      i++`,                                               'compare'],
+    [`      swap(arr[i], arr[j])`,                              'swap'],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  swap(arr[i+1], arr[r])  ${cm('// place pivot')}`,       'pivot'],
+    [`  quickSort(arr, l, i)    ${cm('// recurse left')}`,      ''],
+    [`  quickSort(arr, i+2, r)  ${cm('// recurse right')}`,     ''],
+    [`}`,                                                        ''],
+  ],
+  heap:[
+    [`${kw('function')} ${fn('heapSort')}(arr) {`,              ''],
+    [`  buildMaxHeap(arr)  ${cm('// heapify all')}`,             'compare'],
+    [`  ${kw('for')} i = n-1 → 1 {`,                            ''],
+    [`    swap(arr[0], arr[i])  ${cm('// extract max')}`,       'swap'],
+    [`    siftDown(arr, 0, i)`,                                  'compare'],
+    [`  }`,                                                       ''],
+    [`}`,                                                         ''],
+    [`${kw('function')} ${fn('siftDown')}(arr, i, size) {`,     ''],
+    [`  largest = i`,                                            'compare'],
+    [`  l=2i+1, r=2i+2`,                                         'compare'],
+    [`  ${kw('if')} arr[l] > arr[largest]: largest=l`,          'compare'],
+    [`  ${kw('if')} arr[r] > arr[largest]: largest=r`,          'compare'],
+    [`  ${kw('if')} largest != i:`,                              'compare'],
+    [`    swap(arr[i], arr[largest])`,                           'swap'],
+    [`    siftDown(arr, largest, size)`,                         'swap'],
+    [`}`,                                                         ''],
+  ],
+  // ── SEARCHING ──
+  linear:[
+    [`${kw('function')} ${fn('linearSearch')}(arr, target) {`, ''],
+    [`  ${kw('for')} i = 0 → n-1 {`,                            ''],
+    [`    ${kw('if')} arr[i] === target {`,                      'compare'],
+    [`      ${kw('return')} i  ${cm('// found!')}`,             'found'],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} -1  ${cm('// not found')}`,             'notfound'],
+    [`}`,                                                         ''],
+  ],
+  binary:[
+    [`${kw('function')} ${fn('binarySearch')}(arr, target) {`, ''],
+    [`  lo=0, hi=n-1`,                                           ''],
+    [`  ${kw('while')} lo <= hi {`,                              ''],
+    [`    mid = ⌊(lo+hi)/2⌋`,                                   'compare'],
+    [`    ${kw('if')} arr[mid] === target:`,                     'compare'],
+    [`      ${kw('return')} mid  ${cm('// found!')}`,           'found'],
+    [`    ${kw('else if')} arr[mid] < target:`,                  'compare'],
+    [`      lo = mid + 1  ${cm('// search right')}`,            'compare'],
+    [`    ${kw('else')}:`,                                        'compare'],
+    [`      hi = mid - 1  ${cm('// search left')}`,             'compare'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} -1`,                                     'notfound'],
+    [`}`,                                                         ''],
+  ],
+  jump:[
+    [`${kw('function')} ${fn('jumpSearch')}(arr, target) {`,   ''],
+    [`  step = √n`,                                              ''],
+    [`  ${kw('while')} arr[cur] <= target {`,                    'compare'],
+    [`    ${kw('if')} arr[cur] === target:`,                     'compare'],
+    [`      ${kw('return')} cur  ${cm('// found in jump')}`,    'found'],
+    [`    prev=cur; cur += step`,                                'compare'],
+    [`  }`,                                                       ''],
+    [`  ${cm('// linear scan in block')}`,                       ''],
+    [`  ${kw('for')} i = prev → cur {`,                          ''],
+    [`    ${kw('if')} arr[i] === target:`,                       'compare'],
+    [`      ${kw('return')} i  ${cm('// found!')}`,             'found'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} -1`,                                     'notfound'],
+    [`}`,                                                         ''],
+  ],
+  ternary:[
+    [`${kw('function')} ${fn('ternarySearch')}(arr, target) {`,''],
+    [`  lo=0, hi=n-1`,                                           ''],
+    [`  ${kw('while')} lo <= hi {`,                              ''],
+    [`    m1 = lo + ⌊(hi-lo)/3⌋`,                               'compare'],
+    [`    m2 = hi - ⌊(hi-lo)/3⌋`,                               'compare'],
+    [`    ${kw('if')} arr[m1] === target: return m1`,            'found'],
+    [`    ${kw('if')} arr[m2] === target: return m2`,            'found'],
+    [`    ${kw('if')} target < arr[m1]:`,                        'compare'],
+    [`      hi = m1 - 1`,                                        'compare'],
+    [`    ${kw('else if')} target > arr[m2]:`,                   'compare'],
+    [`      lo = m2 + 1`,                                        'compare'],
+    [`    ${kw('else')}: lo=m1+1; hi=m2-1`,                     'compare'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} -1`,                                     'notfound'],
+    [`}`,                                                         ''],
+  ],
+  expo:[
+    [`${kw('function')} ${fn('exponentialSearch')}(arr, t) {`, ''],
+    [`  ${kw('if')} arr[0] === t: ${kw('return')} 0`,           'found'],
+    [`  i = 1`,                                                  ''],
+    [`  ${kw('while')} i < n && arr[i] <= t {`,                 'compare'],
+    [`    ${kw('if')} arr[i] === t: ${kw('return')} i`,         'found'],
+    [`    i *= 2  ${cm('// double range')}`,                     'compare'],
+    [`  }`,                                                       ''],
+    [`  ${cm('// binary search in [i/2, min(i,n-1)]')}`,        ''],
+    [`  lo=i/2, hi=min(i, n-1)`,                                 ''],
+    [`  ${kw('return')} binarySearch(arr, t, lo, hi)`,          'compare'],
+    [`}`,                                                         ''],
+  ],
+  // ── GRAPH ──
+  bfs:[
+    [`${kw('function')} ${fn('BFS')}(graph, start) {`,         ''],
+    [`  queue = Queue()`,                                        ''],
+    [`  visited = Set()`,                                        ''],
+    [`  queue.enqueue(start)`,                                   ''],
+    [`  visited.add(start)`,                                     ''],
+    [`  ${kw('while')} queue.notEmpty() {`,                     ''],
+    [`    cur = queue.dequeue()`,                                'visit'],
+    [`    process(cur)  ${cm('// visit node')}`,                'visit'],
+    [`    ${kw('for')} nb ${kw('in')} graph[cur] {`,            ''],
+    [`      ${kw('if')} nb ${kw('not in')} visited {`,          'enqueue'],
+    [`        queue.enqueue(nb)`,                                'enqueue'],
+    [`        visited.add(nb)`,                                  'enqueue'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`}`,                                                         ''],
+  ],
+  dijkstra:[
+    [`${kw('function')} ${fn('dijkstra')}(graph, src) {`,      ''],
+    [`  dist = {src: 0, all others: ∞}`,                        ''],
+    [`  pq = MinHeap()  ${cm('// priority queue')}`,            ''],
+    [`  pq.push({node: src, cost: 0})`,                         ''],
+    [`  ${kw('while')} pq.notEmpty() {`,                        ''],
+    [`    {u, d} = pq.popMin()  ${cm('// greedy pick')}`,       'visit'],
+    [`    ${kw('if')} d > dist[u]: continue`,                   'visit'],
+    [`    ${kw('for')} (v, w) ${kw('in')} graph[u] {`,          'relax'],
+    [`      ${kw('if')} dist[u] + w < dist[v] {`,               'relax'],
+    [`        dist[v] = dist[u] + w`,                           'relax'],
+    [`        pq.push({node: v, cost: dist[v]})`,               'relax'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} dist  ${cm('// shortest distances')}`,  ''],
+    [`}`,                                                         ''],
+  ],
+  dfs:[
+    [`${kw('function')} ${fn('DFS')}(graph, start) {`,         ''],
+    [`  stack = Stack()`,                                        ''],
+    [`  visited = Set()`,                                        ''],
+    [`  stack.push(start)`,                                      ''],
+    [`  ${kw('while')} stack.notEmpty() {`,                     ''],
+    [`    cur = stack.pop()`,                                    'visit'],
+    [`    ${kw('if')} cur ${kw('in')} visited: continue`,       'visit'],
+    [`    visited.add(cur)`,                                     'visit'],
+    [`    process(cur)  ${cm('// visit node')}`,                'visit'],
+    [`    ${kw('for')} nb ${kw('in')} graph[cur] {`,            ''],
+    [`      ${kw('if')} nb ${kw('not in')} visited:`,           'enqueue'],
+    [`        stack.push(nb)`,                                   'enqueue'],
+    [`    }`,                                                     ''],
+    [`  }`,                                                       ''],
+    [`}`,                                                         ''],
+  ],
+  // ── DFA ──
+  dfa_sim:[
+    [`${kw('function')} ${fn('runDFA')}(machine, input) {`,    ''],
+    [`  state = machine.start`,                                  ''],
+    [`  ${kw('for')} symbol ${kw('in')} input {`,              ''],
+    [`    trans = delta[state][symbol]`,                         'step'],
+    [`    ${kw('if')} trans === undefined {`,                    'step'],
+    [`      ${kw('return')} REJECT  ${cm('// dead state')}`,    'dead'],
+    [`    }`,                                                     ''],
+    [`    state = trans  ${cm('// advance state')}`,             'step'],
+    [`  }`,                                                       ''],
+    [`  ${kw('if')} state ${kw('in')} machine.accept {`,        'done'],
+    [`    ${kw('return')} ACCEPT`,                               'done'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} REJECT`,                                 'done'],
+    [`}`,                                                         ''],
+  ],
+  nfa_sim:[
+    [`${kw('function')} ${fn('runNFA')}(machine, input) {`,    ''],
+    [`  states = Set([machine.start])`,                         ''],
+    [`  ${kw('for')} symbol ${kw('in')} input {`,              ''],
+    [`    next = Set()`,                                         'step'],
+    [`    ${kw('for')} s ${kw('in')} states {`,                 'step'],
+    [`      ${kw('for')} t ${kw('in')} delta[s][symbol] {`,     'step'],
+    [`        next.add(t)  ${cm('// track all paths')}`,        'step'],
+    [`      }`,                                                   ''],
+    [`    }`,                                                     ''],
+    [`    states = next`,                                        'step'],
+    [`    ${kw('if')} states.isEmpty(): return REJECT`,          'dead'],
+    [`  }`,                                                       ''],
+    [`  ${kw('return')} states ∩ accept ≠ ∅ ? ACCEPT : REJECT`,'done'],
+    [`}`,                                                         ''],
+  ],
+  // ── DP ──
+  lcs:[
+    [`${kw('function')} ${fn('lcs')}(a, b) {`,                 ''],
+    [`  dp[0..m][0..n] = 0`,                                    ''],
+    [`  ${kw('for')} i = 1 → m {`,                             ''],
+    [`    ${kw('for')} j = 1 → n {`,                           ''],
+    [`      ${kw('if')} a[i] == b[j] {`,                       'match'],
+    [`        dp[i][j] = dp[i-1][j-1] + 1`,                   'match'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        dp[i][j] = max(dp[i-1][j], dp[i][j-1])`,        'fill'],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[m][n]  ${cm('// traceback for seq')}`,'done'],
+    [`}`,                                                         ''],
+  ],
+  ks:[
+    [`${kw('function')} ${fn('knapsack')}(w, v, W) {`,         ''],
+    [`  dp[0..n][0..W] = 0`,                                    ''],
+    [`  ${kw('for')} i = 1 → n {`,                             ''],
+    [`    ${kw('for')} c = 0 → W {`,                           ''],
+    [`      ${kw('if')} w[i] > c {`,                           'fill'],
+    [`        dp[i][c] = dp[i-1][c]  ${cm('// skip')}`,        'fill'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        include = v[i] + dp[i-1][c-w[i]]`,               'fill'],
+    [`        dp[i][c] = max(dp[i-1][c], include)`,            'fill'],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[n][W]`,                              'done'],
+    [`}`,                                                         ''],
+  ],
+  edit:[
+    [`${kw('function')} ${fn('editDistance')}(a, b) {`,        ''],
+    [`  dp[i][0] = i, dp[0][j] = j`,                           ''],
+    [`  ${kw('for')} i = 1 → m {`,                             ''],
+    [`    ${kw('for')} j = 1 → n {`,                           ''],
+    [`      ${kw('if')} a[i] == b[j] {`,                       'match'],
+    [`        dp[i][j] = dp[i-1][j-1]  ${cm('// match')}`,     'match'],
+    [`      } ${kw('else')} {`,                                 ''],
+    [`        dp[i][j] = 1 + min(`,                            'fill'],
+    [`          dp[i-1][j],   ${cm('// delete')}`,              'fill'],
+    [`          dp[i][j-1],   ${cm('// insert')}`,              'fill'],
+    [`          dp[i-1][j-1]  ${cm('// substitute')}`,          'fill'],
+    [`        )`,                                                ''],
+    [`      }`,                                                  ''],
+    [`    }`,                                                    ''],
+    [`  }`,                                                      ''],
+    [`  ${kw('return')} dp[m][n]`,                              'done'],
+    [`}`,                                                         ''],
+  ],
+  // ── PUMPING LEMMA ──
+  pump_proof:[
+    [`${cm('// Proof by contradiction:')}`,                     ''],
+    [`${kw('assume')} L is regular`,                            'intro'],
+    [`${cm('// ∃ pumping length p')}`,                          ''],
+    [`choose s ∈ L with |s| ≥ p`,                              'choose'],
+    [`${cm('// ∀ splits s = xyz:')}`,                           ''],
+    [`|y| ≥ 1  and  |xy| ≤ p`,                                 'split'],
+    [`${cm('// must hold: ∀i ≥ 0, xyⁱz ∈ L')}`,               ''],
+    [`pick i that breaks condition`,                             'pump'],
+    [`${kw('if')} xyⁱz ∉ L for some i {`,                     'pump'],
+    [`  ${cm('// contradiction!')}`,                            ''],
+    [`  L cannot be regular  ∎`,                               'conclude'],
+    [`}`,                                                        ''],
+  ],
+  // ── TURING MACHINE ──
+  anbn_tm:[
+    [`${cm('// Mark a→X, match b→Y, repeat')}`,                ''],
+    [`q0: scan X rightward  ${cm('// skip marked')}`,          'step'],
+    [`q0: read a → write X, move R → q1`,                     'step'],
+    [`q0: read □ → ACCEPT  ${cm('// all matched')}`,           'halt'],
+    [`q1: scan past a, Y rightward`,                            'step'],
+    [`q1: read b → write Y, move L → q2`,                     'step'],
+    [`q1: read □ → REJECT  ${cm('// unmatched b')}`,           'halt'],
+    [`q2: scan left to X`,                                      'step'],
+    [`q2: read X → move R → q0  ${cm('// next pair')}`,        'step'],
+  ],
+  palindrome_tm:[
+    [`${cm('// Strip outer chars, check match')}`,             ''],
+    [`q0: read a → erase, move R → q1a`,                      'step'],
+    [`q0: read b → erase, move R → q1b`,                      'step'],
+    [`q0: read □ → ACCEPT  ${cm('// empty/single')}`,         'halt'],
+    [`q1a/q1b: scan to rightmost char`,                        'step'],
+    [`q2a: last must be a → erase → q3`,                      'step'],
+    [`q2b: last must be b → erase → q3`,                      'step'],
+    [`mismatch → REJECT`,                                      'halt'],
+    [`q3: scan left to □ → q0  ${cm('// recurse')}`,          'step'],
+  ],
+  increment_tm:[
+    [`${cm('// Scan right, carry from end')}`,                 ''],
+    [`q0: scan 0,1 rightward`,                                 'step'],
+    [`q0: read □ → move L → q1`,                              'step'],
+    [`q1: read 1 → write 0, move L`,                          'step'],
+    [`     ${cm('// carry: keep going left')}`,                ''],
+    [`q1: read 0 → write 1, move R → qA`,                    'halt'],
+    [`q1: read □ → write 1, move R → qA`,                    'halt'],
+    [`     ${cm('// overflow: prepend 1')}`,                   ''],
+  ],
+  copy_tm:[
+    [`${cm('// Mark symbol, jump past #, append')}`,           ''],
+    [`q0: read a → write X, move R → q1`,                    'step'],
+    [`q0: read b → write X, move R → q2`,                    'step'],
+    [`q0: read # → move R → q3  ${cm('// cleanup')}`,         'step'],
+    [`q1/q2: scan to end of tape`,                             'step'],
+    [`q1: read □ → write a, move L → q4`,                    'step'],
+    [`q2: read □ → write b, move L → q4`,                    'step'],
+    [`q4: scan left to X → move R → q0`,                     'step'],
+    [`q3: X→a, cleanup  ${cm('// restore')}`,                 'halt'],
+  ],
+};
+
+const TR_CODES={
+  inorder:[
+    [`function inorder(node) {`,              ''],
+    [`  if node == null: return`,             ''],
+    [`  inorder(node.left)   // recurse L`,  'visit'],
+    [`  visit(node)           // process`,    'visit'],
+    [`  inorder(node.right)  // recurse R`,  'visit'],
+    [`}`,                                     ''],
+  ],
+  preorder:[
+    [`function preorder(node) {`,             ''],
+    [`  if node == null: return`,             ''],
+    [`  visit(node)           // root first`, 'visit'],
+    [`  preorder(node.left)`,                 'visit'],
+    [`  preorder(node.right)`,                'visit'],
+    [`}`,                                     ''],
+  ],
+  postorder:[
+    [`function postorder(node) {`,            ''],
+    [`  if node == null: return`,             ''],
+    [`  postorder(node.left)`,                'visit'],
+    [`  postorder(node.right)`,               'visit'],
+    [`  visit(node)           // root last`,  'visit'],
+    [`}`,                                     ''],
+  ],
+  levelorder:[
+    [`function levelOrder(root) {`,           ''],
+    [`  queue = [root]`,                      ''],
+    [`  while queue not empty {`,             ''],
+    [`    cur = queue.dequeue()`,             'visit'],
+    [`    visit(cur)`,                        'visit'],
+    [`    if cur.left:  enqueue(cur.left)`,   'visit'],
+    [`    if cur.right: enqueue(cur.right)`,  'visit'],
+    [`  }`,                                   ''],
+    [`}`,                                     ''],
+  ],
+  bst_search:[
+    [`function bstSearch(node, target) {`,    ''],
+    [`  if node == null: return NOT_FOUND`,   'notfound'],
+    [`  if node.v == target: return node`,    'found'],
+    [`  if target < node.v:`,                 'visit'],
+    [`    return bstSearch(node.left, t)`,    'visit'],
+    [`  else:`,                               'visit'],
+    [`    return bstSearch(node.right, t)`,   'visit'],
+    [`}`,                                     ''],
+  ],
+  bst_insert:[
+    [`function bstInsert(node, val) {`,       ''],
+    [`  if node == null:`,                    'insert'],
+    [`    return new Node(val)  // insert`,   'insert'],
+    [`  if val < node.v:`,                    'visit'],
+    [`    node.left = insert(node.left, v)`,  'visit'],
+    [`  else if val > node.v:`,               'visit'],
+    [`    node.right = insert(node.right,v)`, 'visit'],
+    [`  return node`,                         ''],
+    [`}`,                                     ''],
+  ],
+  bst_delete:[
+    [`function bstDelete(node, val) {`,       ''],
+    [`  if val < node.v: go left`,            'visit'],
+    [`  if val > node.v: go right`,           'visit'],
+    [`  // Found node to delete:`,            ''],
+    [`  if leaf: return null`,                'visit'],
+    [`  if 1 child: return that child`,       'visit'],
+    [`  // 2 children:`,                      ''],
+    [`  succ = inorderSuccessor(node.right)`, 'visit'],
+    [`  node.v = succ.v  // replace value`,   'visit'],
+    [`  delete succ from right subtree`,      'visit'],
+    [`}`,                                     ''],
+  ],
+  height:[
+    [`function height(node) {`,               ''],
+    [`  if node == null: return 0`,           ''],
+    [`  lh = height(node.left)   // D&C`,     'visit'],
+    [`  rh = height(node.right)  // D&C`,     'visit'],
+    [`  return 1 + max(lh, rh)`,              'visit'],
+    [`}`,                                     ''],
+  ],
+  avl:[
+    [`// After insert/delete, rebalance:`,    ''],
+    [`balance = height(L) - height(R)`,       'visit'],
+    [`if balance > 1:   // left heavy`,       'visit'],
+    [`  if LL case: rotateRight(node)`,       'visit'],
+    [`  if LR case: rotateLeft(L), rotateR`,  'visit'],
+    [`if balance < -1: // right heavy`,       'visit'],
+    [`  if RR case: rotateLeft(node)`,        'visit'],
+    [`  if RL case: rotateRight(R), rotateL`, 'visit'],
+  ],
+};
+
+const GR_CODES={
+  activity:[
+    [`sort activities by finish time`,  'sort'],
+    [`lastEnd = -∞`,                    ''],
+    [`selected = []`,                   ''],
+    [`for each activity a {`,           ''],
+    [`  if a.start >= lastEnd {`,       'check'],
+    [`    selected.add(a)  // greedy`,  'select'],
+    [`    lastEnd = a.finish`,          'select'],
+    [`  }`,                             ''],
+    [`}`,                               ''],
+    [`return selected`,                 ''],
+  ],
+  fractional_ks:[
+    [`sort items by value/weight desc`, 'sort'],
+    [`remaining = capacity`,            ''],
+    [`for each item i {`,               ''],
+    [`  frac = min(1, remaining/i.w)`,  'check'],
+    [`  take frac of item i  // greedy`,'select'],
+    [`  value += frac * i.v`,           'select'],
+    [`  remaining -= frac * i.w`,       'select'],
+    [`  if remaining == 0: break`,      'check'],
+    [`}`,                               ''],
+  ],
+  coin:[
+    [`coins = [25, 10, 5, 1]`,          ''],
+    [`for each coin c (largest first){`,''],
+    [`  while amount >= c {`,           'check'],
+    [`    use coin c  // greedy`,       'select'],
+    [`    amount -= c`,                 'select'],
+    [`  }`,                             ''],
+    [`}`,                               ''],
+  ],
+  prim:[
+    [`mst = {start}`,                   ''],
+    [`while mst.size < V {`,            ''],
+    [`  find cheapest edge e`,          'check'],
+    [`    crossing mst boundary`,       'check'],
+    [`  add e to MST  // greedy pick`,  'select'],
+    [`  add new node to mst`,           'select'],
+    [`}`,                               ''],
+  ],
+  kruskal:[
+    [`sort all edges by weight`,        'sort'],
+    [`uf = UnionFind(V)`,               ''],
+    [`for each edge e (sorted) {`,      ''],
+    [`  if !uf.connected(e.a, e.b) {`, 'check'],
+    [`    mst.add(e)  // greedy`,       'select'],
+    [`    uf.union(e.a, e.b)`,          'select'],
+    [`  }  // else: skip (cycle)`,      ''],
+    [`}`,                               ''],
+  ],
+  job_schedule:[
+    [`sort jobs by profit (descending)`,  'sort'],
+    [`slots = array[maxDeadline]`,         ''],
+    [`for each job j (highest profit 1st){`,''],
+    [`  for t = j.deadline → 1 {`,         'check'],
+    [`    if slot[t] is free {`,            'check'],
+    [`      slot[t] = j  // greedy place`, 'select'],
+    [`      break`,                         'select'],
+    [`    }`,                               ''],
+    [`  }  // else: drop job`,             ''],
+    [`}`,                                   ''],
+    [`return filled slots`,                 ''],
+  ],
+  huffman:[
+    [`pq = MinHeap(all chars by freq)`, ''],
+    [`while pq.size > 1 {`,             ''],
+    [`  a = pq.popMin()  // greedy`,    'check'],
+    [`  b = pq.popMin()`,               'check'],
+    [`  merge = Node(a.f + b.f)`,       'select'],
+    [`  merge.left=a; merge.right=b`,   'select'],
+    [`  pq.push(merge)`,                'select'],
+    [`}`,                               ''],
+    [`return pq.pop()  // huffman tree`,''],
+  ],
+};
+
+const CX_CODES={
+  subset:[
+    [`function subsetConstruct(NFA) {`,   ''],
+    [`  start = ε-closure({NFA.start})`,  'init'],
+    [`  queue = [start]`,                  'init'],
+    [`  DFA.states = {start}`,             'init'],
+    [`  while queue not empty {`,          ''],
+    [`    T = queue.dequeue()`,            'process'],
+    [`    for each symbol a {`,            ''],
+    [`      U = ε-closure(δ(T, a))`,      'relax'],
+    [`      if U not in DFA.states {`,    'relax'],
+    [`        DFA.states.add(U)`,          'relax'],
+    [`        queue.enqueue(U)`,           'relax'],
+    [`      }`,                            ''],
+    [`      DFA.δ(T, a) = U`,             'relax'],
+    [`    }`,                              ''],
+    [`  }`,                                ''],
+    [`  return DFA`,                       'done'],
+    [`}`,                                  ''],
+  ],
+  eclosure:[
+    [`function εClosure(state) {`,         ''],
+    [`  closure = {state}`,                'init'],
+    [`  stack  = [state]`,                 'init'],
+    [`  while stack not empty {`,          ''],
+    [`    s = stack.pop()`,                'closure'],
+    [`    for t in δ(s, ε) {`,            'closure'],
+    [`      if t not in closure {`,        'closure'],
+    [`        closure.add(t)`,             'closure'],
+    [`        stack.push(t)`,              'closure'],
+    [`      }`,                            ''],
+    [`    }`,                              ''],
+    [`  }`,                                ''],
+    [`  return closure`,                   'done'],
+    [`}`,                                  ''],
+    [`// For each state s, sym a:`,        ''],
+    [`// δ'(s,a) = ⋃ εClosure(t)`,        'relax'],
+    [`//   for t in δ(εClosure(s), a)`,    'relax'],
+  ],
+  closure:[
+    [`// Kleene Star: L*`,                     ''],
+    [`qnew = new start + accept state`,         'init'],
+    [`add ε: qnew → L.start`,                  'add_start'],
+    [`for each a in L.accept: {`,              ''],
+    [`  add ε: a → L.start  // loop back`,    'add_back_eps'],
+    [`  add ε: a → qnew     // accept path`,  'add_back_eps'],
+    [`}`,                                       ''],
+    [`// Concatenation: L₁·L₂`,               ''],
+    [`for each a in L1.accept:`,               'connect'],
+    [`  add ε: a → L2.start`,                 'connect'],
+    [`// Union: L₁ ∪ L₂`,                     ''],
+    [`qnew = new start state`,                  'add_start'],
+    [`add ε: qnew → L1.start`,                'eps_L1'],
+    [`add ε: qnew → L2.start`,                'eps_L2'],
+  ],
+  gnfa:[
+    [`function gnfaEliminate(DFA) {`,      ''],
+    [`  add new qstart → old start (ε)`,   'init'],
+    [`  add old accepts → new qaccept (ε)`,'init'],
+    [`  while |states| > 2 {`,             ''],
+    [`    qrip = choose state to rip`,     'rip'],
+    [`    for each (qi, qj) pair {`,       ''],
+    [`      R1 = label(qi → qrip)`,        'update'],
+    [`      R2 = label(qrip → qrip)`,      'update'],
+    [`      R3 = label(qrip → qj)`,        'update'],
+    [`      R4 = label(qi → qj)`,          'update'],
+    [`      // new label:`,                ''],
+    [`      R1(R2)*R3 ∪ R4`,               'update'],
+    [`      label(qi,qj) = result`,        'update'],
+    [`    }`,                              ''],
+    [`    remove qrip`,                    'rip'],
+    [`  }`,                                ''],
+    [`  return label(qstart, qaccept)`,    'done'],
+    [`}`,                                  ''],
+  ],
+};
+
+// ══ TIME COMPLEXITY TABLE ══
+// ══ TIME COMPLEXITY TABLE ══
+const CX = {
+  // Sorting
+  bubble:    {best:'O(n)',      avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  selection: {best:'O(n²)',     avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  insertion: {best:'O(n)',      avg:'O(n²)',      worst:'O(n²)',      space:'O(1)'},
+  merge:     {best:'O(n log n)',avg:'O(n log n)', worst:'O(n log n)', space:'O(n)'},
+  quick:     {best:'O(n log n)',avg:'O(n log n)', worst:'O(n²)',      space:'O(log n)'},
+  heap:      {best:'O(n log n)',avg:'O(n log n)', worst:'O(n log n)', space:'O(1)'},
+  // Searching
+  linear:    {best:'O(1)',      avg:'O(n)',        worst:'O(n)',        space:'O(1)'},
+  binary:    {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  jump:      {best:'O(1)',      avg:'O(√n)',       worst:'O(√n)',       space:'O(1)'},
+  ternary:   {best:'O(1)',      avg:'O(log₃ n)',   worst:'O(log₃ n)',   space:'O(1)'},
+  expo:      {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  // Graph
+  bfs:       {best:'O(V+E)',    avg:'O(V+E)',      worst:'O(V+E)',      space:'O(V)'},
+  dfs:       {best:'O(V+E)',    avg:'O(V+E)',      worst:'O(V+E)',      space:'O(V)'},
+  dijkstra:  {best:'O((V+E)log V)',avg:'O((V+E)log V)',worst:'O((V+E)log V)',space:'O(V)'},
+  // Trees
+  inorder:   {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  preorder:  {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  postorder: {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  levelorder:{best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(w)'},
+  bst_search:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  bst_insert:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  bst_delete:{best:'O(1)',      avg:'O(log n)',    worst:'O(n)',        space:'O(1)'},
+  avl:       {best:'O(1)',      avg:'O(log n)',    worst:'O(log n)',    space:'O(1)'},
+  height:    {best:'O(n)',      avg:'O(n)',        worst:'O(n)',        space:'O(h)'},
+  // DP
+  lcs:       {best:'O(m·n)',    avg:'O(m·n)',      worst:'O(m·n)',      space:'O(m·n)'},
+  ks:        {best:'O(n·W)',    avg:'O(n·W)',      worst:'O(n·W)',      space:'O(n·W)'},
+  edit:      {best:'O(m·n)',    avg:'O(m·n)',      worst:'O(m·n)',      space:'O(m·n)'},
+  // Greedy
+  activity:     {best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(1)'},
+  job_schedule: {best:'O(n²)',    avg:'O(n²)',      worst:'O(n²)',      space:'O(n)'},
+  fractional_ks:{best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(n)'},
+  huffman:      {best:'O(n log n)',avg:'O(n log n)',worst:'O(n log n)',space:'O(n)'},
+  prim:         {best:'O((V+E)log V)',avg:'O((V+E)log V)',worst:'O((V+E)log V)',space:'O(V)'},
+  kruskal:      {best:'O(E log E)',avg:'O(E log E)',worst:'O(E log E)',space:'O(V)'},
+  coin:         {best:'O(n)',     avg:'O(n)',        worst:'O(n)',       space:'O(1)'},
+};
+
+function showCX(id, key){
+  const el=$(id); if(!el) return;
+  const d=CX[key]; if(!d){el.innerHTML='';return;}
+  el.innerHTML=
+    `<div class="cx-row"><span class="cx-label">best</span><span class="cx-val cx-best">${d.best}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">avg</span><span class="cx-val cx-avg">${d.avg}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">worst</span><span class="cx-val cx-worst">${d.worst}</span></div>`+
+    `<div class="cx-row"><span class="cx-label">space</span><span class="cx-val cx-space">${d.space}</span></div>`;
+}
+
+function renderCode(containerId, codeKey, titleId, titleText) {
+  const el=$(containerId); if(!el) return;
+  const titleEl=$(titleId); if(titleEl) titleEl.textContent=titleText;
+  const allCodes={...CODES,...TR_CODES,...GR_CODES,...(typeof CX_CODES!=='undefined'?CX_CODES:{})};
+  const lines=allCodes[codeKey]||[];
+  el.innerHTML=lines.map(([src,tag],i)=>
+    `<div class="code-line" id="${containerId}-L${i}" data-tag="${tag}">`+
+    `<span class="ln">${i+1}</span>`+
+    `<span class="src">${src}</span>`+
+    `</div>`
+  ).join('');
+}
+
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('panel-'+btn.dataset.tab).classList.add('active');
+    const t=btn.dataset.tab;
+    if(t==='dfa'){requestAnimationFrame(()=>{fInit();fDraw();fSyncCode();fDSU();});}
+    if(t==='pump'){pReset();pSyncCode();pDSU();}
+    if(t==='turing'){requestAnimationFrame(()=>{try{tInit();}catch(e){console.error('tInit',e);}try{tSyncCode();}catch(e){}try{tDSU();}catch(e){};});}
+    if(t==='construct'){requestAnimationFrame(()=>{try{cxBuild();cxDraw();cxDSU();cxSyncCode();}catch(e){console.error('construct',e);}});}
+  });
+});
+
+// ══════════════════ DFA/NFA ══════════════════
+const fCV=$('f-cv'),fCX=fCV.getContext('2d');
+const DFAMS={
+  // ── DFA: Simple pattern matching ──
+  ends01:   {type:'DFA',lbl:'ends in "01"',   states:['q0','q1','q2'],start:'q0',accept:new Set(['q2']),
+    delta:{q0:{'0':'q1','1':'q0'},q1:{'0':'q1','1':'q2'},q2:{'0':'q1','1':'q0'}}},
+  starts1:  {type:'DFA',lbl:'starts with 1',  states:['q0','q1','q2'],start:'q0',accept:new Set(['q1']),
+    delta:{q0:{'0':'q2','1':'q1'},q1:{'0':'q1','1':'q1'},q2:{'0':'q2','1':'q2'}}},
+  even0:    {type:'DFA',lbl:'even # of 0s',   states:['q0','q1'],start:'q0',accept:new Set(['q0']),
+    delta:{q0:{'0':'q1','1':'q0'},q1:{'0':'q0','1':'q1'}}},
+  exact2z:  {type:'DFA',lbl:'exactly two 0s', states:['q0','q1','q2','q3'],start:'q0',accept:new Set(['q2']),
+    delta:{q0:{'0':'q1','1':'q0'},q1:{'0':'q2','1':'q1'},q2:{'0':'q3','1':'q2'},q3:{'0':'q3','1':'q3'}}},
+  div3:     {type:'DFA',lbl:'binary ÷ 3',     states:['q0','q1','q2'],start:'q0',accept:new Set(['q0']),
+    delta:{q0:{'0':'q0','1':'q1'},q1:{'0':'q2','1':'q0'},q2:{'0':'q1','1':'q2'}}},
+  len3:     {type:'DFA',lbl:'length div by 3',states:['q0','q1','q2'],start:'q0',accept:new Set(['q0']),
+    delta:{q0:{'0':'q1','1':'q1'},q1:{'0':'q2','1':'q2'},q2:{'0':'q0','1':'q0'}}},
+  // ── NFA: Multiple paths ──
+  nfa_ab:   {type:'NFA',lbl:'contains "ab"',  states:['s0','s1','s2'],start:'s0',accept:new Set(['s2']),
+    delta:{s0:{a:['s0','s1'],b:['s0']},s1:{b:['s2']},s2:{a:['s2'],b:['s2']}}},
+  nfa_aba:  {type:'NFA',lbl:'ends in "aba"',  states:['t0','t1','t2','t3'],start:'t0',accept:new Set(['t3']),
+    delta:{t0:{a:['t0','t1'],b:['t0']},t1:{b:['t2']},t2:{a:['t3']},t3:{}}},
+  nfa_00or11:{type:'NFA',lbl:'contains "00" or "11"',states:['u0','u1','u2','u3','u4'],start:'u0',accept:new Set(['u2','u4']),
+    delta:{u0:{'0':['u0','u1'],'1':['u0','u3']},u1:{'0':['u2']},u2:{'0':['u2'],'1':['u2']},u3:{'1':['u4']},u4:{'0':['u4'],'1':['u4']}}},
+  nfa_eps:  {type:'ε-NFA',lbl:'ε-NFA: (a|b)*b',states:['v0','v1'],start:'v0',accept:new Set(['v1']),
+    delta:{v0:{a:['v0'],b:['v0','v1'],ε:[]},v1:{}}},
+};
+let fM=null,fStr='',fS=[],fI=0,fRun=false,fTmr=null,fPos={};
+const fSpd=()=>700/+$('f-spd').value;
+function fLayout(){rsz(fCV);const W=fCV.width,H=fCV.height,n=fM.states.length,cx=W/2,cy=H/2,r=Math.min(W,H)*.3;fPos={};fM.states.forEach((s,i)=>{fPos[s]={x:n===2?(i===0?cx-r*.8:cx+r*.8):cx+r*Math.cos(i/n*Math.PI*2-Math.PI/2),y:n===2?cy:cy+r*Math.sin(i/n*Math.PI*2-Math.PI/2)};});}
+function fBuildTape(){const el=$('f-tape');el.innerHTML='';fStr.split('').forEach((c,i)=>{const d=document.createElement('div');d.className='tcell';d.textContent=c;d.id=`tc${i}`;el.appendChild(d);});}
+function fBuildSteps(){const m=fM;fS=[];if(m.type==='DFA'){let st=m.start;fS.push({act:new Set([st]),pos:-1,log:`start: ${st}`});for(let i=0;i<fStr.length;i++){const ch=fStr[i],nx=m.delta[st]?.[ch];if(!nx){fS.push({act:new Set(),pos:i,dead:1,log:`no δ(${st},'${ch}')`});return;}st=nx;fS.push({act:new Set([st]),pos:i,sym:ch,log:`'${ch}' → ${st}`});}const ac=m.accept.has(st);fS.push({act:new Set([st]),pos:fStr.length,done:1,ac,log:`${st} — ${ac?'✓ ACCEPTED':'✗ REJECTED'}`});}else{let cur=new Set([m.start]);fS.push({act:new Set(cur),pos:-1,log:`NFA start {${[...cur]}}`});for(let i=0;i<fStr.length;i++){const ch=fStr[i],nx=new Set();for(const s of cur){const ts=m.delta[s]?.[ch];if(ts)ts.forEach(t=>nx.add(t));}cur=nx;fS.push({act:new Set(cur),pos:i,sym:ch,log:`'${ch}' → {${[...cur].join(',')}}`});if(!cur.size){fS.push({act:new Set(),pos:i,dead:1,log:'∅ → REJECTED'});return;}}const ac=[...cur].some(s=>m.accept.has(s));fS.push({act:new Set(cur),pos:fStr.length,done:1,ac,log:`{${[...cur]}} — ${ac?'✓ ACCEPTED':'✗ REJECTED'}`});}}
+function fUpdateTape(f){fStr.split('').forEach((_,i)=>{const c=$(`tc${i}`);if(!c)return;c.className='tcell';if(i<f.pos)c.classList.add('past');else if(i===f.pos)c.classList.add(f.dead?'rej':f.done&&f.ac?'acc':'act');if(f.done)c.classList.add(f.ac?'acc':'rej');});}
+function fDraw(){rsz(fCV);const ctx=fCX,W=fCV.width,H=fCV.height;ctx.clearRect(0,0,W,H);if(!fM)return;const f=fS[fI]||{act:new Set([fM.start]),pos:-1};const NR=26;const tg={};fM.states.forEach(s=>{const t=fM.delta[s];if(!t)return;Object.entries(t).forEach(([sym,tgts])=>{const arr=Array.isArray(tgts)?tgts:[tgts];arr.forEach(tgt=>{const k=`${s}~${tgt}`;if(!tg[k])tg[k]={from:s,to:tgt,syms:[]};tg[k].syms.push(sym);});});});
+Object.values(tg).forEach(({from,to,syms})=>{const a=fPos[from],b=fPos[to];if(!a||!b)return;const lbl=syms.join(','),active=f.act?.has(to)&&f.sym&&syms.includes(f.sym);ctx.strokeStyle=active?C.accent:C.border;ctx.lineWidth=active?2.5:1.5;if(from===to){const lx=a.x,ly=a.y-NR-16;ctx.beginPath();ctx.arc(lx,ly,16,0,Math.PI*2);ctx.stroke();ctx.fillStyle=active?C.accent:C.dim;ctx.font=`10px 'JetBrains Mono',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,lx,ly-18);}else{const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist,off=tg[`${to}~${from}`]?12:0,px=-uy*off,py=ux*off,sx=a.x+ux*NR+px,sy=a.y+uy*NR+py,ex=b.x-ux*NR+px,ey=b.y-uy*NR+py,mx=(sx+ex)/2+px,my=(sy+ey)/2+py;ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(mx,my,ex,ey);ctx.stroke();const ang=Math.atan2(ey-my,ex-mx);ctx.fillStyle=active?C.accent:C.border;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-9*Math.cos(ang-.4),ey-9*Math.sin(ang-.4));ctx.lineTo(ex-9*Math.cos(ang+.4),ey-9*Math.sin(ang+.4));ctx.closePath();ctx.fill();ctx.fillStyle=active?C.accent:C.dim;ctx.font=`10px 'JetBrains Mono',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbl,mx,my-10);}});
+fM.states.forEach(s=>{const p=fPos[s];if(!p)return;const isA=f.act?.has(s),isAcc=fM.accept.has(s);let fill=C.bg4,stroke=C.border,tc=C.dim;if(isA&&!f.dead){fill='#e8c54718';stroke=C.accent;tc=C.accent;}if(f.done&&isA&&f.ac){fill='#34d39918';stroke=C.green;tc=C.green;}if(f.done&&isA&&!f.ac){fill='#e8545418';stroke=C.red;tc=C.red;}if(f.dead&&isA){fill='#e8545411';stroke=C.red+'66';tc=C.red;}if(s===fM.start){ctx.strokeStyle=C.dimmer;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p.x-NR-26,p.y);ctx.lineTo(p.x-NR-2,p.y);ctx.stroke();ctx.fillStyle=C.dimmer;ctx.beginPath();ctx.moveTo(p.x-NR-2,p.y);ctx.lineTo(p.x-NR-10,p.y-5);ctx.lineTo(p.x-NR-10,p.y+5);ctx.closePath();ctx.fill();}ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,NR,0,Math.PI*2);ctx.fill();ctx.stroke();if(isAcc){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(p.x,p.y,NR-5,0,Math.PI*2);ctx.stroke();}ctx.fillStyle=tc;ctx.font=`600 11px 'JetBrains Mono',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s,p.x,p.y);});}
+function fInit(){fM=DFAMS[$('f-mach').value];fStr=$('f-str').value;fLayout();fBuildTape();fS=[];fI=0;$('f-lbl').textContent='READY';$('f-log').textContent='press RUN';fDraw();drawDFADS();}
+function fAdv(){if(fI>=fS.length-1){fRun=false;return;}fI++;const f=fS[fI];$('f-lbl').textContent=f.done?'DONE':`STEP ${fI}`;$('f-log').textContent=f.log||'';fUpdateTape(f);fDraw();sndAfterDFA();}
+function fAuto(){if(!fRun)return;if(fI>=fS.length-1){fRun=false;$('f-play').textContent='▶ RUN';return;}fAdv();fTmr=setTimeout(fAuto,fSpd());}
+$('f-play').addEventListener('click',()=>{if(fRun){fRun=false;$('f-play').textContent='▶ RUN';clearTimeout(fTmr);return;}if(!fS.length||fI>=fS.length-1)fBuildSteps();fRun=true;$('f-play').textContent='⏸ PAUSE';fAuto();});
+$('f-step').addEventListener('click',()=>{if(!fS.length)fBuildSteps();fRun=false;clearTimeout(fTmr);$('f-play').textContent='▶ RUN';fAdv();});
+$('f-reset').addEventListener('click',fInit);
+$('f-mach').addEventListener('change',()=>{fInit();fDSU();fSyncCode();});
+$('f-load').addEventListener('click',()=>{fStr=$('f-str').value;fInit();});
+$('f-str').addEventListener('keydown',e=>{if(e.key==='Enter'){fStr=e.target.value;fInit();}});
+window.addEventListener('resize',()=>{if($('panel-dfa').classList.contains('active')){fLayout();fDraw();}});
+// fInit deferred
+
+// ══════════════════ PUMPING LEMMA ══════════════════
+const PLANGS={
+  anbn:{p:6,reg:false,gen:p=>'a'.repeat(p)+'b'.repeat(p),chk:s=>{const m=s.match(/^(a+)(b+)$/);return!!m&&m[1].length===m[2].length;},desc:"Strings of equal a's then b's. A DFA cannot count — not regular."},
+  a2n:{p:4,reg:true,gen:p=>'a'.repeat(p),chk:s=>s.length%2===0&&/^a+$/.test(s),desc:"Even-length strings of a's. A 2-state DFA tracks parity — regular!"},
+  anbncn:{p:6,reg:false,gen:p=>'a'.repeat(p)+'b'.repeat(p)+'c'.repeat(p),chk:s=>{const m=s.match(/^(a+)(b+)(c+)$/);return!!m&&m[1].length===m[2].length&&m[2].length===m[3].length;},desc:"Equal a's, b's, c's. Even a PDA can't handle two counts — not CFL."},
+  ww:{p:6,reg:false,gen:p=>{const h='ab'.repeat(p).slice(0,p);return h+h;},chk:s=>s.length%2===0&&s.slice(0,s.length/2)===s.slice(s.length/2),desc:"A word repeated twice. Requires unbounded memory — not regular."},
+};
+let pS=[],pI=0,pRun=false,pTmr=null;
+const pSpd=()=>900/+$('p-spd').value;
+function pRenderStr(id,str,cls){const el=$(id);el.innerHTML='';if(!str){el.innerHTML='<span style="color:var(--dimmer);font-size:11px">ε</span>';return;}str.split('').forEach((c,i)=>{const d=document.createElement('div');d.className='pch '+(cls[i]||'');d.textContent=c;el.appendChild(d);});}
+function pBuild(){const lang=PLANGS[$('p-lang').value],iv=+$('p-i').value,p=lang.p,s=lang.gen(p),yLen=Math.max(1,Math.min(Math.floor(p/3),p)),x='',y=s.slice(0,yLen),z=s.slice(yLen),pumped=y.repeat(iv)+z,inL=lang.chk(pumped);const oCls=[...Array(0).fill('xs'),...Array(y.length).fill('ys'),...Array(z.length).fill('zs')];const pCls=[...Array(y.repeat(iv).length).fill(inL?'ok':'bad'),...Array(z.length).fill('zs')];
+pS=[
+  {log:`Language: ${(()=>{const s=$('p-lang');return s.querySelector&&s.querySelector('option[value="'+s.value+'"]')?.textContent||s.value;})()}. Pumping length p=${p}. String s="${s}" (|s|=${s.length} ≥ p).`,act:()=>{$('p-lo').style.display='block';pRenderStr('p-vo',s,Array(s.length).fill(''));$('p-dec').style.display='none';$('p-lp').style.display='none';$('p-vp').innerHTML='';$('p-res').innerHTML='';}},
+  {log:`Split s=xyz: x="${x||'ε'}"(${x.length}) y="${y}"(${y.length}) z="${z||'ε'}"(${z.length}) — |y|=${y.length}≥1 ✓, |xy|=${y.length}≤${p} ✓`,act:()=>{pRenderStr('p-vo',s,oCls);$('p-dec').style.display='flex';$('p-px').textContent=`x="${x||'ε'}"`;$('p-py').textContent=`y="${y}"`;$('p-pz').textContent=`z="${z||'ε'}"`;$('p-dec').style.display='flex';}},
+  {log:`Pump i=${iv}: xy${iv}z = "${pumped||'ε'}" (length ${pumped.length})`,act:()=>{$('p-lp').style.display='block';pRenderStr('p-vp',pumped,pCls);}},
+  {log:lang.reg?(inL?`xy${iv}z ∈ L ✓ — lemma holds`:`Unexpected`):(inL?`xy${iv}z ∈ L — try i=0 for contradiction`:`xy${iv}z ∉ L ✗ — fails condition ③ → L is NOT regular ∎`),act:()=>{const r=document.createElement('div');r.className='pres '+(inL?'ok':'bad');r.textContent=lang.reg?(inL?`✓ xy${iv}z ∈ L — L is regular, lemma holds`:`✗`):(inL?`xy${iv}z ∈ L (try i=0)`:`✗ xy${iv}z ∉ L — L is NOT regular`);$('p-res').innerHTML=`<p style="font-size:12px;color:var(--dim);margin-bottom:8px">${lang.desc}</p>`;$('p-res').appendChild(r);}},
+];}
+function pAdv(){if(pI>=pS.length){pRun=false;return;}const s=pS[pI];s.act();$('p-lbl').textContent=`PHASE ${pI+1}/4`;$('p-log').textContent=s.log;pI++;sndAfterPump();
+  const tags=['intro','choose','split','pump','conclude'];
+  hlCode('p-code',tags[Math.min(pI-1,tags.length-1)]);
+}
+function pAuto(){if(!pRun)return;if(pI>=pS.length){pRun=false;$('p-play').textContent='▶ RUN';return;}pAdv();pTmr=setTimeout(pAuto,pSpd());}
+function pReset(){pRun=false;clearTimeout(pTmr);$('p-play').textContent='▶ RUN';pI=0;$('p-vo').innerHTML='';$('p-vp').innerHTML='';$('p-dec').style.display='none';$('p-lo').style.display='none';$('p-lp').style.display='none';$('p-res').innerHTML='';$('p-lbl').textContent='READY';$('p-log').textContent='choose a language and press RUN';pBuild();}
+$('p-play').addEventListener('click',()=>{if(pRun){pRun=false;$('p-play').textContent='▶ RUN';clearTimeout(pTmr);return;}if(pI===0||pI>=pS.length)pBuild();pRun=true;$('p-play').textContent='⏸ PAUSE';pAuto();});
+$('p-step').addEventListener('click',()=>{if(pI===0||pI>=pS.length)pBuild();pRun=false;clearTimeout(pTmr);$('p-play').textContent='▶ RUN';pAdv();});
+$('p-reset').addEventListener('click',pReset);
+$('p-lang').addEventListener('change',()=>{pReset();pSyncCode();});
+$('p-i').addEventListener('change',pReset);
+pBuild();
+
+// ══════════════════ TURING MACHINE ══════════════════
+const BLK='□';
+const TMS={
+  // ── DTM Recognizers ──
+  anbn:{dtm:true,lbl:'DTM — aⁿbⁿ recognizer',cat:'Recognizer',
+    states:['q0','q1','q2','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'DTM. Marks a→X, scans right to match b→Y, scans left to X. O(n²) passes.',
+    delta:{q0:{a:['X','R','q1'],X:['X','R','q0'],[BLK]:['□','R','qA'],b:['b','R','qR']},
+           q1:{a:['a','R','q1'],Y:['Y','R','q1'],b:['Y','L','q2'],[BLK]:['□','R','qR']},
+           q2:{a:['a','L','q2'],Y:['Y','L','q2'],X:['X','R','q0'],[BLK]:['□','R','qR']}}},
+  palindrome:{dtm:true,lbl:'DTM — palindrome (a/b)',cat:'Recognizer',
+    states:['q0','q1a','q1b','q2a','q2b','q3','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'DTM. Reads first char, scans to last, checks match. Strips outermost pair, recurses.',
+    delta:{q0:{a:['□','R','q1a'],b:['□','R','q1b'],[BLK]:['□','R','qA']},
+           q1a:{a:['a','R','q1a'],b:['b','R','q1a'],[BLK]:['□','L','q2a']},
+           q1b:{a:['a','R','q1b'],b:['b','R','q1b'],[BLK]:['□','L','q2b']},
+           q2a:{a:['□','L','q3'],b:['b','R','qR'],[BLK]:['□','R','qA']},
+           q2b:{b:['□','L','q3'],a:['a','R','qR'],[BLK]:['□','R','qA']},
+           q3:{a:['a','L','q3'],b:['b','L','q3'],[BLK]:['□','R','q0']}}},
+  anbncn:{dtm:true,lbl:'DTM — aⁿbⁿcⁿ recognizer',cat:'Recognizer',
+    states:['q0','q1','q2','q3','q4','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'DTM. Mark a→X, b→Y, c→Z in one sweep. Repeat until all marked. Context-sensitive language.',
+    delta:{q0:{a:['X','R','q1'],X:['X','R','q0'],[BLK]:['□','R','qA'],b:['b','R','qR'],c:['c','R','qR']},
+           q1:{a:['a','R','q1'],Y:['Y','R','q1'],b:['Y','R','q2']},
+           q2:{b:['b','R','q2'],Z:['Z','R','q2'],c:['Z','L','q3']},
+           q3:{a:['a','L','q3'],b:['b','L','q3'],Y:['Y','L','q3'],Z:['Z','L','q3'],X:['X','R','q0']},
+           q4:{Y:['Y','R','q4'],Z:['Z','R','q4'],[BLK]:['□','R','qA']}}},
+  balanced:{dtm:true,lbl:'DTM — balanced parentheses',cat:'Recognizer',
+    states:['q0','q1','q2','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'DTM. Find innermost "()" pair, erase it, repeat. Accepts iff tape becomes blank.',
+    delta:{q0:{'(':['(','R','q0'],')':[')','L','q1'],[BLK]:['□','R','qA']},
+           q1:{'(':['□','R','q2'],')':[')','L','q1'],[BLK]:['□','R','qR']},
+           q2:{'(':['(','R','q0'],')':[')','R','q0'],[BLK]:['□','L','q0']}}},
+  // ── DTM Transducers ──
+  increment:{dtm:true,lbl:'DTM — binary +1',cat:'Transducer',
+    states:['q0','q1','qA'],start:'q0',acc:'qA',rej:'qA',
+    desc:'DTM. Scan to rightmost bit; carry left: 1→0 until hitting 0 or blank (overflow).',
+    delta:{q0:{'0':['0','R','q0'],'1':['1','R','q0'],[BLK]:['□','L','q1']},
+           q1:{'1':['0','L','q1'],'0':['1','R','qA'],[BLK]:['1','R','qA']}}},
+  copy:{dtm:true,lbl:'DTM — string copier',cat:'Transducer',
+    states:['q0','q1','q2','q3','q4','qA'],start:'q0',acc:'qA',rej:'qA',
+    desc:'DTM. Mark each symbol, jump past # separator, append copy, return. O(n²) moves.',
+    delta:{q0:{a:['X','R','q1'],b:['X','R','q2'],'#':['#','R','q3'],[BLK]:['□','R','qA']},
+           q1:{a:['a','R','q1'],b:['b','R','q1'],'#':['#','R','q1'],[BLK]:['a','L','q4']},
+           q2:{a:['a','R','q2'],b:['b','R','q2'],'#':['#','R','q2'],[BLK]:['b','L','q4']},
+           q3:{X:['a','R','q3'],[BLK]:['□','R','qA']},
+           q4:{a:['a','L','q4'],b:['b','L','q4'],'#':['#','L','q4'],X:['X','R','q0']}}},
+  reverse:{dtm:true,lbl:'DTM — reverse string',cat:'Transducer',
+    states:['q0','q1a','q1b','q2','q3','qA'],start:'q0',acc:'qA',rej:'qA',
+    desc:'DTM. Read last char, write to front of output region (after #), repeat. O(n²).',
+    delta:{q0:{a:['a','R','q0'],b:['b','R','q0'],'#':['#','R','q0'],[BLK]:['□','L','q1a']},
+           q1a:{a:['□','L','q2'],b:['b','L','q1a'],'#':['#','L','q1a'],[BLK]:['□','R','qA']},
+           q2:{a:['a','L','q2'],b:['b','L','q2'],'#':['#','R','q3']},
+           q3:{a:['a','R','q3'],b:['b','R','q3'],[BLK]:['a','L','q0']}}},
+  // ── NTM (simulated via DTM branching) ──
+  ntm_substr:{dtm:false,lbl:'NTM — substring search',cat:'NTM Recognizer',
+    states:['q0','q1','q2','q3','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'NTM. Nondeterministically guesses a start position, then checks if "ab" matches. Simulated as DTM.',
+    delta:{q0:{a:['a','R','q1'],b:['b','R','q0'],[BLK]:['□','R','qR']},
+           q1:{b:['b','R','q2'],a:['a','R','q1'],[BLK]:['□','R','qR']},
+           q2:{a:['a','R','q2'],b:['b','R','q2'],[BLK]:['□','R','qA']}}},
+  ntm_even:{dtm:false,lbl:'NTM — even-length strings',cat:'NTM Recognizer',
+    states:['q0','q1','qA','qR'],start:'q0',acc:'qA',rej:'qR',
+    desc:'NTM. At each step nondeterministically toggles parity state. Equivalent DTM uses 2 states.',
+    delta:{q0:{a:['a','R','q1'],b:['b','R','q1'],[BLK]:['□','R','qA']},
+           q1:{a:['a','R','q0'],b:['b','R','q0'],[BLK]:['□','R','qR']}}},
+};
+let tDef=null,tOrig=[],tS=[],tI=0,tRun=false,tTmr=null;
+const tSpd=()=>550/+$('t-spd').value;
+function tInit(){tDef=TMS[$('t-mach').value];let inp=$('t-in').value||'';if($('t-mach').value==='copy'&&!inp.includes('#'))inp+=('#');tOrig=[...inp,...Array(14).fill(BLK)];tS=[];tI=0;tRun=false;$('t-cnt').textContent=0;$('t-lbl').textContent='READY';$('t-log').textContent='press RUN';$('t-entries').innerHTML=`<div style="font-size:11px;color:var(--dim);margin-bottom:6px">${tDef.desc}</div>`;tBuildChips();tSim();tRender();}
+function tBuildChips(){const row=$('tm-sr');row.innerHTML='';tDef.states.forEach(s=>{const c=document.createElement('div');c.className='tmchip';c.id='tmc_'+s.replace(/\W/g,'_');c.textContent=s;if(s===tDef.acc)c.style.cssText='border-color:var(--green);color:var(--green)';if(s===tDef.rej)c.style.cssText='border-color:var(--red);color:var(--red)';row.appendChild(c);});}
+function tSim(){let tape=[...tOrig],head=0,state=tDef.start;tS=[{tape:[...tape],head,state,wi:-1,log:`start: state=${state}`}];for(let i=0;i<300;i++){if(state===tDef.acc||state===tDef.rej)break;while(head>=tape.length)tape.push(BLK);const sym=tape[head]||BLK,tr=tDef.delta[state]?.[sym];if(!tr){state=tDef.rej;tS.push({tape:[...tape],head,state,wi:-1,done:1,log:`no δ(${state},'${sym}') → REJECT`});break;}const[wr,dir,nxt]=tr,wi=head;tape[head]=wr;head+=(dir==='R'?1:-1);if(head<0)head=0;while(head>=tape.length)tape.push(BLK);state=nxt;tS.push({tape:[...tape],head,state,wi,sym,log:`δ(${tS[tS.length-1].state},'${sym}') → '${wr}',${dir},${nxt}`});if(state===tDef.acc||state===tDef.rej){tS.push({tape:[...tape],head,state,wi:-1,done:1,log:`halt: ${state} — ${state===tDef.acc?'✓ ACCEPTED':'✗ REJECTED'}`});break;}}}
+function tRender(){const f=tS[tI]||tS[0],tape=f.tape,head=f.head,state=f.state;const el=$('t-tape');el.innerHTML='';const start=Math.max(0,head-4),end=Math.min(tape.length-1,head+16);for(let i=start;i<=end;i++){const c=document.createElement('div');c.className='tmcell';c.textContent=tape[i]||BLK;if(i===head){if(f.done&&state===tDef.acc)c.classList.add('ha');else if(f.done||state===tDef.rej)c.classList.add('hr');else c.classList.add('head');const arr=document.createElement('div');arr.className='tmarr';arr.textContent='▲';c.appendChild(arr);}else if(i===f.wi&&f.wi>=0&&tape[i]!==(tOrig[i]||BLK))c.classList.add('wr');const ix=document.createElement('div');ix.className='tmidx';ix.textContent=i;c.appendChild(ix);el.appendChild(c);}document.querySelectorAll('.tmchip').forEach(c=>{c.classList.remove('cur','acc','rej');c.style.background='';});const chip=$('tmc_'+state.replace(/\W/g,'_'));if(chip){if(state===tDef.acc){chip.classList.add('acc');chip.style.background='#34d39918';}else if(state===tDef.rej){chip.classList.add('rej');chip.style.background='#e8545418';}else{chip.classList.add('cur');chip.style.background='#e8c54711';}}}
+function tLogAdd(f){const el=$('t-entries');el.querySelectorAll('.tme').forEach(e=>e.classList.remove('cur'));const d=document.createElement('div');d.className='tme cur';d.innerHTML=`<b style="color:var(--accent)">${tI}</b> &nbsp;${f.log}`;el.appendChild(d);d.scrollIntoView({block:'nearest'});}
+function tAdv(){if(tI>=tS.length-1){tRun=false;return;}tI++;const f=tS[tI];$('t-cnt').textContent=tI;$('t-lbl').textContent=f.done?(f.state===tDef.acc?'✓ ACCEPTED':'✗ REJECTED'):`STEP ${tI}`;$('t-log').textContent=f.log;tRender();tLogAdd(f);sndAfterTM();
+  hlCode('t-code',f.done?'halt':'step');
+}
+function tAuto(){if(!tRun)return;if(tI>=tS.length-1){tRun=false;$('t-play').textContent='▶ RUN';return;}tAdv();tTmr=setTimeout(tAuto,tSpd());}
+$('t-play').addEventListener('click',()=>{if(tRun){tRun=false;$('t-play').textContent='▶ RUN';clearTimeout(tTmr);return;}if(tI>=tS.length-1)tInit();tRun=true;$('t-play').textContent='⏸ PAUSE';tAuto();});
+$('t-step').addEventListener('click',()=>{tRun=false;clearTimeout(tTmr);$('t-play').textContent='▶ RUN';tAdv();});
+$('t-reset').addEventListener('click',tInit);
+$('t-mach').addEventListener('change',()=>{tInit();tDSU();tSyncCode();});
+$('t-load').addEventListener('click',tInit);
+$('t-in').addEventListener('keydown',e=>{if(e.key==='Enter')tInit();});
+window.addEventListener('resize',()=>{if($('panel-turing').classList.contains('active'))tRender();});
+// tInit() deferred to after DS_INFO is declared
+
+// ══════════════════ DS INFO BARS ══════════════════
+const DS_INFO={
+  bubble:    {name:'Bubble Sort',              paradigm:'iterative',          struct:'Array (in-place)',                          time:'O(n²)',      space:'O(1)',      note:'Compare adjacent pairs, bubble max to end each pass'},
+  selection: {name:'Selection Sort',           paradigm:'decrease & conquer', struct:'Array (in-place)',                          time:'O(n²)',      space:'O(1)',      note:'Find min in unsorted region, reduce problem by 1'},
+  insertion: {name:'Insertion Sort',           paradigm:'decrease & conquer', struct:'Array (in-place)',                          time:'O(n²)',      space:'O(1)',      note:'Sorted prefix grows by 1 each step — shift to insert'},
+  merge:     {name:'Merge Sort',               paradigm:'divide & conquer',   struct:'Array + Auxiliary Arrays',                  time:'O(n log n)', space:'O(n)',      note:'Split into equal halves, sort both, merge back'},
+  quick:     {name:'Quick Sort',               paradigm:'divide & conquer',   struct:'Array + Call Stack',                        time:'O(n log n)', space:'O(log n)', note:'Partition around pivot, recurse both sub-arrays'},
+  heap:      {name:'Heap Sort',                paradigm:'decrease & conquer', struct:'Binary Max-Heap (array)',                   time:'O(n log n)', space:'O(1)',      note:'Extract max repeatedly, heap size decreases by 1'},
+  linear:    {name:'Linear Search',            paradigm:'brute force',        struct:'Array',                                     time:'O(n)',       space:'O(1)',      note:'Scan every element left to right — no ordering needed'},
+  binary:    {name:'Binary Search',            paradigm:'divide & conquer',   struct:'Sorted Array',                              time:'O(log n)',   space:'O(1)',      note:'Halve the search space each step — requires sorted input'},
+  jump:      {name:'Jump Search',              paradigm:'decrease & conquer', struct:'Sorted Array',                              time:'O(√n)',      space:'O(1)',      note:'Jump √n blocks, linear scan within — one branch only'},
+  ternary:   {name:'Ternary Search',           paradigm:'divide & conquer',   struct:'Sorted Array',                              time:'O(log₃ n)', space:'O(1)',      note:'Trisect search space — more comparisons than binary'},
+  expo:      {name:'Exponential Search',       paradigm:'divide & conquer',   struct:'Sorted Array',                              time:'O(log n)',   space:'O(1)',      note:'Exponentially find range, then binary search within'},
+  bfs:       {name:'Breadth-First Search',     paradigm:'iterative',          struct:'Queue (FIFO) + Visited Set',                time:'O(V + E)',   space:'O(V)',      note:'Level-by-level — guarantees shortest path (unweighted)'},
+  dfs:       {name:'Depth-First Search',       paradigm:'decrease & conquer', struct:'Stack (LIFO) + Visited Set',                time:'O(V + E)',   space:'O(V)',      note:'Reduces to subgraph — one path at a time, backtrack'},
+  dijkstra:  {name:'Dijkstra\'s Algorithm',    paradigm:'greedy',             struct:'Min-Heap (Priority Queue) + Distance Array', time:'O((V+E) log V)',space:'O(V)', note:'Always relax cheapest unvisited node — greedy choice'},
+  lcs:       {name:'Longest Common Subsequence',paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',            time:'O(m · n)',   space:'O(m · n)', note:'Overlapping subproblems — match or take max of neighbors'},
+  ks:        {name:'0/1 Knapsack',             paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',             time:'O(n · W)',   space:'O(n · W)', note:'Include or skip each item — optimal substructure'},
+  edit:      {name:'Edit Distance (Levenshtein)',paradigm:'dynamic programming',struct:'2D DP Table (Array of Arrays)',           time:'O(m · n)',   space:'O(m · n)', note:'Min cost insert/delete/sub — built from smaller edits'},
+  ends01:    {name:'DFA: ends in "01"',        paradigm:'finite automaton',   struct:'Transition Table (3 states)',                time:'O(n)',       space:'O(1)',      note:'Tracks last two chars — deterministic, minimal'},
+  even0:     {name:'DFA: even # of 0s',        paradigm:'finite automaton',   struct:'Transition Table (2 states)',                time:'O(n)',       space:'O(1)',      note:'2 states track parity — classic minimal DFA'},
+  div3:      {name:'DFA: binary ÷ 3',          paradigm:'finite automaton',   struct:'Transition Table (3 states)',                time:'O(n)',       space:'O(1)',      note:'3 states track value mod 3 as bits arrive MSB first'},
+  nfa_ab:    {name:'NFA: contains "ab"',       paradigm:'nondeterministic FA',struct:'Active State Set (subset construction)',     time:'O(n)',       space:'O(2^Q)',    note:'Multiple active states tracked — equivalent DFA: 2^Q'},
+  anbn_pump: {name:'Pumping Lemma — aⁿbⁿ',    paradigm:'proof by contradiction',struct:'String decomposition',                  time:'—',          space:'—',         note:'NOT regular — any split pumps y in a-region only'},
+  a2n_pump:  {name:'Pumping Lemma — a²ⁿ',     paradigm:'regular language',   struct:'String decomposition',                     time:'—',          space:'—',         note:'IS regular — 2-state DFA tracks even/odd length'},
+  anbncn_pump:{name:'Pumping Lemma — aⁿbⁿcⁿ', paradigm:'proof by contradiction',struct:'String decomposition',                  time:'—',          space:'—',         note:'NOT context-free — pumping lemma for CFLs also fails'},
+  ww_pump:   {name:'Pumping Lemma — ww',       paradigm:'proof by contradiction',struct:'String decomposition',                  time:'—',          space:'—',         note:'NOT regular — no DFA can remember w to verify copy'},
+  anbn_tm:   {name:'TM Recognizer: aⁿbⁿ',     paradigm:'turing machine',     struct:'Infinite Tape + State Register',           time:'O(n²)',      space:'O(n)',      note:'Mark a→X, match b→Y, scan back — O(n) passes'},
+  palindrome_tm:{name:'TM: Palindrome',        paradigm:'turing machine',     struct:'Infinite Tape + State Register',           time:'O(n²)',      space:'O(n)',      note:'Strip outer chars, verify match, recurse inward'},
+  increment_tm:{name:'TM: Binary +1',          paradigm:'turing machine',     struct:'Infinite Tape + State Register',           time:'O(n)',       space:'O(n)',      note:'Scan right, carry left: 1→0 until hitting 0 or blank'},
+  copy_tm:   {name:'TM: String Copy',          paradigm:'turing machine',     struct:'Infinite Tape + State Register',           time:'O(n²)',      space:'O(n)',      note:'Mark, jump past #, append copy, return — O(n) passes'},
+};
+
+const PUMP_KEY_MAP={anbn:'anbn_pump',a2n:'a2n_pump',anbncn:'anbncn_pump',ww:'ww_pump'};
+const TM_KEY_MAP={anbn:'anbn_tm',palindrome:'palindrome_tm',increment:'increment_tm',copy:'copy_tm'};
+
+function dsBar(id,key){
+  const el=$(id); if(!el) return;
+  const d=DS_INFO[key]; if(!d){el.innerHTML='';return;}
+  const paradigmPill=d.paradigm?`<span class="ds-pill paradigm">${d.paradigm}</span>`:'';
+  el.innerHTML=`<span class="ds-name">${d.name}</span>${paradigmPill}<span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time&nbsp;${d.time}</span><span class="ds-pill space">Space&nbsp;${d.space}</span><span class="ds-note">${d.note}</span>`;
+}
+
+// ── Automata DSU functions ──
+function fDSU(){
+  const m=$('f-mach')?.value;
+  if(!m) return;
+  const def=DFAMS[m]; if(!def) return;
+  const el=$('f-dsbar'); if(!el) return;
+  const keyMap={ends01:'ends01',even0:'even0',div3:'div3',nfa_ab:'nfa_ab'};
+  const typeColor=def.type==='DFA'?'var(--blue)':def.type==='ε-NFA'?'var(--purple)':'var(--orange)';
+  const struct=def.type==='DFA'?'Transition Table (deterministic)':def.type==='ε-NFA'?'Active State Set + ε-closure':'Active State Set (subset construction)';
+  // Use dsBar for known keys, or build custom
+  if(keyMap[m]){ dsBar('f-dsbar',keyMap[m]); return; }
+  el.innerHTML=`<span class="ds-name">${def.lbl}</span>`+
+    `<span class="ds-pill" style="border-color:${typeColor};color:${typeColor};background:${typeColor}18">${def.type}</span>`+
+    `<span class="ds-pill struct">${struct}</span>`+
+    `<span class="ds-pill time">Time O(n)</span>`+
+    `<span class="ds-pill space">Space O(1)</span>`+
+    `<span class="ds-note">Input: ${$('f-str')?.value||''}</span>`;
+}
+function pDSU(){
+  const lang=$('p-lang')?.value||'anbn';
+  const keyMap={anbn:'anbn_pump',a2n:'a2n_pump',anbncn:'anbncn_pump',ww:'ww_pump'};
+  dsBar('p-dsbar', keyMap[lang]);
+}
+function tDSU(){
+  const m=$('t-mach')?.value;
+  if(!m) return;
+  const keyMap={anbn:'anbn_tm',palindrome:'palindrome_tm',increment:'increment_tm',copy:'copy_tm',
+    anbncn:'anbn_tm',balanced:'anbn_tm',reverse:'increment_tm',ntm_substr:'anbn_tm',ntm_even:'anbn_tm'};
+  const def=TMS[m]; if(!def) return;
+  const el=$('t-dsbar'); if(!el) return;
+  const tag=def.dtm?'DTM':'NTM (simulated)';
+  const tagColor=def.dtm?'var(--blue)':'var(--orange)';
+  const struct=def.dtm?'Infinite Tape + Finite State Control':'Nondeterministic branches (simulated as DTM)';
+  const time=def.cat==='Transducer'?(def.dtm?'O(n²)':'O(n)'):def.dtm?'O(n²)':'O(n^k) simulated';
+  el.innerHTML=`<span class="ds-name">${def.lbl}</span>`+
+    `<span class="ds-pill" style="border-color:${tagColor};color:${tagColor};background:${tagColor}18">${tag}</span>`+
+    `<span class="ds-pill" style="border-color:var(--purple);color:var(--purple);background:var(--purple)18">${def.cat}</span>`+
+    `<span class="ds-pill struct">${struct}</span>`+
+    `<span class="ds-pill time">Time ${time}</span>`+
+    `<span class="ds-note">${def.desc}</span>`;
+}
+// ══════════════════ SOUND ENGINE ══════════════════
+let audioCtx=null, soundOn=true;
+function getACtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function toggleSound(){
+  soundOn=!soundOn;
+  const b=document.getElementById('snd-btn');
+  if(b){b.textContent=soundOn?'🔊 SOUND':'🔇 SOUND';b.style.color=soundOn?'var(--accent)':'var(--dimmer)';}
+  if(soundOn) getACtx();
+}
+function playTone(freq,type='sine',dur=60,vol=0.15,delay=0){
+  if(!soundOn) return;
+  try{
+    const ac=getACtx(),osc=ac.createOscillator(),gain=ac.createGain();
+    osc.connect(gain);gain.connect(ac.destination);
+    osc.type=type;
+    osc.frequency.setValueAtTime(freq,ac.currentTime+delay);
+    gain.gain.setValueAtTime(0,ac.currentTime+delay);
+    gain.gain.linearRampToValueAtTime(vol,ac.currentTime+delay+0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur/1000);
+    osc.start(ac.currentTime+delay);
+    osc.stop(ac.currentTime+delay+dur/1000+0.01);
+  }catch(e){}
+}
+
+const sndCmp=(v)=>playTone(200+v*4,'sine',35,0.08);
+const sndSwp=(a,b)=>{playTone(180+a*3,'triangle',55,0.16);playTone(180+b*3,'triangle',55,0.16,0.03);};
+const sndSorted=()=>playTone(880,'sine',70,0.10);
+const sndDone=()=>[523,659,784,1047].forEach((f,i)=>playTone(f,'sine',200,0.11,i*0.07));
+const sndVisit=(id)=>playTone(300+id*40,'sine',50,0.10);
+const sndEnq=(id)=>playTone(500+id*30,'triangle',28,0.06);
+const sndFound=()=>{playTone(1047,'sine',180,0.14);playTone(1319,'sine',180,0.11,0.09);};
+const sndSrchStep=(i,n)=>playTone(300+(i/Math.max(n,1))*400,'square',22,0.05);
+const sndDPCell=(v)=>playTone(220+v*7,'sine',32,0.06);
+const sndDFATrans=(ac2)=>playTone(ac2?880:220,'sine',120,0.11);
+const sndTMWrite=()=>playTone(440,'square',38,0.07);
+const sndTMHalt=(ac2)=>ac2?sndDone():playTone(150,'sawtooth',280,0.14);
+const sndPump=(ph)=>playTone(300+ph*120,'sine',80,0.09);
+
+// ── Sound + code highlight hooks (called from advance functions) ──
+// sndAfterSort removed (algo-only)
+// sndAfterSearch removed (algo-only)
+// sndAfterGraph removed (algo-only)
+// sndAfterDP removed (algo-only)
+function sndAfterDFA(){
+  const f=fS[fI]; if(!f) return;
+  if(f.done) sndDFATrans(!!f.ac); else if(f.sym) sndCmp(fI*12);
+  const tag=f.done?'done':f.dead?'dead':'step';
+  hlCode('f-code',tag);
+  drawDFADS();
+}
+function sndAfterTM(){
+  const f=tS[tI]; if(!f) return;
+  if(f.done) sndTMHalt(f.state===tDef.acc); else if(f.wi>=0) sndTMWrite();
+}
+function sndAfterPump(){
+  sndPump(pI);
+}
+
+// ══════════════════ CODE PANEL ENGINE ══════════════════
+
+// Code definitions: each entry is [displayText, stepTag]
+// stepTag is what we store in the step frame to know which line to highlight
+
+
+
+// Highlight a line by tag in a container
+function hlCode(containerId, tag) {
+  const el=$(containerId); if(!el||!tag) return;
+  el.querySelectorAll('.code-line').forEach(l=>l.classList.remove('active'));
+  if(!tag) return;
+  const match=[...el.querySelectorAll('.code-line')].filter(l=>l.dataset.tag===tag);
+  match.forEach(l=>{
+    l.classList.add('active');
+    l.scrollIntoView({block:'nearest',behavior:'smooth'});
+  });
+}
+
+// Toggle code panel visibility
+function toggleCode(prefix) {
+  const side=$(prefix+'-code-side');
+  const btn=side?.querySelector('.code-toggle');
+  if(!side||!btn) return;
+  const hidden=side.style.width==='0px'||side.style.display==='none';
+  if(hidden){side.style.width='';side.style.display='';btn.textContent='hide';}
+  else{side.style.width='0px';side.style.borderLeft='none';btn.textContent='show';}
+}
+
+const fDSKeyMap={ends01:'ends01',even0:'even0',div3:'div3',nfa_ab:'nfa_ab'};
+const pLangKeyMap={anbn:'anbn_pump',a2n:'a2n_pump',anbncn:'anbncn_pump',ww:'ww_pump'};
+const tMachKeyMap={anbn:'anbn_tm',palindrome:'palindrome_tm',increment:'increment_tm',copy:'copy_tm',anbncn:'anbn_tm',balanced:'palindrome_tm',reverse:'increment_tm',ntm_substr:'anbn_tm',ntm_even:'anbn_tm'};
+
+function fSyncCode(){
+  if(!$('f-mach')) return;
+  const m=$('f-mach').value;
+  const isNFA=m==='nfa_ab';
+  renderCode('f-code',isNFA?'nfa_sim':'dfa_sim','f-code-title',isNFA?'nfa simulation':'dfa simulation');
+  showCX('f-cx', fDSKeyMap[m]||m);
+}
+function pSyncCode(){
+  renderCode('p-code','pump_proof','p-code-title','pumping lemma proof');
+  const lang=$('p-lang')?.value||'anbn';
+  showCX('p-cx', pLangKeyMap[lang]||lang);
+}
+function tSyncCode(){
+  if(!$('t-mach')) return;
+  const m=$('t-mach').value;
+  const def=TMS[m];
+  // Map to closest code example
+  const codeMap={anbn:'anbn_tm',palindrome:'palindrome_tm',increment:'increment_tm',copy:'copy_tm',
+    anbncn:'anbn_tm',balanced:'palindrome_tm',reverse:'increment_tm',
+    ntm_substr:'anbn_tm',ntm_even:'anbn_tm'};
+  const cxMap={anbn:'anbn_tm',palindrome:'palindrome_tm',increment:'increment_tm',copy:'copy_tm',
+    anbncn:'anbn_tm',balanced:'palindrome_tm',reverse:'increment_tm',
+    ntm_substr:'anbn_tm',ntm_even:'anbn_tm'};
+  renderCode('t-code', codeMap[m]||'anbn_tm', 't-code-title', (def?.lbl||m).toLowerCase());
+  showCX('t-cx', cxMap[m]||'anbn_tm');
+}
+
+// ── Wire code panels to each step ──
+
+// algo-only code removed
+
+
+
+// ══════════════════ DS DIAGRAM PANEL ENGINE ══════════════════
+// Draws a live visual of the active data structure alongside each viz.
+// Each panel has its own canvas + ops log updated on every step.
+
+function dsPanelRsz(cv){
+  const p=cv.parentElement;
+  if(cv.width!==p.clientWidth||cv.height!==p.clientHeight){
+    cv.width=p.clientWidth; cv.height=p.clientHeight;
+  }
+}
+function dsOpsLog(id, lines){
+  const el=$(id); if(!el) return;
+  el.innerHTML=lines.map(l=>`<div style="padding:1px 0">${l}</div>`).join('');
+}
+
+// ── SORTING DS panel ──
+// Draws the array as boxes with index labels, or a heap tree, or linked list
+// based on the selected DS picker
+// drawSortDS removed (algo-only)
+
+// ── SEARCHING DS panel ──
+// drawSearchDS removed (algo-only)
+
+// ── GRAPH DS panel ──
+// Draws the queue (BFS) or stack (DFS) as a live data structure
+// drawGraphDS removed (algo-only)
+
+// ── DFA/NFA DS panel ──
+// Shows the active state set as chips
+function drawDFADS(){
+  const cv=$('f-ds-cv'); if(!cv) return;
+  dsPanelRsz(cv);
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const f=fS[fI]; if(!f||!fM) return;
+  const active=f.act||new Set();
+  const states=fM.states;
+  const R=18,cols=Math.floor(W/(R*2+12)),startX=14;
+  states.forEach((s,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    const x=startX+col*(R*2+12), y=22+row*(R*2+14);
+    const isActive=active.has(s), isAccept=fM.accept.has(s);
+    let fill=C.bg4,stroke=C.border,tc=C.dim;
+    if(isActive&&!f.dead){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+    if(f.done&&isActive&&f.ac){fill='#34d39918';stroke=C.green;tc=C.green;}
+    if(f.done&&isActive&&!f.ac){fill='#e8545418';stroke=C.red;tc=C.red;}
+    if(f.dead&&isActive){fill='#e8545411';stroke=C.red+'66';tc=C.red;}
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=isActive?1.5:1;
+    ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(isAccept){
+      ctx.strokeStyle=stroke;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(x,y,R-4,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.fillStyle=tc;ctx.font=`bold 9px JetBrains Mono,monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s,x,y);
+  });
+  const verdict=f.done?(f.ac?'✓ ACCEPTED':'✗ REJECTED'):f.dead?'DEAD STATE':'running…';
+  const vcol=f.done?(f.ac?C.green:C.red):f.dead?C.red:C.dim;
+  dsOpsLog('f-ds-ops',[
+    `<span style="color:${vcol}">${verdict}</span>`,
+    `active: <span style="color:var(--accent)">{${[...active].join(', ')||'∅'}}</span>`,
+    f.sym?`read: <span style="color:var(--text)">'${f.sym}'</span>`:`pos: ${f.pos+1}/${fStr.length}`,
+  ]);
+}
+
+// DS panel hooks (algo-only, removed)
+
+
+// ══════════════════════════════════════════════════════
+// ══ DEFERRED INITS — all after DS_INFO/TMS/DFAMS declared ══
+(function(){
+  const sndBtn=document.getElementById('snd-btn');
+  if(sndBtn){ sndBtn.textContent='🔊 SOUND'; sndBtn.style.color='var(--accent)'; }
+  // DS bars + code panels — each wrapped so one failure can't block others
+  try{fDSU();}catch(e){console.error('fDSU',e);}
+  try{pDSU();}catch(e){console.error('pDSU',e);}
+  try{tDSU();}catch(e){console.error('tDSU',e);}
+  try{fSyncCode();}catch(e){console.error('fSyncCode',e);}
+  try{pSyncCode();}catch(e){console.error('pSyncCode',e);}
+  try{tSyncCode();}catch(e){console.error('tSyncCode',e);}
+  // Panel inits after layout — each independent
+  requestAnimationFrame(()=>{
+    try{fInit();}catch(e){console.error('fInit',e);}
+    try{pReset();}catch(e){console.error('pReset',e);}
+    try{tInit();}catch(e){console.error('tInit',e);}
+  });
+})();
+
+// ══════════════════════════════════════════════════════
+// CONSTRUCTIONS TAB
+// ══════════════════════════════════════════════════════
+const cxCV=$('cx-cv'), cxCTX=cxCV?cxCV.getContext('2d'):null;
+let cxSteps=[], cxI=0, cxRun=false, cxTmr=null, cxData={};
+const cxSpd=()=>700/+$('cx-spd').value;
+
+// ── Example machines ──
+const CX_EXAMPLES = {
+  subset: [
+    { name:'NFA: ends in "ab"',
+      states:['q0','q1','q2'], start:'q0', accept:['q2'], alpha:['a','b'],
+      delta:{ q0:{a:['q0','q1'],b:['q0']}, q1:{b:['q2']}, q2:{} } },
+    { name:'NFA: contains "aa" or "bb"',
+      states:['s0','s1','s2','s3'], start:'s0', accept:['s2','s3'], alpha:['a','b'],
+      delta:{ s0:{a:['s0','s1'],b:['s0','s3']}, s1:{a:['s2']}, s2:{a:['s2'],b:['s2']}, s3:{b:['s3'],a:['s3']} } },
+    { name:'NFA: ends in "aba"',
+      states:['t0','t1','t2','t3'], start:'t0', accept:['t3'], alpha:['a','b'],
+      delta:{ t0:{a:['t0','t1'],b:['t0']}, t1:{b:['t2']}, t2:{a:['t3']}, t3:{} } },
+    { name:'NFA: starts with "a" and ends with "b"',
+      states:['u0','u1','u2'], start:'u0', accept:['u2'], alpha:['a','b'],
+      delta:{ u0:{a:['u1']}, u1:{a:['u1'],b:['u1','u2']}, u2:{} } },
+    { name:'NFA: contains "010"',
+      states:['v0','v1','v2','v3'], start:'v0', accept:['v3'], alpha:['0','1'],
+      delta:{ v0:{'0':['v0','v1'],'1':['v0']}, v1:{'1':['v2']}, v2:{'0':['v3']}, v3:{'0':['v3'],'1':['v3']} } },
+    { name:'NFA: length ≡ 0 (mod 2) or ≡ 0 (mod 3)',
+      states:['p0','p1','q0','q1','q2'], start:'p0', accept:['p0','q0'], alpha:['a'],
+      delta:{ p0:{a:['p1','q1']}, p1:{a:['p0','q2']}, q0:{a:['q1']}, q1:{a:['q2']}, q2:{a:['q0']} } },
+  ],
+  eclosure: [
+    { name:'ε-NFA: a*b',
+      states:['p0','p1','p2'], start:'p0', accept:['p2'], alpha:['a','b'],
+      delta:{ p0:{ε:['p1'],a:['p0']}, p1:{b:['p2']}, p2:{} } },
+    { name:'ε-NFA: (a|b)*abb',
+      states:['r0','r1','r2','r3','r4'], start:'r0', accept:['r4'], alpha:['a','b'],
+      delta:{ r0:{ε:['r1'],a:['r0'],b:['r0']}, r1:{a:['r2']}, r2:{b:['r3']}, r3:{b:['r4']}, r4:{} } },
+    { name:'ε-NFA: a(a|b)* with ε-start',
+      states:['s0','s1','s2'], start:'s0', accept:['s2'], alpha:['a','b'],
+      delta:{ s0:{ε:['s1']}, s1:{a:['s2']}, s2:{a:['s2'],b:['s2']} } },
+    { name:'ε-NFA: ab* | b',
+      states:['q0','q1','q2','q3'], start:'q0', accept:['q2','q3'], alpha:['a','b'],
+      delta:{ q0:{ε:['q1','q3']}, q1:{a:['q2']}, q2:{b:['q2']}, q3:{b:['q3']} } },
+    { name:'ε-NFA: (ab)*',
+      states:['m0','m1','m2'], start:'m0', accept:['m0'], alpha:['a','b'],
+      delta:{ m0:{ε:['m1']}, m1:{a:['m2']}, m2:{b:['m0']} } },
+    { name:'ε-NFA: a+ | b+',
+      states:['n0','n1','n2','n3','n4'], start:'n0', accept:['n2','n4'], alpha:['a','b'],
+      delta:{ n0:{ε:['n1','n3']}, n1:{a:['n2']}, n2:{a:['n2']}, n3:{b:['n4']}, n4:{b:['n4']} } },
+  ],
+  closure: [
+    { name:'Kleene Star: L*  (language of a*b)',
+      op:'star', desc:'For L = {ab}, L* accepts: ε, ab, abab, ababab, ...',
+      base:{ states:['q0','q1','q2'], start:'q0', accept:['q2'], alpha:['a','b'],
+             delta:{ q0:{a:['q1']}, q1:{b:['q2']}, q2:{} } } },
+    { name:'Kleene Star: (a|b)*',
+      op:'star', desc:'For L = {a,b}, L* accepts all strings over {a,b}',
+      base:{ states:['p0','p1'], start:'p0', accept:['p1'], alpha:['a','b'],
+             delta:{ p0:{a:['p1'],b:['p1']}, p1:{} } } },
+    { name:'Concatenation: L₁·L₂  (ab·cd)',
+      op:'concat', desc:'Concatenate NFA for "ab" with NFA for "cd". Accepts "abcd".',
+      L1:{ states:['a0','a1','a2'], start:'a0', accept:['a2'], alpha:['a','b','c','d'],
+           delta:{ a0:{a:['a1']}, a1:{b:['a2']}, a2:{} } },
+      L2:{ states:['b0','b1','b2'], start:'b0', accept:['b2'], alpha:['a','b','c','d'],
+           delta:{ b0:{c:['b1']}, b1:{d:['b2']}, b2:{} } } },
+    { name:'Concatenation: a* · b+',
+      op:'concat', desc:'Concatenate NFA for a* with NFA for b+. Accepts aab, bbb, ab, etc.',
+      L1:{ states:['c0'], start:'c0', accept:['c0'], alpha:['a','b'],
+           delta:{ c0:{a:['c0']} } },
+      L2:{ states:['d0','d1'], start:'d0', accept:['d1'], alpha:['a','b'],
+           delta:{ d0:{b:['d1']}, d1:{b:['d1']} } } },
+    { name:'Union: L₁ ∪ L₂  (ends-a  OR  ends-b)',
+      op:'union', desc:'Union of NFA for "ends in a" and NFA for "ends in b". New ε-start branches to both.',
+      L1:{ states:['e0','e1'], start:'e0', accept:['e1'], alpha:['a','b'],
+           delta:{ e0:{a:['e1'],b:['e0']}, e1:{a:['e1'],b:['e0']} } },
+      L2:{ states:['f0','f1'], start:'f0', accept:['f1'], alpha:['a','b'],
+           delta:{ f0:{b:['f1'],a:['f0']}, f1:{a:['f0'],b:['f1']} } } },
+    { name:'Union: a* ∪ b*',
+      op:'union', desc:'Accepts any number of as OR any number of bs (not mixed).',
+      L1:{ states:['g0'], start:'g0', accept:['g0'], alpha:['a','b'],
+           delta:{ g0:{a:['g0']} } },
+      L2:{ states:['h0'], start:'h0', accept:['h0'], alpha:['a','b'],
+           delta:{ h0:{b:['h0']} } } },
+  ],
+  gnfa: [
+    { name:'DFA: ends in "a"',
+      states:['q0','q1'], start:'q0', accept:['q1'], alpha:['a','b'],
+      delta:{ q0:{a:'q1',b:'q0'}, q1:{a:'q1',b:'q0'} } },
+    { name:'DFA: even number of as',
+      states:['e','o'], start:'e', accept:['e'], alpha:['a','b'],
+      delta:{ e:{a:'o',b:'e'}, o:{a:'e',b:'o'} } },
+    { name:'DFA: starts with "b"',
+      states:['q0','q1','q2'], start:'q0', accept:['q1'], alpha:['a','b'],
+      delta:{ q0:{a:'q2',b:'q1'}, q1:{a:'q1',b:'q1'}, q2:{a:'q2',b:'q2'} } },
+    { name:'DFA: contains "ab"',
+      states:['r0','r1','r2'], start:'r0', accept:['r2'], alpha:['a','b'],
+      delta:{ r0:{a:'r1',b:'r0'}, r1:{a:'r1',b:'r2'}, r2:{a:'r2',b:'r2'} } },
+    { name:'DFA: exactly one "a"',
+      states:['z0','z1','z2'], start:'z0', accept:['z1'], alpha:['a','b'],
+      delta:{ z0:{a:'z1',b:'z0'}, z1:{a:'z2',b:'z1'}, z2:{a:'z2',b:'z2'} } },
+    { name:'DFA: length ≡ 0 (mod 3)',
+      states:['c0','c1','c2'], start:'c0', accept:['c0'], alpha:['a','b'],
+      delta:{ c0:{a:'c1',b:'c1'}, c1:{a:'c2',b:'c2'}, c2:{a:'c0',b:'c0'} } },
+  ],
+};
+
+let cxExIdx={subset:0, eclosure:0, gnfa:0};
+
+// ─────────────────────────────────────────
+// SUBSET CONSTRUCTION (NFA → DFA)
+// ─────────────────────────────────────────
+function subsetConstruct(nfa){
+  const steps=[];
+  const alpha = nfa.alpha;
+  // Each DFA state = a frozenset of NFA states
+  const startSet = new Set([nfa.start]);
+  const startKey = setKey(startSet);
+  const dfaStates = {}; // key → Set
+  const dfaTrans = {};  // key → {sym: key}
+  const queue = [startSet];
+  dfaStates[startKey] = startSet;
+  dfaTrans[startKey] = {};
+
+  steps.push({
+    type:'init', dfaStates:snapDFA(dfaStates,dfaTrans,nfa),
+    log:`Start: DFA start state = {${[...startSet].join(',')}}`,
+    highlight: startKey
+  });
+
+  while(queue.length){
+    const cur = queue.shift();
+    const curKey = setKey(cur);
+    steps.push({
+      type:'process', dfaStates:snapDFA(dfaStates,dfaTrans,nfa),
+      log:`Processing DFA state {${[...cur].join(',')}}`,
+      highlight: curKey, processing: curKey
+    });
+
+    for(const sym of alpha){
+      const reachable = new Set();
+      for(const s of cur){
+        const targets = nfa.delta[s]?.[sym] || [];
+        targets.forEach(t=>reachable.add(t));
+      }
+      if(!reachable.size){
+        steps.push({
+          type:'deadstate', dfaStates:snapDFA(dfaStates,dfaTrans,nfa),
+          log:`δ({${[...cur].join(',')}}, '${sym}') = ∅ → dead state`,
+          processing: curKey, sym
+        });
+        continue;
+      }
+      const rKey = setKey(reachable);
+      const isNew = !dfaStates[rKey];
+      if(isNew){
+        dfaStates[rKey] = reachable;
+        dfaTrans[rKey] = {};
+        queue.push(reachable);
+      }
+      dfaTrans[curKey][sym] = rKey;
+      steps.push({
+        type:'transition', dfaStates:snapDFA(dfaStates,dfaTrans,nfa),
+        log:`δ({${[...cur].join(',')}}, '${sym}') = {${[...reachable].join(',')}}${isNew?' [NEW]':''}`,
+        processing: curKey, sym, target: rKey, isNew
+      });
+    }
+  }
+
+  // Mark accept states
+  const accepts = new Set();
+  Object.entries(dfaStates).forEach(([k,s])=>{
+    if([...s].some(st=>nfa.accept.includes(st))) accepts.add(k);
+  });
+  steps.push({
+    type:'done', dfaStates:snapDFA(dfaStates,dfaTrans,nfa),
+    log:`Done! DFA has ${Object.keys(dfaStates).length} states. Accept states: ${[...accepts].map(k=>'{'+[...dfaStates[k]].join(',')+'}')}`,
+    accepts, fin:true
+  });
+  return steps;
+}
+
+function setKey(s){ return [...s].sort().join(','); }
+function snapDFA(states, trans, nfa){
+  const accepts = new Set();
+  Object.entries(states).forEach(([k,s])=>{
+    if([...s].some(st=>nfa.accept.includes(st))) accepts.add(k);
+  });
+  return { states: Object.fromEntries(Object.entries(states).map(([k,v])=>[k,[...v]])),
+           trans: JSON.parse(JSON.stringify(trans)), accepts:[...accepts],
+           startKey: setKey(new Set([nfa.start])) };
+}
+
+// ─────────────────────────────────────────
+// ε-CLOSURE
+// ─────────────────────────────────────────
+function computeEClosure(states, delta, state){
+  const closure = new Set([state]);
+  const stack = [state];
+  while(stack.length){
+    const s = stack.pop();
+    const eps = delta[s]?.['ε'] || delta[s]?.['epsilon'] || [];
+    eps.forEach(t=>{ if(!closure.has(t)){ closure.add(t); stack.push(t); }});
+  }
+  return closure;
+}
+
+function eClosureConstruct(enfa){
+  const steps=[];
+  const closures={};
+  const newDelta={};
+
+  steps.push({
+    type:'intro', log:`Computing ε-closure for each state of ${enfa.name}`,
+    states: enfa.states, closures:{}
+  });
+
+  // Step 1: compute ε-closure for each state
+  for(const s of enfa.states){
+    const cl = computeEClosure(enfa.states, enfa.delta, s);
+    closures[s] = [...cl];
+    steps.push({
+      type:'closure', log:`ε-closure(${s}) = {${[...cl].join(',')}}`,
+      states: enfa.states, closures: {...closures},
+      current: s, closure: [...cl]
+    });
+  }
+
+  // Step 2: build new transition table (no ε transitions)
+  for(const s of enfa.states){
+    newDelta[s]={};
+    for(const sym of enfa.alpha){
+      const reached = new Set();
+      for(const cs of closures[s]){
+        const targets = enfa.delta[cs]?.[sym] || [];
+        targets.forEach(t=>{
+          // Add ε-closure of each target
+          closures[t].forEach(ct=>reached.add(ct));
+        });
+      }
+      if(reached.size){
+        newDelta[s][sym] = [...reached].sort();
+        steps.push({
+          type:'transition', log:`δ'(${s},'${sym}') = ε-closure(δ(ε-closure(${s}),'${sym}')) = {${[...reached].join(',')}}`,
+          states: enfa.states, closures, newDelta: JSON.parse(JSON.stringify(newDelta)),
+          current: s, sym, reached: [...reached]
+        });
+      }
+    }
+  }
+
+  // Step 3: new accept states = states whose ε-closure contains an accept state
+  const newAccepts = enfa.states.filter(s=>
+    closures[s].some(c=>enfa.accept.includes(c))
+  );
+  steps.push({
+    type:'done', log:`Done! New accept states: {${newAccepts.join(',')}}. ε-transitions eliminated.`,
+    states: enfa.states, closures, newDelta, newAccepts, fin:true
+  });
+  return steps;
+}
+
+// ─────────────────────────────────────────
+// GNFA STATE ELIMINATION (DFA → RegEx)
+// ─────────────────────────────────────────
+function gnfaEliminate(dfa){
+  const steps=[];
+  // Build GNFA: add new start (qs) and accept (qa), convert delta to regex labels
+  const states = [...dfa.states];
+  const qs='__start__', qa='__accept__';
+  // gnfa[from][to] = regex string (null = no edge)
+  const gnfa={};
+  const allStates=[qs,...states,qa];
+
+  allStates.forEach(s=>{ gnfa[s]={}; allStates.forEach(t=>{ gnfa[s][t]=null; }); });
+
+  // qs → dfa start with ε
+  gnfa[qs][dfa.start]='ε';
+  // each dfa accept → qa with ε
+  dfa.accept.forEach(s=>{ gnfa[s][qa]='ε'; });
+  // dfa transitions → regex labels
+  states.forEach(s=>{
+    Object.entries(dfa.delta[s]||{}).forEach(([sym,tgt])=>{
+      const cur = gnfa[s][tgt];
+      gnfa[s][tgt] = cur===null ? sym : `${cur}∪${sym}`;
+    });
+  });
+
+  steps.push({
+    type:'init', gnfa:snapGNFA(gnfa,allStates),
+    log:`GNFA built: added start state ${qs} and accept state ${qa}`,
+    allStates:[...allStates]
+  });
+
+  // Eliminate states one by one (all except qs and qa)
+  const toElim = [...states];
+  while(toElim.length){
+    const qrip = toElim.shift();
+    steps.push({
+      type:'select', gnfa:snapGNFA(gnfa,allStates),
+      log:`Ripping state: ${qrip}`,
+      ripping: qrip, allStates:[...allStates]
+    });
+
+    const remaining = allStates.filter(s=>s!==qrip);
+    // For every qi → qrip → qj path, update edge qi → qj
+    for(const qi of remaining){
+      for(const qj of remaining){
+        if(qi===qj&&qi===qs) continue;
+        const r1 = gnfa[qi][qrip];   // qi → qrip
+        const r2 = gnfa[qrip][qrip]; // qrip → qrip (self-loop)
+        const r3 = gnfa[qrip][qj];   // qrip → qj
+        const r4 = gnfa[qi][qj];     // existing qi → qj
+
+        if(r1===null || r3===null) continue;
+
+        // New label: r1(r2)*r3 | r4
+        const loop  = r2===null ? '' : `(${r2})*`;
+        const path  = loop ? `${wrapRE(r1)}${loop}${wrapRE(r3)}` : concatRE(r1,r3);
+        const newRE = r4===null ? path : `${path}∪${wrapRE(r4)}`;
+
+        if(gnfa[qi][qj] !== newRE){
+          gnfa[qi][qj] = newRE;
+          steps.push({
+            type:'update', gnfa:snapGNFA(gnfa,allStates),
+            log:`δ(${qi},${qj}) = ${r1}·(${r2||'ε'})*·${r3} ∪ ${r4||'∅'} = ${newRE}`,
+            ripping:qrip, qi, qj, allStates:[...allStates]
+          });
+        }
+      }
+    }
+    // Remove qrip from allStates
+    allStates.splice(allStates.indexOf(qrip),1);
+  }
+
+  const regex = gnfa[qs][qa] || '∅';
+  steps.push({
+    type:'done', gnfa:snapGNFA(gnfa,allStates),
+    log:`Regular expression: ${regex}`,
+    regex, fin:true, allStates:[qs,qa]
+  });
+  return steps;
+}
+
+function wrapRE(r){ if(!r||r.length<=1) return r||'ε'; if(r.includes('∪')) return `(${r})`; return r; }
+function concatRE(a,b){ return wrapRE(a)+wrapRE(b); }
+function snapGNFA(gnfa, states){
+  const snap={};
+  states.forEach(s=>{ snap[s]={}; states.forEach(t=>{ snap[s][t]=gnfa[s]?.[t]||null; }); });
+  return snap;
+}
+
+
+// ─────────────────────────────────────────
+// CLOSURE PROPERTIES (Thompson's Construction)
+// ─────────────────────────────────────────
+function closureConstruct(machine){
+  const steps=[];
+  const op=machine.op;
+
+  if(op==='star'){
+    const M=machine.base;
+    // Thompson's Kleene star: add new start/accept q_new
+    // q_new --ε--> M.start, M.accept --ε--> q_new, q_new is accept
+    const qnew='q★';
+    const newStates=[qnew,...M.states];
+    const newAccept=[qnew];
+    steps.push({type:'intro',op,M,log:`Kleene Star construction for: ${machine.desc}`,
+      result:{states:newStates,start:qnew,accept:newAccept,delta:{...M.delta},epsilons:[]},highlight:[]});
+
+    steps.push({type:'add_start',op,M,log:`Add new start+accept state ${qnew}`,
+      result:{states:newStates,start:qnew,accept:newAccept,delta:{...M.delta},
+        epsilons:[[qnew,M.start]]},highlight:[qnew]});
+
+    const epsilons=[[qnew,M.start],...M.accept.map(a=>[a,M.start]),[...M.accept.map(a=>[a,qnew])[0]]];
+    const allEps=[[qnew,M.start],...M.accept.map(a=>[a,M.start]),...M.accept.map(a=>[a,qnew])];
+    steps.push({type:'add_back_eps',op,M,log:`Add ε from each accept state back to ${M.start} (loop) and to ${qnew} (accept path)`,
+      result:{states:newStates,start:qnew,accept:newAccept,delta:{...M.delta},epsilons:allEps},
+      highlight:M.accept});
+
+    steps.push({type:'done',op,M,fin:true,log:`Done! L* NFA: ${qnew} is new start & accept. ε-loops enable repetition.`,
+      result:{states:newStates,start:qnew,accept:newAccept,delta:{...M.delta},epsilons:allEps},
+      highlight:[qnew]});
+
+  } else if(op==='concat'){
+    const M1=machine.L1, M2=machine.L2;
+    steps.push({type:'intro',op,M1,M2,log:`Concatenation: connect every accept of L₁ to start of L₂ via ε`,
+      highlight:[],epsilons:[]});
+
+    steps.push({type:'show_L1',op,M1,M2,log:`L₁: ${M1.states.length} states, accept: {${M1.accept.join(',')}}`,
+      highlight:M1.accept, epsilons:[]});
+
+    steps.push({type:'show_L2',op,M1,M2,log:`L₂: ${M2.states.length} states, start: ${M2.start}`,
+      highlight:[M2.start], epsilons:[]});
+
+    const eps=M1.accept.map(a=>[a,M2.start]);
+    steps.push({type:'connect',op,M1,M2,log:`Add ε from each L₁ accept → L₂ start (${M2.start})`,
+      highlight:[...M1.accept,M2.start], epsilons:eps});
+
+    steps.push({type:'done',op,M1,M2,fin:true,
+      log:`Done! Concatenated NFA: start=${M1.start}, accept=${M2.accept.join(',')}. L₂ accepts become final.`,
+      highlight:M2.accept, epsilons:eps});
+
+  } else if(op==='union'){
+    const M1=machine.L1, M2=machine.L2;
+    const qnew='q∪';
+    steps.push({type:'intro',op,M1,M2,log:`Union: add new start state ${qnew} with ε to both L₁ and L₂ starts`,
+      highlight:[],epsilons:[]});
+
+    steps.push({type:'add_start',op,M1,M2,log:`Add new start ${qnew}`,
+      highlight:[qnew], epsilons:[]});
+
+    steps.push({type:'eps_L1',op,M1,M2,log:`Add ε: ${qnew} → ${M1.start} (branch into L₁)`,
+      highlight:[qnew,M1.start], epsilons:[[qnew,M1.start]]});
+
+    steps.push({type:'eps_L2',op,M1,M2,log:`Add ε: ${qnew} → ${M2.start} (branch into L₂)`,
+      highlight:[qnew,M1.start,M2.start], epsilons:[[qnew,M1.start],[qnew,M2.start]]});
+
+    steps.push({type:'done',op,M1,M2,fin:true,
+      log:`Done! Union NFA: start=${qnew}, accept={${[...M1.accept,...M2.accept].join(',')}}`,
+      highlight:[...M1.accept,...M2.accept], epsilons:[[qnew,M1.start],[qnew,M2.start]]});
+  }
+  return steps;
+}
+
+// ── Draw Closure Construction ──
+function drawClosure(ctx,W,H,f){
+  if(!f) return;
+  const op=f.op;
+  const NR=22;
+
+  function layoutCircle(states,cx,cy,r){
+    const pos={};
+    states.forEach((s,i)=>{ pos[s]={x:cx+r*Math.cos(i/states.length*Math.PI*2-Math.PI/2), y:cy+r*Math.sin(i/states.length*Math.PI*2-Math.PI/2)}; });
+    return pos;
+  }
+  function drawNFA(pos,delta,accept,start,highlight,epsilons,labelOffset){
+    // Draw regular transitions
+    Object.entries(delta||{}).forEach(([s,trans])=>{
+      Object.entries(trans||{}).forEach(([sym,tgts])=>{
+        (Array.isArray(tgts)?tgts:[tgts]).forEach(t=>{
+          if(!pos[s]||!pos[t]) return;
+          const a=pos[s],b=pos[t];
+          const dist=Math.sqrt((b.x-a.x)**2+(b.y-a.y)**2)||1;
+          const ux=(b.x-a.x)/dist,uy=(b.y-a.y)/dist;
+          ctx.strokeStyle=C.border+'cc'; ctx.lineWidth=1.2;
+          if(s===t){
+            ctx.beginPath();ctx.arc(a.x,a.y-NR-10,10,0,Math.PI*2);ctx.stroke();
+          } else {
+            ctx.beginPath();ctx.moveTo(a.x+ux*NR,a.y+uy*NR);ctx.lineTo(b.x-ux*NR,b.y-uy*NR);ctx.stroke();
+            const ang=Math.atan2(b.y-a.y,b.x-a.x);
+            ctx.fillStyle=C.border;
+            ctx.beginPath();ctx.moveTo(b.x-ux*NR,b.y-uy*NR);
+            ctx.lineTo(b.x-ux*NR-7*Math.cos(ang-.4),b.y-uy*NR-7*Math.sin(ang-.4));
+            ctx.lineTo(b.x-ux*NR-7*Math.cos(ang+.4),b.y-uy*NR-7*Math.sin(ang+.4));
+            ctx.closePath();ctx.fill();
+          }
+          ctx.fillStyle=C.dim;ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+          ctx.fillText(sym,(a.x+b.x)/2+uy*12,(a.y+b.y)/2-ux*12);
+        });
+      });
+    });
+    // Draw ε edges
+    (epsilons||[]).forEach(([from,to])=>{
+      if(!pos[from]||!pos[to]) return;
+      const a=pos[from],b=pos[to];
+      const dist=Math.sqrt((b.x-a.x)**2+(b.y-a.y)**2)||1;
+      const ux=(b.x-a.x)/dist,uy=(b.y-a.y)/dist;
+      ctx.strokeStyle=C.purple;ctx.lineWidth=1.5;
+      ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(a.x+ux*NR,a.y+uy*NR);ctx.lineTo(b.x-ux*NR,b.y-uy*NR);ctx.stroke();
+      ctx.setLineDash([]);
+      const ang=Math.atan2(b.y-a.y,b.x-a.x);
+      ctx.fillStyle=C.purple;
+      ctx.beginPath();ctx.moveTo(b.x-ux*NR,b.y-uy*NR);
+      ctx.lineTo(b.x-ux*NR-7*Math.cos(ang-.4),b.y-uy*NR-7*Math.sin(ang-.4));
+      ctx.lineTo(b.x-ux*NR-7*Math.cos(ang+.4),b.y-uy*NR-7*Math.sin(ang+.4));
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle=C.purple;ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+      ctx.fillText('ε',(a.x+b.x)/2+uy*12,(a.y+b.y)/2-ux*12-4);
+    });
+    // Draw state nodes
+    Object.entries(pos).forEach(([s,p])=>{
+      const isHL=(highlight||[]).includes(s);
+      const isAccept=(accept||[]).includes(s);
+      const isStart=s===start;
+      let fill=C.bg4,stroke=C.border,tc=C.dim;
+      if(isHL){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+      if(s==='q★'||s==='q∪'){fill='#34d39922';stroke=C.green;tc=C.green;}
+      if(isStart&&s!=='q★'&&s!=='q∪'){
+        ctx.strokeStyle=C.dimmer;ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(p.x-NR-18,p.y);ctx.lineTo(p.x-NR-2,p.y);ctx.stroke();
+        ctx.fillStyle=C.dimmer;
+        ctx.beginPath();ctx.moveTo(p.x-NR,p.y);ctx.lineTo(p.x-NR-8,p.y-4);ctx.lineTo(p.x-NR-8,p.y+4);ctx.closePath();ctx.fill();
+      }
+      ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(p.x,p.y,NR,0,Math.PI*2);ctx.fill();ctx.stroke();
+      if(isAccept){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,NR-5,0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle=tc;ctx.font='bold 10px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s,p.x,p.y);
+    });
+  }
+
+  if(op==='star'){
+    const M=f.M; if(!M) return;
+    const allStates=['q★',...M.states];
+    const pos=layoutCircle(allStates,W/2,H/2,Math.min(W,H)*0.32);
+    ctx.fillStyle=C.dimmer;ctx.font='10px JetBrains Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('Kleene Star: L* construction',W/2,16);
+    drawNFA(pos,M.delta,['q★',...M.accept],'q★',f.highlight||[],f.epsilons||[]);
+  } else if(op==='concat'){
+    const M1=f.M1,M2=f.M2; if(!M1||!M2) return;
+    const pos1=layoutCircle(M1.states,W*0.28,H/2,Math.min(W*0.22,H*0.35));
+    const pos2=layoutCircle(M2.states,W*0.72,H/2,Math.min(W*0.22,H*0.35));
+    const allPos={...pos1,...pos2};
+    // Draw divider
+    ctx.strokeStyle=C.border+'44';ctx.lineWidth=0.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(W/2,20);ctx.lineTo(W/2,H-20);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=C.dim;ctx.font='10px JetBrains Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('L₁',W*0.28,12); ctx.fillText('L₂',W*0.72,12);
+    drawNFA(allPos,{...M1.delta,...M2.delta},[...M2.accept],M1.start,f.highlight||[],f.epsilons||[]);
+  } else if(op==='union'){
+    const M1=f.M1,M2=f.M2; if(!M1||!M2) return;
+    const pos1=layoutCircle(M1.states,W*0.4,H*0.3,Math.min(W*0.18,H*0.22));
+    const pos2=layoutCircle(M2.states,W*0.4,H*0.7,Math.min(W*0.18,H*0.22));
+    const qunion={x:W*0.12,y:H/2};
+    const allPos={...pos1,...pos2,'q∪':qunion};
+    ctx.fillStyle=C.dim;ctx.font='10px JetBrains Mono,monospace';ctx.textAlign='center';
+    ctx.fillText('L₁',W*0.4,H*0.08); ctx.fillText('L₂',W*0.4,H*0.52);
+    drawNFA(allPos,{...M1.delta,...M2.delta},[...M1.accept,...M2.accept],'q∪',f.highlight||[],f.epsilons||[]);
+  }
+}
+
+// ── Build steps ──
+function cxBuild(){
+  const algo=$('cx-algo').value;
+  const exIdx=cxExIdx[algo]||0;
+  cxData.algo=algo;
+  cxData.machine=CX_EXAMPLES[algo][exIdx];
+  cxI=0; cxSteps=[];
+
+  if(algo==='subset') cxSteps=subsetConstruct(cxData.machine);
+  else if(algo==='eclosure') cxSteps=eClosureConstruct(cxData.machine);
+  else if(algo==='gnfa') cxSteps=gnfaEliminate(cxData.machine);
+  else if(algo==='closure') cxSteps=closureConstruct(cxData.machine);
+
+  $('cx-cnt').textContent=0;
+  $('cx-lbl').textContent='READY';
+  $('cx-log').textContent=cxData.machine.name+' — press RUN';
+  if(typeof cxPopulateExamples==='function') cxPopulateExamples();
+}
+
+// ── Draw ──
+function cxDraw(){
+  if(!cxCV||!cxCTX) return;
+  rsz(cxCV);
+  const ctx=cxCTX,W=cxCV.width,H=cxCV.height;
+  ctx.clearRect(0,0,W,H);
+  const f=cxSteps[cxI]; if(!f) return;
+  const algo=cxData.algo;
+
+  if(algo==='subset') drawSubset(ctx,W,H,f);
+  else if(algo==='eclosure') drawEClosure(ctx,W,H,f);
+  else if(algo==='gnfa') drawGNFA(ctx,W,H,f);
+  else if(algo==='closure') drawClosure(ctx,W,H,f);
+}
+
+// ── Draw Subset Construction ──
+function drawSubset(ctx,W,H,f){
+  const snap=f.dfaStates; if(!snap) return;
+  const keys=Object.keys(snap.states);
+  if(!keys.length) return;
+
+  // Layout DFA states in a grid
+  const cols=Math.min(4,keys.length), rows=Math.ceil(keys.length/cols);
+  const cellW=(W-40)/cols, cellH=Math.min(70,(H-60)/rows);
+  const NR=24;
+
+  // Left side: NFA states legend
+  ctx.fillStyle=C.dimmer; ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='left'; ctx.fillText('NFA states → DFA state sets',10,14);
+
+  keys.forEach((key,idx)=>{
+    const col=idx%cols, row=Math.floor(idx/cols);
+    const cx=30+col*cellW+cellW/2, cy=30+row*cellH+cellH/2;
+
+    const isStart=key===snap.startKey;
+    const isAccept=snap.accepts.includes(key);
+    const isProcessing=f.processing===key;
+    const isHighlight=f.highlight===key;
+    const isNew=f.isNew&&f.target===key;
+
+    let fill=C.bg4, stroke=C.border, tc=C.dim;
+    if(f.fin&&isAccept){fill='#34d39918';stroke=C.green;tc=C.green;}
+    else if(isNew){fill='#34d39922';stroke=C.green;tc=C.green;}
+    else if(isProcessing){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+    else if(isHighlight){fill='#60a5fa18';stroke=C.blue;tc=C.blue;}
+
+    // Start arrow
+    if(isStart){
+      ctx.strokeStyle=C.dimmer;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(cx-NR-20,cy);ctx.lineTo(cx-NR-2,cy);ctx.stroke();
+      ctx.fillStyle=C.dimmer;
+      ctx.beginPath();ctx.moveTo(cx-NR,cy);ctx.lineTo(cx-NR-8,cy-4);ctx.lineTo(cx-NR-8,cy+4);ctx.closePath();ctx.fill();
+    }
+
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=isProcessing?2:1.5;
+    ctx.beginPath();ctx.arc(cx,cy,NR,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(isAccept){
+      ctx.strokeStyle=stroke;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx,cy,NR-5,0,Math.PI*2);ctx.stroke();
+    }
+
+    // Label: the set
+    const label='{'+snap.states[key].join(',')+'}'||'∅';
+    const fs=Math.min(9,Math.floor(NR*1.4/Math.max(label.length,1)*2.5));
+    ctx.fillStyle=tc;ctx.font=`bold ${Math.max(7,fs)}px JetBrains Mono,monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(label.length>8?label.slice(0,7)+'…':label,cx,cy);
+
+    // Draw transitions
+    if(snap.trans[key]){
+      Object.entries(snap.trans[key]).forEach(([sym,tgtKey])=>{
+        const tidx=keys.indexOf(tgtKey);
+        if(tidx<0) return;
+        const tc2=Math.floor(tidx/cols), tr2=tidx%cols;
+        // Wait - recompute target position
+        const tcol=tidx%cols,trow=Math.floor(tidx/cols);
+        const tx=30+tcol*cellW+cellW/2, ty=30+trow*cellH+cellH/2;
+        const isActiveTrans=f.processing===key&&f.sym===sym&&f.target===tgtKey;
+        ctx.strokeStyle=isActiveTrans?C.accent:C.border+'88';
+        ctx.lineWidth=isActiveTrans?2:0.8;
+        if(key===tgtKey){
+          // Self-loop
+          ctx.beginPath();ctx.arc(cx,cy-NR-12,10,0,Math.PI*2);ctx.stroke();
+          ctx.fillStyle=isActiveTrans?C.accent:C.dimmer;
+          ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+          ctx.fillText(sym,cx,cy-NR-26);
+        } else {
+          const dx=tx-cx,dy=ty-cy,dist=Math.sqrt(dx*dx+dy*dy)||1;
+          const ux=dx/dist,uy=dy/dist;
+          ctx.beginPath();ctx.moveTo(cx+ux*NR,cy+uy*NR);ctx.lineTo(tx-ux*NR,ty-uy*NR);ctx.stroke();
+          // Arrow
+          const ang=Math.atan2(ty-cy,tx-cx);
+          ctx.fillStyle=isActiveTrans?C.accent:C.border;
+          ctx.beginPath();ctx.moveTo(tx-ux*NR,ty-uy*NR);
+          ctx.lineTo(tx-ux*NR-8*Math.cos(ang-.4),ty-uy*NR-8*Math.sin(ang-.4));
+          ctx.lineTo(tx-ux*NR-8*Math.cos(ang+.4),ty-uy*NR-8*Math.sin(ang+.4));
+          ctx.closePath();ctx.fill();
+          // Label
+          ctx.fillStyle=isActiveTrans?C.accent:C.dimmer;
+          ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+          ctx.fillText(sym,(cx+tx)/2+uy*10,(cy+ty)/2-ux*10);
+        }
+      });
+    }
+  });
+
+  // Step counter
+  ctx.fillStyle=C.dimmer;ctx.font='10px JetBrains Mono,monospace';ctx.textAlign='right';
+  ctx.fillText(`${keys.length} DFA states`,W-10,H-8);
+}
+
+// ── Draw ε-Closure ──
+function drawEClosure(ctx,W,H,f){
+  const states=f.states||cxData.machine.states;
+  const n=states.length;
+  const cx2=W/2, cy2=H/2, r=Math.min(W,H)*.3;
+  const NR=22;
+
+  // Position states in a circle
+  const pos={};
+  states.forEach((s,i)=>{
+    pos[s]={x:cx2+r*Math.cos(i/n*Math.PI*2-Math.PI/2),
+             y:cy2+r*Math.sin(i/n*Math.PI*2-Math.PI/2)};
+  });
+
+  // Draw ε-closure sets as halos
+  if(f.closures){
+    Object.entries(f.closures).forEach(([s,cl])=>{
+      if(f.current===s){
+        cl.forEach(t=>{
+          if(t===s) return;
+          const p=pos[t];
+          ctx.strokeStyle=C.green+'66';ctx.lineWidth=1;
+          ctx.setLineDash([3,3]);
+          ctx.beginPath();ctx.arc(p.x,p.y,NR+8,0,Math.PI*2);ctx.stroke();
+          ctx.setLineDash([]);
+        });
+      }
+    });
+  }
+
+  // Draw original transitions
+  const delta=cxData.machine.delta;
+  states.forEach(s=>{
+    Object.entries(delta[s]||{}).forEach(([sym,tgts])=>{
+      (Array.isArray(tgts)?tgts:[tgts]).forEach(t=>{
+        const a=pos[s],b=pos[t];
+        const isEps=sym==='ε'||sym==='epsilon';
+        const isNew=f.type==='transition'&&f.current===s&&f.sym===sym;
+        ctx.strokeStyle=isNew?C.accent:isEps?C.purple+'99':C.border;
+        ctx.lineWidth=isNew?2:isEps?1.5:1;
+        if(sym==='ε'||sym==='epsilon') ctx.setLineDash([4,3]);
+        if(s===t){
+          ctx.beginPath();ctx.arc(a.x,a.y-NR-12,10,0,Math.PI*2);ctx.stroke();
+        } else {
+          const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy);
+          const ux=dx/dist,uy=dy/dist;
+          ctx.beginPath();ctx.moveTo(a.x+ux*NR,a.y+uy*NR);ctx.lineTo(b.x-ux*NR,b.y-uy*NR);ctx.stroke();
+          const ang=Math.atan2(b.y-a.y,b.x-a.x);
+          ctx.setLineDash([]);
+          ctx.fillStyle=isEps?C.purple:C.border;
+          ctx.beginPath();ctx.moveTo(b.x-ux*NR,b.y-uy*NR);
+          ctx.lineTo(b.x-ux*NR-7*Math.cos(ang-.4),b.y-uy*NR-7*Math.sin(ang-.4));
+          ctx.lineTo(b.x-ux*NR-7*Math.cos(ang+.4),b.y-uy*NR-7*Math.sin(ang+.4));
+          ctx.closePath();ctx.fill();
+        }
+        ctx.setLineDash([]);
+        ctx.fillStyle=isEps?C.purple:C.dim;
+        ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+        ctx.fillText(sym,(a.x+b.x)/2+uy*12,(a.y+b.y)/2-ux*12);
+      });
+    });
+  });
+
+  // Draw states
+  states.forEach(s=>{
+    const p=pos[s];
+    const isCurrent=f.current===s;
+    const isAccept=cxData.machine.accept.includes(s);
+    const isStart=s===cxData.machine.start;
+    let fill=C.bg4,stroke=C.border,tc=C.dim;
+    if(isCurrent){fill='#e8c54718';stroke=C.accent;tc=C.accent;}
+    if(f.newAccepts?.includes(s)){fill='#34d39918';stroke=C.green;tc=C.green;}
+
+    if(isStart){
+      ctx.strokeStyle=C.dimmer;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(p.x-NR-20,p.y);ctx.lineTo(p.x-NR-2,p.y);ctx.stroke();
+      ctx.fillStyle=C.dimmer;
+      ctx.beginPath();ctx.moveTo(p.x-NR,p.y);ctx.lineTo(p.x-NR-8,p.y-4);ctx.lineTo(p.x-NR-8,p.y+4);ctx.closePath();ctx.fill();
+    }
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(p.x,p.y,NR,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(isAccept){ctx.beginPath();ctx.arc(p.x,p.y,NR-5,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle=tc;ctx.font='bold 11px JetBrains Mono,monospace';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s,p.x,p.y);
+
+    // Show closure size
+    if(f.closures?.[s]){
+      ctx.fillStyle=C.dimmer;ctx.font='8px JetBrains Mono,monospace';
+      ctx.fillText(`ε-cl:{${f.closures[s].join(',')}}`,p.x,p.y+NR+12);
+    }
+  });
+
+  // Legend
+  ctx.setLineDash([4,3]);ctx.strokeStyle=C.purple+'99';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(10,H-18);ctx.lineTo(30,H-18);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=C.purple;ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='left';
+  ctx.fillText('ε-transition',34,H-14);
+}
+
+// ── Draw GNFA State Elimination ──
+function drawGNFA(ctx,W,H,f){
+  const allStates=f.allStates||[]; if(!allStates.length) return;
+  const gnfa=f.gnfa||{};
+  const n=allStates.length;
+  const cx2=W/2,cy2=H/2-10,r=Math.min(W*0.38,H*0.38);
+  const NR=22;
+
+  const pos={};
+  allStates.forEach((s,i)=>{
+    if(s==='__start__') pos[s]={x:20,y:cy2};
+    else if(s==='__accept__') pos[s]={x:W-20,y:cy2};
+    else {
+      const reg=allStates.filter(s=>s!=='__start__'&&s!=='__accept__');
+      const idx=reg.indexOf(s);
+      const rn=reg.length;
+      pos[s]={x:cx2+r*Math.cos(idx/rn*Math.PI*2-Math.PI/2),
+               y:cy2+r*Math.sin(idx/rn*Math.PI*2-Math.PI/2)};
+    }
+  });
+
+  // Draw edges
+  allStates.forEach(from=>{
+    allStates.forEach(to=>{
+      const label=gnfa[from]?.[to];
+      if(!label||!pos[from]||!pos[to]) return;
+      const a=pos[from],b=pos[to];
+      const isRipping=f.ripping&&(from===f.ripping||to===f.ripping);
+      const isUpdated=f.type==='update'&&from===f.qi&&to===f.qj;
+      ctx.strokeStyle=isUpdated?C.accent:isRipping?C.red+'66':C.border+'aa';
+      ctx.lineWidth=isUpdated?2:1;
+      const fromNR=from==='__start__'||from==='__accept__'?14:NR;
+      const toNR=to==='__start__'||to==='__accept__'?14:NR;
+      if(from===to){
+        ctx.beginPath();ctx.arc(a.x,a.y-fromNR-12,10,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle=isUpdated?C.accent:C.dim;ctx.font='8px JetBrains Mono,monospace';
+        ctx.textAlign='center';ctx.fillText(label.length>6?label.slice(0,5)+'…':label,a.x,a.y-fromNR-28);
+      } else {
+        const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy);
+        const ux=dx/dist,uy=dy/dist;
+        const sx=a.x+ux*fromNR,sy=a.y+uy*fromNR;
+        const ex=b.x-ux*toNR,ey=b.y-uy*toNR;
+        const rev=gnfa[to]?.[from]; // is there a reverse edge?
+        const off=rev?8:0;
+        const mx=(sx+ex)/2-uy*off,my=(sy+ey)/2+ux*off;
+        ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(mx,my,ex,ey);ctx.stroke();
+        const ang=Math.atan2(ey-my,ex-mx);
+        ctx.fillStyle=isUpdated?C.accent:C.border+'aa';
+        ctx.beginPath();ctx.moveTo(ex,ey);
+        ctx.lineTo(ex-7*Math.cos(ang-.4),ey-7*Math.sin(ang-.4));
+        ctx.lineTo(ex-7*Math.cos(ang+.4),ey-7*Math.sin(ang+.4));
+        ctx.closePath();ctx.fill();
+        ctx.fillStyle=isUpdated?C.accent:C.dim;
+        ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+        const shortLabel=label.length>10?label.slice(0,9)+'…':label;
+        ctx.fillText(shortLabel,mx-uy*12,my+ux*12);
+      }
+    });
+  });
+
+  // Draw state nodes
+  allStates.forEach(s=>{
+    const p=pos[s]; if(!p) return;
+    const isSpecial=s==='__start__'||s==='__accept__';
+    const nr=isSpecial?14:NR;
+    const isRipping=f.ripping===s;
+    let fill=C.bg4,stroke=C.border,tc=C.dim;
+    if(isRipping){fill='#e8545418';stroke=C.red;tc=C.red;}
+    else if(s==='__accept__'){fill='#34d39918';stroke=C.green;tc=C.green;}
+    else if(s==='__start__'){fill='#60a5fa18';stroke=C.blue;tc=C.blue;}
+    ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(p.x,p.y,nr,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=tc;ctx.font=`bold ${isSpecial?8:11}px JetBrains Mono,monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(isSpecial?(s==='__start__'?'qS':'qA'):s,p.x,p.y);
+  });
+
+  // Show final regex if done
+  if(f.fin&&f.regex){
+    ctx.fillStyle=C.accent;ctx.font='bold 13px JetBrains Mono,monospace';
+    ctx.textAlign='center';
+    ctx.fillText(`RegEx: ${f.regex}`,W/2,H-12);
+  }
+}
+
+// ── Advance & auto ──
+function cxAdv(){
+  if(cxI>=cxSteps.length-1){cxRun=false;return;}
+  cxI++;
+  const f=cxSteps[cxI];
+  $('cx-cnt').textContent=cxI;
+  $('cx-lbl').textContent=f.fin?'DONE':`STEP ${cxI}`;
+  $('cx-log').textContent=f.log||'';
+  cxDraw();
+  // Code highlight
+  const tagMap={init:'init',process:'process',transition:'relax',
+                deadstate:'dead',done:'done',closure:'closure',
+                select:'rip',update:'update',intro:'init'};
+  hlCode('cx-code',tagMap[f.type]||'');
+  // Sound
+  if(soundOn){
+    if(f.fin) sndDone();
+    else if(f.type==='transition'||f.type==='update') sndFound();
+    else sndCmp(cxI*7%80+20);
+  }
+}
+function cxAuto(){
+  if(!cxRun) return;
+  if(cxI>=cxSteps.length-1){cxRun=false;$('cx-play').textContent='▶ RUN';return;}
+  cxAdv(); cxTmr=setTimeout(cxAuto,cxSpd());
+}
+
+$('cx-play').addEventListener('click',()=>{
+  if(cxRun){cxRun=false;$('cx-play').textContent='▶ RUN';clearTimeout(cxTmr);return;}
+  if(!cxSteps.length||cxI>=cxSteps.length-1) cxBuild();
+  cxRun=true;$('cx-play').textContent='⏸ PAUSE';cxAuto();
+});
+$('cx-step').addEventListener('click',()=>{
+  if(!cxSteps.length||cxI>=cxSteps.length-1) cxBuild();
+  cxRun=false;clearTimeout(cxTmr);$('cx-play').textContent='▶ RUN';cxAdv();
+});
+$('cx-reset').addEventListener('click',()=>{
+  cxRun=false;clearTimeout(cxTmr);$('cx-play').textContent='▶ RUN';
+  cxBuild();cxDraw();cxDSU();cxSyncCode();
+});
+$('cx-algo').addEventListener('change',()=>{
+  cxRun=false;clearTimeout(cxTmr);
+  cxExIdx[$('cx-algo').value]=0;
+  cxPopulateExamples();
+  cxBuild();cxDraw();cxDSU();cxSyncCode();
+});
+// Populate example select when algo changes
+function cxPopulateExamples(){
+  const algo=$('cx-algo').value;
+  const sel=$('cx-example-select'); if(!sel) return;
+  sel.innerHTML='';
+  (CX_EXAMPLES[algo]||[]).forEach((ex,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i; opt.textContent=ex.name;
+    sel.appendChild(opt);
+  });
+  sel.value=cxExIdx[algo]||0;
+}
+$('cx-example-select')?.addEventListener('change',()=>{
+  const algo=$('cx-algo').value;
+  cxExIdx[algo]=+$('cx-example-select').value;
+  cxRun=false;clearTimeout(cxTmr);
+  cxBuild();cxDraw();cxDSU();cxSyncCode();
+});
+
+// ── DS Info ──
+const CX_DS_INFO={
+  closure:{name:'Closure Properties (Thompsons)',paradigm:'NFA Construction',
+    struct:'ε-NFA with auxiliary states',time:'O(n) states added',space:'O(n)',
+    note:'Kleene star adds 1 state + ε-loops. Concat/Union add 1 new start state + ε edges.'},
+  subset:{name:'Subset Construction',paradigm:'NFA → DFA',
+    struct:'Queue + Hash Set of state-sets',time:'O(2ⁿ) states worst',space:'O(2ⁿ)',
+    note:'Each DFA state = a set of NFA states. Worst case exponential blowup.'},
+  eclosure:{name:'ε-Closure Elimination',paradigm:'ε-NFA → NFA',
+    struct:'DFS/BFS stack per state',time:'O(n²) total',space:'O(n)',
+    note:'ε-closure(s) = all states reachable from s via ε alone.'},
+  gnfa:{name:'GNFA State Elimination',paradigm:'DFA → RegEx',
+    struct:'Adjacency matrix of regex labels',time:'O(n³) edge updates',space:'O(n²)',
+    note:'Rip each state, update all (qi,qj) pairs through it. Result on final edge.'},
+};
+function cxDSU(){
+  const al=$('cx-algo').value;
+  const d=CX_DS_INFO[al]; if(!d) return;
+  const el=$('cx-dsbar'); if(!el) return;
+  el.innerHTML=`<span class="ds-name">${d.name}</span><span class="ds-pill paradigm">${d.paradigm}</span><span class="ds-pill struct">${d.struct}</span><span class="ds-pill time">Time ${d.time}</span><span class="ds-pill space">Space ${d.space}</span><span class="ds-note">${d.note}</span>`;
+  showCX('cx-cx',al==='subset'?'subset_cx':al==='eclosure'?'eclosure_cx':'gnfa_cx');
+}
+
+// ── Pseudocode ──
+
+
+function cxSyncCode(){
+  const al=$('cx-algo').value;
+  const lines=(CX_CODES[al]||[]).map(([src,tag],i)=>
+    `<div class="code-line" id="cx-code-L${i}" data-tag="${tag}"><span class="ln">${i+1}</span><span class="src">${src}</span></div>`
+  ).join('');
+  const el=$('cx-code'); if(el) el.innerHTML=lines;
+  const t=$('cx-code-title');
+  if(t) t.textContent={subset:'subset construction',eclosure:'ε-closure',gnfa:'gnfa state elimination'}[al]||al;
+}
+
+// Add CX to tab switch (handled in deferred inits)
+
+</script>
+</body>
+</html>

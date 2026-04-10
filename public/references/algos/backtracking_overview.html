@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backtracking</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #ff4757; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255,71,87,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,71,87,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 1rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 1rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th { background: var(--border2); color: var(--accent); padding: 0.4rem 0.6rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .tree-trace { font-family: var(--mono); font-size: 1rem; line-height: 1.9; color: var(--sub); }
+  .ok-path { color: var(--green); } .fail-path { color: var(--red); } .back { color: var(--yellow); }
+  .steps { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; padding: 0.5rem 0 0.5rem 2.5rem; position: relative; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: 0.5rem; width: 1.6rem; height: 1.6rem; background: var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: var(--accent); }
+  .bt-problems { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .bt-problem { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; }
+  .bt-name { font-family: var(--mono); font-size: .8rem; color: var(--accent); margin-bottom: 0.2rem; }
+  .bt-info { font-size: .85rem; color: var(--sub); }
+  .bt-time { font-family: var(--mono); font-size: .8rem; color: var(--yellow); margin-top: 0.2rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Algorithm Paradigm</div>
+  <h1>Backtracking</h1>
+  <div class="sub">Explore all possible solutions incrementally. Abandon (backtrack) a path the moment a constraint is violated.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Core Idea</div>
+      <ol class="steps">
+        <li>Choose: pick a candidate for the current step</li>
+        <li>Constraint: if it violates rules → abandon, try next</li>
+        <li>Goal: if solution is complete → record it</li>
+        <li>Recurse: go deeper with the current choice</li>
+        <li>Unchoose: undo the choice (backtrack)</li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Worst case</span><span class="kv-v red">O(n!) or O(2^n)</span></div>
+      <div class="kv"><span class="kv-k">With pruning</span><span class="kv-v green">Much better in practice</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(n) — recursion depth</span></div>
+      <div class="kv"><span class="kv-k">Find all solutions?</span><span class="kv-v green">✓ Yes</span></div>
+      <div class="kv"><span class="kv-k">Find one solution?</span><span class="kv-v green">✓ Yes (early exit)</span></div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Classic Problems</div>
+      <div class="bt-problems">
+        <div class="bt-problem">
+          <div class="bt-name">N-Queens</div>
+          <div class="bt-info">Place N queens so none attack each other. Check row/col/diag constraints.</div>
+          <div class="bt-time">O(N!) worst, much less with pruning</div>
+        </div>
+        <div class="bt-problem">
+          <div class="bt-name">Sudoku Solver</div>
+          <div class="bt-info">Fill 9×9 grid. At each empty cell: try 1-9, check row/col/box, recurse.</div>
+          <div class="bt-time">O(9^m) where m = empty cells</div>
+        </div>
+        <div class="bt-problem">
+          <div class="bt-name">Permutations</div>
+          <div class="bt-info">Generate all orderings of n elements. Swap-recurse-swap pattern.</div>
+          <div class="bt-time">O(n! · n)</div>
+        </div>
+        <div class="bt-problem">
+          <div class="bt-name">Subset Sum</div>
+          <div class="bt-info">Find subsets that sum to target. Include/exclude each element.</div>
+          <div class="bt-time">O(2^n)</div>
+        </div>
+        <div class="bt-problem">
+          <div class="bt-name">Knight's Tour</div>
+          <div class="bt-info">Visit all squares on chessboard exactly once using knight moves.</div>
+          <div class="bt-time">O(8^(n²)) brute, much less pruned</div>
+        </div>
+        <div class="bt-problem">
+          <div class="bt-name">Combinations</div>
+          <div class="bt-info">Generate all size-k subsets. Pick or skip each element.</div>
+          <div class="bt-time">O(C(n,k) · k)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Template Pseudocode</div>
+      <pre><span class="fn">backtrack</span>(state, choices):
+  <span class="keyword">if</span> <span class="fn">isGoal</span>(state):
+    result.<span class="fn">add</span>(<span class="fn">copy</span>(state))
+    <span class="keyword">return</span>                        <span class="comment">// or return True for first-solution</span>
+
+  <span class="keyword">for</span> choice <span class="keyword">in</span> choices:
+    <span class="keyword">if</span> <span class="fn">isValid</span>(state, choice):  <span class="comment">// PRUNE: skip bad choices</span>
+      <span class="fn">makeChoice</span>(state, choice) <span class="comment">// choose</span>
+      <span class="fn">backtrack</span>(state, nextChoices)
+      <span class="fn">undoChoice</span>(state, choice)  <span class="comment">// unchoose (backtrack)</span>
+
+<span class="comment">// N-Queens constraint check example:</span>
+<span class="fn">isValid</span>(board, row, col):
+  <span class="keyword">for</span> r <span class="keyword">in</span> 0..row:
+    <span class="keyword">if</span> board[r] == col: <span class="keyword">return</span> False          <span class="comment">// same column</span>
+    <span class="keyword">if</span> abs(board[r] - col) == row - r: <span class="keyword">return</span> False  <span class="comment">// diagonal</span>
+  <span class="keyword">return</span> True</pre>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Backtracking Tree — Permutations of [1,2,3]</div>
+      <div class="tree-trace">
+        <div>Start: []</div>
+        <div>&nbsp;&nbsp;├── <span class="ok-path">[1]</span> → [1,2] → [1,2,3] ✓ solution</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── [1,3] → [1,3,2] ✓ solution</div>
+        <div>&nbsp;&nbsp;├── <span class="ok-path">[2]</span> → [2,1] → [2,1,3] ✓ solution</div>
+        <div>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── [2,3] → [2,3,1] ✓ solution</div>
+        <div>&nbsp;&nbsp;└── <span class="ok-path">[3]</span> → [3,1] → [3,1,2] ✓ solution</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── [3,2] → [3,2,1] ✓ solution</div>
+        <div style="margin-top:0.5rem;"><span style="color:var(--green);">6 solutions total (3! = 6)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turing Machines &amp; Decidability — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #111; font-family: 'Archivo', sans-serif; }
+
+.picker { background: #0a0a0a; border-bottom: 3px solid #222; display: flex; position: sticky; top: 0; z-index: 999; }
+.pick-btn { flex: 1; padding: 15px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #555; background: transparent; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: all .2s; }
+.pick-btn:hover { color: #999; }
+.pick-btn.a-on { color: #f5f500; border-bottom-color: #f5f500; }
+.pick-btn.b-on { color: #e8352a; border-bottom-color: #e8352a; }
+.demo { display: none; }
+.demo.active { display: block; }
+
+/* ════════════════════════════════════════
+   STYLE A — INK & PAPER
+════════════════════════════════════════ */
+#dA { background: #f2ede4; min-height: 100vh; }
+.aH { background: #111; display: flex; align-items: stretch; position: sticky; top: 46px; z-index: 100; border-bottom: 4px solid #111; }
+.aH-brand { padding: 13px 22px; font-family: 'Archivo Black', sans-serif; font-size: 17px; text-transform: uppercase; letter-spacing: .04em; color: #f5f500; display: flex; align-items: center; gap: 14px; flex: 1; }
+.aH-brand span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(245,245,0,.4); letter-spacing: .1em; }
+.aH-nav { display: flex; }
+.aH-nav a { display: flex; align-items: center; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.4); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.aH-nav a:hover { background: #e8352a; color: #fff; }
+.aW { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+.aS { margin-bottom: 48px; }
+.aS-head { display: flex; align-items: stretch; border: 2.5px solid #111; }
+.aS-num { background: #111; color: #f5f500; font-family: 'Archivo Black', sans-serif; font-size: 30px; min-width: 60px; display: flex; align-items: center; justify-content: center; }
+.aS-meta { padding: 9px 14px; border-left: 2.5px solid #111; flex: 1; }
+.aS-meta h2 { font-family: 'Archivo Black', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: .02em; }
+.aS-meta p { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #888; letter-spacing: .08em; margin-top: 2px; }
+.aS-tag { display: flex; align-items: center; padding: 0 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: rgba(245,245,0,.6); background: #111; border-left: 2px solid rgba(245,245,0,.15); }
+.aSub-block { border: 2.5px solid #111; border-top: none; }
+.aSub-head { background: #e8352a; color: #fff; font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 14px; border-bottom: 2.5px solid #111; display: flex; align-items: center; justify-content: space-between; }
+.aSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,.5); font-weight: 400; letter-spacing: .06em; }
+.aLabel { background: #ede8dc; border-bottom: 1.5px solid #ddd; padding: 5px 14px; font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+.aT { border-collapse: collapse; width: 100%; }
+.aT-wrap { border-bottom: 1.5px solid #ddd; }
+.aT tr { border-top: 1px solid #e0dbd2; }
+.aT tr:first-child { border-top: none; background: #ede8dc; }
+.aT tr:hover { background: #ede8dc; }
+.aT td, .aT th { padding: 9px 12px; border-right: 1px solid #e0dbd2; font-size: 12px; line-height: 1.5; vertical-align: middle; }
+.aT td:last-child, .aT th:last-child { border-right: none; }
+.aT .sym { font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: center; border-right: 2.5px solid #111; width: 80px; }
+.aT .plain { font-size: 11px; font-weight: 700; color: #e8352a; font-style: italic; width: 120px; }
+.aT .name { font-family: 'Archivo Black', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.aT .desc { font-size: 12px; color: #555; }
+.aT .desc code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aT th { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #888; }
+.aDef { padding: 11px 14px; background: #fffde6; font-size: 12.5px; color: #111; line-height: 1.8; border-bottom: 1.5px solid #ddd; }
+.aDef strong { font-family: 'Archivo Black', sans-serif; }
+.aDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aNote { border-left: 6px solid #f5f500; background: #fff; padding: 11px 14px; font-size: 12.5px; color: #333; line-height: 1.75; border-bottom: 1.5px solid #ddd; }
+.aNote strong { font-family: 'Archivo Black', sans-serif; color: #111; }
+.aNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aSvg { background: #fff; padding: 20px 18px 14px; border-bottom: 1.5px solid #ddd; overflow-x: auto; }
+.aSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+.a2col { display: grid; grid-template-columns: 1fr 1fr; }
+.a2col-cell { padding: 12px 14px; border-right: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; font-size: 12px; color: #444; line-height: 1.8; }
+.a2col-cell:last-child { border-right: none; }
+.a2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #111; margin-bottom: 6px; }
+.a2col-cell ul { padding-left: 16px; }
+.a2col-cell li { margin-bottom: 3px; }
+.a2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #ede8dc; padding: 1px 5px; border: 1px solid #ccc; }
+.aPseudo { background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; overflow-x: auto; border-bottom: 1.5px solid #ddd; }
+.aPseudo .ph { background: #f5f500; border-bottom: 2px solid #111; padding: 6px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+.aPseudo .pn { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #111; }
+.aPseudo .ps { font-size: 9px; color: #777; }
+.aPseudo .pb { padding: 6px 0 10px; }
+.aPseudo .lr { display: grid; grid-template-columns: 30px 1fr; padding-right: 14px; line-height: 2; }
+.aPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; user-select: none; }
+.aPseudo .cd { padding-left: 12px; }
+.aPseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.aPseudo .cm { font-size: 10px; color: #bbb; }
+.aPseudo .cm::before { content: '▷ '; }
+.aPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #e8c800; margin-left: .4em; }
+.aPseudo .i2 { padding-left: 2.9em; border-left: 2px solid #e8c800; margin-left: 2em; }
+
+/* ════════════════════════════════════════
+   STYLE B — EDITORIAL LIGHT
+════════════════════════════════════════ */
+#dB { background: #fafaf8; min-height: 100vh; color: #1a1a1a; }
+.bH { background: #fff; border-bottom: 1px solid #e8e5df; padding: 0 28px; height: 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 46px; z-index: 100; }
+.bH-brand { font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; color: #1a1a1a; }
+.bH-brand::before { content: ''; width: 7px; height: 7px; background: #e8352a; border-radius: 1px; display: block; }
+.bH-nav { display: flex; gap: 2px; }
+.bH-nav a { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #999; text-decoration: none; padding: 4px 9px; border-radius: 100px; letter-spacing: .06em; text-transform: uppercase; transition: all .15s; }
+.bH-nav a:hover { background: #f0ede8; color: #1a1a1a; }
+.bW { max-width: 960px; margin: 0 auto; padding: 40px 28px 80px; }
+.bS { margin-bottom: 48px; }
+.bS-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 12px; border-bottom: 2px solid #1a1a1a; margin-bottom: 24px; }
+.bS-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e8352a; letter-spacing: .1em; }
+.bS-head h2 { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 300; }
+.bS-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #bbb; letter-spacing: .08em; text-transform: uppercase; margin-left: auto; }
+.bSub-block { background: #fff; border: 1px solid #e8e5df; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+.bSub-head { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.bSub-head h3 { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #1a1a1a; }
+.bSub-head span { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #e8352a; letter-spacing: .08em; text-transform: uppercase; }
+.bLabel { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #e8352a; padding: 14px 16px 4px; display: flex; align-items: center; gap: 6px; }
+.bLabel::before { content: '–'; }
+.bDef { padding: 10px 16px 14px; font-size: 12.5px; color: #444; line-height: 1.8; }
+.bDef strong { color: #1a1a1a; font-weight: 700; }
+.bDef code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bNote { background: #fff8f0; border-left: 3px solid #e8352a; margin: 0 16px 14px; padding: 10px 12px; font-size: 12px; color: #444; line-height: 1.75; border-radius: 0 6px 6px 0; }
+.bNote strong { color: #1a1a1a; font-weight: 700; }
+.bNote code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bSvg { margin: 0 16px 16px; background: #faf5ee; border: 1px solid #e8e5df; border-radius: 8px; padding: 16px; overflow-x: auto; }
+.bSvg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #bbb; margin-bottom: 8px; }
+.b2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 16px; }
+.b2col-cell h4 { font-family: 'Archivo Black', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #e8352a; margin-bottom: 6px; }
+.b2col-cell ul { padding-left: 16px; }
+.b2col-cell li { margin-bottom: 3px; font-size: 12px; color: #555; }
+.b2col-cell code { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: #f4f0ea; padding: 1px 5px; border-radius: 3px; }
+.bGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: #e8e5df; margin: 0 0 1px; }
+.bCard { background: #fff; padding: 14px 16px; }
+.bCard:hover { background: #faf5ee; }
+.bCard-title { font-family: 'Archivo Black', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #1a1a1a; margin-bottom: 4px; }
+.bCard-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #e8352a; letter-spacing: .08em; margin-bottom: 6px; }
+.bCard-desc { font-size: 11.5px; color: #777; line-height: 1.5; }
+.bPseudo { border: 1px solid #e8e5df; border-radius: 8px; overflow: hidden; background: #fff; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin: 0 16px 16px; }
+.bPseudo .ph { background: #faf5ee; border-bottom: 1px solid #e8e5df; padding: 8px 12px; display: flex; justify-content: space-between; align-items: baseline; }
+.bPseudo .pn { font-family: 'Archivo', sans-serif; font-size: 12px; font-weight: 700; color: #1a1a1a; }
+.bPseudo .ps { font-size: 9px; color: #bbb; }
+.bPseudo .pb { padding: 6px 0 10px; }
+.bPseudo .lr { display: grid; grid-template-columns: 28px 1fr; padding-right: 12px; line-height: 2; }
+.bPseudo .ln { font-size: 10px; text-align: right; padding-right: 8px; color: #ddd; user-select: none; }
+.bPseudo .cd { padding-left: 10px; color: #333; }
+.bPseudo .kw { color: #e8352a; font-weight: 700; }
+.bPseudo .cm { font-size: 10px; color: #ccc; font-style: italic; }
+.bPseudo .cm::before { content: '# '; }
+.bPseudo .i1 { padding-left: 1.5em; border-left: 2px solid #f0ede8; margin-left: .4em; }
+.bPseudo .i2 { padding-left: 2.9em; border-left: 2px solid #f0ede8; margin-left: 2em; }
+</style>
+</head>
+<body>
+
+<div class="picker">
+  <button class="pick-btn active a-on" onclick="sw('A',this)">A · Ink &amp; Paper</button>
+  <button class="pick-btn" onclick="sw('B',this)">B · Editorial Light</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE A — INK & PAPER
+════════════════════════════════════════════════════════ -->
+<div id="dA" class="demo active">
+  <div class="aH">
+    <div class="aH-brand">TOC REF <span>TURING MACHINES · DECIDABILITY · UNDECIDABILITY · SPRING 2026</span></div>
+    <nav class="aH-nav">
+      <a href="#">TM Model</a>
+      <a href="#">Variants</a>
+      <a href="#">Classes</a>
+      <a href="#">Decidable</a>
+      <a href="#">Undecidable</a>
+      <a href="#">Reductions</a>
+    </nav>
+  </div>
+  <div class="aW">
+
+    <!-- ══ §01 TURING MACHINE MODEL ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">01</div>
+        <div class="aS-meta">
+          <h2>The Turing Machine</h2>
+          <p>7-TUPLE · INFINITE TAPE · READ/WRITE HEAD · CONFIGURATIONS</p>
+        </div>
+        <div class="aS-tag">model</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Definition — 7-tuple</span>
+          <span>(Q, Σ, Γ, δ, q₀, q_accept, q_reject)</span>
+        </div>
+        <div class="aDef">
+          A Turing Machine is a 7-tuple <strong>(Q, Σ, Γ, δ, q₀, q_accept, q_reject)</strong>:<br><br>
+          <strong>Q</strong> — finite set of states &nbsp;·&nbsp; <strong>Σ</strong> — input alphabet (⊔ ∉ Σ) &nbsp;·&nbsp; <strong>Γ</strong> — tape alphabet (Σ ⊂ Γ, ⊔ ∈ Γ)<br>
+          <strong>δ: Q × Γ → Q × Γ × {L, R}</strong> — transition: read symbol, write symbol, move head<br>
+          <strong>q₀</strong> — start state &nbsp;·&nbsp; <strong>q_accept</strong> — accept state &nbsp;·&nbsp; <strong>q_reject</strong> — reject state
+        </div>
+        <div class="aLabel">Tape alphabet</div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">SYM</th><th class="plain">PLAIN ENGLISH</th><th class="name">NAME</th><th class="desc">MEANING</th></tr>
+            <tr><td class="sym">Σ</td><td class="plain">input symbols</td><td class="name">Input alphabet</td><td class="desc">Symbols on the input tape. ⊔ ∉ Σ.</td></tr>
+            <tr><td class="sym">Γ</td><td class="plain">tape symbols</td><td class="name">Tape alphabet</td><td class="desc">Everything the TM can write. Σ ⊂ Γ, ⊔ ∈ Γ.</td></tr>
+            <tr><td class="sym">⊔</td><td class="plain">blank</td><td class="name">Blank symbol</td><td class="desc">Fills all tape cells beyond the input. ⊔ ∈ Γ \ Σ.</td></tr>
+            <tr><td class="sym">L, R</td><td class="plain">move direction</td><td class="name">Head movement</td><td class="desc">Each transition specifies which way the head moves next.</td></tr>
+          </table>
+        </div>
+        <div class="aLabel">DFA vs. TM — key differences</div>
+        <div class="a2col">
+          <div class="a2col-cell">
+            <h4>DFA / NFA</h4>
+            <ul>
+              <li>Read-only, strictly left-to-right</li>
+              <li>Halts when input runs out</li>
+              <li>No scratch space</li>
+              <li>Always halts</li>
+            </ul>
+          </div>
+          <div class="a2col-cell">
+            <h4>Turing Machine</h4>
+            <ul>
+              <li>Read <em>and write</em> on tape</li>
+              <li>Head moves freely left or right</li>
+              <li>Tape is infinite (⊔ beyond input)</li>
+              <li>May loop — not guaranteed to halt</li>
+            </ul>
+          </div>
+        </div>
+        <div class="aNote"><strong>Church-Turing Thesis:</strong> Every effectively computable function can be computed by a Turing Machine. TMs are the formal definition of what an "algorithm" is.</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Tape &amp; Head — visual model</span>
+          <span>one read/write head · infinite blank tape · current state</span>
+        </div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Basic TM tape — head reading "1" at position 4 · machine in state q₃</div>
+          <svg viewBox="0 0 620 128" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;font-family:'Archivo',sans-serif">
+            <rect x="10"  y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="62"  y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="114" y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="166" y="34" width="52" height="52" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <rect x="218" y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="270" y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="322" y="38" width="52" height="44" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="374" y="38" width="52" height="44" fill="#f2ede4" stroke="#888" stroke-width="1" stroke-dasharray="4,2"/>
+            <rect x="426" y="38" width="52" height="44" fill="#f2ede4" stroke="#888" stroke-width="1" stroke-dasharray="4,2"/>
+            <text x="36"  y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="88"  y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">1</text>
+            <text x="140" y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="192" y="65" text-anchor="middle" font-size="20" font-family="JetBrains Mono,monospace" fill="#111" font-weight="700">1</text>
+            <text x="244" y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">1</text>
+            <text x="296" y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="348" y="65" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="400" y="65" text-anchor="middle" font-size="15" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <text x="452" y="65" text-anchor="middle" font-size="15" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <text x="490" y="62" font-size="14" fill="#ccc" font-family="JetBrains Mono,monospace">…</text>
+            <polygon points="192,110 180,126 204,126" fill="#e8352a"/>
+            <text x="10" y="62" font-size="14" fill="#ccc" font-family="JetBrains Mono,monospace">…</text>
+            <rect x="530" y="42" width="80" height="36" rx="3" fill="#111"/>
+            <text x="570" y="55" text-anchor="middle" font-size="8" fill="rgba(245,245,0,.5)" font-family="JetBrains Mono,monospace" letter-spacing="1">STATE</text>
+            <text x="570" y="71" text-anchor="middle" font-size="15" fill="#f5f500" font-family="Archivo Black,sans-serif">q₃</text>
+            <line x1="192" y1="108" x2="192" y2="90" stroke="#e8352a" stroke-width="1.5" stroke-dasharray="3,2"/>
+          </svg>
+        </div>
+        <div class="aNote"><strong>One step:</strong> δ(q, a) = (r, b, L/R) means — in state q reading symbol a: write b, move head left or right, enter state r.</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Configurations &amp; Three Outcomes</span>
+          <span>uqv notation · accept · reject · loop</span>
+        </div>
+        <div class="aDef">
+          A <strong>configuration</strong> is written <code>uqv</code> where u = tape left of head, q = current state, v = tape from head right. The TM starts in <code>q₀w</code>. Configuration C₁ <strong>yields</strong> C₂ if one step takes C₁ to C₂.
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">OUTCOME</th><th class="plain">PLAIN ENGLISH</th><th class="name">WHAT HAPPENS</th><th class="desc">MEANING</th></tr>
+            <tr><td class="sym" style="font-size:11px">accept</td><td class="plain">yes — in language</td><td class="name">Enters q_accept and halts</td><td class="desc">w ∈ L(M). Machine halts in an accepting configuration.</td></tr>
+            <tr><td class="sym" style="font-size:11px">reject</td><td class="plain">no — not in language</td><td class="name">Enters q_reject and halts</td><td class="desc">w ∉ L(M). Machine halts in a rejecting configuration.</td></tr>
+            <tr><td class="sym" style="font-size:11px">loop</td><td class="plain">runs forever</td><td class="name">Never halts</td><td class="desc">Neither accepts nor rejects. This is the dangerous case.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div><!-- §01 -->
+
+
+    <!-- ══ §02 VARIANTS OF TURING MACHINES ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">02</div>
+        <div class="aS-meta">
+          <h2>Variants &amp; Combining Turing Machines</h2>
+          <p>MULTI-TAPE · NONDETERMINISTIC · ENUMERATORS · ALL EQUIVALENT</p>
+        </div>
+        <div class="aS-tag">variants</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Multitape Turing Machine</span>
+          <span>k tapes · k heads · equivalent to standard TM</span>
+        </div>
+        <div class="aDef">
+          A <strong>multitape TM</strong> has k tapes each with its own independent read/write head. The transition function becomes <strong>δ: Q × Γᵏ → Q × Γᵏ × {L,R}ᵏ</strong> — it reads one symbol from each tape, writes one symbol to each tape, and moves each head independently.
+        </div>
+        <div class="aLabel">Tape diagram — 3-tape TM</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Each tape has its own head · all heads move independently each step</div>
+          <svg viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;font-family:'Archivo',sans-serif">
+            <!-- Tape 1 (input) -->
+            <text x="12" y="28" font-size="9" font-family="Archivo Black,sans-serif" fill="#888" letter-spacing="1">TAPE 1 (INPUT)</text>
+            <rect x="60"  y="34" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="100" y="34" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="140" y="30" width="40" height="40" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <rect x="180" y="34" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="220" y="34" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="260" y="34" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <text x="80"  y="55" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="120" y="55" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#888">1</text>
+            <text x="160" y="55" text-anchor="middle" font-size="15" font-family="JetBrains Mono,monospace" fill="#111" font-weight="700">1</text>
+            <text x="200" y="55" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#888">0</text>
+            <text x="240" y="55" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#888">1</text>
+            <text x="280" y="55" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <polygon points="160,80 153,92 167,92" fill="#e8352a"/>
+            <!-- Tape 2 (work) -->
+            <text x="12" y="118" font-size="9" font-family="Archivo Black,sans-serif" fill="#888" letter-spacing="1">TAPE 2 (WORK)</text>
+            <rect x="60"  y="124" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="100" y="120" width="40" height="40" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <rect x="140" y="124" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="180" y="124" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="220" y="124" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <rect x="260" y="124" width="40" height="32" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <text x="80"  y="145" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#888">X</text>
+            <text x="120" y="145" text-anchor="middle" font-size="15" font-family="JetBrains Mono,monospace" fill="#111" font-weight="700">X</text>
+            <text x="160" y="145" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <text x="200" y="145" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <text x="240" y="145" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <text x="280" y="145" text-anchor="middle" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbb">⊔</text>
+            <polygon points="120,170 113,182 127,182" fill="#e8352a"/>
+            <!-- state box -->
+            <rect x="400" y="90" width="80" height="36" rx="3" fill="#111"/>
+            <text x="440" y="103" text-anchor="middle" font-size="8" fill="rgba(245,245,0,.5)" font-family="JetBrains Mono,monospace">STATE</text>
+            <text x="440" y="119" text-anchor="middle" font-size="15" fill="#f5f500" font-family="Archivo Black,sans-serif">q₅</text>
+            <!-- connecting lines to state -->
+            <line x1="300" y1="50" x2="398" y2="100" stroke="#ddd" stroke-width="1" stroke-dasharray="4,2"/>
+            <line x1="300" y1="140" x2="398" y2="112" stroke="#ddd" stroke-width="1" stroke-dasharray="4,2"/>
+          </svg>
+        </div>
+        <div class="aDef">
+          <strong>Equivalence theorem:</strong> Every multitape TM has an equivalent single-tape TM.<br><br>
+          <strong>Proof sketch:</strong> Simulate all k tapes on one tape by interleaving their contents separated by a delimiter #. Use a special "dotted" symbol to track each virtual head position. The single-tape TM makes multiple passes to simulate one multitape step. Time overhead is at most O(t²) for a t-step simulation.
+        </div>
+        <div class="aNote"><strong>Why it matters:</strong> Multitape TMs are much easier to program (use tape 2 as a counter, tape 3 as a stack, etc.), but they don't add computational power. Any algorithm describable with multiple tapes can be done with one.</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Nondeterministic Turing Machine (NTM)</span>
+          <span>branching computation · accept if ANY branch accepts</span>
+        </div>
+        <div class="aDef">
+          A <strong>nondeterministic TM</strong> has transition function <strong>δ: Q × Γ → 𝒫(Q × Γ × {L,R})</strong> — at each step, multiple transitions may apply. The NTM accepts if <em>any</em> branch of the computation tree accepts. Think of it as exploring all branches in parallel.
+        </div>
+        <div class="aLabel">Computation tree — NTM branching</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">NTM explores all branches simultaneously · accepts if any path reaches q_accept</div>
+          <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <defs><marker id="tArw" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#888"/></marker>
+            <marker id="tArwG" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#111"/></marker></defs>
+            <!-- root -->
+            <circle cx="260" cy="24" r="18" fill="#fffde6" stroke="#111" stroke-width="2"/>
+            <text x="260" y="29" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₀</text>
+            <!-- level 1 -->
+            <line x1="246" y1="40" x2="160" y2="72" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <line x1="260" y1="42" x2="260" y2="72" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <line x1="274" y1="40" x2="360" y2="72" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <circle cx="160" cy="90" r="18" fill="#ede8dc" stroke="#111" stroke-width="2"/>
+            <text x="160" y="95" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₂</text>
+            <circle cx="260" cy="90" r="18" fill="#ede8dc" stroke="#111" stroke-width="2"/>
+            <text x="260" y="95" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₁</text>
+            <circle cx="360" cy="90" r="18" fill="#ede8dc" stroke="#111" stroke-width="2"/>
+            <text x="360" y="95" text-anchor="middle" font-size="10" font-family="Archivo Black,sans-serif" fill="#111">q₃</text>
+            <!-- level 2 from q2 -->
+            <line x1="148" y1="106" x2="100" y2="138" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <line x1="172" y1="106" x2="196" y2="138" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <!-- level 2 from q1 -->
+            <line x1="260" y1="108" x2="260" y2="138" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <!-- level 2 from q3 -->
+            <line x1="348" y1="106" x2="324" y2="138" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <line x1="372" y1="106" x2="420" y2="138" stroke="#888" stroke-width="1.5" marker-end="url(#tArw)"/>
+            <!-- level 2 nodes -->
+            <circle cx="100" cy="156" r="18" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="100" y="161" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <circle cx="200" cy="156" r="18" fill="#fffde6" stroke="#111" stroke-width="2.5"/>
+            <circle cx="200" cy="156" r="13" fill="none" stroke="#111" stroke-width="1.5"/>
+            <text x="200" y="161" text-anchor="middle" font-size="9" fill="#111" font-family="JetBrains Mono,monospace">acc</text>
+            <circle cx="260" cy="156" r="18" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="260" y="161" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <circle cx="324" cy="156" r="18" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="324" y="161" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <circle cx="420" cy="156" r="18" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="420" y="161" text-anchor="middle" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <!-- accept highlight -->
+            <text x="200" y="192" text-anchor="middle" font-size="9" fill="#111" font-family="Archivo Black,sans-serif">ONE ACCEPT → TM ACCEPTS</text>
+          </svg>
+        </div>
+        <div class="aDef">
+          <strong>Equivalence theorem:</strong> Every NTM has an equivalent deterministic TM.<br><br>
+          <strong>Proof sketch:</strong> Simulate the NTM's computation tree using BFS on a 3-tape DTM: tape 1 = input, tape 2 = current node address (sequence of branch choices), tape 3 = simulation scratch. For each address, follow that branch path from the root. Accept if any simulated branch accepts. Reject only if all branches reject or loop (BFS ensures we find accepting branches if they exist).
+        </div>
+        <div class="aNote"><strong>Key insight:</strong> Nondeterminism does not add computational <em>power</em> to TMs (unlike for finite automata where NFA = DFA). An NTM may be exponentially faster, but it cannot decide languages that a DTM cannot — same class.</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Enumerators</span>
+          <span>prints strings · generates a language · equivalent to recognizer</span>
+        </div>
+        <div class="aDef">
+          An <strong>enumerator</strong> is a TM with an attached printer. It runs forever, occasionally printing strings. The language of an enumerator E is the set of all strings it eventually prints. No input — it generates rather than decides.
+        </div>
+        <div class="aDef">
+          <strong>Equivalence theorem:</strong> A language is Turing-recognizable ↔ some enumerator enumerates it.<br><br>
+          <strong>(→) If TM M recognizes L:</strong> Enumerate all strings s₁, s₂, s₃, … in lexicographic order. For each i, run M on s₁, s₂, …, sᵢ for i steps each. Print any that accept. This ensures every accepted string is eventually printed.<br><br>
+          <strong>(←) If enumerator E enumerates L:</strong> On input w, run E; accept if w is ever printed.
+        </div>
+        <div class="aNote"><strong>Why the naive approach fails:</strong> You can't run M on s₁ to completion before moving to s₂ — M might loop on s₁ forever. The dovetailing trick (run all strings for i steps in round i) avoids this.</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>All Variants Are Equivalent — Summary</span>
+          <span>same computational power · different convenience</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">VARIANT</th><th class="plain">KEY FEATURE</th><th class="name">EQUIVALENT TO STD TM?</th><th class="desc">HOW TO SIMULATE</th></tr>
+            <tr><td class="sym" style="font-size:11px">Multitape</td><td class="plain">k tapes, k heads</td><td class="name">✓ yes</td><td class="desc">Interleave tapes on one tape with # separators. O(t²) overhead.</td></tr>
+            <tr><td class="sym" style="font-size:11px">NTM</td><td class="plain">branching transitions</td><td class="name">✓ yes</td><td class="desc">BFS over computation tree on 3-tape DTM.</td></tr>
+            <tr><td class="sym" style="font-size:11px">Enumerator</td><td class="plain">prints strings</td><td class="name">✓ yes</td><td class="desc">Dovetail: run all strings i steps per round.</td></tr>
+            <tr><td class="sym" style="font-size:11px">2-stack PDA</td><td class="plain">two stack tapes</td><td class="name">✓ yes</td><td class="desc">One stack = left of head, one = right.</td></tr>
+          </table>
+        </div>
+        <div class="aNote"><strong>Bottom line:</strong> All reasonable variations on the TM model compute the same set of functions. This robustness is part of why the Church-Turing Thesis is so compelling — the definition of "computable" doesn't depend on the exact model.</div>
+      </div>
+    </div><!-- §02 -->
+
+
+    <!-- ══ §03 LANGUAGE CLASSES ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">03</div>
+        <div class="aS-meta">
+          <h2>Language Classes</h2>
+          <p>TURING-RECOGNIZABLE · DECIDABLE · CO-RECOGNIZABLE · HIERARCHY</p>
+        </div>
+        <div class="aS-tag">classes</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Decidable vs. Recognizable</span>
+          <span>decidable ⊊ recognizable ⊊ all languages</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">CLASS</th><th class="plain">PLAIN ENGLISH</th><th class="name">ALSO CALLED</th><th class="desc">DEFINITION</th></tr>
+            <tr><td class="sym" style="font-size:11px">Decidable</td><td class="plain">always answers</td><td class="name">Recursive</td><td class="desc">∃ TM that always halts and accepts iff w ∈ L. Never loops.</td></tr>
+            <tr><td class="sym" style="font-size:11px">Recognizable</td><td class="plain">says yes or goes quiet</td><td class="name">r.e.</td><td class="desc">∃ TM that accepts if w ∈ L. If w ∉ L, may reject OR loop forever.</td></tr>
+            <tr><td class="sym" style="font-size:11px">Co-recog.</td><td class="plain">complement is recognizable</td><td class="name">co-r.e.</td><td class="desc">L is decidable iff both L and L̄ are Turing-recognizable.</td></tr>
+          </table>
+        </div>
+        <div class="aLabel">The language hierarchy</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Strict inclusions — each class is a proper subset of the next</div>
+          <svg viewBox="0 0 520 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;font-family:'Archivo',sans-serif">
+            <rect x="10" y="10" width="500" height="250" rx="6" fill="#f2ede4" stroke="#888" stroke-width="1.5"/>
+            <text x="498" y="28" text-anchor="end" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">ALL LANGUAGES</text>
+            <rect x="36" y="34" width="448" height="200" rx="5" fill="#ede8dc" stroke="#888" stroke-width="1.5"/>
+            <text x="472" y="52" text-anchor="end" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">TURING-RECOGNIZABLE</text>
+            <rect x="70" y="64" width="380" height="152" rx="5" fill="#fffef0" stroke="#aaa" stroke-width="1.5"/>
+            <text x="438" y="82" text-anchor="end" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">DECIDABLE</text>
+            <rect x="108" y="96" width="304" height="106" rx="5" fill="#fffde6" stroke="#aaa" stroke-width="1.5"/>
+            <text x="400" y="113" text-anchor="end" font-size="9" fill="#aaa" font-family="JetBrains Mono,monospace">CONTEXT-FREE</text>
+            <ellipse cx="260" cy="168" rx="100" ry="26" fill="rgba(245,245,0,.35)" stroke="#111" stroke-width="2"/>
+            <text x="260" y="173" text-anchor="middle" font-size="12" font-family="Archivo Black,sans-serif" fill="#111">REGULAR</text>
+            <!-- example labels -->
+            <text x="22" y="248" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">e.g. Ā_TM (not even recognizable)</text>
+            <text x="46" y="224" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">e.g. A_TM (recognizable, not decidable)</text>
+            <text x="80" y="200" font-size="9" fill="#888" font-family="JetBrains Mono,monospace">e.g. A_DFA, A_CFG, HALT</text>
+          </svg>
+        </div>
+        <div class="aNote"><strong>Key fact:</strong> L is decidable ↔ both L and L̄ are Turing-recognizable. A_TM is recognizable but not decidable. Ā_TM is not even recognizable.</div>
+      </div>
+    </div><!-- §03 -->
+
+
+    <!-- ══ §04 DECIDABLE LANGUAGES ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">04</div>
+        <div class="aS-meta">
+          <h2>Decidable Languages</h2>
+          <p>A_DFA · E_DFA · EQ_DFA · A_CFG · E_CFG · PROOF PATTERNS</p>
+        </div>
+        <div class="aS-tag">decidable</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Decidable problems — regular languages</span>
+          <span>simulate / convert / BFS — all decidable</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">PROBLEM</th><th class="plain">PLAIN ENGLISH</th><th class="name">PROOF IDEA</th><th class="desc">NOTES</th></tr>
+            <tr><td class="sym" style="font-size:11px">A_DFA</td><td class="plain">does DFA accept w?</td><td class="name">Simulate DFA on w</td><td class="desc">Run B on w; accept iff B ends in F. Always halts.</td></tr>
+            <tr><td class="sym" style="font-size:11px">A_NFA</td><td class="plain">does NFA accept w?</td><td class="name">Convert NFA → DFA, simulate</td><td class="desc">Subset construction gives DFA; apply A_DFA decider.</td></tr>
+            <tr><td class="sym" style="font-size:11px">A_REX</td><td class="plain">does regex R match w?</td><td class="name">Regex → NFA → DFA</td><td class="desc">Thompson's construction then A_NFA.</td></tr>
+            <tr><td class="sym" style="font-size:11px">E_DFA</td><td class="plain">is L(DFA) empty?</td><td class="name">BFS/DFS from start state</td><td class="desc">Empty iff no accept state is reachable from q₀.</td></tr>
+            <tr><td class="sym" style="font-size:11px">EQ_DFA</td><td class="plain">same language?</td><td class="name">Symmetric diff + E_DFA</td><td class="desc">L(A)=L(B) iff (L(A)△L(B)) = ∅. Closure then E_DFA.</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Decidable problems — context-free languages</span>
+          <span>CNF · marking algorithm</span>
+        </div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">PROBLEM</th><th class="plain">PLAIN ENGLISH</th><th class="name">PROOF IDEA</th><th class="desc">NOTES</th></tr>
+            <tr><td class="sym" style="font-size:11px">A_CFG</td><td class="plain">does G generate w?</td><td class="name">Convert to CNF; bounded search</td><td class="desc">In CNF, any derivation of |w|=n takes exactly 2n−1 steps. Finite.</td></tr>
+            <tr><td class="sym" style="font-size:11px">E_CFG</td><td class="plain">is L(G) empty?</td><td class="name">Mark variables → terminals</td><td class="desc">Iteratively mark variables that derive terminal strings. S marked ↔ non-empty.</td></tr>
+            <tr><td class="sym" style="font-size:11px">Every CFL</td><td class="plain">is every CFL decidable?</td><td class="name">A_CFG gives a decider</td><td class="desc">Yes. But EQ_CFG is undecidable.</td></tr>
+          </table>
+        </div>
+        <div class="aNote"><strong>Proof pattern:</strong> to show a language is decidable, construct a TM that always halts. Simulation (run the simpler model) and conversion (reduce to a model you can decide) are the two main tools.</div>
+      </div>
+    </div><!-- §04 -->
+
+
+    <!-- ══ §05 UNDECIDABILITY ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">05</div>
+        <div class="aS-meta">
+          <h2>Undecidability &amp; The Halting Problem</h2>
+          <p>A_TM · DIAGONALIZATION · HALT_TM · PROOF BY CONTRADICTION</p>
+        </div>
+        <div class="aS-tag">undecidable</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>A_TM is Undecidable</span>
+          <span>recognizable but not decidable · diagonalization</span>
+        </div>
+        <div class="aDef">
+          <strong>A_TM = {⟨M, w⟩ | M is a TM and M accepts w}</strong><br><br>
+          A_TM is <strong>Turing-recognizable</strong>: the Universal TM U simulates M on w and accepts if M accepts. But A_TM is <strong>not decidable</strong> — no TM can always halt and correctly decide. Proof is by diagonalization.
+        </div>
+        <div class="aLabel">Diagonalization proof</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">A_TM is undecidable</span><span class="ps">proof by contradiction · assume H decides A_TM</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume for contradiction: TM H decides A_TM.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Construct TM D: on input ⟨M⟩ (the encoding of any TM M):</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd i1">Run H on ⟨M, ⟨M⟩⟩ <span class="cm">▷ ask "does M accept its own description?"</span></span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1"><span class="kw">if</span> H accepts → D <strong>rejects</strong> &nbsp; <span class="kw">if</span> H rejects → D <strong>accepts</strong> <span class="cm">▷ do opposite</span></span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd">Now ask: what does D do on input ⟨D⟩?</span></div>
+            <div class="lr"><span class="ln">6</span><span class="cd i1">D accepts ⟨D⟩ ↔ H says D rejects ⟨D⟩ ↔ D does not accept ⟨D⟩</span></div>
+            <div class="lr"><span class="ln">7</span><span class="cd i1">D rejects ⟨D⟩ ↔ H says D accepts ⟨D⟩ ↔ D accepts ⟨D⟩</span></div>
+            <div class="lr"><span class="ln">8</span><span class="cd">Both cases give contradictions → H cannot exist → A_TM is undecidable. □</span></div>
+          </div>
+        </div>
+        <div class="aLabel">Diagonalization — visual</div>
+        <div class="aSvg">
+          <div class="aSvg-lbl">Cell (i,j) = "does Mᵢ accept ⟨Mⱼ⟩?" · D inverts the diagonal → differs from every Mᵢ</div>
+          <svg viewBox="0 0 500 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;font-family:'Archivo',sans-serif">
+            <text x="105" y="20" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">⟨M₁⟩</text>
+            <text x="185" y="20" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">⟨M₂⟩</text>
+            <text x="265" y="20" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">⟨M₃⟩</text>
+            <text x="345" y="20" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">⟨M₄⟩</text>
+            <text x="44" y="54" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">M₁</text>
+            <text x="44" y="94" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">M₂</text>
+            <text x="44" y="134" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">M₃</text>
+            <text x="44" y="174" text-anchor="middle" font-size="10" fill="#888" font-family="JetBrains Mono,monospace">M₄</text>
+            <!-- rows -->
+            <rect x="65" y="30" width="80" height="36" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/><text x="105" y="53" text-anchor="middle" font-size="11" fill="#e8352a" font-weight="700" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="145" y="30" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="185" y="53" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="225" y="30" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="265" y="53" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="305" y="30" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="345" y="53" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="65" y="70" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="105" y="93" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="145" y="70" width="80" height="36" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/><text x="185" y="93" text-anchor="middle" font-size="11" fill="#e8352a" font-weight="700" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="225" y="70" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="265" y="93" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="305" y="70" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="345" y="93" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="65" y="110" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="105" y="133" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="145" y="110" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="185" y="133" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="225" y="110" width="80" height="36" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/><text x="265" y="133" text-anchor="middle" font-size="11" fill="#e8352a" font-weight="700" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="305" y="110" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="345" y="133" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="65" y="150" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="105" y="173" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="145" y="150" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="185" y="173" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="225" y="150" width="80" height="36" fill="#ede8dc" stroke="#ddd"/><text x="265" y="173" text-anchor="middle" font-size="11" fill="#888" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="305" y="150" width="80" height="36" fill="#fffde6" stroke="#e8352a" stroke-width="2.5"/><text x="345" y="173" text-anchor="middle" font-size="11" fill="#e8352a" font-weight="700" font-family="JetBrains Mono,monospace">acc</text>
+            <!-- D row -->
+            <text x="44" y="214" text-anchor="middle" font-size="11" fill="#e8352a" font-family="Archivo Black,sans-serif">D</text>
+            <rect x="65" y="192" width="80" height="36" fill="#fff0f0" stroke="#e8352a" stroke-width="2"/><text x="105" y="215" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="145" y="192" width="80" height="36" fill="#fff0f0" stroke="#e8352a" stroke-width="2"/><text x="185" y="215" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">acc</text>
+            <rect x="225" y="192" width="80" height="36" fill="#fff0f0" stroke="#e8352a" stroke-width="2"/><text x="265" y="215" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">rej</text>
+            <rect x="305" y="192" width="80" height="36" fill="#fff0f0" stroke="#e8352a" stroke-width="2"/><text x="345" y="215" text-anchor="middle" font-size="11" fill="#e8352a" font-family="JetBrains Mono,monospace">rej</text>
+            <!-- diagonal -->
+            <line x1="65" y1="30" x2="385" y2="186" stroke="#e8352a" stroke-width="2" stroke-dasharray="6,3" opacity=".5"/>
+            <text x="400" y="120" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">diagonal</text>
+          </svg>
+        </div>
+        <div class="aNote"><strong>HALT_TM</strong> = {⟨M,w⟩ | M halts on w} is also undecidable. If HALT_TM were decidable by R: first run R on ⟨M,w⟩ — if M loops, reject. If M halts, simulate. This decides A_TM — contradiction.</div>
+      </div>
+    </div><!-- §05 -->
+
+
+    <!-- ══ §06 REDUCTIONS ══ -->
+    <div class="aS">
+      <div class="aS-head">
+        <div class="aS-num">06</div>
+        <div class="aS-meta">
+          <h2>Reductions</h2>
+          <p>MAPPING REDUCIBILITY · A ≤ₘ B · RICE'S THEOREM</p>
+        </div>
+        <div class="aS-tag">reductions</div>
+      </div>
+
+      <div class="aSub-block">
+        <div class="aSub-head">
+          <span>Mapping Reducibility</span>
+          <span>A ≤ₘ B via computable f · hardness flows upward</span>
+        </div>
+        <div class="aDef">
+          Language A is <strong>mapping reducible</strong> to B, written <strong>A ≤ₘ B</strong>, if there exists a computable function f: Σ* → Σ* such that for every w:<br><br>
+          <strong>w ∈ A &nbsp;↔&nbsp; f(w) ∈ B</strong><br><br>
+          If A ≤ₘ B and B is decidable, then A is decidable. Contrapositive: if A ≤ₘ B and A is undecidable, then B is undecidable.
+        </div>
+        <div class="aLabel">Reduction proof template</div>
+        <div class="aPseudo">
+          <div class="ph"><span class="pn">Prove A is undecidable via B ≤ₘ A</span><span class="ps">B already known undecidable</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume for contradiction: TM M_A decides A.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd">Construct decider M_B for B: on input w:</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd i1">Compute f(w) <span class="cm">▷ the computable reduction function</span></span></div>
+            <div class="lr"><span class="ln">4</span><span class="cd i1">Run M_A on f(w) and output its answer</span></div>
+            <div class="lr"><span class="ln">5</span><span class="cd">M_B decides B. But B is undecidable → contradiction → A is undecidable. □</span></div>
+          </div>
+        </div>
+        <div class="aLabel">Common undecidable languages (all reduce from A_TM)</div>
+        <div class="aT-wrap">
+          <table class="aT">
+            <tr><th class="sym">LANGUAGE</th><th class="plain">PLAIN ENGLISH</th><th class="name">REDUCTION</th><th class="desc">NOTES</th></tr>
+            <tr><td class="sym" style="font-size:11px">HALT_TM</td><td class="plain">does M halt on w?</td><td class="name">A_TM ≤ₘ HALT_TM</td><td class="desc">Deciding halting implies deciding acceptance.</td></tr>
+            <tr><td class="sym" style="font-size:11px">E_TM</td><td class="plain">is L(M) empty?</td><td class="name">A_TM ≤ₘ E_TM</td><td class="desc">Build M′ accepting only w; if E_TM says empty, M rejected w.</td></tr>
+            <tr><td class="sym" style="font-size:11px">EQ_TM</td><td class="plain">same language?</td><td class="name">E_TM ≤ₘ EQ_TM</td><td class="desc">Not recognizable in either direction.</td></tr>
+            <tr><td class="sym" style="font-size:11px">REGULAR_TM</td><td class="plain">is L(M) regular?</td><td class="name">A_TM ≤ₘ REGULAR_TM</td><td class="desc">Special case of Rice's Theorem.</td></tr>
+          </table>
+        </div>
+        <div class="aNote"><strong>Rice's Theorem:</strong> Every non-trivial property of the language of a TM is undecidable. Non-trivial means the property holds for some TMs and fails for others. This covers virtually every interesting question about what a TM <em>computes</em>: emptiness, regularity, finiteness, containment, etc.</div>
+      </div>
+    </div><!-- §06 -->
+
+  </div><!-- .aW -->
+</div><!-- #dA -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     STYLE B — EDITORIAL LIGHT
+════════════════════════════════════════════════════════ -->
+<div id="dB" class="demo">
+  <div class="bH">
+    <div class="bH-brand">Theory of Computation</div>
+    <nav class="bH-nav">
+      <a href="#">TM Model</a>
+      <a href="#">Variants</a>
+      <a href="#">Classes</a>
+      <a href="#">Decidable</a>
+      <a href="#">Undecidable</a>
+      <a href="#">Reductions</a>
+    </nav>
+  </div>
+  <div class="bW">
+
+    <!-- §01 TM Model -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">01</span><h2>The Turing Machine</h2><span>7-tuple · tape · head · configurations</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Definition — 7-tuple</h3><span>(Q, Σ, Γ, δ, q₀, q_accept, q_reject)</span></div>
+        <div class="bDef">A TM is a <strong>7-tuple (Q, Σ, Γ, δ, q₀, q_accept, q_reject)</strong>. Key upgrade over DFA: <strong>δ: Q × Γ → Q × Γ × {L, R}</strong> — each step reads a tape symbol, writes a new one, moves the head left or right. The tape is infinite (blanks ⊔ beyond input). TM may accept, reject, or loop forever.</div>
+        <div class="bLabel">Tape model</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">Read/write head · infinite blank tape · current state tracked separately</div>
+          <svg viewBox="0 0 580 118" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;font-family:'Archivo',sans-serif">
+            <rect x="10"  y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="62"  y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="114" y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="166" y="30" width="52" height="52" fill="#fff8f0" stroke="#e8352a" stroke-width="2" rx="2"/>
+            <rect x="218" y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="270" y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="322" y="34" width="52" height="44" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="374" y="34" width="52" height="44" fill="#faf5ee" stroke="#e8e5df" stroke-width="1" stroke-dasharray="4,2" rx="2"/>
+            <rect x="426" y="34" width="52" height="44" fill="#faf5ee" stroke="#e8e5df" stroke-width="1" stroke-dasharray="4,2" rx="2"/>
+            <text x="36"  y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">0</text>
+            <text x="88"  y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">1</text>
+            <text x="140" y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">0</text>
+            <text x="192" y="61" text-anchor="middle" font-size="18" font-family="JetBrains Mono,monospace" fill="#e8352a" font-weight="700">1</text>
+            <text x="244" y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">1</text>
+            <text x="296" y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">0</text>
+            <text x="348" y="61" text-anchor="middle" font-size="16" font-family="JetBrains Mono,monospace" fill="#ccc">0</text>
+            <text x="400" y="61" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#ddd">⊔</text>
+            <text x="452" y="61" text-anchor="middle" font-size="13" font-family="JetBrains Mono,monospace" fill="#ddd">⊔</text>
+            <text x="490" y="57" font-size="14" fill="#ddd" font-family="JetBrains Mono,monospace">…</text>
+            <polygon points="192,100 182,114 202,114" fill="#e8352a"/>
+            <rect x="510" y="36" width="60" height="36" rx="4" fill="#faf5ee" stroke="#e8e5df" stroke-width="1.5"/>
+            <text x="540" y="49" text-anchor="middle" font-size="8" fill="#bbb" font-family="JetBrains Mono,monospace">STATE</text>
+            <text x="540" y="64" text-anchor="middle" font-size="14" fill="#1a1a1a" font-family="Archivo Black,sans-serif">q₃</text>
+            <text x="8" y="57" font-size="14" fill="#ddd" font-family="JetBrains Mono,monospace">…</text>
+          </svg>
+        </div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>Three outcomes</h4>
+            <ul>
+              <li><strong>Accept</strong> — enters q_accept, halts</li>
+              <li><strong>Reject</strong> — enters q_reject, halts</li>
+              <li><strong>Loop</strong> — never halts</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Configuration = uqv</h4>
+            <ul>
+              <li>u = tape left of head</li>
+              <li>q = current state</li>
+              <li>v = tape from head right</li>
+              <li>Start: <code>q₀w</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="bNote"><strong>Church-Turing Thesis:</strong> Every effectively computable function can be computed by a TM. TMs formally define "algorithm".</div>
+      </div>
+    </div><!-- §01 B -->
+
+    <!-- §02 Variants -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">02</span><h2>Variants &amp; Combining Turing Machines</h2><span>Multi-tape · NTM · Enumerators · All equivalent</span></div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Multitape TM</h3><span>k tapes · k independent heads · equivalent to 1-tape</span></div>
+        <div class="bDef">Has k tapes each with its own head. <strong>δ: Q × Γᵏ → Q × Γᵏ × {L,R}ᵏ</strong> — reads from all tapes, writes to all, moves each head. Far easier to program (use tape 2 as a counter, tape 3 as scratch), but no extra computational power.</div>
+        <div class="bLabel">Simulation — multitape → single tape</div>
+        <div class="bSvg">
+          <div class="bSvg-lbl">Interleave k tapes on one tape separated by # · dotted symbols track virtual head positions</div>
+          <svg viewBox="0 0 560 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;font-family:'Archivo',sans-serif">
+            <!-- single combined tape -->
+            <text x="10" y="20" font-size="9" fill="#bbb" font-family="Archivo Black,sans-serif" letter-spacing="1">SIMULATED ON ONE TAPE:</text>
+            <rect x="10"  y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="46"  y="28" width="36" height="32" fill="#fff8f0" stroke="#e8352a" stroke-width="1.5" rx="2"/>
+            <rect x="82"  y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="118" y="28" width="28" height="32" fill="#faf5ee" stroke="#e8e5df" stroke-width="1" rx="2"/>
+            <rect x="146" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="182" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="218" y="28" width="36" height="32" fill="#fff8f0" stroke="#e8352a" stroke-width="1.5" rx="2"/>
+            <rect x="254" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="290" y="28" width="28" height="32" fill="#faf5ee" stroke="#e8e5df" stroke-width="1" rx="2"/>
+            <rect x="318" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="354" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <rect x="390" y="28" width="36" height="32" fill="#fff8f0" stroke="#e8352a" stroke-width="1.5" rx="2"/>
+            <rect x="426" y="28" width="36" height="32" fill="#fff" stroke="#e8e5df" stroke-width="1.5" rx="2"/>
+            <text x="28"  y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">0</text>
+            <text x="64"  y="49" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace" font-weight="700">1̇</text>
+            <text x="100" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">0</text>
+            <text x="132" y="49" text-anchor="middle" font-size="11" fill="#aaa" font-family="JetBrains Mono,monospace">#</text>
+            <text x="164" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">X</text>
+            <text x="200" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">Y</text>
+            <text x="236" y="49" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace" font-weight="700">Ẋ</text>
+            <text x="272" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">⊔</text>
+            <text x="304" y="49" text-anchor="middle" font-size="11" fill="#aaa" font-family="JetBrains Mono,monospace">#</text>
+            <text x="336" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">a</text>
+            <text x="372" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">b</text>
+            <text x="408" y="49" text-anchor="middle" font-size="12" fill="#e8352a" font-family="JetBrains Mono,monospace" font-weight="700">ȧ</text>
+            <text x="444" y="49" text-anchor="middle" font-size="12" fill="#aaa" font-family="JetBrains Mono,monospace">⊔</text>
+            <!-- legend -->
+            <text x="10" y="80" font-size="9" fill="#e8352a" font-family="JetBrains Mono,monospace">Dotted symbol (ẋ) = virtual head position on that tape segment</text>
+            <text x="10" y="90" font-size="9" fill="#bbb" font-family="JetBrains Mono,monospace">Tape 1 | # | Tape 2 | # | Tape 3 …</text>
+          </svg>
+        </div>
+        <div class="bNote">Simulating a k-tape TM running in time t on a single-tape TM requires O(t²) steps. Overhead is polynomial — decidability is preserved.</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Nondeterministic TM (NTM)</h3><span>branching · accept if any branch accepts · equivalent to DTM</span></div>
+        <div class="bDef"><strong>δ: Q × Γ → 𝒫(Q × Γ × {L,R})</strong> — multiple transitions may fire. NTM accepts if <em>any</em> branch of its computation tree accepts. Equivalent to standard TM — same languages, potentially exponentially faster.</div>
+        <div class="bLabel">Simulation — NTM → DTM via BFS</div>
+        <div class="bDef">Use a 3-tape DTM: tape 1 = original input (never changes), tape 2 = current branch address (sequence of choices at each nondeterministic step), tape 3 = scratch for simulating that branch. Enumerate all addresses in BFS order. Accept if any simulation accepts. The BFS ordering ensures no branch is starved — even if some branches loop, accepting branches will eventually be found.</div>
+        <div class="bNote"><strong>Unlike for DFAs</strong>, nondeterminism doesn't add power to TMs — it only adds speed. NTMs and DTMs recognize exactly the same class of languages.</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Enumerators</h3><span>generates strings · prints rather than decides · equivalent to recognizer</span></div>
+        <div class="bDef">A TM with a printer attached. Runs forever, printing strings on demand. L(E) = all strings it ever prints. No input needed.<br><br>
+        <strong>Equivalence:</strong> L is Turing-recognizable ↔ some enumerator enumerates L.<br><br>
+        <strong>Key trick — dovetailing:</strong> to avoid looping on s₁ forever, run all strings for i steps in round i. Round 1: run M on s₁ for 1 step. Round 2: run M on s₁ and s₂ for 2 steps each. Round i: run M on s₁…sᵢ for i steps each. Print any that accept.</div>
+        <div class="bNote">The dovetailing trick is used throughout computability theory whenever you need to run infinitely many TMs "simultaneously" without looping.</div>
+      </div>
+
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>All Variants Are Equivalent</h3><span>same power · different convenience</span></div>
+        <div class="bGrid">
+          <div class="bCard">
+            <div class="bCard-title">Multitape TM</div>
+            <div class="bCard-tag">≡ standard TM</div>
+            <div class="bCard-desc">Simulate by interleaving tapes with # separators. O(t²) overhead.</div>
+          </div>
+          <div class="bCard">
+            <div class="bCard-title">Nondeterministic TM</div>
+            <div class="bCard-tag">≡ standard TM</div>
+            <div class="bCard-desc">Simulate computation tree via BFS on 3-tape DTM.</div>
+          </div>
+          <div class="bCard">
+            <div class="bCard-title">Enumerator</div>
+            <div class="bCard-tag">≡ recognizer</div>
+            <div class="bCard-desc">L enumerable ↔ L recognizable. Dovetailing key to proof.</div>
+          </div>
+          <div class="bCard">
+            <div class="bCard-title">2-Stack PDA</div>
+            <div class="bCard-tag">≡ standard TM</div>
+            <div class="bCard-desc">One stack = left of head, other = right. Full TM power.</div>
+          </div>
+        </div>
+        <div class="bNote"><strong>Bottom line:</strong> All reasonable models of computation are equivalent. This robustness is the core evidence for the Church-Turing Thesis.</div>
+      </div>
+    </div><!-- §02 B -->
+
+    <!-- §03 Classes -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">03</span><h2>Language Classes</h2><span>Recognizable · Decidable · Hierarchy</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Decidable vs. Recognizable</h3><span>decidable ⊊ recognizable ⊊ all languages</span></div>
+        <div class="b2col">
+          <div class="b2col-cell">
+            <h4>Decidable (Recursive)</h4>
+            <ul>
+              <li>∃ TM that always halts</li>
+              <li>Accepts iff w ∈ L</li>
+              <li>Rejects iff w ∉ L</li>
+              <li>Never loops — guaranteed answer</li>
+            </ul>
+          </div>
+          <div class="b2col-cell">
+            <h4>Recognizable (r.e.)</h4>
+            <ul>
+              <li>∃ TM that accepts if w ∈ L</li>
+              <li>May loop if w ∉ L</li>
+              <li>You can never be sure it won't halt</li>
+              <li>Decidable ⊊ Recognizable</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bNote"><strong>Key theorem:</strong> L is decidable ↔ both L and L̄ are Turing-recognizable. Run both recognizers in parallel (dovetail) — if L-recognizer accepts, accept; if L̄-recognizer accepts, reject.</div>
+      </div>
+    </div><!-- §03 B -->
+
+    <!-- §04 Decidable -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">04</span><h2>Decidable Languages</h2><span>A_DFA · E_DFA · EQ_DFA · A_CFG · E_CFG</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Decidable Problems — Regular &amp; CFL</h3><span>simulate · convert · mark</span></div>
+        <div class="bDef">
+          <strong>A_DFA</strong> — simulate DFA on w. &nbsp;·&nbsp; <strong>A_NFA</strong> — convert NFA→DFA, simulate. &nbsp;·&nbsp; <strong>A_REX</strong> — regex→NFA→DFA.<br>
+          <strong>E_DFA</strong> — BFS from start: any accept state reachable? &nbsp;·&nbsp; <strong>EQ_DFA</strong> — symmetric difference + E_DFA.<br><br>
+          <strong>A_CFG</strong> — convert to CNF; any derivation of |w|=n takes exactly 2n−1 steps — finite, decidable.<br>
+          <strong>E_CFG</strong> — iteratively mark variables that derive terminals; L(G)≠∅ iff S gets marked.
+        </div>
+        <div class="bNote"><strong>Pattern:</strong> To decide a language, build a TM that always halts. Simulation and conversion are the two main proof tools.</div>
+      </div>
+    </div><!-- §04 B -->
+
+    <!-- §05 Undecidable -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">05</span><h2>Undecidability &amp; Halting Problem</h2><span>A_TM · diagonalization · HALT_TM</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>A_TM is Undecidable</h3><span>recognizable but not decidable · diagonalization</span></div>
+        <div class="bDef"><strong>A_TM = {⟨M, w⟩ | M is a TM and M accepts w}</strong><br><br>Recognizable (universal TM simulates M on w). Not decidable — proved by constructing TM D that inverts whatever decider H predicts, then applying D to itself.</div>
+        <div class="bPseudo">
+          <div class="ph"><span class="pn">Diagonalization</span><span class="ps">assume H decides A_TM → contradiction</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Build D: on input ⟨M⟩, run H on ⟨M, ⟨M⟩⟩.</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd"><span class="kw">if</span> H accepts → D rejects. &nbsp;<span class="kw">if</span> H rejects → D accepts.</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd">Run D on ⟨D⟩: D accepts ↔ D rejects. Contradiction. □</span></div>
+          </div>
+        </div>
+        <div class="bNote"><strong>HALT_TM</strong> = {⟨M,w⟩ | M halts on w} is undecidable. If HALT_TM decidable: check if M halts, then simulate — decides A_TM. Contradiction.</div>
+      </div>
+    </div><!-- §05 B -->
+
+    <!-- §06 Reductions -->
+    <div class="bS">
+      <div class="bS-head"><span class="bS-num">06</span><h2>Reductions</h2><span>A ≤ₘ B · mapping reducibility · Rice's theorem</span></div>
+      <div class="bSub-block">
+        <div class="bSub-head"><h3>Mapping Reducibility</h3><span>A ≤ₘ B · hardness flows upward</span></div>
+        <div class="bDef"><strong>A ≤ₘ B</strong> if ∃ computable f with <strong>w ∈ A ↔ f(w) ∈ B</strong>. To prove A undecidable: show known-undecidable B ≤ₘ A. If A were decidable, composing with f would decide B — contradiction.</div>
+        <div class="bPseudo">
+          <div class="ph"><span class="pn">Reduction template</span><span class="ps">B ≤ₘ A · B undecidable → A undecidable</span></div>
+          <div class="pb">
+            <div class="lr"><span class="ln">1</span><span class="cd">Assume M_A decides A. Build M_B on input w:</span></div>
+            <div class="lr"><span class="ln">2</span><span class="cd i1">Compute f(w). Run M_A on f(w). Output result.</span></div>
+            <div class="lr"><span class="ln">3</span><span class="cd">M_B decides B. B undecidable → contradiction → A undecidable. □</span></div>
+          </div>
+        </div>
+        <div class="bNote"><strong>Rice's Theorem:</strong> Any non-trivial semantic property of L(M) is undecidable. Non-trivial = holds for some TMs, fails for others. Covers emptiness, regularity, finiteness — essentially everything interesting about what a TM computes.</div>
+      </div>
+    </div><!-- §06 B -->
+
+  </div>
+</div><!-- #dB -->
+
+<script>
+function sw(letter, btn) {
+  document.querySelectorAll('.demo').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('active','a-on','b-on','c-on'));
+  document.getElementById('d'+letter).classList.add('active');
+  btn.classList.add('active', letter.toLowerCase()+'-on');
+}
+</script>
+</body>
+</html>

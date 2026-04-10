@@ -104,13 +104,18 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "cosc/datastruct/datastruct_history.html",
+              "file": "datastruct_history.html",
               "label": "Data Structures History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/data_structures.html",
-              "label": "Data Structures Reference",
+              "file": "ds_reference.html",
+              "label": "DS History & Reference",
+              "type": "iframe"
+            },
+            {
+              "file": "data-structures.html",
+              "label": "Data Structures Guide",
               "type": "iframe"
             },
             {
@@ -118,42 +123,42 @@ export const DEPARTMENTS =
               "label": "Linear Structures",
               "children": [
                 {
-                  "file": "cosc/datastruct/linear/ds_array.html",
+                  "file": "ds/ds_array.html",
                   "label": "Array Visual",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_singly.html",
+                  "file": "ds/ds_singly.html",
                   "label": "Singly Linked List",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_doubly.html",
+                  "file": "ds/ds_doubly.html",
                   "label": "Doubly Linked List",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_circular.html",
+                  "file": "ds/ds_circular.html",
                   "label": "Circular List",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_stack.html",
+                  "file": "ds/ds_stack.html",
                   "label": "Stack",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_queue.html",
+                  "file": "ds/ds_queue.html",
                   "label": "Queue",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/linear/ds_deque.html",
+                  "file": "ds/ds_deque.html",
                   "label": "Deque",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/other/ds_hashtable.html",
+                  "file": "ds/ds_hashtable.html",
                   "label": "Hash Table",
                   "type": "iframe"
                 }
@@ -164,42 +169,42 @@ export const DEPARTMENTS =
               "label": "Trees & Graphs",
               "children": [
                 {
-                  "file": "cosc/datastruct/trees/ds_binarytree.html",
+                  "file": "ds/ds_binarytree.html",
                   "label": "Binary Tree",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_bst.html",
+                  "file": "ds/ds_bst.html",
                   "label": "BST",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_avl.html",
+                  "file": "ds/ds_avl.html",
                   "label": "AVL Tree",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_redblack.html",
+                  "file": "ds/ds_redblack.html",
                   "label": "Red-Black Tree",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_heap.html",
+                  "file": "ds/ds_heap.html",
                   "label": "Heap",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_trie.html",
+                  "file": "ds/ds_trie.html",
                   "label": "Trie",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/other/ds_graph.html",
+                  "file": "ds/ds_graph.html",
                   "label": "Graph",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/datastruct/trees/ds_btree.html",
+                  "file": "ds/ds_btree.html",
                   "label": "B-Tree",
                   "type": "iframe"
                 }
@@ -284,7 +289,7 @@ export const DEPARTMENTS =
           "flashcards": "dsa_basics",
           "pdfs": [
             {
-              "file": "dsa_zybook.pdf",
+              "file": "zybookdsa.pdf",
               "label": "Zybook DSA Textbook"
             }
           ],
@@ -320,22 +325,27 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "cosc/algos/algos_history.html",
+              "file": "algos_history.html",
               "label": "Algorithms History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/algorithms.html",
-              "label": "Algorithms Reference",
+              "file": "algorithms_reference.html",
+              "label": "Algorithms History & Reference",
               "type": "iframe"
             },
             {
-              "file": "tools/recursion_memo_dp.html",
+              "file": "algorithms.html",
+              "label": "Algorithms Guide",
+              "type": "iframe"
+            },
+            {
+              "file": "side/recursion-memo-dp.html",
               "label": "Recursion / Memo / DP",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/tools/algorithms_toc.html",
+              "file": "side/algorithms_toc.html",
               "label": "Algorithms TOC",
               "type": "iframe"
             },
@@ -344,22 +354,22 @@ export const DEPARTMENTS =
               "label": "Searching",
               "children": [
                 {
-                  "file": "cosc/algos/searching/search_linear.html",
+                  "file": "algos/search_linear.html",
                   "label": "Linear Search",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/searching/search_binary.html",
+                  "file": "algos/search_binary.html",
                   "label": "Binary Search",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/searching/search_jump.html",
+                  "file": "algos/search_jump.html",
                   "label": "Jump Search",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/searching/search_ternary.html",
+                  "file": "algos/search_ternary.html",
                   "label": "Ternary Search",
                   "type": "iframe"
                 }
@@ -370,58 +380,53 @@ export const DEPARTMENTS =
               "label": "Sorting",
               "children": [
                 {
-                  "file": "cosc/algos/sorting/sort_bubble.html",
+                  "file": "algos/sort_bubble.html",
                   "label": "Bubble Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_selection.html",
+                  "file": "algos/sort_selection.html",
                   "label": "Selection Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_insertion.html",
+                  "file": "algos/sort_insertion.html",
                   "label": "Insertion Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_merge.html",
+                  "file": "algos/sort_merge.html",
                   "label": "Merge Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_quick.html",
+                  "file": "algos/sort_quick.html",
                   "label": "Quick Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_heap.html",
+                  "file": "algos/sort_heap.html",
                   "label": "Heap Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_shell.html",
+                  "file": "algos/sort_shell.html",
                   "label": "Shell Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_counting.html",
+                  "file": "algos/sort_counting.html",
                   "label": "Counting Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_radix.html",
+                  "file": "algos/sort_radix.html",
                   "label": "Radix Sort",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/sorting/sort_bucket.html",
+                  "file": "algos/sort_bucket.html",
                   "label": "Bucket Sort",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/algos/sorting/sort_tim.html",
-                  "label": "Tim Sort",
                   "type": "iframe"
                 }
               ]
@@ -431,37 +436,37 @@ export const DEPARTMENTS =
               "label": "Graph",
               "children": [
                 {
-                  "file": "cosc/algos/graphs/graph_bfs.html",
+                  "file": "algos/graph_bfs.html",
                   "label": "BFS",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_dfs.html",
+                  "file": "algos/graph_dfs.html",
                   "label": "DFS",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_dijkstra.html",
+                  "file": "algos/graph_dijkstra.html",
                   "label": "Dijkstra",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_bellmanford.html",
+                  "file": "algos/graph_bellmanford.html",
                   "label": "Bellman-Ford",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_floydwarshall.html",
+                  "file": "algos/graph_floydwarshall.html",
                   "label": "Floyd-Warshall",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_mst.html",
+                  "file": "algos/graph_mst.html",
                   "label": "Kruskal & Prim",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/graphs/graph_toposort.html",
+                  "file": "algos/graph_toposort.html",
                   "label": "Topological Sort",
                   "type": "iframe"
                 }
@@ -472,12 +477,12 @@ export const DEPARTMENTS =
               "label": "Tree Algorithms",
               "children": [
                 {
-                  "file": "cosc/algos/trees/tree_traversals.html",
+                  "file": "algos/tree_traversals.html",
                   "label": "Traversals (Pre/In/Post/Level)",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/trees/tree_queries.html",
+                  "file": "algos/tree_queries.html",
                   "label": "Height, LCA, Diameter",
                   "type": "iframe"
                 }
@@ -488,7 +493,7 @@ export const DEPARTMENTS =
               "label": "Divide & Conquer",
               "children": [
                 {
-                  "file": "cosc/algos/paradigms/dc_overview.html",
+                  "file": "algos/dc_overview.html",
                   "label": "D&C Overview + Master Theorem",
                   "type": "iframe"
                 }
@@ -499,7 +504,7 @@ export const DEPARTMENTS =
               "label": "Dynamic Programming",
               "children": [
                 {
-                  "file": "cosc/algos/paradigms/dp_overview.html",
+                  "file": "algos/dp_overview.html",
                   "label": "DP Overview + Classic Problems",
                   "type": "iframe"
                 }
@@ -510,7 +515,7 @@ export const DEPARTMENTS =
               "label": "Greedy",
               "children": [
                 {
-                  "file": "cosc/algos/paradigms/greedy_overview.html",
+                  "file": "algos/greedy_overview.html",
                   "label": "Greedy Overview + Problems",
                   "type": "iframe"
                 }
@@ -521,16 +526,11 @@ export const DEPARTMENTS =
               "label": "Backtracking",
               "children": [
                 {
-                  "file": "cosc/algos/paradigms/backtracking_overview.html",
+                  "file": "algos/backtracking_overview.html",
                   "label": "Backtracking Overview + Problems",
                   "type": "iframe"
                 }
               ]
-            },
-            {
-              "file": "cosc/algos/algorithm-strategies.html",
-              "label": "Algorithm Strategies",
-              "type": "iframe"
             }
           ],
           "gopal": [
@@ -539,38 +539,23 @@ export const DEPARTMENTS =
               "label": "References",
               "children": [
                 {
-                  "file": "cosc/algos/gopal/algos_gopal_induction.html",
+                  "file": "algos/algos_gopal_induction.html",
                   "label": "Induction",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/paradigms/algos_greedy.html",
+                  "file": "algos/algos_greedy.html",
                   "label": "Greedy",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/algos_think_induction.html",
-                  "label": "Think Induction",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/algos/gopal/algos_think_pseudocode.html",
-                  "label": "Pseudocode",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/algos/tools/algo_visualizer.html",
+                  "file": "algos/algo_visualizer.html",
                   "label": "Algorithm Visualizer",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/algos_recursion_explainer.html",
+                  "file": "algos/algos_recursion_explainer.html",
                   "label": "Recursion Explainer",
-                  "type": "iframe"
-                },
-                {
-                  "file": "cosc/algos/gopal/induction_problems.html",
-                  "label": "Induction Problems",
                   "type": "iframe"
                 }
               ]
@@ -580,32 +565,32 @@ export const DEPARTMENTS =
               "label": "Foundations",
               "children": [
                 {
-                  "file": "cosc/algos/gopal/gopal_asymptotic.html",
+                  "file": "algos/gopal_asymptotic.html",
                   "label": "Asymptotic Notation (Big-O/Ω/Θ)",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_ram_model.html",
+                  "file": "algos/gopal_ram_model.html",
                   "label": "RAM Model of Computation",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_primality.html",
+                  "file": "algos/gopal_primality.html",
                   "label": "Primality Checking",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_induction.html",
+                  "file": "algos/gopal_induction.html",
                   "label": "Mathematical Induction",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_gcd.html",
+                  "file": "algos/gopal_gcd.html",
                   "label": "GCD & Euclidean Algorithm",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_recurrences.html",
+                  "file": "algos/gopal_recurrences.html",
                   "label": "Recurrences & Master Theorem",
                   "type": "iframe"
                 }
@@ -616,42 +601,42 @@ export const DEPARTMENTS =
               "label": "Algorithms",
               "children": [
                 {
-                  "file": "cosc/algos/gopal/gopal_selection.html",
+                  "file": "algos/gopal_selection.html",
                   "label": "Selection — Median of Medians",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_closest_pair.html",
+                  "file": "algos/gopal_closest_pair.html",
                   "label": "Closest Pair of Points",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_fft.html",
+                  "file": "algos/gopal_fft.html",
                   "label": "FFT & DFT",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_maxsum.html",
+                  "file": "algos/gopal_maxsum.html",
                   "label": "Max Subarray / Kadane's",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_matrix_chain.html",
+                  "file": "algos/gopal_matrix_chain.html",
                   "label": "Matrix Chain Multiplication",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_seq_align.html",
+                  "file": "algos/gopal_seq_align.html",
                   "label": "Sequence Alignment",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_caching.html",
+                  "file": "algos/gopal_caching.html",
                   "label": "Optimal Caching / LFD",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_astar.html",
+                  "file": "algos/gopal_astar.html",
                   "label": "A* Algorithm",
                   "type": "iframe"
                 }
@@ -662,12 +647,12 @@ export const DEPARTMENTS =
               "label": "Appendices",
               "children": [
                 {
-                  "file": "cosc/algos/gopal/gopal_union_find.html",
+                  "file": "algos/gopal_union_find.html",
                   "label": "Union-Find / Disjoint Sets",
                   "type": "iframe"
                 },
                 {
-                  "file": "cosc/algos/gopal/gopal_math_formulas.html",
+                  "file": "algos/gopal_math_formulas.html",
                   "label": "Math Formulas for Algorithms",
                   "type": "iframe"
                 }
@@ -676,49 +661,27 @@ export const DEPARTMENTS =
           ],
           "assignments": [
             {
-              "file": "./content/assignments/algos_intro_exam_review.html",
+              "file": "./content/assignments/algos/intro_exam_review.html",
               "label": "Intro Exam Review",
               "type": "content"
             },
             {
-              "file": "./content/practice/3320Eintro.html",
-              "label": "Intro Exam Practice",
+              "file": "./content/assignments/algos/intro_exam.html",
+              "label": "Intro Exam",
               "type": "content"
-            },
-            {
-              "type": "group",
-              "label": "Exam",
-              "children": [
-                {
-                  "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
-                  "label": "algos gopal intro exam Intro",
-                  "type": "content"
-                }
-              ]
-            },
-            {
-              "type": "group",
-              "label": "Template",
-              "children": [
-                {
-                  "file": "./content/assignments/TEMPLATE_algos.html",
-                  "label": "TEMPLATE algos",
-                  "type": "content"
-                }
-              ]
             },
             {
               "type": "group",
               "label": "Homeworks",
               "children": [
                 {
-                  "file": "./content/assignments/algos_3320_hw2_solutions.html",
-                  "label": "algos 3320 hw2 solutions",
+                  "file": "./content/assignments/algos/hw1_solutions.html",
+                  "label": "HW1 Solutions",
                   "type": "content"
                 },
                 {
-                  "file": "./content/assignments/algos_3320_hw1_solutions.html",
-                  "label": "algos 3320 hw1 solutions",
+                  "file": "./content/assignments/algos/hw2_solutions.html",
+                  "label": "HW2 Solutions",
                   "type": "content"
                 }
               ]
@@ -726,7 +689,24 @@ export const DEPARTMENTS =
             {
               "type": "group",
               "label": "Gopal",
-              "children": []
+              "children": [
+                {
+                  "file": "./content/assignments/algos/gopal_midterm_solutions.html",
+                  "label": "Gopal Midterm Solutions",
+                  "type": "content"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "label": "Templates",
+              "children": [
+                {
+                  "file": "./content/assignments/algos/template.html",
+                  "label": "Assignment Template",
+                  "type": "content"
+                }
+              ]
             }
           ],
           "code": [
@@ -776,11 +756,11 @@ export const DEPARTMENTS =
           "flashcards": null,
           "pdfs": [
             {
-              "file": "algos_gopal_textbook.pdf",
+              "file": "algos_gopalbook_v2.pdf",
               "label": "Gopal Algorithms Textbook"
             },
             {
-              "file": "algos_intro_exam.pdf",
+              "file": "Algos_Gopal_intro_exam.pdf",
               "label": "Gopal Intro Exam"
             },
             {
@@ -788,19 +768,19 @@ export const DEPARTMENTS =
               "label": "Homework",
               "children": [
                 {
-                  "file": "algos_hw1_answerkey.pdf",
+                  "file": "COSC3320_Homework_1_Spr_2026_ANSWERKEY.pdf",
                   "label": "COSC3320 Homework 1 Spr 2026 ANSWERKEY"
                 },
                 {
-                  "file": "algos_hw2.pdf",
+                  "file": "COSC3320_Homework_2_Spr_2026.pdf",
                   "label": "COSC3320 Homework 2 Spr 2026"
                 },
                 {
-                  "file": "algos_hw1_solutions.pdf",
+                  "file": "algos_c_hw1_solutions.pdf",
                   "label": "algos c hw1 solutions"
                 },
                 {
-                  "file": "algos_hw1_personal.pdf",
+                  "file": "algos_jesiah_hw1.pdf",
                   "label": "algos jesiah hw1"
                 }
               ]
@@ -842,22 +822,22 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "cosc/automata/finite/automata_history.html",
+              "file": "automata_reference.html",
               "label": "Automata History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/automata/advanced/automata_sipser.html",
+              "file": "automata-sisper-reference.html",
               "label": "Sipser Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/automata/finite/automata_reading_sets.html",
+              "file": "reading-sets-automata.html",
               "label": "Reading Sets & Automata",
               "type": "iframe"
             },
             {
-              "file": "cosc/automata/finite/jflap_demo.html",
+              "file": "jflap-demo.html",
               "label": "JFLAP Demo",
               "type": "iframe"
             },
@@ -866,7 +846,7 @@ export const DEPARTMENTS =
               "label": "Visual",
               "children": [
                 {
-                  "file": "cosc/automata/finite/automata_visualizer.html",
+                  "file": "automata_visualizer.html",
                   "label": "Automata Visualizer",
                   "type": "iframe"
                 }
@@ -936,7 +916,7 @@ export const DEPARTMENTS =
               "label": "Homeworks",
               "children": [
                 {
-                  "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+                  "file": "./content/assignments/automata_cosc3340_hw3_solutions_1.html",
                   "label": "automata cosc3340 hw3 solutions (1)",
                   "type": "content"
                 },
@@ -949,19 +929,40 @@ export const DEPARTMENTS =
                   "file": "./content/assignments/automata_hw2_solutions.html",
                   "label": "automata hw2 solutions",
                   "type": "content"
+                },
+                {
+                  "file": "./content/assignments/automata/hw4_solutions.html",
+                  "label": "HW4 Solutions",
+                  "type": "content"
+                },
+                {
+                  "file": "./content/assignments/automata/automata_utm_project.html",
+                  "label": "UTM Project",
+                  "type": "content"
                 }
               ]
             }
           ],
-          "code": [],
+          "code": [
+            {
+              "type": "group",
+              "label": "Projects",
+              "children": [
+                {
+                  "path": "./content/code/automata/automata_project_utm.py",
+                  "label": "UTM Simulator (Python)"
+                }
+              ]
+            }
+          ],
           "flashcards": "automata_basics",
           "pdfs": [
             {
-              "file": "automata_varem.pdf",
+              "file": "automataVarem.pdf",
               "label": "Automata Textbook (Varem)"
             },
             {
-              "file": "automata_quiz2.pdf",
+              "file": "AutomataQuiz2.pdf",
               "label": "AutomataQuiz2"
             }
           ],
@@ -976,23 +977,13 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "cosc/comporg/comporg_history.html",
+              "file": "comporg_reference.html",
               "label": "Comp Org History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/comporg/comp_org_arm_reference.html",
+              "file": "languages/comp_org_arm_reference.html",
               "label": "ARM / Comp Org Reference",
-              "type": "iframe"
-            },
-            {
-              "file": "cosc/comporg/memory-guide.html",
-              "label": "Memory Guide",
-              "type": "iframe"
-            },
-            {
-              "file": "cosc/comporg/memory-hierarchy.html",
-              "label": "Memory Hierarchy",
               "type": "iframe"
             }
           ],
@@ -1001,15 +992,15 @@ export const DEPARTMENTS =
           "flashcards": null,
           "pdfs": [
             {
-              "file": "comporg_arm_textbook.pdf",
+              "file": "ARMedition2425.pdf",
               "label": "ARM Architecture Textbook"
             },
             {
-              "file": "comporg_notes.pdf",
+              "file": "comporg_merged.pdf",
               "label": "Comp Org Merged Notes"
             },
             {
-              "file": "comporg_labs.pdf",
+              "file": "comporg_merged_labs.pdf",
               "label": "Comp Org Labs"
             }
           ],
@@ -1024,17 +1015,17 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "cosc/databases/databases_prep.html",
+              "file": "databases_prep.html",
               "label": "⚡ Fall Prep Guide",
               "type": "iframe"
             },
             {
-              "file": "cosc/databases/databases_history.html",
-              "label": "Databases History & Reference",
+              "file": "databases_reference.html",
+              "label": "DB History, Models & Migration",
               "type": "iframe"
             },
             {
-              "file": "cosc/databases/sql_reference.html",
+              "file": "languages/sql_reference.html",
               "label": "SQL Reference",
               "type": "iframe"
             }
@@ -1068,8 +1059,7 @@ export const DEPARTMENTS =
               "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
             }
           ],
-          "assignments": [],
-          "references": []
+          "assignments": []
         },
         {
           "id": "opsystems_academic",
@@ -1081,12 +1071,12 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "cosc/opsystems/opsystems_prep.html",
+              "file": "opsystems_prep.html",
               "label": "⚡ Fall Prep Guide",
               "type": "iframe"
             },
             {
-              "file": "cosc/opsystems/opsystems_history.html",
+              "file": "opsystems_reference.html",
               "label": "OS History & Reference",
               "type": "iframe"
             }
@@ -1096,7 +1086,7 @@ export const DEPARTMENTS =
           "flashcards": null,
           "pdfs": [
             {
-              "file": "opsystems_textbook.pdf",
+              "file": "OperatingSystems_TextbookRincon.pdf",
               "label": "Operating Systems — Rincon Textbook"
             }
           ],
@@ -1201,12 +1191,12 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "cosc/linux/linux_history.html",
+              "file": "linux_reference.html",
               "label": "Linux History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/linux/linux_quick.html",
+              "file": "linux_quick_reference.html",
               "label": "Linux Quick Reference",
               "type": "iframe"
             }
@@ -1279,13 +1269,18 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "cosc/cpp/cpp_history.html",
+              "file": "cpp_history.html",
               "label": "C++ History & Reference",
               "type": "iframe"
             },
             {
-              "file": "cosc/cpp/cpp_reference.html",
-              "label": "C++ Language Guide",
+              "file": "cpp_reference.html",
+              "label": "C++ History & Reference",
+              "type": "iframe"
+            },
+            {
+              "file": "languages/cpp_reference.html",
+              "label": "C++ Quick Reference",
               "type": "iframe"
             }
           ],
@@ -1294,11 +1289,11 @@ export const DEPARTMENTS =
           "flashcards": "prog_fundamentals",
           "pdfs": [
             {
-              "file": "cpp_notes.pdf",
+              "file": "mergedcpp.pdf",
               "label": "C++ Merged Textbook"
             },
             {
-              "file": "cpp_rpg_project.pdf",
+              "file": "cpp_RPG_PROJECT.pdf",
               "label": "RPG Project"
             }
           ],
@@ -1313,13 +1308,18 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "languages/python_history.html",
+              "file": "python_history.html",
+              "label": "Python History & Reference",
+              "type": "iframe"
+            },
+            {
+              "file": "python_reference.html",
               "label": "Python History & Reference",
               "type": "iframe"
             },
             {
               "file": "languages/python_reference.html",
-              "label": "Python Language Guide",
+              "label": "Python Quick Reference",
               "type": "iframe"
             }
           ],
@@ -1346,7 +1346,7 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "math/notation/math_science.html",
+              "file": "math_science_ref.html",
               "label": "Math & Science Ref",
               "type": "iframe"
             }
@@ -1365,7 +1365,7 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "math/notation/math_science.html",
+              "file": "math_science_ref.html",
               "label": "Math & Science Ref",
               "type": "iframe"
             }
@@ -1384,7 +1384,7 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "math/notation/math_science.html",
+              "file": "math_science_ref.html",
               "label": "Math & Science Ref",
               "type": "iframe"
             }
@@ -1403,7 +1403,7 @@ export const DEPARTMENTS =
           "notes": [],
           "references": [
             {
-              "file": "math/notation/math_science.html",
+              "file": "math_science_ref.html",
               "label": "Math & Science Ref",
               "type": "iframe"
             }
@@ -1439,17 +1439,17 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "math/discrete/discrete_math.html",
+              "file": "discrete-math-guide.html",
               "label": "Discrete Math Guide",
               "type": "iframe"
             },
             {
-              "file": "math/notation/math_notation.html",
+              "file": "mathnotation_enhanced.html",
               "label": "Math Notation",
               "type": "iframe"
             },
             {
-              "file": "math/notation/math_science.html",
+              "file": "math_science_ref.html",
               "label": "Math & Science Ref",
               "type": "iframe"
             }
@@ -1459,19 +1459,19 @@ export const DEPARTMENTS =
           "flashcards": null,
           "pdfs": [
             {
-              "file": "discrete_textbook.pdf",
+              "file": "DISCRETE.pdf",
               "label": "Discrete Math Textbook"
             },
             {
-              "file": "discrete_notes.pdf",
+              "file": "discrete-notes.pdf",
               "label": "Discrete Notes"
             },
             {
-              "file": "discrete_exam1.pdf",
+              "file": "discrete-exam1.pdf",
               "label": "Exam 1"
             },
             {
-              "file": "discrete_exam2.pdf",
+              "file": "discrete-exam2.pdf",
               "label": "Exam 2"
             }
           ]
@@ -1498,12 +1498,12 @@ export const DEPARTMENTS =
           ],
           "references": [
             {
-              "file": "math/linear/linear_algebra.html",
+              "file": "linear-algebra-guide.html",
               "label": "Linear Algebra Guide",
               "type": "iframe"
             },
             {
-              "file": "math/notation/math_notation.html",
+              "file": "mathnotation_enhanced.html",
               "label": "Math Notation",
               "type": "iframe"
             },
@@ -1598,21 +1598,21 @@ export const DEPARTMENTS =
               "label": "OldExams",
               "children": [
                 {
-                  "file": "linear_exam1_sp25.pdf",
+                  "file": "Linear_Spring25Exam1.pdf",
                   "label": "Linear Spring25Exam1"
                 },
                 {
-                  "file": "linear_exam2_sp25.pdf",
+                  "file": "Linear_Spring25Exam2.pdf",
                   "label": "Linear Spring25Exam2"
                 },
                 {
-                  "file": "linear_final_sp25.pdf",
+                  "file": "Linear_Spring25FinalExam.pdf",
                   "label": "Linear Spring25FinalExam"
                 }
               ]
             },
             {
-              "file": "linear_textbook.pdf",
+              "file": "lineartextbook.pdf",
               "label": "Linear Algebra Textbook"
             },
             {
@@ -1620,7 +1620,7 @@ export const DEPARTMENTS =
               "label": "NewExam",
               "children": [
                 {
-                  "file": "linear_exams_1_to_3.pdf",
+                  "file": "Linear_Exam1-3.pdf",
                   "label": "Linear Exam1 3"
                 }
               ]
@@ -1640,7 +1640,7 @@ export const DEPARTMENTS =
           "flashcards": null,
           "pdfs": [
             {
-              "file": "stats_lectures.pdf",
+              "file": "stats-alllectures.pdf",
               "label": "All Lectures"
             }
           ]
@@ -1652,7 +1652,7 @@ export const DEPARTMENTS =
 export const LANG_REFS =
   [
     {
-      "file": "cosc/cpp/c_reference.html",
+      "file": "languages/c_reference.html",
       "label": "C",
       "color": "#34d399"
     },
@@ -1682,7 +1682,7 @@ export const LANG_REFS =
       "color": "#34d399"
     },
     {
-      "file": "cosc/databases/sql_reference.html",
+      "file": "languages/sql_reference.html",
       "label": "SQL",
       "color": "#e8c547"
     },
@@ -1692,33 +1692,33 @@ export const LANG_REFS =
       "color": "#fb923c"
     },
     {
-      "file": "cosc/comporg/comp_org_arm_reference.html",
+      "file": "languages/comp_org_arm_reference.html",
       "label": "ARM",
       "color": "#34d399"
     },
     {
-      "file": "cosc/linux/linux_history.html",
-      "label": "Linux History & Reference",
+      "file": "linux_reference.html",
+      "label": "Linux",
       "color": "#a78bfa"
     },
     {
-      "file": "tools/git_reference.html",
+      "file": "git_reference.html",
       "label": "Git",
       "color": "#fb923c"
     },
     {
-      "file": "cosc/linux/bash_reference.html",
+      "file": "languages/bash_reference.html",
       "label": "Bash",
       "color": "#a8e6a3"
     },
     {
-      "file": "cosc/cpp/cpp_reference.html",
-      "label": "C++ Language Guide",
+      "file": "languages/cpp_reference.html",
+      "label": "C++",
       "color": "#fb923c"
     },
     {
       "file": "languages/python_reference.html",
-      "label": "Python Language Guide",
+      "label": "Python",
       "color": "#4ecdc4"
     }
   ];
@@ -1727,52 +1727,52 @@ export const MATH_SHARED_REFS =
   [
     {
       "label": "Math & Science Ref",
-      "file": "math/notation/math_science.html",
+      "file": "math_science_ref.html",
       "color": "#f472b6"
     },
     {
       "label": "Math Notation",
-      "file": "math/notation/math_notation.html",
+      "file": "mathnotation_enhanced.html",
       "color": "#f472b6"
     },
     {
       "label": "Discrete Math",
-      "file": "math/discrete/discrete_math.html",
+      "file": "discrete-math-guide.html",
       "color": "#f472b6"
     },
     {
       "label": "Discrete Math (alt)",
-      "file": "math/discrete/discrete_math.html",
+      "file": "discrete-math-guide_1.html",
       "color": "#f472b6"
     },
     {
       "label": "Precalculus",
-      "file": "math/calculus/precalculus.html",
+      "file": "precalculus-guide.html",
       "color": "#fb923c"
     },
     {
       "label": "Calculus I",
-      "file": "math/calculus/calculus1.html",
+      "file": "calculus1-guide.html",
       "color": "#4ecdc4"
     },
     {
       "label": "Calculus II",
-      "file": "math/calculus/calculus2.html",
+      "file": "calculus2-guide.html",
       "color": "#4ecdc4"
     },
     {
       "label": "Linear Algebra",
-      "file": "math/linear/linear_algebra.html",
+      "file": "linear-algebra-guide.html",
       "color": "#a78bfa"
     },
     {
       "label": "Linear Algebra (alt)",
-      "file": "math/linear/linear_algebra.html",
+      "file": "linear-algebra-guide_1.html",
       "color": "#a78bfa"
     },
     {
       "label": "Statistics",
-      "file": "math/stats/statistics.html",
+      "file": "statistics-guide.html",
       "color": "#a78bfa"
     }
   ];
@@ -1873,13 +1873,18 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "cosc/datastruct/datastruct_history.html",
+          "file": "datastruct_history.html",
           "label": "Data Structures History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/datastruct/data_structures.html",
-          "label": "Data Structures Reference",
+          "file": "ds_reference.html",
+          "label": "DS History & Reference",
+          "type": "iframe"
+        },
+        {
+          "file": "data-structures.html",
+          "label": "Data Structures Guide",
           "type": "iframe"
         },
         {
@@ -1887,42 +1892,42 @@ export const ALL_COURSES =
           "label": "Linear Structures",
           "children": [
             {
-              "file": "cosc/datastruct/linear/ds_array.html",
+              "file": "ds/ds_array.html",
               "label": "Array Visual",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_singly.html",
+              "file": "ds/ds_singly.html",
               "label": "Singly Linked List",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_doubly.html",
+              "file": "ds/ds_doubly.html",
               "label": "Doubly Linked List",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_circular.html",
+              "file": "ds/ds_circular.html",
               "label": "Circular List",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_stack.html",
+              "file": "ds/ds_stack.html",
               "label": "Stack",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_queue.html",
+              "file": "ds/ds_queue.html",
               "label": "Queue",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/linear/ds_deque.html",
+              "file": "ds/ds_deque.html",
               "label": "Deque",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/other/ds_hashtable.html",
+              "file": "ds/ds_hashtable.html",
               "label": "Hash Table",
               "type": "iframe"
             }
@@ -1933,42 +1938,42 @@ export const ALL_COURSES =
           "label": "Trees & Graphs",
           "children": [
             {
-              "file": "cosc/datastruct/trees/ds_binarytree.html",
+              "file": "ds/ds_binarytree.html",
               "label": "Binary Tree",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_bst.html",
+              "file": "ds/ds_bst.html",
               "label": "BST",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_avl.html",
+              "file": "ds/ds_avl.html",
               "label": "AVL Tree",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_redblack.html",
+              "file": "ds/ds_redblack.html",
               "label": "Red-Black Tree",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_heap.html",
+              "file": "ds/ds_heap.html",
               "label": "Heap",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_trie.html",
+              "file": "ds/ds_trie.html",
               "label": "Trie",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/other/ds_graph.html",
+              "file": "ds/ds_graph.html",
               "label": "Graph",
               "type": "iframe"
             },
             {
-              "file": "cosc/datastruct/trees/ds_btree.html",
+              "file": "ds/ds_btree.html",
               "label": "B-Tree",
               "type": "iframe"
             }
@@ -2053,7 +2058,7 @@ export const ALL_COURSES =
       "flashcards": "dsa_basics",
       "pdfs": [
         {
-          "file": "dsa_zybook.pdf",
+          "file": "zybookdsa.pdf",
           "label": "Zybook DSA Textbook"
         }
       ],
@@ -2091,22 +2096,27 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "cosc/algos/algos_history.html",
+          "file": "algos_history.html",
           "label": "Algorithms History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/algos/algorithms.html",
-          "label": "Algorithms Reference",
+          "file": "algorithms_reference.html",
+          "label": "Algorithms History & Reference",
           "type": "iframe"
         },
         {
-          "file": "tools/recursion_memo_dp.html",
+          "file": "algorithms.html",
+          "label": "Algorithms Guide",
+          "type": "iframe"
+        },
+        {
+          "file": "side/recursion-memo-dp.html",
           "label": "Recursion / Memo / DP",
           "type": "iframe"
         },
         {
-          "file": "cosc/algos/tools/algorithms_toc.html",
+          "file": "side/algorithms_toc.html",
           "label": "Algorithms TOC",
           "type": "iframe"
         },
@@ -2115,22 +2125,22 @@ export const ALL_COURSES =
           "label": "Searching",
           "children": [
             {
-              "file": "cosc/algos/searching/search_linear.html",
+              "file": "algos/search_linear.html",
               "label": "Linear Search",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/searching/search_binary.html",
+              "file": "algos/search_binary.html",
               "label": "Binary Search",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/searching/search_jump.html",
+              "file": "algos/search_jump.html",
               "label": "Jump Search",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/searching/search_ternary.html",
+              "file": "algos/search_ternary.html",
               "label": "Ternary Search",
               "type": "iframe"
             }
@@ -2141,52 +2151,52 @@ export const ALL_COURSES =
           "label": "Sorting",
           "children": [
             {
-              "file": "cosc/algos/sorting/sort_bubble.html",
+              "file": "algos/sort_bubble.html",
               "label": "Bubble Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_selection.html",
+              "file": "algos/sort_selection.html",
               "label": "Selection Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_insertion.html",
+              "file": "algos/sort_insertion.html",
               "label": "Insertion Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_merge.html",
+              "file": "algos/sort_merge.html",
               "label": "Merge Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_quick.html",
+              "file": "algos/sort_quick.html",
               "label": "Quick Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_heap.html",
+              "file": "algos/sort_heap.html",
               "label": "Heap Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_shell.html",
+              "file": "algos/sort_shell.html",
               "label": "Shell Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_counting.html",
+              "file": "algos/sort_counting.html",
               "label": "Counting Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_radix.html",
+              "file": "algos/sort_radix.html",
               "label": "Radix Sort",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/sorting/sort_bucket.html",
+              "file": "algos/sort_bucket.html",
               "label": "Bucket Sort",
               "type": "iframe"
             }
@@ -2197,37 +2207,37 @@ export const ALL_COURSES =
           "label": "Graph",
           "children": [
             {
-              "file": "cosc/algos/graphs/graph_bfs.html",
+              "file": "algos/graph_bfs.html",
               "label": "BFS",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_dfs.html",
+              "file": "algos/graph_dfs.html",
               "label": "DFS",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_dijkstra.html",
+              "file": "algos/graph_dijkstra.html",
               "label": "Dijkstra",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_bellmanford.html",
+              "file": "algos/graph_bellmanford.html",
               "label": "Bellman-Ford",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_floydwarshall.html",
+              "file": "algos/graph_floydwarshall.html",
               "label": "Floyd-Warshall",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_mst.html",
+              "file": "algos/graph_mst.html",
               "label": "Kruskal & Prim",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/graphs/graph_toposort.html",
+              "file": "algos/graph_toposort.html",
               "label": "Topological Sort",
               "type": "iframe"
             }
@@ -2238,12 +2248,12 @@ export const ALL_COURSES =
           "label": "Tree Algorithms",
           "children": [
             {
-              "file": "cosc/algos/trees/tree_traversals.html",
+              "file": "algos/tree_traversals.html",
               "label": "Traversals (Pre/In/Post/Level)",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/trees/tree_queries.html",
+              "file": "algos/tree_queries.html",
               "label": "Height, LCA, Diameter",
               "type": "iframe"
             }
@@ -2254,7 +2264,7 @@ export const ALL_COURSES =
           "label": "Divide & Conquer",
           "children": [
             {
-              "file": "cosc/algos/paradigms/dc_overview.html",
+              "file": "algos/dc_overview.html",
               "label": "D&C Overview + Master Theorem",
               "type": "iframe"
             }
@@ -2265,7 +2275,7 @@ export const ALL_COURSES =
           "label": "Dynamic Programming",
           "children": [
             {
-              "file": "cosc/algos/paradigms/dp_overview.html",
+              "file": "algos/dp_overview.html",
               "label": "DP Overview + Classic Problems",
               "type": "iframe"
             }
@@ -2276,7 +2286,7 @@ export const ALL_COURSES =
           "label": "Greedy",
           "children": [
             {
-              "file": "cosc/algos/paradigms/greedy_overview.html",
+              "file": "algos/greedy_overview.html",
               "label": "Greedy Overview + Problems",
               "type": "iframe"
             }
@@ -2287,16 +2297,11 @@ export const ALL_COURSES =
           "label": "Backtracking",
           "children": [
             {
-              "file": "cosc/algos/paradigms/backtracking_overview.html",
+              "file": "algos/backtracking_overview.html",
               "label": "Backtracking Overview + Problems",
               "type": "iframe"
             }
           ]
-        },
-        {
-          "file": "cosc/algos/algorithm-strategies.html",
-          "label": "Algorithm Strategies",
-          "type": "iframe"
         }
       ],
       "gopal": [
@@ -2305,38 +2310,33 @@ export const ALL_COURSES =
           "label": "References",
           "children": [
             {
-              "file": "cosc/algos/gopal/algos_gopal_induction.html",
+              "file": "algos/algos_gopal_induction.html",
               "label": "Induction",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/paradigms/algos_greedy.html",
+              "file": "algos/algos_greedy.html",
               "label": "Greedy",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/algos_think_induction.html",
+              "file": "algos/algos_think_induction.html",
               "label": "Think Induction",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/algos_think_pseudocode.html",
+              "file": "algos/algos_think_pseudocode.html",
               "label": "Pseudocode",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/tools/algo_visualizer.html",
+              "file": "algos/algo_visualizer.html",
               "label": "Algorithm Visualizer",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/algos_recursion_explainer.html",
+              "file": "algos/algos_recursion_explainer.html",
               "label": "Recursion Explainer",
-              "type": "iframe"
-            },
-            {
-              "file": "cosc/algos/gopal/induction_problems.html",
-              "label": "Induction Problems",
               "type": "iframe"
             }
           ]
@@ -2346,32 +2346,32 @@ export const ALL_COURSES =
           "label": "Foundations",
           "children": [
             {
-              "file": "cosc/algos/gopal/gopal_asymptotic.html",
+              "file": "algos/gopal_asymptotic.html",
               "label": "Asymptotic Notation (Big-O/Ω/Θ)",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_ram_model.html",
+              "file": "algos/gopal_ram_model.html",
               "label": "RAM Model of Computation",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_primality.html",
+              "file": "algos/gopal_primality.html",
               "label": "Primality Checking",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_induction.html",
+              "file": "algos/gopal_induction.html",
               "label": "Mathematical Induction",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_gcd.html",
+              "file": "algos/gopal_gcd.html",
               "label": "GCD & Euclidean Algorithm",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_recurrences.html",
+              "file": "algos/gopal_recurrences.html",
               "label": "Recurrences & Master Theorem",
               "type": "iframe"
             }
@@ -2382,42 +2382,42 @@ export const ALL_COURSES =
           "label": "Algorithms",
           "children": [
             {
-              "file": "cosc/algos/gopal/gopal_selection.html",
+              "file": "algos/gopal_selection.html",
               "label": "Selection — Median of Medians",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_closest_pair.html",
+              "file": "algos/gopal_closest_pair.html",
               "label": "Closest Pair of Points",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_fft.html",
+              "file": "algos/gopal_fft.html",
               "label": "FFT & DFT",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_maxsum.html",
+              "file": "algos/gopal_maxsum.html",
               "label": "Max Subarray / Kadane's",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_matrix_chain.html",
+              "file": "algos/gopal_matrix_chain.html",
               "label": "Matrix Chain Multiplication",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_seq_align.html",
+              "file": "algos/gopal_seq_align.html",
               "label": "Sequence Alignment",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_caching.html",
+              "file": "algos/gopal_caching.html",
               "label": "Optimal Caching / LFD",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_astar.html",
+              "file": "algos/gopal_astar.html",
               "label": "A* Algorithm",
               "type": "iframe"
             }
@@ -2428,12 +2428,12 @@ export const ALL_COURSES =
           "label": "Appendices",
           "children": [
             {
-              "file": "cosc/algos/gopal/gopal_union_find.html",
+              "file": "algos/gopal_union_find.html",
               "label": "Union-Find / Disjoint Sets",
               "type": "iframe"
             },
             {
-              "file": "cosc/algos/gopal/gopal_math_formulas.html",
+              "file": "algos/gopal_math_formulas.html",
               "label": "Math Formulas for Algorithms",
               "type": "iframe"
             }
@@ -2442,49 +2442,27 @@ export const ALL_COURSES =
       ],
       "assignments": [
         {
-          "file": "./content/assignments/algos_intro_exam_review.html",
+          "file": "./content/assignments/algos/intro_exam_review.html",
           "label": "Intro Exam Review",
           "type": "content"
         },
         {
-          "file": "./content/practice/3320Eintro.html",
-          "label": "Intro Exam Practice",
+          "file": "./content/assignments/algos/intro_exam.html",
+          "label": "Intro Exam",
           "type": "content"
-        },
-        {
-          "type": "group",
-          "label": "Exam",
-          "children": [
-            {
-              "file": "./content/assignments/algos_gopal_intro_exam_Intro.html",
-              "label": "algos gopal intro exam Intro",
-              "type": "content"
-            }
-          ]
-        },
-        {
-          "type": "group",
-          "label": "Template",
-          "children": [
-            {
-              "file": "./content/assignments/TEMPLATE_algos.html",
-              "label": "TEMPLATE algos",
-              "type": "content"
-            }
-          ]
         },
         {
           "type": "group",
           "label": "Homeworks",
           "children": [
             {
-              "file": "./content/assignments/algos_3320_hw2_solutions.html",
-              "label": "algos 3320 hw2 solutions",
+              "file": "./content/assignments/algos/hw1_solutions.html",
+              "label": "HW1 Solutions",
               "type": "content"
             },
             {
-              "file": "./content/assignments/algos_3320_hw1_solutions.html",
-              "label": "algos 3320 hw1 solutions",
+              "file": "./content/assignments/algos/hw2_solutions.html",
+              "label": "HW2 Solutions",
               "type": "content"
             }
           ]
@@ -2492,7 +2470,24 @@ export const ALL_COURSES =
         {
           "type": "group",
           "label": "Gopal",
-          "children": []
+          "children": [
+            {
+              "file": "./content/assignments/algos/gopal_midterm_solutions.html",
+              "label": "Gopal Midterm Solutions",
+              "type": "content"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Templates",
+          "children": [
+            {
+              "file": "./content/assignments/algos/template.html",
+              "label": "Assignment Template",
+              "type": "content"
+            }
+          ]
         }
       ],
       "code": [
@@ -2542,11 +2537,11 @@ export const ALL_COURSES =
       "flashcards": null,
       "pdfs": [
         {
-          "file": "algos_gopal_textbook.pdf",
+          "file": "algos_gopalbook_v2.pdf",
           "label": "Gopal Algorithms Textbook"
         },
         {
-          "file": "algos_intro_exam.pdf",
+          "file": "Algos_Gopal_intro_exam.pdf",
           "label": "Gopal Intro Exam"
         },
         {
@@ -2554,19 +2549,19 @@ export const ALL_COURSES =
           "label": "Homework",
           "children": [
             {
-              "file": "algos_hw1_answerkey.pdf",
+              "file": "COSC3320_Homework_1_Spr_2026_ANSWERKEY.pdf",
               "label": "COSC3320 Homework 1 Spr 2026 ANSWERKEY"
             },
             {
-              "file": "algos_hw2.pdf",
+              "file": "COSC3320_Homework_2_Spr_2026.pdf",
               "label": "COSC3320 Homework 2 Spr 2026"
             },
             {
-              "file": "algos_hw1_solutions.pdf",
+              "file": "algos_c_hw1_solutions.pdf",
               "label": "algos c hw1 solutions"
             },
             {
-              "file": "algos_hw1_personal.pdf",
+              "file": "algos_jesiah_hw1.pdf",
               "label": "algos jesiah hw1"
             }
           ]
@@ -2610,22 +2605,22 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "cosc/automata/finite/automata_history.html",
+          "file": "automata_reference.html",
           "label": "Automata History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/automata/advanced/automata_sipser.html",
+          "file": "automata-sisper-reference.html",
           "label": "Sipser Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/automata/finite/automata_reading_sets.html",
+          "file": "reading-sets-automata.html",
           "label": "Reading Sets & Automata",
           "type": "iframe"
         },
         {
-          "file": "cosc/automata/finite/jflap_demo.html",
+          "file": "jflap-demo.html",
           "label": "JFLAP Demo",
           "type": "iframe"
         },
@@ -2634,17 +2629,17 @@ export const ALL_COURSES =
           "label": "3340",
           "children": [
             {
-              "file": "cosc/automata/finite/automata_dfa_nfa.html",
+              "file": "automata_dfanfa.html",
               "label": "DFA & NFA",
               "type": "iframe"
             },
             {
-              "file": "cosc/automata/advanced/automata_pumping.html",
+              "file": "automata_toc-pumping.html",
               "label": "Pumping Lemma",
               "type": "iframe"
             },
             {
-              "file": "cosc/automata/advanced/automata_turing.html",
+              "file": "automata_toc-turing.html",
               "label": "Turing Machines",
               "type": "iframe"
             }
@@ -2655,7 +2650,7 @@ export const ALL_COURSES =
           "label": "Visual",
           "children": [
             {
-              "file": "cosc/automata/finite/automata_visualizer.html",
+              "file": "automata_visualizer.html",
               "label": "Automata Visualizer",
               "type": "iframe"
             }
@@ -2725,7 +2720,7 @@ export const ALL_COURSES =
           "label": "Homeworks",
           "children": [
             {
-              "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+              "file": "./content/assignments/automata_cosc3340_hw3_solutions_1.html",
               "label": "automata cosc3340 hw3 solutions (1)",
               "type": "content"
             },
@@ -2738,19 +2733,40 @@ export const ALL_COURSES =
               "file": "./content/assignments/automata_hw2_solutions.html",
               "label": "automata hw2 solutions",
               "type": "content"
+            },
+            {
+              "file": "./content/assignments/automata/hw4_solutions.html",
+              "label": "HW4 Solutions",
+              "type": "content"
+            },
+            {
+              "file": "./content/assignments/automata/automata_utm_project.html",
+              "label": "UTM Project",
+              "type": "content"
             }
           ]
         }
       ],
-      "code": [],
+      "code": [
+        {
+          "type": "group",
+          "label": "Projects",
+          "children": [
+            {
+              "path": "./content/code/automata/automata_project_utm.py",
+              "label": "UTM Simulator (Python)"
+            }
+          ]
+        }
+      ],
       "flashcards": "automata_basics",
       "pdfs": [
         {
-          "file": "automata_varem.pdf",
+          "file": "automataVarem.pdf",
           "label": "Automata Textbook (Varem)"
         },
         {
-          "file": "automata_quiz2.pdf",
+          "file": "AutomataQuiz2.pdf",
           "label": "AutomataQuiz2"
         }
       ],
@@ -2767,23 +2783,13 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "cosc/comporg/comporg_history.html",
+          "file": "comporg_reference.html",
           "label": "Comp Org History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/comporg/comp_org_arm_reference.html",
+          "file": "languages/comp_org_arm_reference.html",
           "label": "ARM / Comp Org Reference",
-          "type": "iframe"
-        },
-        {
-          "file": "cosc/comporg/memory-guide.html",
-          "label": "Memory Guide",
-          "type": "iframe"
-        },
-        {
-          "file": "cosc/comporg/memory-hierarchy.html",
-          "label": "Memory Hierarchy",
           "type": "iframe"
         }
       ],
@@ -2792,15 +2798,15 @@ export const ALL_COURSES =
       "flashcards": null,
       "pdfs": [
         {
-          "file": "comporg_arm_textbook.pdf",
+          "file": "ARMedition2425.pdf",
           "label": "ARM Architecture Textbook"
         },
         {
-          "file": "comporg_notes.pdf",
+          "file": "comporg_merged.pdf",
           "label": "Comp Org Merged Notes"
         },
         {
-          "file": "comporg_labs.pdf",
+          "file": "comporg_merged_labs.pdf",
           "label": "Comp Org Labs"
         }
       ],
@@ -2817,17 +2823,17 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "cosc/databases/databases_prep.html",
+          "file": "databases_prep.html",
           "label": "⚡ Fall Prep Guide",
           "type": "iframe"
         },
         {
-          "file": "cosc/databases/databases_history.html",
-          "label": "Databases History & Reference",
+          "file": "databases_reference.html",
+          "label": "DB History, Models & Migration",
           "type": "iframe"
         },
         {
-          "file": "cosc/databases/sql_reference.html",
+          "file": "languages/sql_reference.html",
           "label": "SQL Reference",
           "type": "iframe"
         }
@@ -2865,8 +2871,7 @@ export const ALL_COURSES =
       ],
       "dept": "cosc",
       "deptLabel": "COSC",
-      "assignments": [],
-      "references": []
+      "assignments": []
     },
     {
       "id": "opsystems_academic",
@@ -2878,12 +2883,12 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "cosc/opsystems/opsystems_prep.html",
+          "file": "opsystems_prep.html",
           "label": "⚡ Fall Prep Guide",
           "type": "iframe"
         },
         {
-          "file": "cosc/opsystems/opsystems_history.html",
+          "file": "opsystems_reference.html",
           "label": "OS History & Reference",
           "type": "iframe"
         }
@@ -2893,7 +2898,7 @@ export const ALL_COURSES =
       "flashcards": null,
       "pdfs": [
         {
-          "file": "opsystems_textbook.pdf",
+          "file": "OperatingSystems_TextbookRincon.pdf",
           "label": "Operating Systems — Rincon Textbook"
         }
       ],
@@ -3000,12 +3005,12 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "cosc/linux/linux_history.html",
+          "file": "linux_reference.html",
           "label": "Linux History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/linux/linux_quick.html",
+          "file": "linux_quick_reference.html",
           "label": "Linux Quick Reference",
           "type": "iframe"
         }
@@ -3080,13 +3085,18 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "cosc/cpp/cpp_history.html",
+          "file": "cpp_history.html",
           "label": "C++ History & Reference",
           "type": "iframe"
         },
         {
-          "file": "cosc/cpp/cpp_reference.html",
-          "label": "C++ Language Guide",
+          "file": "cpp_reference.html",
+          "label": "C++ History & Reference",
+          "type": "iframe"
+        },
+        {
+          "file": "languages/cpp_reference.html",
+          "label": "C++ Quick Reference",
           "type": "iframe"
         }
       ],
@@ -3095,11 +3105,11 @@ export const ALL_COURSES =
       "flashcards": "prog_fundamentals",
       "pdfs": [
         {
-          "file": "cpp_notes.pdf",
+          "file": "mergedcpp.pdf",
           "label": "C++ Merged Textbook"
         },
         {
-          "file": "cpp_rpg_project.pdf",
+          "file": "cpp_RPG_PROJECT.pdf",
           "label": "RPG Project"
         }
       ],
@@ -3116,13 +3126,18 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "languages/python_history.html",
+          "file": "python_history.html",
+          "label": "Python History & Reference",
+          "type": "iframe"
+        },
+        {
+          "file": "python_reference.html",
           "label": "Python History & Reference",
           "type": "iframe"
         },
         {
           "file": "languages/python_reference.html",
-          "label": "Python Language Guide",
+          "label": "Python Quick Reference",
           "type": "iframe"
         }
       ],
@@ -3143,7 +3158,7 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "math/notation/math_science.html",
+          "file": "math_science_ref.html",
           "label": "Math & Science Ref",
           "type": "iframe"
         }
@@ -3164,7 +3179,7 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "math/notation/math_science.html",
+          "file": "math_science_ref.html",
           "label": "Math & Science Ref",
           "type": "iframe"
         }
@@ -3185,7 +3200,7 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "math/notation/math_science.html",
+          "file": "math_science_ref.html",
           "label": "Math & Science Ref",
           "type": "iframe"
         }
@@ -3206,7 +3221,7 @@ export const ALL_COURSES =
       "notes": [],
       "references": [
         {
-          "file": "math/notation/math_science.html",
+          "file": "math_science_ref.html",
           "label": "Math & Science Ref",
           "type": "iframe"
         }
@@ -3244,17 +3259,17 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "math/discrete/discrete_math.html",
+          "file": "discrete-math-guide.html",
           "label": "Discrete Math Guide",
           "type": "iframe"
         },
         {
-          "file": "math/notation/math_notation.html",
+          "file": "mathnotation_enhanced.html",
           "label": "Math Notation",
           "type": "iframe"
         },
         {
-          "file": "math/notation/math_science.html",
+          "file": "math_science_ref.html",
           "label": "Math & Science Ref",
           "type": "iframe"
         }
@@ -3264,19 +3279,19 @@ export const ALL_COURSES =
       "flashcards": null,
       "pdfs": [
         {
-          "file": "discrete_textbook.pdf",
+          "file": "DISCRETE.pdf",
           "label": "Discrete Math Textbook"
         },
         {
-          "file": "discrete_notes.pdf",
+          "file": "discrete-notes.pdf",
           "label": "Discrete Notes"
         },
         {
-          "file": "discrete_exam1.pdf",
+          "file": "discrete-exam1.pdf",
           "label": "Exam 1"
         },
         {
-          "file": "discrete_exam2.pdf",
+          "file": "discrete-exam2.pdf",
           "label": "Exam 2"
         }
       ],
@@ -3305,12 +3320,12 @@ export const ALL_COURSES =
       ],
       "references": [
         {
-          "file": "math/linear/linear_algebra.html",
+          "file": "linear-algebra-guide.html",
           "label": "Linear Algebra Guide",
           "type": "iframe"
         },
         {
-          "file": "math/notation/math_notation.html",
+          "file": "mathnotation_enhanced.html",
           "label": "Math Notation",
           "type": "iframe"
         }
@@ -3401,21 +3416,21 @@ export const ALL_COURSES =
           "label": "OldExams",
           "children": [
             {
-              "file": "linear_exam1_sp25.pdf",
+              "file": "Linear_Spring25Exam1.pdf",
               "label": "Linear Spring25Exam1"
             },
             {
-              "file": "linear_exam2_sp25.pdf",
+              "file": "Linear_Spring25Exam2.pdf",
               "label": "Linear Spring25Exam2"
             },
             {
-              "file": "linear_final_sp25.pdf",
+              "file": "Linear_Spring25FinalExam.pdf",
               "label": "Linear Spring25FinalExam"
             }
           ]
         },
         {
-          "file": "linear_textbook.pdf",
+          "file": "lineartextbook.pdf",
           "label": "Linear Algebra Textbook"
         },
         {
@@ -3423,7 +3438,7 @@ export const ALL_COURSES =
           "label": "NewExam",
           "children": [
             {
-              "file": "linear_exams_1_to_3.pdf",
+              "file": "Linear_Exam1-3.pdf",
               "label": "Linear Exam1 3"
             }
           ]
@@ -3445,7 +3460,7 @@ export const ALL_COURSES =
       "flashcards": null,
       "pdfs": [
         {
-          "file": "stats_lectures.pdf",
+          "file": "stats-alllectures.pdf",
           "label": "All Lectures"
         }
       ],

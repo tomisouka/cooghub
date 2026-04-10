@@ -4,4 +4,5 @@
 export const mdFiles   = import.meta.glob("./content/**/*.md",       { query: "?raw", import: "default" });
 export const txtFiles  = import.meta.glob("./content/**/*.txt",      { query: "?raw", import: "default" });
 export const cppFiles  = import.meta.glob("./content/code/**/*.cpp", { query: "?raw", import: "default" });
+export const pyFiles   = import.meta.glob("./content/code/**/*.py",  { query: "?raw", import: "default" });
 export const htmlFiles = import.meta.glob("./content/**/*.html",     { query: "?raw", import: "default" });

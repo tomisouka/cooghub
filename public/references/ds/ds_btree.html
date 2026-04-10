@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B-Tree — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #fb923c;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --yellow: #e8c547;
+    --teal: #4ecdc4;
+    --pink: #f472b6;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .oh { color: var(--green); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 16px; }
+  .caption strong { color: var(--text); }
+
+  .tree-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+  /* B-tree node blocks */
+  .btnode {
+    display: inline-flex;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .btkey {
+    width: 48px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: var(--text);
+    border-right: 1px solid var(--border);
+  }
+  .btkey:last-child { border-right: none; }
+  .btkey.accent { color: var(--accent); background: #fb923c10; }
+  .btkey.green  { color: var(--green);  background: #6bde8410; }
+  .btkey.blue   { color: var(--blue);   background: #60a5fa10; }
+  .btkey.split  { color: var(--yellow); background: #e8c54710; border-color: var(--yellow); }
+
+  /* rules box */
+  .rules-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; border-left: 3px solid var(--accent); }
+  .rule-row { display: flex; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; align-items: flex-start; }
+  .rule-row:last-child { border-bottom: none; }
+  .rule-num { font-size: 11px; font-weight: 700; color: var(--accent); width: 20px; flex-shrink: 0; padding-top: 2px; }
+  .rule-text { color: var(--dim); line-height: 1.6; }
+  .rule-text strong { color: var(--text); }
+
+  /* vs BST table */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); font-weight: 700; }
+  .vs-table .mid  { color: var(--yellow); font-weight: 700; }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--green); }
+  .card:nth-child(3) { border-top-color: var(--blue); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--teal); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>B-Tree<span>.</span></h1>
+    <div class="subtitle">Multi-Key · Multi-Child · Disk-Optimized</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">search</span>  <span class="oh">O(log n)</span></div>
+    <div class="big-o-row"><span class="op">insert</span>  <span class="oh">O(log n)</span></div>
+    <div class="big-o-row"><span class="op">delete</span>  <span class="oh">O(log n)</span></div>
+    <div class="big-o-row"><span class="op">height</span>  <span class="oh">O(log_m n)</span></div>
+  </div>
+</div>
+
+<!-- 1. The key idea -->
+<div class="diagram-section">
+  <div class="label">1 — Multiple Keys Per Node</div>
+  <div class="annotation">A BST node holds <span>one key</span>, has two children. A B-tree node holds <span>many keys</span>, has many children. Keys in a node are sorted. Between every pair of adjacent keys sits a child pointer — everything in that subtree falls between those two keys.</div>
+
+  <div style="display:flex; gap:48px; flex-wrap:wrap; align-items:flex-start;">
+
+    <!-- BST node -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;">BST Node — 1 key, 2 children</div>
+      <svg width="200" height="130" viewBox="0 0 200 130">
+        <!-- node -->
+        <rect x="76" y="10" width="48" height="40" rx="5" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="100" y="36" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">50</text>
+        <!-- children lines -->
+        <line x1="88" y1="50" x2="44" y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="112" y1="50" x2="156" y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <!-- child nodes -->
+        <rect x="20" y="90" width="48" height="36" rx="5" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="44" y="114" text-anchor="middle" font-size="13" fill="#d4d8e0">&lt; 50</text>
+        <rect x="132" y="90" width="48" height="36" rx="5" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="156" y="114" text-anchor="middle" font-size="13" fill="#d4d8e0">&gt; 50</text>
+        <text x="100" y="72" text-anchor="middle" font-size="9" fill="#7a8090">1 key → 2 child pointers</text>
+      </svg>
+    </div>
+
+    <!-- B-tree node order 4 -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;">B-Tree Node (order 4) — 3 keys, 4 children</div>
+      <svg width="360" height="130" viewBox="0 0 360 130">
+        <!-- node with 3 keys -->
+        <rect x="60" y="10" width="240" height="42" rx="5" fill="#111318" stroke="#fb923c" stroke-width="1.5"/>
+        <line x1="140" y1="10" x2="140" y2="52" stroke="#fb923c" stroke-width="1"/>
+        <line x1="220" y1="10" x2="220" y2="52" stroke="#fb923c" stroke-width="1"/>
+        <text x="100" y="37" text-anchor="middle" font-size="16" font-weight="700" fill="#fb923c">20</text>
+        <text x="180" y="37" text-anchor="middle" font-size="16" font-weight="700" fill="#fb923c">50</text>
+        <text x="260" y="37" text-anchor="middle" font-size="16" font-weight="700" fill="#fb923c">80</text>
+        <!-- 4 child lines -->
+        <line x1="80"  y1="52" x2="44"  y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="140" y1="52" x2="140" y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="220" y1="52" x2="220" y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="280" y1="52" x2="316" y2="90" stroke="#2a2e38" stroke-width="1.5"/>
+        <!-- 4 child labels -->
+        <rect x="10"  y="90" width="68" height="32" rx="4" fill="#111318" stroke="#2a2e38" stroke-width="1"/>
+        <text x="44"  y="110" text-anchor="middle" font-size="11" fill="#7a8090">&lt; 20</text>
+        <rect x="106" y="90" width="68" height="32" rx="4" fill="#111318" stroke="#2a2e38" stroke-width="1"/>
+        <text x="140" y="110" text-anchor="middle" font-size="11" fill="#7a8090">20–50</text>
+        <rect x="186" y="90" width="68" height="32" rx="4" fill="#111318" stroke="#2a2e38" stroke-width="1"/>
+        <text x="220" y="110" text-anchor="middle" font-size="11" fill="#7a8090">50–80</text>
+        <rect x="282" y="90" width="68" height="32" rx="4" fill="#111318" stroke="#2a2e38" stroke-width="1"/>
+        <text x="316" y="110" text-anchor="middle" font-size="11" fill="#7a8090">&gt; 80</text>
+        <text x="180" y="138" text-anchor="middle" font-size="9" fill="#7a8090">3 keys → 4 child pointers</text>
+      </svg>
+    </div>
+  </div>
+  <div class="caption"><strong>Order m</strong> = max children per node. Each node holds at most m−1 keys and at most m children. More keys per node = shorter tree = fewer disk reads.</div>
+</div>
+
+<hr>
+
+<!-- 2. The rules -->
+<div class="diagram-section">
+  <div class="label">2 — The Rules of a B-Tree (Order m)</div>
+  <div class="annotation">These rules keep the tree balanced and nodes dense enough to be useful. Every rule exists to minimize disk reads.</div>
+
+  <div class="rules-box">
+    <div class="rule-row"><span class="rule-num">1</span><span class="rule-text">Every node has at most <strong>m children</strong> and at most <strong>m−1 keys</strong>.</span></div>
+    <div class="rule-row"><span class="rule-num">2</span><span class="rule-text">Every non-root node has at least <strong>⌈m/2⌉ children</strong> — nodes must stay at least half full.</span></div>
+    <div class="rule-row"><span class="rule-num">3</span><span class="rule-text">The <strong>root</strong> has at least 2 children (unless it is a leaf).</span></div>
+    <div class="rule-row"><span class="rule-num">4</span><span class="rule-text"><strong>All leaves are at the same depth</strong> — the tree is always perfectly height-balanced.</span></div>
+    <div class="rule-row"><span class="rule-num">5</span><span class="rule-text">Keys within a node are <strong>sorted</strong>. The subtree between key[i] and key[i+1] contains only values between those two keys.</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Full B-tree order 3 -->
+<div class="diagram-section">
+  <div class="label">3 — A Full B-Tree of Order 3</div>
+  <div class="annotation">Order 3 — each node holds at most <span>2 keys</span> and at most <span>3 children</span>. Minimum 1 key per non-root node. All leaves at the same level.</div>
+
+  <div class="tree-wrap">
+    <svg width="620" height="280" viewBox="0 0 620 280">
+
+      <!-- root node: [30 | 60] -->
+      <rect x="236" y="10" width="148" height="44" rx="6" fill="#111318" stroke="#fb923c" stroke-width="2"/>
+      <line x1="310" y1="10" x2="310" y2="54" stroke="#fb923c" stroke-width="1"/>
+      <text x="273" y="38" text-anchor="middle" font-size="17" font-weight="700" fill="#fb923c">30</text>
+      <text x="347" y="38" text-anchor="middle" font-size="17" font-weight="700" fill="#fb923c">60</text>
+      <text x="310" y="6"  text-anchor="middle" font-size="9" fill="#fb923c" font-weight="700">root</text>
+
+      <!-- level 1 edges: 3 children -->
+      <line x1="265" y1="54" x2="120" y2="120" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="310" y1="54" x2="310" y2="120" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="355" y1="54" x2="500" y2="120" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- internal node left: [10 | 20] -->
+      <rect x="46" y="120" width="148" height="44" rx="6" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="120" y1="120" x2="120" y2="164" stroke="#2a2e38" stroke-width="1"/>
+      <text x="83"  y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">10</text>
+      <text x="157" y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">20</text>
+
+      <!-- internal node mid: [40 | 50] -->
+      <rect x="236" y="120" width="148" height="44" rx="6" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="310" y1="120" x2="310" y2="164" stroke="#2a2e38" stroke-width="1"/>
+      <text x="273" y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">40</text>
+      <text x="347" y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">50</text>
+
+      <!-- internal node right: [70 | 90] -->
+      <rect x="426" y="120" width="148" height="44" rx="6" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="500" y1="120" x2="500" y2="164" stroke="#2a2e38" stroke-width="1"/>
+      <text x="463" y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">70</text>
+      <text x="537" y="148" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">90</text>
+
+      <!-- leaf edges from left node -->
+      <line x1="74"  y1="164" x2="38"  y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="120" y1="164" x2="110" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="166" y1="164" x2="188" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- leaf edges from mid node -->
+      <line x1="264" y1="164" x2="258" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="310" y1="164" x2="310" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="356" y1="164" x2="362" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- leaf edges from right node -->
+      <line x1="454" y1="164" x2="432" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="500" y1="164" x2="500" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+      <line x1="546" y1="164" x2="568" y2="224" stroke="#2a2e38" stroke-width="1.5"/>
+
+      <!-- leaf nodes — all same level -->
+      <!-- left children -->
+      <rect x="12"  y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="38"  y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">5</text>
+
+      <rect x="84"  y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="110" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">15</text>
+
+      <rect x="162" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="188" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">25</text>
+
+      <!-- mid children -->
+      <rect x="232" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="258" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">35</text>
+
+      <rect x="284" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="310" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">45</text>
+
+      <rect x="336" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="362" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">55</text>
+
+      <!-- right children -->
+      <rect x="406" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="432" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">65</text>
+
+      <rect x="474" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="500" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">80</text>
+
+      <rect x="542" y="224" width="52" height="38" rx="5" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+      <text x="568" y="248" text-anchor="middle" font-size="13" font-weight="700" fill="#6bde84">95</text>
+
+      <!-- leaf label -->
+      <text x="310" y="276" text-anchor="middle" font-size="9" fill="#6bde84" font-weight="700">all leaves at same depth ✓</text>
+    </svg>
+  </div>
+  <div class="caption">
+    <strong>Root [30|60]</strong> splits the tree into three ranges: &lt;30, 30–60, &gt;60.
+    Each internal node further splits its range. Every leaf is at depth 2. No node exceeds 2 keys.
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. Node split on insert -->
+<div class="diagram-section">
+  <div class="label">4 — Node Split — What Happens When a Node is Full</div>
+  <div class="annotation">When a node reaches <span>m keys</span> it's overfull. The <span>middle key</span> gets promoted up to the parent. The remaining keys split into two new nodes.</div>
+
+  <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start; justify-content:center;">
+
+    <!-- Before: overfull node -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:12px;">Insert 45 — node becomes overfull (3 keys in order-3 tree)</div>
+      <svg width="280" height="100" viewBox="0 0 280 100">
+        <!-- overfull node -->
+        <rect x="20" y="30" width="240" height="44" rx="6" fill="#f8717110" stroke="#f87171" stroke-width="2"/>
+        <line x1="100" y1="30" x2="100" y2="74" stroke="#f87171" stroke-width="1"/>
+        <line x1="180" y1="30" x2="180" y2="74" stroke="#f87171" stroke-width="1"/>
+        <text x="60"  y="58" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">30</text>
+        <text x="140" y="58" text-anchor="middle" font-size="16" font-weight="700" fill="#e8c547">45</text>
+        <text x="220" y="58" text-anchor="middle" font-size="16" font-weight="700" fill="#d4d8e0">60</text>
+        <text x="140" y="20" text-anchor="middle" font-size="9" fill="#f87171" font-weight="700">overfull — 3 keys, max is 2</text>
+        <text x="140" y="90" text-anchor="middle" font-size="9" fill="#e8c547">45 is the middle key → promote it</text>
+      </svg>
+    </div>
+
+    <div style="display:flex;align-items:center;font-size:32px;color:var(--accent);padding-top:30px;">→</div>
+
+    <!-- After: split -->
+    <div>
+      <div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:12px;">Split — 45 promoted, [30] and [60] become siblings</div>
+      <svg width="280" height="140" viewBox="0 0 280 140">
+        <!-- parent receives 45 -->
+        <rect x="106" y="10" width="68" height="40" rx="6" fill="#e8c54718" stroke="#e8c547" stroke-width="2"/>
+        <text x="140" y="36" text-anchor="middle" font-size="16" font-weight="700" fill="#e8c547">45</text>
+        <text x="140" y="6" text-anchor="middle" font-size="9" fill="#e8c547" font-weight="700">↑ promoted to parent</text>
+
+        <!-- two children -->
+        <line x1="124" y1="50" x2="70"  y2="96" stroke="#2a2e38" stroke-width="1.5"/>
+        <line x1="156" y1="50" x2="210" y2="96" stroke="#2a2e38" stroke-width="1.5"/>
+
+        <rect x="28"  y="96" width="84" height="40" rx="6" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="70"  y="122" text-anchor="middle" font-size="15" font-weight="700" fill="#6bde84">30</text>
+
+        <rect x="168" y="96" width="84" height="40" rx="6" fill="#6bde8410" stroke="#6bde84" stroke-width="1.5"/>
+        <text x="210" y="122" text-anchor="middle" font-size="15" font-weight="700" fill="#6bde84">60</text>
+
+        <text x="70"  y="140" text-anchor="middle" font-size="8" fill="#6bde84">left sibling</text>
+        <text x="210" y="140" text-anchor="middle" font-size="8" fill="#6bde84">right sibling</text>
+      </svg>
+    </div>
+  </div>
+  <div class="caption"><strong>Split rule:</strong> middle key goes up, left keys stay left, right keys stay right. If the parent is also full it splits too — this can cascade all the way to the root. If the root splits, tree height increases by 1.</div>
+</div>
+
+<hr>
+
+<!-- 5. BST vs B-Tree -->
+<div class="diagram-section">
+  <div class="label">5 — BST vs B-Tree</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>BST</th><th>B-Tree</th></tr>
+    <tr>
+      <td>Keys per node</td>
+      <td>1</td>
+      <td class="good">1 to m−1</td>
+    </tr>
+    <tr>
+      <td>Children per node</td>
+      <td>0, 1, or 2</td>
+      <td class="good">⌈m/2⌉ to m</td>
+    </tr>
+    <tr>
+      <td>Always balanced</td>
+      <td style="color:var(--red);font-weight:700;">No — can degenerate</td>
+      <td class="good">Yes — all leaves same depth</td>
+    </tr>
+    <tr>
+      <td>Height</td>
+      <td style="color:var(--red);">O(n) worst case</td>
+      <td class="good">O(log_m n) — very short</td>
+    </tr>
+    <tr>
+      <td>Disk reads to find key</td>
+      <td style="color:var(--red);">O(log n) nodes</td>
+      <td class="good">O(log_m n) — far fewer nodes</td>
+    </tr>
+    <tr>
+      <td>Designed for</td>
+      <td>in-memory structures</td>
+      <td class="good">disk storage, databases, file systems</td>
+    </tr>
+  </table>
+  <div class="caption">A B-tree of order 1000 on a million records has height ≈ 2. That means at most <strong>2 disk reads</strong> to find anything. A BST on the same data could need 20 reads.</div>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Multi-Key Nodes</div>
+    <div class="card-body">Each node holds up to m−1 keys and m children. More keys per node = shorter tree = fewer disk reads.</div>
+    <div class="card-o" style="color:var(--accent)">m−1 keys per node</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Always Balanced</div>
+    <div class="card-body">All leaves are at the same depth — guaranteed. No degenerate case. Height grows only when the root splits.</div>
+    <div class="card-o" style="color:var(--green)">leaves same depth</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Node Split</div>
+    <div class="card-body">When a node is full the middle key gets promoted to the parent and the node splits in two. Can cascade up to root.</div>
+    <div class="card-o" style="color:var(--blue)">middle key promotes</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Half Full Minimum</div>
+    <div class="card-body">Non-root nodes must stay at least ⌈m/2⌉ children — they can't be nearly empty. Keeps nodes dense and the tree short.</div>
+    <div class="card-o" style="color:var(--yellow)">⌈m/2⌉ minimum</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">Databases (PostgreSQL, MySQL indexes), file systems (NTFS, ext4, HFS+), and anywhere disk I/O is the bottleneck.</div>
+    <div class="card-o" style="color:var(--teal)">databases + filesystems</div>
+  </div>
+</div>
+
+</body>
+</html>

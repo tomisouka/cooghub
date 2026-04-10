@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #34d399;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+.sidebar {
+  width: 300px; min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header { padding: 20px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sidebar-header h1 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.sidebar-subtitle { color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+.tl-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; font-weight: 500; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+.timeline { position: relative; padding-left: 22px; margin-bottom: 28px; }
+.timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(to bottom, var(--accent), var(--dim)); border-radius: 2px; opacity: 0.4; }
+.tl-item { position: relative; margin-bottom: 18px; cursor: default; }
+.tl-item::before { content: ''; position: absolute; left: -18px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--dot); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--dot); transition: transform 0.15s; }
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.5px; color: var(--dot); margin-bottom: 2px; }
+.tl-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.tl-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+.src-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; font-weight: 500; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+.src-card { background: var(--elevated); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; transition: border-color 0.15s; text-decoration: none; display: block; }
+.src-card:hover { border-color: var(--accent); }
+.src-card span { color: var(--text); font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 2px; }
+.src-card small { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.7rem; }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.topbar-title { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--text); margin-right: 8px; }
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a { color: var(--muted); font-size: 0.75rem; font-weight: 600; text-decoration: none; padding: 4px 10px; border-radius: 6px; border: 1px solid transparent; transition: all 0.15s; }
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input { margin-left: auto; background: var(--elevated); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.8rem; padding: 5px 11px; outline: none; width: 180px; }
+#search-input:focus { border-color: var(--accent); }
+.content-scroll { flex: 1; overflow-y: auto; padding: 32px 32px 80px; }
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+.section-title { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 700; margin: 48px 0 6px; letter-spacing: -0.3px; }
+.section-title:first-child { margin-top: 0; }
+.section-sub { color: var(--muted); font-size: 0.86rem; margin-bottom: 22px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s, transform 0.15s; }
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--card-color, var(--accent)); font-weight: 500; letter-spacing: 0.5px; margin-bottom: 5px; }
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code { font-family: 'DM Mono', monospace; background: var(--elevated); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.9rem; color: #e8c547; }
+pre.code-block { background: var(--elevated); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: 'DM Mono', monospace; font-size: 0.9rem; color: #c8d0e0; line-height: 1.8; overflow-x: auto; margin: 10px 0; }
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.perm-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 14px; }
+.perm-table th { font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+.perm-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+.perm-table td:first-child { font-family: 'DM Mono', monospace; color: #e8c547; white-space: nowrap; }
+.perm-table tr:hover td { background: var(--surface); }
+.perm-table td strong { color: var(--text); }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
+
+
+
+
+
+
+/* ── Mobile collapsible sidebar ───────────────────────────────────────────── */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 300;
+  background: var(--surface, #161920);
+  color: var(--text, #d4d8e0);
+  border: 1px solid var(--border, #2a2e38);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 250 !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 85vw !important;
+    max-width: 300px !important;
+    min-width: unset !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
+  }
+
+  /* Main content fills full width since sidebar is out of flow */
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Give topbar left padding so toggle button doesn't overlap text */
+  .topbar {
+    padding-left: 48px !important;
+    flex-wrap: wrap !important;
+  }
+}
+</style>
+</head>
+<body>
+<button id="sidebar-toggle">☰ Timeline</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+
+
+
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Linux History</h1>
+      <p class="sidebar-subtitle">From UNIX at Bell Labs to powering 100% of the world's supercomputers</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#7a8090">
+          <div class="tl-year">1965</div>
+          <div class="tl-title">MULTICS — The Overly Ambitious Ancestor</div>
+          <div class="tl-desc">MIT, Bell Labs, and GE attempt a grand multi-user OS. Too complex, too slow. Bell Labs walks away — but the ideas survive.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1969</div>
+          <div class="tl-title">UNIX Born at Bell Labs</div>
+          <div class="tl-desc">Ken Thompson &amp; Dennis Ritchie build a simpler alternative on a spare PDP-7. "Unics" — a pun on Multics. Everything is a file. One thing, done well.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1973</div>
+          <div class="tl-title">UNIX Rewritten in C</div>
+          <div class="tl-desc">Ritchie creates C; UNIX is rewritten in it. Game-changer: now portable to other hardware. The first truly portable OS.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1977</div>
+          <div class="tl-title">BSD — Berkeley's Fork</div>
+          <div class="tl-desc">UC Berkeley creates their own UNIX variant. Bill Joy adds vi and the C shell. Foundation for FreeBSD, macOS, iOS, and PlayStation OS.</div>
+        </div>
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">1983</div>
+          <div class="tl-title">GNU Project — Stallman's Crusade</div>
+          <div class="tl-desc">Richard Stallman at MIT: "GNU's Not Unix." Goal: a completely free OS. Writes gcc, bash, emacs, coreutils... everything except the kernel.</div>
+        </div>
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1987</div>
+          <div class="tl-title">MINIX — The Textbook OS</div>
+          <div class="tl-desc">Andrew Tanenbaum builds MINIX for his OS textbook. Educational microkernel, $69, source included. A Finnish student will read it carefully.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1991</div>
+          <div class="tl-title">Linux 0.01 — "Just a Hobby"</div>
+          <div class="tl-desc">August 25, 1991. Linus Torvalds, 21, posts to comp.os.minix: "just a hobby, won't be big and professional." 10,239 lines of code.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">1992</div>
+          <div class="tl-title">GPL + GNU/Linux Complete</div>
+          <div class="tl-desc">Linux adopts GPL. GNU userland + Linux kernel = a complete free OS. The Tanenbaum-Torvalds debate: microkernel vs monolithic. Linus wins by shipping.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1993–1994</div>
+          <div class="tl-title">First Distros: Slackware, Debian, Red Hat</div>
+          <div class="tl-desc">Slackware makes Linux usable. Debian launches community-driven development. Red Hat brings Linux to business. The distro ecosystem begins.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">2004</div>
+          <div class="tl-title">Ubuntu — Linux for Human Beings</div>
+          <div class="tl-desc">Mark Shuttleworth launches Ubuntu 4.10. Free CDs mailed worldwide. 6-month releases, based on Debian. Finally: Linux that normal people could use.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">2008</div>
+          <div class="tl-title">Android — Linux Goes Mobile</div>
+          <div class="tl-desc">Google ships Android 1.0 on the Linux kernel. Would become the world's most-used OS. 3 billion devices. Linux in every pocket.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">2025</div>
+          <div class="tl-title">Linux Everywhere</div>
+          <div class="tl-desc">96% of top web servers. 100% of supercomputers. 85% of smartphones (Android). Cloud infrastructure, IoT, routers, smart TVs, your car.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://www.kernel.org/" target="_blank" rel="noopener">
+        <span>The Linux Kernel Archive</span>
+        <small>kernel.org</small>
+      </a>
+      <a class="src-card" href="https://www.gnu.org/gnu/linux-and-gnu.html" target="_blank" rel="noopener">
+        <span>GNU and Linux — Stallman</span>
+        <small>gnu.org</small>
+      </a>
+      <a class="src-card" href="https://linuxcommand.org/tlcl.php" target="_blank" rel="noopener">
+        <span>The Linux Command Line — Shotts (free)</span>
+        <small>linuxcommand.org</small>
+      </a>
+      <a class="src-card" href="https://wiki.archlinux.org/" target="_blank" rel="noopener">
+        <span>Arch Wiki — best Linux docs</span>
+        <small>wiki.archlinux.org</small>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Linux Reference</span>
+      <nav>
+        <a href="#philosophy">Philosophy</a>
+        <a href="#filesystem">Filesystem</a>
+        <a href="#permissions">Permissions</a>
+        <a href="#processes">Processes</a>
+        <a href="#distros">Distros</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+
+<div id="philosophy">
+  <div class="section-title">The Unix Philosophy</div>
+  <div class="section-sub">The rules that made Linux conquer the world</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Rule 1</div><div class="card-title">Do one thing and do it well</div>
+      <div class="card-desc"><code>ls</code> lists files. <code>grep</code> searches text. <code>wc</code> counts words. <strong>No more, no less.</strong> Every program solves exactly one problem completely.<br><br>Contrast with Windows: Notepad, WordPad, and Word all "edit text." Unix has one tool, configurable. Compose complexity from simple parts.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Rule 2</div><div class="card-title">Everything is a file</div>
+      <div class="card-desc">Regular files, directories, devices, sockets, pipes — all accessed through the same file interface. <strong>Read/write works on everything.</strong><br><br><code>/dev/sda</code> is your disk. <code>/dev/null</code> discards data. <code>/proc/cpuinfo</code> is your CPU info. No special APIs — just open, read, write, close.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Rule 3</div><div class="card-title">Compose with pipes</div>
+      <div class="card-desc">The pipe <code>|</code> connects programs: stdout of one becomes stdin of the next. Small tools become powerful in combination.<br><br><code>cat log.txt | grep ERROR | sort | uniq -c | sort -rn | head -10</code> — top 10 most common errors. No new program needed.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Rule 4</div><div class="card-title">Text is the universal interface</div>
+      <div class="card-desc">Programs communicate through plain text streams. Any language can read any output. Config files are human-readable. Logs are text.<br><br>The CLI is not a limitation — it's a <strong>protocol that enables composition.</strong> Shell scripts are pipelines made permanent.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Kernel</div><div class="card-title">Monolithic but modular</div>
+      <div class="card-desc">Linux uses a <strong>monolithic kernel</strong> — all core services run in kernel space for performance. But modular: drivers load/unload at runtime via <code>insmod</code>/<code>rmmod</code>.<br><br>Beat Tanenbaum's prediction that monolithic kernels were "obsolete." Pragmatism won.</div>
+    </div></div>
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Open Source</div><div class="card-title">GPL — the viral license</div>
+      <div class="card-desc">The GNU GPL requires: any distribution of a GPL program must include source under the same license. <strong>Freedom is viral.</strong><br><br>Why Android must publish kernel changes — but Google's apps don't have to be open source. The kernel is GPL. The apps are not.</div>
+    </div></div>
+  </div>
+</div>
+
+<div id="filesystem">
+  <div class="section-title">Filesystem Hierarchy</div>
+  <div class="section-sub">The Linux directory tree — know where everything lives</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Root</div><div class="card-title">/ — One tree, no drive letters</div>
+      <div class="card-desc">Unlike Windows (C:\, D:\), Linux has one unified tree rooted at <code>/</code>. Other drives are <em>mounted</em> into subdirectories. There are no drive letters — just paths.<br><br><strong>Key rule:</strong> <code>/</code> is not a folder you open. It is the entire filesystem.</div>
+    </div></div>
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">/home &amp; /root</div><div class="card-title">User space</div>
+      <div class="card-desc"><code>/home/username/</code> — your files, configs, downloads. <code>~</code> is shorthand.<br><code>/root/</code> — root user's home. Separate from <code>/</code>.<br><br>Dotfiles (<code>.bashrc</code>, <code>.config/</code>) live here. <code>ls -a</code> to see hidden files. Don't touch other users' /home.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">/etc</div><div class="card-title">System configuration — all text files</div>
+      <div class="card-desc"><code>/etc/passwd</code> — user accounts.<br><code>/etc/fstab</code> — mount points.<br><code>/etc/hostname</code> — machine name.<br><code>/etc/apt/sources.list</code> — package repos.<br><code>/etc/hosts</code> — local DNS overrides.<br><br><strong>Rule:</strong> to configure the system, edit files here.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">/bin, /sbin, /usr</div><div class="card-title">Programs</div>
+      <div class="card-desc"><code>/bin</code> — essential binaries (ls, cp, bash). Available even in recovery mode.<br><code>/sbin</code> — system binaries (fsck, mount) — root only.<br><code>/usr/bin</code> — most user programs.<br><code>/usr/local/bin</code> — manually installed programs.<br><br>Modern distros: <code>/bin</code> → symlink to <code>/usr/bin</code>.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">/var &amp; /tmp</div><div class="card-title">Variable & temporary data</div>
+      <div class="card-desc"><code>/var/log/</code> — system logs. Check here when things break.<br><code>/var/lib/</code> — database files, package state.<br><code>/tmp/</code> — cleared on reboot.<br><br><strong>Debug tip:</strong> <code>tail -f /var/log/syslog</code> watches system events live.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">/dev &amp; /proc</div><div class="card-title">Virtual filesystems — generated by kernel</div>
+      <div class="card-desc"><code>/dev/sda</code> — disk 1. <code>/dev/null</code> — discard input. <code>/dev/random</code> — random bytes. <code>/dev/stdin</code> — standard input.<br><br><code>/proc/$(pid)/</code> — live info about any process. <code>/proc/meminfo</code>, <code>/proc/cpuinfo</code>.<br><br>These aren't real files — the kernel generates them on read.</div>
+    </div></div>
+  </div>
+  <pre class="code-block"><span class="cmt"># Navigate the tree</span>
+<span class="fn">pwd</span>                       <span class="cmt"># print working directory</span>
+<span class="fn">cd</span> ~                      <span class="cmt"># go home</span>
+<span class="fn">cd</span> /etc                   <span class="cmt"># absolute path</span>
+<span class="fn">cd</span> ../..                  <span class="cmt"># relative — up two levels</span>
+<span class="fn">ls</span> -la /var/log           <span class="cmt"># list with hidden files, long format</span>
+<span class="fn">find</span> /etc -name <span class="str">"*.conf"</span>  <span class="cmt"># find all .conf files under /etc</span>
+<span class="fn">du</span> -sh ~/Downloads        <span class="cmt"># disk usage, human-readable</span>
+<span class="fn">df</span> -h                     <span class="cmt"># free space on all mounted filesystems</span></pre>
+</div>
+
+<div id="permissions">
+  <div class="section-title">Permissions</div>
+  <div class="section-sub">rwx — the three-letter system that controls everything</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Permission Bits</div><div class="card-title">r w x — read write execute</div>
+      <div class="card-desc">Every file has 9 permission bits: <strong>3 for owner, 3 for group, 3 for others.</strong><br><br><code>-rwxr-xr--</code>: owner can read/write/execute; group can read/execute; others read only.<br><br>Leading char: <code>-</code> = file, <code>d</code> = directory, <code>l</code> = symlink.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Octal Notation</div><div class="card-title">r=4, w=2, x=1 — add them up</div>
+      <div class="card-desc">Each 3-bit group becomes a digit:<br><code>7</code> = rwx (4+2+1) = full<br><code>6</code> = rw- (4+2) = read/write<br><code>5</code> = r-x (4+1) = read/execute<br><code>4</code> = r-- = read only<br><code>0</code> = --- = none<br><br><code>chmod 755</code> = owner full, group/others read+execute.</div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Ownership</div><div class="card-title">chown — change who owns a file</div>
+      <div class="card-desc">Every file has an <strong>owner</strong> and a <strong>group</strong>. Only owner (or root) can change permissions.<br><br><code>chown alice file.txt</code><br><code>chown alice:devs file.txt</code> — alice + devs group.<br><code>chown -R alice /project</code> — recursive.<br><br>Use <code>groups</code> to see your memberships. <code>id</code> to see your UID/GID.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">sudo</div><div class="card-title">Superuser do — elevated + audited</div>
+      <div class="card-desc"><code>sudo command</code> — run as root temporarily. Requires your password + membership in the <code>sudo</code> group. Every call is <strong>logged.</strong><br><br><code>su -</code> — switch to full root shell. Not recommended — unaudited.<br><br><strong>Rule:</strong> always prefer <code>sudo</code> over <code>su</code> for traceability.</div>
+    </div></div>
+  </div>
+  <table class="perm-table">
+    <thead><tr><th>Command</th><th>Symbolic</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr><td>chmod 644 file</td><td>rw-r--r--</td><td><strong>Standard file</strong> — owner read/write, everyone else read only</td></tr>
+      <tr><td>chmod 755 script.sh</td><td>rwxr-xr-x</td><td><strong>Executable</strong> — owner full control, everyone can run it</td></tr>
+      <tr><td>chmod 600 ~/.ssh/id_rsa</td><td>rw-------</td><td><strong>Private key</strong> — owner only. SSH requires exactly this</td></tr>
+      <tr><td>chmod 700 ~/scripts</td><td>rwx------</td><td><strong>Private dir</strong> — only owner can enter or list</td></tr>
+      <tr><td>chmod 777 /tmp/shared</td><td>rwxrwxrwx</td><td><strong>⚠ Dangerous</strong> — everyone full access, avoid on real files</td></tr>
+      <tr><td>chmod +x script.sh</td><td>adds x bit</td><td><strong>Make executable</strong> — relative, doesn't touch r or w</td></tr>
+      <tr><td>chmod -R 755 /var/www</td><td>recursive</td><td><strong>Web server dirs</strong> — standard for publicly served content</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="processes">
+  <div class="section-title">Processes &amp; the Shell</div>
+  <div class="section-sub">How Linux runs programs — and how to control them</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Processes</div><div class="card-title">Every running program is a process</div>
+      <div class="card-desc">Each process has a <strong>PID</strong>. PID 1 is <code>systemd</code> — ancestor of all. Every process is forked from another. Fork → exec is how new programs start.<br><br><code>ps aux</code> — list all processes.<br><code>htop</code> — interactive monitor.<br><code>pgrep nginx</code> — find PIDs by name.<br><code>kill -9 PID</code> — force kill.</div>
+    </div></div>
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Signals</div><div class="card-title">How the OS talks to processes</div>
+      <div class="card-desc">Signals are software interrupts:<br><br><code>SIGTERM (15)</code> — please exit gracefully.<br><code>SIGKILL (9)</code> — die now, no cleanup possible.<br><code>SIGHUP (1)</code> — reload config (servers use this).<br><code>SIGINT (2)</code> — Ctrl+C.<br><code>SIGSTOP</code> — pause (Ctrl+Z).<br><br>Programs can catch most signals — but never SIGKILL.</div>
+    </div></div>
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Redirection</div><div class="card-title">stdin (0), stdout (1), stderr (2)</div>
+      <div class="card-desc">Every process has 3 standard streams:<br><strong>stdin</strong> — input (default: keyboard)<br><strong>stdout</strong> — normal output (default: terminal)<br><strong>stderr</strong> — error output (default: terminal)<br><br><code>cmd &gt; out.txt</code> — redirect stdout.<br><code>cmd 2&gt; err.txt</code> — redirect stderr.<br><code>cmd &gt;&amp;2</code> — merge stdout into stderr.</div>
+    </div></div>
+    <div class="card" style="--card-color:#fb923c"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Jobs</div><div class="card-title">Background &amp; foreground</div>
+      <div class="card-desc"><code>./task &amp;</code> — run in background.<br><code>jobs</code> — list background jobs.<br><code>fg %1</code> — bring job 1 to foreground.<br><code>bg %1</code> — push to background.<br><code>Ctrl+Z</code> — pause current job (SIGTSTP).<br><code>nohup cmd &amp;</code> — keep running after logout.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">systemd</div><div class="card-title">PID 1 — init &amp; service manager</div>
+      <div class="card-desc">Modern Linux: <code>systemd</code> manages services, boot, logging.<br><br><code>systemctl start nginx</code><br><code>systemctl enable nginx</code> — start on boot.<br><code>systemctl status nginx</code><br><code>journalctl -u nginx -f</code> — follow live logs.<br><br>Controversial in the community — but universal in major distros.</div>
+    </div></div>
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Shell</div><div class="card-title">bash — the interpreter</div>
+      <div class="card-desc">The shell is a program that reads commands and runs them. <strong>bash</strong> is standard; <strong>zsh</strong> is bash-compatible with more features; <strong>fish</strong> is friendly but less scriptable.<br><br><code>~/.bashrc</code> — runs every new terminal.<br><code>echo $PATH</code> — where bash looks for programs.<br><code>which python</code> — which binary runs.</div>
+    </div></div>
+  </div>
+  <pre class="code-block"><span class="cmt"># Process management</span>
+<span class="fn">ps</span> aux | <span class="fn">grep</span> python        <span class="cmt"># find python processes</span>
+<span class="fn">kill</span> -<span class="num">15</span> <span class="num">1234</span>              <span class="cmt"># graceful terminate</span>
+<span class="fn">kill</span> -<span class="num">9</span> <span class="num">1234</span>               <span class="cmt"># force kill</span>
+<span class="fn">htop</span>                       <span class="cmt"># interactive process monitor</span>
+
+<span class="cmt"># Redirection</span>
+<span class="fn">ls</span> -la &gt; files.txt         <span class="cmt"># save stdout to file (overwrite)</span>
+<span class="fn">ls</span> -la &gt;&gt; files.txt        <span class="cmt"># append stdout</span>
+<span class="fn">cat</span> missing <span class="num">2</span>&gt;/dev/null    <span class="cmt"># discard errors</span>
+<span class="fn">cmd</span> &gt; out.txt <span class="num">2</span>&gt;&amp;<span class="num">1</span>        <span class="cmt"># merge stderr into stdout</span>
+
+<span class="cmt"># Pipes</span>
+<span class="fn">cat</span> /var/log/syslog | <span class="fn">grep</span> ERROR | <span class="fn">tail</span> -<span class="num">20</span></pre>
+</div>
+
+<div id="distros">
+  <div class="section-title">Distributions</div>
+  <div class="section-sub">Same kernel — different philosophies</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Debian / Ubuntu / Mint</div><div class="card-title">apt — the dominant family</div>
+      <div class="card-desc">Debian: rock-solid, slower releases. Ubuntu: Debian + 6-month cadence + LTS every 2 years. Mint: Ubuntu + friendlier desktop.<br><br><code>apt update &amp;&amp; apt upgrade</code><br><code>apt install packagename</code><br><code>apt remove packagename</code><br><br><strong>Package format:</strong> <code>.deb</code></div>
+    </div></div>
+    <div class="card" style="--card-color:#f472b6"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">RHEL / Fedora / Rocky</div><div class="card-title">dnf — the enterprise family</div>
+      <div class="card-desc">RHEL dominates enterprise servers. Fedora is the bleeding-edge community version. Rocky Linux and AlmaLinux replaced CentOS as free RHEL clones.<br><br><code>dnf install packagename</code><br><code>dnf update</code><br><br><strong>Package format:</strong> <code>.rpm</code></div>
+    </div></div>
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Arch Linux</div><div class="card-title">pacman — rolling release, build-your-own</div>
+      <div class="card-desc">Manual install, no defaults — you build from scratch. Rolling release: always latest, no version upgrades. AUR has almost everything.<br><br><code>pacman -Syu</code> — full system update.<br><code>pacman -S packagename</code><br><br>Famous for the <strong>Arch Wiki</strong> — best Linux docs in existence.</div>
+    </div></div>
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Common Core</div><div class="card-title">What every distro shares</div>
+      <div class="card-desc">Regardless of distro, these are identical across all Linux:<br><br>• Linux kernel (<code>uname -r</code> to check version)<br>• Filesystem hierarchy (<code>/etc</code>, <code>/home</code>, <code>/var</code>…)<br>• bash + core terminal commands<br>• User/group permission model (rwx)<br>• systemd (most distros)<br><br><strong>Learn the core — the distro is just packaging.</strong></div>
+    </div></div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+
+<script>
+(function() {
+  var btn     = document.getElementById('sidebar-toggle');
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰ Timeline';
+  }
+
+  btn.addEventListener('click', function() {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  sidebar.querySelectorAll('.tl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#34d399; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --blue:#60a5fa; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ok { color:var(--green); font-weight:700; }
+  .og { color:var(--accent); font-weight:700; }
+  .ob { color:var(--red); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  .step-grid { display:flex; flex-direction:column; gap:20px; }
+  .step-row { display:flex; flex-direction:column; gap:8px; }
+  .step-top { display:flex; align-items:center; gap:12px; }
+  .step-label { font-size:10px; color:var(--dim); width:60px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .cells { display:flex; gap:5px; }
+  .cell-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .cell { width:44px; height:44px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; border:1px solid var(--border); background:#21252e; color:var(--text); }
+  .cell.mid     { background:#34d39930; border-color:var(--accent); color:var(--accent); }
+  .cell.elim    { background:#1a1d24; border-color:#1e2230; color:#3a4052; }
+  .cell.active  { background:#21252e; border-color:#2a2e38; color:var(--text); }
+  .cell.found   { background:#6bde8430; border-color:var(--green); color:var(--green); }
+  .cell-idx     { font-size:9px; color:var(--dim); }
+  .cell-ptr     { font-size:9px; color:var(--accent); font-weight:700; }
+
+  .range-bar { display:flex; gap:5px; margin-left:72px; }
+  .range-seg { height:3px; border-radius:2px; }
+
+  .step-note { font-size:12px; color:var(--dim); margin-left:72px; }
+  .step-note .hl { color:var(--accent); font-weight:700; }
+  .step-note .go { color:var(--blue); font-weight:700; }
+  .step-note .win { color:var(--green); font-weight:700; }
+
+  .halving-vis { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+  .halving-row { display:flex; align-items:center; gap:12px; }
+  .halving-label { font-size:10px; color:var(--dim); width:60px; flex-shrink:0; }
+  .halving-bar { height:28px; border-radius:4px; background:#21252e; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--dim); transition:width 0.3s; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--blue); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Binary<span>.</span></h1>
+    <div class="subtitle">Divide & Conquer Search · Sorted Array Required</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="ok">O(1) — target is mid</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="og">O(log n)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="og">O(log n)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1) iterative</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">The array is sorted. Check the <span>middle element</span>. If it's the target — done. If target is smaller, search the <span>left half</span>. If target is larger, search the <span>right half</span>. Each comparison eliminates half the remaining elements. After log₂n steps the search space is 1.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Search for 23 in [2, 5, 8, 12, 16, 23, 38, 45, 56, 72]</div>
+  <div class="annotation">Array has 10 elements. <span>Teal</span> = current mid, faded = eliminated half.</div>
+
+  <div class="step-grid">
+
+    <!-- Step 1 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 1</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell active">2</div><div class="cell-idx">0</div><div class="cell-ptr">L</div></div>
+          <div class="cell-wrap"><div class="cell active">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell active">8</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell active">12</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell mid">16</div><div class="cell-idx">4</div><div class="cell-ptr">M</div></div>
+          <div class="cell-wrap"><div class="cell active">23</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell active">38</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell active">45</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell active">56</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell active">72</div><div class="cell-idx">9</div><div class="cell-ptr">R</div></div>
+        </div>
+      </div>
+      <div class="step-note">mid = (0+9)/2 = <span class="hl">4</span>, arr[4] = 16. 23 &gt; 16 → <span class="go">search right half</span>, L = 5</div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 2</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell elim">2</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell elim">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell elim">8</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell elim">12</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell elim">16</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell active">23</div><div class="cell-idx">5</div><div class="cell-ptr">L</div></div>
+          <div class="cell-wrap"><div class="cell active">38</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell mid">45</div><div class="cell-idx">7</div><div class="cell-ptr">M</div></div>
+          <div class="cell-wrap"><div class="cell active">56</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell active">72</div><div class="cell-idx">9</div><div class="cell-ptr">R</div></div>
+        </div>
+      </div>
+      <div class="step-note">mid = (5+9)/2 = <span class="hl">7</span>, arr[7] = 45. 23 &lt; 45 → <span class="go">search left half</span>, R = 6</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Step 3</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell elim">2</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell elim">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell elim">8</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell elim">12</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell elim">16</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell active">23</div><div class="cell-idx">5</div><div class="cell-ptr">L</div></div>
+          <div class="cell-wrap"><div class="cell mid">38</div><div class="cell-idx">6</div><div class="cell-ptr">M/R</div></div>
+          <div class="cell-wrap"><div class="cell elim">45</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell elim">56</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell elim">72</div><div class="cell-idx">9</div></div>
+        </div>
+      </div>
+      <div class="step-note">mid = (5+6)/2 = <span class="hl">5</span>… wait, arr[5] = 23. Recalc: mid = 5. arr[5] = 23 = 23 → <span class="win">found ✓</span></div>
+    </div>
+
+    <!-- Found -->
+    <div class="step-row">
+      <div class="step-top">
+        <span class="step-label">Found</span>
+        <div class="cells">
+          <div class="cell-wrap"><div class="cell elim">2</div><div class="cell-idx">0</div></div>
+          <div class="cell-wrap"><div class="cell elim">5</div><div class="cell-idx">1</div></div>
+          <div class="cell-wrap"><div class="cell elim">8</div><div class="cell-idx">2</div></div>
+          <div class="cell-wrap"><div class="cell elim">12</div><div class="cell-idx">3</div></div>
+          <div class="cell-wrap"><div class="cell elim">16</div><div class="cell-idx">4</div></div>
+          <div class="cell-wrap"><div class="cell found">23</div><div class="cell-idx">5</div></div>
+          <div class="cell-wrap"><div class="cell elim">38</div><div class="cell-idx">6</div></div>
+          <div class="cell-wrap"><div class="cell elim">45</div><div class="cell-idx">7</div></div>
+          <div class="cell-wrap"><div class="cell elim">56</div><div class="cell-idx">8</div></div>
+          <div class="cell-wrap"><div class="cell elim">72</div><div class="cell-idx">9</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="caption"><strong>3 comparisons</strong> to find 23 in 10 elements. Linear search would need up to 10. log₂(10) ≈ 3.3 — matches perfectly.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — Why O(log n) — The Halving Effect</div>
+  <div class="annotation">Each step <span>cuts the search space in half</span>. Starting from n elements, after k steps only n/2ᵏ remain. When n/2ᵏ = 1, we're done. Solving: k = log₂n.</div>
+
+  <div class="halving-vis">
+    <div class="halving-row">
+      <span class="halving-label" style="color:var(--dim);font-size:10px;">n = 1024</span>
+      <div class="halving-bar" style="width:480px;">1024 elements</div>
+    </div>
+    <div class="halving-row">
+      <span class="halving-label" style="color:var(--dim);font-size:10px;">step 1</span>
+      <div class="halving-bar" style="width:240px;">512</div>
+    </div>
+    <div class="halving-row">
+      <span class="halving-label" style="color:var(--dim);font-size:10px;">step 2</span>
+      <div class="halving-bar" style="width:120px;">256</div>
+    </div>
+    <div class="halving-row">
+      <span class="halving-label" style="color:var(--dim);font-size:10px;">step 3</span>
+      <div class="halving-bar" style="width:60px;">128</div>
+    </div>
+    <div class="halving-row">
+      <span class="halving-label" style="color:var(--dim);font-size:10px;">...</span>
+      <div style="font-size:11px;color:var(--dim);padding-top:4px;">10 total steps → found. Linear would take up to 1024.</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Halves Each Step</div>
+    <div class="card-body">Every comparison eliminates half the remaining search space. 1 billion elements takes at most 30 comparisons.</div>
+    <div class="card-o" style="color:var(--accent)">O(log n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sorted Input Required</div>
+    <div class="card-body">Only works on sorted arrays. If unsorted, the "go left/right" decision is meaningless. Sort first or use a BST.</div>
+    <div class="card-o" style="color:var(--green)">sorted only</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Random Access Required</div>
+    <div class="card-body">Needs O(1) index access to compute and jump to mid. Doesn't work on linked lists — use a skip list instead.</div>
+    <div class="card-o" style="color:var(--red)">arrays only</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Off-by-One Caution</div>
+    <div class="card-body">Classic bug: mid = (L+R)/2 can overflow for large indices. Safe version: mid = L + (R−L)/2.</div>
+    <div class="card-o" style="color:var(--blue)">watch overflow</div>
+  </div>
+</div>
+
+</body>
+</html>

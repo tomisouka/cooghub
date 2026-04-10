@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATH 2318 Final Exam · Solutions · Spring 2024</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f2ede4;font-family:'Archivo',sans-serif;color:#111;}
+.site-header{background:#111;display:flex;align-items:stretch;border-bottom:4px solid #111;position:sticky;top:0;z-index:100;}
+.header-title{padding:14px 24px;flex:1;}
+.header-title h1{font-family:'Archivo Black',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:.04em;color:#f5f500;line-height:1;}
+.header-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,245,0,.45);letter-spacing:.08em;display:block;margin-top:3px;}
+.header-nav{display:flex;align-items:stretch;border-left:2px solid rgba(245,245,0,.2);}
+.header-nav a{display:flex;align-items:center;justify-content:center;width:46px;font-family:'Archivo Black',sans-serif;font-size:13px;color:rgba(245,245,0,.5);text-decoration:none;border-left:1px solid rgba(245,245,0,.1);transition:all .15s;}
+.header-nav a:hover{background:#e8352a;color:#fff;}
+.wrap{max-width:860px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+.prob-wrap{margin-bottom:2.5rem;}
+.prob-header{display:flex;align-items:stretch;border:2.5px solid #111;cursor:pointer;user-select:none;transition:opacity .15s;}
+.prob-header:hover{opacity:.88;}
+.prob-num{background:#111;color:#f5f500;font-family:'Archivo Black',sans-serif;font-size:38px;min-width:72px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.prob-title-wrap{padding:10px 16px;border-left:2.5px solid #111;flex:1;}
+.prob-title{font-family:'Archivo Black',sans-serif;font-size:18px;text-transform:uppercase;}
+.prob-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:#666;letter-spacing:.06em;margin-top:2px;}
+.prob-arrow{display:flex;align-items:center;padding:0 16px;font-family:'JetBrains Mono',monospace;font-size:14px;color:rgba(245,245,0,.7);background:#111;border-left:2px solid rgba(245,245,0,.15);transition:transform .25s;flex-shrink:0;}
+.prob-header.open .prob-arrow{transform:rotate(90deg);}
+.prob-statement{border:2.5px solid #111;border-top:none;background:#fff;}
+.prob-statement-label{font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#aaa;padding:7px 14px 0;}
+.prob-statement-context{font-size:12px;color:#444;padding:4px 14px 6px;font-style:italic;line-height:1.7;}
+.part-row{display:grid;grid-template-columns:36px 1fr;border-top:1px solid #eee;}
+.part-row .pn{background:#111;color:#f5f500;font-family:'Archivo Black',sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center;border-right:2px solid #111;flex-shrink:0;}
+.part-row .pt{padding:9px 14px;font-size:13px;line-height:1.9;}
+.prob-body{display:none;}
+.prob-body.open{display:block;}
+.part{border:2.5px solid #111;border-top:none;}
+.part-label{background:#e8352a;color:#fff;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-bottom:2.5px solid #111;}
+.formula-header{background:#1a1a2e;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none;border-bottom:2.5px solid #111;transition:background .15s;}
+.formula-header:hover{background:#0f0f1e;}
+.formula-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.f-label{font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#a0c4ff;display:flex;align-items:center;gap:6px;}
+.f-label::before{content:'∑';font-size:13px;}
+.formula-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.ftag{font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(160,196,255,.12);border:1px solid rgba(160,196,255,.3);color:#a0c4ff;padding:2px 9px;}
+.formula-arrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:#a0c4ff;transition:transform .2s;flex-shrink:0;}
+.formula-header.open .formula-arrow{transform:rotate(90deg);}
+.formula-body{display:none;padding:14px 16px;background:#12121f;border-bottom:2.5px solid #111;color:#c8d8f0;line-height:2.4;overflow-x:auto;}
+.formula-body.open{display:block;}
+.formula-body .f-note{font-size:11px;color:#6070a0;margin-top:6px;}
+.prereq-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#ede8dc;border-bottom:1.5px solid #bbb;cursor:pointer;user-select:none;}
+.prereq-toggle .tl{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#555;}
+.prereq-toggle .tl::before{content:'◈';color:#e8352a;font-size:12px;}
+.prereq-toggle .arr{font-size:10px;color:#999;transition:transform .2s;}
+.prereq-toggle.open .arr{transform:rotate(90deg);}
+.prereq-body{display:none;padding:12px 14px;background:#ede8dc;border-bottom:1.5px solid #bbb;font-size:12.5px;color:#333;line-height:2;}
+.prereq-body.open{display:block;}
+.prereq-formula{background:#fff;border:1.5px solid #aaa;border-left:3px solid #111;padding:10px 14px;margin-top:8px;line-height:2.4;overflow-x:auto;}
+.steps{padding:14px 14px 4px;}
+.step{display:grid;grid-template-columns:28px 1fr;gap:0 10px;margin-bottom:14px;}
+.step-n{background:#111;color:#f5f500;font-family:'Archivo Black',sans-serif;font-size:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-label{font-family:'Archivo Black',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.step-math{background:#fff;border:2px solid #111;padding:8px 12px;line-height:2.4;overflow-x:auto;}
+.step-note{font-size:12px;color:#555;margin-top:4px;line-height:1.6;}
+.step-note strong{color:#111;font-weight:700;}
+.answer{margin:4px 14px 14px;background:#111;color:#f5f500;padding:12px 16px;line-height:2.4;overflow-x:auto;}
+.answer .ans-label{font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,245,0,.55);display:block;margin-bottom:4px;}
+.callout{margin:0 14px 14px;border-left:4px solid #e8352a;background:#ede8dc;padding:9px 13px;font-size:12px;color:#333;line-height:1.7;}
+.callout strong{color:#111;font-weight:700;}
+.concept{border:2.5px solid #111;border-top:none;}
+.concept-header{background:#f5f500;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;cursor:pointer;user-select:none;transition:background .15s;}
+.concept-header:hover{background:#e8e000;}
+.concept-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.c-label{font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#111;display:flex;align-items:center;gap:6px;}
+.c-label::before{content:'◆';font-size:10px;}
+.concept-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.ctag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;background:#111;color:#f5f500;padding:3px 9px;white-space:nowrap;}
+.concept-arrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:#555;transition:transform .2s;}
+.concept-header.open .concept-arrow{transform:rotate(90deg);}
+.concept-body{display:none;padding:14px 16px;background:#fffde6;border-top:2.5px solid #111;font-size:13px;color:#111;line-height:1.85;}
+.concept-body.open{display:block;}
+.concept-body p{margin-bottom:8px;}
+.concept-body strong{font-family:'Archivo Black',sans-serif;}
+</style>
+<script>
+MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{menuOptions:{settings:{zoom:'None'}}}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+function tog(el){el.classList.toggle('open');el.nextElementSibling.classList.toggle('open');if(el.nextElementSibling.classList.contains('open'))MathJax.typesetPromise([el.nextElementSibling]);}
+function togProb(el){el.classList.toggle('open');var b=el.nextElementSibling.nextElementSibling;b.classList.toggle('open');if(b.classList.contains('open'))MathJax.typesetPromise([b]);}
+</script>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>MATH 2318 · Final Exam · Solutions</h1>
+    <span>SANDERS · SPRING 2024 · LINEAR SYSTEMS · SPAN · NULL/RANGE · INVERSES · DETERMINANTS · EIGENVALUES · GRAM-SCHMIDT</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#p1">1</a><a href="#p2">2</a><a href="#p3">3</a><a href="#p4">4</a>
+    <a href="#p5">5</a><a href="#p6">6</a><a href="#p7">7</a>
+  </nav>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════
+     P1 — Linear Systems
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Linear Systems — Gaussian Elimination</div>
+      <div class="prob-sub">AUGMENTED MATRIX · ROW REDUCTION · ALL SOLUTIONS · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Find all solutions, if any exist.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">\(\begin{pmatrix}1&2&1\\1&3&2\\1&3&1\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}8\\11\\10\end{pmatrix}\)</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">\(\begin{pmatrix}1&2&1\\1&2&2\\2&4&3\end{pmatrix}\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}=\begin{pmatrix}8\\9\\17\end{pmatrix}\)</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Augmented matrix</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\1&3&2&11\\1&3&1&10\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">R2←R2−R1 ; R3←R3−R1</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\0&1&1&3\\0&1&0&2\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">R3←R3−R2</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\0&1&1&3\\0&0&-1&-1\end{array}\right]\]</div>
+          <div class="step-note">Three pivots → unique solution.</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">Back-substitute</div>
+          <div class="step-math">\[x_3=1,\quad x_2=3-1=2,\quad x_1=8-2(2)-1=3\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Unique Solution</span>\(x_1=3,\quad x_2=2,\quad x_3=1\)</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Augmented matrix</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\1&2&2&9\\2&4&3&17\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">R2←R2−R1 ; R3←R3−2R1</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\0&0&1&1\\0&0&1&1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">R3←R3−R2</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&8\\0&0&1&1\\0&0&0&0\end{array}\right]\]</div>
+          <div class="step-note">Pivots in cols 1 and 3. Free variable: \(x_2 = t\).</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">Back-substitute</div>
+          <div class="step-math">\[x_3=1,\quad x_1=8-2t-1=7-2t\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Infinitely Many Solutions (free variable x₂ = t)</span>\(x_1=7-2t,\quad x_2=t,\quad x_3=1,\quad t\in\mathbb{R}\)</div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">GAUSSIAN ELIM</span><span class="ctag">PIVOTS & FREE VARS</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Three outcomes:</strong> unique (pivot in every column), infinitely many (free variable), no solution (inconsistent row). Count pivots after row reduction.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P2 — Span
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Span &amp; Linear Combinations</div>
+      <div class="prob-sub">CONSISTENCY TEST · LINEAR COMBINATION · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Determine if the vector is in the span. If true, write as a linear combination.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">Is \(\begin{pmatrix}1\\1\\0\end{pmatrix}\in\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\}\)?</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Is \(\begin{pmatrix}0\\0\\1\end{pmatrix}\in\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\}\)?</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A — (1,1,0)ᵀ</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Set up [v₁ v₂ | b] and row-reduce</div>
+          <div class="step-math">\[\left[\begin{array}{cc|c}1&0&1\\2&1&1\\1&1&0\end{array}\right] \xrightarrow{R_2-2R_1,\,R_3-R_1} \left[\begin{array}{cc|c}1&0&1\\0&1&-1\\0&1&-1\end{array}\right] \xrightarrow{R_3-R_2} \left[\begin{array}{cc|c}1&0&1\\0&1&-1\\0&0&0\end{array}\right]\]</div>
+          <div class="step-note">Consistent. \(c_2=-1,\; c_1=1\).</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ YES — in span</span>\(\begin{pmatrix}1\\1\\0\end{pmatrix}=1\cdot\begin{pmatrix}1\\2\\1\end{pmatrix}+(-1)\cdot\begin{pmatrix}0\\1\\1\end{pmatrix}\)</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B — (0,0,1)ᵀ</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Row-reduce [v₁ v₂ | b]</div>
+          <div class="step-math">\[\left[\begin{array}{cc|c}1&0&0\\2&1&0\\1&1&1\end{array}\right] \xrightarrow{R_2-2R_1,\,R_3-R_1} \left[\begin{array}{cc|c}1&0&0\\0&1&0\\0&1&1\end{array}\right] \xrightarrow{R_3-R_2} \left[\begin{array}{cc|c}1&0&0\\0&1&0\\0&0&1\end{array}\right]\]</div>
+          <div class="step-note">Row 3 reads \(0=1\) — <strong>inconsistent</strong>.</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✗ NO — not in span</span>The system is inconsistent. \(\begin{pmatrix}0\\0\\1\end{pmatrix}\notin\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}0\\1\\1\end{pmatrix}\right\}.\)</div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">SPAN</span><span class="ctag">CONSISTENCY</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Span test = consistency of \([\mathbf{v}_1\;\mathbf{v}_2\mid\mathbf{b}]\).</strong> An inconsistent row \([0\;0\mid c]\), \(c\neq0\) immediately proves the vector is outside the span.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P3 — Null Space & Range Space
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Null Space &amp; Range Space</div>
+      <div class="prob-sub">KERNEL · COLUMN SPACE · RANK-NULLITY · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Find a basis for the null space and the standard basis for the range space of \(\mathcal{L}(\mathbf{x})=A\mathbf{x}\).</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">\(\mathcal{L}:\mathbb{R}^3\to\mathbb{R}^2,\quad A=\begin{pmatrix}1&2&1\\1&1&2\end{pmatrix}\)</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">\(\mathcal{L}:\mathbb{R}^2\to\mathbb{R}^3,\quad A=\begin{pmatrix}1&0\\2&0\\3&0\end{pmatrix}\)</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A — 2×3 Matrix</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Row-reduce [A | 0]</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|c}1&2&1&0\\1&1&2&0\end{array}\right]\xrightarrow{R_2-R_1}\left[\begin{array}{ccc|c}1&2&1&0\\0&-1&1&0\end{array}\right]\xrightarrow{R_2\times(-1)}\left[\begin{array}{ccc|c}1&2&1&0\\0&1&-1&0\end{array}\right]\]</div>
+          <div class="step-note">Pivots in cols 1, 2. Free: \(x_3=t\).</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Null space</div>
+          <div class="step-math">\[x_2=t,\quad x_1=-2t-t=-3t \implies \ker(A)=\operatorname{span}\!\left\{\begin{pmatrix}-3\\1\\1\end{pmatrix}\right\}\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Range space — pivot cols 1, 2 of A</div>
+          <div class="step-math">\[\operatorname{col}(A)=\operatorname{span}\!\left\{\begin{pmatrix}1\\1\end{pmatrix},\begin{pmatrix}2\\1\end{pmatrix}\right\}\]</div>
+          <div class="step-note">Rank 2, nullity 1. Check: \(2+1=3\) ✓</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Part A</span>
+        \(\ker(A)=\operatorname{span}\!\left\{\begin{pmatrix}-3\\1\\1\end{pmatrix}\right\},\quad \operatorname{col}(A)=\operatorname{span}\!\left\{\begin{pmatrix}1\\1\end{pmatrix},\begin{pmatrix}2\\1\end{pmatrix}\right\}\)
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B — 3×2 Matrix</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Row-reduce [A | 0]</div>
+          <div class="step-math">\[\left[\begin{array}{cc|c}1&0&0\\2&0&0\\3&0&0\end{array}\right]\xrightarrow{R_2-2R_1,\,R_3-3R_1}\left[\begin{array}{cc|c}1&0&0\\0&0&0\\0&0&0\end{array}\right]\]</div>
+          <div class="step-note">Pivot only in col 1. Free: \(x_2=t\).</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Null space</div>
+          <div class="step-math">\[x_1=0,\;x_2=t \implies \ker(A)=\operatorname{span}\!\left\{\begin{pmatrix}0\\1\end{pmatrix}\right\}\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Range space — pivot col 1 of A</div>
+          <div class="step-math">\[\operatorname{col}(A)=\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix}\right\}\]</div>
+          <div class="step-note">Rank 1, nullity 1. Check: \(1+1=2\) ✓. The range is a line through the origin in \(\mathbb{R}^3\).</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Part B</span>
+        \(\ker(A)=\operatorname{span}\!\left\{\begin{pmatrix}0\\1\end{pmatrix}\right\},\quad \operatorname{col}(A)=\operatorname{span}\!\left\{\begin{pmatrix}1\\2\\3\end{pmatrix}\right\}\)
+      </div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">RANK-NULLITY</span><span class="ctag">PIVOT COLS = RANGE BASIS</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Range basis = original pivot columns of A</strong> (not RREF columns). Null space basis = free-variable vectors from homogeneous solution. Always verify: rank + nullity = #columns.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P4 — Matrix Inverses
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p4">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">04</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Matrix Inverses</div>
+      <div class="prob-sub">ELIMINATION · CRAMER'S RULE · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Each matrix is invertible. Find the inverse; state whether you use elimination or Cramer's rule.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">\(\begin{pmatrix}2&1\\2&3\end{pmatrix}\)</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">\(\begin{pmatrix}1&2&1\\1&3&2\\1&3&1\end{pmatrix}\)</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A — 2×2 via 2×2 Shortcut / Cramer's Rule</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Method: 2×2 formula (Cramer's rule)</div>
+          <div class="step-math">\[\det=2(3)-1(2)=6-2=4\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Apply formula \(A^{-1}=\frac{1}{\det}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}\)</div>
+          <div class="step-math">\[A^{-1}=\frac{1}{4}\begin{pmatrix}3&-1\\-2&2\end{pmatrix}\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ A⁻¹ (Cramer's rule)</span>\(A^{-1}=\begin{pmatrix}\tfrac{3}{4}&-\tfrac{1}{4}\\[4pt]-\tfrac{1}{2}&\tfrac{1}{2}\end{pmatrix}\)</div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B — 3×3 via Row Reduction (Elimination)</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Method: Gauss-Jordan — augment with I</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&2&1&1&0&0\\1&3&2&0&1&0\\1&3&1&0&0&1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">R2←R2−R1 ; R3←R3−R1</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&2&1&1&0&0\\0&1&1&-1&1&0\\0&1&0&-1&0&1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">R3←R3−R2</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&2&1&1&0&0\\0&1&1&-1&1&0\\0&0&-1&0&-1&1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">R3←−R3</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&2&1&1&0&0\\0&1&1&-1&1&0\\0&0&1&0&1&-1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-body">
+          <div class="step-label">Back-substitute: R2←R2−R3 ; R1←R1−R3</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&2&0&1&-1&1\\0&1&0&-1&0&1\\0&0&1&0&1&-1\end{array}\right]\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">6</div><div class="step-body">
+          <div class="step-label">R1←R1−2R2</div>
+          <div class="step-math">\[\left[\begin{array}{ccc|ccc}1&0&0&3&-1&-1\\0&1&0&-1&0&1\\0&0&1&0&1&-1\end{array}\right]\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ A⁻¹ (Gauss-Jordan elimination)</span>
+        \[A^{-1}=\begin{pmatrix}3&-1&-1\\-1&0&1\\0&1&-1\end{pmatrix}\]
+      </div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">MATRIX INVERSE</span><span class="ctag">GAUSS-JORDAN</span><span class="ctag">2×2 FORMULA</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>2×2 inverse:</strong> \(\begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}\). Swap main diagonal, negate off-diagonal, divide by det.</p>
+      <p><strong>Gauss-Jordan (n×n):</strong> Augment \([A\mid I]\), row-reduce to \([I\mid A^{-1}]\). If the left side never reaches \(I\), the matrix is singular.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P5 — Determinants
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p5">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">05</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Determinants</div>
+      <div class="prob-sub">COFACTOR EXPANSION · ROW OPERATIONS · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Compute the determinant.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">\(\begin{pmatrix}2&2&4\\1&3&3\\1&1&3\end{pmatrix}\)</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">\(\begin{pmatrix}1&2&0&0\\1&3&0&0\\1&3&2&1\\1&3&1&1\end{pmatrix}\)</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A — 3×3</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Cofactor expansion along row 1</div>
+          <div class="step-math">\[\det=2\det\begin{pmatrix}3&3\\1&3\end{pmatrix}-2\det\begin{pmatrix}1&3\\1&3\end{pmatrix}+4\det\begin{pmatrix}1&3\\1&1\end{pmatrix}\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Evaluate 2×2 determinants</div>
+          <div class="step-math">\[=2(9-3)-2(3-3)+4(1-3)=2(6)-2(0)+4(-2)=12-0-8=4\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ det = 4</span></div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B — 4×4 Block Upper-Triangular</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left"><span class="f-label">Key Insight</span>
+          <div class="formula-tags"><span class="ftag">block upper-triangular</span><span class="ftag">det = det(B₁₁)·det(B₂₂)</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        The matrix has the block form \(\begin{pmatrix}B_{11}&\mathbf{0}\\B_{21}&B_{22}\end{pmatrix}\) where \(B_{11}=\begin{pmatrix}1&2\\1&3\end{pmatrix}\) and \(B_{22}=\begin{pmatrix}2&1\\1&1\end{pmatrix}\). For block lower-triangular: \(\det=\det(B_{11})\cdot\det(B_{22})\).
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Identify the blocks</div>
+          <div class="step-math">\[M=\begin{pmatrix}1&2&0&0\\1&3&0&0\\1&3&2&1\\1&3&1&1\end{pmatrix}\]</div>
+          <div class="step-note">Top-right 2×2 block is all zeros → block lower-triangular structure.</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Expand along column 3 or use block formula</div>
+          <div class="step-note">Expand along top two rows (cols 3,4 are zero): cofactor expansion collapses to product of diagonal blocks.</div>
+          <div class="step-math">\[\det(B_{11})=1(3)-2(1)=1,\quad\det(B_{22})=2(1)-1(1)=1\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Final answer</div>
+          <div class="step-math">\[\det(M)=\det(B_{11})\cdot\det(B_{22})=1\cdot1=1\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ det = 1</span></div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">COFACTOR EXPANSION</span><span class="ctag">BLOCK TRIANGULAR DET</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Cofactor expansion:</strong> Expand along any row or column. Choose one with the most zeros to minimize work.</p>
+      <p><strong>Block triangular:</strong> If \(M=\begin{pmatrix}A&0\\C&B\end{pmatrix}\) or \(\begin{pmatrix}A&C\\0&B\end{pmatrix}\), then \(\det(M)=\det(A)\cdot\det(B)\). Powerful shortcut for large matrices.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P6 — Eigenvalues & Eigenvectors
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p6">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">06</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Eigenvalues &amp; Eigenvectors</div>
+      <div class="prob-sub">CHARACTERISTIC POLYNOMIAL · EIGENSPACES · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Find all eigenvalues and associated eigenvectors.</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">\(A=\begin{pmatrix}0&2\\-1&3\end{pmatrix}\)</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">\(B=\begin{pmatrix}7&-2\\24&-7\end{pmatrix}\)</div></div>
+  </div>
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Part A — A = [[0,2],[-1,3]]</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Characteristic polynomial</div>
+          <div class="step-math">\[\det(A-\lambda I)=\det\begin{pmatrix}-\lambda&2\\-1&3-\lambda\end{pmatrix}=-\lambda(3-\lambda)+2=\lambda^2-3\lambda+2\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Factor and find eigenvalues</div>
+          <div class="step-math">\[\lambda^2-3\lambda+2=(\lambda-1)(\lambda-2)=0\implies\lambda_1=1,\;\lambda_2=2\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Eigenvector for λ₁ = 1: solve (A−I)v = 0</div>
+          <div class="step-math">\[A-I=\begin{pmatrix}-1&2\\-1&2\end{pmatrix}\to\begin{pmatrix}1&-2\\0&0\end{pmatrix}\implies x_1=2t,\;x_2=t\implies \mathbf{v}_1=\begin{pmatrix}2\\1\end{pmatrix}\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">Eigenvector for λ₂ = 2: solve (A−2I)v = 0</div>
+          <div class="step-math">\[A-2I=\begin{pmatrix}-2&2\\-1&1\end{pmatrix}\to\begin{pmatrix}1&-1\\0&0\end{pmatrix}\implies x_1=t,\;x_2=t\implies \mathbf{v}_2=\begin{pmatrix}1\\1\end{pmatrix}\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Eigenvalues and Eigenvectors</span>
+        \(\lambda_1=1\;\text{with}\;\mathbf{v}_1=\begin{pmatrix}2\\1\end{pmatrix},\qquad\lambda_2=2\;\text{with}\;\mathbf{v}_2=\begin{pmatrix}1\\1\end{pmatrix}\)
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label">Part B — B = [[7,−2],[24,−7]]</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Characteristic polynomial</div>
+          <div class="step-math">\[\det(B-\lambda I)=(7-\lambda)(-7-\lambda)+48=-(7-\lambda)(7+\lambda)+48=\lambda^2-49+48=\lambda^2-1\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Eigenvalues</div>
+          <div class="step-math">\[\lambda^2-1=(\lambda-1)(\lambda+1)=0\implies\lambda_1=1,\;\lambda_2=-1\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Eigenvector for λ₁ = 1</div>
+          <div class="step-math">\[B-I=\begin{pmatrix}6&-2\\24&-8\end{pmatrix}\xrightarrow{R_2-4R_1}\begin{pmatrix}6&-2\\0&0\end{pmatrix}\implies 6x_1=2x_2\implies x_1=t,\;x_2=3t\implies\mathbf{v}_1=\begin{pmatrix}1\\3\end{pmatrix}\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">Eigenvector for λ₂ = −1</div>
+          <div class="step-math">\[B+I=\begin{pmatrix}8&-2\\24&-6\end{pmatrix}\xrightarrow{R_2-3R_1}\begin{pmatrix}8&-2\\0&0\end{pmatrix}\implies 8x_1=2x_2\implies x_1=t,\;x_2=4t\implies\mathbf{v}_2=\begin{pmatrix}1\\4\end{pmatrix}\]</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Eigenvalues and Eigenvectors</span>
+        \(\lambda_1=1\;\text{with}\;\mathbf{v}_1=\begin{pmatrix}1\\3\end{pmatrix},\qquad\lambda_2=-1\;\text{with}\;\mathbf{v}_2=\begin{pmatrix}1\\4\end{pmatrix}\)
+      </div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">EIGENVALUES</span><span class="ctag">CHARACTERISTIC POLY</span><span class="ctag">EIGENSPACE</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Process:</strong> (1) Solve \(\det(A-\lambda I)=0\) for \(\lambda\). (2) For each \(\lambda\), solve \((A-\lambda I)\mathbf{v}=\mathbf{0}\) for the eigenvectors.</p>
+      <p><strong>Eigenspace:</strong> \(\ker(A-\lambda I)\) — the set of all eigenvectors for \(\lambda\) plus the zero vector. Its dimension = geometric multiplicity of \(\lambda\).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     P7 — Linear Independence, Basis, Gram-Schmidt
+═══════════════════════════════════════════ -->
+<div class="prob-wrap" id="p7">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">07</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Linear Independence, Basis &amp; Gram-Schmidt</div>
+      <div class="prob-sub">LIN. INDEP. · BASIS FOR ℝ³ · GRAM-SCHMIDT · 20 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">
+      Let \(\{\mathbf{b}_1,\mathbf{b}_2,\mathbf{b}_3\}=\left\{\begin{pmatrix}1\\2\\1\end{pmatrix},\begin{pmatrix}0\\1\\0\end{pmatrix},\begin{pmatrix}0\\0\\1\end{pmatrix}\right\}\).
+    </div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">Show the vectors are linearly independent. <span style="color:#aaa;font-size:11px;">(5 pts)</span></div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Conclude this is a basis for \(\mathbb{R}^3\). <span style="color:#aaa;font-size:11px;">(5 pts)</span></div></div>
+    <div class="part-row"><div class="pn">c</div><div class="pt">Use Gram-Schmidt to find an orthogonal basis \(\{\mathbf{e}_1,\mathbf{e}_2,\mathbf{e}_3\}\) with \(\mathbf{e}_1\in\operatorname{span}\{\mathbf{b}_1\}\), \(\mathbf{e}_2\in\operatorname{span}\{\mathbf{b}_1,\mathbf{b}_2\}\), \(\mathbf{e}_3\in\operatorname{span}\{\mathbf{b}_1,\mathbf{b}_2,\mathbf{b}_3\}\). <span style="color:#aaa;font-size:11px;">(10 pts)</span></div></div>
+  </div>
+  <div class="prob-body">
+
+    <!-- Part a -->
+    <div class="part">
+      <div class="part-label">Part A — Linear Independence</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Row-reduce the matrix [b₁ b₂ b₃]</div>
+          <div class="step-math">\[\begin{pmatrix}1&0&0\\2&1&0\\1&0&1\end{pmatrix}\xrightarrow{R_2-2R_1,\,R_3-R_1}\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\end{pmatrix}\]</div>
+          <div class="step-note">Three pivots — no free variables. The only solution to \(c_1\mathbf{b}_1+c_2\mathbf{b}_2+c_3\mathbf{b}_3=\mathbf{0}\) is \(c_1=c_2=c_3=0\). ✓</div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Linearly Independent</span>The matrix \([\mathbf{b}_1\;\mathbf{b}_2\;\mathbf{b}_3]\) row-reduces to \(I_3\), so the vectors are linearly independent.</div>
+    </div>
+
+    <!-- Part b -->
+    <div class="part">
+      <div class="part-label">Part B — Basis for ℝ³</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">Two criteria for a basis of ℝ³</div>
+          <div class="step-note">
+            A set of vectors is a basis for \(\mathbb{R}^3\) iff it is (1) linearly independent AND (2) spans \(\mathbb{R}^3\). We have 3 linearly independent vectors in \(\mathbb{R}^3\). Since \(\dim(\mathbb{R}^3)=3\), any set of 3 linearly independent vectors in \(\mathbb{R}^3\) automatically spans \(\mathbb{R}^3\). Therefore \(\{\mathbf{b}_1,\mathbf{b}_2,\mathbf{b}_3\}\) is a basis for \(\mathbb{R}^3\). \(\blacksquare\)
+          </div>
+        </div></div>
+      </div>
+      <div class="answer"><span class="ans-label">✓ Basis for ℝ³</span>3 linearly independent vectors in a 3-dimensional space automatically span that space, forming a basis.</div>
+    </div>
+
+    <!-- Part c -->
+    <div class="part">
+      <div class="part-label">Part C — Gram-Schmidt Orthogonalization</div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Gram-Schmidt formula</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        Given basis \(\{\mathbf{b}_1,\mathbf{b}_2,\mathbf{b}_3\}\), produce orthogonal basis \(\{\mathbf{e}_1,\mathbf{e}_2,\mathbf{e}_3\}\):
+        <div class="prereq-formula">\[
+          \mathbf{e}_1 = \mathbf{b}_1,\quad
+          \mathbf{e}_2 = \mathbf{b}_2 - \frac{\mathbf{b}_2\cdot\mathbf{e}_1}{\mathbf{e}_1\cdot\mathbf{e}_1}\mathbf{e}_1,\quad
+          \mathbf{e}_3 = \mathbf{b}_3 - \frac{\mathbf{b}_3\cdot\mathbf{e}_1}{\mathbf{e}_1\cdot\mathbf{e}_1}\mathbf{e}_1 - \frac{\mathbf{b}_3\cdot\mathbf{e}_2}{\mathbf{e}_2\cdot\mathbf{e}_2}\mathbf{e}_2
+        \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body">
+          <div class="step-label">e₁ = b₁</div>
+          <div class="step-math">\[\mathbf{e}_1=\begin{pmatrix}1\\2\\1\end{pmatrix},\qquad \mathbf{e}_1\cdot\mathbf{e}_1=1+4+1=6\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body">
+          <div class="step-label">Compute e₂ = b₂ − proj_{e₁}(b₂)</div>
+          <div class="step-math">\[\mathbf{b}_2\cdot\mathbf{e}_1=0(1)+1(2)+0(1)=2\]</div>
+          <div class="step-math">\[\mathbf{e}_2=\begin{pmatrix}0\\1\\0\end{pmatrix}-\frac{2}{6}\begin{pmatrix}1\\2\\1\end{pmatrix}=\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}1/3\\2/3\\1/3\end{pmatrix}=\begin{pmatrix}-1/3\\1/3\\-1/3\end{pmatrix}\]</div>
+          <div class="step-note">Scale by 3 for simplicity (scaling preserves orthogonality): \(\mathbf{e}_2=\begin{pmatrix}-1\\1\\-1\end{pmatrix}\).</div>
+          <div class="step-math">\[\mathbf{e}_2\cdot\mathbf{e}_2=1+1+1=3\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body">
+          <div class="step-label">Verify e₁ ⊥ e₂</div>
+          <div class="step-math">\[\mathbf{e}_1\cdot\mathbf{e}_2=(1)(-1)+(2)(1)+(1)(-1)=-1+2-1=0\checkmark\]</div>
+        </div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body">
+          <div class="step-label">Compute e₃ = b₃ − proj_{e₁}(b₃) − proj_{e₂}(b₃)</div>
+          <div class="step-math">\[\mathbf{b}_3\cdot\mathbf{e}_1=0(1)+0(2)+1(1)=1,\qquad \mathbf{b}_3\cdot\mathbf{e}_2=0(-1)+0(1)+1(-1)=-1\]</div>
+          <div class="step-math">\[\mathbf{e}_3=\begin{pmatrix}0\\0\\1\end{pmatrix}-\frac{1}{6}\begin{pmatrix}1\\2\\1\end{pmatrix}-\frac{-1}{3}\begin{pmatrix}-1\\1\\-1\end{pmatrix}\]</div>
+          <div class="step-math">\[=\begin{pmatrix}0\\0\\1\end{pmatrix}-\begin{pmatrix}1/6\\1/3\\1/6\end{pmatrix}-\begin{pmatrix}1/3\\-1/3\\1/3\end{pmatrix}\]</div>
+          <div class="step-math">\[=\begin{pmatrix}0-\tfrac{1}{6}-\tfrac{1}{3}\\0-\tfrac{1}{3}+\tfrac{1}{3}\\1-\tfrac{1}{6}-\tfrac{1}{3}\end{pmatrix}=\begin{pmatrix}-\tfrac{1}{2}\\0\\\tfrac{1}{2}\end{pmatrix}\]</div>
+          <div class="step-note">Scale by 2: \(\mathbf{e}_3=\begin{pmatrix}-1\\0\\1\end{pmatrix}\).</div>
+        </div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-body">
+          <div class="step-label">Verify orthogonality</div>
+          <div class="step-math">\[
+            \mathbf{e}_1\cdot\mathbf{e}_3=(1)(-1)+(2)(0)+(1)(1)=0\checkmark\quad
+            \mathbf{e}_2\cdot\mathbf{e}_3=(-1)(-1)+(1)(0)+(-1)(1)=0\checkmark
+          \]</div>
+        </div></div>
+      </div>
+
+      <div class="answer"><span class="ans-label">✓ Orthogonal Basis (Gram-Schmidt)</span>
+        \[\mathbf{e}_1=\begin{pmatrix}1\\2\\1\end{pmatrix},\qquad \mathbf{e}_2=\begin{pmatrix}-1\\1\\-1\end{pmatrix},\qquad \mathbf{e}_3=\begin{pmatrix}-1\\0\\1\end{pmatrix}\]
+        All three pairs are orthogonal: \(\mathbf{e}_i\cdot\mathbf{e}_j=0\) for \(i\neq j\). ✓
+      </div>
+      <div class="callout">
+        <strong>To get an ONB:</strong> Normalize each vector: \(\hat{\mathbf{e}}_1=\mathbf{e}_1/\|\mathbf{e}_1\|=\mathbf{e}_1/\sqrt{6}\), \(\hat{\mathbf{e}}_2=\mathbf{e}_2/\sqrt{3}\), \(\hat{\mathbf{e}}_3=\mathbf{e}_3/\sqrt{2}\). The problem asks only for orthogonal, not orthonormal.
+      </div>
+    </div>
+
+  </div>
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left"><span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">GRAM-SCHMIDT</span><span class="ctag">ORTHOGONAL BASIS</span><span class="ctag">PROJECTION</span></div>
+      </div><span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Gram-Schmidt:</strong> Converts any basis into an orthogonal basis for the same subspace. Each new vector \(\mathbf{e}_k = \mathbf{b}_k - \sum_{j=1}^{k-1}\frac{\mathbf{b}_k\cdot\mathbf{e}_j}{\mathbf{e}_j\cdot\mathbf{e}_j}\mathbf{e}_j\) subtracts out all projections onto previously computed orthogonal vectors.</p>
+      <p><strong>Scaling is allowed:</strong> Multiplying any \(\mathbf{e}_k\) by a nonzero scalar preserves orthogonality. Scaling to clear fractions makes subsequent dot products easier.</p>
+      <p><strong>Always verify:</strong> Compute \(\mathbf{e}_i\cdot\mathbf{e}_j\) for all \(i\neq j\) to confirm the result before writing the final answer.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>

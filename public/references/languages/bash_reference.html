@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bash Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #181820;
+    --surface2: #202030;
+    --border: #2e2e48;
+    --accent: #a8e6a3;
+    --accent2: #f5c06a;
+    --accent3: #7eb8f7;
+    --text: #eeeeff;
+    --text-dim: #9090b8;
+    --text-code: #b8ffca;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 18, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(168, 230, 163, 0.08); }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    flex-shrink: 0;
+  }
+  .search-wrap input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    width: 160px;
+  }
+  .search-wrap input::placeholder { color: var(--text-dim); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; font-family: 'Inter', sans-serif; }
+  thead { background: var(--surface2); }
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+  td {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  tr:hover td { background: rgba(168, 230, 163, 0.04); }
+  tr:hover td:first-child { color: var(--text-code); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 160px;
+    line-height: 1.4;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.03em;
+    border-right: 1px solid var(--border);
+    background: rgba(168, 230, 163, 0.03);
+    transition: color 0.15s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(168, 230, 163, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  .callout {
+    background: rgba(168, 230, 163, 0.06);
+    border: 1px solid rgba(168, 230, 163, 0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .callout strong { color: var(--accent); }
+
+  .warn {
+    background: rgba(245, 192, 106, 0.06);
+    border: 1px solid rgba(245, 192, 106, 0.2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .warn strong { color: var(--accent2); }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  .highlight { background: rgba(245, 192, 106, 0.3); border-radius: 2px; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+    td:first-child { min-width: 110px; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">Bash Ref</span>
+  <nav>
+    <a href="#syntax">Syntax</a>
+    <a href="#vars">Variables</a>
+    <a href="#strings">Strings</a>
+    <a href="#arrays">Arrays</a>
+    <a href="#arithmetic">Arithmetic</a>
+    <a href="#conditionals">Conditionals</a>
+    <a href="#loops">Loops</a>
+    <a href="#functions">Functions</a>
+    <a href="#io">I/O &amp; Redirection</a>
+    <a href="#processes">Processes</a>
+    <a href="#builtins">Builtins</a>
+    <a href="#globbing">Globbing</a>
+    <a href="#regex">Regex</a>
+    <a href="#scripting">Scripting</a>
+    <a href="#traps">Traps &amp; Signals</a>
+    <a href="#tips">Tips</a>
+  </nav>
+  <div class="search-wrap">
+    <span style="color:var(--text-dim);font-size:0.85rem">⌕</span>
+    <input id="search-input" placeholder="search…" type="text"/>
+  </div>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">language reference</span>
+  <h1>Bash <span>Scripting</span></h1>
+  <p class="subtitle">Bourne Again Shell — GNU Bash 5.x · quick reference</p>
+</div>
+
+<main>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#syntax"><span class="toc-num">01</span>Syntax &amp; Structure</a>
+    <a href="#vars"><span class="toc-num">02</span>Variables &amp; Parameters</a>
+    <a href="#strings"><span class="toc-num">03</span>String Operations</a>
+    <a href="#arrays"><span class="toc-num">04</span>Arrays &amp; Assoc Arrays</a>
+    <a href="#arithmetic"><span class="toc-num">05</span>Arithmetic</a>
+    <a href="#conditionals"><span class="toc-num">06</span>Conditionals &amp; Tests</a>
+    <a href="#loops"><span class="toc-num">07</span>Loops</a>
+    <a href="#functions"><span class="toc-num">08</span>Functions</a>
+    <a href="#io"><span class="toc-num">09</span>I/O &amp; Redirection</a>
+    <a href="#processes"><span class="toc-num">10</span>Processes &amp; Jobs</a>
+    <a href="#builtins"><span class="toc-num">11</span>Builtins</a>
+    <a href="#globbing"><span class="toc-num">12</span>Globbing &amp; Expansion</a>
+    <a href="#regex"><span class="toc-num">13</span>Regex &amp; Pattern Matching</a>
+    <a href="#scripting"><span class="toc-num">14</span>Scripting Best Practices</a>
+    <a href="#traps"><span class="toc-num">15</span>Traps &amp; Signals</a>
+    <a href="#tips"><span class="toc-num">16</span>Tips &amp; Gotchas</a>
+  </div>
+
+  <!-- ── 01 SYNTAX ── -->
+  <section id="syntax">
+    <div class="section-header">
+      <span class="section-icon">📄</span>
+      <h2>Syntax &amp; Structure</h2>
+    </div>
+
+    <p class="prose">Every Bash script begins with a shebang line telling the kernel which interpreter to use. Use <code>#!/usr/bin/env bash</code> for portability (finds bash in PATH regardless of install location).</p>
+
+    <div class="code-block">#!/usr/bin/env bash
+# This is a comment
+set -euo pipefail   # strict mode: exit on error, undefined vars, pipe fails
+
+echo "Hello, $USER"
+exit 0</div>
+
+    <h3>Special Characters</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Character</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>#</td><td>Comment (rest of line ignored)</td></tr>
+          <tr><td>;</td><td>Command separator (run sequentially on one line)</td></tr>
+          <tr><td>&amp;&amp;</td><td>AND — run next command only if previous succeeded (exit 0)</td></tr>
+          <tr><td>||</td><td>OR — run next command only if previous failed (exit non-0)</td></tr>
+          <tr><td>&amp;</td><td>Run command in background (async)</td></tr>
+          <tr><td>|</td><td>Pipe — send stdout of left to stdin of right</td></tr>
+          <tr><td>\</td><td>Line continuation or escape next character</td></tr>
+          <tr><td>$</td><td>Variable expansion, command substitution, arithmetic</td></tr>
+          <tr><td>" "</td><td>Double quotes — expand variables and commands inside</td></tr>
+          <tr><td>' '</td><td>Single quotes — no expansion, literal string</td></tr>
+          <tr><td>` `</td><td>Backtick command substitution (prefer <code>$(…)</code>)</td></tr>
+          <tr><td>{ }</td><td>Group commands in current shell (no subshell)</td></tr>
+          <tr><td>( )</td><td>Group commands in a subshell</td></tr>
+          <tr><td>[[ ]]</td><td>Extended conditional test (Bash-specific, preferred)</td></tr>
+          <tr><td>[ ]</td><td>POSIX test (also <code>test</code>)</td></tr>
+          <tr><td>(( ))</td><td>Arithmetic evaluation</td></tr>
+          <tr><td>$(( ))</td><td>Arithmetic expansion (returns value)</td></tr>
+          <tr><td>$( )</td><td>Command substitution — captures stdout</td></tr>
+          <tr><td>&gt;</td><td>Redirect stdout to file (truncate)</td></tr>
+          <tr><td>&gt;&gt;</td><td>Redirect stdout to file (append)</td></tr>
+          <tr><td>&lt;</td><td>Redirect file to stdin</td></tr>
+          <tr><td>~</td><td>Home directory of current user</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Exit Codes</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>Success</td></tr>
+          <tr><td>1</td><td>General error</td></tr>
+          <tr><td>2</td><td>Misuse of shell builtin</td></tr>
+          <tr><td>126</td><td>Command found but not executable</td></tr>
+          <tr><td>127</td><td>Command not found</td></tr>
+          <tr><td>128+N</td><td>Fatal signal N (e.g. 130 = Ctrl+C / SIGINT)</td></tr>
+          <tr><td>$?</td><td>Exit code of last command</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 02 VARIABLES ── -->
+  <section id="vars">
+    <div class="section-header">
+      <span class="section-icon">📦</span>
+      <h2>Variables &amp; Parameters</h2>
+    </div>
+
+    <h3>Assignment &amp; Expansion</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>name=value</td><td>Assign variable — <strong>no spaces around =</strong></td></tr>
+          <tr><td>$name / ${name}</td><td>Expand variable value</td></tr>
+          <tr><td>unset name</td><td>Remove variable</td></tr>
+          <tr><td>readonly name</td><td>Make variable immutable</td></tr>
+          <tr><td>export name</td><td>Export to child processes (env var)</td></tr>
+          <tr><td>local name</td><td>Declare variable local to a function</td></tr>
+          <tr><td>declare -i n</td><td>Declare integer variable</td></tr>
+          <tr><td>declare -r n</td><td>Declare readonly</td></tr>
+          <tr><td>declare -x n</td><td>Export (same as <code>export</code>)</td></tr>
+          <tr><td>declare -a arr</td><td>Declare indexed array</td></tr>
+          <tr><td>declare -A map</td><td>Declare associative array</td></tr>
+          <tr><td>declare -p name</td><td>Print variable with its attributes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Special Parameters</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Param</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>$0</td><td>Name of the script</td></tr>
+          <tr><td>$1 … $9</td><td>Positional arguments 1–9</td></tr>
+          <tr><td>${10}</td><td>Positional argument 10+ (braces required)</td></tr>
+          <tr><td>$#</td><td>Number of positional arguments</td></tr>
+          <tr><td>$@</td><td>All arguments as separate words (use in loops)</td></tr>
+          <tr><td>$*</td><td>All arguments as a single word (IFS-joined)</td></tr>
+          <tr><td>$$</td><td>PID of current shell</td></tr>
+          <tr><td>$!</td><td>PID of last background process</td></tr>
+          <tr><td>$?</td><td>Exit status of last command</td></tr>
+          <tr><td>$-</td><td>Current shell option flags</td></tr>
+          <tr><td>$_</td><td>Last argument of previous command</td></tr>
+          <tr><td>$LINENO</td><td>Current line number in script</td></tr>
+          <tr><td>$BASH_SOURCE</td><td>Array of source filenames</td></tr>
+          <tr><td>$FUNCNAME</td><td>Array of function call stack names</td></tr>
+          <tr><td>$IFS</td><td>Internal Field Separator (default: space, tab, newline)</td></tr>
+          <tr><td>$HOME</td><td>Current user's home directory</td></tr>
+          <tr><td>$PATH</td><td>Colon-separated executable search path</td></tr>
+          <tr><td>$PWD</td><td>Current working directory</td></tr>
+          <tr><td>$OLDPWD</td><td>Previous working directory</td></tr>
+          <tr><td>$RANDOM</td><td>Random integer 0–32767 (re-evaluated each use)</td></tr>
+          <tr><td>$SECONDS</td><td>Seconds since shell started</td></tr>
+          <tr><td>$PIPESTATUS</td><td>Array of exit codes from last pipeline</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Parameter Expansion</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>${var:-default}</td><td>Use <em>default</em> if var is unset or empty</td></tr>
+          <tr><td>${var:=default}</td><td>Set var to <em>default</em> if unset or empty, then expand</td></tr>
+          <tr><td>${var:+alt}</td><td>Use <em>alt</em> if var is set and non-empty, else empty string</td></tr>
+          <tr><td>${var:?msg}</td><td>Error with <em>msg</em> if var is unset or empty</td></tr>
+          <tr><td>${#var}</td><td>Length of var (string length)</td></tr>
+          <tr><td>${var:offset}</td><td>Substring from offset to end</td></tr>
+          <tr><td>${var:offset:len}</td><td>Substring of length len starting at offset</td></tr>
+          <tr><td>${var#pattern}</td><td>Remove shortest match of pattern from start</td></tr>
+          <tr><td>${var##pattern}</td><td>Remove longest match of pattern from start</td></tr>
+          <tr><td>${var%pattern}</td><td>Remove shortest match of pattern from end</td></tr>
+          <tr><td>${var%%pattern}</td><td>Remove longest match of pattern from end</td></tr>
+          <tr><td>${var/pat/rep}</td><td>Replace first match of pat with rep</td></tr>
+          <tr><td>${var//pat/rep}</td><td>Replace all matches of pat with rep</td></tr>
+          <tr><td>${var/#pat/rep}</td><td>Replace pat only if at start of var</td></tr>
+          <tr><td>${var/%pat/rep}</td><td>Replace pat only if at end of var</td></tr>
+          <tr><td>${var^}</td><td>Uppercase first character</td></tr>
+          <tr><td>${var^^}</td><td>Uppercase all characters</td></tr>
+          <tr><td>${var,}</td><td>Lowercase first character</td></tr>
+          <tr><td>${var,,}</td><td>Lowercase all characters</td></tr>
+          <tr><td>${!prefix*}</td><td>Names of variables starting with prefix</td></tr>
+          <tr><td>${!arr[@]}</td><td>All indices/keys of array arr</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 03 STRINGS ── -->
+  <section id="strings">
+    <div class="section-header">
+      <span class="section-icon">🔤</span>
+      <h2>String Operations</h2>
+    </div>
+
+    <h3>Quoting Rules</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Form</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>'literal'</td><td>No expansion at all — completely literal</td></tr>
+          <tr><td>"double"</td><td>Expands <code>$vars</code>, <code>$(cmd)</code>, <code>$((expr))</code>, and <code>\</code> escapes</td></tr>
+          <tr><td>$'escape'</td><td>ANSI-C quoting: interprets <code>\n</code>, <code>\t</code>, <code>\xNN</code>, etc.</td></tr>
+          <tr><td>$"locale"</td><td>Locale-aware translation (rarely used)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Common String Patterns</h3>
+    <div class="code-block">str="Hello, World!"
+
+echo ${#str}            # 13  (length)
+echo ${str:7}           # World!  (from index 7)
+echo ${str:7:5}         # World   (5 chars from index 7)
+echo ${str/World/Bash}  # Hello, Bash!  (replace first)
+echo ${str,,}           # hello, world!  (lowercase all)
+echo ${str^^}           # HELLO, WORLD!  (uppercase all)
+
+# Strip extension/prefix
+file="script.sh"
+echo ${file%.sh}        # script  (strip .sh suffix)
+echo ${file##*/}        # script.sh  (basename equivalent)
+
+# Check if empty
+[[ -z "$str" ]] &amp;&amp; echo "empty"
+[[ -n "$str" ]] &amp;&amp; echo "not empty"</div>
+
+    <h3>Here Strings &amp; Here Docs</h3>
+    <div class="code-block"># Here string — feed a string as stdin
+grep "foo" &lt;&lt;&lt; "$myvar"
+
+# Here document — multiline stdin block
+cat &lt;&lt;EOF
+Line one
+Line two: $USER
+EOF
+
+# Here doc with no expansion (quoted delimiter)
+cat &lt;&lt;'EOF'
+No $expansion here
+EOF
+
+# Here doc with indentation stripping (tab only, use <<-)
+cat &lt;&lt;-EOF
+	indented content
+	tabs stripped
+	EOF</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 04 ARRAYS ── -->
+  <section id="arrays">
+    <div class="section-header">
+      <span class="section-icon">📋</span>
+      <h2>Arrays &amp; Associative Arrays</h2>
+    </div>
+
+    <h3>Indexed Arrays</h3>
+    <div class="code-block">fruits=("apple" "banana" "cherry")   # declare + assign
+fruits[3]="date"                      # assign by index
+
+echo ${fruits[0]}           # apple
+echo ${fruits[@]}           # all elements (separate words)
+echo ${fruits[*]}           # all elements (single word, avoid)
+echo ${#fruits[@]}          # 3  (number of elements)
+echo ${!fruits[@]}          # 0 1 2  (indices)
+
+fruits+=("elderberry")      # append element
+unset fruits[1]             # remove element at index 1
+
+# Slice
+echo ${fruits[@]:1:2}       # elements at index 1 and 2
+
+# Loop over array
+for f in "${fruits[@]}"; do
+  echo "$f"
+done
+
+# Safely copy array
+copy=("${fruits[@]}")</div>
+
+    <h3>Associative Arrays (dicts)</h3>
+    <div class="code-block">declare -A colors          # must declare explicitly
+colors[red]="#ff0000"
+colors[green]="#00ff00"
+colors["blue"]="#0000ff"
+
+echo ${colors[red]}         # #ff0000
+echo ${!colors[@]}          # all keys
+echo ${colors[@]}           # all values
+echo ${#colors[@]}          # number of entries
+
+unset colors[red]           # remove key
+
+# Loop
+for key in "${!colors[@]}"; do
+  echo "$key = ${colors[$key]}"
+done</div>
+
+    <div class="callout"><strong>Note:</strong> Always quote array expansions: <code>"${arr[@]}"</code> preserves elements with spaces. <code>${arr[*]}</code> joins everything into one word — usually not what you want.</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 05 ARITHMETIC ── -->
+  <section id="arithmetic">
+    <div class="section-header">
+      <span class="section-icon">🔢</span>
+      <h2>Arithmetic</h2>
+    </div>
+
+    <p class="prose">Bash arithmetic is integer-only. For floats, use <code>bc</code>, <code>awk</code>, or <code>python3</code>.</p>
+
+    <h3>Arithmetic Expansion &amp; Evaluation</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td>$(( expr ))</td><td>Arithmetic expansion — returns result as string</td></tr>
+          <tr><td>(( expr ))</td><td>Arithmetic evaluation — sets exit code (0 if non-zero result)</td></tr>
+          <tr><td>let "expr"</td><td>Evaluate arithmetic expression (avoid; prefer <code>((…))</code>)</td></tr>
+          <tr><td>expr a + b</td><td>External <code>expr</code> command — slow, avoid in scripts</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Operators Inside (( ))</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>+ - * /</td><td>Add, subtract, multiply, divide (integer division)</td></tr>
+          <tr><td>%</td><td>Modulo</td></tr>
+          <tr><td>**</td><td>Exponentiation</td></tr>
+          <tr><td>++ --</td><td>Pre/post increment and decrement</td></tr>
+          <tr><td>== != &lt; &gt; &lt;= &gt;=</td><td>Comparison (return 0 or 1)</td></tr>
+          <tr><td>&amp;&amp; ||</td><td>Logical AND / OR</td></tr>
+          <tr><td>! ~ &amp; | ^ &lt;&lt; &gt;&gt;</td><td>Bitwise NOT, AND, OR, XOR, left/right shift</td></tr>
+          <tr><td>var=expr</td><td>Assignment (no $ needed inside (( )))</td></tr>
+          <tr><td>var+=n</td><td>Add n to var</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">x=10; y=3
+echo $(( x + y ))      # 13
+echo $(( x ** 2 ))     # 100
+echo $(( x % y ))      # 1
+(( x > 5 )) &amp;&amp; echo "big"    # conditional on arithmetic
+
+# Increment / decrement
+(( i++ ))
+(( --count ))
+
+# Float arithmetic with bc
+result=$(echo "scale=2; 10 / 3" | bc)  # 3.33
+result=$(awk "BEGIN { print 10/3 }")   # 3.33333</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 06 CONDITIONALS ── -->
+  <section id="conditionals">
+    <div class="section-header">
+      <span class="section-icon">🔀</span>
+      <h2>Conditionals &amp; Tests</h2>
+    </div>
+
+    <h3>if / elif / else</h3>
+    <div class="code-block">if [[ "$x" -gt 10 ]]; then
+  echo "big"
+elif [[ "$x" -eq 10 ]]; then
+  echo "ten"
+else
+  echo "small"
+fi
+
+# One-liner
+[[ -f "$file" ]] &amp;&amp; echo "exists"
+[[ -z "$var" ]]  || echo "not empty"</div>
+
+    <h3>File Tests [[ -flag file ]]</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Flag</th><th>True when…</th></tr></thead>
+        <tbody>
+          <tr><td>-e file</td><td>file exists (any type)</td></tr>
+          <tr><td>-f file</td><td>file is a regular file</td></tr>
+          <tr><td>-d file</td><td>file is a directory</td></tr>
+          <tr><td>-L file</td><td>file is a symlink</td></tr>
+          <tr><td>-r file</td><td>file is readable</td></tr>
+          <tr><td>-w file</td><td>file is writable</td></tr>
+          <tr><td>-x file</td><td>file is executable</td></tr>
+          <tr><td>-s file</td><td>file is non-empty (size &gt; 0)</td></tr>
+          <tr><td>-z file</td><td>file is empty (size = 0)</td></tr>
+          <tr><td>-p file</td><td>file is a named pipe (FIFO)</td></tr>
+          <tr><td>-S file</td><td>file is a socket</td></tr>
+          <tr><td>-b file</td><td>file is a block device</td></tr>
+          <tr><td>-c file</td><td>file is a character device</td></tr>
+          <tr><td>-N file</td><td>file modified since last read</td></tr>
+          <tr><td>f1 -nt f2</td><td>f1 is newer than f2</td></tr>
+          <tr><td>f1 -ot f2</td><td>f1 is older than f2</td></tr>
+          <tr><td>f1 -ef f2</td><td>f1 and f2 are the same file (hard links)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>String Tests</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Test</th><th>True when…</th></tr></thead>
+        <tbody>
+          <tr><td>-z "$s"</td><td>s is empty (zero length)</td></tr>
+          <tr><td>-n "$s"</td><td>s is non-empty</td></tr>
+          <tr><td>"$a" == "$b"</td><td>strings are equal</td></tr>
+          <tr><td>"$a" != "$b"</td><td>strings are not equal</td></tr>
+          <tr><td>"$a" &lt; "$b"</td><td>a sorts before b (lexicographic)</td></tr>
+          <tr><td>"$a" &gt; "$b"</td><td>a sorts after b (lexicographic)</td></tr>
+          <tr><td>"$s" =~ regex</td><td>s matches extended regex (inside [[ ]] only)</td></tr>
+          <tr><td>"$s" == glob</td><td>s matches glob pattern (inside [[ ]] only)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Integer Tests</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Test</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>-eq</td><td>equal</td></tr>
+          <tr><td>-ne</td><td>not equal</td></tr>
+          <tr><td>-lt</td><td>less than</td></tr>
+          <tr><td>-le</td><td>less than or equal</td></tr>
+          <tr><td>-gt</td><td>greater than</td></tr>
+          <tr><td>-ge</td><td>greater than or equal</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>case Statement</h3>
+    <div class="code-block">case "$var" in
+  "start")    echo "starting" ;;
+  "stop"|"quit") echo "stopping" ;;
+  *.txt)      echo "text file" ;;
+  [0-9]*)     echo "starts with digit" ;;
+  *)          echo "no match" ;;   # default
+esac</div>
+
+    <h3>select — Interactive Menu</h3>
+    <div class="code-block">PS3="Pick: "
+select opt in "coffee" "tea" "quit"; do
+  case "$opt" in
+    "quit") break ;;
+    *)      echo "You chose $opt" ;;
+  esac
+done</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 07 LOOPS ── -->
+  <section id="loops">
+    <div class="section-header">
+      <span class="section-icon">🔁</span>
+      <h2>Loops</h2>
+    </div>
+
+    <div class="code-block"># for-in loop
+for item in one two three; do
+  echo "$item"
+done
+
+# C-style for
+for (( i=0; i&lt;5; i++ )); do
+  echo "$i"
+done
+
+# Loop over array
+for f in "${arr[@]}"; do echo "$f"; done
+
+# Loop over files
+for f in /etc/*.conf; do
+  [[ -f "$f" ]] &amp;&amp; echo "$f"
+done
+
+# Loop over lines of a file
+while IFS= read -r line; do
+  echo "$line"
+done &lt; input.txt
+
+# Loop over command output
+while IFS= read -r line; do
+  echo "$line"
+done &lt; &lt;(find . -name "*.sh")
+
+# until loop (opposite of while)
+until [[ "$done" == "yes" ]]; do
+  do_work
+done
+
+# Loop control
+break          # exit loop
+continue       # skip to next iteration
+break 2        # break out of 2 nested loops</div>
+
+    <div class="callout"><strong>IFS= read -r line</strong> is the canonical safe pattern: <code>IFS=</code> prevents leading/trailing whitespace trimming, <code>-r</code> prevents backslash interpretation.</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 08 FUNCTIONS ── -->
+  <section id="functions">
+    <div class="section-header">
+      <span class="section-icon">⚙️</span>
+      <h2>Functions</h2>
+    </div>
+
+    <div class="code-block"># Declaration (two equivalent syntaxes)
+greet() {
+  local name="$1"          # local scope
+  echo "Hello, $name"
+  return 0                 # explicit exit code
+}
+
+function greet { … }       # alternate syntax (avoid — less portable)
+
+# Call
+greet "World"
+
+# Capture output
+result=$(greet "World")
+
+# Return value via stdout (best practice)
+add() { echo $(( $1 + $2 )); }
+sum=$(add 3 4)             # sum=7
+
+# Return code only (for boolean checks)
+is_even() { (( $1 % 2 == 0 )); }
+is_even 4 &amp;&amp; echo "even"
+
+# Named references (Bash 4.3+)
+fill_array() {
+  local -n arr_ref=$1      # nameref to caller's array
+  arr_ref=(a b c)
+}
+fill_array myarr
+echo "${myarr[@]}"         # a b c</div>
+
+    <h3>Function Scope</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Concept</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>local var</td><td>Scoped to function and its children — always use for internal vars</td></tr>
+          <tr><td>return N</td><td>Set exit code (0–255). NOT a value return — use stdout for that</td></tr>
+          <tr><td>$1 $2 …</td><td>Inside a function, these are the function's arguments, not the script's</td></tr>
+          <tr><td>$FUNCNAME[0]</td><td>Name of the current function</td></tr>
+          <tr><td>unset -f name</td><td>Remove a function definition</td></tr>
+          <tr><td>declare -f name</td><td>Print function definition</td></tr>
+          <tr><td>typeset -f</td><td>List all defined functions</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 09 I/O & REDIRECTION ── -->
+  <section id="io">
+    <div class="section-header">
+      <span class="section-icon">🔌</span>
+      <h2>I/O &amp; Redirection</h2>
+    </div>
+
+    <h3>Redirection</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>cmd &gt; file</td><td>Redirect stdout to file (truncate)</td></tr>
+          <tr><td>cmd &gt;&gt; file</td><td>Redirect stdout to file (append)</td></tr>
+          <tr><td>cmd &lt; file</td><td>Redirect file to stdin</td></tr>
+          <tr><td>cmd 2&gt; file</td><td>Redirect stderr to file</td></tr>
+          <tr><td>cmd 2&gt;&gt; file</td><td>Append stderr to file</td></tr>
+          <tr><td>cmd &gt;&amp;2</td><td>Redirect stdout to stderr (echo errors)</td></tr>
+          <tr><td>cmd 2&gt;&amp;1</td><td>Redirect stderr to stdout (merge)</td></tr>
+          <tr><td>cmd &gt; f 2&gt;&amp;1</td><td>Both stdout and stderr to file (order matters!)</td></tr>
+          <tr><td>cmd &amp;&gt; file</td><td>Shorthand for both to file (Bash-specific)</td></tr>
+          <tr><td>cmd &gt; /dev/null</td><td>Discard stdout</td></tr>
+          <tr><td>cmd &amp;&gt; /dev/null</td><td>Discard all output</td></tr>
+          <tr><td>cmd &lt;&lt;&lt; "str"</td><td>Here string — feed string as stdin</td></tr>
+          <tr><td>cmd &lt;&lt;EOF … EOF</td><td>Here document — multiline stdin</td></tr>
+          <tr><td>cmd1 | cmd2</td><td>Pipe stdout of cmd1 to stdin of cmd2</td></tr>
+          <tr><td>cmd1 |&amp; cmd2</td><td>Pipe stdout + stderr of cmd1 (Bash 4+)</td></tr>
+          <tr><td>cmd &gt; &gt;(tee log)</td><td>Process substitution — write to another command</td></tr>
+          <tr><td>cmd &lt; &lt;(gen)</td><td>Process substitution — read from command output</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>read Builtin</h3>
+    <div class="code-block">read var                        # read one line from stdin
+read -r var                     # raw mode (no backslash escapes)
+read -p "Name: " name           # with prompt
+read -s password                # silent (no echo — for passwords)
+read -t 5 var                   # timeout after 5 seconds
+read -n 1 char                  # read exactly 1 character
+read -a arr                     # read words into array
+read -d ':' var                 # read until delimiter ':'
+IFS=',' read -ra parts &lt;&lt;&lt; "a,b,c"   # split on comma into array</div>
+
+    <h3>printf</h3>
+    <div class="code-block">printf "%-20s %5d\n" "$name" "$count"   # formatted output
+printf "%s\n" "${arr[@]}"               # print array one per line
+printf -v var "fmt" args               # print to variable instead of stdout</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 10 PROCESSES ── -->
+  <section id="processes">
+    <div class="section-header">
+      <span class="section-icon">⚡</span>
+      <h2>Processes &amp; Jobs</h2>
+    </div>
+
+    <h3>Job Control</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>cmd &amp;</td><td>Run cmd in background</td></tr>
+          <tr><td>jobs</td><td>List background jobs</td></tr>
+          <tr><td>fg [%n]</td><td>Bring job n (or last) to foreground</td></tr>
+          <tr><td>bg [%n]</td><td>Continue job n in background</td></tr>
+          <tr><td>wait [PID]</td><td>Wait for background process(es) to finish</td></tr>
+          <tr><td>kill PID</td><td>Send SIGTERM to process</td></tr>
+          <tr><td>kill -9 PID</td><td>Send SIGKILL (force)</td></tr>
+          <tr><td>kill -l</td><td>List signal names</td></tr>
+          <tr><td>disown %n</td><td>Remove job from job table (survives logout)</td></tr>
+          <tr><td>nohup cmd</td><td>Run immune to SIGHUP (redirect output)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Command Substitution &amp; Subshells</h3>
+    <div class="code-block"># Command substitution
+out=$(ls -la)               # capture stdout
+files=$(find . -name "*.sh")
+
+# Subshell — changes don't affect parent
+(cd /tmp &amp;&amp; ls)            # pwd is /tmp only inside ()
+( export FOO=bar; env )     # FOO visible only in subshell
+
+# Parallel execution
+task1 &amp;
+task2 &amp;
+wait                        # wait for both
+
+# Capture exit code of piped command
+set -o pipefail             # propagate pipe failures
+if ! grep "foo" file.txt &gt; /dev/null 2&gt;&amp;1; then
+  echo "not found"
+fi
+
+# PIPESTATUS — exit codes of each pipeline component
+ls | grep "x" | wc -l
+echo "${PIPESTATUS[@]}"     # e.g. 0 1 0</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 11 BUILTINS ── -->
+  <section id="builtins">
+    <div class="section-header">
+      <span class="section-icon">🔧</span>
+      <h2>Builtins</h2>
+    </div>
+
+    <h3>Essential Builtins</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Builtin</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>echo</td><td>Print arguments. Use <code>printf</code> for reliable formatting</td></tr>
+          <tr><td>printf</td><td>Formatted print — portable and predictable</td></tr>
+          <tr><td>read</td><td>Read a line from stdin into variable(s)</td></tr>
+          <tr><td>cd</td><td>Change directory. <code>cd -</code> goes to previous dir</td></tr>
+          <tr><td>pwd</td><td>Print working directory</td></tr>
+          <tr><td>exit [n]</td><td>Exit script with code n</td></tr>
+          <tr><td>return [n]</td><td>Return from function with code n</td></tr>
+          <tr><td>source / .</td><td>Execute file in current shell (shares scope)</td></tr>
+          <tr><td>exec cmd</td><td>Replace current shell with cmd (no fork)</td></tr>
+          <tr><td>eval "str"</td><td>Parse and execute string as Bash code (use carefully)</td></tr>
+          <tr><td>set</td><td>Set shell options or positional parameters</td></tr>
+          <tr><td>unset</td><td>Remove variable or function</td></tr>
+          <tr><td>shift [n]</td><td>Shift positional parameters left by n (default 1)</td></tr>
+          <tr><td>getopts</td><td>Parse short options in scripts</td></tr>
+          <tr><td>type cmd</td><td>Show whether cmd is alias/function/builtin/file</td></tr>
+          <tr><td>which cmd</td><td>Show path to cmd (external command)</td></tr>
+          <tr><td>command cmd</td><td>Run cmd bypassing aliases and functions</td></tr>
+          <tr><td>builtin cmd</td><td>Run cmd as builtin only</td></tr>
+          <tr><td>hash</td><td>Show/manage command hash table</td></tr>
+          <tr><td>trap</td><td>Set signal/exit handlers</td></tr>
+          <tr><td>wait</td><td>Wait for background jobs</td></tr>
+          <tr><td>test / [ ]</td><td>Evaluate conditional expression</td></tr>
+          <tr><td>[[ ]]</td><td>Extended test (Bash-specific, preferred)</td></tr>
+          <tr><td>(( ))</td><td>Arithmetic evaluation</td></tr>
+          <tr><td>true / false</td><td>Return exit code 0 / 1</td></tr>
+          <tr><td>colon :</td><td>No-op — always succeeds, expands args. Useful as placeholder</td></tr>
+          <tr><td>enable</td><td>Enable/disable builtins</td></tr>
+          <tr><td>mapfile / readarray</td><td>Read lines from stdin into an array</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>set Options (strict mode &amp; others)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Option</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>set -e / -o errexit</td><td>Exit immediately on error</td></tr>
+          <tr><td>set -u / -o nounset</td><td>Error on undefined variable</td></tr>
+          <tr><td>set -o pipefail</td><td>Pipeline fails if any command fails</td></tr>
+          <tr><td>set -x</td><td>Print each command before executing (debug)</td></tr>
+          <tr><td>set -v</td><td>Print input lines as read</td></tr>
+          <tr><td>set -n</td><td>Parse but don't execute (syntax check)</td></tr>
+          <tr><td>set -f</td><td>Disable globbing</td></tr>
+          <tr><td>set +e</td><td>Turn off errexit (+ disables, - enables)</td></tr>
+          <tr><td>set --</td><td>End of options; next args are positional parameters</td></tr>
+          <tr><td>shopt -s extglob</td><td>Enable extended glob patterns</td></tr>
+          <tr><td>shopt -s nullglob</td><td>Non-matching globs expand to empty string</td></tr>
+          <tr><td>shopt -s globstar</td><td>Enable ** recursive glob</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 12 GLOBBING ── -->
+  <section id="globbing">
+    <div class="section-header">
+      <span class="section-icon">🌐</span>
+      <h2>Globbing &amp; Expansion</h2>
+    </div>
+
+    <h3>Pathname Expansion (Glob)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Matches</th></tr></thead>
+        <tbody>
+          <tr><td>*</td><td>Any string (not crossing /)</td></tr>
+          <tr><td>?</td><td>Any single character</td></tr>
+          <tr><td>[abc]</td><td>Any character in set</td></tr>
+          <tr><td>[a-z]</td><td>Any character in range</td></tr>
+          <tr><td>[!abc]</td><td>Any character NOT in set</td></tr>
+          <tr><td>**</td><td>Any path including subdirs (requires <code>shopt -s globstar</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Extended Glob (shopt -s extglob)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Matches</th></tr></thead>
+        <tbody>
+          <tr><td>?(pat)</td><td>Zero or one occurrence of pat</td></tr>
+          <tr><td>*(pat)</td><td>Zero or more occurrences of pat</td></tr>
+          <tr><td>+(pat)</td><td>One or more occurrences of pat</td></tr>
+          <tr><td>@(p1|p2)</td><td>Exactly one of the listed patterns</td></tr>
+          <tr><td>!(pat)</td><td>Anything NOT matching pat</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Brace Expansion</h3>
+    <div class="code-block">echo {a,b,c}            # a b c
+echo {1..5}             # 1 2 3 4 5
+echo {01..10}           # 01 02 … 10 (zero-padded)
+echo {a..z}             # a b … z
+echo {1..10..2}         # 1 3 5 7 9 (step)
+cp file{,.bak}          # cp file file.bak  (useful idiom)
+mkdir -p dir/{a,b,c}/src</div>
+
+    <h3>Tilde &amp; Other Expansions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Expands to</th></tr></thead>
+        <tbody>
+          <tr><td>~</td><td>$HOME</td></tr>
+          <tr><td>~user</td><td>Home directory of user</td></tr>
+          <tr><td>~+</td><td>$PWD (current directory)</td></tr>
+          <tr><td>~-</td><td>$OLDPWD (previous directory)</td></tr>
+          <tr><td>$var</td><td>Variable expansion</td></tr>
+          <tr><td>$(cmd)</td><td>Command substitution</td></tr>
+          <tr><td>$(( expr ))</td><td>Arithmetic expansion</td></tr>
+          <tr><td>${!var}</td><td>Indirect expansion (value of variable named by var)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 13 REGEX ── -->
+  <section id="regex">
+    <div class="section-header">
+      <span class="section-icon">🔍</span>
+      <h2>Regex &amp; Pattern Matching</h2>
+    </div>
+
+    <p class="prose">Bash supports extended regular expressions (ERE) in <code>[[ =~ ]]</code>. Matches populate the <code>$BASH_REMATCH</code> array.</p>
+
+    <div class="code-block">str="user@example.com"
+if [[ "$str" =~ ^([^@]+)@(.+)$ ]]; then
+  echo "user: ${BASH_REMATCH[1]}"    # user
+  echo "domain: ${BASH_REMATCH[2]}"  # example.com
+fi
+
+# Validate integer
+[[ "$n" =~ ^-?[0-9]+$ ]] &amp;&amp; echo "is integer"
+
+# Match version number
+[[ "$ver" =~ ^([0-9]+)\.([0-9]+) ]]
+major=${BASH_REMATCH[1]}
+minor=${BASH_REMATCH[2]}</div>
+
+    <h3>ERE Quick Reference</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Matches</th></tr></thead>
+        <tbody>
+          <tr><td>.</td><td>Any single character</td></tr>
+          <tr><td>^</td><td>Start of string</td></tr>
+          <tr><td>$</td><td>End of string</td></tr>
+          <tr><td>*</td><td>0 or more of preceding</td></tr>
+          <tr><td>+</td><td>1 or more of preceding</td></tr>
+          <tr><td>?</td><td>0 or 1 of preceding</td></tr>
+          <tr><td>{n,m}</td><td>n to m of preceding</td></tr>
+          <tr><td>[abc]</td><td>Character class</td></tr>
+          <tr><td>[^abc]</td><td>Negated character class</td></tr>
+          <tr><td>(a|b)</td><td>Group / alternation</td></tr>
+          <tr><td>\w \d \s</td><td>Word / digit / whitespace (in grep -P; in bash ERE use [[:alnum:]])</td></tr>
+          <tr><td>[[:alpha:]]</td><td>POSIX alpha class</td></tr>
+          <tr><td>[[:digit:]]</td><td>POSIX digit class</td></tr>
+          <tr><td>[[:space:]]</td><td>POSIX whitespace class</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 14 SCRIPTING ── -->
+  <section id="scripting">
+    <div class="section-header">
+      <span class="section-icon">📝</span>
+      <h2>Scripting Best Practices</h2>
+    </div>
+
+    <h3>Script Template</h3>
+    <div class="code-block">#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'                    # safer word splitting
+
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &amp;&amp; pwd)"
+readonly SCRIPT_NAME="$(basename "$0")"
+
+usage() {
+  cat &lt;&lt;EOF
+Usage: $SCRIPT_NAME [OPTIONS] arg1 arg2
+
+Options:
+  -h, --help     Show this help
+  -v, --verbose  Verbose output
+  -o FILE        Output file
+EOF
+  exit 0
+}
+
+die() {
+  echo "[ERROR] $*" &gt;&amp;2
+  exit 1
+}
+
+log() {
+  echo "[$(date '+%H:%M:%S')] $*" &gt;&amp;2
+}
+
+main() {
+  local verbose=false
+  local output=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)    usage ;;
+      -v|--verbose) verbose=true; shift ;;
+      -o)           output="$2"; shift 2 ;;
+      --)           shift; break ;;
+      -*)           die "Unknown option: $1" ;;
+      *)            break ;;
+    esac
+  done
+
+  [[ $# -lt 1 ]] &amp;&amp; die "Missing required argument"
+  local arg1="$1"
+
+  log "Starting with arg: $arg1"
+  # main logic here
+}
+
+main "$@"</div>
+
+    <h3>Argument Parsing with getopts</h3>
+    <div class="code-block">while getopts ":hvf:" opt; do
+  case "$opt" in
+    h) usage; exit 0 ;;
+    v) VERBOSE=true ;;
+    f) FILE="$OPTARG" ;;
+    :) die "Option -$OPTARG requires an argument" ;;
+    ?) die "Unknown option: -$OPTARG" ;;
+  esac
+done
+shift $(( OPTIND - 1 ))      # shift past parsed options</div>
+
+    <h3>Temporary Files</h3>
+    <div class="code-block">tmpfile=$(mktemp)               # create temp file
+tmpdir=$(mktemp -d)            # create temp directory
+
+# Always clean up
+cleanup() { rm -rf "$tmpfile" "$tmpdir"; }
+trap cleanup EXIT              # runs on exit, signal, or error</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 15 TRAPS ── -->
+  <section id="traps">
+    <div class="section-header">
+      <span class="section-icon">🪤</span>
+      <h2>Traps &amp; Signals</h2>
+    </div>
+
+    <h3>trap Syntax</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Syntax</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>trap 'cmd' SIGNAL</td><td>Run cmd when signal is received</td></tr>
+          <tr><td>trap 'cmd' EXIT</td><td>Run cmd on any exit (normal or error)</td></tr>
+          <tr><td>trap 'cmd' ERR</td><td>Run cmd when any command fails</td></tr>
+          <tr><td>trap 'cmd' RETURN</td><td>Run cmd when function returns</td></tr>
+          <tr><td>trap 'cmd' DEBUG</td><td>Run cmd before each command</td></tr>
+          <tr><td>trap - SIGNAL</td><td>Reset trap to default behavior</td></tr>
+          <tr><td>trap '' SIGNAL</td><td>Ignore signal</td></tr>
+          <tr><td>trap -p SIGNAL</td><td>Show current trap for signal</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Common Signals</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Signal</th><th>Number</th><th>Default action</th></tr></thead>
+        <tbody>
+          <tr><td>SIGHUP</td><td>1</td><td>Hangup — terminal closed or SSH disconnected</td></tr>
+          <tr><td>SIGINT</td><td>2</td><td>Interrupt — Ctrl+C</td></tr>
+          <tr><td>SIGQUIT</td><td>3</td><td>Quit — Ctrl+\, generates core dump</td></tr>
+          <tr><td>SIGKILL</td><td>9</td><td>Kill — cannot be caught or ignored</td></tr>
+          <tr><td>SIGTERM</td><td>15</td><td>Terminate — default kill target, can be caught</td></tr>
+          <tr><td>SIGPIPE</td><td>13</td><td>Broken pipe — reader closed before writer finished</td></tr>
+          <tr><td>SIGUSR1</td><td>10</td><td>User-defined signal 1</td></tr>
+          <tr><td>SIGUSR2</td><td>12</td><td>User-defined signal 2</td></tr>
+          <tr><td>SIGCHLD</td><td>17</td><td>Child process changed state</td></tr>
+          <tr><td>SIGWINCH</td><td>28</td><td>Terminal window resized</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block"># Robust cleanup pattern
+cleanup() {
+  local exit_code=$?
+  echo "Cleaning up..." &gt;&amp;2
+  rm -f /tmp/mylock
+  exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
+# Re-raise signal after cleanup
+trap 'trap - INT; cleanup; kill -INT $$' INT</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+  <!-- ── 16 TIPS ── -->
+  <section id="tips">
+    <div class="section-header">
+      <span class="section-icon">💡</span>
+      <h2>Tips &amp; Gotchas</h2>
+    </div>
+
+    <h3>Common Mistakes</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Gotcha</th><th>Correct approach</th></tr></thead>
+        <tbody>
+          <tr><td><code>x = 5</code> (spaces)</td><td><code>x=5</code> — no spaces around = in assignment</td></tr>
+          <tr><td><code>if [ $x == 5 ]</code></td><td>Use <code>[[ "$x" == 5 ]]</code> or <code>(( x == 5 ))</code></td></tr>
+          <tr><td>Unquoted <code>$var</code></td><td>Always quote: <code>"$var"</code> — unquoted splits on IFS and globs</td></tr>
+          <tr><td><code>for f in $(ls)</code></td><td>Use <code>for f in *</code> or <code>find</code> — ls output breaks on spaces</td></tr>
+          <tr><td>Forgetting <code>-r</code> in read</td><td><code>read -r</code> — without it, backslashes are consumed</td></tr>
+          <tr><td><code>[ -z $var ]</code></td><td><code>[[ -z "$var" ]]</code> — unquoted breaks on empty</td></tr>
+          <tr><td>Using <code>==</code> in <code>[ ]</code></td><td>Use <code>=</code> in <code>[ ]</code>; <code>==</code> works in <code>[[ ]]</code></td></tr>
+          <tr><td>Forgetting <code>set -o pipefail</code></td><td>Without it, <code>cmd | false</code> exits 0</td></tr>
+          <tr><td>Modifying loop var in subshell</td><td>Pipes create subshells — vars set inside don't propagate</td></tr>
+          <tr><td><code>[ $a == $b ]</code> with empty var</td><td>Becomes <code>[ == $b ]</code> — always quote vars in tests</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Useful Idioms</h3>
+    <div class="code-block"># Default value
+: "${VAR:=default}"          # set VAR to default if unset
+
+# Require variable
+: "${REQUIRED_VAR:?Variable REQUIRED_VAR must be set}"
+
+# Script's own directory (robust)
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &amp;&amp; pwd)"
+
+# Check if command exists
+command -v docker &amp;&gt; /dev/null || die "docker not installed"
+
+# Print to stderr
+echo "error message" &gt;&amp;2
+
+# Discard output but check exit code
+if grep -q "pattern" file; then …; fi
+
+# Trim whitespace (Bash 4.0+)
+trimmed="${var#"${var%%[![:space:]]*}"}"
+trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
+
+# Join array with delimiter
+IFS=',' arr_str="${arr[*]}"
+
+# Read file into variable
+content=$(&lt; file.txt)        # faster than $(cat file.txt)
+
+# Parallel with max jobs
+for item in "${items[@]}"; do
+  process "$item" &amp;
+  while (( $(jobs -r | wc -l) >= MAX_JOBS )); do sleep 0.1; done
+done
+wait</div>
+
+    <h3>Debug Techniques</h3>
+    <div class="code-block">bash -n script.sh            # syntax check only, don't run
+bash -x script.sh            # trace execution
+bash -v script.sh            # print each line as read
+
+set -x                       # enable tracing inline
+set +x                       # disable tracing inline
+
+# Print variable with context
+declare -p myvar
+
+# Show call stack
+caller 0                     # caller line, function, filename</div>
+
+    <div class="warn"><strong>ShellCheck:</strong> Run <code>shellcheck script.sh</code> — it catches 95% of common bugs automatically. Install with <code>apt install shellcheck</code> or <code>brew install shellcheck</code>.</div>
+
+    <a class="back-top" href="#top">↑ back to top</a>
+  </section>
+
+</main>
+
+<footer>Bash Quick Reference · GNU Bash 5.x · coogs-hub</footer>
+
+<script>
+// Inline search highlight
+const input = document.getElementById('search-input');
+let marks = [];
+
+function clearMarks() {
+  marks.forEach(el => {
+    const parent = el.parentNode;
+    if (parent) parent.replaceChild(document.createTextNode(el.textContent), el);
+  });
+  marks = [];
+  document.normalize();
+}
+
+function highlightText(query) {
+  clearMarks();
+  if (!query || query.length < 2) return;
+  const re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+  const walker = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) {
+    if (walker.currentNode.parentElement.tagName !== 'SCRIPT') nodes.push(walker.currentNode);
+  }
+  nodes.forEach(node => {
+    const text = node.textContent;
+    if (!re.test(text)) return;
+    re.lastIndex = 0;
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const mark = document.createElement('mark');
+      mark.className = 'highlight';
+      mark.textContent = m[0];
+      marks.push(mark);
+      frag.appendChild(mark);
+      last = m.index + m[0].length;
+    }
+    frag.appendChild(document.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+  if (marks.length > 0) marks[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+let debounce;
+input.addEventListener('input', () => {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => highlightText(input.value.trim()), 250);
+});
+</script>
+</body>
+</html>

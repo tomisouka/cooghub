@@ -17,9 +17,10 @@ import { useState, useEffect, useRef } from "react";
 // A data: URI iframe is a fully opaque origin — no parent access possible.
 // Anchor clicks are handled by an injected script since fragment nav doesn't
 // work across opaque origins.
-function BlobIframe({ html, file, bg }) {
+function BlobIframe({ html, file, bg, iframeRef }) {
   return (
     <iframe
+      ref={iframeRef}
       srcDoc={html}
       style={{ flex: 1, width: "100%", height: "100%", border: "none", background: bg, colorScheme: "dark", display: "block" }}
       sandbox="allow-scripts"
@@ -106,6 +107,14 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
   const containerRef          = useRef(null);
   const scrollerRef           = useRef(null);
   const uid                   = useRef(`rv-${Math.random().toString(36).slice(2)}`);
+  const iframeRef             = useRef(null);
+
+  // Register this iframe as the active search target while mounted
+  useEffect(() => {
+    if (!html?.srcdoc) return;
+    window._ctrlFIframe = iframeRef;
+    return () => { if (window._ctrlFIframe === iframeRef) window._ctrlFIframe = null; };
+  }, [html]);
 
   useEffect(() => {
     if (!file) return;
@@ -245,6 +254,87 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
   // The fetch uses ?raw to bypass Vite's transformIndexHtml, so the HTML arrives
   // clean — no @vite/client, @react-refresh, or /src/main.jsx injected.
   if (html.srcdoc) {
+    const searchScript = `<script>
+(function(){
+  var matches=[], cur=-1, overlay=null, scrollH=null;
+  var FIELD_HL='cfi-field', FIELD_ACT='cfi-field-act';
+  var style=document.createElement('style');
+  style.textContent='#cfi-svg{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:visible}.'+FIELD_HL+'{outline:2px solid #e8c54766!important;outline-offset:1px!important}.'+FIELD_ACT+'{outline:2px solid #e8c547cc!important;outline-offset:1px!important;background:#e8c54718!important}';
+  document.head.appendChild(style);
+
+  function getOverlay(){
+    if(!overlay){overlay=document.createElementNS('http://www.w3.org/2000/svg','svg');overlay.id='cfi-svg';document.body.appendChild(overlay);}
+    return overlay;
+  }
+  function clearAll(){
+    if(overlay)overlay.innerHTML='';
+    document.querySelectorAll('.'+FIELD_HL+',.'+FIELD_ACT).forEach(function(e){e.classList.remove(FIELD_HL,FIELD_ACT);});
+    matches=[];cur=-1;
+  }
+  function drawRect(x,y,w,h,fill,stroke){
+    var r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+    r.setAttribute('fill',fill);r.setAttribute('rx','2');
+    if(stroke){r.setAttribute('stroke',stroke);r.setAttribute('stroke-width','1.5');}
+    getOverlay().appendChild(r);
+  }
+  function redraw(){
+    if(overlay)overlay.innerHTML='';
+    document.querySelectorAll('.'+FIELD_HL+',.'+FIELD_ACT).forEach(function(e){e.classList.remove(FIELD_HL,FIELD_ACT);});
+    matches.forEach(function(m,i){
+      var active=i===cur;
+      if(m.type==='range'){
+        var rects=m.range.getClientRects();
+        for(var j=0;j<rects.length;j++){
+          var r=rects[j];
+          if(r.width<1||r.height<1)continue;
+          drawRect(r.left,r.top,r.width,r.height,active?'#e8c547cc':'#e8c54755',active?'#e8c547':null);
+        }
+      } else {
+        m.el.classList.add(active?FIELD_ACT:FIELD_HL);
+      }
+    });
+  }
+  function run(q){
+    clearAll();
+    var lq=q.toLowerCase();
+    var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var t=n.parentElement&&n.parentElement.tagName.toLowerCase();
+      if(['script','style','noscript','textarea','input'].includes(t))return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }});
+    var node;
+    while((node=walker.nextNode())){
+      var text=node.textContent,lower=text.toLowerCase(),pos=0,idx;
+      while((idx=lower.indexOf(lq,pos))!==-1){
+        var range=new Range();range.setStart(node,idx);range.setEnd(node,idx+lq.length);
+        matches.push({type:'range',range:range,el:node.parentElement});
+        pos=idx+lq.length;
+      }
+    }
+    document.body.querySelectorAll('input,textarea').forEach(function(f){
+      if(f.type==='password'||f.type==='hidden')return;
+      if((f.value||'').toLowerCase().includes(lq)){matches.push({type:'field',el:f});}
+    });
+    if(matches.length){cur=0;redraw();scroll();}
+    window.parent.postMessage({type:'ctrl-f-count',total:matches.length,current:matches.length?1:0},'*');
+  }
+  function scroll(){
+    var m=matches[cur];if(!m)return;
+    var el=m.type==='range'?m.el:m.el;
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  window.addEventListener('scroll',function(){if(matches.length)redraw();},true);
+  window.addEventListener('resize',function(){if(matches.length)redraw();});
+  window.addEventListener('message',function(e){
+    var d=e.data;if(!d||d.target!=='ctrl-f-iframe')return;
+    if(d.action==='search'){run(d.query||'');}
+    else if(d.action==='next'){if(!matches.length)return;cur=(cur+1)%matches.length;redraw();scroll();window.parent.postMessage({type:'ctrl-f-count',total:matches.length,current:cur+1},'*');}
+    else if(d.action==='prev'){if(!matches.length)return;cur=(cur-1+matches.length)%matches.length;redraw();scroll();window.parent.postMessage({type:'ctrl-f-count',total:matches.length,current:cur+1},'*');}
+    else if(d.action==='clear'){clearAll();}
+  });
+})();
+</script>`;
     const injected = html.srcdoc.replace(
       /<head([^>]*)>/i,
       `<head$1>` +
@@ -252,12 +342,11 @@ export default function ReferenceViewer({ file, color = C.accent, highlight = nu
       `html, body { min-height: unset !important; height: auto !important; }` +
       `body { overflow-y: auto !important; }` +
       `nav, header, .section-strip, [class*="strip"], [class*="nav"] { position: relative !important; top: auto !important; }` +
-      // Intercept anchor clicks and scroll to target — needed because blob: URL iframes
-      // can't use fragment navigation the same way as same-origin iframes.
-      `</style><script>document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();var t=document.getElementById(a.getAttribute('href').slice(1));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});</script>`
+      `</style><script>document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a)return;e.preventDefault();var t=document.getElementById(a.getAttribute('href').slice(1));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});</script>` +
+      searchScript
     );
     return (
-      <BlobIframe key={html.id} html={injected} file={file} bg={C.bg} />
+      <BlobIframe key={html.id} html={injected} file={file} bg={C.bg} iframeRef={iframeRef} />
     );
   }
 

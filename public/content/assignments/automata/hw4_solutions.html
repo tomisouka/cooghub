@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSC 3340 · HW 4 Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; width: 48px; font-family: 'Archivo Black', sans-serif; font-size: 13px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+.prob-wrap { margin-bottom: 2.5rem; }
+
+.prob-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.prob-header:hover { opacity: .88; }
+.prob-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 42px; min-width: 76px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.prob-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.prob-title { font-family: 'Archivo Black', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: .02em; }
+.prob-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 3px; }
+.prob-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.prob-header.open .prob-arrow { transform: rotate(90deg); }
+
+.prob-statement { border: var(--border); border-top: none; background: var(--white); }
+.prob-statement-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; padding: 7px 14px 0; }
+.prob-statement-context { font-size: 12px; color: #666; padding: 4px 14px 0; font-style: italic; line-height: 1.6; }
+.part-row { display: grid; grid-template-columns: 36px 1fr; border-top: 1px solid #eee; }
+.part-row .pn { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 2px solid var(--ink); flex-shrink: 0; }
+.part-row .pt { padding: 9px 14px; font-size: 13px; line-height: 1.8; color: var(--ink); }
+.pts { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-left: 8px; }
+
+.prob-body { display: none; }
+.prob-body.open { display: block; }
+
+.part { border: var(--border); border-top: none; }
+.part-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+.prereq-toggle { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--cream); border-bottom: var(--thin); cursor: pointer; user-select: none; transition: background .15s; }
+.prereq-toggle:hover { background: #e0d8c8; }
+.prereq-toggle .tl { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+.prereq-toggle .tl::before { content: '◈'; color: var(--red); font-size: 12px; }
+.prereq-toggle .arr { font-size: 10px; color: #999; transition: transform .2s; }
+.prereq-toggle.open .arr { transform: rotate(90deg); }
+.prereq-body { display: none; padding: 12px 14px; background: var(--cream); border-bottom: var(--thin); font-size: 12.5px; color: #333; line-height: 2; }
+.prereq-body.open { display: block; }
+.prereq-body strong { font-weight: 700; color: var(--ink); }
+.prereq-formula { background: var(--white); border: 1.5px solid #aaa; border-left: 3px solid var(--ink); padding: 10px 14px; margin-top: 8px; line-height: 2.4; overflow-x: auto; }
+
+.steps { padding: 16px 14px 4px; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 0 12px; margin-bottom: 16px; align-items: start; }
+.step-n { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 12px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-label { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+.step-math { background: var(--white); border: 2px solid var(--ink); padding: 10px 14px; line-height: 2.4; overflow-x: auto; }
+.step-note { font-size: 12px; color: #555; margin-top: 5px; line-height: 1.6; }
+.step-note strong { color: var(--ink); font-weight: 700; }
+
+.answer { margin: 4px 14px 14px; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+
+.callout { margin: 0 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+
+.tt { border-collapse: collapse; margin: 10px 14px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.tt th { background: var(--ink); color: var(--yellow); padding: 6px 16px; border: var(--border); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.tt td { padding: 6px 16px; border: var(--border); background: var(--white); text-align: center; }
+
+.enc-table { border-collapse: collapse; margin: 10px 14px 14px; width: calc(100% - 28px); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.enc-table th { background: var(--navy); color: #a0c4ff; padding: 6px 12px; border: var(--border); font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.enc-table td { padding: 7px 12px; border: var(--border); background: var(--white); vertical-align: top; line-height: 1.7; }
+.enc-table td:first-child { background: var(--cream); font-weight: 700; color: var(--ink); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>COSC 3340 · HW 4</h1>
+    <span>VERMA · DANG · TUCK · UNIVERSITY OF HOUSTON · SPRING 2026 · TURING MACHINES · UNDECIDABILITY · CLOSURE</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#p1">1</a>
+    <a href="#p2">2</a>
+    <a href="#p3">3</a>
+    <a href="#p4">4</a>
+    <a href="#p5">5</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════ PROBLEM 1 -->
+<div class="prob-wrap" id="p1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Encoding Finite Automata</div>
+      <div class="prob-sub">ENCODINGS · ANALOGOUS TO TM ENCODING · {c, I}* ALPHABET</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Analogous to the encoding of Turing machines, show how to encode finite automata as strings over the alphabet \(\{c, I\}\). State potential applications.</div>
+    <div class="part-row">
+      <div class="pn">a</div>
+      <div class="pt">Define an encoding scheme for DFAs over \(\{c, I\}\).</div>
+    </div>
+    <div class="part-row">
+      <div class="pn">b</div>
+      <div class="pt">Describe potential applications of such an encoding.</div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- Part A -->
+    <div class="part">
+      <div class="part-label">Part A — The Encoding Scheme</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">unary encoding</span>
+            <span class="ftag">separator c</span>
+            <span class="ftag">marker I</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ M = (Q,\, \Sigma,\, \delta,\, q_0,\, F) \]
+        <div class="f-note">Every component of the 5-tuple must be mapped to strings over {c, I}. We use <strong>unary</strong>: the integer k encodes as I<sup>k</sup>, and c acts as a separator/delimiter.</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">What is a DFA? (5-tuple reminder)</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        A DFA \(M = (Q, \Sigma, \delta, q_0, F)\) consists of:<br>
+        <strong>Q</strong> — finite set of states &nbsp;|&nbsp; <strong>Σ</strong> — input alphabet (disjoint from Q) &nbsp;|&nbsp;
+        <strong>δ: Q × Σ → Q</strong> — transition function &nbsp;|&nbsp; <strong>q₀ ∈ Q</strong> — start state &nbsp;|&nbsp; <strong>F ⊆ Q</strong> — accept states.
+        <div class="prereq-formula">\[ \delta : Q \times \Sigma \to Q \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Number the states</div>
+            <div class="step-note">Assign each state in \(Q\) an index: \(q_1, q_2, \ldots, q_k\). State \(q_i\) encodes as \(I^i\) (i copies of I). The start state \(q_0\) is always encoded as \(I\) (i.e., \(I^1\)).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Number the alphabet symbols</div>
+            <div class="step-note">Assign each symbol in \(\Sigma\) an index: \(a_1, a_2, \ldots\). Symbol \(a_j\) encodes as \(I^j\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Encode each transition</div>
+            <div class="step-note">Each transition \(\delta(q_i, a_j) = q_k\) encodes as the triple \(I^i \; c \; I^j \; c \; I^k\). This triples uses <strong>c</strong> as an intra-transition separator.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Encode the accept states</div>
+            <div class="step-note">List each accept state \(q_i \in F\) as \(I^i\), separated by \(c\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div class="step-body">
+            <div class="step-label">Assemble the full encoding</div>
+            <div class="step-math">
+              \[ \langle M \rangle \;=\; \underbrace{I^{|Q|}}_{\text{\# states}} \;c\; \underbrace{I^{|\Sigma|}}_{\text{\# symbols}} \;c\; \underbrace{t_1 \; cc \; t_2 \; cc \; \cdots \; cc \; t_r}_{\text{transitions, separated by }cc} \;c\; \underbrace{I^{f_1} \; c \; I^{f_2} \; c \cdots}_{\text{accept states}} \]
+            </div>
+            <div class="step-note">Double \(cc\) separates distinct transitions; single \(c\) separates fields within one transition. This makes the encoding unambiguously parseable.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Encoding table example -->
+      <table class="enc-table">
+        <tr><th>Component</th><th>Encoding</th><th>Example (2-state DFA over {0,1})</th></tr>
+        <tr><td>State \(q_i\)</td><td>\(I^i\)</td><td>\(q_1 = I,\; q_2 = II\)</td></tr>
+        <tr><td>Symbol \(a_j\)</td><td>\(I^j\)</td><td>\(0 = I,\; 1 = II\)</td></tr>
+        <tr><td>Transition \(\delta(q_i,a_j)=q_k\)</td><td>\(I^i\,c\,I^j\,c\,I^k\)</td><td>\(\delta(q_1,0)=q_2\) → \(IcIcII\)</td></tr>
+        <tr><td>Accept state \(q_f\)</td><td>\(I^f\)</td><td>\(F=\{q_2\}\) → \(II\)</td></tr>
+        <tr><td>Full machine</td><td>all above joined by \(c\) / \(cc\)</td><td>\(IIcIIcIcIcIIccIIcIIcIcIcIcII\)</td></tr>
+      </table>
+
+      <div class="answer">
+        <span class="ans-label">✓ Encoding Scheme</span>
+        A DFA \(\langle M \rangle\) encodes as: (1) \(I^{|Q|}\) for state count, (2) \(I^{|\Sigma|}\) for alphabet size, (3) each transition \(\delta(q_i, a_j)=q_k\) as \(I^i c I^j c I^k\) with transitions separated by \(cc\), and (4) accept states listed as \(I^{f_1} c I^{f_2} \cdots\). All major sections separated by single \(c\).
+      </div>
+    </div>
+
+    <!-- Part B -->
+    <div class="part">
+      <div class="part-label">Part B — Applications</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Universal Acceptance / Simulation</div>
+            <div class="step-note">A <strong>universal Turing machine</strong> can take \(\langle M \rangle\) as input and simulate \(M\) on any string \(w\). This is the basis of software itself — one machine interpreting another.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Decision Problems about DFAs</div>
+            <div class="step-note">With a concrete encoding, we can now <em>ask decision questions</em> about DFAs as inputs. Examples: \(A_{\text{DFA}} = \{\langle M, w\rangle \mid M \text{ accepts } w\}\) (decidable), \(E_{\text{DFA}} = \{\langle M\rangle \mid L(M) = \emptyset\}\) (decidable), \(EQ_{\text{DFA}} = \{\langle M_1, M_2\rangle \mid L(M_1)=L(M_2)\}\) (decidable).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Undecidability Proofs via Reduction</div>
+            <div class="step-note">Encoding FAs lets us <strong>reduce</strong> FA problems to TM problems (or vice versa). This is how we prove certain problems about more powerful models are undecidable by showing they subsume FA problems.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Serialization / Transmission</div>
+            <div class="step-note">An encoded DFA can be stored, transmitted over a network, or embedded in a formal proof — enabling <strong>compiler specification</strong>, <strong>protocol verification</strong>, and <strong>regex exchange formats</strong>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">[SIPSER 3.1] TM ENCODING</span>
+          <span class="ctag">UNARY REPRESENTATION</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Why {c, I}?</strong> Any finite object can be encoded over a 2-symbol alphabet. Sipser uses \(\{0,1\}\) in the book; this problem uses \(\{c, I\}\) — same idea. The symbol <em>c</em> acts as a structural separator (comma-like), and <em>I</em> is the counting stroke. This mirrors how TMs are encoded in Sipser §3.1.</p>
+      <p><strong>Exam tip:</strong> When encoding a machine, always specify how to unambiguously recover the original 5-tuple from the string. The choice of separator characters and their meaning must be explicit.</p>
+    </div>
+  </div>
+</div><!-- /prob-wrap p1 -->
+
+
+<!-- ══════════════════════════════════════════════════ PROBLEM 2 -->
+<div class="prob-wrap" id="p2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Church–Turing Thesis</div>
+      <div class="prob-sub">COMPUTABILITY THEORY · INFORMAL VS FORMAL ALGORITHMS · 2–4 SENTENCES</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">Explain the Church–Turing Thesis in 2–4 sentences, addressing: what two types of concepts it connects, and why it is not formally provable.</div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Give a precise 2–4 sentence answer covering both bullets.</div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution — Church–Turing Thesis</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">informal ↔ formal</span>
+            <span class="ftag">not a theorem</span>
+            <span class="ftag">philosophical claim</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \text{Intuitive notion of algorithm} \;\;\equiv\;\; \text{Turing machine computation} \]
+        <div class="f-note">The ≡ here is a <strong>thesis</strong> (philosophical equivalence), not a mathematical theorem. It cannot be proven because the left side has no formal definition.</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Historical context — Church and Turing</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        <strong>Alonzo Church</strong> (1936) defined computability via the <em>lambda calculus</em>. <strong>Alan Turing</strong> (1936) independently defined it via Turing machines. Both formalisms turned out to compute exactly the same class of functions — strong evidence the thesis is correct, but not a proof.
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">What two types of concepts does it connect?</div>
+            <div class="step-note">The thesis connects <strong>informal, intuitive notions of algorithm</strong> (the everyday idea of "a mechanical procedure a human could follow step by step") with <strong>formal mathematical models of computation</strong> (specifically, Turing machines). It asserts that anything computable by any reasonable, effective procedure can also be computed by a Turing machine.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Why is it not formally provable?</div>
+            <div class="step-note">Because one side of the equivalence — "intuitive algorithm" — is an <strong>informal, undefined concept</strong>. Mathematical proof requires both sides to have precise, formal definitions. We cannot write a proof that pins down "what a human considers an algorithm" since that notion lives outside mathematics. The thesis is therefore an <strong>empirical/philosophical claim</strong>, supported by the fact that every known formalism (lambda calculus, recursive functions, RAM machines, etc.) computes exactly what Turing machines compute.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Model Answer (≤4 sentences)</span>
+        The Church–Turing Thesis connects the <em>informal, intuitive notion of algorithm</em> (any effective, step-by-step mechanical procedure) with the <em>formal model of Turing machine computation</em>, asserting they are equivalent in power. It is not formally provable because one side of the equivalence — the informal notion of "algorithm" — lacks a precise mathematical definition, making a rigorous proof impossible. Instead, the thesis is supported empirically: every known formal model of computation (lambda calculus, recursive functions, RAM machines) has been shown to be equivalent in power to Turing machines, providing strong but not conclusive evidence.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">[SIPSER 3.3] CHURCH–TURING THESIS</span>
+          <span class="ctag">EFFECTIVE COMPUTABILITY</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Church–Turing Thesis (Sipser §3.3):</strong> Every effectively computable function is computable by a Turing machine. This is a thesis — a definition of scope — not a theorem.</p>
+      <p><strong>Exam tip:</strong> The two concepts are always (1) informal/intuitive algorithms and (2) formal Turing machine computation. Unprovability comes from the informal side being undefined. Students who say "we can't build a physical TM" or "computation is infinite" are wrong — the reason is specifically the lack of formal definition on the intuitive side.</p>
+    </div>
+  </div>
+</div><!-- /prob-wrap p2 -->
+
+
+<!-- ══════════════════════════════════════════════════ PROBLEM 3 -->
+<div class="prob-wrap" id="p3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Perfect Squares via NTM</div>
+      <div class="prob-sub">NONDETERMINISTIC TM · HIGH-LEVEL DESCRIPTION · L = {Iⁿ | n is a perfect square}</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">
+      Let \(L = \{I^n \mid n \text{ is a perfect square}\}\). Give a high-level description of a nondeterministic Turing machine that accepts \(L\), clearly explaining where nondeterminism is used.
+    </div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Describe an NTM accepting \(L\), including explicit use of nondeterminism.</div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label">Solution — NTM for Perfect Squares</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">n = k²</span>
+            <span class="ftag">guess k nondeterministically</span>
+            <span class="ftag">verify k² = n deterministically</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ n \text{ is a perfect square} \iff \exists\, k \in \mathbb{N} \text{ s.t. } k^2 = n \]
+        <div class="f-note">Nondeterminism is perfect for existential witnesses: <strong>guess</strong> \(k\), then <strong>verify</strong> \(k^2 = n\) deterministically.</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">How does a NTM differ from a DTM?</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        A <strong>Nondeterministic TM (NTM)</strong> may have multiple possible transitions from any configuration. It <em>accepts</em> an input if <em>any</em> branch of the computation tree reaches an accept state. Conceptually: it can "guess" and then verify. An NTM accepts \(w\) iff there exists at least one accepting computation path.
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Input</div>
+            <div class="step-note">The tape initially contains \(I^n\) — a string of \(n\) strokes representing the number \(n\) in unary. If the input is empty (\(n=0\)), accept (since \(0 = 0^2\)).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Nondeterministically guess k</div>
+            <div class="step-note"><strong>This is where nondeterminism is used.</strong> The NTM nondeterministically writes a unary number \(I^k\) on a second track (or in a separate tape region), for some \(k \geq 1\). All values of \(k\) are explored simultaneously along different branches of the computation tree. The machine does not deterministically try each \(k\) — it guesses one per branch.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Compute k² deterministically</div>
+            <div class="step-note">On the branch that guessed \(k\), the machine <strong>deterministically</strong> computes \(k^2\) in unary. This can be done by repeated addition: add \(k\) to a running total \(k\) times. After \(k\) iterations, the counter holds \(I^{k^2}\).</div>
+            <div class="step-math">
+              \[ \underbrace{k + k + \cdots + k}_{k \text{ times}} \;=\; k^2 \]
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Compare k² to n</div>
+            <div class="step-note">The machine compares the computed value \(I^{k^2}\) to the input \(I^n\) by crossing off symbols one-to-one. If they match exactly, <strong>accept</strong>. If \(k^2 \neq n\), <strong>reject</strong> on this branch.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div class="step-body">
+            <div class="step-label">Acceptance condition</div>
+            <div class="step-note">The NTM accepts \(I^n\) if and only if at least one branch — i.e., the branch that guessed \(k = \sqrt{n}\) — reaches accept. Since the NTM explores all \(k\) simultaneously, it accepts exactly when \(n\) is a perfect square.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ High-Level NTM Description</span>
+        On input \(I^n\): (1) If \(n=0\), accept. (2) <strong>Nondeterministically</strong> write some \(I^k\) (\(k \geq 1\)) to the work tape — this is the guess. (3) Deterministically compute \(k^2\) by adding \(k\) to itself \(k\) times in unary. (4) Compare \(I^{k^2}\) to the input \(I^n\); if equal, accept; else reject. The machine accepts iff some branch's guess \(k\) satisfies \(k^2 = n\), i.e., \(n\) is a perfect square.
+      </div>
+      <div class="callout">
+        <strong>Nondeterminism used at step 2:</strong> The NTM nondeterministically chooses the witness \(k\). This avoids needing to deterministically enumerate all possible \(k\) — the NTM explores them all in parallel via nondeterministic branching.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">[SIPSER 3.2] NONDETERMINISTIC TM</span>
+          <span class="ctag">GUESS-AND-VERIFY PATTERN</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Nondeterministic TM (Sipser §3.2):</strong> An NTM accepts its input if <em>any</em> branch of its computation tree reaches an accepting state. For problems of the form "does there exist a \(k\) such that P(k)?", nondeterminism lets you guess \(k\) and verify in one shot.</p>
+      <p><strong>Exam tip:</strong> Always be explicit about <em>where</em> the nondeterminism occurs. The standard pattern is: (1) nondeterministically guess a witness, (2) deterministically verify the witness. Saying "the NTM tries all values of k" without saying "nondeterministically" loses points.</p>
+    </div>
+  </div>
+</div><!-- /prob-wrap p3 -->
+
+
+<!-- ══════════════════════════════════════════════════ PROBLEM 4 -->
+<div class="prob-wrap" id="p4">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">04</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">ALL_TM is Undecidable</div>
+      <div class="prob-sub">UNDECIDABILITY · REDUCTION FROM ATM · TURING ACCEPTABILITY</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">
+      Prove that \(ALL_{TM} = \{\langle M \rangle \mid L(M) = \Sigma^*\}\) is Turing undecidable. Is it Turing acceptable? Prove or disprove.
+    </div>
+    <div class="part-row">
+      <div class="pn">a</div>
+      <div class="pt">Prove \(ALL_{TM}\) is undecidable.</div>
+    </div>
+    <div class="part-row">
+      <div class="pn">b</div>
+      <div class="pt">Determine whether \(ALL_{TM}\) is Turing-acceptable (recognizable).</div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- Part A -->
+    <div class="part">
+      <div class="part-label">Part A — Undecidability via Reduction</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">reduce from A_TM</span>
+            <span class="ftag">mapping reduction</span>
+            <span class="ftag">iff correspondence</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ A_{TM} \leq_m ALL_{TM} \]
+        <div class="f-note">We show: if \(ALL_{TM}\) were decidable, then \(A_{TM}\) would be decidable — contradiction since \(A_{TM}\) is undecidable (Sipser Thm 4.11).</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">A_TM undecidability (Sipser Thm 4.11)</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        \(A_{TM} = \{\langle M, w\rangle \mid M \text{ is a TM that accepts } w\}\) is undecidable (proved by diagonalization). It is, however, Turing-recognizable (the universal TM accepts it). We use its undecidability as the starting point for reductions.
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Assume for contradiction</div>
+            <div class="step-note">Suppose \(ALL_{TM}\) is decidable. Let \(H\) be a decider for \(ALL_{TM}\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Construct the reduction machine</div>
+            <div class="step-note">On input \(\langle M, w \rangle\), construct a new TM \(M'\) defined as follows:</div>
+            <div class="step-math">
+              \[ M' \text{ on input } x: \text{ ignore } x, \text{ simulate } M \text{ on } w; \text{ if } M \text{ accepts, accept; else reject.} \]
+            </div>
+            <div class="step-note">So \(M'\) accepts every string if \(M\) accepts \(w\), and rejects every string if \(M\) does not accept \(w\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Establish the iff</div>
+            <div class="step-note">
+              \(M\) accepts \(w\) \(\iff\) \(L(M') = \Sigma^*\) \(\iff\) \(H\) accepts \(\langle M' \rangle\).
+              <br>Therefore: run \(H\) on \(\langle M' \rangle\) to decide whether \(M\) accepts \(w\), i.e., to decide \(A_{TM}\).
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Contradiction</div>
+            <div class="step-note">This contradicts the undecidability of \(A_{TM}\). Therefore \(ALL_{TM}\) is not decidable. \(\square\)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion — Part A</span>
+        \(ALL_{TM}\) is <strong>Turing undecidable</strong>. Proof by mapping reduction: \(A_{TM} \leq_m ALL_{TM}\). Given any \(\langle M, w\rangle\), construct \(M'\) that ignores its input and simulates \(M\) on \(w\); then \(L(M')=\Sigma^* \iff M\) accepts \(w\). A decider for \(ALL_{TM}\) would therefore decide \(A_{TM}\), contradiction.
+      </div>
+    </div>
+
+    <!-- Part B -->
+    <div class="part">
+      <div class="part-label">Part B — Is ALL_TM Turing Recognizable?</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">co-recognizable</span>
+            <span class="ftag">complement argument</span>
+            <span class="ftag">Sipser Cor 4.23</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ L \text{ decidable} \iff L \text{ recognizable AND } \overline{L} \text{ recognizable} \]
+        <div class="f-note">Equivalently: if \(L\) is recognizable but not decidable, then \(\overline{L}\) is NOT recognizable (Sipser Corollary 4.23).</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Claim: ALL_TM is NOT Turing-recognizable</div>
+            <div class="step-note">We prove this by showing its complement \(\overline{ALL_{TM}}\) <em>is</em> Turing-recognizable, and then applying the corollary above.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Show complement(ALL_TM) is recognizable</div>
+            <div class="step-note">
+              \(\overline{ALL_{TM}} = \{\langle M\rangle \mid L(M) \neq \Sigma^*\}\), meaning there exists some string \(x\) that \(M\) does NOT accept.<br><br>
+              Build a recognizer \(R\) for \(\overline{ALL_{TM}}\): on input \(\langle M\rangle\), enumerate all strings \(x_1, x_2, x_3, \ldots\) over \(\Sigma^*\) in a dovetailing fashion, simultaneously simulating \(M\) on each \(x_i\). If \(M\) rejects any \(x_i\) (or loops without accepting), <strong>accept</strong>. This recognizer halts and accepts whenever \(L(M) \neq \Sigma^*\), so \(\overline{ALL_{TM}}\) is Turing-recognizable.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Apply the corollary</div>
+            <div class="step-note">We know \(ALL_{TM}\) is undecidable (Part A). If \(ALL_{TM}\) were also recognizable, then since \(\overline{ALL_{TM}}\) is recognizable, Sipser Corollary 4.23 would imply \(ALL_{TM}\) is decidable — contradiction. Therefore \(ALL_{TM}\) is <strong>not</strong> Turing-recognizable.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion — Part B</span>
+        \(ALL_{TM}\) is <strong>NOT Turing-recognizable</strong>. Its complement \(\overline{ALL_{TM}}\) is recognizable (dovetail-simulate \(M\) on all strings; accept when any is rejected). Since \(ALL_{TM}\) is undecidable but \(\overline{ALL_{TM}}\) is recognizable, Sipser Cor. 4.23 forces \(ALL_{TM}\) to be non-recognizable.
+      </div>
+      <div class="callout">
+        <strong>A language can be:</strong> (1) decidable, (2) recognizable but not decidable, or (3) neither recognizable nor co-recognizable. \(ALL_{TM}\) falls in category 3 — it is not recognizable, and its complement IS recognizable (co-recognizable).
+      </div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">[SIPSER 4.2] MAPPING REDUCTION</span>
+          <span class="ctag">[SIPSER 4.23] DECIDABLE IFF REC + CO-REC</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Mapping Reduction \(A \leq_m B\):</strong> A computable function \(f\) such that \(w \in A \iff f(w) \in B\). If \(B\) is decidable, so is \(A\). Contrapositive: if \(A\) is undecidable, so is \(B\).</p>
+      <p><strong>Corollary 4.23 (Sipser):</strong> A language is decidable iff it is Turing-recognizable AND its complement is Turing-recognizable. This is the main tool for proving languages are non-recognizable without direct diagonalization.</p>
+      <p><strong>Exam tip:</strong> To prove a language is not recognizable, show its complement IS recognizable, then cite Cor. 4.23 + undecidability.</p>
+    </div>
+  </div>
+</div><!-- /prob-wrap p4 -->
+
+
+<!-- ══════════════════════════════════════════════════ PROBLEM 5 -->
+<div class="prob-wrap" id="p5">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">05</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Closure of Turing-Recognizable Languages</div>
+      <div class="prob-sub">CLOSURE PROPERTIES · UNION · INTERSECTION · COMPLEMENT</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem</div>
+    <div class="prob-statement-context">
+      Prove that the class of Turing-recognizable (T-acceptable) languages is closed under Union and Intersection. Are they closed under complement? Justify carefully.
+    </div>
+    <div class="part-row">
+      <div class="pn">a</div>
+      <div class="pt">Prove closure under Union.</div>
+    </div>
+    <div class="part-row">
+      <div class="pn">b</div>
+      <div class="pt">Prove closure under Intersection.</div>
+    </div>
+    <div class="part-row">
+      <div class="pn">c</div>
+      <div class="pt">Are Turing-recognizable languages closed under complement? Justify.</div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- Part A: Union -->
+    <div class="part">
+      <div class="part-label">Part A — Closure Under Union</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">dovetailing</span>
+            <span class="ftag">parallel simulation</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ L_1, L_2 \text{ recognizable} \implies L_1 \cup L_2 \text{ recognizable} \]
+        <div class="f-note"><strong>Why not just run M₁ then M₂?</strong> If M₁ loops on input, we'd never reach M₂. We must <strong>dovetail</strong> (interleave) the simulations.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Setup</div>
+            <div class="step-note">Let \(M_1\) recognize \(L_1\) and \(M_2\) recognize \(L_2\). We construct TM \(M\) that recognizes \(L_1 \cup L_2\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Construct M — dovetail simulation</div>
+            <div class="step-note">
+              \(M\) on input \(w\): Simulate both \(M_1\) and \(M_2\) on \(w\) in <strong>parallel</strong> (dovetailing). On step \(i\), simulate \(i\) steps of \(M_1\) and \(i\) steps of \(M_2\). If either machine accepts, <strong>accept</strong>.
+            </div>
+            <div class="step-math">
+              \[ \text{For } i = 1, 2, 3, \ldots : \text{ run } i \text{ steps of } M_1 \text{ on } w;\; \text{run } i \text{ steps of } M_2 \text{ on } w \]
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Correctness</div>
+            <div class="step-note">
+              <strong>If \(w \in L_1 \cup L_2\):</strong> then \(w \in L_1\) or \(w \in L_2\). Say \(M_1\) accepts \(w\) in \(k\) steps. Then at round \(k\), \(M\) will see \(M_1\) accept and halt-accept. So \(M\) accepts.<br>
+              <strong>If \(w \notin L_1 \cup L_2\):</strong> Both \(M_1\) and \(M_2\) will not accept on \(w\). \(M\) never accepts, and may loop — which is fine for a recognizer.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion — Part A</span>
+        The class of Turing-recognizable languages is <strong>closed under union</strong>. Given recognizers \(M_1\) for \(L_1\) and \(M_2\) for \(L_2\), construct \(M\) that dovetails simulation of both. \(M\) accepts \(w\) iff \(M_1\) or \(M_2\) accepts \(w\), recognizing \(L_1 \cup L_2\). \(\square\)
+      </div>
+    </div>
+
+    <!-- Part B: Intersection -->
+    <div class="part">
+      <div class="part-label">Part B — Closure Under Intersection</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">both must accept</span>
+            <span class="ftag">sequential works here</span>
+            <span class="ftag">why?</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ L_1, L_2 \text{ recognizable} \implies L_1 \cap L_2 \text{ recognizable} \]
+        <div class="f-note">For intersection we need <strong>both</strong> to accept. Running sequentially is dangerous if either loops. We still dovetail — but we accept only when both accept.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Construct M — dovetail, accept when both accept</div>
+            <div class="step-note">
+              \(M\) on input \(w\): Dovetail-simulate \(M_1\) and \(M_2\) on \(w\). Track whether each has accepted. <strong>Accept</strong> only when both \(M_1\) and \(M_2\) have accepted.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Alternative: run sequentially (careful!)</div>
+            <div class="step-note">
+              A simpler construction: run \(M_1\) on \(w\). If \(M_1\) rejects, reject. If \(M_1\) accepts, then run \(M_2\) on \(w\). Accept iff \(M_2\) accepts. <strong>This works</strong> for recognizers: if \(w \notin L_1\), \(M_1\) might loop — and that's fine, because \(M\) should also loop (not accept) on \(w \notin L_1 \cap L_2\). The recognizer only needs to accept exactly \(L_1 \cap L_2\).
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Correctness</div>
+            <div class="step-note">
+              <strong>If \(w \in L_1 \cap L_2\):</strong> Both \(M_1\) and \(M_2\) accept \(w\). The dovetail eventually sees both accept → \(M\) accepts.<br>
+              <strong>If \(w \notin L_1 \cap L_2\):</strong> At least one of \(M_1, M_2\) does not accept \(w\), so \(M\) never reaches the accept condition → \(M\) loops or rejects. Correct for a recognizer.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion — Part B</span>
+        The class of Turing-recognizable languages is <strong>closed under intersection</strong>. Construct \(M\) that dovetails \(M_1\) and \(M_2\) on input \(w\), accepting iff both accept. Then \(L(M) = L_1 \cap L_2\). \(\square\)
+      </div>
+    </div>
+
+    <!-- Part C: Complement -->
+    <div class="part">
+      <div class="part-label">Part C — Not Closed Under Complement</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Key Insight</span>
+          <div class="formula-tags">
+            <span class="ftag">A_TM counterexample</span>
+            <span class="ftag">co-A_TM not recognizable</span>
+          </div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ A_{TM} \text{ is recognizable, but } \overline{A_{TM}} \text{ is NOT recognizable} \]
+        <div class="f-note">One counterexample is enough to disprove a closure property.</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Claim: NOT closed under complement</div>
+            <div class="step-note">We exhibit a language that is Turing-recognizable whose complement is NOT Turing-recognizable.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Counterexample: A_TM</div>
+            <div class="step-note">
+              \(A_{TM} = \{\langle M, w\rangle \mid M \text{ accepts } w\}\) is Turing-recognizable: the universal TM \(U\) recognizes it by simulating \(M\) on \(w\) and accepting if \(M\) does.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Complement is not recognizable</div>
+            <div class="step-note">
+              \(\overline{A_{TM}}\) is NOT Turing-recognizable. Proof: \(A_{TM}\) is undecidable. If \(\overline{A_{TM}}\) were recognizable, then since \(A_{TM}\) is recognizable, Sipser Corollary 4.23 would give \(A_{TM}\) decidable — contradiction. \(\square\)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion — Part C</span>
+        The class of Turing-recognizable languages is <strong>NOT closed under complement</strong>. Counterexample: \(A_{TM}\) is recognizable (universal TM), but \(\overline{A_{TM}}\) is not recognizable (if it were, \(A_{TM}\) would be decidable, contradicting Sipser Thm 4.11).
+      </div>
+      <div class="callout">
+        <strong>Summary of closure for Turing-recognizable languages:</strong> Closed under Union ✓ — Closed under Intersection ✓ — Closed under Complement ✗ — Closed under Concatenation ✓ — Closed under Kleene Star ✓.
+      </div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">[SIPSER 3.2] DOVETAILING</span>
+          <span class="ctag">[SIPSER 4.23] COMPLEMENT + DECIDABILITY</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Dovetailing:</strong> A technique to interleave computation on multiple TMs (or multiple inputs) so no single simulation can "hog" the machine and loop forever. Crucial for recognizability proofs.</p>
+      <p><strong>Sipser Corollary 4.23:</strong> A language is decidable iff both it and its complement are Turing-recognizable. This implies: if \(L\) is recognizable but undecidable, \(\overline{L}\) cannot be recognizable.</p>
+      <p><strong>Exam tip:</strong> For closure proofs, always construct the new TM explicitly. For non-closure, always give a concrete counterexample — don't just say "it fails in general."</p>
+    </div>
+  </div>
+</div><!-- /prob-wrap p5 -->
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+
+function togProb(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

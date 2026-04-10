@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HW2 · How to Think · COSC 3320</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; width: 52px; font-family: 'Archivo Black', sans-serif; font-size: 11px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; text-align: center; padding: 0 4px; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+.fw-wrap { margin-bottom: 3rem; }
+
+.fw-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.fw-header:hover { opacity: .88; }
+.fw-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 38px; min-width: 72px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.fw-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.fw-title { font-family: 'Archivo Black', sans-serif; font-size: 19px; text-transform: uppercase; letter-spacing: .02em; }
+.fw-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 4px; }
+.fw-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.fw-header.open .fw-arrow { transform: rotate(90deg); }
+
+.trigger-row { border: var(--border); border-top: none; background: var(--white); padding: 10px 16px 12px; }
+.trigger-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
+.trigger-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.trigger-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--ink); color: var(--yellow); padding: 4px 10px; }
+.trigger-pill.red { background: var(--red); }
+.trigger-pill.navy { background: var(--navy); color: #a0c4ff; }
+
+.fw-body { display: none; }
+.fw-body.open { display: block; }
+
+.fw-section { border: var(--border); border-top: none; }
+.fw-section-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.q-chain { padding: 16px 14px; display: flex; flex-direction: column; gap: 0; }
+.q-node { display: grid; grid-template-columns: 28px 1fr; gap: 0 12px; position: relative; }
+.q-node::before { content: ''; position: absolute; left: 13px; top: 34px; bottom: -12px; width: 2px; background: var(--yellow); z-index: 0; }
+.q-node:last-child::before { display: none; }
+.q-num { background: var(--yellow); color: var(--ink); font-family: 'Archivo Black', sans-serif; font-size: 11px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; position: relative; z-index: 1; }
+.q-body { padding-bottom: 20px; }
+.q-question { font-family: 'Archivo Black', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+.q-answer { font-size: 12.5px; color: #444; line-height: 1.75; }
+.q-answer strong { color: var(--ink); font-weight: 700; }
+.q-math { background: var(--white); border: 2px solid var(--ink); padding: 8px 13px; margin-top: 7px; line-height: 2.4; overflow-x: auto; font-size: 13px; }
+.q-example { background: var(--cream); border-left: 4px solid var(--ink); padding: 7px 11px; margin-top: 7px; font-size: 12px; color: #444; line-height: 1.7; }
+.q-example .ex-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #888; display: block; margin-bottom: 3px; }
+.q-example strong { color: var(--ink); }
+
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+.visual-block { border: var(--border); border-top: none; background: var(--white); overflow-x: auto; }
+.visual-block .vb-head { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 5px 12px; }
+.visual-block .vb-body { padding: 16px; }
+svg text { font-family: 'JetBrains Mono', monospace; }
+
+.pseudo { border: var(--border); border-top: none; background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+.pseudo .pc-head { background: var(--yellow); border-bottom: var(--border); padding: 8px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pseudo .pc-name { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); }
+.pseudo .pc-sig { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; }
+.pseudo .pc-body { padding: 10px 0 14px; }
+.pseudo .ln-row { display: grid; grid-template-columns: 36px 1fr; padding-right: 18px; line-height: 2.1; }
+.pseudo .ln { font-size: 11px; text-align: right; padding-right: 10px; user-select: none; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; }
+.pseudo .code { padding-left: 14px; }
+.pseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.pseudo .fn { font-family: 'Archivo Black', sans-serif; font-size: 12px; color: #9a7d00; }
+.pseudo .cm { font-size: 11px; color: #bbb; }
+.pseudo .cm::before { content: '▷ '; }
+.pseudo .i1 { padding-left: 1.6em; border-left: 2px solid #e8c800; margin-left: .5em; }
+.pseudo .i2 { padding-left: 3.0em; border-left: 2px solid #e8c800; margin-left: 2.1em; }
+.pseudo .i3 { padding-left: 4.4em; border-left: 2px solid #e8c800; margin-left: 3.7em; }
+
+.answer { margin: 4px 14px 0; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+.callout { margin: 12px 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+.mistakes { border: var(--border); border-top: none; background: #fff8f8; }
+.mistakes-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; padding: 5px 14px; border-bottom: var(--border); }
+.mistake-row { display: grid; grid-template-columns: 24px 1fr; gap: 0 10px; padding: 8px 14px; border-bottom: var(--thin); align-items: start; font-size: 12.5px; }
+.mistake-row:last-child { border-bottom: none; }
+.mistake-x { color: var(--red); font-family: 'Archivo Black', sans-serif; font-size: 14px; }
+.mistake-text strong { color: var(--red); font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+</style>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>HW2 · How to Think · COSC 3320</h1>
+    <span>GOPAL PANDURANGAN · SP2026 · DP + GREEDY MENTAL MODELS</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#f1">DP Design</a>
+    <a href="#f2">2-Tape DP</a>
+    <a href="#f3">Grid DP</a>
+    <a href="#f4">Job Sched</a>
+    <a href="#f5">Buy Order</a>
+    <a href="#f6">Partition DP</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 1 — DP with a "Skip One" Twist (Ex 5.9)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f1">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">01</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">DP with a Twist — Max Subarray Skip One</div>
+      <div class="fw-sub">HOW TO EXTEND A KNOWN DP WHEN THE PROBLEM ADDS A CONSTRAINT · EX 5.9</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"variant of max subarray"</span>
+      <span class="trigger-pill">"allowed to skip/exclude one element"</span>
+      <span class="trigger-pill">"allowed to use at most X of Y"</span>
+      <span class="trigger-pill red">problem feels like maxsum but harder</span>
+      <span class="trigger-pill navy">standard DP won't capture a new choice</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">Ex 5.9 — Max Subarray, Skip Up to One Element</div>
+            <div class="q-answer">Given array A of positive and negative integers, find indices \(i \le k \le j\) maximizing \(A[i] + \cdots + A[j] - A[k]\). You may exclude any one element in the subarray (or exclude none from the ends).</div>
+            <div class="q-example"><span class="ex-label">Concrete example</span>A = [−2, 5, −1, 3, −4]. Normal max subarray = 5−1+3 = 7. With skip: exclude −1 → 5+3 = 8. Or exclude −4 → 5−1+3 = 7. Best = 8.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — How to Think</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Key Insight — Add a New State Dimension for Each Choice</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- Original maxsum states -->
+            <text x="10" y="18" font-size="9" font-family="'Archivo Black',sans-serif">Original MaxSum — 2 states per index i:</text>
+            <rect x="10" y="24" width="140" height="36" fill="#f5f500" stroke="#111" stroke-width="2"/>
+            <text x="80" y="40" text-anchor="middle" font-size="9" font-weight="bold">M_in[i]</text>
+            <text x="80" y="53" text-anchor="middle" font-size="8" fill="#555">max sum ending AT i</text>
+            <rect x="165" y="24" width="140" height="36" fill="#ede8dc" stroke="#111" stroke-width="1.5"/>
+            <text x="235" y="40" text-anchor="middle" font-size="9" font-weight="bold">M_out[i]</text>
+            <text x="235" y="53" text-anchor="middle" font-size="8" fill="#555">max sum in A[1..i], not ending at i</text>
+
+            <!-- New states -->
+            <text x="10" y="88" font-size="9" font-family="'Archivo Black',sans-serif">New DP — 3 states (track whether skip has been used):</text>
+            <rect x="10" y="95" width="180" height="40" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="100" y="111" text-anchor="middle" font-size="9" font-weight="bold">no_skip[i]</text>
+            <text x="100" y="125" text-anchor="middle" font-size="8" fill="#555">best sum ending at i, skip NOT used</text>
+
+            <rect x="205" y="95" width="180" height="40" fill="#1a1a2e" stroke="#111" stroke-width="2.5"/>
+            <text x="295" y="111" text-anchor="middle" font-size="9" fill="#f5f500" font-weight="bold">skip_used[i]</text>
+            <text x="295" y="125" text-anchor="middle" font-size="8" fill="#a0c4ff">best sum ending at i, skip WAS used</text>
+
+            <rect x="400" y="95" width="180" height="40" fill="#e8352a" stroke="#111" stroke-width="2.5"/>
+            <text x="490" y="111" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">best[i]</text>
+            <text x="490" y="125" text-anchor="middle" font-size="8" fill="#ffccc">max(no_skip[i], skip_used[i])</text>
+
+            <!-- arrows showing transitions -->
+            <line x1="100" y1="135" x2="100" y2="158" stroke="#111" stroke-width="1.5" marker-end="url(#ah)"/>
+            <line x1="295" y1="135" x2="295" y2="158" stroke="#111" stroke-width="1.5" marker-end="url(#ah)"/>
+            <text x="100" y="178" text-anchor="middle" font-size="8" fill="#555">extend or restart</text>
+            <text x="295" y="178" text-anchor="middle" font-size="8" fill="#555">extend skip_used, OR</text>
+            <text x="295" y="190" text-anchor="middle" font-size="8" fill="#555">skip A[i] from no_skip[i-1]</text>
+
+            <!-- cross arrow: skip transition -->
+            <path d="M190,115 Q248,80 205,115" stroke="#e8352a" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+            <text x="248" y="76" font-size="8" fill="#e8352a">skip A[i]</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Start from what you know — the standard MaxSum DP</div>
+            <div class="q-answer">Before adding the twist, write the standard recurrence you already know. Every DP extension starts from a working base. <strong>Don't redesign from scratch.</strong></div>
+            <div class="q-math">\[M_{in}[i] = \max(A[i],\; M_{in}[i-1] + A[i]) \quad\text{(best ending at i, no skip)}\]
+\[M_{out}[i] = M[i-1] \quad\text{(best not ending at i)}\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">What new choice does the twist add? — Give it its own state</div>
+            <div class="q-answer">The skip creates a binary status: "have I skipped yet?" Track it as a separate array. At index \(i\), you either:<br/>
+            • <strong>Haven't skipped</strong>: extend normally (same as maxsum)<br/>
+            • <strong>Just skipped A[i]</strong>: come from no_skip[i−1], pay −A[i]<br/>
+            • <strong>Already skipped</strong>: extend skip_used[i−1] normally</div>
+            <div class="q-math">\[\text{no\_skip}[i] = \max(A[i],\; \text{no\_skip}[i-1] + A[i])\]
+\[\text{skip\_used}[i] = \max(\underbrace{\text{no\_skip}[i-1]}_{\text{skip A[i] now}},\; \underbrace{\text{skip\_used}[i-1] + A[i]}_{\text{already skipped}})\]
+\[\text{best}[i] = \max(\text{no\_skip}[i],\; \text{skip\_used}[i])\]
+\[\text{Answer} = \max_{i}\;\text{best}[i]\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Base cases — initialize carefully</div>
+            <div class="q-answer">At i=1: no_skip[1] = A[1]. skip_used[1] = 0 (subarray of just one element, but we skipped it — so sum is 0, but this only makes sense if the subarray has more elements. Initialize skip_used[1] = −∞ to indicate "not valid yet unless subarray extends".</div>
+            <div class="q-math">\[\text{no\_skip}[1] = A[1], \quad \text{skip\_used}[1] = 0\]</div>
+            <div class="q-example"><span class="ex-label">Why skip_used[1] = 0</span>If you skip A[1], the subarray starts at 1 and ends at 1, but with the element removed — sum = 0. This is valid by problem definition (can skip the first or last element).</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">4</div>
+          <div class="q-body">
+            <div class="q-question">Runtime: count the states × work per state</div>
+            <div class="q-answer">n indices × 2 states × O(1) work per state = <strong>O(n) time, O(n) space</strong> (or O(1) space if you only keep previous values).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pseudo">
+      <div class="pc-head">
+        <span class="pc-name">MaxSumSkipOne(A[1..n])</span>
+        <span class="pc-sig">Output: max subarray sum with up to one element excluded</span>
+      </div>
+      <div class="pc-body">
+        <div class="ln-row"><span class="ln">1</span><span class="code">no_skip[1] ← A[1] &nbsp;<span class="cm">best ending at 1, no skip used</span></span></div>
+        <div class="ln-row"><span class="ln">2</span><span class="code">skip_used[1] ← 0 &nbsp;<span class="cm">skip A[1], empty remainder = 0</span></span></div>
+        <div class="ln-row"><span class="ln">3</span><span class="code">best ← max(no_skip[1], skip_used[1])</span></div>
+        <div class="ln-row"><span class="ln">4</span><span class="code"><span class="kw">for</span> i ← 2 <span class="kw">to</span> n:</span></div>
+        <div class="ln-row"><span class="ln">5</span><span class="code i1">no_skip[i] ← max(A[i], no_skip[i−1] + A[i]) &nbsp;<span class="cm">extend or restart</span></span></div>
+        <div class="ln-row"><span class="ln">6</span><span class="code i1">skip_used[i] ← max(no_skip[i−1], skip_used[i−1] + A[i]) &nbsp;<span class="cm">skip A[i] OR extend</span></span></div>
+        <div class="ln-row"><span class="ln">7</span><span class="code i1">best ← max(best, no_skip[i], skip_used[i])</span></div>
+        <div class="ln-row"><span class="ln">8</span><span class="code"><span class="kw">return</span> best</span></div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Trying to add the skip into the existing MaxSum states.</strong> You need a separate array to track "skip already used." Cramming it into M_in/M_out loses information about whether you still have a skip to use.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Wrong skip_used transition.</strong> skip_used[i] has two sources: (1) skip A[i] now — comes from no_skip[i−1]. (2) skip was used earlier — comes from skip_used[i−1] + A[i]. Missing either source gives wrong answers.</div></div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The General Pattern</span>
+          <div class="concept-tags"><span class="ctag">[CH5] DP EXTENSION TECHNIQUE</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>When a problem adds a constraint to a known DP:</strong> don't redesign — extend. Add a new state dimension tracking the constraint's "usage." Each state = (index, constraint status). Transitions must update the status correctly.</p>
+        <p><strong>Examples:</strong> maxsum + skip-one → add skip_used state. 0/1 knapsack + "at most 2 of each" → add count state. LIS + "at most 1 decrease" → add decrease-used state.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 2 — 2D DP on Two Resources (Ex 5.12)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f2">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">02</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">DP with Two Resources — Two-Tape Storage</div>
+      <div class="fw-sub">HOW TO THINK WHEN THE STATE HAS TWO CAPACITY DIMENSIONS · EX 5.12</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"distribute items across two bins/tapes"</span>
+      <span class="trigger-pill">"two knapsacks"</span>
+      <span class="trigger-pill">"minimize worst of two groups"</span>
+      <span class="trigger-pill red">one-dimensional DP doesn't capture both choices</span>
+      <span class="trigger-pill navy">minimax / minimize maximum objective</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">Ex 5.12 — n Programs, Two Tapes, Minimize Worst-Case Access Time</div>
+            <div class="q-answer">Store n programs on two tapes, each of length \(\ell\). Each program has length \(\ell(i)\). Total lengths fit on one tape. Worst-case access time = \(\max(\sum_{i\in S_1}\ell(i),\;\sum_{i\notin S_1}\ell(i))\). Minimize this.</div>
+            <div class="q-example"><span class="ex-label">Key insight</span>Minimize \(\max(\text{tape1 total}, \text{tape2 total})\). Since total is fixed (= \(\sum\ell(i)\)), minimizing the max is equivalent to making tape1 total as close to total/2 as possible. This is the <strong>partition/subset-sum problem.</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — Reduce to Known DP</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — Two-Tape = Partition Problem = 0/1 Knapsack</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+            <!-- Problem framing -->
+            <rect x="10" y="10" width="320" height="60" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+            <text x="170" y="30" text-anchor="middle" font-size="11" fill="#f5f500" font-family="'Archivo Black',sans-serif">Original Problem</text>
+            <text x="170" y="46" text-anchor="middle" font-size="9" fill="#a0c4ff">Minimize max(tape1_len, tape2_len)</text>
+            <text x="170" y="60" text-anchor="middle" font-size="8" fill="#6090c0">tape1_len + tape2_len = total (fixed)</text>
+
+            <line x1="170" y1="70" x2="170" y2="95" stroke="#111" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <text x="185" y="86" font-size="8.5" fill="#555">since sum is fixed…</text>
+
+            <rect x="10" y="97" width="320" height="60" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="170" y="117" text-anchor="middle" font-size="11" fill="#111" font-family="'Archivo Black',sans-serif">Equivalent Problem</text>
+            <text x="170" y="133" text-anchor="middle" font-size="9" fill="#333">Find subset S₁ with max Σℓ(i) ≤ total/2</text>
+            <text x="170" y="148" text-anchor="middle" font-size="8" fill="#555">This minimizes max(tape1, tape2)</text>
+
+            <line x1="170" y1="157" x2="170" y2="182" stroke="#111" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+            <rect x="10" y="184" width="320" height="22" fill="#e8352a" stroke="#111" stroke-width="2"/>
+            <text x="170" y="199" text-anchor="middle" font-size="10" fill="#fff" font-family="'Archivo Black',sans-serif">= 0/1 Knapsack with capacity ⌊total/2⌋</text>
+
+            <!-- DP table schematic -->
+            <text x="370" y="18" font-size="9" font-family="'Archivo Black',sans-serif">DP Table: dp[i][w] = true if first i programs</text>
+            <text x="370" y="30" font-size="9" fill="#555">can fill exactly weight w on tape 1</text>
+            <g font-size="8" font-family="'JetBrains Mono',monospace">
+              <!-- header row -->
+              <rect x="370" y="38" width="40" height="20" fill="#111"/>
+              <text x="390" y="52" text-anchor="middle" fill="#f5f500">i\w</text>
+              <rect x="412" y="38" width="36" height="20" fill="#1a1a2e"/>
+              <text x="430" y="52" text-anchor="middle" fill="#a0c4ff">0</text>
+              <rect x="450" y="38" width="36" height="20" fill="#1a1a2e"/>
+              <text x="468" y="52" text-anchor="middle" fill="#a0c4ff">1</text>
+              <rect x="488" y="38" width="36" height="20" fill="#1a1a2e"/>
+              <text x="506" y="52" text-anchor="middle" fill="#a0c4ff">2</text>
+              <text x="540" y="52" fill="#aaa">···</text>
+              <rect x="560" y="38" width="50" height="20" fill="#1a1a2e"/>
+              <text x="585" y="52" text-anchor="middle" fill="#a0c4ff">⌊T/2⌋</text>
+              <!-- row i=0 -->
+              <rect x="370" y="60" width="40" height="20" fill="#111"/>
+              <text x="390" y="74" text-anchor="middle" fill="#f5f500">0</text>
+              <rect x="412" y="60" width="36" height="20" fill="#f5f500" stroke="#aaa"/>
+              <text x="430" y="74" text-anchor="middle" fill="#111">T</text>
+              <rect x="450" y="60" width="36" height="20" fill="#ede8dc" stroke="#aaa"/>
+              <text x="468" y="74" text-anchor="middle" fill="#555">F</text>
+              <rect x="488" y="60" width="36" height="20" fill="#ede8dc" stroke="#aaa"/>
+              <text x="506" y="74" text-anchor="middle" fill="#555">F</text>
+              <!-- row i=1 -->
+              <rect x="370" y="82" width="40" height="20" fill="#111"/>
+              <text x="390" y="96" text-anchor="middle" fill="#f5f500">1</text>
+              <rect x="412" y="82" width="36" height="20" fill="#f5f500" stroke="#aaa"/>
+              <text x="430" y="96" text-anchor="middle" fill="#111">T</text>
+              <rect x="450" y="82" width="36" height="20" fill="#ede8dc" stroke="#aaa"/>
+              <text x="468" y="96" text-anchor="middle" fill="#555">?</text>
+              <!-- transition annotation -->
+              <text x="370" y="120" font-size="8.5" fill="#333">dp[i][w] = dp[i−1][w]  ← don't put prog i on tape1</text>
+              <text x="370" y="133" font-size="8.5" fill="#333">         OR dp[i−1][w − ℓ(i)]  ← put prog i on tape1</text>
+              <text x="370" y="150" font-size="8.5" fill="#e8352a" font-weight="bold">Answer: max w ≤ ⌊T/2⌋ where dp[n][w] = true</text>
+              <text x="370" y="163" font-size="8.5" fill="#555">Worst-case access = max(w*, T − w*)</text>
+              <text x="370" y="178" font-size="8.5" fill="#555">Runtime: O(n · T/2) = O(n · Σℓ(i))</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Recognize the hidden reduction — minimax on fixed sum = balance</div>
+            <div class="q-answer">Whenever you see "minimize the maximum of two groups" and the total is fixed, it reduces to: find the partition that makes each group as equal as possible. <strong>This is always subset-sum / 0-1 knapsack.</strong></div>
+            <div class="q-math">\[\min\max(\text{tape}_1, \text{tape}_2) = \min\max(w, T-w) \iff w \text{ as close to } T/2 \text{ as possible}\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">State definition: dp[i][w] = "can first i items fill exactly weight w?"</div>
+            <div class="q-answer">This is the standard 0/1 knapsack boolean variant. The state fully captures: which items have been considered (i) and how much weight we've committed to tape 1 (w).</div>
+            <div class="q-math">\[dp[i][w] = dp[i-1][w] \;\lor\; (w \ge \ell(i) \land dp[i-1][w-\ell(i)])\]
+\[dp[0][0] = \text{True},\quad dp[0][w] = \text{False}\; \forall w>0\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Extract the answer from the filled table</div>
+            <div class="q-answer">Scan dp[n][w] for the largest w ≤ ⌊T/2⌋ that is True. That w* is the best tape-1 total. Answer = max(w*, T − w*).</div>
+            <div class="q-example"><span class="ex-label">To reconstruct which programs go on tape 1</span>Add a backtrack array: when dp[i][w] = True because dp[i−1][w−ℓ(i)] = True, record "program i is on tape 1." Trace back from w* to get the assignment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not recognizing the reduction.</strong> If you try to set up a 2D DP on (tape1 remaining, tape2 remaining) you get O(n · ℓ²) which is far worse. The key insight is that tape2 is fully determined once tape1 is chosen.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Wrong answer extraction.</strong> You want max w ≤ T/2 where dp[n][w]=True, not just dp[n][T/2]. If no subset sums to exactly T/2, you need the closest achievable value.</div></div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The Reduction Mindset</span>
+          <div class="concept-tags"><span class="ctag">[CH5] REDUCE TO KNOWN DP</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>Before designing a new DP:</strong> ask "is this secretly a problem I already know?" Partition, subset-sum, and 0/1 knapsack all look different on the surface but share the same DP structure.</p>
+        <p><strong>Minimax on fixed sum:</strong> always reduces to "find half." Minimax on variable sum: use 2D DP tracking both capacities.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 3 — Grid DP / Path Problems (Ex 5.18)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f3">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">03</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Grid DP — Optimal Path on a 2D Grid</div>
+      <div class="fw-sub">HOW TO THINK ABOUT ANY GRID TRAVERSAL WITH OPTIMAL SUBSTRUCTURE · EX 5.18</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"move right or down on a grid"</span>
+      <span class="trigger-pill">"collect maximum dirt/coins/value"</span>
+      <span class="trigger-pill">"minimum cost path"</span>
+      <span class="trigger-pill red">movement is restricted (no backtracking)</span>
+      <span class="trigger-pill navy">grid has m×n cells with values</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">Ex 5.18 — Cleaning Robot on m×n Grid</div>
+            <div class="q-answer">Machine starts top-left, can only move right or down. grid[i][j] = 1 if dirty, 0 if clean. Maximize total dirty cells cleaned on the path to bottom-right.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — Grid DP Template</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — Grid DP: Every Cell Depends on Two Predecessors</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs>
+              <marker id="ar" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#e8352a"/></marker>
+              <marker id="ad" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker>
+            </defs>
+
+            <!-- Grid -->
+            <text x="10" y="16" font-size="9" font-family="'Archivo Black',sans-serif">Example: 4×4 grid (1=dirty). dp[i][j] = max dirty cells reachable at (i,j)</text>
+            <g font-family="'JetBrains Mono',monospace">
+              <!-- Grid cells: grid values -->
+              <g font-size="9">
+                <!-- row 0 header -->
+                <text x="78" y="36" text-anchor="middle" fill="#aaa">j=0</text>
+                <text x="118" y="36" text-anchor="middle" fill="#aaa">j=1</text>
+                <text x="158" y="36" text-anchor="middle" fill="#aaa">j=2</text>
+                <text x="198" y="36" text-anchor="middle" fill="#aaa">j=3</text>
+                <!-- col headers -->
+                <text x="44" y="60" text-anchor="middle" fill="#aaa">i=0</text>
+                <text x="44" y="100" text-anchor="middle" fill="#aaa">i=1</text>
+                <text x="44" y="140" text-anchor="middle" fill="#aaa">i=2</text>
+                <text x="44" y="180" text-anchor="middle" fill="#aaa">i=3</text>
+              </g>
+
+              <!-- grid[i][j] values (dirty=yellow, clean=white) -->
+              <rect x="58" y="42" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="78" y="60" text-anchor="middle" font-size="10">1</text>
+              <text x="78" y="72" text-anchor="middle" font-size="8" fill="#555">dp=1</text>
+
+              <rect x="98" y="42" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="118" y="60" text-anchor="middle" font-size="10">0</text>
+              <text x="118" y="72" text-anchor="middle" font-size="8" fill="#555">dp=1</text>
+
+              <rect x="138" y="42" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="158" y="60" text-anchor="middle" font-size="10">1</text>
+              <text x="158" y="72" text-anchor="middle" font-size="8" fill="#555">dp=2</text>
+
+              <rect x="178" y="42" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="198" y="60" text-anchor="middle" font-size="10">0</text>
+              <text x="198" y="72" text-anchor="middle" font-size="8" fill="#555">dp=2</text>
+
+              <rect x="58" y="78" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="78" y="96" text-anchor="middle" font-size="10">1</text>
+              <text x="78" y="108" text-anchor="middle" font-size="8" fill="#555">dp=2</text>
+
+              <rect x="98" y="78" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="118" y="96" text-anchor="middle" font-size="10">1</text>
+              <text x="118" y="108" text-anchor="middle" font-size="8" fill="#555">dp=3</text>
+
+              <rect x="138" y="78" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="158" y="96" text-anchor="middle" font-size="10">0</text>
+              <text x="158" y="108" text-anchor="middle" font-size="8" fill="#555">dp=3</text>
+
+              <rect x="178" y="78" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="198" y="96" text-anchor="middle" font-size="10">1</text>
+              <text x="198" y="108" text-anchor="middle" font-size="8" fill="#555">dp=4</text>
+
+              <rect x="58" y="114" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="78" y="132" text-anchor="middle" font-size="10">0</text>
+              <text x="78" y="144" text-anchor="middle" font-size="8" fill="#555">dp=2</text>
+
+              <rect x="98" y="114" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="118" y="132" text-anchor="middle" font-size="10">1</text>
+              <text x="118" y="144" text-anchor="middle" font-size="8" fill="#555">dp=4</text>
+
+              <rect x="138" y="114" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="158" y="132" text-anchor="middle" font-size="10">1</text>
+              <text x="158" y="144" text-anchor="middle" font-size="8" fill="#555">dp=5</text>
+
+              <rect x="178" y="114" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="198" y="132" text-anchor="middle" font-size="10">0</text>
+              <text x="198" y="144" text-anchor="middle" font-size="8" fill="#555">dp=5</text>
+
+              <rect x="58" y="150" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="78" y="168" text-anchor="middle" font-size="10">1</text>
+              <text x="78" y="180" text-anchor="middle" font-size="8" fill="#555">dp=3</text>
+
+              <rect x="98" y="150" width="40" height="34" fill="#fff" stroke="#111" stroke-width="1"/>
+              <text x="118" y="168" text-anchor="middle" font-size="10">0</text>
+              <text x="118" y="180" text-anchor="middle" font-size="8" fill="#555">dp=4</text>
+
+              <rect x="138" y="150" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+              <text x="158" y="168" text-anchor="middle" font-size="10">1</text>
+              <text x="158" y="180" text-anchor="middle" font-size="8" fill="#555">dp=6</text>
+
+              <rect x="178" y="150" width="40" height="34" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+              <text x="198" y="168" text-anchor="middle" font-size="10">1</text>
+              <text x="198" y="180" text-anchor="middle" font-size="8" fill="#e8352a" font-weight="bold">dp=7✓</text>
+            </g>
+
+            <!-- Optimal path arrows -->
+            <line x1="78" y1="76" x2="78" y2="110" stroke="#e8352a" stroke-width="2" marker-end="url(#ar)"/>
+            <line x1="98" y1="95" x2="132" y2="95" stroke="#e8352a" stroke-width="2" marker-end="url(#ar)"/>
+            <line x1="158" y1="112" x2="158" y2="146" stroke="#e8352a" stroke-width="2" marker-end="url(#ar)"/>
+            <line x1="178" y1="165" x2="212" y2="165" stroke="#e8352a" stroke-width="2" marker-end="url(#ar)"/>
+
+            <!-- Recurrence box -->
+            <rect x="270" y="42" width="415" height="165" fill="#fffde6" stroke="#111" stroke-width="2"/>
+            <text x="477" y="62" text-anchor="middle" font-size="10" font-family="'Archivo Black',sans-serif">Recurrence</text>
+            <text x="280" y="82" font-size="9">dp[i][j] = grid[i][j] + max(dp[i−1][j], dp[i][j−1])</text>
+            <text x="280" y="98" font-size="8" fill="#555">   ↑ pick up this cell's dirt   ↑ best from above or left</text>
+            <text x="280" y="118" font-size="9" font-weight="bold">Base cases:</text>
+            <text x="280" y="133" font-size="9">dp[0][0] = grid[0][0]</text>
+            <text x="280" y="148" font-size="9">dp[0][j] = dp[0][j−1] + grid[0][j]  (only right moves)</text>
+            <text x="280" y="163" font-size="9">dp[i][0] = dp[i−1][0] + grid[i][0]  (only down moves)</text>
+            <text x="280" y="182" font-size="9" fill="#e8352a" font-weight="bold">Answer: dp[m−1][n−1] = 7 (max dirty cells)</text>
+            <text x="280" y="196" font-size="9" fill="#555">Runtime: O(mn)  Space: O(mn) or O(n) with rolling array</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Restricted movement = the subproblem is the cell you're at</div>
+            <div class="q-answer">Whenever movement is restricted (right/down only, no backtracking), <strong>the cell (i,j) is your subproblem.</strong> You can only reach (i,j) from (i−1,j) or (i,j−1). That's exactly two predecessors — trivial to combine.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Fill in order — top-left to bottom-right</div>
+            <div class="q-answer">The fill order must ensure all predecessors of (i,j) are computed before (i,j). Top-left → bottom-right satisfies this since dp[i−1][j] and dp[i][j−1] are always already filled.</div>
+            <div class="q-example"><span class="ex-label">General principle</span>For any DP, ask: "in what order can I fill the table so every cell's predecessors are already done?" For grid DP: row by row. For interval DP: by length. For tree DP: leaves first.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Path reconstruction — backtrack from dp[m−1][n−1]</div>
+            <div class="q-answer">To find the optimal path: at each cell (i,j), check which predecessor gave the maximum. If dp[i−1][j] ≥ dp[i][j−1], you came from above. Otherwise from the left. Trace back to (0,0).</div>
+            <div class="q-math">\[\text{path}[i][j] = \begin{cases}\text{UP} & \text{if } dp[i-1][j] \ge dp[i][j-1]\\ \text{LEFT} & \text{otherwise}\end{cases}\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pseudo">
+      <div class="pc-head">
+        <span class="pc-name">CleaningRobot(grid[0..m-1][0..n-1])</span>
+        <span class="pc-sig">Output: max dirty cells cleaned, and the path</span>
+      </div>
+      <div class="pc-body">
+        <div class="ln-row"><span class="ln">1</span><span class="code">dp[0][0] ← grid[0][0]</span></div>
+        <div class="ln-row"><span class="ln">2</span><span class="code"><span class="kw">for</span> j ← 1 <span class="kw">to</span> n−1: dp[0][j] ← dp[0][j−1] + grid[0][j] &nbsp;<span class="cm">top row: right only</span></span></div>
+        <div class="ln-row"><span class="ln">3</span><span class="code"><span class="kw">for</span> i ← 1 <span class="kw">to</span> m−1: dp[i][0] ← dp[i−1][0] + grid[i][0] &nbsp;<span class="cm">left col: down only</span></span></div>
+        <div class="ln-row"><span class="ln">4</span><span class="code"><span class="kw">for</span> i ← 1 <span class="kw">to</span> m−1:</span></div>
+        <div class="ln-row"><span class="ln">5</span><span class="code i1"><span class="kw">for</span> j ← 1 <span class="kw">to</span> n−1:</span></div>
+        <div class="ln-row"><span class="ln">6</span><span class="code i2">dp[i][j] ← grid[i][j] + max(dp[i−1][j], dp[i][j−1])</span></div>
+        <div class="ln-row"><span class="ln">7</span><span class="code"><span class="kw">return</span> dp[m−1][n−1] &nbsp;<span class="cm">answer</span></span></div>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Forgetting the base cases (top row and left column).</strong> These have only one predecessor each — the top row can only be reached from the left, the left column from above. Handle them separately before the main loop.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Not collecting current cell's value.</strong> dp[i][j] = grid[i][j] + max(...). The current cell's dirt is picked up when you arrive. Omitting grid[i][j] gives wrong results.</div></div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The Grid DP Template</span>
+          <div class="concept-tags"><span class="ctag">[CH5] GRID DP</span><span class="ctag">APPLIES TO MANY PROBLEMS</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>Any problem on a grid with restricted movement uses this exact structure.</strong> Longest path, minimum cost, maximum coins — same template: dp[i][j] = value[i][j] + f(predecessors).</p>
+        <p><strong>Generalization:</strong> if you can move in more directions (e.g., also diagonal), just add more predecessors: dp[i][j] = v[i][j] + max(dp[i−1][j], dp[i][j−1], dp[i−1][j−1]).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 4 — Greedy Job Scheduling (Ex 6.6)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f4">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">04</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Greedy Job Scheduling — Exchange Argument</div>
+      <div class="fw-sub">HOW TO PROVE GREEDY IS OPTIMAL FOR SCHEDULING · EX 6.6</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"jobs with deadlines and profits"</span>
+      <span class="trigger-pill">"schedule to maximize profit"</span>
+      <span class="trigger-pill">"prove greedy gives optimal"</span>
+      <span class="trigger-pill red">greedy: sort by profit, add if feasible</span>
+      <span class="trigger-pill navy">need exchange argument proof</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">Ex 6.6 — n Jobs, Each Takes 1 Unit, Has Deadline d_i and Profit p_i</div>
+            <div class="q-answer">Select a subset F of jobs that can all be completed by their deadlines (one at a time, unit time each). Maximize total profit. Greedy: sort by p_i descending, add job if the new set is still feasible.</div>
+            <div class="q-example"><span class="ex-label">Example</span>Jobs: (p=10, d=2), (p=8, d=1), (p=6, d=2), (p=3, d=1). Sorted: p=10,8,6,3. Add 10 (slot 1 or 2 → use slot 2). Add 8 (d=1 → slot 1). Add 6 (d=2 → all slots full, skip). Add 3 (skip). F = {10, 8}, profit = 18.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — How to Prove Greedy with Exchange Argument</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — Exchange Argument: Transform OPT into Greedy Without Losing Value</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+
+            <!-- OPT schedule -->
+            <text x="10" y="18" font-size="9" font-family="'Archivo Black',sans-serif">Suppose Greedy picks {a₁,...} and OPT picks {b₁,...} where OPT has something Greedy doesn't</text>
+
+            <rect x="10" y="25" width="300" height="50" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+            <text x="160" y="42" text-anchor="middle" font-size="10" fill="#f5f500" font-family="'Archivo Black',sans-serif">OPT Schedule</text>
+            <text x="160" y="56" text-anchor="middle" font-size="9" fill="#a0c4ff">Contains job b (not in Greedy)</text>
+            <text x="160" y="68" text-anchor="middle" font-size="9" fill="#a0c4ff">Does NOT contain job a (in Greedy), where p_a ≥ p_b</text>
+
+            <line x1="160" y1="75" x2="160" y2="105" stroke="#111" stroke-width="1.5" marker-end="url(#ah3)"/>
+            <text x="170" y="93" font-size="8.5" fill="#555">swap b → a in OPT</text>
+            <text x="170" y="105" font-size="8.5" fill="#e8352a">Show: still feasible, value doesn't decrease</text>
+
+            <rect x="10" y="110" width="300" height="50" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="160" y="127" text-anchor="middle" font-size="10" fill="#111" font-family="'Archivo Black',sans-serif">OPT' (after swap)</text>
+            <text x="160" y="141" text-anchor="middle" font-size="9" fill="#333">Contains a instead of b</text>
+            <text x="160" y="155" text-anchor="middle" font-size="9" fill="#333">p_a ≥ p_b → value(OPT') ≥ value(OPT)</text>
+
+            <!-- Why feasible -->
+            <rect x="360" y="25" width="320" height="135" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="520" y="44" text-anchor="middle" font-size="10" font-family="'Archivo Black',sans-serif">Why the swap stays feasible:</text>
+            <text x="370" y="62" font-size="9" fill="#333">• Greedy added a → a is feasible in some slot</text>
+            <text x="370" y="78" font-size="9" fill="#333">• b occupied some slot s in OPT</text>
+            <text x="370" y="94" font-size="9" fill="#333">• Put a in slot s (a was scheduled earlier → d_a ≥ d_b or slot works)</text>
+            <text x="370" y="112" font-size="9" fill="#555">Greedy chose a over b because p_a ≥ p_b.</text>
+            <text x="370" y="126" font-size="9" fill="#555">If OPT can schedule b by d_b, it can schedule a</text>
+            <text x="370" y="140" font-size="9" fill="#555">in b's slot (a was added first by greedy → feasible).</text>
+            <text x="370" y="155" font-size="9" fill="#e8352a" font-weight="bold">Repeat until OPT' = Greedy. QED.</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">The Exchange Argument — 3-Step Template</div>
+            <div class="q-answer">Every greedy optimality proof follows this structure. Memorize it.</div>
+            <div class="q-math">\[\textbf{Step 1: } \text{Assume OPT differs from Greedy. Let it be "locally different" at one point.}\]
+\[\textbf{Step 2: } \text{Swap OPT's choice for Greedy's choice at that point.}\]
+\[\textbf{Step 3: } \text{Show the swap: (a) stays feasible, (b) doesn't decrease objective.}\]
+\[\textbf{Conclude: } \text{Repeat swaps until OPT} = \text{Greedy. So Greedy is optimal.}\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Feasibility check — how to check in O(n log n)</div>
+            <div class="q-answer">A set F of jobs is feasible iff we can schedule all jobs in F by their deadlines. Key theorem: F is feasible iff, when sorted by deadline, job k can be scheduled in slot k (for k = 1...|F|).<br/><br/>So: sort F by deadline. Check job k has d_k ≥ k for all k.</div>
+            <div class="q-math">\[\text{F feasible} \iff \text{sorted by } d_i:\; d_{(k)} \ge k \text{ for all } k = 1, \ldots, |F|\]</div>
+            <div class="q-example"><span class="ex-label">Implementation</span>Maintain F in a sorted set (e.g. sorted array or heap sorted by deadline). To check if adding job j with deadline d_j keeps F feasible: insert j in sorted order, check that job at position k still has deadline ≥ k. This is O(log n) per insertion.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline visual -->
+    <div class="visual-block">
+      <div class="vb-head">Visual — Greedy Execution: Sort by Profit, Insert if Feasible</div>
+      <div class="vb-body">
+        <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+          <!-- Jobs sorted by profit -->
+          <text x="10" y="16" font-size="9" font-family="'Archivo Black',sans-serif">Jobs sorted by profit ↓: (p=10,d=2), (p=8,d=1), (p=6,d=2), (p=3,d=1)</text>
+
+          <!-- Timeline slots -->
+          <text x="10" y="35" font-size="8.5" fill="#555">Time slots available: [slot 1] [slot 2]</text>
+
+          <!-- Step 1 -->
+          <rect x="10" y="42" width="300" height="28" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+          <text x="20" y="57" font-size="9">Add p=10, d=2: slot 2 free → schedule at slot 2 ✓</text>
+          <text x="20" y="68" font-size="8" fill="#555">F = {job10}. Slots: [_][10]</text>
+
+          <!-- Step 2 -->
+          <rect x="10" y="76" width="300" height="28" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+          <text x="20" y="91" font-size="9">Add p=8, d=1: slot 1 free → schedule at slot 1 ✓</text>
+          <text x="20" y="102" font-size="8" fill="#555">F = {job10, job8}. Slots: [8][10]</text>
+
+          <!-- Step 3 -->
+          <rect x="10" y="110" width="300" height="28" fill="#fff8f8" stroke="#e8352a" stroke-width="1.5"/>
+          <text x="20" y="125" font-size="9" fill="#e8352a">Add p=6, d=2: no slot ≤ 2 free → SKIP ✗</text>
+          <text x="20" y="136" font-size="8" fill="#aaa">F unchanged. Slots: [8][10]</text>
+
+          <!-- Feasibility check visual -->
+          <rect x="360" y="42" width="320" height="100" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+          <text x="520" y="60" text-anchor="middle" font-size="10" fill="#f5f500" font-family="'Archivo Black',sans-serif">Feasibility Check</text>
+          <text x="370" y="78" font-size="9" fill="#a0c4ff">Sort F by deadline: job8 (d=1), job10 (d=2)</text>
+          <text x="370" y="93" font-size="9" fill="#a0c4ff">Check: job at pos 1 has d≥1? 1≥1 ✓</text>
+          <text x="370" y="108" font-size="9" fill="#a0c4ff">Check: job at pos 2 has d≥2? 2≥2 ✓</text>
+          <text x="370" y="124" font-size="9" fill="#f5f500">Feasible! Total profit = 18.</text>
+          <text x="370" y="138" font-size="8" fill="#6090c0">O(log n) per check using sorted structure</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Weak exchange argument.</strong> You must show BOTH that the swap stays feasible AND doesn't decrease the objective. Showing one without the other is incomplete.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>O(n²) feasibility check.</strong> Checking feasibility naively (try all orderings) is O(n²). The sorted-deadline check reduces it to O(log n) per insertion using a sorted set.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 5 — Greedy Ordering (Ex 6.10)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f5">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">05</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">Greedy Ordering — Buy in Decreasing Rate Order</div>
+      <div class="fw-sub">HOW TO FIND THE RIGHT GREEDY KEY AND PROVE IT · EX 6.10</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"find optimal order to buy/schedule"</span>
+      <span class="trigger-pill">"price grows by factor r each month"</span>
+      <span class="trigger-pill">"minimize total cost"</span>
+      <span class="trigger-pill red">exponential price growth</span>
+      <span class="trigger-pill navy">prove via exchange argument on adjacent swap</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">Ex 6.10 — n Software Products, Price Grows by Factor r_j Each Month</div>
+            <div class="q-answer">Buy one product per month. If you buy product j at month t (0-indexed), cost = \(100 \cdot r_j^t\). All rates distinct. Minimize total cost.</div>
+            <div class="q-example"><span class="ex-label">Small example (n=3)</span>r₁=2, r₂=3, r₃=4. Buy at months 0,1,2. Best order: buy r₃=4 first (month 0: cost 100), then r₂=3 (month 1: cost 300), then r₁=2 (month 2: cost 400). Total = 800.<br/>vs. buy r₁ first: 100 + 200 + 400·(wait) → costs more. Fastest-growing first!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — Finding the Greedy Key</div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Compute cost as a function of position — find what to optimize</div>
+            <div class="q-answer">If we buy products in order \(\pi_1, \pi_2, \ldots, \pi_n\), product at position \(t\) (0-indexed) costs \(100 \cdot r_{\pi_t}^t\). Total cost:</div>
+            <div class="q-math">\[\text{Total} = \sum_{t=0}^{n-1} 100 \cdot r_{\pi_t}^t = 100 \cdot \left(r_{\pi_0}^0 + r_{\pi_1}^1 + r_{\pi_2}^2 + \cdots\right)\]</div>
+            <div class="q-answer">To minimize: put the <strong>largest growth rates earliest</strong> (smaller exponent = cheaper). Greedy: <strong>sort by \(r_j\) descending.</strong></div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Prove it with an adjacent-swap exchange argument</div>
+            <div class="q-answer">Suppose in some optimal order, adjacent products j (at position t) and k (at position t+1) have \(r_j &lt; r_k\). Swap them — show cost decreases.</div>
+            <div class="q-math">\[\text{Before swap: } 100(r_j^t + r_k^{t+1})\]
+\[\text{After swap:  } 100(r_k^t + r_j^{t+1})\]
+\[\text{Swap improves iff: } r_k^t + r_j^{t+1} < r_j^t + r_k^{t+1}\]
+\[\iff r_k^t - r_j^t < r_k^{t+1} - r_j^{t+1}\]
+\[\iff (r_k^t - r_j^t) < r_k^t(r_k - 1) - r_j^t(r_j - 1)?\]</div>
+            <div class="q-answer">Simplify differently: swap improves iff \(r_k^t \cdot r_j^{t+1} &lt; r_j^t \cdot r_k^{t+1}\), i.e., \(r_j &lt; r_k\). <strong>So whenever r_j &lt; r_k and j comes before k, swap them to reduce cost.</strong> Optimal = sort descending by r.</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Clean proof — divide both sides by \(r_j^t r_k^t\)</div>
+            <div class="q-math">\[r_k^t + r_j^{t+1} < r_j^t + r_k^{t+1}\]
+\[\text{Divide by } r_j^t r_k^t:\quad \frac{1}{r_j^t} + \frac{r_j}{r_k^t} \cdot r_j < \frac{1}{r_k^t} + r_k\cdot\frac{1}{r_j^t}\]
+\[\text{Simplify: } \frac{r_k^t + r_j^{t+1}}{r_j^t r_k^t} = \frac{1}{r_j^t} + \frac{r_j}{r_k^t}\]
+\[\text{Swap better iff: } \frac{1}{r_j^t} + \frac{r_j}{r_k^t} > \frac{1}{r_k^t} + \frac{r_k}{r_j^t} \iff r_j < r_k \checkmark\]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual-block">
+      <div class="vb-head">Visual — Why Fastest-Growing First Minimizes Cost</div>
+      <div class="vb-body">
+        <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+          <!-- intuition: buy expensive-growing things early before they get too expensive -->
+          <text x="10" y="16" font-size="9" font-family="'Archivo Black',sans-serif">Intuition: buying a fast-growing item early "locks in" a low price before it explodes</text>
+
+          <!-- bar chart showing cost by position for two orderings -->
+          <!-- Order: slow first -->
+          <text x="10" y="38" font-size="8.5" fill="#e8352a">WRONG order (slow first): r₁=2, r₂=4, r₃=8</text>
+          <rect x="10" y="45" width="40" height="20" fill="#fffde6" stroke="#111" stroke-width="1"/>
+          <text x="30" y="59" text-anchor="middle" font-size="8">100·2⁰=100</text>
+          <rect x="60" y="45" width="80" height="20" fill="#fffde6" stroke="#111" stroke-width="1"/>
+          <text x="100" y="59" text-anchor="middle" font-size="8">100·4¹=400</text>
+          <rect x="150" y="45" width="160" height="20" fill="#fffde6" stroke="#e8352a" stroke-width="2"/>
+          <text x="230" y="59" text-anchor="middle" font-size="8" fill="#e8352a">100·8²=6400</text>
+          <text x="320" y="59" font-size="8.5" fill="#e8352a" font-weight="bold">Total = 6900</text>
+
+          <!-- Order: fast first -->
+          <text x="10" y="86" font-size="8.5" fill="#111" font-weight="bold">CORRECT order (fast first): r₃=8, r₂=4, r₁=2</text>
+          <rect x="10" y="93" width="40" height="20" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+          <text x="30" y="107" text-anchor="middle" font-size="8">100·8⁰=100</text>
+          <rect x="60" y="93" width="80" height="20" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+          <text x="100" y="107" text-anchor="middle" font-size="8">100·4¹=400</text>
+          <rect x="150" y="93" width="50" height="20" fill="#f5f500" stroke="#111" stroke-width="1.5"/>
+          <text x="175" y="107" text-anchor="middle" font-size="8">100·2²=400</text>
+          <text x="220" y="107" font-size="8.5" fill="#111" font-weight="bold">Total = 900 ← much cheaper!</text>
+
+          <!-- key insight box -->
+          <rect x="10" y="125" width="680" height="48" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+          <text x="350" y="143" text-anchor="middle" font-size="10" fill="#f5f500" font-family="'Archivo Black',sans-serif">Key Insight: buy r₃=8 early to avoid paying 100·8² = 6400 later</text>
+          <text x="350" y="158" text-anchor="middle" font-size="9" fill="#a0c4ff">The cost of buying j at time t = 100·rⱼᵗ grows exponentially. Delaying the fastest grower is the most expensive mistake.</text>
+          <text x="350" y="170" text-anchor="middle" font-size="9" fill="#6090c0">Greedy rule: sort by rⱼ descending. Runtime: O(n log n) for sort.</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Wrong sort direction.</strong> Buy LARGEST rate FIRST. The item with the highest rate grows fastest — buying it at month 0 prevents paying r^(n-1) for it.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Sloppy exchange argument.</strong> Must show the inequality holds for ALL t, not just t=0. The key step is dividing by r_j^t · r_k^t and reducing to r_j &lt; r_k — a condition that doesn't depend on t.</div></div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">Adjacent Swap — The Cleanest Exchange Argument</span>
+          <div class="concept-tags"><span class="ctag">[CH6] GREEDY ORDERING PROBLEMS</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>For any ordering problem:</strong> compare what happens when two adjacent items are swapped. If swapping always improves (or never helps), then the greedy sort is optimal.</p>
+        <p><strong>The template:</strong> cost(j at t, k at t+1) vs cost(k at t, j at t+1). Simplify to a condition on j, k alone (not t). If that condition is j &lt; k in some ordering, sort by that key.</p>
+        <p><strong>Famous instances:</strong> shortest-job-first (sort by processing time), fractional knapsack (sort by value/weight ratio), this problem (sort by rate descending).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAMEWORK 6 — DP Partition Problem (Ex 6 / HW2 Programming)
+══════════════════════════════════════════════════════════ -->
+<div class="fw-wrap" id="f6">
+  <div class="fw-header" onclick="togFW(this)">
+    <div class="fw-num">06</div>
+    <div class="fw-title-wrap">
+      <div class="fw-title">DP on Contiguous Partitions — Max Sum with Groups of Size ≤k</div>
+      <div class="fw-sub">HOW TO THINK ABOUT INTERVAL/PARTITION DP · EX 6 (PROGRAMMING)</div>
+    </div>
+    <div class="fw-arrow">▶</div>
+  </div>
+
+  <div class="trigger-row">
+    <div class="trigger-label">You see this type of problem when…</div>
+    <div class="trigger-pills">
+      <span class="trigger-pill">"partition into contiguous subarrays"</span>
+      <span class="trigger-pill">"each group's values become the max"</span>
+      <span class="trigger-pill">"maximize total after grouping"</span>
+      <span class="trigger-pill red">group size ≤ k constraint</span>
+      <span class="trigger-pill navy">DP on "last group" pattern</span>
+    </div>
+  </div>
+
+  <div class="fw-body">
+    <div class="fw-section">
+      <div class="fw-section-label">The Problem</div>
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">!</div>
+          <div class="q-body">
+            <div class="q-question">HW2 Ex 6 — Partition Array into Groups of Size ≤k, Maximize Sum</div>
+            <div class="q-answer">Given array A[1..n] and integer k, partition into contiguous subarrays each of size ≤k. Each subarray's values all become its maximum. Maximize total sum.</div>
+            <div class="q-example"><span class="ex-label">Example</span>A=[8,7,15,10,4,6,11], k=3. Group [8,7,15]→all become 15 (sum=45), [10]→10, [4,6,11]→all become 11 (sum=33). Total=88.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-section">
+      <div class="fw-section-label">The Mental Model — "Last Group" DP Pattern</div>
+
+      <div class="visual-block" style="border-top:var(--border);">
+        <div class="vb-head">Visual — DP Decomposition: The Last Group Ends at Position i</div>
+        <div class="vb-body">
+          <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+            <defs><marker id="ah4" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#111"/></marker></defs>
+
+            <!-- Array A -->
+            <text x="10" y="16" font-size="9" font-family="'Archivo Black',sans-serif">A = [8, 7, 15, 10, 4, 6, 11], k=3. Define dp[i] = max sum for A[1..i]</text>
+            <g font-family="'JetBrains Mono',monospace" font-size="12">
+              <rect x="10" y="24" width="40" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+              <text x="30" y="44" text-anchor="middle">8</text>
+              <rect x="52" y="24" width="40" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+              <text x="72" y="44" text-anchor="middle">7</text>
+              <rect x="94" y="24" width="40" height="30" fill="#f5f500" stroke="#111" stroke-width="2"/>
+              <text x="114" y="44" text-anchor="middle">15</text>
+              <rect x="136" y="24" width="40" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+              <text x="156" y="44" text-anchor="middle">10</text>
+              <rect x="178" y="24" width="40" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+              <text x="198" y="44" text-anchor="middle">4</text>
+              <rect x="220" y="24" width="40" height="30" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+              <text x="240" y="44" text-anchor="middle">6</text>
+              <rect x="262" y="24" width="40" height="30" fill="#f5f500" stroke="#111" stroke-width="2"/>
+              <text x="282" y="44" text-anchor="middle">11</text>
+            </g>
+            <g font-size="8" font-family="'JetBrains Mono',monospace" fill="#aaa" text-anchor="middle">
+              <text x="30" y="62">i=1</text><text x="72" y="62">i=2</text><text x="114" y="62">i=3</text>
+              <text x="156" y="62">i=4</text><text x="198" y="62">i=5</text><text x="240" y="62">i=6</text><text x="282" y="62">i=7</text>
+            </g>
+
+            <!-- Decomposition for dp[7] -->
+            <text x="10" y="82" font-size="9" font-family="'Archivo Black',sans-serif">dp[7]: last group ends at 7. It started at j ∈ {5,6,7} (group size ≤ 3)</text>
+
+            <!-- Option: group of size 1 -->
+            <rect x="10" y="90" width="340" height="28" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="20" y="105" font-size="9">j=7 (size 1): dp[6] + max(A[7..7])·1 = dp[6] + 11</text>
+            <text x="20" y="116" font-size="8" fill="#555">last group = [11], contributes 11</text>
+
+            <!-- Option: group of size 2 -->
+            <rect x="10" y="124" width="340" height="28" fill="#fffde6" stroke="#111" stroke-width="1.5"/>
+            <text x="20" y="139" font-size="9">j=6 (size 2): dp[5] + max(A[6..7])·2 = dp[5] + 11·2 = dp[5]+22</text>
+            <text x="20" y="150" font-size="8" fill="#555">last group = [6,11], max=11, contributes 22</text>
+
+            <!-- Option: group of size 3 -->
+            <rect x="10" y="158" width="340" height="28" fill="#f5f500" stroke="#111" stroke-width="2.5"/>
+            <text x="20" y="173" font-size="9" font-weight="bold">j=5 (size 3): dp[4] + max(A[5..7])·3 = dp[4] + 11·3 = dp[4]+33 ← BEST</text>
+            <text x="20" y="184" font-size="8" fill="#555">last group = [4,6,11], max=11, contributes 33</text>
+
+            <!-- Formula -->
+            <rect x="370" y="90" width="320" height="100" fill="#1a1a2e" stroke="#111" stroke-width="2"/>
+            <text x="530" y="108" text-anchor="middle" font-size="10" fill="#f5f500" font-family="'Archivo Black',sans-serif">Recurrence</text>
+            <text x="380" y="126" font-size="9" fill="#a0c4ff">dp[i] = max over j from max(1, i−k+1) to i of:</text>
+            <text x="380" y="142" font-size="9" fill="#f5f500">  dp[j−1] + max(A[j..i]) · (i−j+1)</text>
+            <text x="380" y="158" font-size="8" fill="#6090c0">where dp[0] = 0 (base case)</text>
+            <text x="380" y="174" font-size="8" fill="#6090c0">last group = A[j..i], size = i−j+1 ≤ k</text>
+            <text x="380" y="188" font-size="8" fill="#a0c4ff">Runtime: O(n·k) with O(1) running max</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="q-chain">
+        <div class="q-node">
+          <div class="q-num">1</div>
+          <div class="q-body">
+            <div class="q-question">Subproblem: dp[i] = best total sum for A[1..i]</div>
+            <div class="q-answer">The key decomposition is the <strong>"last group"</strong> pattern. To solve dp[i], consider all possible last groups A[j..i] where i−j+1 ≤ k. Each choice leaves dp[j−1] as a solved subproblem.</div>
+            <div class="q-math">\[dp[i] = \max_{j=\max(1,\,i-k+1)}^{i}\left(dp[j-1] + \max(A[j..i])\cdot(i-j+1)\right)\]
+\[dp[0] = 0\]</div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">2</div>
+          <div class="q-body">
+            <div class="q-question">Why this has optimal substructure</div>
+            <div class="q-answer">The optimal grouping of A[1..i] must have some last group A[j..i]. Once that group is fixed, the rest A[1..j−1] must also be optimally grouped — otherwise we could improve the overall grouping by replacing it. This is <strong>optimal substructure.</strong></div>
+          </div>
+        </div>
+
+        <div class="q-node">
+          <div class="q-num">3</div>
+          <div class="q-body">
+            <div class="q-question">Compute max(A[j..i]) efficiently as j decreases</div>
+            <div class="q-answer">As j decreases from i to max(1, i−k+1), you're extending the window leftward. Maintain a running maximum:</div>
+            <div class="q-math">\[\text{As } j \text{ decreases: } \text{running\_max} = \max(\text{running\_max},\; A[j])\]</div>
+            <div class="q-answer">This gives O(1) per iteration → O(k) total per i → <strong>O(nk) overall.</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">MaxSumPartition(A[1..n], k)</span>
+          <span class="pc-sig">Output: maximum total sum after grouping</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code">dp[0] ← 0 &nbsp;<span class="cm">base case: empty prefix</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code"><span class="kw">for</span> i ← 1 <span class="kw">to</span> n:</span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code i1">dp[i] ← −∞</span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code i1">running_max ← −∞ &nbsp;<span class="cm">max of current last group A[j..i]</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code i1"><span class="kw">for</span> j ← i <span class="kw">downto</span> max(1, i−k+1): &nbsp;<span class="cm">try all last group sizes ≤ k</span></span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code i2">running_max ← max(running_max, A[j]) &nbsp;<span class="cm">extend group leftward</span></span></div>
+          <div class="ln-row"><span class="ln">7</span><span class="code i2">group_sum ← running_max × (i − j + 1) &nbsp;<span class="cm">all values become max</span></span></div>
+          <div class="ln-row"><span class="ln">8</span><span class="code i2">dp[i] ← max(dp[i], dp[j−1] + group_sum)</span></div>
+          <div class="ln-row"><span class="ln">9</span><span class="code"><span class="kw">return</span> dp[n]</span></div>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Runtime:</strong> Outer loop n iterations. Inner loop ≤ k iterations each. Total: O(nk). Space: O(n) for dp array. For large n, this must be efficient — ensure running_max is computed inline, not by re-scanning A[j..i] each time.</div>
+    </div>
+
+    <div class="visual-block">
+      <div class="vb-head">Visual — Full DP Table for [8,7,15,10,4,6,11], k=3</div>
+      <div class="vb-body">
+        <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;">
+          <g font-family="'JetBrains Mono',monospace" font-size="9">
+            <!-- headers -->
+            <text x="10" y="16" fill="#aaa">i</text>
+            <text x="10" y="32" fill="#aaa">A[i]</text>
+            <text x="10" y="65" fill="#aaa">dp[i]</text>
+            <text x="10" y="90" fill="#555" font-size="8">last grp</text>
+
+            <!-- i = 0 -->
+            <rect x="55" y="5" width="70" height="20" fill="#111"/>
+            <text x="90" y="19" text-anchor="middle" fill="#f5f500">i=0</text>
+            <text x="90" y="35" text-anchor="middle">—</text>
+            <text x="90" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">0</text>
+            <text x="90" y="92" text-anchor="middle" fill="#aaa" font-size="7">base</text>
+
+            <!-- i = 1 -->
+            <rect x="130" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="165" y="19" text-anchor="middle" fill="#a0c4ff">i=1</text>
+            <text x="165" y="35" text-anchor="middle">8</text>
+            <text x="165" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">8</text>
+            <text x="165" y="92" text-anchor="middle" fill="#aaa" font-size="7">[8]</text>
+
+            <!-- i = 2 -->
+            <rect x="205" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="240" y="19" text-anchor="middle" fill="#a0c4ff">i=2</text>
+            <text x="240" y="35" text-anchor="middle">7</text>
+            <text x="240" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">16</text>
+            <text x="240" y="92" text-anchor="middle" fill="#aaa" font-size="7">[8][7]</text>
+
+            <!-- i = 3 -->
+            <rect x="280" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="315" y="19" text-anchor="middle" fill="#a0c4ff">i=3</text>
+            <text x="315" y="35" text-anchor="middle">15</text>
+            <text x="315" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">45</text>
+            <text x="315" y="92" text-anchor="middle" fill="#aaa" font-size="7">[8,7,15]</text>
+
+            <!-- i = 4 -->
+            <rect x="355" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="390" y="19" text-anchor="middle" fill="#a0c4ff">i=4</text>
+            <text x="390" y="35" text-anchor="middle">10</text>
+            <text x="390" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">55</text>
+            <text x="390" y="92" text-anchor="middle" fill="#aaa" font-size="7">[8,7,15][10]</text>
+
+            <!-- i = 5 -->
+            <rect x="430" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="465" y="19" text-anchor="middle" fill="#a0c4ff">i=5</text>
+            <text x="465" y="35" text-anchor="middle">4</text>
+            <text x="465" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">65</text>
+            <text x="465" y="92" text-anchor="middle" fill="#aaa" font-size="7">...[10][4]</text>
+
+            <!-- i = 6 -->
+            <rect x="505" y="5" width="70" height="20" fill="#1a1a2e"/>
+            <text x="540" y="19" text-anchor="middle" fill="#a0c4ff">i=6</text>
+            <text x="540" y="35" text-anchor="middle">6</text>
+            <text x="540" y="68" text-anchor="middle" fill="#f5f500" font-weight="bold">67</text>
+            <text x="540" y="92" text-anchor="middle" fill="#aaa" font-size="7">...[4,6]</text>
+
+            <!-- i = 7 -->
+            <rect x="580" y="5" width="70" height="20" fill="#f5f500"/>
+            <text x="615" y="19" text-anchor="middle" fill="#111" font-weight="bold">i=7</text>
+            <text x="615" y="35" text-anchor="middle">11</text>
+            <text x="615" y="68" text-anchor="middle" fill="#111" font-weight="bold">88</text>
+            <text x="615" y="92" text-anchor="middle" fill="#333" font-size="7">[4,6,11]</text>
+          </g>
+
+          <!-- Explanation of dp[7] computation -->
+          <text x="10" y="110" font-size="9" font-family="'Archivo Black',sans-serif">dp[7] computation (j from 7 down to 5):</text>
+          <text x="10" y="126" font-size="9">j=7: dp[6] + max(11)·1 = 67+11 = 78</text>
+          <text x="10" y="141" font-size="9">j=6: dp[5] + max(6,11)·2 = 65+22 = 87</text>
+          <text x="10" y="156" font-size="9" fill="#f5f500" font-weight="bold">j=5: dp[4] + max(4,6,11)·3 = 55+33 = 88 ← maximum!</text>
+          <text x="400" y="126" font-size="9" fill="#555">Optimal partition: [8,7,15] [10] [4,6,11]</text>
+          <text x="400" y="141" font-size="9" fill="#555">Values: 45 + 10 + 33 = 88 ✓</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mistakes">
+      <div class="mistakes-label">Common Mistakes</div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Recomputing max(A[j..i]) from scratch each time.</strong> That gives O(nk²). Use a running max variable updated as j decreases — O(1) per step.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Off-by-one on the inner loop bound.</strong> Last group size ≤ k means j ≥ i−k+1. So j ranges from i downto max(1, i−k+1). Check this carefully.</div></div>
+      <div class="mistake-row"><div class="mistake-x">✕</div><div class="mistake-text"><strong>Forgetting dp[0] = 0.</strong> When j=1, you access dp[j−1] = dp[0]. This must be defined as 0 (empty prefix has 0 sum).</div></div>
+    </div>
+
+    <div class="concept">
+      <div class="concept-header" onclick="tog(this)">
+        <div class="concept-left"><span class="c-label">The "Last Group / Segment" DP Pattern</span>
+          <div class="concept-tags"><span class="ctag">[CH5] PARTITION DP</span><span class="ctag">LAST SEGMENT TRICK</span></div>
+        </div><span class="concept-arrow">▶</span>
+      </div>
+      <div class="concept-body">
+        <p><strong>Applies to:</strong> any problem where you partition A[1..n] into contiguous segments, each contributing a cost/value depending only on the segment itself.</p>
+        <p><strong>Template:</strong> dp[i] = best value for A[1..i]. Try all last segments A[j..i] of valid size. dp[i] = max over j of (dp[j−1] + cost(A[j..i])).</p>
+        <p><strong>Efficiency key:</strong> compute cost(A[j..i]) incrementally as j decreases. For max: running_max. For sum: running_sum. This gives O(1) per j, total O(nk).</p>
+        <p><strong>Other problems using this pattern:</strong> matrix chain (segments of matrices), word wrap (segments of words), rod cutting (segments of length i).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togFW(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

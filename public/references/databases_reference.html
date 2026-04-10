@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databases — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #a78bfa;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+/* ── Layout ── */
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.sidebar-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Timeline ── */
+.tl-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.timeline {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 18px;
+  cursor: default;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -18px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--dot);
+  transition: transform 0.15s;
+}
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--dot);
+  margin-bottom: 2px;
+}
+.tl-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tl-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Sources ── */
+.src-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.src-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.src-card:hover { border-color: var(--accent); }
+.src-card span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.src-card small {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  outline: none;
+  width: 180px;
+}
+#search-input:focus { border-color: var(--accent); }
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 80px;
+}
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Content sections ── */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 48px 0 6px;
+  letter-spacing: -0.3px;
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--card-color, var(--accent));
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code {
+  font-family: 'DM Mono', monospace;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+  color: #e8c547;
+}
+pre.code-block {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: #c8d0e0;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
+
+/* Databases-specific */
+.card-examples { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+.ex-tag { font-family: 'DM Mono', monospace; font-size: 0.72rem; background: var(--elevated); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; color: var(--muted); }
+.migration-step { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--step-color, var(--accent)); border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 12px; }
+.migration-step .ms-label { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--step-color,var(--accent)); font-weight:500; letter-spacing:0.5px; margin-bottom:4px; }
+.migration-step .ms-title { font-weight:700; font-size:0.95rem; color:var(--text); margin-bottom:5px; }
+.migration-step .ms-desc { color:var(--muted); font-size:0.9rem; line-height:1.65; }
+table.ref-table { width:100%; border-collapse:collapse; margin:16px 0; font-size:0.88rem; }
+table.ref-table th { background:var(--elevated); color:var(--text); font-weight:700; padding:10px 14px; text-align:left; border-bottom:2px solid var(--border); }
+table.ref-table td { padding:9px 14px; border-bottom:1px solid var(--border); color:var(--muted); vertical-align:top; }
+table.ref-table td:first-child { color:var(--text); font-weight:600; font-family:'DM Mono',monospace; font-size:0.82rem; }
+table.ref-table tr:hover td { background:var(--elevated); }
+
+
+
+
+
+
+
+/* ── Mobile collapsible sidebar ───────────────────────────────────────────── */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 300;
+  background: var(--surface, #161920);
+  color: var(--text, #d4d8e0);
+  border: 1px solid var(--border, #2a2e38);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 250 !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 85vw !important;
+    max-width: 300px !important;
+    min-width: unset !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
+  }
+
+  /* Main content fills full width since sidebar is out of flow */
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Give topbar left padding so toggle button doesn't overlap text */
+  .topbar {
+    padding-left: 48px !important;
+    flex-wrap: wrap !important;
+  }
+}
+</style>
+</head>
+<body>
+<button id="sidebar-toggle">☰ Timeline</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+
+
+
+
+<div class="layout">
+
+  <!-- ── Sidebar: Timeline + Sources ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Databases History</h1>
+      <p class="sidebar-subtitle">From punch-card file systems to distributed cloud-native stores</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#7a8090">
+          <div class="tl-year">1950s</div>
+          <div class="tl-title">Flat File & Tape Storage</div>
+          <div class="tl-desc">Data stored as sequential records on magnetic tape. No querying — programs read files top to bottom. Updating meant rewriting the entire file.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1960</div>
+          <div class="tl-title">Hierarchical Model — IMS</div>
+          <div class="tl-desc">IBM's Information Management System, built for NASA's Apollo program. Data stored as parent-child trees. Fast for known access paths, catastrophic for unexpected queries. Still runs some banking systems today.</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">1969</div>
+          <div class="tl-title">Network Model — CODASYL</div>
+          <div class="tl-desc">Proposed by Charles Bachman. Records linked via pointers in a graph. More flexible than hierarchical but required developers to navigate relationships manually.</div>
+        </div>
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1970</div>
+          <div class="tl-title">Relational Model Born</div>
+          <div class="tl-desc">Edgar F. Codd at IBM publishes "A Relational Model of Data." Proposes tables with rows and columns. Data accessed by what it is, not where it's stored. Revolutionizes the field.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1974–1979</div>
+          <div class="tl-title">SQL & First Relational Systems</div>
+          <div class="tl-desc">IBM's System R implements SEQUEL (later SQL). Oracle releases the first commercial SQL RDBMS in 1979. IBM follows with DB2.</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1980s–1990s</div>
+          <div class="tl-title">RDBMS Dominance</div>
+          <div class="tl-desc">Oracle, Sybase, SQL Server, and PostgreSQL mature. ACID transactions become the gold standard. MySQL becomes the go-to for web apps.</div>
+        </div>
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">2004–2009</div>
+          <div class="tl-title">NoSQL Movement</div>
+          <div class="tl-desc">Google's Bigtable and Amazon's Dynamo papers spark a revolution. MongoDB, Cassandra, Redis emerge. CAP theorem enters the conversation.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">2010s</div>
+          <div class="tl-title">NewSQL & Polyglot Persistence</div>
+          <div class="tl-desc">Google Spanner and CockroachDB combine SQL's ACID guarantees with NoSQL's horizontal scale. Teams use multiple database types for different workloads.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">2020s</div>
+          <div class="tl-title">Cloud-Native & Serverless</div>
+          <div class="tl-desc">PlanetScale, Supabase, Neon bring serverless relational databases. Vector databases (Pinecone, pgvector) emerge for AI workloads.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://www.postgresql.org/docs/" target="_blank" rel="noopener">
+        <span>PostgreSQL Docs</span>
+        <small>postgresql.org</small>
+      </a>
+      <a class="src-card" href="https://use-the-index-luke.com/" target="_blank" rel="noopener">
+        <span>Use The Index, Luke — SQL Performance</span>
+        <small>use-the-index-luke.com</small>
+      </a>
+      <a class="src-card" href="https://dataintensive.net/" target="_blank" rel="noopener">
+        <span>Designing Data-Intensive Applications — Kleppmann</span>
+        <small>dataintensive.net</small>
+      </a>
+      <a class="src-card" href="https://15445.courses.cs.cmu.edu/" target="_blank" rel="noopener">
+        <span>CMU 15-445 Database Systems (free)</span>
+        <small>15445.courses.cs.cmu.edu</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main: nav + content ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Databases Reference</span>
+      <nav>
+        <a href="#relational">Relational</a>
+        <a href="#nosql">NoSQL</a>
+        <a href="#transactions">Transactions</a>
+        <a href="#indexing">Indexing</a>
+        <a href="#design">Design</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+
+<!-- ══════════════════════════════════════════════
+       SECTION 1 — RELATIONAL
+  ═══════════════════════════════════════════════ -->
+<div id="relational">
+  <div class="section-title">Relational Databases</div>
+  <div class="section-sub">Tables, rows, columns — data organized by relationships</div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Core Concept</div><div class="card-title">Tables & Relations</div>
+      <div class="card-desc">Data stored in <strong>tables</strong> (relations). Each row is a <strong>tuple</strong>, each column is an <strong>attribute</strong>. Tables relate to each other via <strong>keys</strong>. Structure defined by a <strong>schema</strong> before data is inserted.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Primary Key</div><div class="card-title">Unique row identifier</div>
+      <div class="card-desc">A column (or set of columns) that <strong>uniquely identifies</strong> each row. Cannot be NULL. Every table should have one.<br><br><code>PRIMARY KEY (id)</code> — auto-incremented integer is the most common pattern.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Foreign Key</div><div class="card-title">Links between tables</div>
+      <div class="card-desc">A column that references the <strong>primary key</strong> of another table. Enforces <strong>referential integrity</strong> — you can't reference a row that doesn't exist.<br><br><code>FOREIGN KEY (user_id) REFERENCES users(id)</code></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#f97316"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Normalization</div><div class="card-title">Eliminate redundancy</div>
+      <div class="card-desc"><strong>1NF:</strong> atomic values, no repeating groups.<br><strong>2NF:</strong> no partial dependencies on composite key.<br><strong>3NF:</strong> no transitive dependencies.<br><strong>BCNF:</strong> every determinant is a candidate key.<br><br>Goal: one fact in one place.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Joins</div><div class="card-title">Combining tables</div>
+      <div class="card-desc"><strong>INNER JOIN:</strong> only matching rows.<br><strong>LEFT JOIN:</strong> all left rows + matches.<br><strong>RIGHT JOIN:</strong> all right rows + matches.<br><strong>FULL OUTER:</strong> all rows from both.<br><strong>CROSS JOIN:</strong> cartesian product.<br><br><code>SELECT * FROM a JOIN b ON a.id = b.a_id</code></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Constraints</div><div class="card-title">Data integrity rules</div>
+      <div class="card-desc"><code>NOT NULL</code> — column must have a value.<br><code>UNIQUE</code> — no duplicate values.<br><code>CHECK</code> — custom condition must be true.<br><code>DEFAULT</code> — fallback value if none given.<br><br>Constraints are enforced at the DB level, not app level.</div>
+    </div></div>
+
+  </div>
+
+  <pre class="code-block"><span class="cmt">-- Basic SQL DDL + DML</span>
+<span class="kw">CREATE TABLE</span> users (
+  id    <span class="ty">INTEGER</span> <span class="kw">PRIMARY KEY</span> AUTOINCREMENT,
+  name  <span class="ty">TEXT</span>    <span class="kw">NOT NULL</span>,
+  email <span class="ty">TEXT</span>    <span class="kw">UNIQUE NOT NULL</span>
+);
+
+<span class="kw">INSERT INTO</span> users (name, email) <span class="kw">VALUES</span> (<span class="str">'Alice'</span>, <span class="str">'alice@uh.edu'</span>);
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'A%'</span>;
+<span class="kw">UPDATE</span> users <span class="kw">SET</span> email = <span class="str">'a@uh.edu'</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;
+<span class="kw">DELETE FROM</span> users <span class="kw">WHERE</span> id = <span class="num">1</span>;</pre>
+</div>
+
+<!-- ══════════════════════════════════════════════
+       SECTION 2 — NoSQL
+  ═══════════════════════════════════════════════ -->
+<div id="nosql">
+  <div class="section-title">NoSQL</div>
+  <div class="section-sub">When tables aren't the right shape for your data</div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Document Store</div><div class="card-title">JSON-like records</div>
+      <div class="card-desc">Data stored as <strong>documents</strong> (JSON/BSON). No fixed schema — each document can have different fields. Great for hierarchical or variable data.<br><br>Examples: <span class="ex-tag">MongoDB</span> <span class="ex-tag">CouchDB</span> <span class="ex-tag">Firestore</span></div>
+      <div class="card-examples"></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Key-Value Store</div><div class="card-title">Fastest lookup</div>
+      <div class="card-desc">Data stored as <strong>key → value</strong> pairs. No structure enforced on values. O(1) lookups. Used for caching, sessions, leaderboards.<br><br>Examples: <span class="ex-tag">Redis</span> <span class="ex-tag">DynamoDB</span> <span class="ex-tag">Memcached</span></div>
+      <div class="card-examples"></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Wide-Column</div><div class="card-title">Rows with dynamic columns</div>
+      <div class="card-desc">Like a table but each row can have <strong>different columns</strong>. Optimized for reading/writing large amounts of data across many nodes.<br><br>Examples: <span class="ex-tag">Cassandra</span> <span class="ex-tag">HBase</span> <span class="ex-tag">BigTable</span></div>
+      <div class="card-examples"></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#f97316"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Graph DB</div><div class="card-title">Nodes & edges</div>
+      <div class="card-desc">Data stored as <strong>nodes</strong> (entities) and <strong>edges</strong> (relationships). Best for highly connected data where relationships matter as much as the data itself.<br><br>Examples: <span class="ex-tag">Neo4j</span> <span class="ex-tag">Amazon Neptune</span></div>
+      <div class="card-examples"></div>
+    </div></div>
+
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">CAP Theorem</div><div class="card-title">Pick 2 of 3</div>
+      <div class="card-desc">Distributed systems can guarantee at most 2 of:<br><strong>C</strong>onsistency — every read gets latest write.<br><strong>A</strong>vailability — every request gets a response.<br><strong>P</strong>artition tolerance — works despite network splits.<br><br>NoSQL systems typically choose AP or CP.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">BASE vs ACID</div><div class="card-title">NoSQL consistency model</div>
+      <div class="card-desc"><strong>B</strong>asically <strong>A</strong>vailable — system always responds.<br><strong>S</strong>oft state — state may change over time.<br><strong>E</strong>ventually consistent — all nodes converge eventually.<br><br>Trades strong consistency for availability and partition tolerance.</div>
+    </div></div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+       SECTION 3 — TRANSACTIONS
+  ═══════════════════════════════════════════════ -->
+<div id="transactions">
+  <div class="section-title">Transactions</div>
+  <div class="section-sub">All-or-nothing operations that keep data consistent</div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">ACID</div><div class="card-title">The 4 guarantees</div>
+      <div class="card-desc"><strong>Atomicity:</strong> all ops succeed or none do.<br><strong>Consistency:</strong> DB stays in valid state.<br><strong>Isolation:</strong> concurrent txns don't interfere.<br><strong>Durability:</strong> committed data survives crashes.<br><br>These are what make relational DBs reliable.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Atomicity</div><div class="card-title">All or nothing</div>
+      <div class="card-desc">If any operation in a transaction fails, the <strong>entire transaction is rolled back</strong>. Bank transfer: debit + credit must both succeed, or neither happens.<br><br><code>BEGIN; UPDATE ...; UPDATE ...; COMMIT;</code><br><code>ROLLBACK;</code> — undo everything.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Isolation Levels</div><div class="card-title">How much txns see each other</div>
+      <div class="card-desc"><strong>Read Uncommitted:</strong> sees dirty reads.<br><strong>Read Committed:</strong> only sees committed data.<br><strong>Repeatable Read:</strong> same query returns same result.<br><strong>Serializable:</strong> fully isolated, as if sequential.<br><br>Higher isolation = more locking = slower.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#f97316"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Concurrency Problems</div><div class="card-title">What isolation prevents</div>
+      <div class="card-desc"><strong>Dirty read:</strong> reading uncommitted data.<br><strong>Non-repeatable read:</strong> same query, different result.<br><strong>Phantom read:</strong> new rows appear mid-txn.<br><strong>Lost update:</strong> two txns overwrite each other.<br><strong>Deadlock:</strong> two txns wait on each other.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Locking</div><div class="card-title">Controlling concurrent access</div>
+      <div class="card-desc"><strong>Shared lock (S):</strong> read — multiple allowed.<br><strong>Exclusive lock (X):</strong> write — blocks all others.<br><strong>Optimistic locking:</strong> no locks, check for conflict at commit.<br><strong>Pessimistic locking:</strong> lock before reading.<br><br><code>SELECT ... FOR UPDATE</code> — explicit row lock.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">2-Phase Commit</div><div class="card-title">Distributed transactions</div>
+      <div class="card-desc"><strong>Phase 1 (Prepare):</strong> coordinator asks all nodes "can you commit?" Each votes yes/no.<br><strong>Phase 2 (Commit):</strong> if all say yes, coordinator sends commit. If any say no, abort.<br><br>Ensures atomicity across multiple databases/nodes.</div>
+    </div></div>
+
+  </div>
+
+  <pre class="code-block"><span class="cmt">-- Transaction example: bank transfer</span>
+<span class="kw">BEGIN</span>;
+  <span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance - <span class="num">100</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;
+  <span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance + <span class="num">100</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;
+  <span class="cmt">-- if anything fails, ROLLBACK automatically</span>
+<span class="kw">COMMIT</span>;</pre>
+</div>
+
+<!-- ══════════════════════════════════════════════
+       SECTION 4 — INDEXING
+  ═══════════════════════════════════════════════ -->
+<div id="indexing">
+  <div class="section-title">Indexing</div>
+  <div class="section-sub">Making queries fast — and why it costs you</div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">What is an Index</div><div class="card-title">A sorted lookup structure</div>
+      <div class="card-desc">An index is a separate data structure that stores a <strong>sorted copy</strong> of a column's values with pointers to the actual rows. Makes lookups O(log n) instead of O(n) full table scans.<br><br>Trade-off: <strong>faster reads, slower writes</strong>, more disk space.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">B-Tree Index</div><div class="card-title">Default index type</div>
+      <div class="card-desc">Most databases use a <strong>B+ tree</strong> by default. Balanced tree — all leaf nodes at same depth. Supports: equality (<code>=</code>), range (<code>&lt; &gt;</code>), ORDER BY, and prefix matching.<br><br>Self-balancing on insert/delete. O(log n) search.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Hash Index</div><div class="card-title">O(1) equality lookups</div>
+      <div class="card-desc">Uses a <strong>hash map</strong> internally. Extremely fast for equality checks (<code>=</code>). <strong>Cannot</strong> support range queries, sorting, or LIKE.<br><br>Used internally by some engines (InnoDB adaptive hash). PostgreSQL supports explicit hash indexes.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#f97316"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Composite Index</div><div class="card-title">Multi-column index</div>
+      <div class="card-desc">Index on multiple columns. Order matters — <code>(a, b)</code> helps queries filtering on <code>a</code> or <code>(a, b)</code> but <strong>not</strong> on <code>b</code> alone.<br><br><code>CREATE INDEX idx ON t(a, b);</code><br><br>Leftmost prefix rule — use the index from left to right.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Covering Index</div><div class="card-title">No table lookup needed</div>
+      <div class="card-desc">An index that contains <strong>all columns</strong> needed by a query. The DB never needs to touch the actual table — answers entirely from the index.<br><br>Most performant read pattern. Design indexes around your most critical queries.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">EXPLAIN</div><div class="card-title">See what the DB is doing</div>
+      <div class="card-desc"><code>EXPLAIN SELECT ...</code> — shows the query execution plan. Look for:<br><strong>Seq Scan</strong> — full table scan (bad on large tables).<br><strong>Index Scan</strong> — using the index.<br><strong>Index Only Scan</strong> — covering index hit.<br><br>Use this to diagnose slow queries.</div>
+    </div></div>
+
+  </div>
+
+  <pre class="code-block"><span class="cmt">-- Creating indexes</span>
+<span class="kw">CREATE INDEX</span> idx_users_email <span class="kw">ON</span> users(email);
+<span class="kw">CREATE INDEX</span> idx_orders_user_date <span class="kw">ON</span> orders(user_id, created_at);
+<span class="kw">CREATE UNIQUE INDEX</span> idx_unique_username <span class="kw">ON</span> users(username);
+
+<span class="cmt">-- Check query plan</span>
+<span class="kw">EXPLAIN ANALYZE SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> email = <span class="str">'alice@uh.edu'</span>;</pre>
+</div>
+
+<!-- ══════════════════════════════════════════════
+       SECTION 5 — DESIGN
+  ═══════════════════════════════════════════════ -->
+<div id="design">
+  <div class="section-title">Design</div>
+  <div class="section-sub">Schema design, migrations, and modeling patterns</div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-color:#60a5fa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">ER Diagram</div><div class="card-title">Entity-Relationship Model</div>
+      <div class="card-desc">Visual tool for designing schemas before writing SQL. <strong>Entities</strong> become tables, <strong>attributes</strong> become columns, <strong>relationships</strong> become foreign keys.<br><br>Cardinality: <strong>1:1</strong>, <strong>1:N</strong>, <strong>M:N</strong> (needs junction table).</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#a78bfa"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Many-to-Many</div><div class="card-title">Junction tables</div>
+      <div class="card-desc">Can't directly store M:N in SQL. Use a <strong>junction/bridge table</strong> with two foreign keys.<br><br>Students ↔ Courses:<br><code>enrollments(student_id, course_id)</code><br><br>The junction table can also hold extra data (grade, date enrolled).</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#34d399"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Migrations</div><div class="card-title">Versioned schema changes</div>
+      <div class="card-desc">Never modify production schema manually. Use <strong>migration files</strong> — versioned scripts with <code>up</code> (apply) and <code>down</code> (rollback).<br><br>Tools: Flyway, Liquibase, Prisma Migrate, Django migrations. Track applied migrations in a <code>schema_migrations</code> table.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#f97316"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Denormalization</div><div class="card-title">Controlled redundancy</div>
+      <div class="card-desc">Sometimes intentionally <strong>duplicate data</strong> to avoid expensive joins. Common in read-heavy systems.<br><br>Example: store <code>username</code> in <code>comments</code> table to avoid joining <code>users</code> on every comment fetch. Accept the write complexity.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#e8c547"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Soft Delete</div><div class="card-title">Don't actually delete rows</div>
+      <div class="card-desc">Instead of <code>DELETE</code>, add a <code>deleted_at TIMESTAMP</code> column. Set it on "delete", filter it on reads.<br><br>Preserves data for audit logs, undo features, analytics. Add an index on <code>deleted_at</code> or use partial indexes to keep queries fast.</div>
+    </div></div>
+
+    <div class="card" style="--card-color:#4ecdc4"><div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Pagination</div><div class="card-title">Efficient large result sets</div>
+      <div class="card-desc"><strong>Offset:</strong> <code>LIMIT 20 OFFSET 100</code> — simple but slow on large offsets (scans all skipped rows).<br><br><strong>Cursor:</strong> <code>WHERE id &gt; last_seen_id LIMIT 20</code> — O(1) regardless of page. Use for infinite scroll / APIs. Requires stable sort order.</div>
+    </div></div>
+
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem; margin-top:32px;">Migration Pattern</div>
+  <div class="migration-step" style="--step-color:#60a5fa">
+    <div class="ms-label">Step 1</div>
+    <div class="ms-title">Write the migration file</div>
+    <div class="ms-desc">Create a versioned file: <code>20240101_add_email_to_users.sql</code>. Include both <code>UP</code> (apply) and <code>DOWN</code> (rollback) statements.</div>
+  </div>
+  <div class="migration-step" style="--step-color:#a78bfa">
+    <div class="ms-label">Step 2</div>
+    <div class="ms-title">Test on staging</div>
+    <div class="ms-desc">Run migration on a copy of production data. Verify no data loss, no constraint violations, acceptable run time.</div>
+  </div>
+  <div class="migration-step" style="--step-color:#34d399">
+    <div class="ms-label">Step 3</div>
+    <div class="ms-title">Apply to production</div>
+    <div class="ms-desc">Run during low-traffic window if altering large tables. Monitor for locks. Use <code>ALTER TABLE ... ADD COLUMN</code> with a default — safe in PostgreSQL, requires care in MySQL.</div>
+  </div>
+  <div class="migration-step" style="--step-color:#f97316">
+    <div class="ms-label">Step 4</div>
+    <div class="ms-title">Verify & commit</div>
+    <div class="ms-desc">Confirm schema change applied. Update ORM models. The migration tool records the version — future runs skip it automatically.</div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+       SECTION 1 — HISTORY
+  ═══════════════════════════════════════════════ -->
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+
+<script>
+(function() {
+  var btn     = document.getElementById('sidebar-toggle');
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰ Timeline';
+  }
+
+  btn.addEventListener('click', function() {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  sidebar.querySelectorAll('.tl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

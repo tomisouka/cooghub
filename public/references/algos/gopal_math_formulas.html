@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Formulas for Algorithms — Gopal App.E</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;--accent:#e8c547;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--orange:#fb923c;--text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;--mono:"JetBrains Mono",monospace;--sans:"Space Grotesk",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(0,0,0,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}.sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}.kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}.kv-v.g{color:var(--green)}.kv-v.y{color:var(--yellow)}.kv-v.r{color:var(--red)}.kv-v.p{color:var(--purple)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  .kw{color:var(--purple)}.fn{color:var(--accent)}.cm{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  .box{background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:.75rem 1rem;margin-bottom:.5rem}
+  .box-title{font-family:var(--mono);font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+  .warn{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:6px;padding:.75rem 1rem;font-size: .95rem;color:var(--red);margin-top:.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tag">Gopal Appendix E · Useful Formulas</div>
+  <h1>Math Formulas for Algorithm Analysis</h1>
+  <div class="sub">Commonly used series, inequalities, and combinatorial bounds that appear throughout algorithm analysis.</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Sum of Series</div>
+      <pre>// First n natural numbers:
+n
+Σ i = n(n+1)/2 = Θ(n²)
+i=0
+
+// Squares:
+n
+Σ i² = n(n+1)(2n+1)/6 = Θ(n³)
+i=0
+
+// Harmonic series (important for analysis!):
+n
+Σ 1/i = H(n) ≈ ln n = Θ(log n)
+i=1</pre>
+    </div>
+    <div class="card">
+      <div class="card-title">Geometric Series</div>
+      <pre>// Finite geometric series:
+n-1
+Σ xⁱ = (xⁿ - 1) / (x - 1)
+i=0
+
+// Asymptotic behavior:
+n
+Σ xⁱ = Θ(xⁿ)   if x > 1  (increasing)
+i=0   = Θ(1)    if 0 < x < 1 (decreasing)
+
+// Infinite series (|x| < 1):
+∞
+Σ xⁱ = 1 / (1 - x)
+i=0</pre>
+    </div>
+    <div class="card full">
+      <div class="card-title">Combinatorial Inequalities (Gopal Appendix E.3)</div>
+      <table>
+        <tr><th>Formula</th><th>Notes / When Used</th></tr>
+        <tr><td style="font-family:var(--mono);">(n/k)ᵏ ≤ C(n,k) ≤ (ne/k)ᵏ</td><td style="color:var(--sub);">Bounds on binomial coefficient</td></tr>
+        <tr><td style="font-family:var(--mono);">1 + x ≤ eˣ  (for all x)</td><td style="color:var(--sub);">Used in probability/randomized analysis</td></tr>
+        <tr><td style="font-family:var(--mono);">1 - x ≤ e⁻ˣ (for 0 ≤ x &lt; 1)</td><td style="color:var(--sub);">Complement probability bounds</td></tr>
+        <tr><td style="font-family:var(--mono);">aⁿ &lt; n! &lt; nⁿ (a &gt; 1)</td><td style="color:var(--sub);">Bounding n! — e.g., 2ⁿ &lt; n! for n &gt; 4</td></tr>
+        <tr><td style="font-family:var(--mono);">(1 + x/n)ⁿ ≤ eˣ</td><td style="color:var(--sub);">Compound interest / probability</td></tr>
+        <tr><td style="font-family:var(--mono);">log(n!) = Θ(n log n)</td><td style="color:var(--sub);">Lower bound for comparison sorting</td></tr>
+      </table>
+    </div>
+    <div class="card full">
+      <div class="card-title">Common Summations in Algorithm Analysis</div>
+      <table>
+        <tr><th>Summation</th><th>Closed Form</th><th>Where it Appears</th></tr>
+        <tr><td style="font-family:var(--mono);">Σ 1 (n times)</td><td style="font-family:var(--mono);color:var(--yellow);">n</td><td style="color:var(--sub);">Linear loops</td></tr>
+        <tr><td style="font-family:var(--mono);">Σ i (i=1 to n)</td><td style="font-family:var(--mono);color:var(--yellow);">n(n+1)/2</td><td style="color:var(--sub);">Selection sort, simple sorts</td></tr>
+        <tr><td style="font-family:var(--mono);">Σ 2ⁱ (i=0 to k)</td><td style="font-family:var(--mono);color:var(--yellow);">2^(k+1) - 1</td><td style="color:var(--sub);">Recursion tree total nodes</td></tr>
+        <tr><td style="font-family:var(--mono);">Σ n/2ⁱ (i=0 to log n)</td><td style="font-family:var(--mono);color:var(--yellow);">2n</td><td style="color:var(--sub);">MergeSort total work</td></tr>
+        <tr><td style="font-family:var(--mono);">Σ log i (i=1 to n)</td><td style="font-family:var(--mono);color:var(--yellow);">Θ(n log n)</td><td style="color:var(--sub);">HeapSort build, comparisons</td></tr>
+        <tr><td style="font-family:var(--mono);">Σ 1/i (i=1 to n)</td><td style="font-family:var(--mono);color:var(--yellow);">H(n) = Θ(log n)</td><td style="color:var(--sub);">QuickSort analysis, hashing</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

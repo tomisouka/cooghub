@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SQL Quick Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #181820;
+    --surface2: #202030;
+    --border: #2e2e48;
+    --accent: #7eddb8;
+    --accent2: #f5c06a;
+    --accent3: #a8c8f8;
+    --text: #eeeeff;
+    --text-dim: #9090b8;
+    --text-code: #b8f0d8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12, 12, 18, 0.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(126, 221, 184, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.1rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(126, 221, 184, 0.05); }
+  tr:hover td:first-child { color: #b8f0d8; text-shadow: 0 0 20px rgba(126, 221, 184, 0.5); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+    border-right: 1px solid var(--border);
+    background: rgba(126, 221, 184, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85em;
+    color: var(--text-code);
+    background: rgba(126, 221, 184, 0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 130px;
+    font-size: 0.92rem;
+  }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  ol.precedence { counter-reset: prec; list-style: none; padding: 0; }
+  ol.precedence li {
+    counter-increment: prec;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ol.precedence li:last-child { border-bottom: none; }
+  ol.precedence li::before {
+    content: counter(prec);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+  }
+
+  .idx-link { color: var(--accent3); text-decoration: none; }
+  .idx-link:hover { text-decoration: underline; }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 160px;
+    border-right: 1px solid var(--border);
+  }
+  th.plain-def-header { color: var(--accent2); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">SQL Ref</span>
+  <nav>
+    <a href="#basics">Basics</a>
+    <a href="#queries">Queries</a>
+    <a href="#filtering">Filtering</a>
+    <a href="#joins">Joins</a>
+    <a href="#aggregates">Aggregates</a>
+    <a href="#subqueries">Subqueries</a>
+    <a href="#ddl">DDL</a>
+    <a href="#dml">DML</a>
+    <a href="#constraints">Constraints</a>
+    <a href="#indexes">Indexes</a>
+    <a href="#views">Views &amp; CTEs</a>
+    <a href="#functions">Functions</a>
+    <a href="#window">Window Fns</a>
+    <a href="#transactions">Transactions</a>
+    <a href="#tips">Pro Tips</a>
+    <a href="#index">Index</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Database Programming  ·  Quick Reference</span>
+  <h1>SQL<br/><span>Language Guide</span></h1>
+  <p class="subtitle">Queries  ·  Joins  ·  Aggregates  ·  DDL  ·  Window Functions</p>
+</div>
+
+<main>
+<div class="toc" id="top">
+  <div class="toc-title">Table of Contents</div>
+  <a href="#basics"><span class="toc-num">01</span> Basics &amp; Structure</a>
+  <a href="#queries"><span class="toc-num">02</span> SELECT Queries</a>
+  <a href="#filtering"><span class="toc-num">03</span> Filtering &amp; Sorting</a>
+  <a href="#joins"><span class="toc-num">04</span> Joins</a>
+  <a href="#aggregates"><span class="toc-num">05</span> Aggregates &amp; Grouping</a>
+  <a href="#subqueries"><span class="toc-num">06</span> Subqueries</a>
+  <a href="#ddl"><span class="toc-num">07</span> DDL — Defining Tables</a>
+  <a href="#dml"><span class="toc-num">08</span> DML — Modifying Data</a>
+  <a href="#constraints"><span class="toc-num">09</span> Constraints</a>
+  <a href="#indexes"><span class="toc-num">10</span> Indexes</a>
+  <a href="#views"><span class="toc-num">11</span> Views &amp; CTEs</a>
+  <a href="#functions"><span class="toc-num">12</span> Built-in Functions</a>
+  <a href="#window"><span class="toc-num">13</span> Window Functions</a>
+  <a href="#transactions"><span class="toc-num">14</span> Transactions</a>
+  <a href="#tips"><span class="toc-num">15</span> Pro Tips</a>
+  <a href="#index"><span class="toc-num">16</span> Keyword Index</a>
+</div>
+
+<!-- 01 Basics -->
+<section id="basics">
+  <div class="section-header"><span class="section-icon">🧱</span><h2>Basics &amp; Structure</h2></div>
+  <p class="prose">SQL (Structured Query Language) is used to <strong>create, read, update, and delete</strong> data in relational databases. Data is organized into <strong>tables</strong> (rows and columns). SQL is case-insensitive for keywords, but convention is UPPERCASE for keywords and lowercase for identifiers.</p>
+
+  <div class="code-block">-- Single-line comment
+/* Multi-line
+   comment */
+
+-- Basic query anatomy
+SELECT column1, column2   -- what to retrieve
+FROM   table_name         -- where to look
+WHERE  condition          -- filter rows
+ORDER  BY column1;        -- sort results</div>
+
+  <h3>SQL Sublanguages</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Sublanguage</th><th class="plain-def-header">Plain English</th><th>Key Commands</th></tr></thead>
+    <tbody>
+      <tr><td>DQL</td><td class="plain-def">query / read data</td><td><code>SELECT</code></td></tr>
+      <tr><td>DDL</td><td class="plain-def">define structure</td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code></td></tr>
+      <tr><td>DML</td><td class="plain-def">modify data</td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td></tr>
+      <tr><td>DCL</td><td class="plain-def">control permissions</td><td><code>GRANT</code>, <code>REVOKE</code></td></tr>
+      <tr><td>TCL</td><td class="plain-def">manage transactions</td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Data Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>INT / INTEGER</td><td class="plain-def">whole number</td><td><code>age INT</code></td></tr>
+      <tr><td>BIGINT</td><td class="plain-def">very large integer</td><td><code>id BIGINT</code></td></tr>
+      <tr><td>DECIMAL(p,s)</td><td class="plain-def">exact decimal</td><td><code>price DECIMAL(10,2)</code> — 10 digits, 2 decimal places</td></tr>
+      <tr><td>FLOAT / REAL</td><td class="plain-def">approximate decimal</td><td>Scientific data; may have rounding errors</td></tr>
+      <tr><td>VARCHAR(n)</td><td class="plain-def">variable-length text</td><td><code>name VARCHAR(100)</code></td></tr>
+      <tr><td>CHAR(n)</td><td class="plain-def">fixed-length text</td><td><code>code CHAR(3)</code> — always pads to n</td></tr>
+      <tr><td>TEXT</td><td class="plain-def">unlimited text</td><td>Long descriptions, articles</td></tr>
+      <tr><td>BOOLEAN</td><td class="plain-def">true or false</td><td><code>is_active BOOLEAN DEFAULT TRUE</code></td></tr>
+      <tr><td>DATE</td><td class="plain-def">year-month-day</td><td><code>'2026-03-01'</code></td></tr>
+      <tr><td>TIME</td><td class="plain-def">hour:minute:second</td><td><code>'14:30:00'</code></td></tr>
+      <tr><td>TIMESTAMP</td><td class="plain-def">date + time</td><td><code>'2026-03-01 14:30:00'</code></td></tr>
+      <tr><td>NULL</td><td class="plain-def">unknown / missing</td><td>Not zero, not empty string — absence of value</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 02 SELECT Queries -->
+<section id="queries">
+  <div class="section-header"><span class="section-icon">🔍</span><h2>SELECT Queries</h2></div>
+  <p class="prose"><code>SELECT</code> is the most-used SQL statement. It retrieves rows from one or more tables. Every clause is optional except <code>SELECT</code> itself.</p>
+
+  <h3>Query Clause Order</h3>
+  <div class="code-block">SELECT   [DISTINCT] columns          -- 5. pick columns
+FROM     table                        -- 1. source table(s)
+JOIN     other_table ON condition     -- 2. combine tables
+WHERE    row_condition                -- 3. filter rows
+GROUP BY grouping_columns             -- 4. group rows
+HAVING   group_condition              -- 5. filter groups
+ORDER BY sort_columns [ASC|DESC]      -- 6. sort results
+LIMIT    n OFFSET m;                  -- 7. paginate</div>
+
+  <h3>SELECT Syntax</h3>
+  <div class="code-block">-- All columns
+SELECT * FROM employees;
+
+-- Specific columns
+SELECT first_name, last_name, salary FROM employees;
+
+-- Aliases (rename output)
+SELECT first_name AS name, salary * 12 AS annual_pay
+FROM employees;
+
+-- Distinct (remove duplicates)
+SELECT DISTINCT department FROM employees;
+
+-- Computed columns
+SELECT name, price, price * 0.9 AS discounted FROM products;</div>
+
+  <h3>SELECT Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>SELECT</td><td class="plain-def">choose columns to show</td><td>Always required; <code>*</code> means all columns</td></tr>
+      <tr><td>FROM</td><td class="plain-def">which table</td><td>Source table(s); required for most queries</td></tr>
+      <tr><td>AS</td><td class="plain-def">rename / alias</td><td><code>salary AS monthly_pay</code> — renames in result</td></tr>
+      <tr><td>DISTINCT</td><td class="plain-def">no duplicates</td><td><code>SELECT DISTINCT city</code> — unique values only</td></tr>
+      <tr><td>TOP / LIMIT</td><td class="plain-def">first N rows</td><td><code>LIMIT 10</code> (MySQL/PostgreSQL) · <code>TOP 10</code> (SQL Server)</td></tr>
+      <tr><td>OFFSET</td><td class="plain-def">skip N rows</td><td>Used with LIMIT for pagination: <code>LIMIT 10 OFFSET 20</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 03 Filtering & Sorting -->
+<section id="filtering">
+  <div class="section-header"><span class="section-icon">🔎</span><h2>Filtering &amp; Sorting</h2></div>
+
+  <h3>WHERE Clause</h3>
+  <div class="code-block">-- Basic conditions
+WHERE age > 30
+WHERE name = 'Alice'
+WHERE salary BETWEEN 50000 AND 100000    -- inclusive
+WHERE city IN ('NYC', 'LA', 'Chicago')   -- match list
+WHERE name LIKE 'A%'                     -- starts with A
+WHERE name LIKE '%son'                   -- ends with son
+WHERE name LIKE '_ob'                    -- _ matches one char
+WHERE email IS NULL                      -- check for NULL
+WHERE email IS NOT NULL
+
+-- Combine conditions
+WHERE age > 30 AND department = 'Sales'
+WHERE city = 'NYC' OR city = 'LA'
+WHERE NOT status = 'inactive'</div>
+
+  <h3>Comparison &amp; Pattern Operators</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Operator</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>= != &lt;&gt;</td><td class="plain-def">equal / not equal</td><td><code>WHERE status = 'active'</code></td></tr>
+      <tr><td>&lt; &gt; &lt;= &gt;=</td><td class="plain-def">numeric comparisons</td><td><code>WHERE price &lt; 100</code></td></tr>
+      <tr><td>BETWEEN</td><td class="plain-def">within range (inclusive)</td><td><code>WHERE age BETWEEN 18 AND 65</code></td></tr>
+      <tr><td>IN</td><td class="plain-def">matches any in list</td><td><code>WHERE country IN ('US', 'CA')</code></td></tr>
+      <tr><td>NOT IN</td><td class="plain-def">matches none in list</td><td><code>WHERE id NOT IN (1, 2, 3)</code></td></tr>
+      <tr><td>LIKE</td><td class="plain-def">text pattern match</td><td><code>%</code> = any chars, <code>_</code> = one char</td></tr>
+      <tr><td>ILIKE</td><td class="plain-def">case-insensitive LIKE</td><td>PostgreSQL; <code>WHERE name ILIKE 'alice'</code></td></tr>
+      <tr><td>IS NULL</td><td class="plain-def">value is missing</td><td>Never use <code>= NULL</code> — always <code>IS NULL</code></td></tr>
+      <tr><td>IS NOT NULL</td><td class="plain-def">value exists</td><td><code>WHERE phone IS NOT NULL</code></td></tr>
+      <tr><td>AND / OR / NOT</td><td class="plain-def">logical combine</td><td><code>AND</code> narrows, <code>OR</code> widens, <code>NOT</code> inverts</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>ORDER BY</h3>
+  <div class="code-block">-- Sort ascending (default)
+ORDER BY last_name;
+ORDER BY last_name ASC;
+
+-- Sort descending
+ORDER BY salary DESC;
+
+-- Multi-column sort
+ORDER BY department ASC, salary DESC;
+
+-- Sort by column position (not recommended)
+ORDER BY 2, 3;</div>
+
+  <h3>NULL Handling</h3>
+  <div class="code-block">-- NULLs sort last in ASC (PostgreSQL/standard), first in some DBs
+ORDER BY email NULLS LAST;
+
+-- Replace NULL with a value
+COALESCE(phone, 'N/A')        -- returns first non-NULL arg
+NULLIF(value, 0)              -- returns NULL if value = 0
+IFNULL(phone, 'N/A')          -- MySQL shorthand for COALESCE</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 04 Joins -->
+<section id="joins">
+  <div class="section-header"><span class="section-icon">🔗</span><h2>Joins</h2></div>
+  <p class="prose">Joins combine rows from two or more tables based on a related column. The <strong>ON</strong> clause specifies how rows match. Always qualify column names with <code>table.column</code> when joining to avoid ambiguity.</p>
+
+  <h3>Join Types</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td>INNER JOIN</td><td class="plain-def">only matching rows</td><td>Rows that have a match in BOTH tables — most common</td></tr>
+      <tr><td>LEFT JOIN</td><td class="plain-def">all left + matches</td><td>All rows from left table; NULL for no right match</td></tr>
+      <tr><td>RIGHT JOIN</td><td class="plain-def">all right + matches</td><td>All rows from right table; NULL for no left match</td></tr>
+      <tr><td>FULL OUTER JOIN</td><td class="plain-def">everything</td><td>All rows from both; NULL where no match on either side</td></tr>
+      <tr><td>CROSS JOIN</td><td class="plain-def">every combo</td><td>Cartesian product — every row × every row (no ON needed)</td></tr>
+      <tr><td>SELF JOIN</td><td class="plain-def">join table to itself</td><td>Use aliases: find employees and their managers in same table</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Join Examples</h3>
+  <div class="code-block">-- INNER JOIN: only employees with a department
+SELECT e.name, d.name AS dept
+FROM   employees e
+INNER  JOIN departments d ON e.dept_id = d.id;
+
+-- LEFT JOIN: all employees, even those without a dept
+SELECT e.name, d.name AS dept
+FROM   employees e
+LEFT   JOIN departments d ON e.dept_id = d.id;
+
+-- Multiple joins
+SELECT o.id, c.name, p.title
+FROM   orders o
+JOIN   customers c ON o.customer_id = c.id
+JOIN   products  p ON o.product_id  = p.id;
+
+-- Self join: employee + manager name
+SELECT e.name AS employee, m.name AS manager
+FROM   employees e
+LEFT   JOIN employees m ON e.manager_id = m.id;
+
+-- Find unmatched rows (anti-join pattern)
+SELECT e.name
+FROM   employees e
+LEFT   JOIN departments d ON e.dept_id = d.id
+WHERE  d.id IS NULL;   -- employees with no department</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 05 Aggregates -->
+<section id="aggregates">
+  <div class="section-header"><span class="section-icon">📊</span><h2>Aggregates &amp; Grouping</h2></div>
+  <p class="prose">Aggregate functions collapse multiple rows into a single value. They're used with <code>GROUP BY</code> to compute values <strong>per group</strong>. Use <code>HAVING</code> to filter groups (not <code>WHERE</code>, which filters rows before grouping).</p>
+
+  <h3>Aggregate Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>COUNT(*)</td><td class="plain-def">how many rows?</td><td>Counts all rows including NULLs</td></tr>
+      <tr><td>COUNT(col)</td><td class="plain-def">how many non-null?</td><td>Ignores NULLs in the column</td></tr>
+      <tr><td>COUNT(DISTINCT col)</td><td class="plain-def">how many unique?</td><td>Counts unique non-null values</td></tr>
+      <tr><td>SUM(col)</td><td class="plain-def">total</td><td>Ignores NULLs; use <code>COALESCE</code> to treat NULL as 0</td></tr>
+      <tr><td>AVG(col)</td><td class="plain-def">average</td><td>Ignores NULLs — may not be what you expect</td></tr>
+      <tr><td>MIN(col)</td><td class="plain-def">smallest value</td><td>Works on numbers, dates, and text</td></tr>
+      <tr><td>MAX(col)</td><td class="plain-def">largest value</td><td>Works on numbers, dates, and text</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>GROUP BY &amp; HAVING</h3>
+  <div class="code-block">-- Count employees per department
+SELECT   department, COUNT(*) AS headcount
+FROM     employees
+GROUP BY department;
+
+-- Average salary per department (only depts with avg > 70k)
+SELECT   department, AVG(salary) AS avg_salary
+FROM     employees
+GROUP BY department
+HAVING   AVG(salary) > 70000
+ORDER BY avg_salary DESC;
+
+-- Multiple grouping columns
+SELECT   department, job_title, COUNT(*) AS count
+FROM     employees
+GROUP BY department, job_title;
+
+-- WHERE vs HAVING
+-- WHERE filters rows BEFORE grouping
+-- HAVING filters groups AFTER grouping
+SELECT   department, COUNT(*) AS cnt
+FROM     employees
+WHERE    hire_date > '2020-01-01'   -- filter rows first
+GROUP BY department
+HAVING   COUNT(*) > 5;              -- then filter groups</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 06 Subqueries -->
+<section id="subqueries">
+  <div class="section-header"><span class="section-icon">🪆</span><h2>Subqueries</h2></div>
+  <p class="prose">A subquery is a query nested inside another query. They can appear in <code>SELECT</code>, <code>FROM</code>, or <code>WHERE</code> clauses. <strong>CTEs</strong> are often more readable for complex subqueries.</p>
+
+  <h3>Subquery Patterns</h3>
+  <div class="code-block">-- WHERE subquery: employees earning above average
+SELECT name, salary
+FROM   employees
+WHERE  salary > (SELECT AVG(salary) FROM employees);
+
+-- IN subquery: employees in specific departments
+SELECT name
+FROM   employees
+WHERE  dept_id IN (SELECT id FROM departments WHERE location = 'NYC');
+
+-- EXISTS subquery: customers who placed at least one order
+SELECT name
+FROM   customers c
+WHERE  EXISTS (
+    SELECT 1 FROM orders o WHERE o.customer_id = c.id
+);
+
+-- FROM subquery (derived table / inline view)
+SELECT dept, avg_sal
+FROM   (SELECT department AS dept, AVG(salary) AS avg_sal
+        FROM employees GROUP BY department) AS dept_avgs
+WHERE  avg_sal > 60000;
+
+-- Correlated subquery: references outer query
+SELECT name, salary,
+       (SELECT AVG(salary) FROM employees e2
+        WHERE e2.department = e1.department) AS dept_avg
+FROM   employees e1;</div>
+
+  <h3>Subquery Keywords</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>IN</td><td class="plain-def">value is in subquery result</td><td><code>WHERE id IN (SELECT ...)</code></td></tr>
+      <tr><td>NOT IN</td><td class="plain-def">value not in subquery result</td><td>Careful with NULLs — use NOT EXISTS instead</td></tr>
+      <tr><td>EXISTS</td><td class="plain-def">subquery returns any rows</td><td>Stops at first match; efficient for large datasets</td></tr>
+      <tr><td>NOT EXISTS</td><td class="plain-def">subquery returns no rows</td><td>Anti-join; safer than NOT IN with NULLs</td></tr>
+      <tr><td>ANY / SOME</td><td class="plain-def">matches at least one</td><td><code>WHERE salary > ANY (SELECT ...)</code></td></tr>
+      <tr><td>ALL</td><td class="plain-def">matches all values</td><td><code>WHERE salary > ALL (SELECT ...)</code></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 07 DDL -->
+<section id="ddl">
+  <div class="section-header"><span class="section-icon">🏗️</span><h2>DDL — Defining Tables</h2></div>
+  <p class="prose">DDL (Data Definition Language) creates and modifies the <strong>structure</strong> of your database. DDL statements are usually auto-committed — there's no rollback in most databases.</p>
+
+  <h3>CREATE TABLE</h3>
+  <div class="code-block">CREATE TABLE employees (
+    id          INT           PRIMARY KEY AUTO_INCREMENT,
+    first_name  VARCHAR(50)   NOT NULL,
+    last_name   VARCHAR(50)   NOT NULL,
+    email       VARCHAR(100)  UNIQUE NOT NULL,
+    salary      DECIMAL(10,2) DEFAULT 0.00,
+    hire_date   DATE          DEFAULT CURRENT_DATE,
+    dept_id     INT,
+    FOREIGN KEY (dept_id) REFERENCES departments(id)
+);
+
+-- Create from existing table
+CREATE TABLE emp_backup AS
+SELECT * FROM employees;</div>
+
+  <h3>ALTER TABLE</h3>
+  <div class="code-block">-- Add a column
+ALTER TABLE employees ADD COLUMN phone VARCHAR(20);
+
+-- Modify a column type
+ALTER TABLE employees MODIFY COLUMN salary DECIMAL(12,2);
+ALTER TABLE employees ALTER COLUMN salary TYPE DECIMAL(12,2);  -- PostgreSQL
+
+-- Rename a column
+ALTER TABLE employees RENAME COLUMN phone TO mobile;
+
+-- Drop a column
+ALTER TABLE employees DROP COLUMN mobile;
+
+-- Add a constraint
+ALTER TABLE employees ADD CONSTRAINT chk_salary CHECK (salary >= 0);</div>
+
+  <h3>DROP &amp; TRUNCATE</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>DROP TABLE</td><td class="plain-def">delete table + all data</td><td>Permanent — no undo. Use <code>IF EXISTS</code> to avoid errors</td></tr>
+      <tr><td>TRUNCATE TABLE</td><td class="plain-def">delete all rows, keep structure</td><td>Faster than DELETE; resets auto-increment; not always rollback-able</td></tr>
+      <tr><td>DROP DATABASE</td><td class="plain-def">delete entire database</td><td>Deletes all tables, views, and data — irreversible</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 08 DML -->
+<section id="dml">
+  <div class="section-header"><span class="section-icon">✏️</span><h2>DML — Modifying Data</h2></div>
+
+  <h3>INSERT</h3>
+  <div class="code-block">-- Insert one row
+INSERT INTO employees (first_name, last_name, email, salary)
+VALUES ('Alice', 'Smith', 'alice@example.com', 75000);
+
+-- Insert multiple rows
+INSERT INTO employees (first_name, last_name, email)
+VALUES ('Bob', 'Jones', 'bob@example.com'),
+       ('Carol', 'White', 'carol@example.com');
+
+-- Insert from SELECT
+INSERT INTO emp_backup
+SELECT * FROM employees WHERE hire_date &lt; '2020-01-01';</div>
+
+  <h3>UPDATE</h3>
+  <div class="code-block">-- Update specific rows
+UPDATE employees
+SET    salary = salary * 1.10,
+       updated_at = CURRENT_TIMESTAMP
+WHERE  department = 'Engineering';
+
+-- Update with subquery
+UPDATE employees
+SET    dept_id = (SELECT id FROM departments WHERE name = 'HR')
+WHERE  job_title = 'HR Manager';
+
+-- WARNING: UPDATE without WHERE updates ALL rows!</div>
+
+  <h3>DELETE</h3>
+  <div class="code-block">-- Delete specific rows
+DELETE FROM employees WHERE hire_date &lt; '2010-01-01';
+
+-- Delete with subquery
+DELETE FROM orders
+WHERE  customer_id IN (SELECT id FROM customers WHERE status = 'banned');
+
+-- Delete all rows (with rollback ability, unlike TRUNCATE)
+DELETE FROM temp_table;
+
+-- WARNING: DELETE without WHERE deletes ALL rows!</div>
+
+  <h3>UPSERT (Insert or Update)</h3>
+  <div class="code-block">-- PostgreSQL: INSERT ... ON CONFLICT
+INSERT INTO products (id, name, price)
+VALUES (1, 'Widget', 9.99)
+ON CONFLICT (id) DO UPDATE SET price = EXCLUDED.price;
+
+-- MySQL: INSERT ... ON DUPLICATE KEY UPDATE
+INSERT INTO products (id, name, price)
+VALUES (1, 'Widget', 9.99)
+ON DUPLICATE KEY UPDATE price = VALUES(price);</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 09 Constraints -->
+<section id="constraints">
+  <div class="section-header"><span class="section-icon">🔒</span><h2>Constraints</h2></div>
+  <p class="prose">Constraints enforce <strong>data integrity rules</strong> at the database level — they prevent bad data from being inserted or updated regardless of the application layer.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Constraint</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>PRIMARY KEY</td><td class="plain-def">unique row identifier</td><td>Unique + NOT NULL; one per table; can be composite</td></tr>
+      <tr><td>FOREIGN KEY</td><td class="plain-def">link to another table</td><td>Value must exist in referenced table; enables JOINs</td></tr>
+      <tr><td>UNIQUE</td><td class="plain-def">no duplicate values</td><td>NULL is usually allowed (and doesn't count as duplicate)</td></tr>
+      <tr><td>NOT NULL</td><td class="plain-def">value required</td><td>Column must always have a value; never NULL</td></tr>
+      <tr><td>CHECK</td><td class="plain-def">custom value rule</td><td><code>CHECK (age >= 0 AND age &lt;= 150)</code></td></tr>
+      <tr><td>DEFAULT</td><td class="plain-def">fallback value</td><td><code>DEFAULT CURRENT_TIMESTAMP</code> — used if not specified</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Foreign Key Actions</h3>
+  <div class="code-block">FOREIGN KEY (dept_id) REFERENCES departments(id)
+    ON DELETE CASCADE    -- delete child rows when parent deleted
+    ON DELETE SET NULL   -- set foreign key to NULL
+    ON DELETE RESTRICT   -- block deletion if children exist (default)
+    ON UPDATE CASCADE    -- update child FK when parent PK changes</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 10 Indexes -->
+<section id="indexes">
+  <div class="section-header"><span class="section-icon">⚡</span><h2>Indexes</h2></div>
+  <p class="prose">Indexes speed up <code>SELECT</code> queries by creating a sorted lookup structure. They <strong>slow down writes</strong> (INSERT/UPDATE/DELETE) because the index must be updated. Index columns used in <code>WHERE</code>, <code>JOIN ON</code>, and <code>ORDER BY</code> clauses.</p>
+
+  <div class="code-block">-- Create an index
+CREATE INDEX idx_emp_email ON employees(email);
+
+-- Unique index (also enforces uniqueness)
+CREATE UNIQUE INDEX idx_emp_email ON employees(email);
+
+-- Composite index — order matters!
+CREATE INDEX idx_name ON employees(last_name, first_name);
+
+-- Drop an index
+DROP INDEX idx_emp_email;             -- most databases
+DROP INDEX idx_emp_email ON employees; -- MySQL</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Type</th><th class="plain-def-header">Plain English</th><th>Use For</th></tr></thead>
+    <tbody>
+      <tr><td>B-Tree (default)</td><td class="plain-def">balanced tree lookup</td><td>Equality, range, ORDER BY — the standard choice</td></tr>
+      <tr><td>UNIQUE</td><td class="plain-def">enforces no duplicates</td><td>Email, username — uniqueness + speed</td></tr>
+      <tr><td>Composite</td><td class="plain-def">multi-column index</td><td>Queries that filter on multiple columns; left-prefix rule</td></tr>
+      <tr><td>Partial</td><td class="plain-def">index a subset of rows</td><td><code>WHERE is_active = TRUE</code> — only index relevant rows</td></tr>
+      <tr><td>Full-Text</td><td class="plain-def">search inside text</td><td><code>MATCH ... AGAINST</code> — document/keyword search</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 11 Views & CTEs -->
+<section id="views">
+  <div class="section-header"><span class="section-icon">👁️</span><h2>Views &amp; CTEs</h2></div>
+
+  <h3>Views — Saved Queries</h3>
+  <p class="prose">A view is a <strong>named saved query</strong> that behaves like a virtual table. It simplifies complex queries and provides a security layer by exposing only certain columns.</p>
+  <div class="code-block">-- Create a view
+CREATE VIEW active_employees AS
+SELECT id, first_name, last_name, email, department
+FROM   employees
+WHERE  status = 'active';
+
+-- Query a view like a table
+SELECT * FROM active_employees WHERE department = 'Sales';
+
+-- Update a view definition
+CREATE OR REPLACE VIEW active_employees AS
+SELECT id, first_name, last_name FROM employees WHERE status = 'active';
+
+-- Drop a view
+DROP VIEW active_employees;</div>
+
+  <h3>CTEs — Common Table Expressions</h3>
+  <p class="prose">CTEs (introduced with <code>WITH</code>) create named temporary result sets for a single query. They dramatically improve readability over nested subqueries and can reference themselves for <strong>recursive queries</strong>.</p>
+  <div class="code-block">-- Basic CTE
+WITH dept_stats AS (
+    SELECT department, AVG(salary) AS avg_sal, COUNT(*) AS cnt
+    FROM   employees
+    GROUP  BY department
+)
+SELECT * FROM dept_stats WHERE avg_sal > 70000;
+
+-- Multiple CTEs
+WITH high_earners AS (
+    SELECT * FROM employees WHERE salary > 100000
+),
+their_departments AS (
+    SELECT DISTINCT dept_id FROM high_earners
+)
+SELECT d.name
+FROM   departments d
+JOIN   their_departments td ON d.id = td.dept_id;
+
+-- Recursive CTE: traverse org chart
+WITH RECURSIVE org_chart AS (
+    -- Base case: top-level manager (no manager)
+    SELECT id, name, manager_id, 0 AS level
+    FROM   employees WHERE manager_id IS NULL
+
+    UNION ALL
+
+    -- Recursive case: employees reporting to above
+    SELECT e.id, e.name, e.manager_id, oc.level + 1
+    FROM   employees e
+    JOIN   org_chart oc ON e.manager_id = oc.id
+)
+SELECT * FROM org_chart ORDER BY level;</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 12 Built-in Functions -->
+<section id="functions">
+  <div class="section-header"><span class="section-icon">🛠️</span><h2>Built-in Functions</h2></div>
+
+  <h3>String Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>UPPER(s)</td><td class="plain-def">to uppercase</td><td><code>UPPER('hello')</code> → <code>'HELLO'</code></td></tr>
+      <tr><td>LOWER(s)</td><td class="plain-def">to lowercase</td><td><code>LOWER('HELLO')</code> → <code>'hello'</code></td></tr>
+      <tr><td>LENGTH(s)</td><td class="plain-def">character count</td><td><code>LENGTH('hello')</code> → <code>5</code></td></tr>
+      <tr><td>TRIM(s)</td><td class="plain-def">remove whitespace</td><td><code>TRIM('  hi  ')</code> → <code>'hi'</code></td></tr>
+      <tr><td>SUBSTRING(s,p,n)</td><td class="plain-def">extract part of string</td><td><code>SUBSTRING('hello', 2, 3)</code> → <code>'ell'</code></td></tr>
+      <tr><td>CONCAT(a,b,...)</td><td class="plain-def">join strings</td><td><code>CONCAT(first,' ',last)</code></td></tr>
+      <tr><td>REPLACE(s,old,new)</td><td class="plain-def">swap substring</td><td><code>REPLACE('foo bar','bar','baz')</code></td></tr>
+      <tr><td>LIKE / ILIKE</td><td class="plain-def">pattern match</td><td>Use in WHERE; not a function but behaves like one</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Numeric Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>ROUND(n, d)</td><td class="plain-def">round to d decimals</td><td><code>ROUND(3.456, 2)</code> → <code>3.46</code></td></tr>
+      <tr><td>FLOOR(n)</td><td class="plain-def">round down</td><td><code>FLOOR(3.9)</code> → <code>3</code></td></tr>
+      <tr><td>CEIL(n)</td><td class="plain-def">round up</td><td><code>CEIL(3.1)</code> → <code>4</code></td></tr>
+      <tr><td>ABS(n)</td><td class="plain-def">absolute value</td><td><code>ABS(-5)</code> → <code>5</code></td></tr>
+      <tr><td>MOD(a,b)</td><td class="plain-def">remainder</td><td><code>MOD(7,3)</code> → <code>1</code></td></tr>
+      <tr><td>POWER(a,b)</td><td class="plain-def">exponent</td><td><code>POWER(2,10)</code> → <code>1024</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Date &amp; Time Functions</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>NOW() / CURRENT_TIMESTAMP</td><td class="plain-def">current date + time</td><td>Returns TIMESTAMP</td></tr>
+      <tr><td>CURRENT_DATE</td><td class="plain-def">today's date</td><td>Date only, no time</td></tr>
+      <tr><td>YEAR(d) / MONTH(d) / DAY(d)</td><td class="plain-def">extract part</td><td><code>YEAR('2026-03-01')</code> → <code>2026</code></td></tr>
+      <tr><td>DATE_ADD(d, INTERVAL)</td><td class="plain-def">add time to date</td><td><code>DATE_ADD(NOW(), INTERVAL 7 DAY)</code></td></tr>
+      <tr><td>DATEDIFF(a, b)</td><td class="plain-def">days between dates</td><td><code>DATEDIFF('2026-03-10', '2026-03-01')</code> → <code>9</code></td></tr>
+      <tr><td>DATE_FORMAT(d, fmt)</td><td class="plain-def">format a date</td><td><code>DATE_FORMAT(NOW(), '%Y-%m-%d')</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Conditional Functions</h3>
+  <div class="code-block">-- CASE expression (SQL's if-else)
+SELECT name,
+    CASE
+        WHEN salary >= 100000 THEN 'Senior'
+        WHEN salary >= 60000  THEN 'Mid'
+        ELSE 'Junior'
+    END AS level
+FROM employees;
+
+-- Simple CASE (match one value)
+CASE department
+    WHEN 'Eng'   THEN 'Engineering'
+    WHEN 'Sales' THEN 'Sales'
+    ELSE 'Other'
+END
+
+-- IIF (SQL Server) / IF (MySQL)
+IIF(salary > 100000, 'High', 'Normal')
+IF(salary > 100000, 'High', 'Normal')
+
+-- COALESCE: return first non-NULL
+COALESCE(middle_name, 'N/A')
+
+-- NULLIF: return NULL if equal to value
+NULLIF(discount, 0)   -- avoids division by zero</div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 13 Window Functions -->
+<section id="window">
+  <div class="section-header"><span class="section-icon">🪟</span><h2>Window Functions</h2></div>
+  <p class="prose">Window functions compute values <strong>across a set of rows related to the current row</strong> — without collapsing them like GROUP BY. They use an <code>OVER()</code> clause to define the window. Available in PostgreSQL, SQL Server, MySQL 8+, SQLite 3.25+.</p>
+
+  <h3>Window Function Syntax</h3>
+  <div class="code-block">function_name() OVER (
+    PARTITION BY column    -- divide into groups
+    ORDER BY column        -- order within each group
+    ROWS BETWEEN ...       -- optional frame clause
+)</div>
+
+  <h3>Ranking Functions</h3>
+  <div class="code-block">SELECT name, department, salary,
+    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num,
+    RANK()       OVER (PARTITION BY department ORDER BY salary DESC) AS rank,
+    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rank,
+    NTILE(4)     OVER (ORDER BY salary DESC) AS quartile
+FROM employees;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>ROW_NUMBER()</td><td class="plain-def">sequential number</td><td>1, 2, 3, 4 — always unique, no ties</td></tr>
+      <tr><td>RANK()</td><td class="plain-def">rank with gaps on tie</td><td>1, 2, 2, 4 — ties get same rank, next skipped</td></tr>
+      <tr><td>DENSE_RANK()</td><td class="plain-def">rank without gaps</td><td>1, 2, 2, 3 — ties get same rank, no skip</td></tr>
+      <tr><td>NTILE(n)</td><td class="plain-def">divide into n buckets</td><td>Quartiles, deciles, percentiles</td></tr>
+      <tr><td>PERCENT_RANK()</td><td class="plain-def">relative rank 0–1</td><td>(rank - 1) / (total rows - 1)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Offset &amp; Aggregate Window Functions</h3>
+  <div class="code-block">SELECT name, salary, hire_date,
+    LAG(salary)  OVER (ORDER BY hire_date) AS prev_salary,
+    LEAD(salary) OVER (ORDER BY hire_date) AS next_salary,
+    FIRST_VALUE(salary) OVER (PARTITION BY dept ORDER BY salary DESC) AS dept_max,
+    SUM(salary)  OVER (PARTITION BY dept) AS dept_total,
+    AVG(salary)  OVER (PARTITION BY dept) AS dept_avg,
+    SUM(salary)  OVER (ORDER BY hire_date ROWS UNBOUNDED PRECEDING) AS running_total
+FROM employees;</div>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>LAG(col, n)</td><td class="plain-def">value from n rows back</td><td>Compare current row to previous (default n=1)</td></tr>
+      <tr><td>LEAD(col, n)</td><td class="plain-def">value from n rows ahead</td><td>Compare current row to next</td></tr>
+      <tr><td>FIRST_VALUE(col)</td><td class="plain-def">first value in window</td><td>Best/worst in group without subquery</td></tr>
+      <tr><td>LAST_VALUE(col)</td><td class="plain-def">last value in window</td><td>Needs frame clause: <code>ROWS BETWEEN ... UNBOUNDED FOLLOWING</code></td></tr>
+      <tr><td>SUM / AVG / COUNT</td><td class="plain-def">aggregate over window</td><td>Running totals, moving averages</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 14 Transactions -->
+<section id="transactions">
+  <div class="section-header"><span class="section-icon">🔄</span><h2>Transactions</h2></div>
+  <p class="prose">A transaction is a <strong>group of statements treated as one unit</strong>. Either all succeed (COMMIT) or all are undone (ROLLBACK). Transactions follow the <strong>ACID</strong> properties: Atomicity, Consistency, Isolation, Durability.</p>
+
+  <h3>Transaction Control</h3>
+  <div class="code-block">BEGIN;                    -- start transaction (or BEGIN TRANSACTION)
+    UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+    UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;                   -- save all changes permanently
+
+-- If something goes wrong:
+BEGIN;
+    DELETE FROM orders WHERE customer_id = 999;
+ROLLBACK;                 -- undo everything since BEGIN
+
+-- Savepoints: partial rollback
+BEGIN;
+    INSERT INTO orders VALUES (...);
+    SAVEPOINT order_saved;
+    INSERT INTO order_items VALUES (...);
+    ROLLBACK TO order_saved;  -- undo item insert, keep order
+COMMIT;</div>
+
+  <h3>Isolation Levels</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Level</th><th class="plain-def-header">Plain English</th><th>Prevents</th></tr></thead>
+    <tbody>
+      <tr><td>READ UNCOMMITTED</td><td class="plain-def">see others' drafts</td><td>Nothing — dirty reads possible</td></tr>
+      <tr><td>READ COMMITTED</td><td class="plain-def">only see committed data</td><td>Dirty reads (most DB default)</td></tr>
+      <tr><td>REPEATABLE READ</td><td class="plain-def">consistent reads in transaction</td><td>Dirty + non-repeatable reads</td></tr>
+      <tr><td>SERIALIZABLE</td><td class="plain-def">fully isolated</td><td>All anomalies — but slowest</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>ACID Properties</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Property</th><th class="plain-def-header">Plain English</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Atomicity</td><td class="plain-def">all or nothing</td><td>If any step fails, the whole transaction is rolled back</td></tr>
+      <tr><td>Consistency</td><td class="plain-def">valid state guaranteed</td><td>Data always moves from one valid state to another</td></tr>
+      <tr><td>Isolation</td><td class="plain-def">transactions don't interfere</td><td>Concurrent transactions behave as if they ran serially</td></tr>
+      <tr><td>Durability</td><td class="plain-def">committed = permanent</td><td>Committed changes survive crashes and restarts</td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 15 Pro Tips -->
+<section id="tips">
+  <div class="section-header"><span class="section-icon">💡</span><h2>Pro Tips</h2></div>
+  <ul class="tip-list">
+    <li><span class="tip-code">SELECT *</span><span>Avoid <code>SELECT *</code> in production. It returns all columns including ones you don't need, increases network overhead, and breaks if table structure changes. Always name your columns explicitly.</span></li>
+    <li><span class="tip-code">NULL comparisons</span><span>Never use <code>= NULL</code> or <code>!= NULL</code> — they always return FALSE. Always use <code>IS NULL</code> and <code>IS NOT NULL</code>. NULL is not a value, it's the absence of one.</span></li>
+    <li><span class="tip-code">WHERE vs HAVING</span><span><code>WHERE</code> filters rows before grouping; <code>HAVING</code> filters groups after aggregation. Using <code>HAVING</code> when <code>WHERE</code> would work is a common performance mistake.</span></li>
+    <li><span class="tip-code">NOT IN + NULLs</span><span>If any value in a NOT IN list is NULL, the entire expression returns NULL (no rows match). Use <code>NOT EXISTS</code> with a correlated subquery instead — it's safer and often faster.</span></li>
+    <li><span class="tip-code">Index column order</span><span>Composite indexes follow a left-prefix rule: an index on <code>(a, b, c)</code> helps queries filtering on <code>a</code> or <code>a, b</code> but NOT on <code>b</code> alone. Put the most selective column first.</span></li>
+    <li><span class="tip-code">CTEs vs subqueries</span><span>CTEs (WITH clause) aren't always faster — they're mainly a readability tool. In PostgreSQL, CTEs are optimization fences (pre-13). Prefer CTEs for clarity; profile both for performance-critical queries.</span></li>
+    <li><span class="tip-code">TRUNCATE vs DELETE</span><span><code>TRUNCATE</code> is much faster for clearing a table because it doesn't log individual row deletions. But it can't be filtered (no WHERE), may not be rollback-able, and resets sequences/auto-increment.</span></li>
+    <li><span class="tip-code">EXPLAIN / EXPLAIN ANALYZE</span><span>Add <code>EXPLAIN</code> before any query to see the execution plan — whether it's doing full table scans or using indexes. Use <code>EXPLAIN ANALYZE</code> (PostgreSQL) to see actual runtime stats.</span></li>
+    <li><span class="tip-code">Pagination</span><span>Large OFFSET values are slow — the DB must scan and discard skipped rows. For deep pagination, use keyset/cursor pagination: <code>WHERE id > last_seen_id ORDER BY id LIMIT 20</code>.</span></li>
+    <li><span class="tip-code">Transactions</span><span>Always wrap multi-step operations (transfer funds, place orders) in a transaction. Without it, a crash halfway through leaves your data in an inconsistent state.</span></li>
+  </ul>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+<!-- 16 Index -->
+<section id="index">
+  <div class="section-header"><span class="section-icon">🗂️</span><h2>Keyword Index</h2></div>
+  <p class="prose" style="margin-bottom:1rem; color: var(--text-dim); font-size:0.88rem;">All major SQL keywords listed alphabetically.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Keyword</th><th class="plain-def-header">Plain English</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>ADD</td><td class="plain-def">add column or constraint</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>ALL</td><td class="plain-def">matches all in subquery</td><td><a class="idx-link" href="#subqueries">Subqueries</a></td></tr>
+      <tr><td>ALTER</td><td class="plain-def">modify table structure</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>AND</td><td class="plain-def">both conditions true</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>AS</td><td class="plain-def">rename / alias</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>ASC</td><td class="plain-def">sort ascending</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>AVG</td><td class="plain-def">average value</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>BEGIN</td><td class="plain-def">start transaction</td><td><a class="idx-link" href="#transactions">Transactions</a></td></tr>
+      <tr><td>BETWEEN</td><td class="plain-def">within range</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>BY</td><td class="plain-def">used with GROUP/ORDER</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>CASE</td><td class="plain-def">conditional expression</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>CHECK</td><td class="plain-def">custom value rule</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>COALESCE</td><td class="plain-def">first non-null value</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>COMMIT</td><td class="plain-def">save transaction</td><td><a class="idx-link" href="#transactions">Transactions</a></td></tr>
+      <tr><td>CONSTRAINT</td><td class="plain-def">named integrity rule</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>COUNT</td><td class="plain-def">count rows</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>CREATE</td><td class="plain-def">create object</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>CROSS JOIN</td><td class="plain-def">cartesian product</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>DEFAULT</td><td class="plain-def">fallback value</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>DELETE</td><td class="plain-def">remove rows</td><td><a class="idx-link" href="#dml">DML</a></td></tr>
+      <tr><td>DENSE_RANK</td><td class="plain-def">rank without gaps</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>DESC</td><td class="plain-def">sort descending</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>DISTINCT</td><td class="plain-def">unique values only</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>DROP</td><td class="plain-def">delete object</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>ELSE</td><td class="plain-def">default CASE branch</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>END</td><td class="plain-def">close CASE / BEGIN</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>EXISTS</td><td class="plain-def">subquery returns rows?</td><td><a class="idx-link" href="#subqueries">Subqueries</a></td></tr>
+      <tr><td>FIRST_VALUE</td><td class="plain-def">first in window</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>FOREIGN KEY</td><td class="plain-def">link to another table</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>FROM</td><td class="plain-def">source table</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>FULL OUTER JOIN</td><td class="plain-def">all rows from both tables</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>GRANT</td><td class="plain-def">give permissions</td><td><a class="idx-link" href="#basics">DCL</a></td></tr>
+      <tr><td>GROUP BY</td><td class="plain-def">group rows together</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>HAVING</td><td class="plain-def">filter groups</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>IN</td><td class="plain-def">matches any in list</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>INDEX</td><td class="plain-def">speed up lookups</td><td><a class="idx-link" href="#indexes">Indexes</a></td></tr>
+      <tr><td>INNER JOIN</td><td class="plain-def">matching rows only</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>INSERT</td><td class="plain-def">add rows</td><td><a class="idx-link" href="#dml">DML</a></td></tr>
+      <tr><td>IS NULL</td><td class="plain-def">value is missing</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>JOIN</td><td class="plain-def">combine tables</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>LAG</td><td class="plain-def">prior row value</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>LEAD</td><td class="plain-def">next row value</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>LEFT JOIN</td><td class="plain-def">all left + matches</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>LIKE</td><td class="plain-def">pattern match</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>LIMIT</td><td class="plain-def">cap rows returned</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>MAX</td><td class="plain-def">largest value</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>MIN</td><td class="plain-def">smallest value</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>NOT</td><td class="plain-def">invert condition</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>NOT NULL</td><td class="plain-def">value required</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>NTILE</td><td class="plain-def">divide into buckets</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>NULLIF</td><td class="plain-def">return null if equal</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>OFFSET</td><td class="plain-def">skip N rows</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>ON</td><td class="plain-def">join condition</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>OR</td><td class="plain-def">either condition true</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>ORDER BY</td><td class="plain-def">sort results</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>OVER</td><td class="plain-def">define window</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>PARTITION BY</td><td class="plain-def">window grouping</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>PRIMARY KEY</td><td class="plain-def">unique row ID</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>RANK</td><td class="plain-def">rank with tie gaps</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>REFERENCES</td><td class="plain-def">foreign key target</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>REVOKE</td><td class="plain-def">remove permissions</td><td><a class="idx-link" href="#basics">DCL</a></td></tr>
+      <tr><td>RIGHT JOIN</td><td class="plain-def">all right + matches</td><td><a class="idx-link" href="#joins">Joins</a></td></tr>
+      <tr><td>ROLLBACK</td><td class="plain-def">undo transaction</td><td><a class="idx-link" href="#transactions">Transactions</a></td></tr>
+      <tr><td>ROW_NUMBER</td><td class="plain-def">sequential row number</td><td><a class="idx-link" href="#window">Window Fns</a></td></tr>
+      <tr><td>SAVEPOINT</td><td class="plain-def">partial rollback marker</td><td><a class="idx-link" href="#transactions">Transactions</a></td></tr>
+      <tr><td>SELECT</td><td class="plain-def">retrieve data</td><td><a class="idx-link" href="#queries">SELECT</a></td></tr>
+      <tr><td>SET</td><td class="plain-def">assign values in UPDATE</td><td><a class="idx-link" href="#dml">DML</a></td></tr>
+      <tr><td>SUM</td><td class="plain-def">total</td><td><a class="idx-link" href="#aggregates">Aggregates</a></td></tr>
+      <tr><td>TABLE</td><td class="plain-def">structured data store</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>THEN</td><td class="plain-def">CASE result</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>TRUNCATE</td><td class="plain-def">empty table fast</td><td><a class="idx-link" href="#ddl">DDL</a></td></tr>
+      <tr><td>UNION</td><td class="plain-def">combine result sets</td><td><a class="idx-link" href="#subqueries">Subqueries</a></td></tr>
+      <tr><td>UNIQUE</td><td class="plain-def">no duplicate values</td><td><a class="idx-link" href="#constraints">Constraints</a></td></tr>
+      <tr><td>UPDATE</td><td class="plain-def">modify rows</td><td><a class="idx-link" href="#dml">DML</a></td></tr>
+      <tr><td>VALUES</td><td class="plain-def">data to insert</td><td><a class="idx-link" href="#dml">DML</a></td></tr>
+      <tr><td>VIEW</td><td class="plain-def">saved query as virtual table</td><td><a class="idx-link" href="#views">Views &amp; CTEs</a></td></tr>
+      <tr><td>WHEN</td><td class="plain-def">CASE condition</td><td><a class="idx-link" href="#functions">Functions</a></td></tr>
+      <tr><td>WHERE</td><td class="plain-def">filter rows</td><td><a class="idx-link" href="#filtering">Filtering</a></td></tr>
+      <tr><td>WITH</td><td class="plain-def">CTE declaration</td><td><a class="idx-link" href="#views">Views &amp; CTEs</a></td></tr>
+    </tbody>
+  </table></div>
+  <a class="back-top" href="#top">↑ Back to top</a>
+</section>
+
+</main>
+<footer>
+  SQL Language Quick Reference  ·  Database Programming  ·  2026
+</footer>
+</body>
+</html>

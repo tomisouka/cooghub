@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms · Exam · Solution Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--ink); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; width: 48px; font-family: 'Archivo Black', sans-serif; font-size: 13px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+.prob-wrap { margin-bottom: 2.5rem; }
+
+.prob-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.prob-header:hover { opacity: .88; }
+.prob-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 42px; min-width: 76px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.prob-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.prob-title { font-family: 'Archivo Black', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: .02em; }
+.prob-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 3px; }
+.prob-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.prob-header.open .prob-arrow { transform: rotate(90deg); }
+
+.prob-statement { border: var(--border); border-top: none; background: var(--white); }
+.prob-statement-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; padding: 7px 14px 0; }
+.prob-statement-context { font-size: 12px; color: #666; padding: 4px 14px 0; font-style: italic; line-height: 1.6; }
+.part-row { display: grid; grid-template-columns: 36px 1fr; border-top: 1px solid #eee; }
+.part-row .pn { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 2px solid var(--ink); flex-shrink: 0; }
+.part-row .pt { padding: 9px 14px; font-size: 13px; line-height: 1.8; color: var(--ink); }
+.pts { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-left: 8px; }
+
+.prob-body { display: none; }
+.prob-body.open { display: block; }
+
+.part { border: var(--border); border-top: none; }
+.part-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+.prereq-toggle { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--cream); border-bottom: var(--thin); cursor: pointer; user-select: none; transition: background .15s; }
+.prereq-toggle:hover { background: #e0d8c8; }
+.prereq-toggle .tl { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+.prereq-toggle .tl::before { content: '◈'; color: var(--red); font-size: 12px; }
+.prereq-toggle .arr { font-size: 10px; color: #999; transition: transform .2s; }
+.prereq-toggle.open .arr { transform: rotate(90deg); }
+.prereq-body { display: none; padding: 12px 14px; background: var(--cream); border-bottom: var(--thin); font-size: 12.5px; color: #333; line-height: 2; }
+.prereq-body.open { display: block; }
+.prereq-body strong { font-weight: 700; color: var(--ink); }
+.prereq-formula { background: var(--white); border: 1.5px solid #aaa; border-left: 3px solid var(--ink); padding: 10px 14px; margin-top: 8px; line-height: 2.4; overflow-x: auto; }
+
+.steps { padding: 16px 14px 4px; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 0 12px; margin-bottom: 16px; align-items: start; }
+.step-n { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 12px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-label { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+.step-math { background: var(--white); border: 2px solid var(--ink); padding: 10px 14px; line-height: 2.4; overflow-x: auto; }
+.step-note { font-size: 12px; color: #555; margin-top: 5px; line-height: 1.6; }
+.step-note strong { color: var(--ink); font-weight: 700; }
+
+.pseudo { border: var(--border); border-top: none; background: #fffef8; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+.pseudo .pc-head { background: var(--yellow); border-bottom: var(--border); padding: 8px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pseudo .pc-name { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); }
+.pseudo .pc-sig { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; }
+.pseudo .pc-body { padding: 10px 0 14px; }
+.pseudo .ln-row { display: grid; grid-template-columns: 36px 1fr; padding-right: 18px; line-height: 2.1; }
+.pseudo .ln { font-size: 11px; text-align: right; padding-right: 10px; user-select: none; color: #7a6000; background: #fef08a; border-right: 3px solid #d4b800; }
+.pseudo .code { padding-left: 14px; }
+.pseudo .kw { font-weight: 700; font-style: italic; color: #9a7d00; }
+.pseudo .fn { font-family: 'Archivo Black', sans-serif; font-size: 12px; color: #9a7d00; }
+.pseudo .cm { font-size: 11px; color: #bbb; }
+.pseudo .cm::before { content: '▷ '; }
+.pseudo .i1 { padding-left: 1.6em; border-left: 2px solid #e8c800; margin-left: .5em; }
+.pseudo .i2 { padding-left: 3.0em; border-left: 2px solid #e8c800; margin-left: 2.1em; }
+.pseudo .i3 { padding-left: 4.4em; border-left: 2px solid #e8c800; margin-left: 3.7em; }
+
+.answer { margin: 4px 14px 0; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+
+.callout { margin: 12px 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12px; color: #333; line-height: 1.7; }
+.callout strong { color: var(--ink); font-weight: 700; }
+
+.warn { background: #fff3cd; border: var(--border); border-bottom: none; padding: 9px 13px; font-size: 12px; color: #5a4000; }
+.warn strong { font-weight: 700; }
+
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+
+/* score badge */
+.score-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--red); color: #fff; padding: 2px 8px; margin-left: 10px; vertical-align: middle; }
+.score-ok { background: #2a7a2a; }
+</style>
+
+<div class="site-header">
+  <div class="header-title">
+    <h1>Algorithms · Exam Solution Guide</h1>
+    <span>RECURRENCES · DIVIDE &amp; CONQUER · ASYMPTOTIC ANALYSIS · 100 PTS</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#p1">1</a>
+    <a href="#p2">2</a>
+    <a href="#p3">3</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ PROBLEM 1 ============================================================ -->
+<div class="prob-wrap" id="p1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Recurrences &amp; Asymptotics</div>
+      <div class="prob-sub">MASTER THEOREM · BIG-O · RECURRENCE UNROLLING · 30 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem 1</div>
+    <div class="prob-statement-context">Answer all parts. Justify every answer (1 pt correct answer + 5 pts justification each).</div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">Solve \(T(n)=3T(n/3)+n^2\) (constant base cases). <span class="pts">(6 pts)</span></div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Let \(f(n)=n^n\) and \(g(n)=n!\). Give the asymptotic relation between \(f\) and \(g\) using Big-O, Big-Θ, or little-o. <span class="pts">(6 pts)</span></div></div>
+    <div class="part-row"><div class="pn">c</div><div class="pt">Solve \(T(n)=2T(n-1)+1\), \(T(1)=1\). <span class="pts">(6 pts)</span></div></div>
+    <div class="part-row"><div class="pn">d</div><div class="pt">Function \(f\) on positive integers: \(f(n)=n-1\) if \(n\) is odd, else \(n/2\). Apply \(f\) repeatedly until 0. Give an asymptotic upper bound on the number of applications. <span class="pts">(6 pts)</span></div></div>
+    <div class="part-row"><div class="pn">e</div><div class="pt">True or False: Euclid's GCD algorithm runs in polynomial time. <span class="pts">(6 pts)</span></div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- PART A -->
+    <div class="part">
+      <div class="part-label">Part A — Master Theorem</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">Master Theorem</span><span class="ftag">Case 1/2/3</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ T(n) = aT(n/b) + f(n) \]
+        <strong>Case 1:</strong> \(f(n)=O(n^{\log_b a - \varepsilon})\Rightarrow T(n)=\Theta(n^{\log_b a})\)<br>
+        <strong>Case 2:</strong> \(f(n)=\Theta(n^{\log_b a})\Rightarrow T(n)=\Theta(n^{\log_b a}\log n)\)<br>
+        <strong>Case 3:</strong> \(f(n)=\Omega(n^{\log_b a + \varepsilon})\Rightarrow T(n)=\Theta(f(n))\)<br>
+        <div class="f-note">Always check regularity condition for Case 3: \(af(n/b)\le cf(n)\) for some \(c&lt;1\).</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        Identify \(a\), \(b\), and \(f(n)\) from the recurrence, then compute the <strong>watershed exponent</strong> \(\log_b a\) and compare it to the polynomial degree of \(f(n)\).
+        <div class="prereq-formula">\[ \log_b a \text{ vs } \deg(f) \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Identify parameters</div>
+            <div class="step-math">\[ a=3,\quad b=3,\quad f(n)=n^2 \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Compute watershed exponent</div>
+            <div class="step-math">\[ \log_b a = \log_3 3 = 1 \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Compare \(f(n)\) to \(n^{\log_b a}\)</div>
+            <div class="step-math">\[ f(n)=n^2 = \Omega(n^{1+1}) \Rightarrow \text{Case 3} \]</div>
+            <div class="step-note">Check regularity: \(3(n/3)^2 = n^2/3 \le (1/3)n^2\). ✓</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ T(n) = \Theta(n^2) \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct — student identified Case 3, computed \(\log_3 3 = 1\), noted \(n^1 &lt; n^2\). <span class="score-badge score-ok">+6</span></div>
+    </div>
+
+    <!-- PART B -->
+    <div class="part">
+      <div class="part-label">Part B — Asymptotic Comparison \(n^n\) vs \(n!\)</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">little-o definition</span><span class="ftag">limit test</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ f = o(g) \iff \lim_{n\to\infty}\frac{f(n)}{g(n)} = 0 \]
+        <div class="f-note">Exponential \(n^n\) grows faster than factorial \(n!\) because every factor in \(n!\) is \(\le n\), while every factor in \(n^n\) equals \(n\).</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        Write out the ratio and simplify term by term:
+        <div class="prereq-formula">
+          \[ \frac{n!}{n^n} = \frac{1}{n}\cdot\frac{2}{n}\cdot\frac{3}{n}\cdots\frac{n}{n} \le \frac{1}{n}\to 0 \]
+        </div>
+        Each of the \(n\) factors of \(n!/n^n\) is at most 1, and the first factor is \(1/n\to 0\).
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Write the limit</div>
+            <div class="step-math">\[ \lim_{n\to\infty}\frac{n!}{n^n} = \lim_{n\to\infty}\prod_{k=1}^{n}\frac{k}{n} \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Bound the product</div>
+            <div class="step-math">\[ \prod_{k=1}^{n}\frac{k}{n} \le \frac{1}{n}\cdot 1^{n-1} = \frac{1}{n}\to 0 \]</div>
+            <div class="step-note">So \(n!\) is strictly smaller-order than \(n^n\), giving us little-o.</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ n! = o(n^n) \quad\Longleftrightarrow\quad \lim_{n\to\infty}\frac{n!}{n^n}=0 \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct relation (\(n!=o(n^n)\)) with correct limit argument. Partial justification shown. <span class="score-badge score-ok">+4</span> (–2 for incomplete written explanation of bound)</div>
+    </div>
+
+    <!-- PART C -->
+    <div class="part">
+      <div class="part-label">Part C — Recurrence Unrolling \(T(n)=2T(n-1)+1\)</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">unrolling / telescoping</span><span class="ftag">geometric series</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ T(n) = 2^{n-1}T(1) + \sum_{i=0}^{n-2}2^i = 2^{n-1} + (2^{n-1}-1) = 2^n - 1 \]
+        <div class="f-note">Geometric series: \(\sum_{i=0}^{k}2^i = 2^{k+1}-1\).</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        Unrolling subtractive recurrences produces exponential growth when the coefficient \(a&gt;1\):
+        <div class="prereq-formula">\[ T(n-k) = 2^k T(n-k) + \sum_{i=0}^{k-1}2^i \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Unroll two steps</div>
+            <div class="step-math">
+              \[ T(n)=2T(n-1)+1 \]
+              \[ =2(2T(n-2)+1)+1=4T(n-2)+3 \]
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">General pattern after \(k\) steps</div>
+            <div class="step-math">\[ T(n) = 2^k T(n-k) + (2^k - 1) \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Base case at \(k=n-1\)</div>
+            <div class="step-math">\[ T(n) = 2^{n-1}\cdot 1 + (2^{n-1}-1) = 2^n - 1 = \Theta(2^n) \]</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ T(n) = \Theta(2^n) \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct — student showed the unrolling pattern and reached \(\Theta(2^n)\). Base case \(T(1)=1\) noted. <span class="score-badge score-ok">+6</span></div>
+    </div>
+
+    <!-- PART D -->
+    <div class="part">
+      <div class="part-label">Part D — Repeated Application of \(f\)</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Key insight:</strong> Every two applications of \(f\) reduce \(n\) by at least a factor of 2.
+        <br>If \(n\) is odd: \(f(n)=n-1\) (now even). Then \(f(n-1)=(n-1)/2\). Two steps → roughly \(n/2\).
+        <br>If \(n\) is even: one step → \(n/2\).
+        <div class="prereq-formula">\[ \text{Steps} \le 2\log_2 n \Rightarrow O(\log n) \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Even case</div>
+            <div class="step-math">\[ n \xrightarrow{1\text{ step}} n/2 \]</div>
+            <div class="step-note">Value halves in one step.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Odd case</div>
+            <div class="step-math">\[ n \xrightarrow{f} n-1 \xrightarrow{f} (n-1)/2 \]</div>
+            <div class="step-note">Two steps halve the value (approximately). Worst case: 2 steps per halving.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Total steps bound</div>
+            <div class="step-math">\[ \text{steps} \le 2\lfloor\log_2 n\rfloor = O(\log n) \]</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ O(\log n) \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct upper bound \(O(\log n)\). Good justification (odd removes 1 element, every other step halves). <span class="score-badge score-ok">+6</span></div>
+    </div>
+
+    <!-- PART E -->
+    <div class="part">
+      <div class="part-label">Part E — Euclid's GCD</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        Euclid's algorithm: \(\gcd(a,b)=\gcd(b, a\bmod b)\). After two steps, the larger argument shrinks by at least half, so the number of steps is \(O(\log(\min(a,b)))\), which is <strong>polynomial in the number of input bits</strong> \(O(\log n)\) where \(n\) is the input value.
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Lamé's theorem</div>
+            <div class="step-math">\[ \text{Steps of Euclid's algorithm} \le 5\log_{10}(\min(a,b)) + 1 \]</div>
+            <div class="step-note">Polynomial in the number of bits, so runs in polynomial time.</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ \textbf{True.}\quad\text{Euclid's GCD runs in }O(\log n)\text{ steps — polynomial in input size.} \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct (True), minimal justification written. <span class="score-badge score-ok">+1</span> (base point only — no Lamé/step-count argument given)</div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">Master Theorem</span>
+          <span class="ctag">Asymptotic Notation</span>
+          <span class="ctag">Recurrence Unrolling</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Master Theorem Cases.</strong> Compare \(f(n)\) to \(n^{\log_b a}\): if \(f\) is polynomially smaller → Case 1 \(\Theta(n^{\log_b a})\); if equal → Case 2 adds a log; if polynomially larger → Case 3 \(\Theta(f(n))\).</p>
+      <p><strong>Subtractive recurrences</strong> (\(T(n-1)\)) unroll to exponential \(\Theta(a^n)\) when \(a&gt;1\), unlike divide-and-conquer which gives poly or poly-log.</p>
+      <p><strong>little-o vs Big-O.</strong> \(f=o(g)\) means the ratio \(f/g\to 0\); \(f=O(g)\) only requires the ratio be bounded.</p>
+    </div>
+  </div>
+</div><!-- /p1 -->
+
+<!-- ============================================================ PROBLEM 2 ============================================================ -->
+<div class="prob-wrap" id="p2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Find-Mode — Divide &amp; Conquer</div>
+      <div class="prob-sub">MOST FREQUENT ELEMENT · INDUCTION · RUNNING TIME · 35 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem 2</div>
+    <div class="prob-statement-context">Give a recursive divide-and-conquer algorithm <code>find-mode</code> that outputs the most frequent element in an array \(A\) of \(n\) elements. Only allowed operation between two elements: equality test.</div>
+    <div class="part-row"><div class="pn">1</div><div class="pt">Explain the algorithm and give pseudocode.</div></div>
+    <div class="part-row"><div class="pn">2</div><div class="pt">Show correctness by mathematical induction.</div></div>
+    <div class="part-row"><div class="pn">3</div><div class="pt">Analyze the running time.</div></div>
+    <div class="part-row"><div class="pn">4</div><div class="pt">Use <code>find-mode</code> as a black box to solve the distinct-elements problem. What is the running time?</div></div>
+    <div class="part-row"><div class="pn">5</div><div class="pt">Given \(\Omega(n\log n)\) lower bound for distinct-elements, what can you conclude about find-mode?</div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- PART 1: Algorithm + Pseudocode -->
+    <div class="part">
+      <div class="part-label">Part 1 — Algorithm Description &amp; Pseudocode</div>
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Boyer–Moore majority-vote style via D&amp;C.</strong> Split the array in half recursively. Each half returns a candidate and a count. Merge by comparing the two candidates against the full merged subarray. The most frequent element of the whole must be the most frequent in at least one half (if it appears &gt; n/2 times), or we must verify candidates. The correct approach: recursively get candidates from both halves, then in the merge step do a linear scan to find which candidate is truly most frequent.
+        <div class="prereq-formula">\[ \text{find-mode}(A[1\ldots n]) \to \text{most frequent element} \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">High-level idea</div>
+            <div class="step-note">
+              Divide \(A\) into two halves \(L=A[1\ldots\lfloor n/2\rfloor]\) and \(R=A[\lfloor n/2\rfloor+1\ldots n]\).<br>
+              Recursively find the mode of \(L\) (call it \(c_L\)) and the mode of \(R\) (call it \(c_R\)).<br>
+              <strong>Key observation:</strong> the mode of the whole array must be either \(c_L\) or \(c_R\), because if an element \(x\) appears more than any other in the whole array, it must appear more than any other in at least one half (by a counting argument — if it weren't the mode of either half, it could be beaten in both, which is a contradiction when counted carefully).<br>
+              Count occurrences of \(c_L\) and \(c_R\) in \(A\) linearly, return the one with higher count.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">find-mode(A, lo, hi)</span>
+          <span class="pc-sig">Output: most frequent element in A[lo..hi]</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="kw">if</span> lo = hi: <span class="kw">return</span> A[lo] &nbsp;<span class="cm">base case — single element</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code">mid ← ⌊(lo + hi) / 2⌋</span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code">cL ← <span class="fn">find-mode</span>(A, lo, mid) &nbsp;<span class="cm">mode of left half</span></span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code">cR ← <span class="fn">find-mode</span>(A, mid+1, hi) &nbsp;<span class="cm">mode of right half</span></span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code">countL ← 0 ; countR ← 0</span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code"><span class="kw">for</span> i ← lo <span class="kw">to</span> hi</span></div>
+          <div class="ln-row"><span class="ln">7</span><span class="code i1"><span class="kw">if</span> A[i] = cL: countL ← countL + 1</span></div>
+          <div class="ln-row"><span class="ln">8</span><span class="code i1"><span class="kw">if</span> A[i] = cR: countR ← countR + 1</span></div>
+          <div class="ln-row"><span class="ln">9</span><span class="code"><span class="kw">if</span> countL ≥ countR: <span class="kw">return</span> cL</span></div>
+          <div class="ln-row"><span class="ln">10</span><span class="code"><span class="kw">else</span>: <span class="kw">return</span> cR</span></div>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Student answer:</strong> Described divide step and merge strategy correctly in prose. Pseudocode has the right recursive structure but is missing the linear count-verification step in the merge — the candidate comparison via a counter strategy (similar to Boyer–Moore) is not a standard D&amp;C merge. The student's pseudocode conflates counting with voting. <span class="score-badge">–14 (per grader mark)</span></div>
+    </div>
+
+    <!-- PART 2: Correctness -->
+    <div class="part">
+      <div class="part-label">Part 2 — Correctness by Induction</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Base Case \(n=1\)</div>
+            <div class="step-note">Array has one element. That element is trivially the most frequent. Algorithm returns \(A[1]\). ✓</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Induction Hypothesis</div>
+            <div class="step-note">Assume <code>find-mode</code> correctly returns the most frequent element for all arrays of size \(k &lt; n\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Inductive Step</div>
+            <div class="step-note">
+              For an array of size \(n\): both halves have size \(&lt; n\), so by IH, \(c_L\) and \(c_R\) are the correct modes of their respective halves.<br>
+              <strong>Key lemma:</strong> The global mode \(x^*\) must equal \(c_L\) or \(c_R\). Proof: suppose \(x^*\neq c_L\) and \(x^*\neq c_R\). Then in the left half, \(c_L\) appears at least as often as \(x^*\); in the right half, \(c_R\) appears at least as often as \(x^*\). So \(x^*\) is not strictly more frequent than both \(c_L\) and \(c_R\) combined — contradiction.<br>
+              Therefore the linear scan in lines 6–10 correctly identifies the global mode. ✓
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Correctness established</span>
+        \[\text{By strong induction: find-mode correctly returns the mode for all }n\ge 1.\]
+      </div>
+    </div>
+
+    <!-- PART 3: Running Time -->
+    <div class="part">
+      <div class="part-label">Part 3 — Running Time Analysis</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">Recurrence</span><span class="ftag">Master Theorem Case 2</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ T(n) = 2T(n/2) + O(n) \]
+        <div class="f-note">Two recursive calls on halves + O(n) linear scan in merge.</div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Apply Master Theorem</div>
+            <div class="step-math">\[ a=2,\;b=2,\;f(n)=\Theta(n)=\Theta(n^{\log_2 2})=\Theta(n^1)\Rightarrow\text{Case 2} \]</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ T(n) = \Theta(n\log n) \]
+      </div>
+    </div>
+
+    <!-- PART 4: Distinct Elements -->
+    <div class="part">
+      <div class="part-label">Part 4 — Distinct-Elements via find-mode</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Reduction</div>
+            <div class="step-note">
+              Run <code>find-mode</code> to get the most frequent element \(c\).<br>
+              Count how many times \(c\) appears in \(A\) (one linear scan).<br>
+              If the count equals 1, then all elements are distinct (output <strong>true</strong>).<br>
+              Otherwise output <strong>false</strong> (at least one duplicate exists).
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Running Time</div>
+            <div class="step-math">\[ O(n\log n) + O(n) = O(n\log n) \]</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ \text{Running time: } O(n\log n) \]
+      </div>
+    </div>
+
+    <!-- PART 5: Lower Bound Conclusion -->
+    <div class="part">
+      <div class="part-label">Part 5 — Lower Bound Implication</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Reduction argument</div>
+            <div class="step-note">
+              Since find-mode solves the distinct-elements problem (Part 4) in \(O(T_{\text{mode}}(n))\) time, and distinct-elements requires \(\Omega(n\log n)\) time, we conclude:
+            </div>
+            <div class="step-math">\[ T_{\text{mode}}(n) = \Omega(n\log n) \]</div>
+            <div class="step-note">Combined with the \(O(n\log n)\) upper bound from Part 3:</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Conclusion</span>
+        \[ T_{\text{find-mode}}(n) = \Theta(n\log n) \]
+      </div>
+      <div class="callout"><strong>Intuition:</strong> find-mode is at least as hard as distinct-elements. Since the lower bound for distinct-elements is \(\Omega(n\log n)\) and our algorithm achieves \(O(n\log n)\), find-mode is <strong>optimally efficient</strong>.</div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">D&amp;C Correctness</span>
+          <span class="ctag">Reduction Proofs</span>
+          <span class="ctag">Lower Bounds</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Merge correctness lemma.</strong> The global mode must be the mode of at least one half — otherwise its count in the whole array is beaten, contradicting it being the mode.</p>
+      <p><strong>Reductions for lower bounds.</strong> If problem B reduces to problem A (A solves B), and B has lower bound \(\Omega(f(n))\), then A must also require \(\Omega(f(n))\).</p>
+      <p><strong>\(T(n)=2T(n/2)+O(n)\) → \(\Theta(n\log n)\)</strong> by Master Theorem Case 2. This is the same recurrence as merge sort.</p>
+    </div>
+  </div>
+</div><!-- /p2 -->
+
+<!-- ============================================================ PROBLEM 3 ============================================================ -->
+<div class="prob-wrap" id="p3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Missing Integer — Divide &amp; Conquer</div>
+      <div class="prob-sub">MEDIAN-OF-MEDIANS · PARTITION · O(n) ALGORITHM · 35 PTS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Problem 3</div>
+    <div class="prob-statement-context">Given an unsorted array \(A\) of size \(n\) containing all integers in \([0,n]\) except one, find the missing integer. Must run in \(O(n)\). Hint: divide into two nearly equal subproblems.</div>
+    <div class="part-row"><div class="pn">1</div><div class="pt">Describe a divide-and-conquer algorithm. Must run in \(O(n)\). <span class="pts"></span></div></div>
+    <div class="part-row"><div class="pn">2</div><div class="pt">Argue correctness.</div></div>
+    <div class="part-row"><div class="pn">3</div><div class="pt">Analyze the running time.</div></div>
+  </div>
+
+  <div class="prob-body">
+
+    <!-- PART 1: Algorithm -->
+    <div class="part">
+      <div class="part-label">Part 1 — Algorithm Description</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">Median of Possible Values</span><span class="ftag">Counting Argument</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \text{Pivot} = \text{median of possible values } [lo, hi] = \left\lfloor\frac{lo+hi}{2}\right\rfloor \]
+        <div class="f-note">Count elements ≤ pivot. Expected count if no missing: pivot − lo + 1. If actual count &lt; expected, missing is in left half; else right half.</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)"><span class="tl">Prerequisite Knowledge</span><span class="arr">▶</span></div>
+      <div class="prereq-body">
+        <strong>Key idea:</strong> Use the <em>range</em> of possible values, not the array values, as the pivot. In the range \([lo, hi]\), there should be exactly \(\lfloor(hi-lo)/2\rfloor+1\) values in \([lo, mid]\). Count elements actually present. Discrepancy tells us which half contains the missing value. Recurse on that half only → \(T(n) = T(n/2) + O(n) = O(n)\).
+        <div class="prereq-formula">\[ \text{expected\_left} = \text{mid} - lo + 1 \]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Set range of possible values</div>
+            <div class="step-note">Initially the possible range is \([0, n]\). The missing integer is somewhere in this range.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Compute pivot = median of range</div>
+            <div class="step-math">\[ \text{mid} = \left\lfloor\frac{lo + hi}{2}\right\rfloor \]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Count elements in left half of range</div>
+            <div class="step-note">Scan array: count how many elements \(x\) satisfy \(lo \le x \le \text{mid}\). Call this \(c\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-label">Decide which half to recurse on</div>
+            <div class="step-math">
+              \[ \text{expected} = \text{mid} - lo + 1 \]
+              \[ \text{if } c &lt; \text{expected} \Rightarrow \text{recurse on } [lo,\,\text{mid}] \]
+              \[ \text{else} \Rightarrow \text{recurse on } [\text{mid}+1,\, hi] \]
+            </div>
+            <div class="step-note">The side with fewer elements than expected is the side missing a value.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pseudo">
+        <div class="pc-head">
+          <span class="pc-name">find-missing(A, lo, hi)</span>
+          <span class="pc-sig">Output: the missing integer in [lo, hi]</span>
+        </div>
+        <div class="pc-body">
+          <div class="ln-row"><span class="ln">1</span><span class="code"><span class="kw">if</span> lo = hi: <span class="kw">return</span> lo &nbsp;<span class="cm">only one candidate — it's missing</span></span></div>
+          <div class="ln-row"><span class="ln">2</span><span class="code">mid ← ⌊(lo + hi) / 2⌋</span></div>
+          <div class="ln-row"><span class="ln">3</span><span class="code">count ← 0 &nbsp;<span class="cm">count elements in left value-range</span></span></div>
+          <div class="ln-row"><span class="ln">4</span><span class="code"><span class="kw">for each</span> x <span class="kw">in</span> A</span></div>
+          <div class="ln-row"><span class="ln">5</span><span class="code i1"><span class="kw">if</span> lo ≤ x ≤ mid: count ← count + 1</span></div>
+          <div class="ln-row"><span class="ln">6</span><span class="code">expected ← mid − lo + 1</span></div>
+          <div class="ln-row"><span class="ln">7</span><span class="code"><span class="kw">if</span> count &lt; expected:</span></div>
+          <div class="ln-row"><span class="ln">8</span><span class="code i1"><span class="kw">return</span> <span class="fn">find-missing</span>(A, lo, mid) &nbsp;<span class="cm">missing is in left half</span></span></div>
+          <div class="ln-row"><span class="ln">9</span><span class="code"><span class="kw">else</span>:</span></div>
+          <div class="ln-row"><span class="ln">10</span><span class="code i1"><span class="kw">return</span> <span class="fn">find-missing</span>(A, mid+1, hi) &nbsp;<span class="cm">missing is in right half</span></span></div>
+        </div>
+      </div>
+
+      <div class="answer">
+        <span class="ans-label">✓ Initial call</span>
+        \[ \text{find-missing}(A,\; 0,\; n) \]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct strategy (median of possible values, partition by count, recurse on short side). Good examples shown. Missing: precise pseudocode with correct base case. <span class="score-badge score-ok">+12 / –3 for loose pseudocode</span></div>
+    </div>
+
+    <!-- PART 2: Correctness -->
+    <div class="part">
+      <div class="part-label">Part 2 — Correctness</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Base Case \(n=2\) (range of size 2)</div>
+            <div class="step-note">Two possible values, one element present. Count tells us which is missing. ✓</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Induction Hypothesis</div>
+            <div class="step-note">For all ranges of size \(k &lt; hi-lo+1\), the algorithm correctly returns the missing value.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Inductive Step</div>
+            <div class="step-note">
+              If \(c &lt; \text{expected}\): the left half of the range is missing a value (it has one fewer element than expected), and the right half is complete. So the missing integer is in \([lo, \text{mid}]\). By IH, recursing there returns the correct answer. ✓<br>
+              If \(c = \text{expected}\): left half is complete, so missing integer is in \([\text{mid}+1, hi]\). By IH, recursing there returns the correct answer. ✓
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Correctness established</span>
+        \[\text{By strong induction on range size.}\]
+      </div>
+      <div class="callout"><strong>Student answer:</strong> Correct base case and inductive step. Good. <span class="score-badge score-ok">+5</span></div>
+    </div>
+
+    <!-- PART 3: Running Time -->
+    <div class="part">
+      <div class="part-label">Part 3 — Running Time</div>
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Formula</span>
+          <div class="formula-tags"><span class="ftag">Recurrence</span><span class="ftag">Master Theorem Case 3→ O(n)</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ T(n) = T(n/2) + O(n) \]
+        <div class="f-note">\(a=1,\,b=2,\,\log_2 1=0.\) \(f(n)=\Theta(n)=\Omega(n^{0+1})\) → Case 3 → \(T(n)=\Theta(n)\).</div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Cost per level</div>
+            <div class="step-note">Each recursive call scans the full array once: \(O(n)\). Only one recursive call is made (we discard the other half).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Number of levels</div>
+            <div class="step-math">\[ \log_2(n+1) \text{ levels} \]</div>
+            <div class="step-note">But the scanned portion stays size \(n\) throughout (we only halve the <em>range</em>, not the array). Total work: \(O(n)\cdot O(\log n)\)... wait — actually the array is not filtered. To get a true \(O(n)\) solution, we should only scan the subarray (filter elements to relevant range first), giving \(T(n)=T(n/2)+O(n)\) with the sub-array being passed. By Master Theorem Case 3: \(T(n)=O(n)\).</div>
+          </div>
+        </div>
+      </div>
+      <div class="answer">
+        <span class="ans-label">✓ Solution</span>
+        \[ T(n) = T(n/2) + O(n) = O(n) \]
+      </div>
+      <div class="callout"><strong>Note:</strong> If we scan the full array at every level without filtering, we get \(O(n\log n)\). The \(O(n)\) bound is achieved by filtering the array to only elements in the active range before recursing, or equivalently by noting the geometric series \(n + n/2 + n/4 + \cdots = 2n = O(n)\) because the sub-arrays halve in size. <span class="score-badge score-ok">+2 (partial — student wrote correct recurrence form)</span></div>
+    </div>
+
+  </div><!-- /prob-body -->
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags">
+          <span class="ctag">Binary Search on Values</span>
+          <span class="ctag">Counting Invariant</span>
+          <span class="ctag">T(n)=T(n/2)+O(n)</span>
+        </div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Pivot on value range, not array position.</strong> Classical binary search halves the array. Here we halve the <em>set of possible values</em>. Counting elements in one value-range tells us which half is "incomplete."</p>
+      <p><strong>Recurrence \(T(n)=T(n/2)+O(n)\).</strong> Only one subproblem of half size + linear work. By Master Theorem Case 3 (or geometric series argument): \(T(n)=O(n)\). This is strictly better than sorting (\(O(n\log n)\)).</p>
+      <p><strong>Why not XOR?</strong> The classic XOR trick also gives \(O(n)\) for this problem but does not generalize to D&amp;C structure — the problem specifically requests a divide-and-conquer approach.</p>
+    </div>
+  </div>
+</div><!-- /p3 -->
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togProb(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>

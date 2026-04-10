@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { cppFiles } from "../globs";
+import { cppFiles, pyFiles } from "../globs";
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 
@@ -16,6 +16,15 @@ function CodeViewer({ filePath, highlight = null, highlightKey = null }) {
     if (!filePath) return;
     setContent(null);
     setError(false);
+    const isPy = filePath.endsWith(".py");
+    if (isPy) {
+      // Python files live in public/content/ — fetch via HTTP
+      fetch(`/content/${filePath.replace("./content/", "")}`)
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(setContent)
+        .catch(() => setError(true));
+      return;
+    }
     const loader = cppFiles[filePath];
     if (!loader) { setError(true); return; }
     loader().then(setContent).catch(() => setError(true));
@@ -197,7 +206,7 @@ function CodeViewer({ filePath, highlight = null, highlightKey = null }) {
         ` }} />
         <div className="code-viewer-wrap" style={{ height: "100%" }}>
           <SyntaxHighlighter
-            language="cpp"
+            language={filePath?.endsWith(".py") ? "python" : "cpp"}
             style={vscDarkPlus}
             customStyle={{
               background: "#13151c",

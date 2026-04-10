@@ -68,7 +68,7 @@ export default function HomePage({ goTo, openUpload, openInventory, lastSearch, 
     setQuery(q);
     setShowAll(false);
     clearTimeout(debounce.current);
-    if (q.trim().length < 2) { setResults([]); return; }
+    if (q.trim().length < 1) { setResults([]); return; }
     debounce.current = setTimeout(() => {
       setLoading(true);
       const text  = index      ? searchTextIndex(index, q)           : [];

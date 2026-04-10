@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --paper: #fffef9;
+    --ink: #1a1a1a;
+    --ink2: #444;
+    --rule: #d4cfc4;
+    --accent: #c0392b;
+    --accent2: #2c5f8a;
+    --highlight: #fff3cd;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--ink);
+    font-size: 13.5px;
+    line-height: 1.55;
+    padding: 2rem 1.5rem;
+  }
+
+  header {
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  header h1 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  header span {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ink2);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--paper);
+    border: 1.5px solid var(--rule);
+    padding: 1rem 1.1rem;
+  }
+
+  .card.full { grid-column: 1 / -1; }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title.blue { color: var(--accent2); }
+
+  /* Matrix display */
+  .matrix-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.5rem 0;
+  }
+
+  .matrix {
+    display: inline-grid;
+    gap: 0 0.6rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    position: relative;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .matrix::before, .matrix::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 5px;
+    border: 1.5px solid var(--ink);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+
+  .matrix.aug { padding-right: 1.4rem; }
+
+  .aug-bar {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink2);
+    align-self: center;
+  }
+
+  .row { display: contents; }
+  .cell {
+    text-align: right;
+    padding: 1px 0;
+    white-space: nowrap;
+  }
+  .cell.bar { border-left: 1.5px solid var(--ink); padding-left: 6px; }
+  .cell.pivot { color: var(--accent); font-weight: 600; }
+  .cell.free { color: var(--accent2); }
+  .cell.zero-row { color: #999; }
+
+  /* Step annotations */
+  .steps { list-style: none; }
+  .steps li {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr;
+    gap: 0.3rem;
+    margin-bottom: 0.4rem;
+    font-size: 13px;
+  }
+  .steps li .num {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 11px;
+    padding-top: 2px;
+  }
+
+  /* Solution display */
+  .solution {
+    background: var(--highlight);
+    border-left: 3px solid #e6a817;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    margin: 0.6rem 0;
+    line-height: 1.8;
+  }
+
+  .solution.no-sol {
+    background: #fdecea;
+    border-left-color: var(--accent);
+  }
+
+  .eq { font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+
+  /* T/F section */
+  .tf-item {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+    align-items: start;
+  }
+  .tf-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .verdict {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border: 1.5px solid;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 1px;
+  }
+  .verdict.T { color: #1a6e2e; border-color: #1a6e2e; background: #eafaf0; }
+  .verdict.F { color: var(--accent); border-color: var(--accent); background: #fdecea; }
+
+  .tf-text { font-size: 13px; }
+  .tf-reason {
+    font-size: 12px;
+    color: var(--ink2);
+    font-style: italic;
+    margin-top: 2px;
+    grid-column: 2;
+  }
+
+  /* Definitions */
+  .def-term {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .def-body { font-size: 13px; margin-bottom: 0.6rem; }
+
+  em { font-style: italic; }
+  strong { font-weight: 600; }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .arrow { color: var(--ink2); }
+  .highlight-rule {
+    background: #e8f0f8;
+    border-left: 3px solid var(--accent2);
+    padding: 0.4rem 0.6rem;
+    font-size: 12.5px;
+    margin: 0.5rem 0;
+  }
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 1px 5px;
+    background: var(--ink);
+    color: white;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Linear Algebra — Blind Spot Reference</h1>
+  <span>HW2 · HW3 patterns</span>
+</header>
+
+<div class="grid">
+
+  <!-- ── CARD 1: 4-variable, 2 free params ── -->
+  <div class="card full">
+    <div class="card-title">4-Variable System · Two Free Parameters (α and β)</div>
+
+    <p style="margin-bottom:0.75rem; font-size:13px;">Pattern from HW2 Ex. 1–4: system has 4 unknowns, row-reduces to 2 pivot columns → 2 free variables, parameterised by <strong>α</strong> and <strong>β</strong>.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; flex-wrap:wrap;">
+
+      <div>
+        <span class="label">Augmented matrix (original)</span>
+        <div class="matrix-wrap">
+          <div class="matrix aug" style="grid-template-columns: repeat(5,auto);">
+            <div class="cell pivot">1</div><div class="cell">2</div><div class="cell">0</div><div class="cell">1</div><div class="cell bar">3</div>
+            <div class="cell">2</div><div class="cell">4</div><div class="cell">1</div><div class="cell">3</div><div class="cell bar">8</div>
+            <div class="cell">0</div><div class="cell">0</div><div class="cell">1</div><div class="cell">1</div><div class="cell bar">2</div>
+          </div>
+        </div>
+
+        <span class="label" style="margin-top:0.6rem;">After row reduction (RREF)</span>
+        <div class="matrix-wrap">
+          <div class="matrix aug" style="grid-template-columns: repeat(5,auto);">
+            <div class="cell pivot">1</div><div class="cell free">2</div><div class="cell">0</div><div class="cell">0</div><div class="cell bar">1</div>
+            <div class="cell zero-row">0</div><div class="cell zero-row free">0</div><div class="cell pivot">1</div><div class="cell">1</div><div class="cell bar zero-row">2</div>
+            <div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell zero-row free">0</div><div class="cell bar zero-row">0</div>
+          </div>
+        </div>
+        <p style="font-size:11.5px; color:var(--ink2); margin-top:4px;">
+          <span style="color:var(--accent);">■</span> pivot cols: x₁, x₃ &nbsp;|&nbsp;
+          <span style="color:var(--accent2);">■</span> free cols: x₂, x₄
+        </p>
+      </div>
+
+      <div>
+        <span class="label">Reading the solution</span>
+        <ol class="steps">
+          <li><span class="num">1.</span><span>Identify pivot columns vs. free columns. Free columns → assign parameters. Let <strong>x₂ = α</strong>, <strong>x₄ = β</strong>.</span></li>
+          <li><span class="num">2.</span><span>Back-substitute each pivot row, expressing pivot variables in terms of α, β, and constants.</span></li>
+          <li><span class="num">3.</span><span>Write as a vector sum: <em>particular</em> part + α·(direction) + β·(direction).</span></li>
+        </ol>
+
+        <span class="label" style="margin-top:0.7rem;">Reading row 1: &nbsp; x₁ + 2x₂ + 0·x₃ + 0·x₄ = 1</span>
+        <div class="eq">x₁ = 1 − 2x₂ = 1 − 2α</div>
+        <span class="label" style="margin-top:0.4rem;">Reading row 2: &nbsp; x₃ + x₄ = 2</span>
+        <div class="eq">x₃ = 2 − x₄ = 2 − β</div>
+
+        <div class="solution">
+x₁ = 1 − 2α<br>
+x₂ = α<br>
+x₃ = 2 − β<br>
+x₄ = β
+
+&nbsp;⟹&nbsp; <strong>x</strong> = [1, 0, 2, 0]ᵀ + α[−2, 1, 0, 0]ᵀ + β[0, 0, −1, 1]ᵀ
+        </div>
+        <div class="highlight-rule">The two direction vectors [−2,1,0,0]ᵀ and [0,0,−1,1]ᵀ form a <strong>basis for the null space</strong> of A.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CARD 2: No solution detection ── -->
+  <div class="card">
+    <div class="card-title">No Solution Detection · Impossible Row</div>
+
+    <span class="label">After row reduction you hit:</span>
+    <div class="matrix-wrap">
+      <div class="matrix aug" style="grid-template-columns: repeat(5,auto);">
+        <div class="cell pivot">1</div><div class="cell">0</div><div class="cell">2</div><div class="cell">−1</div><div class="cell bar">4</div>
+        <div class="cell zero-row">0</div><div class="cell pivot">1</div><div class="cell">−3</div><div class="cell zero-row">2</div><div class="cell bar">1</div>
+        <div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell bar" style="color:var(--accent);font-weight:600;">5</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; margin:0.5rem 0;">Row 3 reads: &nbsp;<span class="eq" style="display:inline;">0·x₁ + 0·x₂ + 0·x₃ + 0·x₄ = 5</span></p>
+    <div class="solution no-sol">0 = 5 &nbsp;⟹&nbsp; CONTRADICTION &nbsp;⟹&nbsp; <strong>No solution.</strong></div>
+
+    <ul class="steps">
+      <li><span class="num">★</span><span><strong>Rule:</strong> If any row has all zeros left of the bar but a nonzero right of the bar → inconsistent → no solution. Stop immediately.</span></li>
+      <li><span class="num">★</span><span>This happens when the equations are contradictory (e.g., came from parallel planes).</span></li>
+    </ul>
+
+    <div class="highlight-rule" style="margin-top:0.6rem;">
+      Compare: &nbsp;[0 0 0 0 | 0] is a zero row → <em>fine</em>, just a dependent equation.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0 0 0 0 | c] with c≠0 → <em>impossible</em>.
+    </div>
+  </div>
+
+  <!-- ── CARD 3: Linear Dependence via Augmented Matrix ── -->
+  <div class="card">
+    <div class="card-title blue">Linear Dependence · Augmented Matrix Method</div>
+    <p style="font-size:13px; margin-bottom:0.6rem;">HW3 style: vectors are <strong>columns</strong>. Ask: does <em>c₁v₁ + c₂v₂ + c₃v₃ = 0</em> have a nontrivial solution?</p>
+
+    <span class="label">Set up [v₁ | v₂ | v₃ | 0] and row-reduce</span>
+    <div class="matrix-wrap">
+      <div class="matrix aug" style="grid-template-columns: repeat(4,auto);">
+        <div class="cell pivot">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell bar">0</div>
+        <div class="cell">2</div><div class="cell">4</div><div class="cell">6</div><div class="cell bar">0</div>
+        <div class="cell">1</div><div class="cell">1</div><div class="cell">2</div><div class="cell bar">0</div>
+      </div>
+      <span class="arrow">⟶</span>
+      <div class="matrix aug" style="grid-template-columns: repeat(4,auto);">
+        <div class="cell pivot">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell bar">0</div>
+        <div class="cell zero-row">0</div><div class="cell pivot">−1</div><div class="cell">−1</div><div class="cell bar zero-row">0</div>
+        <div class="cell zero-row">0</div><div class="cell zero-row">0</div><div class="cell zero-row free">0</div><div class="cell bar zero-row">0</div>
+      </div>
+    </div>
+
+    <ul class="steps" style="margin-top:0.5rem;">
+      <li><span class="num">★</span><span>Free variable (c₃ = α) exists → nontrivial solution → vectors are <strong>linearly dependent</strong>.</span></li>
+      <li><span class="num">★</span><span>If RREF has a pivot in every column → only trivial solution → <strong>linearly independent</strong>.</span></li>
+    </ul>
+
+    <div class="highlight-rule" style="margin-top:0.5rem;">
+      <strong>Key tell:</strong> Right-hand side is always 0. You're never looking for a particular solution — only asking whether free variables exist.
+    </div>
+  </div>
+
+  <!-- ── CARD 4: Subspace Tests ── -->
+  <div class="card">
+    <div class="card-title blue">Subspace Tests · Closure Conditions</div>
+    <p style="font-size:13px; margin-bottom:0.65rem;">A subset <em>S ⊆ ℝⁿ</em> is a subspace iff all three hold:</p>
+
+    <div class="def-body">
+      <div class="def-term">1. Contains zero vector</div>
+      <div style="font-size:13px; margin-bottom:0.5rem;"><strong>0</strong> ∈ S</div>
+
+      <div class="def-term">2. Closed under addition</div>
+      <div style="font-size:13px; margin-bottom:0.5rem;">If <strong>u</strong>, <strong>v</strong> ∈ S, then <strong>u + v</strong> ∈ S</div>
+
+      <div class="def-term">3. Closed under scalar multiplication</div>
+      <div style="font-size:13px; margin-bottom:0.5rem;">If <strong>u</strong> ∈ S and c ∈ ℝ, then c<strong>u</strong> ∈ S</div>
+    </div>
+
+    <div class="highlight-rule">
+      <strong>Fastest disproof:</strong> Find one counterexample to any condition. Most common failure: not closed under addition, or doesn't contain <strong>0</strong>.
+    </div>
+
+    <span class="label" style="margin-top:0.6rem;">Classic non-subspace</span>
+    <p style="font-size:13px;">S = {<strong>x</strong> ∈ ℝ² : x₁ + x₂ = 1} — doesn't contain <strong>0</strong>, not closed under addition. ✗</p>
+  </div>
+
+  <!-- ── CARD 5: TRUE/FALSE ── -->
+  <div class="card full">
+    <div class="card-title">True / False · Key Definitions</div>
+
+    <div class="tf-item">
+      <span class="verdict F">FALSE</span>
+      <div>
+        <div class="tf-text">"A spanning set for a vector space is a basis."</div>
+        <div class="tf-reason">A basis must also be <strong>linearly independent</strong>. A spanning set can have redundant vectors. Basis = spanning + linearly independent. Example: {[1,0], [0,1], [1,1]} spans ℝ² but is not a basis (dependent).</div>
+      </div>
+    </div>
+
+    <div class="tf-item">
+      <span class="verdict T">TRUE</span>
+      <div>
+        <div class="tf-text">"A basis is a spanning set."</div>
+        <div class="tf-reason">By definition, a basis spans the space. True, but the converse fails (see above).</div>
+      </div>
+    </div>
+
+    <div class="tf-item">
+      <span class="verdict F">FALSE</span>
+      <div>
+        <div class="tf-text">"If a system has more unknowns than equations, it must have infinitely many solutions."</div>
+        <div class="tf-reason">It could still be <strong>inconsistent</strong> (no solution). More unknowns than equations guarantees at most that <em>if</em> a solution exists, there are infinitely many.</div>
+      </div>
+    </div>
+
+    <div class="tf-item">
+      <span class="verdict T">TRUE</span>
+      <div>
+        <div class="tf-text">"The null space of a matrix A is a subspace of ℝⁿ."</div>
+        <div class="tf-reason">Nul(A) = {<strong>x</strong> : A<strong>x</strong> = 0}. Contains 0, closed under addition and scalar multiplication — all three conditions hold automatically.</div>
+      </div>
+    </div>
+
+    <div class="tf-item">
+      <span class="verdict F">FALSE</span>
+      <div>
+        <div class="tf-text">"Every linearly independent set is a basis."</div>
+        <div class="tf-reason">It must also <strong>span</strong> the space. {[1,0]} is linearly independent in ℝ² but doesn't span ℝ².</div>
+      </div>
+    </div>
+
+    <div class="tf-item">
+      <span class="verdict T">TRUE</span>
+      <div>
+        <div class="tf-text">"If A<strong>x</strong> = <strong>b</strong> is consistent and has a free variable, it has infinitely many solutions."</div>
+        <div class="tf-reason">Each free variable can take any real value → uncountably many solutions. This is the standard HW2 pattern.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- end grid -->
+
+</body>
+</html>

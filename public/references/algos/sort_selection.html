@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selection Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0c0f; --surface:#111318; --border:#1e2230; --accent:#a78bfa; --green:#6bde84; --red:#f87171; --yellow:#e8c547; --orange:#fb923c; --dim:#7a8090; --text:#d4d8e0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; padding:40px 48px 80px; line-height:1.6; }
+  h1 { font-family:'Fraunces',serif; font-size:64px; font-weight:900; line-height:0.9; letter-spacing:-3px; }
+  h1 span { color:var(--accent); }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:56px; }
+  .subtitle { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-top:10px; }
+  .big-o { display:flex; flex-direction:column; gap:6px; text-align:right; }
+  .big-o-row { font-size:13px; display:flex; gap:16px; justify-content:flex-end; }
+  .op { color:var(--dim); }
+  .ob { color:var(--red); font-weight:700; }
+  .ok { color:var(--green); font-weight:700; }
+  .label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dim); margin-bottom:16px; font-weight:700; }
+  .annotation { font-size:13px; color:var(--dim); margin-bottom:28px; line-height:1.7; }
+  .annotation span { color:var(--accent); font-weight:700; }
+  .section { margin-bottom:52px; }
+  hr { border:none; border-top:1px solid var(--border); margin:48px 0; }
+  .caption { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.7; }
+  .caption strong { color:var(--text); }
+
+  .pass-grid { display:flex; flex-direction:column; gap:16px; }
+  .pass-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .pass-label { font-size:10px; color:var(--dim); width:60px; flex-shrink:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .bars { display:flex; gap:6px; align-items:flex-end; }
+  .bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .bar { width:44px; border-radius:4px 4px 0 0; }
+  .bar-val { font-size:12px; font-weight:700; color:var(--text); }
+  .bar-default { background:#21252e; border:1px solid #2a2e38; }
+  .bar-scanning { background:#a78bfa20; border:1px solid var(--accent); }
+  .bar-minimum  { background:#fb923c30; border:2px solid var(--orange); }
+  .bar-sorted   { background:#6bde8420; border:1px solid var(--green); }
+  .bar-swap     { background:#f8717130; border:1px solid var(--red); }
+  .note { font-size:11px; color:var(--dim); margin-left:8px; }
+  .note.find { color:var(--orange); font-weight:700; }
+  .note.swap { color:var(--red); font-weight:700; }
+
+  .vs-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .vs-table th { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+  .vs-table td { padding:8px 12px; border-bottom:1px solid var(--border); color:var(--dim); }
+  .vs-table td:first-child { color:var(--text); }
+  .good { color:var(--green); font-weight:700; }
+  .bad  { color:var(--red); font-weight:700; }
+  .vs-table tr:last-child td { border-bottom:none; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:56px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; border-top:2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color:var(--green); }
+  .card:nth-child(3) { border-top-color:var(--red); }
+  .card:nth-child(4) { border-top-color:var(--orange); }
+  .card-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .card-body  { font-size:12px; color:var(--dim); line-height:1.7; }
+  .card-o     { margin-top:10px; font-size:13px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Selection<span>.</span></h1>
+    <div class="subtitle">Comparison Sort · In-Place · Unstable</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">best</span>    <span class="ob">O(n²)</span></div>
+    <div class="big-o-row"><span class="op">average</span> <span class="ob">O(n²)</span></div>
+    <div class="big-o-row"><span class="op">worst</span>   <span class="ob">O(n²)</span></div>
+    <div class="big-o-row"><span class="op">space</span>   <span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">swaps</span>   <span class="ok">O(n) — at most n−1</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="label">1 — The Idea</div>
+  <div class="annotation">Divide the array into a <span>sorted left region</span> and unsorted right region. Each pass: <span>scan the entire unsorted region</span> to find the minimum, then swap it into the next sorted position. One swap per pass — never more.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">2 — Full Trace on [5, 3, 8, 1, 4]</div>
+  <div class="annotation"><span style="color:var(--orange)">Orange</span> = current minimum found, <span style="color:var(--accent)">Purple</span> = being scanned, <span style="color:var(--green)">Green</span> = sorted.</div>
+
+  <div class="pass-grid">
+
+    <div class="pass-row">
+      <span class="pass-label">Start</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:10px"></div><span class="bar-val">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+    </div>
+
+    <!-- Pass 1: find min=1 at index 3, swap with index 0 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 1</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-minimum" style="height:10px"></div><span class="bar-val" style="color:var(--orange)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+      <span class="note find">min = 1 at index 3</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:30px"></div><span class="bar-val">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+      <span class="note swap">↕ swap 1 ↔ 5</span>
+    </div>
+
+    <!-- Pass 2: find min=3 at index 1, already in place (swap with itself) -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 2</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-minimum" style="height:30px"></div><span class="bar-val" style="color:var(--orange)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+      <span class="note find">min = 3, already in position</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:40px"></div><span class="bar-val">4</span></div>
+      </div>
+      <span class="note swap">no swap needed</span>
+    </div>
+
+    <!-- Pass 3: find min=4 at index 4, swap with index 2 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 3</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:80px"></div><span class="bar-val">8</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-minimum" style="height:40px"></div><span class="bar-val" style="color:var(--orange)">4</span></div>
+      </div>
+      <span class="note find">min = 4 at index 4</span>
+    </div>
+    <div class="pass-row">
+      <span class="pass-label"></span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:50px"></div><span class="bar-val">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-default" style="height:80px"></div><span class="bar-val">8</span></div>
+      </div>
+      <span class="note swap">↕ swap 4 ↔ 8</span>
+    </div>
+
+    <!-- Pass 4 -->
+    <div class="pass-row">
+      <span class="pass-label">Pass 4</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-minimum" style="height:50px"></div><span class="bar-val" style="color:var(--orange)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-scanning" style="height:80px"></div><span class="bar-val">8</span></div>
+      </div>
+      <span class="note find">min = 5, already in position</span>
+    </div>
+
+    <!-- Done -->
+    <div class="pass-row">
+      <span class="pass-label">Done</span>
+      <div class="bars">
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:10px"></div><span class="bar-val" style="color:var(--green)">1</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:30px"></div><span class="bar-val" style="color:var(--green)">3</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:40px"></div><span class="bar-val" style="color:var(--green)">4</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:50px"></div><span class="bar-val" style="color:var(--green)">5</span></div>
+        <div class="bar-wrap"><div class="bar bar-sorted" style="height:80px"></div><span class="bar-val" style="color:var(--green)">8</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="caption"><strong>3 actual swaps</strong> for 5 elements. Selection sort always does at most n−1 swaps regardless of input — its defining advantage. Always O(n²) comparisons regardless.</div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="label">3 — Selection vs Bubble</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>Selection Sort</th><th>Bubble Sort</th></tr>
+    <tr><td>Comparisons</td><td class="bad">O(n²) always</td><td class="bad">O(n²) worst/avg</td></tr>
+    <tr><td>Swaps</td><td class="good">O(n) — at most n−1</td><td class="bad">O(n²) worst case</td></tr>
+    <tr><td>Stable</td><td class="bad">No</td><td class="good">Yes</td></tr>
+    <tr><td>Early exit</td><td class="bad">No</td><td class="good">Yes (if no swaps)</td></tr>
+    <tr><td>Best for</td><td>when writes are expensive</td><td>nearly sorted data</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Minimum Per Pass</div>
+    <div class="card-body">Each pass scans the unsorted region, finds the minimum, and places it at the front. Exactly one swap (or zero) per pass.</div>
+    <div class="card-o" style="color:var(--accent)">find min → place</div>
+  </div>
+  <div class="card">
+    <div class="card-title">O(n) Swaps</div>
+    <div class="card-body">At most n−1 swaps total. Good when write operations are expensive (e.g., writing to flash memory).</div>
+    <div class="card-o" style="color:var(--green)">minimal writes</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Unstable</div>
+    <div class="card-body">The swap to place the minimum can jump over equal elements, breaking their relative order.</div>
+    <div class="card-o" style="color:var(--red)">unstable ✗</div>
+  </div>
+  <div class="card">
+    <div class="card-title">No Early Exit</div>
+    <div class="card-body">Always does n(n−1)/2 comparisons regardless of input. Even a sorted array takes O(n²).</div>
+    <div class="card-o" style="color:var(--orange)">no best case win</div>
+  </div>
+</div>
+
+</body>
+</html>

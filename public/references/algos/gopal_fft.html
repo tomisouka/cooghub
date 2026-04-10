@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFT & DFT — Gopal Ch.4</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#030508;--card:#0a0f1a;--card2:#0d1320;--border:#141e30;--border2:#1e2e48;--accent:#e8c547;--green:#00e676;--yellow:#e8c547;--red:#ff4757;--purple:#c084fc;--blue:#4a9eff;--text:#cdd9ed;--muted:#3a4d68;--sub:#6880a2;--mono:"JetBrains Mono",monospace;--sans:"Space Grotesk",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(232,197,71,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(232,197,71,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:.5rem}
+  h1{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:#fff}.sub{font-size:.9rem;color:var(--sub);margin-top:.4rem;margin-bottom:2rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}.full{grid-column:1/-1}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+  .card-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+  .kv{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);font-size: 1rem}.kv:last-child{border-bottom:none}
+  .kv-k{color:var(--sub)}.kv-v{font-family:var(--mono);font-size: 1rem}.kv-v.g{color:var(--green)}.kv-v.y{color:var(--yellow)}.kv-v.r{color:var(--red)}.kv-v.b{color:var(--blue)}
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size: 1rem;line-height:1.75;overflow-x:auto}
+  .kw{color:var(--purple)}.fn{color:var(--accent)}.cm{color:var(--muted)}
+  .phase{background:var(--card2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:.65rem 1rem;margin-bottom:.4rem}
+  .phase-title{font-family:var(--mono);font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem}
+  .phase-body{font-size: .95rem;color:var(--sub);line-height:1.6}
+  .phase.b{border-color:var(--blue)}.phase.b .phase-title{color:var(--blue)}
+  .phase.g{border-color:var(--green)}.phase.g .phase-title{color:var(--green)}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size: 1rem}
+  th{background:var(--border2);color:var(--accent);padding:.4rem .7rem;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase}
+  td{padding:.4rem .7rem;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Gopal Ch. 4 · Section 4.6</div>
+  <h1>FFT &amp; DFT</h1>
+  <div class="sub">Fast Fourier Transform: evaluate a degree n−1 polynomial at n special points in O(n log n) using roots of unity. Enables O(n log n) polynomial multiplication.</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Naive polynomial multiply</span><span class="kv-v r">O(n²) — convolution</span></div>
+      <div class="kv"><span class="kv-k">FFT evaluation</span><span class="kv-v g">O(n log n)</span></div>
+      <div class="kv"><span class="kv-k">FFT interpolation</span><span class="kv-v g">O(n log n)</span></div>
+      <div class="kv"><span class="kv-k">Full poly multiply via FFT</span><span class="kv-v g">O(n log n)</span></div>
+      <div class="kv"><span class="kv-k">Recurrence</span><span class="kv-v y">T(n) = 2T(n/2) + O(n)</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Two Representations of a Polynomial</div>
+      <div class="kv"><span class="kv-k">Coefficient</span><span class="kv-v b">A(x) = a₀ + a₁x + ... + aₙ₋₁xⁿ⁻¹</span></div>
+      <div class="kv"><span class="kv-k">Point-value</span><span class="kv-v b">{(x₀,y₀), (x₁,y₁), ..., (xₙ,yₙ)}</span></div>
+      <div class="kv"><span class="kv-k">Unique?</span><span class="kv-v g">✓ n+1 distinct points → unique degree n poly</span></div>
+      <div class="kv"><span class="kv-k">Adding (point-val)</span><span class="kv-v g">O(n) — add y-values</span></div>
+      <div class="kv"><span class="kv-k">Multiply (point-val)</span><span class="kv-v g">O(n) — multiply y-values</span></div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Why FFT Enables O(n log n) Polynomial Multiplication</div>
+      <div class="phase">
+        <div class="phase-title">Step 1 — Evaluate (Coefficient → Point-Value)</div>
+        <div class="phase-body">Use FFT to evaluate A(x) and B(x) at n roots of unity. Cost: O(n log n) each.</div>
+      </div>
+      <div class="phase b">
+        <div class="phase-title">Step 2 — Multiply Point-Wise</div>
+        <div class="phase-body">C(xᵢ) = A(xᵢ)·B(xᵢ) for each point. Cost: O(n) — just n multiplications.</div>
+      </div>
+      <div class="phase g">
+        <div class="phase-title">Step 3 — Interpolate (Point-Value → Coefficient)</div>
+        <div class="phase-body">Use inverse FFT to recover coefficient vector of C. Cost: O(n log n).</div>
+      </div>
+      <div style="margin-top:.5rem;font-size: .95rem;color:var(--sub);">Total: O(n log n) + O(n) + O(n log n) = <span style="color:var(--yellow);font-family:var(--mono);">O(n log n)</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Key Idea — Why Roots of Unity?</div>
+      <div style="font-size: .95rem;color:var(--sub);line-height:1.8;">
+        Split A(x) into even/odd coefficients:<br>
+        <span style="font-family:var(--mono);color:var(--accent);">A[0](x) = a₀ + a₂x + a₄x² + ...</span><br>
+        <span style="font-family:var(--mono);color:var(--blue);">A[1](x) = a₁ + a₃x + a₅x² + ...</span><br><br>
+        Then: <span style="font-family:var(--mono);color:var(--text);">A(x) = A[0](x²) + x·A[1](x²)</span><br><br>
+        If evaluation points come in ± pairs (±x₀, ±x₁,...), then A(x₀) and A(−x₀) both need A[0](x₀²) and A[1](x₀²) — we compute them once. This halves the work each level → O(n log n) total.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">nth Roots of Unity</div>
+      <div style="font-size: .95rem;color:var(--sub);line-height:1.8;">
+        The n complex nth roots of unity are:<br>
+        <span style="font-family:var(--mono);color:var(--yellow);">ωₙ = e^(2πi/n)</span> (principal root)<br>
+        Others: ωₙ⁰, ωₙ¹, ωₙ², ..., ωₙⁿ⁻¹<br><br>
+        <strong style="color:var(--text);">Key property:</strong> They come in ±pairs.<br>
+        <span style="font-family:var(--mono);">ωₙ^(k+n/2) = −ωₙᵏ</span><br><br>
+        Squaring n nth roots → n/2 distinct (n/2)th roots. The ± pairing persists at every level of recursion.
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">DFT Definition &amp; FFT Algorithm (Gopal Algorithm 21)</div>
+      <pre><span class="cm">// DFT: y = DFT_n(a) where y[k] = A(ωₙᵏ) = Σ a[j]·ωₙᵏʲ  (j=0..n-1)</span>
+
+<span class="fn">FFT</span>(a):      <span class="cm">// a = coefficient vector, n = len(a) must be power of 2</span>
+  <span class="kw">if</span> n == 1: <span class="kw">return</span> a
+
+  a_even = [a[0], a[2], a[4], ...]    <span class="cm">// even-indexed coefficients</span>
+  a_odd  = [a[1], a[3], a[5], ...]    <span class="cm">// odd-indexed coefficients</span>
+
+  y_even = <span class="fn">FFT</span>(a_even)              <span class="cm">// DFT_{n/2} of even part</span>
+  y_odd  = <span class="fn">FFT</span>(a_odd)               <span class="cm">// DFT_{n/2} of odd part</span>
+
+  w = e^(2πi/n)                        <span class="cm">// principal nth root of unity</span>
+  <span class="kw">for</span> k = 0 <span class="kw">to</span> n/2 - 1:
+    y[k]       = y_even[k] + w^k · y_odd[k]
+    y[k + n/2] = y_even[k] - w^k · y_odd[k]   <span class="cm">// ± pair property</span>
+
+  <span class="kw">return</span> y</pre>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Interpolation (Inverse FFT)</div>
+      <div style="font-size: .95rem;color:var(--sub);line-height:1.8;margin-bottom:.75rem;">
+        Given point-values at roots of unity, recover coefficients. The inverse DFT uses ωₙ⁻¹ = e^(−2πi/n) as principal root, then divides by n:
+      </div>
+      <pre><span class="fn">InverseFFT</span>(y):
+  a = <span class="fn">FFT</span>(y, w = e^(-2πi/n))   <span class="cm">// same FFT, conjugate root</span>
+  <span class="kw">return</span> [x/n <span class="kw">for</span> x <span class="kw">in</span> a]        <span class="cm">// divide every element by n</span></pre>
+      <div style="margin-top:.5rem;font-size: .95rem;color:var(--sub);">Works because V_n · V_n* = n·I (Vandermonde matrix is orthogonal up to scaling). So V_n⁻¹ = V_n*/n.</div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Matrix View (Gopal Section 4.6.4)</div>
+      <table>
+        <tr><th>Operation</th><th>Matrix Form</th><th>Cost</th></tr>
+        <tr><td>Evaluation (coeff → point-val)</td><td style="font-family:var(--mono);">y = Vₙ · a</td><td style="color:var(--green);">O(n log n) via FFT</td></tr>
+        <tr><td>Interpolation (point-val → coeff)</td><td style="font-family:var(--mono);">a = Vₙ⁻¹ · y = Vₙ* · y / n</td><td style="color:var(--green);">O(n log n) via Inverse FFT</td></tr>
+        <tr><td>Pointwise multiply</td><td style="font-family:var(--mono);">C[i] = A[i] · B[i]</td><td style="color:var(--green);">O(n)</td></tr>
+      </table>
+      <div style="margin-top:.5rem;font-size: .95rem;color:var(--sub);">Vₙ is the Vandermonde matrix with (i,j) entry = ωₙⁱʲ. Its columns are orthogonal → Vₙ*Vₙ = nI.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

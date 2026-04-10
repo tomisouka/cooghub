@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0f;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --border: #252535;
+    --accent: #7ab8e8;       /* blue — linalg color */
+    --accent2: #e8c97a;      /* gold */
+    --accent3: #a8e87a;      /* green */
+    --accent4: #c87af0;      /* purple */
+    --text: #e4e4f0;
+    --muted: #6868a0;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── STICKY HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: rgba(12,12,15,0.95);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2rem;
+    height: 52px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+  }
+  .header-nav::-webkit-scrollbar { display: none; }
+
+  .header-nav a {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.28rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .header-nav a:hover,
+  .header-nav a.active { color: var(--accent); background: rgba(122,184,232,0.1); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 4rem 2.5rem 3rem;
+    max-width: 860px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+  h1 em { color: var(--accent); font-style: italic; }
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2.5rem 6rem;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    height: 2px;
+    background: var(--accent);
+    width: 0%;
+    z-index: 300;
+    transition: width 0.1s;
+  }
+
+  /* ── SECTION BLOCKS ── */
+  .section {
+    padding: 3.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 2rem;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin: 2rem 0 0.8rem;
+  }
+
+  /* ── TOPIC CARDS ── */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .topic-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+  .topic-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .topic-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .topic-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 0.4rem;
+  }
+  .pill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    background: rgba(122,184,232,0.1);
+    color: var(--accent);
+    border-radius: 100px;
+    padding: 2px 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SYMBOL TABLE ── */
+  .sym-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin-bottom: 1.5rem;
+  }
+  .sym-table thead tr {
+    background: var(--surface2);
+  }
+  .sym-table th {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    font-weight: 400;
+  }
+  .sym-table td {
+    padding: 0.55rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .sym-table tr:hover td { background: rgba(122,184,232,0.03); }
+  .sym-table td:first-child {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    color: var(--accent);
+    white-space: nowrap;
+    width: 120px;
+  }
+  .sym-table td.say {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.83rem;
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── TOPIC DETAIL SECTIONS ── */
+  .topic-section {
+    padding: 3rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topic-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+  .topic-badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    background: rgba(122,184,232,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(122,184,232,0.25);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .topic-title {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  /* ── CONCEPT ROWS ── */
+  .concept-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 1.5rem;
+  }
+  .concept {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 4px;
+  }
+  .concept-term {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--accent);
+  }
+  .concept-def {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .concept-def code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: rgba(122,184,232,0.08);
+    color: #b8d8f8;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  .concept-def .note {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  /* ── WATCHOUT / TIP ── */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 1.2rem 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .callout.tip {
+    background: rgba(168,232,122,0.07);
+    border: 1px solid rgba(168,232,122,0.2);
+    color: #c8f0a0;
+  }
+  .callout.warn {
+    background: rgba(240,208,122,0.07);
+    border: 1px solid rgba(240,208,122,0.2);
+    color: #f0d880;
+  }
+  .callout.info {
+    background: rgba(122,184,232,0.07);
+    border: 1px solid rgba(122,184,232,0.2);
+    color: #a8d0f8;
+  }
+  .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .callout p { color: var(--text); }
+  .callout strong { color: inherit; }
+
+  /* ── BACK TO TOP ── */
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 2rem;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  /* ── GREEK QUICK TABLE ── */
+  .greek-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 4px;
+    margin-bottom: 1.5rem;
+  }
+  .greek-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+  }
+  .greek-sym {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    color: var(--accent);
+    min-width: 28px;
+  }
+  .greek-name { color: var(--muted); font-size: 0.78rem; }
+  .greek-use { color: var(--text); font-size: 0.78rem; }
+
+  @media (max-width: 640px) {
+    .page { padding: 0 1rem 4rem; }
+    .hero { padding: 2.5rem 1rem 2rem; }
+    header { padding: 0 1rem; }
+    .concept { grid-template-columns: 1fr; gap: 0.25rem; }
+    .topic-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header id="top">
+  <span class="logo">Linear Algebra</span>
+  <nav class="header-nav">
+    <a href="#topics">Topics</a>
+    <a href="#symbols">Symbols</a>
+    <a href="#t1">T1 · Matrices</a>
+    <a href="#t2">T2 · Vectors</a>
+    <a href="#t3">T3 · Linear Maps</a>
+    <a href="#t4">T4 · Det</a>
+    <a href="#t5">T5 · Eigen</a>
+    <a href="#t6">T6 · Diag</a>
+    <a href="#t7">T7 · Jordan</a>
+    <a href="#t8">T8 · Gram-Schmidt</a>
+    <a href="#greek">Greek</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Elementary Linear Algebra — Andrilli &amp; Hecker · 4th Ed</span>
+  <h1>Linear <em>Algebra</em></h1>
+  <p class="hero-sub">Study guide · symbols · concepts · all 8 topics</p>
+</div>
+
+<div class="page">
+
+  <!-- ────────────────────────── TOPICS OVERVIEW ── -->
+  <div class="section" id="topics">
+    <div class="section-label">Course Map</div>
+    <h2>8 Topics at a Glance</h2>
+
+    <div class="topic-grid">
+      <a class="topic-card" href="#t1">
+        <span class="topic-num">Topic 1</span>
+        <span class="topic-name">Matrices, Systems &amp; Gaussian Elimination</span>
+        <div class="topic-pills">
+          <span class="pill">RREF</span><span class="pill">row ops</span><span class="pill">back-sub</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t2">
+        <span class="topic-num">Topic 2</span>
+        <span class="topic-name">Vector Spaces, Independence, Span &amp; Bases</span>
+        <div class="topic-pills">
+          <span class="pill">span</span><span class="pill">basis</span><span class="pill">dim</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t3">
+        <span class="topic-num">Topic 3</span>
+        <span class="topic-name">Abstract Vector Spaces &amp; Linear Maps</span>
+        <div class="topic-pills">
+          <span class="pill">kernel</span><span class="pill">image</span><span class="pill">rank-nullity</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t4">
+        <span class="topic-num">Topic 4</span>
+        <span class="topic-name">The Determinant</span>
+        <div class="topic-pills">
+          <span class="pill">cofactors</span><span class="pill">det(A)</span><span class="pill">geometry</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t5">
+        <span class="topic-num">Topic 5</span>
+        <span class="topic-name">Eigenvalues &amp; Eigenvectors</span>
+        <div class="topic-pills">
+          <span class="pill">char poly</span><span class="pill">λ</span><span class="pill">eigenspace</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t6">
+        <span class="topic-num">Topic 6</span>
+        <span class="topic-name">Diagonalization &amp; Matrix Functions</span>
+        <div class="topic-pills">
+          <span class="pill">P⁻¹AP</span><span class="pill">similarity</span><span class="pill">eˢ·</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t7">
+        <span class="topic-num">Topic 7</span>
+        <span class="topic-name">The 2×2 Jordan Form</span>
+        <div class="topic-pills">
+          <span class="pill">Jordan block</span><span class="pill">gen eigenvec</span>
+        </div>
+      </a>
+      <a class="topic-card" href="#t8">
+        <span class="topic-num">Topic 8</span>
+        <span class="topic-name">Gram-Schmidt, Orthogonal Matrices &amp; Schur</span>
+        <div class="topic-pills">
+          <span class="pill">QR</span><span class="pill">orthonormal</span><span class="pill">Schur</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ────────────────────────── SYMBOLS ── -->
+  <div class="section" id="symbols">
+    <div class="section-label">Reference</div>
+    <h2>Linear Algebra Symbols</h2>
+
+    <h3>Notation You'll See Constantly</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead>
+          <tr><th>Symbol</th><th>Meaning</th><th>Read as</th><th>Context</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>𝐯, 𝐮, 𝐰</td><td>Vectors (bold lowercase)</td><td class="say">"vector v"</td><td>Any vector in ℝⁿ or abstract space</td></tr>
+          <tr><td>A, B, M</td><td>Matrices (uppercase italic)</td><td class="say">"matrix A"</td><td>m×n arrays of scalars</td></tr>
+          <tr><td>Aᵀ</td><td>Transpose of A</td><td class="say">"A transpose"</td><td>Rows become columns</td></tr>
+          <tr><td>A⁻¹</td><td>Inverse of A</td><td class="say">"A inverse"</td><td>Exists iff det(A) ≠ 0</td></tr>
+          <tr><td>det(A) or |A|</td><td>Determinant of A</td><td class="say">"determinant of A"</td><td>Scalar; measures volume scaling</td></tr>
+          <tr><td>𝐮 · 𝐯</td><td>Dot product</td><td class="say">"u dot v"</td><td>= uᵀv = Σuᵢvᵢ</td></tr>
+          <tr><td>‖𝐯‖</td><td>Norm / length of 𝐯</td><td class="say">"norm of v" / "length of v"</td><td>= √(𝐯 · 𝐯)</td></tr>
+          <tr><td>𝐮 ⊥ 𝐯</td><td>u is orthogonal to v</td><td class="say">"u perp v"</td><td>𝐮 · 𝐯 = 0</td></tr>
+          <tr><td>λ (lambda)</td><td>Eigenvalue</td><td class="say">"lambda"</td><td>Scalar in A𝐯 = λ𝐯</td></tr>
+          <tr><td>A𝐯 = λ𝐯</td><td>Eigenvalue equation</td><td class="say">"A times v equals lambda times v"</td><td>𝐯 ≠ 0</td></tr>
+          <tr><td>ker(T) or null(A)</td><td>Kernel / null space</td><td class="say">"kernel of T" / "null space of A"</td><td>Vectors mapped to 0</td></tr>
+          <tr><td>im(T) or col(A)</td><td>Image / column space</td><td class="say">"image of T" / "column space of A"</td><td>Range of the transformation</td></tr>
+          <tr><td>rank(A)</td><td>Rank of A</td><td class="say">"rank of A"</td><td>dim(col(A))</td></tr>
+          <tr><td>nullity(A)</td><td>Nullity of A</td><td class="say">"nullity of A"</td><td>dim(null(A))</td></tr>
+          <tr><td>dim(V)</td><td>Dimension of vector space V</td><td class="say">"dimension of V"</td><td>Size of any basis for V</td></tr>
+          <tr><td>span{𝐯₁,…,𝐯ₖ}</td><td>Span of vectors</td><td class="say">"span of v1 through vk"</td><td>All linear combos</td></tr>
+          <tr><td>P⁻¹AP</td><td>Similarity transform / diagonalization</td><td class="say">"P inverse A P"</td><td>Changes basis; D = P⁻¹AP is diagonal</td></tr>
+          <tr><td>tr(A)</td><td>Trace of A</td><td class="say">"trace of A"</td><td>Sum of diagonal entries = Σλᵢ</td></tr>
+          <tr><td>ℝⁿ</td><td>n-dimensional real space</td><td class="say">"R n"</td><td>Vectors of n real numbers</td></tr>
+          <tr><td>[𝐯]_B</td><td>Coordinate vector wrt basis B</td><td class="say">"v in basis B"</td><td>Representation relative to a basis</td></tr>
+          <tr><td>eᵢ</td><td>Standard basis vector</td><td class="say">"e sub i"</td><td>1 in position i, 0 elsewhere</td></tr>
+          <tr><td>Iₙ</td><td>n×n Identity matrix</td><td class="say">"I sub n" or "identity"</td><td>Diagonal ones, zeros elsewhere</td></tr>
+          <tr><td>O (zero matrix)</td><td>Matrix of all zeros</td><td class="say">"zero matrix"</td><td>Additive identity for matrices</td></tr>
+          <tr><td>⊗</td><td>Tensor / outer product</td><td class="say">"tensor product"</td><td>𝐮⊗𝐯 = 𝐮𝐯ᵀ</td></tr>
+          <tr><td>spec(A)</td><td>Spectrum (set of eigenvalues)</td><td class="say">"spectrum of A"</td><td>{λ₁, λ₂, … λₙ}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Matrix Notation</h3>
+    <div class="table-wrap">
+      <table class="sym-table">
+        <thead><tr><th>Notation</th><th>Meaning</th><th>Read as</th></tr></thead>
+        <tbody>
+          <tr><td>aᵢⱼ or A[i,j]</td><td>Entry in row i, column j</td><td class="say">"a sub i j"</td></tr>
+          <tr><td>Aᵢ· or row i</td><td>i-th row of A</td><td class="say">"row i of A"</td></tr>
+          <tr><td>A·ⱼ or col j</td><td>j-th column of A</td><td class="say">"column j of A"</td></tr>
+          <tr><td>[A|b]</td><td>Augmented matrix</td><td class="say">"augmented matrix A b"</td></tr>
+          <tr><td>Rᵢ → Rᵢ + cRⱼ</td><td>Row operation: add c times row j to row i</td><td class="say">"replace row i by row i plus c times row j"</td></tr>
+          <tr><td>REF</td><td>Row Echelon Form</td><td class="say">"row echelon form"</td></tr>
+          <tr><td>RREF</td><td>Reduced Row Echelon Form</td><td class="say">"reduced row echelon form"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 1 ── -->
+  <div class="topic-section" id="t1">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 1</span>
+      <span class="topic-title">Matrices, Systems &amp; Gaussian Elimination</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Matrix</div>
+        <div class="concept-def">Rectangular array of numbers. An <code>m×n</code> matrix has m rows and n columns. Entry in row i col j written <code>aᵢⱼ</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">System of equations</div>
+        <div class="concept-def">A set of linear equations; written compactly as <code>A𝐱 = 𝐛</code> where A is the coefficient matrix, 𝐱 is the vector of unknowns, 𝐛 is the right-hand side.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Augmented matrix</div>
+        <div class="concept-def"><code>[A | 𝐛]</code> — write the coefficient matrix with 𝐛 appended as a column. Row operations on this represent operations on the system.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Gaussian Elimination</div>
+        <div class="concept-def">Use row operations to bring <code>[A|𝐛]</code> to Row Echelon Form (REF), then back-substitute to solve. Three legal row ops: swap Rᵢ ↔ Rⱼ, scale cRᵢ, replace Rᵢ + cRⱼ.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">REF</div>
+        <div class="concept-def">Row Echelon Form — leading entry (pivot) of each nonzero row is to the right of the one above; all-zero rows at bottom.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">RREF</div>
+        <div class="concept-def">Reduced Row Echelon Form — each pivot is 1, and it's the only nonzero entry in its column. Unique for any matrix.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Pivot / leading variable</div>
+        <div class="concept-def">Variable corresponding to a pivot column. Free variables correspond to non-pivot columns; they parameterize the solution set.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Consistency</div>
+        <div class="concept-def">System <code>A𝐱 = 𝐛</code> is consistent (has ≥1 solution) iff <code>𝐛</code> is in the column space of A. Inconsistent iff RREF has row <code>[0 … 0 | c]</code> with c ≠ 0.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Reading <code>A𝐱 = 𝐛</code>:</strong> "Matrix A times vector x equals vector b." The solution is unique when A is square and invertible; it has infinitely many when there are free variables; it has none when the system is inconsistent.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 2 ── -->
+  <div class="topic-section" id="t2">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 2</span>
+      <span class="topic-title">Vector Spaces, Independence, Span &amp; Bases</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Vector space ℝⁿ</div>
+        <div class="concept-def">Set of all n-tuples of real numbers. Closed under addition and scalar multiplication. Standard example: <code>ℝ³</code> = all (x, y, z).</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Linear combination</div>
+        <div class="concept-def"><code>c₁𝐯₁ + c₂𝐯₂ + ⋯ + cₖ𝐯ₖ</code> — a weighted sum of vectors using scalar coefficients c₁…cₖ.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Span</div>
+        <div class="concept-def"><code>span{𝐯₁,…,𝐯ₖ}</code> = all linear combinations of those vectors. It's the smallest subspace containing them. Read: "the span of v1 through vk."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Linear independence</div>
+        <div class="concept-def">Vectors 𝐯₁,…,𝐯ₖ are independent iff <code>c₁𝐯₁ + ⋯ + cₖ𝐯ₖ = 𝟎 ⟹ all cᵢ = 0</code>. Otherwise dependent.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Basis</div>
+        <div class="concept-def">A set of vectors that is (1) linearly independent AND (2) spans the space. Every vector in the space has a unique representation as a linear combination of basis vectors.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Dimension dim(V)</div>
+        <div class="concept-def">Number of vectors in any basis for V. All bases for the same space have the same size. <code>dim(ℝⁿ) = n</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Standard basis for ℝⁿ</div>
+        <div class="concept-def">The vectors <code>e₁ = (1,0,…,0), e₂ = (0,1,…,0), …, eₙ = (0,…,0,1)</code>.</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Independence test via matrix:</strong> Form a matrix with the vectors as columns. They are independent iff RREF has no free variables (every column is a pivot column). Equivalently, the only solution to <code>A𝐜 = 𝟎</code> is <code>𝐜 = 𝟎</code>.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 3 ── -->
+  <div class="topic-section" id="t3">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 3</span>
+      <span class="topic-title">Abstract Vector Spaces &amp; Linear Maps</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Abstract vector space</div>
+        <div class="concept-def">Any set V with addition and scalar multiplication satisfying the 8 axioms (associativity, commutativity, identity, inverse, distributivity, etc.). Examples: polynomials, matrices, function spaces.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Linear transformation T</div>
+        <div class="concept-def">A map <code>T: V → W</code> satisfying <code>T(𝐮+𝐯) = T(𝐮)+T(𝐯)</code> and <code>T(c𝐯) = cT(𝐯)</code>. Every matrix multiplication is a linear transformation; every LT has a matrix representation.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Kernel ker(T)</div>
+        <div class="concept-def"><code>ker(T) = {𝐯 ∈ V | T(𝐯) = 𝟎}</code> — all inputs mapped to zero. Also called null space. Read: "kernel of T."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Image im(T)</div>
+        <div class="concept-def"><code>im(T) = {T(𝐯) | 𝐯 ∈ V}</code> — all possible outputs. Also called range or column space. Read: "image of T."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Rank-Nullity Theorem</div>
+        <div class="concept-def"><code>dim(ker T) + dim(im T) = dim(V)</code> i.e. <code>nullity(A) + rank(A) = n</code> (number of columns). Crucial for understanding solution structure.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Isomorphism</div>
+        <div class="concept-def">A linear transformation that is bijective (1-1 and onto). Two spaces are isomorphic iff they have the same dimension. Essentially "the same" space up to labeling.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <p><strong>Rank-Nullity in words:</strong> "The dimension of what gets killed plus the dimension of what can be hit equals the dimension of the whole domain." If rank = n, the map is injective (1-1). If rank = m (num rows), it's surjective (onto).</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 4 ── -->
+  <div class="topic-section" id="t4">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 4</span>
+      <span class="topic-title">The Determinant</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">det(A) or |A|</div>
+        <div class="concept-def">A scalar computed from a square matrix. Read "determinant of A." For 2×2: <code>det([[a,b],[c,d]]) = ad − bc</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Cofactor expansion</div>
+        <div class="concept-def">Expand along any row or column: <code>det(A) = Σⱼ aᵢⱼ · Cᵢⱼ</code> where <code>Cᵢⱼ = (−1)^(i+j) · Mᵢⱼ</code> is the cofactor, Mᵢⱼ is the (i,j) minor (det of submatrix with row i and col j removed).</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Row reduction &amp; det</div>
+        <div class="concept-def">Swapping rows negates det. Scaling row by c multiplies det by c. Adding a multiple of one row to another leaves det unchanged. Upper triangular: det = product of diagonal.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Invertibility criterion</div>
+        <div class="concept-def">A is invertible iff <code>det(A) ≠ 0</code>. If det(A) = 0, A is singular (not invertible).</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">det(AB)</div>
+        <div class="concept-def"><code>det(AB) = det(A) · det(B)</code>. Also <code>det(Aᵀ) = det(A)</code> and <code>det(A⁻¹) = 1/det(A)</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Geometric meaning</div>
+        <div class="concept-def">|det(A)| = volume of the parallelepiped formed by the column (or row) vectors. Sign indicates orientation.</div>
+      </div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 5 ── -->
+  <div class="topic-section" id="t5">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 5</span>
+      <span class="topic-title">Eigenvalues &amp; Eigenvectors</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Eigenvalue equation</div>
+        <div class="concept-def"><code>A𝐯 = λ𝐯</code> (𝐯 ≠ 𝟎) — A times v equals lambda times v. λ is the eigenvalue, 𝐯 is the eigenvector. A only stretches/flips 𝐯, never rotates it.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Characteristic polynomial</div>
+        <div class="concept-def"><code>p(λ) = det(A − λI)</code>. Eigenvalues are the roots. Read: "det of (A minus lambda I)." Set to zero and solve for λ.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Eigenspace Eλ</div>
+        <div class="concept-def"><code>Eλ = ker(A − λI)</code> — all eigenvectors for eigenvalue λ, plus 𝟎. Find it by row-reducing <code>A − λI</code> and solving the homogeneous system.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Algebraic multiplicity</div>
+        <div class="concept-def">How many times λ appears as a root of the characteristic polynomial.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Geometric multiplicity</div>
+        <div class="concept-def"><code>dim(Eλ)</code> — dimension of the eigenspace. Always ≤ algebraic multiplicity.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Algorithm:</strong> (1) Compute <code>det(A − λI) = 0</code> to find eigenvalues. (2) For each λ, solve <code>(A − λI)𝐱 = 𝟎</code> to find the eigenspace. The free variables give the basis vectors for Eλ.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>tr(A) = Σλᵢ</strong> (sum of eigenvalues) and <strong>det(A) = Πλᵢ</strong> (product of eigenvalues). Great for checking arithmetic.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 6 ── -->
+  <div class="topic-section" id="t6">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 6</span>
+      <span class="topic-title">Diagonalization &amp; Analytic Functions of Matrices</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Diagonalization</div>
+        <div class="concept-def">A is diagonalizable if <code>A = PDP⁻¹</code> where D is diagonal (with eigenvalues on diagonal) and P's columns are the corresponding eigenvectors.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">When diagonalizable?</div>
+        <div class="concept-def">A (n×n) is diagonalizable iff it has n linearly independent eigenvectors — equivalently, geometric multiplicity = algebraic multiplicity for every eigenvalue. n distinct eigenvalues ⟹ always diagonalizable.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Change of basis</div>
+        <div class="concept-def">Matrix P changes basis: <code>[T]_B = P⁻¹[T]_ₛP</code>. Similar matrices <code>B = P⁻¹AP</code> represent the same transformation in different bases.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Matrix powers</div>
+        <div class="concept-def">If <code>A = PDP⁻¹</code>, then <code>Aᵏ = PDᵏP⁻¹</code> and <code>Dᵏ</code> is trivial (just raise diagonal entries to k). Makes computing Aᵏ easy.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Matrix exponential</div>
+        <div class="concept-def"><code>eᴬ = PeᴰP⁻¹</code> where <code>eᴰ = diag(eˡ¹, eˡ², …)</code>. Defined via power series: <code>eᴬ = I + A + A²/2! + ⋯</code>. Used in ODEs.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Analytic functions f(A)</div>
+        <div class="concept-def">For diagonalizable A: <code>f(A) = Pf(D)P⁻¹</code> where <code>f(D) = diag(f(λ₁),…,f(λₙ))</code>. Applies to sin, cos, √, log, etc.</div>
+      </div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 7 ── -->
+  <div class="topic-section" id="t7">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 7</span>
+      <span class="topic-title">The 2×2 Jordan Form</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Defective matrix</div>
+        <div class="concept-def">A matrix that is NOT diagonalizable — geometric multiplicity &lt; algebraic multiplicity for some eigenvalue. There aren't enough independent eigenvectors.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Jordan block J(λ,n)</div>
+        <div class="concept-def">An n×n matrix with λ on diagonal, 1s on the superdiagonal, zeros elsewhere. Example 2×2: <code>[[λ,1],[0,λ]]</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Jordan canonical form</div>
+        <div class="concept-def">Every matrix is similar to a block diagonal matrix of Jordan blocks. For 2×2 defective: <code>J = [[λ,1],[0,λ]]</code>; then <code>A = PJP⁻¹</code>.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Generalized eigenvectors</div>
+        <div class="concept-def">When eigenvectors aren't enough, find <code>𝐯₂</code> such that <code>(A − λI)𝐯₂ = 𝐯₁</code> (where 𝐯₁ is an eigenvector). These fill the columns of P alongside eigenvectors.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <p><strong>2×2 case:</strong> If A has repeated eigenvalue λ but only one independent eigenvector, then A ~ <code>[[λ,1],[0,λ]]</code>. Find P = [𝐯₁ | 𝐯₂] by solving (A−λI)𝐯₁ = 𝟎 for eigenvector, then (A−λI)𝐯₂ = 𝐯₁ for the generalized one.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── TOPIC 8 ── -->
+  <div class="topic-section" id="t8">
+    <div class="topic-header">
+      <span class="topic-badge">Topic 8</span>
+      <span class="topic-title">Gram-Schmidt, Orthogonal Matrices &amp; Schur's Lemma</span>
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="concept-list">
+      <div class="concept">
+        <div class="concept-term">Inner product ⟨𝐮,𝐯⟩</div>
+        <div class="concept-def">Generalization of dot product. For ℝⁿ: <code>⟨𝐮,𝐯⟩ = 𝐮·𝐯 = uᵀv</code>. Read: "inner product of u and v" or "u dot v."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Orthogonality</div>
+        <div class="concept-def"><code>𝐮 ⊥ 𝐯</code> iff <code>⟨𝐮,𝐯⟩ = 0</code>. An orthogonal set has every pair of distinct vectors orthogonal. Orthonormal if also each ‖𝐯ᵢ‖ = 1.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Gram-Schmidt process</div>
+        <div class="concept-def">Given linearly independent vectors {𝐯₁,…,𝐯ₖ}, produce an orthonormal basis {𝐪₁,…,𝐪ₖ} for the same span. Project out previous directions at each step.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Projection formula</div>
+        <div class="concept-def"><code>proj_𝐮 𝐯 = (𝐯·𝐮 / 𝐮·𝐮) 𝐮</code>. Read: "projection of v onto u." Gram-Schmidt subtracts this to orthogonalize.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Orthogonal matrix Q</div>
+        <div class="concept-def">Square matrix whose columns are orthonormal. Key property: <code>QᵀQ = I</code>, so <code>Q⁻¹ = Qᵀ</code>. Preserves lengths and angles. Read: "Q inverse equals Q transpose."</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">QR decomposition</div>
+        <div class="concept-def">Any matrix with independent columns factors as <code>A = QR</code> where Q has orthonormal columns, R is upper triangular. Gram-Schmidt gives the Q.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Schur decomposition</div>
+        <div class="concept-def">Every square matrix A (over ℂ) satisfies <code>A = QUQ*</code> where Q is unitary and U is upper triangular with eigenvalues on its diagonal. Over ℝ, real Schur form applies.</div>
+      </div>
+      <div class="concept">
+        <div class="concept-term">Symmetric matrices</div>
+        <div class="concept-def">If <code>A = Aᵀ</code>, then A has real eigenvalues and an orthonormal basis of eigenvectors. So symmetric ⟹ orthogonally diagonalizable: <code>A = QDQᵀ</code>.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <p><strong>Gram-Schmidt in 3 steps:</strong> (1) 𝐪₁ = 𝐯₁/‖𝐯₁‖. (2) Subtract projection: 𝐰₂ = 𝐯₂ − (𝐯₂·𝐪₁)𝐪₁, then 𝐪₂ = 𝐰₂/‖𝐰₂‖. (3) Repeat: subtract all previous projections, normalize. Result: orthonormal set spanning the same space.</p>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+  <!-- ────────────────────────── GREEK ── -->
+  <div class="section" id="greek">
+    <div class="section-label">Reference</div>
+    <h2>Greek Letters in Linear Algebra</h2>
+
+    <div class="greek-grid">
+      <div class="greek-item"><span class="greek-sym">λ</span><div><div class="greek-name">lambda</div><div class="greek-use">Eigenvalue</div></div></div>
+      <div class="greek-item"><span class="greek-sym">Λ</span><div><div class="greek-name">Lambda (cap)</div><div class="greek-use">Diagonal eigenvalue matrix</div></div></div>
+      <div class="greek-item"><span class="greek-sym">α, β</span><div><div class="greek-name">alpha, beta</div><div class="greek-use">Scalars / coefficients</div></div></div>
+      <div class="greek-item"><span class="greek-sym">σ</span><div><div class="greek-name">sigma</div><div class="greek-use">Singular value; std dev</div></div></div>
+      <div class="greek-item"><span class="greek-sym">Σ</span><div><div class="greek-name">Sigma (cap)</div><div class="greek-use">Summation; singular value matrix</div></div></div>
+      <div class="greek-item"><span class="greek-sym">δ</span><div><div class="greek-name">delta</div><div class="greek-use">Small change</div></div></div>
+      <div class="greek-item"><span class="greek-sym">Δ</span><div><div class="greek-name">Delta (cap)</div><div class="greek-use">Change, difference</div></div></div>
+      <div class="greek-item"><span class="greek-sym">μ</span><div><div class="greek-name">mu</div><div class="greek-use">Mean; scalar</div></div></div>
+      <div class="greek-item"><span class="greek-sym">ε</span><div><div class="greek-name">epsilon</div><div class="greek-use">Small positive number</div></div></div>
+      <div class="greek-item"><span class="greek-sym">θ</span><div><div class="greek-name">theta</div><div class="greek-use">Angle (esp. rotation angle)</div></div></div>
+      <div class="greek-item"><span class="greek-sym">φ</span><div><div class="greek-name">phi</div><div class="greek-use">Angle; linear functional</div></div></div>
+      <div class="greek-item"><span class="greek-sym">ρ</span><div><div class="greek-name">rho</div><div class="greek-use">Rank; spectral radius</div></div></div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  // Progress bar
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    bar.style.width = (window.scrollY / total * 100) + '%';
+  });
+
+  // Active nav link
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.header-nav a');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '-52px 0px -60% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

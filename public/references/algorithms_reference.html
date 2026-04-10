@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms — History & Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e1014;
+  --surface:  #161920;
+  --elevated: #1e222c;
+  --border:   #2a2e38;
+  --text:     #d4d8e0;
+  --muted:    #7a8090;
+  --dim:      #3a4052;
+  --accent:   #4ecdc4;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-weight:500; line-height:1.6; -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh; }
+
+/* ── Layout ── */
+.layout { display:flex; height:100vh; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.sidebar-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar-scroll::-webkit-scrollbar { width:4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Timeline ── */
+.tl-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.timeline {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--dim));
+  border-radius: 2px;
+  opacity: 0.4;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 18px;
+  cursor: default;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -18px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--dot);
+  transition: transform 0.15s;
+}
+.tl-item:hover::before { transform: scale(1.3); }
+.tl-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--dot);
+  margin-bottom: 2px;
+}
+.tl-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tl-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── Sources ── */
+.src-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.src-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.src-card:hover { border-color: var(--accent); }
+.src-card span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.src-card small {
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+nav { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+nav a {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+nav a:hover { color:var(--text); border-color:var(--border); background:var(--elevated); }
+#search-input {
+  margin-left: auto;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  outline: none;
+  width: 180px;
+}
+#search-input:focus { border-color: var(--accent); }
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 32px 80px;
+}
+.content-scroll::-webkit-scrollbar { width:6px; }
+.content-scroll::-webkit-scrollbar-track { background:transparent; }
+.content-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Content sections ── */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 48px 0 6px;
+  letter-spacing: -0.3px;
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+.card-bar { height: 3px; background: var(--card-color, var(--accent)); }
+.card-body { padding: 14px 16px; }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--card-color, var(--accent));
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.card-title { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 7px; }
+.card-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+.card-desc strong { color: var(--text); }
+.card-desc code {
+  font-family: 'DM Mono', monospace;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.9rem;
+  color: #e8c547;
+}
+pre.code-block {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: #c8d0e0;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+pre.code-block .kw  { color: #a78bfa; }
+pre.code-block .ty  { color: #60a5fa; }
+pre.code-block .str { color: #34d399; }
+pre.code-block .cmt { color: #3a4052; font-style: italic; }
+pre.code-block .fn  { color: #4ecdc4; }
+pre.code-block .num { color: #e8c547; }
+
+.card.hidden, tr.hidden { display: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.card { animation: fadeIn 0.25s ease both; }
+
+
+
+
+
+
+/* ── Mobile collapsible sidebar ───────────────────────────────────────────── */
+#sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 300;
+  background: var(--surface, #161920);
+  color: var(--text, #d4d8e0);
+  border: 1px solid var(--border, #2a2e38);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide sidebar off-screen by default */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 250 !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 85vw !important;
+    max-width: 300px !important;
+    min-width: unset !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.6);
+  }
+
+  /* Main content fills full width since sidebar is out of flow */
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Give topbar left padding so toggle button doesn't overlap text */
+  .topbar {
+    padding-left: 48px !important;
+    flex-wrap: wrap !important;
+  }
+}
+</style>
+</head>
+<body>
+<button id="sidebar-toggle">☰ Timeline</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+
+
+
+
+
+<div class="layout">
+
+  <!-- ── Sidebar: Timeline + Sources ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Algorithms History</h1>
+      <p class="sidebar-subtitle">From ancient mathematics to modern computer science</p>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="tl-label">Timeline</div>
+      <div class="timeline">
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">~300 BC</div>
+          <div class="tl-title">Euclidean Algorithm</div>
+          <div class="tl-desc">Euclid's Elements describes an algorithm to find the greatest common divisor. Arguably the first algorithm ever written down. Still used today in cryptography (RSA key generation).</div>
+        </div>
+        <div class="tl-item" style="--dot:#4ecdc4">
+          <div class="tl-year">~820 AD</div>
+          <div class="tl-title">Al-Khwarizmi</div>
+          <div class="tl-desc">The word "algorithm" comes from his name. His book on arithmetic introduced systematic step-by-step problem solving — the foundation of algorithmic thinking.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">1843</div>
+          <div class="tl-title">Ada Lovelace</div>
+          <div class="tl-desc">Wrote the first published algorithm intended for a machine — Bernoulli numbers on Babbage's Analytical Engine. First programmer.</div>
+        </div>
+        <div class="tl-item" style="--dot:#60a5fa">
+          <div class="tl-year">1936</div>
+          <div class="tl-title">Turing Machine</div>
+          <div class="tl-desc">Alan Turing formalizes computation itself. The Turing Machine defines what problems are computable — and which ones aren't (the Halting Problem).</div>
+        </div>
+        <div class="tl-item" style="--dot:#34d399">
+          <div class="tl-year">1956</div>
+          <div class="tl-title">Dijkstra's Algorithm</div>
+          <div class="tl-desc">Edsger Dijkstra designs the shortest path algorithm in 20 minutes in a café without pen and paper. Published 1959.</div>
+        </div>
+        <div class="tl-item" style="--dot:#a78bfa">
+          <div class="tl-year">1959–1962</div>
+          <div class="tl-title">Dynamic Programming Formalized</div>
+          <div class="tl-desc">Richard Bellman names and formalizes dynamic programming (1957). Floyd-Warshall (1962) gives the iconic all-pairs shortest path DP.</div>
+        </div>
+        <div class="tl-item" style="--dot:#fb923c">
+          <div class="tl-year">1965</div>
+          <div class="tl-title">Fast Fourier Transform</div>
+          <div class="tl-desc">Cooley and Tukey rediscover the FFT, reducing DFT from O(n²) to O(n log n). Enables digital audio, image compression, and 5G.</div>
+        </div>
+        <div class="tl-item" style="--dot:#f472b6">
+          <div class="tl-year">1971</div>
+          <div class="tl-title">NP-Completeness</div>
+          <div class="tl-desc">Stephen Cook proves SAT is NP-complete. Karp shows 21 more problems are NP-complete. P vs NP remains unsolved.</div>
+        </div>
+        <div class="tl-item" style="--dot:#e8c547">
+          <div class="tl-year">1977</div>
+          <div class="tl-title">RSA Encryption</div>
+          <div class="tl-desc">Rivest, Shamir, Adleman publish RSA — the algorithm that secures the internet. Based on the hardness of integer factorization.</div>
+        </div>
+      </div>
+      <div class="src-label">Sources</div>
+      <a class="src-card" href="https://mitpress.mit.edu/9780262046305/" target="_blank" rel="noopener">
+        <span>Introduction to Algorithms — CLRS</span>
+        <small>mitpress.mit.edu</small>
+      </a>
+      <a class="src-card" href="https://jeffe.cs.illinois.edu/teaching/algorithms/" target="_blank" rel="noopener">
+        <span>Algorithms — Jeff Erickson (free)</span>
+        <small>jeffe.cs.illinois.edu</small>
+      </a>
+      <a class="src-card" href="https://visualgo.net/" target="_blank" rel="noopener">
+        <span>VisuAlgo</span>
+        <small>visualgo.net</small>
+      </a>
+      <a class="src-card" href="https://cp-algorithms.com/" target="_blank" rel="noopener">
+        <span>CP-Algorithms</span>
+        <small>cp-algorithms.com</small>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main: nav + content ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Algorithms Reference</span>
+      <nav>
+        <a href="#paradigms">Paradigms</a>
+        <a href="#sorting">Sorting</a>
+        <a href="#searching">Searching</a>
+        <a href="#graphs">Graphs</a>
+        <a href="#complexity">Complexity</a>
+      </nav>
+      <input id="search-input" type="text" placeholder="search…">
+    </div>
+    <div class="content-scroll">
+<div id="paradigms">
+  <div class="section-title">Algorithm Paradigms</div>
+  <div class="section-sub">Every algorithm is an instance of one of these problem-solving strategies</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#4ecdc4">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Divide & Conquer</div><div class="card-title">Split → Solve → Combine</div>
+      <div class="card-desc">Break into subproblems, solve recursively, merge results. <strong>Subproblems are independent.</strong> Complexity via Master Theorem: <code>T(n) = aT(n/b) + f(n)</code><br><br><strong>Examples:</strong> Merge Sort, Quick Sort, Binary Search, FFT, Closest Pair of Points.</div></div>
+    </div>
+    <div class="card" style="--card-color:#e8c547">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Dynamic Programming</div><div class="card-title">Memoize Overlapping Subproblems</div>
+      <div class="card-desc">Like D&C but <strong>subproblems overlap</strong> — cache results to avoid recomputation. Two approaches: <strong>top-down</strong> (recursive + memo) or <strong>bottom-up</strong> (tabulation).<br><br><strong>Examples:</strong> Fibonacci, Knapsack, LCS, Edit Distance, Matrix Chain, Kadane's.</div></div>
+    </div>
+    <div class="card" style="--card-color:#fb923c">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Greedy</div><div class="card-title">Locally Optimal → Globally Optimal</div>
+      <div class="card-desc">At each step, choose the locally best option and never look back. Works when the problem has the <strong>greedy choice property</strong> and <strong>optimal substructure</strong>.<br><br><strong>Examples:</strong> Dijkstra, Kruskal, Prim, Huffman Coding, Activity Selection.</div></div>
+    </div>
+    <div class="card" style="--card-color:#a78bfa">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Backtracking</div><div class="card-title">Explore + Prune</div>
+      <div class="card-desc">Build solution incrementally. Abandon (backtrack) when a partial solution can't lead to a valid complete solution. Exhaustive search with <strong>pruning.</strong><br><br><strong>Examples:</strong> N-Queens, Sudoku Solver, Subset Sum, Graph Coloring.</div></div>
+    </div>
+    <div class="card" style="--card-color:#60a5fa">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Randomized</div><div class="card-title">Use Randomness to Simplify</div>
+      <div class="card-desc">Introduce randomness to avoid worst-case inputs or simplify analysis. <strong>Las Vegas:</strong> always correct, random runtime. <strong>Monte Carlo:</strong> always fast, probabilistically correct.<br><br><strong>Examples:</strong> Randomized QuickSort, Karger's Min Cut, Skip Lists.</div></div>
+    </div>
+    <div class="card" style="--card-color:#34d399">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Two Pointers / Sliding Window</div><div class="card-title">Linear Scan Tricks</div>
+      <div class="card-desc">Maintain two indices to avoid nested loops. Reduces O(n²) brute force to <strong>O(n).</strong><br><br><strong>Two pointers:</strong> sorted array problems, palindrome check.<br><strong>Sliding window:</strong> max subarray sum, longest substring without repeat.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="sorting">
+  <div class="section-title">Sorting Algorithms</div>
+  <div class="section-sub">Know why each exists — not just how it works</div>
+  <table class="complexity-table">
+    <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable?</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td>Bubble Sort</td><td class="good">O(n)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="good">O(1)</td><td>✓</td><td>Never — educational only</td></tr>
+      <tr><td>Selection Sort</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="good">O(1)</td><td>✗</td><td>Minimizing writes (flash memory)</td></tr>
+      <tr><td>Insertion Sort</td><td class="good">O(n)</td><td class="bad">O(n²)</td><td class="bad">O(n²)</td><td class="good">O(1)</td><td>✓</td><td>Nearly sorted data, small n, online sorting</td></tr>
+      <tr><td>Merge Sort</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="bad">O(n)</td><td>✓</td><td>Guaranteed performance, linked lists, external sort</td></tr>
+      <tr><td>Quick Sort</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="bad">O(n²)</td><td class="ok">O(log n)</td><td>✗</td><td>General purpose — fastest in practice with good pivot</td></tr>
+      <tr><td>Heap Sort</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="good">O(1)</td><td>✗</td><td>Guaranteed O(n log n) + O(1) space</td></tr>
+      <tr><td>Counting Sort</td><td class="good">O(n+k)</td><td class="good">O(n+k)</td><td class="good">O(n+k)</td><td class="bad">O(k)</td><td>✓</td><td>Small integer range k, ages, scores</td></tr>
+      <tr><td>Radix Sort</td><td class="good">O(nk)</td><td class="good">O(nk)</td><td class="good">O(nk)</td><td class="ok">O(n+k)</td><td>✓</td><td>Integers/strings with known max length</td></tr>
+      <tr><td>Tim Sort</td><td class="good">O(n)</td><td class="ok">O(n log n)</td><td class="ok">O(n log n)</td><td class="bad">O(n)</td><td>✓</td><td>Real-world data — Python's sorted(), Java Arrays.sort()</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="searching">
+  <div class="section-title">Searching Algorithms</div>
+  <div class="section-sub">Finding things — the most fundamental operation in computing</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#e8c547">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Linear Search</div><div class="card-title">O(n) — scan everything</div>
+      <div class="card-desc">Check each element one by one. Works on <strong>unsorted data.</strong> O(n) time, O(1) space. The baseline — use when data is small or unsorted and the cost of sorting isn't worth it.</div></div>
+    </div>
+    <div class="card" style="--card-color:#4ecdc4">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Binary Search</div><div class="card-title">O(log n) — requires sorted data</div>
+      <div class="card-desc">Halve the search space each iteration. Requires <strong>sorted, random-access</strong> data. <code>mid = lo + (hi - lo) / 2</code> avoids overflow.<br><br><strong>Key insight:</strong> applies to any monotonic function — "find first x where f(x) = true."</div></div>
+    </div>
+    <div class="card" style="--card-color:#fb923c">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">BFS</div><div class="card-title">Breadth-First Search</div>
+      <div class="card-desc">Explore layer by layer using a queue. <strong>Finds shortest path in unweighted graphs.</strong> O(V+E) time and space.<br><br><strong>Use for:</strong> shortest path, level-order traversal, connected components, web crawlers.</div></div>
+    </div>
+    <div class="card" style="--card-color:#a78bfa">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">DFS</div><div class="card-title">Depth-First Search</div>
+      <div class="card-desc">Explore as deep as possible before backtracking. Uses a stack (implicit via recursion). O(V+E) time, O(V) space.<br><br><strong>Use for:</strong> cycle detection, topological sort, strongly connected components, maze solving.</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="graph-algos">
+  <div class="section-title">Graph Algorithms</div>
+  <div class="section-sub">The algorithms that power maps, networks, and compilers</div>
+  <div class="card-grid">
+    <div class="card" style="--card-color:#34d399">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Dijkstra's</div><div class="card-title">Single-Source Shortest Path (non-negative weights)</div>
+      <div class="card-desc">Greedy — always expand the closest unvisited node. <strong>O((V+E) log V)</strong> with a min-heap. Fails on negative edges.<br><br><strong>Use:</strong> GPS routing, network packet routing.</div></div>
+    </div>
+    <div class="card" style="--card-color:#60a5fa">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Bellman-Ford</div><div class="card-title">Shortest Path with Negative Edges</div>
+      <div class="card-desc">Relax all edges V-1 times. <strong>O(VE).</strong> Slower than Dijkstra but handles negative weights and <strong>detects negative cycles.</strong><br><br><strong>Use:</strong> currency arbitrage detection, routing with costs that can be negative.</div></div>
+    </div>
+    <div class="card" style="--card-color:#e8c547">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Floyd-Warshall</div><div class="card-title">All-Pairs Shortest Path</div>
+      <div class="card-desc">Find shortest paths between ALL pairs of vertices. <strong>O(V³)</strong> — only practical for small V (&lt;500). DP approach: for each intermediate vertex k, check if path through k is shorter.</div></div>
+    </div>
+    <div class="card" style="--card-color:#fb923c">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Kruskal's / Prim's</div><div class="card-title">Minimum Spanning Tree</div>
+      <div class="card-desc"><strong>Kruskal's:</strong> sort edges by weight, add if no cycle (Union-Find). O(E log E).<br><strong>Prim's:</strong> grow MST from a seed vertex using min-heap. O(E log V).<br><br>Kruskal's better for sparse graphs, Prim's for dense.</div></div>
+    </div>
+    <div class="card" style="--card-color:#a78bfa">
+      <div class="card-bar"></div><div class="card-body">
+      <div class="card-label">Topological Sort</div><div class="card-title">Order Dependencies</div>
+      <div class="card-desc">Linear ordering of DAG vertices where u→v means u comes before v. <strong>Only works on DAGs</strong> (cycle = impossible ordering). Two approaches: DFS finish-time reversal or Kahn's (BFS with in-degree counts).<br><br><strong>Use:</strong> build systems, course prerequisites, task scheduling.</div></div>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('search-input');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll('.card, tbody tr').forEach(el => {
+      el.classList.toggle('hidden', q.length > 1 && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+
+<script>
+(function() {
+  var btn     = document.getElementById('sidebar-toggle');
+  var sidebar = document.querySelector('.sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (!btn || !sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.textContent = '✕ Close';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.textContent = '☰ Timeline';
+  }
+
+  btn.addEventListener('click', function() {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  sidebar.querySelectorAll('.tl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

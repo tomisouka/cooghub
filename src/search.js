@@ -231,7 +231,7 @@ export async function buildRefTextIndex(refIndex) {
 }
 
 export function searchRefTextIndex(refTextIndex, query) {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   const q = query.trim().toLowerCase();
   const results = [];
 
@@ -269,7 +269,7 @@ export function searchRefTextIndex(refTextIndex, query) {
 // ── Search reference label index ──────────────────────────────────────────────
 
 export function searchReferenceIndex(refIndex, query) {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   const q = query.trim().toLowerCase();
   const results = [];
 
@@ -306,7 +306,7 @@ export async function loadPdfIndex() {
 // ── Search text index ─────────────────────────────────────────────────────────
 
 export function searchTextIndex(index, query) {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   const q = query.trim().toLowerCase();
   const results = [];
 
@@ -339,7 +339,7 @@ export function searchTextIndex(index, query) {
 // ── Search PDF index ──────────────────────────────────────────────────────────
 
 export function searchPdfIndex(pdfIndex, query) {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   const q = query.trim().toLowerCase();
   const results = [];
 

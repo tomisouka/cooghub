@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- FONT-BUMP-PATCH -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dijkstra's Algorithm</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030508; --card: #0a0f1a; --card2: #0d1320;
+    --border: #141e30; --border2: #1e2e48;
+    --accent: #00e5ff; --green: #00e676; --yellow: #e8c547;
+    --red: #ff4757; --blue: #4a9eff; --purple: #c084fc;
+    --text: #cdd9ed; --muted: #3a4d68; --sub: #6880a2;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,229,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  h1 { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: #fff; }
+  .sub { font-size: 0.9rem; color: var(--sub); margin-top: 0.4rem; margin-bottom: 2rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .full { grid-column: 1/-1; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .kv { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--sub); } .kv-v { font-family: var(--mono); font-size: 0.8rem; }
+  .kv-v.green { color: var(--green); } .kv-v.yellow { color: var(--yellow); } .kv-v.red { color: var(--red); }
+  pre { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-family: var(--mono); font-size: 1rem; line-height: 1.7; overflow-x: auto; }
+  .keyword { color: var(--purple); } .fn { color: var(--accent); } .comment { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 1rem; }
+  th { background: var(--border2); color: var(--accent); padding: 0.4rem 0.6rem; text-align: left; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  .done { color: var(--green); } .inf { color: var(--muted); } .upd { color: var(--yellow); }
+  .steps { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; padding: 0.5rem 0 0.5rem 2.5rem; position: relative; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: 0.5rem; width: 1.6rem; height: 1.6rem; background: var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: var(--accent); }
+  .warn { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.2); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.83rem; color: var(--red); margin-top: 0.5rem; }
+  .warn strong { color: var(--red); font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Graph Algorithms · Shortest Path</div>
+  <h1>Dijkstra's Algorithm</h1>
+  <div class="sub">Greedy shortest path from a source to all nodes. Always picks the nearest unvisited node.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Complexity</div>
+      <div class="kv"><span class="kv-k">Time (basic)</span><span class="kv-v yellow">O(V²)</span></div>
+      <div class="kv"><span class="kv-k">Time (min-heap)</span><span class="kv-v green">O((V+E) log V)</span></div>
+      <div class="kv"><span class="kv-k">Space</span><span class="kv-v yellow">O(V)</span></div>
+      <div class="kv"><span class="kv-k">Data structure</span><span class="kv-v">Min priority queue</span></div>
+      <div class="kv"><span class="kv-k">Negative weights?</span><span class="kv-v red">✗ Use Bellman-Ford</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Algorithm Steps</div>
+      <ol class="steps">
+        <li>dist[src]=0, all others ∞; push src to PQ</li>
+        <li>Pop node with minimum dist</li>
+        <li>For each neighbor: if dist[u]+w &lt; dist[v], update</li>
+        <li>Push updated neighbors to PQ</li>
+        <li>Repeat until PQ empty</li>
+      </ol>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Trace — Graph: A→B(4), A→C(1), C→B(2), B→D(1), C→D(5)</div>
+      <table>
+        <tr><th>Step</th><th>Node</th><th>dist[A]</th><th>dist[B]</th><th>dist[C]</th><th>dist[D]</th><th>Action</th></tr>
+        <tr><td>0</td><td>—</td><td class="done">0</td><td class="inf">∞</td><td class="inf">∞</td><td class="inf">∞</td><td>Init</td></tr>
+        <tr><td>1</td><td>A</td><td class="done">0</td><td class="upd">4</td><td class="upd">1</td><td class="inf">∞</td><td>Relax A's neighbors</td></tr>
+        <tr><td>2</td><td>C (dist=1)</td><td class="done">0</td><td class="upd">3</td><td class="done">1</td><td class="upd">6</td><td>B: min(4,1+2)=3</td></tr>
+        <tr><td>3</td><td>B (dist=3)</td><td class="done">0</td><td class="done">3</td><td class="done">1</td><td class="upd">4</td><td>D: min(6,3+1)=4</td></tr>
+        <tr><td>4</td><td>D (dist=4)</td><td class="done">0</td><td class="done">3</td><td class="done">1</td><td class="done">4</td><td>Done</td></tr>
+      </table>
+      <div style="margin-top:0.75rem; font-family:var(--mono); font-size:0.75rem; color:var(--accent);">
+        Shortest paths from A: A=0, B=3 (A→C→B), C=1 (A→C), D=4 (A→C→B→D)
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">Pseudocode</div>
+      <pre><span class="fn">Dijkstra</span>(graph, src):
+  dist ← {node: ∞ <span class="keyword">for</span> node <span class="keyword">in</span> graph}
+  dist[src] ← 0
+  pq ← MinPQ([(0, src)])
+
+  <span class="keyword">while</span> pq <span class="keyword">not</span> empty:
+    (d, u) ← pq.<span class="fn">pop_min</span>()
+    <span class="keyword">if</span> d > dist[u]: <span class="keyword">continue</span>  <span class="comment">// stale entry</span>
+
+    <span class="keyword">for</span> (v, weight) <span class="keyword">in</span> graph[u]:
+      <span class="keyword">if</span> dist[u] + weight < dist[v]:
+        dist[v] ← dist[u] + weight
+        pq.<span class="fn">push</span>((dist[v], v))
+
+  <span class="keyword">return</span> dist</pre>
+    </div>
+
+    <div class="card full">
+      <div class="warn"><strong>⚠ Limitation:</strong> Dijkstra fails with negative edge weights. A single negative edge can make the greedy "take the minimum" choice incorrect. Use Bellman-Ford for negative weights.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

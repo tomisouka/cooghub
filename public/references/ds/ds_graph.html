@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graph — Data Structures</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --border: #1e2230;
+    --accent: #6bde84;
+    --green: #6bde84;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --yellow: #e8c547;
+    --orange: #fb923c;
+    --teal: #4ecdc4;
+    --pink: #f472b6;
+    --text: #d4d8e0;
+    --dim: #7a8090;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 14px; padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 56px; }
+  h1 { font-family: 'Fraunces', serif; font-size: 64px; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+
+  .big-o { display: flex; flex-direction: column; gap: 6px; text-align: right; }
+  .big-o-row { font-size: 13px; display: flex; gap: 16px; justify-content: flex-end; }
+  .big-o-row .op { color: var(--dim); }
+  .ok  { color: var(--green);  font-weight: 700; }
+  .ov  { color: var(--yellow); font-weight: 700; }
+  .ove { color: var(--orange); font-weight: 700; }
+
+  .label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; font-weight: 700; }
+  .annotation { font-size: 13px; color: var(--dim); margin-bottom: 24px; line-height: 1.7; }
+  .annotation span { color: var(--accent); font-weight: 700; }
+  .diagram-section { margin-bottom: 52px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+  .caption { font-size: 12px; color: var(--dim); line-height: 1.7; margin-top: 16px; }
+  .caption strong { color: var(--text); }
+
+  .tree-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+  svg text { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+  /* type grid */
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .type-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+  .type-box:nth-child(1) { border-top: 2px solid var(--blue); }
+  .type-box:nth-child(2) { border-top: 2px solid var(--orange); }
+  .type-box:nth-child(3) { border-top: 2px solid var(--teal); }
+  .type-box:nth-child(4) { border-top: 2px solid var(--pink); }
+  .type-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .type-body  { font-size: 11px; color: var(--dim); line-height: 1.65; margin-bottom: 10px; }
+
+  /* adj matrix */
+  .matrix-wrap { overflow-x: auto; }
+  .matrix { border-collapse: collapse; font-size: 12px; }
+  .matrix th { padding: 8px 12px; text-align: center; color: var(--accent); font-weight: 700; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .matrix td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); color: var(--dim); width: 48px; }
+  .matrix td.one { color: var(--green); font-weight: 700; }
+  .matrix td.diag { background: #16192080; color: #3a4052; }
+  .matrix th:first-child, .matrix td:first-child { color: var(--accent); font-weight: 700; background: #111318; }
+
+  /* adj list */
+  .adj-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .adj-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .adj-node { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--accent); background: #6bde8410; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent); flex-shrink: 0; font-size: 13px; }
+  .adj-arrow { color: var(--dim); font-size: 16px; }
+  .adj-neighbors { display: flex; gap: 6px; flex-wrap: wrap; }
+  .adj-n { padding: 3px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 700; color: var(--text); }
+
+  /* traversal steps */
+  .trav-steps { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .trav-step { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+  .tstep-n { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .bfs-n { background: var(--blue); color: #0a0c0f; }
+  .dfs-n { background: var(--orange); color: #0a0c0f; }
+  .tstep-t { color: var(--dim); line-height: 1.6; }
+  .tstep-t strong { color: var(--text); }
+
+  /* vs table */
+  .vs-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .vs-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .vs-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--dim); }
+  .vs-table td:first-child { color: var(--text); }
+  .vs-table .good { color: var(--green); font-weight: 700; }
+  .vs-table .bad  { color: var(--red);   font-weight: 700; }
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin-top: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; border-top: 2px solid var(--accent); }
+  .card:nth-child(2) { border-top-color: var(--blue); }
+  .card:nth-child(3) { border-top-color: var(--orange); }
+  .card:nth-child(4) { border-top-color: var(--yellow); }
+  .card:nth-child(5) { border-top-color: var(--pink); }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .card-o     { margin-top: 10px; font-size: 13px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Graph<span>~</span></h1>
+    <div class="subtitle">Vertices and Edges · No Root · No Hierarchy</div>
+  </div>
+  <div class="big-o">
+    <div class="big-o-row"><span class="op">BFS / DFS</span>       <span class="ove">O(V + E)</span></div>
+    <div class="big-o-row"><span class="op">add vertex</span>      <span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">add edge (list)</span> <span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">edge check (matrix)</span><span class="ok">O(1)</span></div>
+    <div class="big-o-row"><span class="op">edge check (list)</span> <span class="ov">O(degree)</span></div>
+  </div>
+</div>
+
+<!-- 1. What is a graph -->
+<div class="diagram-section">
+  <div class="label">1 — Vertices and Edges — No Root, No Rules</div>
+  <div class="annotation">A graph is a set of <span>vertices</span> (nodes) connected by <span>edges</span>. Unlike a tree — no root, no parent-child requirement, no hierarchy. Any vertex can connect to any other.</div>
+
+  <div class="tree-wrap">
+    <svg width="500" height="260" viewBox="0 0 500 260">
+      <!-- undirected weighted graph -->
+      <!-- edges -->
+      <line x1="120" y1="80"  x2="260" y2="50"  stroke="#2a2e38" stroke-width="2"/>
+      <line x1="120" y1="80"  x2="100" y2="200" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="120" y1="80"  x2="260" y2="180" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="260" y1="50"  x2="400" y2="80"  stroke="#2a2e38" stroke-width="2"/>
+      <line x1="260" y1="50"  x2="260" y2="180" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="400" y1="80"  x2="420" y2="200" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="400" y1="80"  x2="260" y2="180" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="100" y1="200" x2="260" y2="180" stroke="#2a2e38" stroke-width="2"/>
+      <line x1="260" y1="180" x2="420" y2="200" stroke="#2a2e38" stroke-width="2"/>
+
+      <!-- edge weight labels -->
+      <text x="188" y="58"  text-anchor="middle" font-size="10" fill="#7a8090">4</text>
+      <text x="104" y="148" text-anchor="middle" font-size="10" fill="#7a8090">7</text>
+      <text x="182" y="142" text-anchor="middle" font-size="10" fill="#7a8090">3</text>
+      <text x="334" y="58"  text-anchor="middle" font-size="10" fill="#7a8090">2</text>
+      <text x="264" y="118" text-anchor="middle" font-size="10" fill="#7a8090">6</text>
+      <text x="416" y="148" text-anchor="middle" font-size="10" fill="#7a8090">5</text>
+      <text x="336" y="130" text-anchor="middle" font-size="10" fill="#7a8090">1</text>
+      <text x="182" y="198" text-anchor="middle" font-size="10" fill="#7a8090">8</text>
+      <text x="344" y="198" text-anchor="middle" font-size="10" fill="#7a8090">9</text>
+
+      <!-- vertices -->
+      <circle cx="120" cy="80"  r="26" fill="#6bde8418" stroke="#6bde84" stroke-width="2"/>
+      <text x="120" y="86"  text-anchor="middle" font-size="15" font-weight="700" fill="#6bde84">A</text>
+
+      <circle cx="260" cy="50"  r="26" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="260" y="56"  text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">B</text>
+
+      <circle cx="400" cy="80"  r="26" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="400" y="86"  text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">C</text>
+
+      <circle cx="100" cy="200" r="26" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="100" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">D</text>
+
+      <circle cx="260" cy="180" r="26" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="260" y="186" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">E</text>
+
+      <circle cx="420" cy="200" r="26" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+      <text x="420" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#d4d8e0">F</text>
+
+      <!-- legend -->
+      <text x="10" y="248" font-size="10" fill="#7a8090">numbers on edges = weights (cost/distance)</text>
+    </svg>
+  </div>
+  <div class="caption"><strong>V = 6 vertices</strong>, <strong>E = 9 edges</strong>. No root. No level. A is connected to B, D, E — but not F directly. This is an undirected weighted graph.</div>
+</div>
+
+<hr>
+
+<!-- 2. Four types -->
+<div class="diagram-section">
+  <div class="label">2 — Four Graph Types</div>
+  <div class="annotation">Graphs vary on two axes: <span>directed vs undirected</span> and <span>weighted vs unweighted</span>. These combine into four types.</div>
+
+  <div class="type-grid">
+
+    <!-- Undirected Unweighted -->
+    <div class="type-box">
+      <div class="type-title">Undirected · Unweighted</div>
+      <div class="type-body">Edges go both ways. No cost on edges. Friends on social media — if A follows B, B follows A.</div>
+      <svg width="200" height="100" viewBox="0 0 200 100">
+        <line x1="50" y1="50" x2="100" y2="30" stroke="#2a2e38" stroke-width="2"/>
+        <line x1="50" y1="50" x2="100" y2="70" stroke="#2a2e38" stroke-width="2"/>
+        <line x1="100" y1="30" x2="160" y2="50" stroke="#2a2e38" stroke-width="2"/>
+        <line x1="100" y1="70" x2="160" y2="50" stroke="#2a2e38" stroke-width="2"/>
+        <circle cx="50"  cy="50" r="18" fill="#60a5fa18" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="50"  y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#60a5fa">A</text>
+        <circle cx="100" cy="30" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="100" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="100" cy="70" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="100" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="160" cy="50" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="160" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">D</text>
+      </svg>
+    </div>
+
+    <!-- Directed Unweighted -->
+    <div class="type-box">
+      <div class="type-title">Directed · Unweighted</div>
+      <div class="type-body">Edges are one-way arrows. Twitter follows — A can follow B without B following A.</div>
+      <svg width="200" height="100" viewBox="0 0 200 100">
+        <!-- arrows with markers -->
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#fb923c"/>
+          </marker>
+        </defs>
+        <line x1="68" y1="44" x2="118" y2="28" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="68" y1="56" x2="118" y2="68" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="136" y1="30" x2="148" y2="44" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr)"/>
+        <circle cx="50"  cy="50" r="18" fill="#fb923c18" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="50"  y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#fb923c">A</text>
+        <circle cx="130" cy="24" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="130" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="130" cy="74" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="130" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="164" cy="56" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="164" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">D</text>
+      </svg>
+    </div>
+
+    <!-- Undirected Weighted -->
+    <div class="type-box">
+      <div class="type-title">Undirected · Weighted</div>
+      <div class="type-body">Edges have costs — distances on a map. Road between two cities is the same distance both ways.</div>
+      <svg width="200" height="100" viewBox="0 0 200 100">
+        <line x1="50" y1="50" x2="110" y2="30" stroke="#2a2e38" stroke-width="2"/>
+        <line x1="50" y1="50" x2="110" y2="70" stroke="#2a2e38" stroke-width="2"/>
+        <line x1="110" y1="30" x2="160" y2="50" stroke="#2a2e38" stroke-width="2"/>
+        <text x="76"  y="34" text-anchor="middle" font-size="10" fill="#4ecdc4">5</text>
+        <text x="76"  y="68" text-anchor="middle" font-size="10" fill="#4ecdc4">3</text>
+        <text x="138" y="34" text-anchor="middle" font-size="10" fill="#4ecdc4">8</text>
+        <circle cx="50"  cy="50" r="18" fill="#4ecdc418" stroke="#4ecdc4" stroke-width="1.5"/>
+        <text x="50"  y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#4ecdc4">A</text>
+        <circle cx="110" cy="30" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="110" cy="70" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="160" cy="50" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="160" y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">D</text>
+      </svg>
+    </div>
+
+    <!-- Directed Weighted (DAG) -->
+    <div class="type-box">
+      <div class="type-title">Directed · Weighted</div>
+      <div class="type-body">One-way edges with costs. GPS routing, flight paths. Dijkstra's algorithm runs on this.</div>
+      <svg width="200" height="100" viewBox="0 0 200 100">
+        <defs>
+          <marker id="arr2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#f472b6"/>
+          </marker>
+        </defs>
+        <line x1="68" y1="44" x2="116" y2="28" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="68" y1="56" x2="116" y2="68" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="134" y1="30" x2="146" y2="46" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <text x="88"  y="30" text-anchor="middle" font-size="10" fill="#f472b6">4</text>
+        <text x="88"  y="72" text-anchor="middle" font-size="10" fill="#f472b6">7</text>
+        <text x="148" y="36" text-anchor="middle" font-size="10" fill="#f472b6">2</text>
+        <circle cx="50"  cy="50" r="18" fill="#f472b618" stroke="#f472b6" stroke-width="1.5"/>
+        <text x="50"  y="56" text-anchor="middle" font-size="12" font-weight="700" fill="#f472b6">A</text>
+        <circle cx="128" cy="24" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="128" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">B</text>
+        <circle cx="128" cy="74" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="128" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">C</text>
+        <circle cx="162" cy="56" r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="162" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="#d4d8e0">D</text>
+      </svg>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- 3. Two storage methods -->
+<div class="diagram-section">
+  <div class="label">3 — Two Ways to Store a Graph</div>
+  <div class="annotation">Same graph — A connects to B, C. B connects to C, D. C connects to D. Two completely different storage representations.</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:8px;">
+
+    <!-- Adjacency Matrix -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;border-top:2px solid var(--blue);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">Adjacency Matrix</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:14px;">2D array. matrix[i][j] = 1 if edge exists.</div>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+          <tr><td>A</td><td class="diag">0</td><td class="one">1</td><td class="one">1</td><td>0</td></tr>
+          <tr><td>B</td><td class="one">1</td><td class="diag">0</td><td class="one">1</td><td class="one">1</td></tr>
+          <tr><td>C</td><td class="one">1</td><td class="one">1</td><td class="diag">0</td><td class="one">1</td></tr>
+          <tr><td>D</td><td>0</td><td class="one">1</td><td class="one">1</td><td class="diag">0</td></tr>
+        </table>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--dim);line-height:1.6;">
+        <div style="color:var(--green);font-weight:700;">✓ O(1) edge lookup</div>
+        <div style="color:var(--red);">✕ O(V²) space — wastes memory on sparse graphs</div>
+      </div>
+    </div>
+
+    <!-- Adjacency List -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;border-top:2px solid var(--orange);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">Adjacency List</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:14px;">Each vertex stores a list of its neighbors.</div>
+      <div class="adj-list">
+        <div class="adj-row">
+          <div class="adj-node">A</div>
+          <div class="adj-arrow">→</div>
+          <div class="adj-neighbors">
+            <div class="adj-n">B</div><div class="adj-n">C</div>
+          </div>
+        </div>
+        <div class="adj-row">
+          <div class="adj-node">B</div>
+          <div class="adj-arrow">→</div>
+          <div class="adj-neighbors">
+            <div class="adj-n">A</div><div class="adj-n">C</div><div class="adj-n">D</div>
+          </div>
+        </div>
+        <div class="adj-row">
+          <div class="adj-node">C</div>
+          <div class="adj-arrow">→</div>
+          <div class="adj-neighbors">
+            <div class="adj-n">A</div><div class="adj-n">B</div><div class="adj-n">D</div>
+          </div>
+        </div>
+        <div class="adj-row">
+          <div class="adj-node">D</div>
+          <div class="adj-arrow">→</div>
+          <div class="adj-neighbors">
+            <div class="adj-n">B</div><div class="adj-n">C</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--dim);line-height:1.6;">
+        <div style="color:var(--green);font-weight:700;">✓ O(V + E) space — efficient for sparse graphs</div>
+        <div style="color:var(--red);">✕ O(degree) edge lookup — must scan list</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- 4. BFS vs DFS -->
+<div class="diagram-section">
+  <div class="label">4 — BFS vs DFS Traversal</div>
+  <div class="annotation">Starting from vertex <span>A</span> on this graph: A–B, A–C, B–D, B–E, C–F. Both visit every vertex exactly once in O(V+E).</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:8px;">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;border-top:2px solid var(--blue);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;">BFS — Breadth First Search</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Level by level. Uses a <strong style="color:var(--blue)">queue</strong>. Finds shortest path in unweighted graphs.</div>
+      <svg width="260" height="130" viewBox="0 0 260 130">
+        <line x1="50" y1="40"  x2="110" y2="20"  stroke="#60a5fa" stroke-width="1.5"/>
+        <line x1="50" y1="40"  x2="110" y2="60"  stroke="#60a5fa" stroke-width="1.5"/>
+        <line x1="110" y1="20" x2="180" y2="10"  stroke="#60a5fa" stroke-width="1.5"/>
+        <line x1="110" y1="20" x2="180" y2="30"  stroke="#60a5fa" stroke-width="1.5"/>
+        <line x1="110" y1="60" x2="180" y2="70"  stroke="#60a5fa" stroke-width="1.5"/>
+        <circle cx="50"  cy="40"  r="20" fill="#60a5fa18" stroke="#60a5fa" stroke-width="2"/>
+        <text x="50"  y="36"  text-anchor="middle" font-size="11" font-weight="700" fill="#60a5fa">A</text>
+        <text x="50"  y="50"  text-anchor="middle" font-size="8"  fill="#60a5fa">①</text>
+        <circle cx="110" cy="20"  r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="16"  text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <text x="110" y="28"  text-anchor="middle" font-size="8"  fill="#60a5fa">②</text>
+        <circle cx="110" cy="60"  r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="56"  text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <text x="110" y="68"  text-anchor="middle" font-size="8"  fill="#60a5fa">③</text>
+        <circle cx="180" cy="10"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="7"   text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">D</text>
+        <text x="180" y="18"  text-anchor="middle" font-size="8"  fill="#60a5fa">④</text>
+        <circle cx="180" cy="38"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="35"  text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">E</text>
+        <text x="180" y="46"  text-anchor="middle" font-size="8"  fill="#60a5fa">⑤</text>
+        <circle cx="180" cy="70"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="67"  text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">F</text>
+        <text x="180" y="78"  text-anchor="middle" font-size="8"  fill="#60a5fa">⑥</text>
+        <text x="130" y="112" text-anchor="middle" font-size="11" fill="#60a5fa" font-weight="700">Order: A → B → C → D → E → F</text>
+      </svg>
+      <div class="trav-steps">
+        <div class="trav-step"><span class="tstep-n bfs-n">1</span><span class="tstep-t">Enqueue A. Visit A.</span></div>
+        <div class="trav-step"><span class="tstep-n bfs-n">2</span><span class="tstep-t">Dequeue A. Enqueue neighbors B, C.</span></div>
+        <div class="trav-step"><span class="tstep-n bfs-n">3</span><span class="tstep-t">Dequeue B. Enqueue D, E. Visit B.</span></div>
+        <div class="trav-step"><span class="tstep-n bfs-n">4</span><span class="tstep-t">Dequeue C. Enqueue F. Visit C.</span></div>
+        <div class="trav-step"><span class="tstep-n bfs-n">5</span><span class="tstep-t">Continue until queue empty.</span></div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;border-top:2px solid var(--orange);">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;">DFS — Depth First Search</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;">Go as deep as possible first. Uses a <strong style="color:var(--orange)">stack</strong> (or recursion). Detects cycles.</div>
+      <svg width="260" height="130" viewBox="0 0 260 130">
+        <line x1="50" y1="40"  x2="110" y2="20"  stroke="#fb923c" stroke-width="1.5"/>
+        <line x1="50" y1="40"  x2="110" y2="60"  stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+        <line x1="110" y1="20" x2="180" y2="10"  stroke="#fb923c" stroke-width="1.5"/>
+        <line x1="110" y1="20" x2="180" y2="30"  stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+        <line x1="110" y1="60" x2="180" y2="70"  stroke="#fb923c" stroke-width="1.5"/>
+        <circle cx="50"  cy="40"  r="20" fill="#fb923c18" stroke="#fb923c" stroke-width="2"/>
+        <text x="50"  y="36"  text-anchor="middle" font-size="11" font-weight="700" fill="#fb923c">A</text>
+        <text x="50"  y="50"  text-anchor="middle" font-size="8"  fill="#fb923c">①</text>
+        <circle cx="110" cy="20"  r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="16"  text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">B</text>
+        <text x="110" y="28"  text-anchor="middle" font-size="8"  fill="#fb923c">②</text>
+        <circle cx="180" cy="10"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="7"   text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">D</text>
+        <text x="180" y="18"  text-anchor="middle" font-size="8"  fill="#fb923c">③</text>
+        <circle cx="180" cy="38"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="35"  text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">E</text>
+        <text x="180" y="46"  text-anchor="middle" font-size="8"  fill="#fb923c">④</text>
+        <circle cx="110" cy="60"  r="18" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="110" y="56"  text-anchor="middle" font-size="11" font-weight="700" fill="#d4d8e0">C</text>
+        <text x="110" y="68"  text-anchor="middle" font-size="8"  fill="#fb923c">⑤</text>
+        <circle cx="180" cy="70"  r="16" fill="#111318" stroke="#2a2e38" stroke-width="1.5"/>
+        <text x="180" y="67"  text-anchor="middle" font-size="10" font-weight="700" fill="#d4d8e0">F</text>
+        <text x="180" y="78"  text-anchor="middle" font-size="8"  fill="#fb923c">⑥</text>
+        <text x="130" y="112" text-anchor="middle" font-size="11" fill="#fb923c" font-weight="700">Order: A → B → D → E → C → F</text>
+      </svg>
+      <div class="trav-steps">
+        <div class="trav-step"><span class="tstep-n dfs-n">1</span><span class="tstep-t">Visit A. Push neighbors onto stack.</span></div>
+        <div class="trav-step"><span class="tstep-n dfs-n">2</span><span class="tstep-t">Pop B. Visit B. Push D, E.</span></div>
+        <div class="trav-step"><span class="tstep-n dfs-n">3</span><span class="tstep-t">Pop D. Visit D. No unvisited neighbors.</span></div>
+        <div class="trav-step"><span class="tstep-n dfs-n">4</span><span class="tstep-t">Pop E. Visit E. Backtrack to C, F.</span></div>
+        <div class="trav-step"><span class="tstep-n dfs-n">5</span><span class="tstep-t">Continue until stack empty.</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- 5. Matrix vs List -->
+<div class="diagram-section">
+  <div class="label">5 — Adjacency Matrix vs Adjacency List</div>
+  <table class="vs-table">
+    <tr><th>Property</th><th>Adjacency Matrix</th><th>Adjacency List</th></tr>
+    <tr><td>Space</td><td class="bad">O(V²)</td><td class="good">O(V + E)</td></tr>
+    <tr><td>Check if edge exists</td><td class="good">O(1)</td><td class="bad">O(degree)</td></tr>
+    <tr><td>Get all neighbors</td><td class="bad">O(V)</td><td class="good">O(degree)</td></tr>
+    <tr><td>Add edge</td><td class="good">O(1)</td><td class="good">O(1)</td></tr>
+    <tr><td>Best for</td><td>dense graphs (many edges)</td><td>sparse graphs (few edges)</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- cards -->
+<div class="label">Key Properties</div>
+<div class="cards">
+  <div class="card">
+    <div class="card-title">Vertices + Edges</div>
+    <div class="card-body">V = vertices (nodes), E = edges (connections). No root, no hierarchy, no required structure.</div>
+    <div class="card-o" style="color:var(--accent)">G = (V, E)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Directed vs Undirected</div>
+    <div class="card-body">Directed: edges are one-way arrows. Undirected: edges go both ways. Changes which algorithms apply.</div>
+    <div class="card-o" style="color:var(--blue)">→ vs ↔</div>
+  </div>
+  <div class="card">
+    <div class="card-title">BFS vs DFS</div>
+    <div class="card-body">BFS uses a queue — finds shortest path. DFS uses a stack — detects cycles, explores deep paths. Both O(V+E).</div>
+    <div class="card-o" style="color:var(--orange)">O(V + E)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Storage Choice</div>
+    <div class="card-body">Matrix for dense graphs — fast edge lookup. List for sparse graphs — saves space. Most real graphs are sparse.</div>
+    <div class="card-o" style="color:var(--yellow)">list for sparse</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Used In</div>
+    <div class="card-body">GPS routing, social networks, web crawlers, dependency resolution, network topology, AI pathfinding.</div>
+    <div class="card-o" style="color:var(--pink)">everywhere connected</div>
+  </div>
+</div>
+
+</body>
+</html>

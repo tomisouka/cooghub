@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Reference — Algebra through Calculus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #111114;
+    --surface: #1a1a1f;
+    --surface2: #222228;
+    --border: #38384a;
+    --accent: #6ee89a;
+    --accent2: #f5d97a;
+    --accent3: #82c8f8;
+    --accent4: #f08ab0;
+    --text: #f0f0fa;
+    --text-dim: #b0b0cc;
+    --text-code: #aff0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.75;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(17, 17, 20, 0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: 1.5rem;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav a:hover { color: var(--accent); background: rgba(110, 232, 154, 0.08); }
+
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+
+  main {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .toc-title {
+    grid-column: 1 / -1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num { color: var(--border); min-width: 1.5rem; }
+
+  section { margin-bottom: 4rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon { font-size: 1.2rem; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+    font-weight: 700;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 1.05rem; font-family: 'Inter', sans-serif; }
+
+  thead { background: var(--surface2); }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  tr:hover td { background: rgba(110, 232, 154, 0.04); }
+  tr:hover td:first-child { color: #a8ffbf; text-shadow: 0 0 20px rgba(110, 232, 154, 0.45); }
+
+  td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    color: var(--accent);
+    white-space: nowrap;
+    text-align: center;
+    min-width: 90px;
+    line-height: 1.3;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.03em;
+    border-right: 1px solid var(--border);
+    background: rgba(110, 232, 154, 0.03);
+    transition: text-shadow 0.2s, color 0.2s;
+    font-weight: 500;
+  }
+
+  td.plain-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+    min-width: 150px;
+    border-right: 1px solid var(--border);
+  }
+
+  th.plain-def-header { color: var(--accent2); }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88em;
+    color: var(--text-code);
+    background: rgba(110, 232, 154, 0.08);
+    padding: 0.1em 0.38em;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.92rem;
+    color: var(--text-code);
+    font-weight: 500;
+  }
+
+  .prose { color: var(--text); margin: 0.75rem 0; line-height: 1.85; font-weight: 500; }
+  .prose strong { color: var(--accent2); font-weight: 700; }
+
+  .formula-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .formula-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .formula-card .f-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .formula-card .f-expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.15rem;
+    color: var(--accent3);
+    font-weight: 600;
+  }
+
+  .formula-card .f-plain {
+    font-size: 0.92rem;
+    color: var(--accent2);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .example-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .example-block .expr {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent3);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+  }
+
+  .example-block .reading {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  ul.examples { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+  ul.examples li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    position: relative;
+    font-weight: 500;
+  }
+  ul.examples li::before { content: '›'; position: absolute; left: 0; color: var(--accent); }
+
+  ul.tip-list { list-style: none; padding: 0; }
+  ul.tip-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  ul.tip-list li:last-child { border-bottom: none; }
+  .tip-code { font-family: 'DM Mono', monospace; color: var(--accent); white-space: nowrap; min-width: 100px; font-size: 1.3rem; font-weight: 600; }
+
+  .back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .back-top:hover { color: var(--accent); }
+
+  .tag-pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.15em 0.55em;
+    border-radius: 20px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .tag-alg { background: rgba(130, 200, 248, 0.15); color: var(--accent3); border: 1px solid rgba(130,200,248,0.3); }
+  .tag-pre { background: rgba(245, 217, 122, 0.15); color: var(--accent2); border: 1px solid rgba(245,217,122,0.3); }
+  .tag-calc { background: rgba(110, 232, 154, 0.15); color: var(--accent); border: 1px solid rgba(110,232,154,0.3); }
+  .tag-stat { background: rgba(240, 138, 176, 0.15); color: var(--accent4); border: 1px solid rgba(240,138,176,0.3); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--border);
+    border-top: 1px solid var(--border);
+    font-weight: 500;
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 0 1rem; }
+    nav { display: none; }
+    main, .hero { padding-left: 1rem; padding-right: 1rem; }
+    h1 { font-size: 2rem; }
+    .formula-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">𝕄ath Ref II</span>
+  <nav>
+    <a href="#algebra">Algebra</a>
+    <a href="#college-algebra">College Alg</a>
+    <a href="#trig">Trig</a>
+    <a href="#precalc">Pre-Calc</a>
+    <a href="#calc1">Calc 1</a>
+    <a href="#calc2">Calc 2</a>
+    <a href="#stats">Statistics</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <span class="hero-tag">Algebra · Pre-Calculus · Calculus · Statistics</span>
+  <h1>Math<br><span>Reference</span></h1>
+  <p class="subtitle">From basic algebra to calculus II &nbsp;·&nbsp; Science statistics &nbsp;·&nbsp; Plain-English definitions</p>
+</div>
+
+<main>
+
+  <div class="toc" id="top">
+    <div class="toc-title">Table of Contents</div>
+    <a href="#algebra"><span class="toc-num">01</span> Algebra</a>
+    <a href="#college-algebra"><span class="toc-num">02</span> College Algebra</a>
+    <a href="#trig"><span class="toc-num">03</span> Trigonometry</a>
+    <a href="#precalc"><span class="toc-num">04</span> Pre-Calculus</a>
+    <a href="#calc1"><span class="toc-num">05</span> Calculus 1</a>
+    <a href="#calc2"><span class="toc-num">06</span> Calculus 2</a>
+    <a href="#stats"><span class="toc-num">07</span> Science Statistics</a>
+    <a href="#stats-discrete-pmf"><span class="toc-num">07a</span> Discrete PMF & Range Probs</a>
+    <a href="#stats-poisson-rate"><span class="toc-num">07b</span> Poisson — Scaled Rate</a>
+    <a href="#stats-linear-transform"><span class="toc-num">07c</span> Linear Transforms of RVs</a>
+    <a href="#stats-independence"><span class="toc-num">07d</span> Independence & Mult. Rule</a>
+    <a href="#stats-bayes"><span class="toc-num">07e</span> Bayes & Tree Diagrams</a>
+    <a href="#stats-regression"><span class="toc-num">07f</span> Regression & LSRL</a>
+    <a href="#stats-crv"><span class="toc-num">07g</span> Continuous RVs (CDF/PDF)</a>
+    <a href="#stats-sampling"><span class="toc-num">07h</span> Sampling Distributions</a>
+    <a href="#stats-ci"><span class="toc-num">07i</span> Confidence Intervals</a>
+    <a href="#stats-n"><span class="toc-num">07j</span> Sample Size</a>
+    <a href="#stats-ht"><span class="toc-num">07k</span> Hypothesis Testing</a>
+    <a href="#stats-t1"><span class="toc-num">07l</span> One-Sample t-test</a>
+    <a href="#stats-t2"><span class="toc-num">07m</span> Two-Sample t-test</a>
+    <a href="#stats-paired"><span class="toc-num">07n</span> Paired t-test</a>
+    <a href="#stats-chi"><span class="toc-num">07o</span> Chi-Squared (Variance)</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 01 ALGEBRA                                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="algebra">
+    <div class="section-header">
+      <span class="section-icon">🔢</span>
+      <h2>Algebra <span class="tag-pill tag-alg">Algebra</span></h2>
+    </div>
+
+    <h3>Core Operations & Symbols</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>+</td><td class="plain-def">add together</td><td>Addition</td><td>Combine two quantities</td><td><code>3 + 5 = 8</code></td></tr>
+        <tr><td>−</td><td class="plain-def">take away</td><td>Subtraction</td><td>Find the difference</td><td><code>9 − 4 = 5</code></td></tr>
+        <tr><td>× or ·</td><td class="plain-def">groups of</td><td>Multiplication</td><td>Repeated addition</td><td><code>3 × 4 = 12</code></td></tr>
+        <tr><td>÷ or /</td><td class="plain-def">split into parts</td><td>Division</td><td>Split equally</td><td><code>12 ÷ 4 = 3</code></td></tr>
+        <tr><td>xⁿ</td><td class="plain-def">x multiplied n times</td><td>Exponent / Power</td><td>Repeated multiplication</td><td><code>2³ = 8</code></td></tr>
+        <tr><td>√x</td><td class="plain-def">what squares to x</td><td>Square root</td><td>Number that multiplied by itself = x</td><td><code>√9 = 3</code></td></tr>
+        <tr><td>ⁿ√x</td><td class="plain-def">what to the n = x</td><td>nth root</td><td>Number raised to n = x</td><td><code>³√8 = 2</code></td></tr>
+        <tr><td>|x|</td><td class="plain-def">distance from zero</td><td>Absolute value</td><td>Always non-negative</td><td><code>|−5| = 5</code></td></tr>
+        <tr><td>±</td><td class="plain-def">both + and −</td><td>Plus or minus</td><td>Two possible values</td><td><code>±3 → {+3, −3}</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Variables & Expressions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>x, y, z</td><td class="plain-def">unknown number</td><td>Variable</td><td>Placeholder for a value</td><td><code>x + 3 = 7</code></td></tr>
+        <tr><td>a, b, c</td><td class="plain-def">fixed unknown</td><td>Constant/coefficient</td><td>Known or fixed value</td><td><code>ax² + bx + c</code></td></tr>
+        <tr><td>=</td><td class="plain-def">same as</td><td>Equals</td><td>Left side = right side</td><td><code>2x = 10</code></td></tr>
+        <tr><td>≠</td><td class="plain-def">not the same</td><td>Not equal</td><td>Two sides differ</td><td><code>x ≠ 0</code></td></tr>
+        <tr><td>≈</td><td class="plain-def">close to</td><td>Approximately equal</td><td>Rounded or estimated</td><td><code>√2 ≈ 1.414</code></td></tr>
+        <tr><td>:= or ≡</td><td class="plain-def">defined to be</td><td>Defined as</td><td>This is what it means</td><td><code>f(x) := x²</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Order of Operations (PEMDAS)</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">P — Parentheses</div>
+        <div class="f-expr">( )</div>
+        <div class="f-plain">do inside brackets first</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">E — Exponents</div>
+        <div class="f-expr">xⁿ, √</div>
+        <div class="f-plain">powers and roots next</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">MD — Multiply / Divide</div>
+        <div class="f-expr">× ÷</div>
+        <div class="f-plain">left to right, same level</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">AS — Add / Subtract</div>
+        <div class="f-expr">+ −</div>
+        <div class="f-plain">left to right, last</div>
+      </div>
+    </div>
+
+    <h3>Properties of Real Numbers</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Rule</th><th class="plain-def-header">Plain English</th><th>Name</th><th>What it says</th></tr></thead>
+      <tbody>
+        <tr><td>a + b = b + a</td><td class="plain-def">order doesn't matter</td><td>Commutative (add)</td><td>Flip the order</td></tr>
+        <tr><td>a · b = b · a</td><td class="plain-def">order doesn't matter</td><td>Commutative (mult)</td><td>Flip the order</td></tr>
+        <tr><td>(a+b)+c = a+(b+c)</td><td class="plain-def">grouping doesn't matter</td><td>Associative (add)</td><td>Regroup freely</td></tr>
+        <tr><td>a(b+c) = ab+ac</td><td class="plain-def">multiply into the bracket</td><td>Distributive</td><td>Expand or factor</td></tr>
+        <tr><td>a + 0 = a</td><td class="plain-def">adding zero changes nothing</td><td>Additive identity</td><td>Zero is neutral</td></tr>
+        <tr><td>a · 1 = a</td><td class="plain-def">times one changes nothing</td><td>Multiplicative identity</td><td>One is neutral</td></tr>
+        <tr><td>a + (−a) = 0</td><td class="plain-def">cancels out</td><td>Additive inverse</td><td>Opposite = zero</td></tr>
+        <tr><td>a · (1/a) = 1</td><td class="plain-def">reciprocal cancels</td><td>Multiplicative inverse</td><td>Reciprocal = one</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Inequalities</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Example</th><th>Interval</th></tr></thead>
+      <tbody>
+        <tr><td>&lt;</td><td class="plain-def">strictly smaller</td><td>Less than</td><td><code>x &lt; 5</code></td><td><code>(−∞, 5)</code></td></tr>
+        <tr><td>&gt;</td><td class="plain-def">strictly larger</td><td>Greater than</td><td><code>x &gt; 2</code></td><td><code>(2, ∞)</code></td></tr>
+        <tr><td>≤</td><td class="plain-def">up to and including</td><td>Less than or equal</td><td><code>x ≤ 5</code></td><td><code>(−∞, 5]</code></td></tr>
+        <tr><td>≥</td><td class="plain-def">from and including</td><td>Greater than or equal</td><td><code>x ≥ 2</code></td><td><code>[2, ∞)</code></td></tr>
+        <tr><td>( )</td><td class="plain-def">endpoint excluded</td><td>Open interval</td><td><code>(2, 5)</code></td><td>2 &lt; x &lt; 5</td></tr>
+        <tr><td>[ ]</td><td class="plain-def">endpoint included</td><td>Closed interval</td><td><code>[2, 5]</code></td><td>2 ≤ x ≤ 5</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Key Algebra Formulas</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">Quadratic Formula</div>
+        <div class="f-expr">x = (−b ± √(b²−4ac)) / 2a</div>
+        <div class="f-plain">solves any ax²+bx+c=0</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Difference of Squares</div>
+        <div class="f-expr">a² − b² = (a+b)(a−b)</div>
+        <div class="f-plain">factor two perfect squares</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Perfect Square Trinomial</div>
+        <div class="f-expr">(a ± b)² = a² ± 2ab + b²</div>
+        <div class="f-plain">square a binomial</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sum / Diff of Cubes</div>
+        <div class="f-expr">a³±b³ = (a±b)(a²∓ab+b²)</div>
+        <div class="f-plain">factor cubes</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Slope Formula</div>
+        <div class="f-expr">m = (y₂−y₁) / (x₂−x₁)</div>
+        <div class="f-plain">rise over run</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Slope-Intercept</div>
+        <div class="f-expr">y = mx + b</div>
+        <div class="f-plain">m=slope, b=y-intercept</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Point-Slope Form</div>
+        <div class="f-expr">y − y₁ = m(x − x₁)</div>
+        <div class="f-plain">line through a known point</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Distance Formula</div>
+        <div class="f-expr">d = √((x₂−x₁)² + (y₂−y₁)²)</div>
+        <div class="f-plain">length between two points</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Midpoint Formula</div>
+        <div class="f-expr">M = ((x₁+x₂)/2, (y₁+y₂)/2)</div>
+        <div class="f-plain">halfway between two points</div>
+      </div>
+    </div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 02 COLLEGE ALGEBRA                          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="college-algebra">
+    <div class="section-header">
+      <span class="section-icon">📈</span>
+      <h2>College Algebra <span class="tag-pill tag-alg">Algebra</span></h2>
+    </div>
+
+    <h3>Functions & Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>f(x)</td><td class="plain-def">run the rule on x</td><td>Function notation</td><td>Output of f at input x</td><td><code>f(x)=x², f(3)=9</code></td></tr>
+        <tr><td>f∘g</td><td class="plain-def">chain two rules</td><td>Composition</td><td>Apply g first, then f</td><td><code>(f∘g)(x)=f(g(x))</code></td></tr>
+        <tr><td>f⁻¹(x)</td><td class="plain-def">undo the function</td><td>Inverse function</td><td>Reverses the mapping</td><td><code>if f(2)=5, f⁻¹(5)=2</code></td></tr>
+        <tr><td>D(f) or dom(f)</td><td class="plain-def">allowed inputs</td><td>Domain</td><td>All valid x values</td><td><code>D(√x) = [0,∞)</code></td></tr>
+        <tr><td>R(f) or ran(f)</td><td class="plain-def">possible outputs</td><td>Range</td><td>All possible y values</td><td><code>R(x²) = [0,∞)</code></td></tr>
+        <tr><td>f: A → B</td><td class="plain-def">maps A into B</td><td>Function declaration</td><td>Inputs from A, outputs in B</td><td><code>f: ℝ → ℝ</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Types of Functions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Function</th><th class="plain-def-header">Plain English</th><th>Form</th><th>Key Feature</th></tr></thead>
+      <tbody>
+        <tr><td>Linear</td><td class="plain-def">straight line</td><td><code>f(x) = mx + b</code></td><td>Constant rate of change</td></tr>
+        <tr><td>Quadratic</td><td class="plain-def">U-shaped curve</td><td><code>f(x) = ax² + bx + c</code></td><td>Has a vertex (max/min)</td></tr>
+        <tr><td>Polynomial</td><td class="plain-def">sum of powers</td><td><code>aₙxⁿ + ... + a₀</code></td><td>Smooth, no breaks</td></tr>
+        <tr><td>Rational</td><td class="plain-def">fraction of polynomials</td><td><code>p(x)/q(x)</code></td><td>Has asymptotes</td></tr>
+        <tr><td>Exponential</td><td class="plain-def">grows by multiplication</td><td><code>f(x) = aˣ or eˣ</code></td><td>Doubles per step</td></tr>
+        <tr><td>Logarithmic</td><td class="plain-def">asks what exponent</td><td><code>f(x) = log_a(x)</code></td><td>Inverse of exponential</td></tr>
+        <tr><td>Absolute value</td><td class="plain-def">V-shaped curve</td><td><code>f(x) = |x|</code></td><td>Always ≥ 0</td></tr>
+        <tr><td>Piecewise</td><td class="plain-def">different rules per region</td><td><code>f(x) = {rule1, rule2...}</code></td><td>Changes behavior</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Exponents & Logarithms</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Rule</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>aˣ · aʸ = aˣ⁺ʸ</td><td class="plain-def">add the exponents</td><td>Product rule</td><td><code>2³ · 2⁴ = 2⁷</code></td></tr>
+        <tr><td>aˣ / aʸ = aˣ⁻ʸ</td><td class="plain-def">subtract exponents</td><td>Quotient rule</td><td><code>2⁵/2² = 2³</code></td></tr>
+        <tr><td>(aˣ)ʸ = aˣʸ</td><td class="plain-def">multiply exponents</td><td>Power rule</td><td><code>(2³)⁴ = 2¹²</code></td></tr>
+        <tr><td>a⁰ = 1</td><td class="plain-def">anything to zero is one</td><td>Zero exponent</td><td><code>7⁰ = 1</code></td></tr>
+        <tr><td>a⁻ⁿ = 1/aⁿ</td><td class="plain-def">negative = flip it</td><td>Negative exponent</td><td><code>2⁻³ = 1/8</code></td></tr>
+        <tr><td>log_a(x) = y</td><td class="plain-def">a to what power = x</td><td>Logarithm</td><td><code>log₂(8)=3</code></td></tr>
+        <tr><td>ln(x)</td><td class="plain-def">log base e</td><td>Natural log</td><td><code>ln(e) = 1</code></td></tr>
+        <tr><td>log_a(xy) = log_a(x)+log_a(y)</td><td class="plain-def">product → sum</td><td>Log product rule</td><td><code>log(6)=log(2)+log(3)</code></td></tr>
+        <tr><td>log_a(x/y) = log_a(x)−log_a(y)</td><td class="plain-def">quotient → difference</td><td>Log quotient rule</td><td><code>log(3/2)=log3−log2</code></td></tr>
+        <tr><td>log_a(xⁿ) = n·log_a(x)</td><td class="plain-def">power → multiply</td><td>Log power rule</td><td><code>log(x³)=3log(x)</code></td></tr>
+        <tr><td>log_b(x) = ln(x)/ln(b)</td><td class="plain-def">switch base formula</td><td>Change of base</td><td><code>log₂(8)=ln8/ln2</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Conic Sections</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">Circle</div>
+        <div class="f-expr">(x−h)² + (y−k)² = r²</div>
+        <div class="f-plain">center (h,k), radius r</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Parabola (vertical)</div>
+        <div class="f-expr">y = a(x−h)² + k</div>
+        <div class="f-plain">vertex at (h,k)</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Ellipse</div>
+        <div class="f-expr">(x−h)²/a² + (y−k)²/b² = 1</div>
+        <div class="f-plain">stretched circle</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Hyperbola</div>
+        <div class="f-expr">(x−h)²/a² − (y−k)²/b² = 1</div>
+        <div class="f-plain">two mirrored curves</div>
+      </div>
+    </div>
+
+    <h3>Sequences & Series</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>aₙ</td><td class="plain-def">item at position n</td><td>nth term</td><td>General element</td></tr>
+        <tr><td>aₙ = a₁ + (n−1)d</td><td class="plain-def">add d each time</td><td>Arithmetic sequence</td><td><code>d</code> = common difference</td></tr>
+        <tr><td>aₙ = a₁ · rⁿ⁻¹</td><td class="plain-def">multiply r each time</td><td>Geometric sequence</td><td><code>r</code> = common ratio</td></tr>
+        <tr><td>Sₙ = n(a₁+aₙ)/2</td><td class="plain-def">sum of arithmetic terms</td><td>Arithmetic series sum</td><td>Average × count</td></tr>
+        <tr><td>Sₙ = a₁(1−rⁿ)/(1−r)</td><td class="plain-def">sum of geometric terms</td><td>Geometric series sum</td><td>Finite sum formula</td></tr>
+        <tr><td>S∞ = a₁/(1−r)</td><td class="plain-def">infinite shrinking sum</td><td>Infinite geometric sum</td><td>Only if |r| &lt; 1</td></tr>
+        <tr><td>Σ</td><td class="plain-def">add them all up</td><td>Summation (sigma)</td><td><code>Σᵢ₌₁ⁿ i = n(n+1)/2</code></td></tr>
+        <tr><td>n!</td><td class="plain-def">n times all below it</td><td>Factorial</td><td><code>5! = 120</code></td></tr>
+        <tr><td>C(n,k)</td><td class="plain-def">unordered picks</td><td>Combinations</td><td><code>n! / (k!(n−k)!)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 03 TRIGONOMETRY                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="trig">
+    <div class="section-header">
+      <span class="section-icon">📐</span>
+      <h2>Trigonometry <span class="tag-pill tag-pre">Pre-Calc</span></h2>
+    </div>
+
+    <h3>Core Trig Functions (SOH-CAH-TOA)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Ratio (right triangle)</th><th>Unit circle</th></tr></thead>
+      <tbody>
+        <tr><td>sin θ</td><td class="plain-def">opposite over hypotenuse</td><td>Sine</td><td><code>opp / hyp</code></td><td>y-coordinate</td></tr>
+        <tr><td>cos θ</td><td class="plain-def">adjacent over hypotenuse</td><td>Cosine</td><td><code>adj / hyp</code></td><td>x-coordinate</td></tr>
+        <tr><td>tan θ</td><td class="plain-def">opposite over adjacent</td><td>Tangent</td><td><code>opp / adj = sin/cos</code></td><td>slope of radius</td></tr>
+        <tr><td>csc θ</td><td class="plain-def">flip of sine</td><td>Cosecant</td><td><code>hyp / opp = 1/sin</code></td><td>1/y</td></tr>
+        <tr><td>sec θ</td><td class="plain-def">flip of cosine</td><td>Secant</td><td><code>hyp / adj = 1/cos</code></td><td>1/x</td></tr>
+        <tr><td>cot θ</td><td class="plain-def">flip of tangent</td><td>Cotangent</td><td><code>adj / opp = cos/sin</code></td><td>x/y</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Angles & Measures</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Conversion</th></tr></thead>
+      <tbody>
+        <tr><td>°</td><td class="plain-def">degrees (out of 360)</td><td>Degree</td><td>Full circle = 360°</td></tr>
+        <tr><td>rad</td><td class="plain-def">arc length over radius</td><td>Radian</td><td>Full circle = 2π rad</td></tr>
+        <tr><td>π</td><td class="plain-def">3.14159…</td><td>Pi</td><td>Half circle in radians</td></tr>
+        <tr><td>θ → rad</td><td class="plain-def">degrees to radians</td><td>Conversion</td><td><code>rad = θ° × π/180</code></td></tr>
+        <tr><td>rad → °</td><td class="plain-def">radians to degrees</td><td>Conversion</td><td><code>° = rad × 180/π</code></td></tr>
+        <tr><td>s = rθ</td><td class="plain-def">arc length formula</td><td>Arc length</td><td>r=radius, θ in radians</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Essential Identities</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">Pythagorean Identity</div>
+        <div class="f-expr">sin²θ + cos²θ = 1</div>
+        <div class="f-plain">fundamental — always true</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Pythagorean (tan)</div>
+        <div class="f-expr">1 + tan²θ = sec²θ</div>
+        <div class="f-plain">divides by cos²</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Pythagorean (cot)</div>
+        <div class="f-expr">1 + cot²θ = csc²θ</div>
+        <div class="f-plain">divides by sin²</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Double Angle (sin)</div>
+        <div class="f-expr">sin(2θ) = 2 sin θ cos θ</div>
+        <div class="f-plain">double the angle</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Double Angle (cos)</div>
+        <div class="f-expr">cos(2θ) = cos²θ − sin²θ</div>
+        <div class="f-plain">double the angle</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sum Formula (sin)</div>
+        <div class="f-expr">sin(A±B) = sinA cosB ± cosA sinB</div>
+        <div class="f-plain">add/subtract angles</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sum Formula (cos)</div>
+        <div class="f-expr">cos(A±B) = cosA cosB ∓ sinA sinB</div>
+        <div class="f-plain">add/subtract angles</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Law of Sines</div>
+        <div class="f-expr">a/sinA = b/sinB = c/sinC</div>
+        <div class="f-plain">any triangle sides/angles</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Law of Cosines</div>
+        <div class="f-expr">c² = a² + b² − 2ab cosC</div>
+        <div class="f-plain">generalized Pythagorean</div>
+      </div>
+    </div>
+
+    <h3>Inverse Trig Functions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Range</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>arcsin(x) or sin⁻¹(x)</td><td class="plain-def">what angle has this sine</td><td>Arcsine</td><td><code>[−π/2, π/2]</code></td><td><code>arcsin(1)=π/2</code></td></tr>
+        <tr><td>arccos(x) or cos⁻¹(x)</td><td class="plain-def">what angle has this cosine</td><td>Arccosine</td><td><code>[0, π]</code></td><td><code>arccos(0)=π/2</code></td></tr>
+        <tr><td>arctan(x) or tan⁻¹(x)</td><td class="plain-def">what angle has this tangent</td><td>Arctangent</td><td><code>(−π/2, π/2)</code></td><td><code>arctan(1)=π/4</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 04 PRE-CALCULUS                             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="precalc">
+    <div class="section-header">
+      <span class="section-icon">🧩</span>
+      <h2>Pre-Calculus <span class="tag-pill tag-pre">Pre-Calc</span></h2>
+    </div>
+
+    <h3>Limits (Intuitive Intro)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>lim</td><td class="plain-def">what it approaches</td><td>Limit</td><td>Value f(x) gets close to</td></tr>
+        <tr><td>lim_{x→a} f(x)</td><td class="plain-def">f near x=a</td><td>Limit at a point</td><td>As x gets close to a</td></tr>
+        <tr><td>lim_{x→∞}</td><td class="plain-def">as x grows forever</td><td>Limit at infinity</td><td>End behavior</td></tr>
+        <tr><td>lim_{x→a⁺}</td><td class="plain-def">approaching from right</td><td>Right-hand limit</td><td>x → a from above</td></tr>
+        <tr><td>lim_{x→a⁻}</td><td class="plain-def">approaching from left</td><td>Left-hand limit</td><td>x → a from below</td></tr>
+        <tr><td>f(x) → L</td><td class="plain-def">f gets close to L</td><td>Approaches</td><td>Output nears L</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Vectors (2D)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>⟨a, b⟩ or 𝐯</td><td class="plain-def">direction + magnitude</td><td>Vector</td><td>Component form</td></tr>
+        <tr><td>‖𝐯‖</td><td class="plain-def">arrow length</td><td>Magnitude / Norm</td><td><code>√(a²+b²)</code></td></tr>
+        <tr><td>𝐮 · 𝐯</td><td class="plain-def">alignment score</td><td>Dot product</td><td><code>a₁b₁ + a₂b₂</code></td></tr>
+        <tr><td>θ between vectors</td><td class="plain-def">angle between arrows</td><td>Angle</td><td><code>cos θ = (u·v)/(‖u‖‖v‖)</code></td></tr>
+        <tr><td>î, ĵ, k̂</td><td class="plain-def">unit arrows along axes</td><td>Unit vectors</td><td>Length = 1</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Polar Coordinates</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Conversion</th></tr></thead>
+      <tbody>
+        <tr><td>(r, θ)</td><td class="plain-def">distance and angle</td><td>Polar point</td><td>r=radius, θ=angle</td></tr>
+        <tr><td>x = r cosθ</td><td class="plain-def">horizontal part</td><td>Polar to Cartesian x</td><td>Convert to regular x</td></tr>
+        <tr><td>y = r sinθ</td><td class="plain-def">vertical part</td><td>Polar to Cartesian y</td><td>Convert to regular y</td></tr>
+        <tr><td>r = √(x²+y²)</td><td class="plain-def">distance from origin</td><td>Radius</td><td>Pythagorean theorem</td></tr>
+        <tr><td>θ = arctan(y/x)</td><td class="plain-def">angle from x-axis</td><td>Angle</td><td>Inverse tangent</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Asymptotes & End Behavior</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>How to find</th></tr></thead>
+      <tbody>
+        <tr><td>x = a (vertical)</td><td class="plain-def">line graph can't cross</td><td>Vertical asymptote</td><td>Where denominator = 0</td></tr>
+        <tr><td>y = b (horizontal)</td><td class="plain-def">value graph approaches</td><td>Horizontal asymptote</td><td>Compare degrees of num/den</td></tr>
+        <tr><td>y = mx+b (slant)</td><td class="plain-def">line it approaches</td><td>Oblique asymptote</td><td>Polynomial long division</td></tr>
+        <tr><td>x → ±∞</td><td class="plain-def">far left or far right</td><td>End behavior</td><td>Leading term dominates</td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 05 CALCULUS 1                               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="calc1">
+    <div class="section-header">
+      <span class="section-icon">∂</span>
+      <h2>Calculus 1 <span class="tag-pill tag-calc">Calculus</span></h2>
+    </div>
+
+    <h3>Limit Notation & Laws</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Rule</th></tr></thead>
+      <tbody>
+        <tr><td>lim_{x→a} f(x) = L</td><td class="plain-def">f approaches L near a</td><td>Limit definition</td><td>Formal ε-δ definition</td></tr>
+        <tr><td>lim [f±g] = lim f ± lim g</td><td class="plain-def">split the limit</td><td>Sum / Diff rule</td><td>Distribute limit</td></tr>
+        <tr><td>lim [f·g] = lim f · lim g</td><td class="plain-def">split and multiply</td><td>Product rule</td><td>Distribute limit</td></tr>
+        <tr><td>lim [f/g] = lim f / lim g</td><td class="plain-def">split and divide</td><td>Quotient rule</td><td>When lim g ≠ 0</td></tr>
+        <tr><td>0/0, ∞/∞</td><td class="plain-def">unclear — use L'Hôpital</td><td>Indeterminate forms</td><td>Need more work</td></tr>
+        <tr><td>L'Hôpital's rule</td><td class="plain-def">take derivatives of top and bottom</td><td>L'Hôpital</td><td><code>lim f/g = lim f'/g'</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Derivative Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Reads as</th></tr></thead>
+      <tbody>
+        <tr><td>f′(x)</td><td class="plain-def">rate of change of f</td><td>Prime notation</td><td>"f prime of x"</td></tr>
+        <tr><td>dy/dx</td><td class="plain-def">how y changes per x</td><td>Leibniz notation</td><td>"dee y dee x"</td></tr>
+        <tr><td>d/dx[f]</td><td class="plain-def">take derivative of f</td><td>Operator form</td><td>"d dx of f"</td></tr>
+        <tr><td>f″(x)</td><td class="plain-def">rate of change of rate</td><td>Second derivative</td><td>"f double prime"</td></tr>
+        <tr><td>d²y/dx²</td><td class="plain-def">second derivative</td><td>Leibniz (2nd)</td><td>"d squared y d x squared"</td></tr>
+        <tr><td>ẏ</td><td class="plain-def">derivative with respect to time</td><td>Newton / dot notation</td><td>"y dot"</td></tr>
+        <tr><td>Δy/Δx</td><td class="plain-def">average rate of change</td><td>Difference quotient</td><td>"delta y over delta x"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Differentiation Rules</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">Power Rule</div>
+        <div class="f-expr">d/dx[xⁿ] = nxⁿ⁻¹</div>
+        <div class="f-plain">bring down power, reduce by 1</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Constant Rule</div>
+        <div class="f-expr">d/dx[c] = 0</div>
+        <div class="f-plain">constants vanish</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sum / Diff Rule</div>
+        <div class="f-expr">d/dx[f±g] = f′±g′</div>
+        <div class="f-plain">differentiate each piece</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Product Rule</div>
+        <div class="f-expr">d/dx[fg] = f′g + fg′</div>
+        <div class="f-plain">first·d(second) + second·d(first)</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Quotient Rule</div>
+        <div class="f-expr">d/dx[f/g] = (f′g − fg′) / g²</div>
+        <div class="f-plain">low·d(high) − high·d(low), over low²</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Chain Rule</div>
+        <div class="f-expr">d/dx[f(g(x))] = f′(g(x))·g′(x)</div>
+        <div class="f-plain">outside × inside derivative</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Exponential</div>
+        <div class="f-expr">d/dx[eˣ] = eˣ</div>
+        <div class="f-plain">e to the x is its own derivative</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Natural Log</div>
+        <div class="f-expr">d/dx[ln x] = 1/x</div>
+        <div class="f-plain">log derivative</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sine</div>
+        <div class="f-expr">d/dx[sin x] = cos x</div>
+        <div class="f-plain">sin → cos</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Cosine</div>
+        <div class="f-expr">d/dx[cos x] = −sin x</div>
+        <div class="f-plain">cos → −sin</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Tangent</div>
+        <div class="f-expr">d/dx[tan x] = sec²x</div>
+        <div class="f-plain">tan → sec squared</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Implicit Diff.</div>
+        <div class="f-expr">d/dx[y] = dy/dx (keep it)</div>
+        <div class="f-plain">treat y as a function of x</div>
+      </div>
+    </div>
+
+    <h3>Applications of Derivatives</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Concept</th><th class="plain-def-header">Plain English</th><th>Name</th><th>How to use</th></tr></thead>
+      <tbody>
+        <tr><td>f′(x) = 0</td><td class="plain-def">flat spot on graph</td><td>Critical point</td><td>Find max/min candidates</td></tr>
+        <tr><td>f′ &gt; 0</td><td class="plain-def">going up</td><td>Increasing</td><td>Function rises left to right</td></tr>
+        <tr><td>f′ &lt; 0</td><td class="plain-def">going down</td><td>Decreasing</td><td>Function falls left to right</td></tr>
+        <tr><td>f″ &gt; 0</td><td class="plain-def">curves upward (bowl)</td><td>Concave up</td><td>Holds water</td></tr>
+        <tr><td>f″ &lt; 0</td><td class="plain-def">curves downward (dome)</td><td>Concave down</td><td>Sheds water</td></tr>
+        <tr><td>f″ = 0 (sign changes)</td><td class="plain-def">curvature flips</td><td>Inflection point</td><td>Concavity changes here</td></tr>
+        <tr><td>local max</td><td class="plain-def">peak nearby</td><td>Local maximum</td><td>f′ changes + to −</td></tr>
+        <tr><td>local min</td><td class="plain-def">valley nearby</td><td>Local minimum</td><td>f′ changes − to +</td></tr>
+        <tr><td>MVT</td><td class="plain-def">average = instant somewhere</td><td>Mean Value Theorem</td><td><code>f′(c)=(f(b)−f(a))/(b−a)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 06 CALCULUS 2                               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="calc2">
+    <div class="section-header">
+      <span class="section-icon">∫</span>
+      <h2>Calculus 2 <span class="tag-pill tag-calc">Calculus</span></h2>
+    </div>
+
+    <h3>Integral Notation</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Reads as</th></tr></thead>
+      <tbody>
+        <tr><td>∫ f(x) dx</td><td class="plain-def">total area / accumulation</td><td>Indefinite integral</td><td>"integral of f of x dx"</td></tr>
+        <tr><td>∫ₐᵇ f(x) dx</td><td class="plain-def">area from a to b</td><td>Definite integral</td><td>"integral from a to b"</td></tr>
+        <tr><td>F(x) + C</td><td class="plain-def">antiderivative + constant</td><td>General antiderivative</td><td>C = any constant</td></tr>
+        <tr><td>C</td><td class="plain-def">unknown constant offset</td><td>Constant of integration</td><td>Always add for indefinite</td></tr>
+        <tr><td>F(x)</td><td class="plain-def">function whose derivative is f</td><td>Antiderivative</td><td>F′(x) = f(x)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Fundamental Theorem of Calculus</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">FTC Part 1</div>
+        <div class="f-expr">d/dx[∫ₐˣ f(t) dt] = f(x)</div>
+        <div class="f-plain">derivative of an integral = original</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">FTC Part 2</div>
+        <div class="f-expr">∫ₐᵇ f(x) dx = F(b) − F(a)</div>
+        <div class="f-plain">plug in endpoints and subtract</div>
+      </div>
+    </div>
+
+    <h3>Integration Rules</h3>
+    <div class="formula-grid">
+      <div class="formula-card">
+        <div class="f-name">Power Rule</div>
+        <div class="f-expr">∫ xⁿ dx = xⁿ⁺¹/(n+1) + C</div>
+        <div class="f-plain">raise power by 1, divide</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Constant</div>
+        <div class="f-expr">∫ c dx = cx + C</div>
+        <div class="f-plain">constant times x</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Exponential</div>
+        <div class="f-expr">∫ eˣ dx = eˣ + C</div>
+        <div class="f-plain">e to the x stays</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Natural Log</div>
+        <div class="f-expr">∫ 1/x dx = ln|x| + C</div>
+        <div class="f-plain">1/x gives natural log</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Sine</div>
+        <div class="f-expr">∫ sin x dx = −cos x + C</div>
+        <div class="f-plain">sin integrates to −cos</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Cosine</div>
+        <div class="f-expr">∫ cos x dx = sin x + C</div>
+        <div class="f-plain">cos integrates to sin</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">u-Substitution</div>
+        <div class="f-expr">u = g(x), du = g′(x)dx</div>
+        <div class="f-plain">reverse chain rule</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Integration by Parts</div>
+        <div class="f-expr">∫ u dv = uv − ∫ v du</div>
+        <div class="f-plain">reverse product rule (LIATE order)</div>
+      </div>
+      <div class="formula-card">
+        <div class="f-name">Trig Substitution</div>
+        <div class="f-expr">√(a²−x²) → x=a sinθ</div>
+        <div class="f-plain">swap x for trig to simplify</div>
+      </div>
+    </div>
+
+    <h3>Applications of Integration</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Concept</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>∫ₐᵇ f(x) dx</td><td class="plain-def">signed area under curve</td><td>Area under curve</td><td>Positive above x-axis</td></tr>
+        <tr><td>∫ₐᵇ |f−g| dx</td><td class="plain-def">area between curves</td><td>Area between curves</td><td>Upper minus lower</td></tr>
+        <tr><td>π ∫ₐᵇ [f(x)]² dx</td><td class="plain-def">volume of solid of revolution</td><td>Disk method</td><td>Rotate around x-axis</td></tr>
+        <tr><td>2π ∫ₐᵇ x·f(x) dx</td><td class="plain-def">volume using shells</td><td>Shell method</td><td>Cylindrical shells</td></tr>
+        <tr><td>∫ₐᵇ √(1+[f′]²) dx</td><td class="plain-def">length along curve</td><td>Arc length</td><td>Distance along path</td></tr>
+        <tr><td>∫₀^∞ f(x) dx</td><td class="plain-def">infinite region area</td><td>Improper integral</td><td>Take limit as b→∞</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Series & Convergence</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Key Test / Formula</th></tr></thead>
+      <tbody>
+        <tr><td>Σ aₙ</td><td class="plain-def">sum of infinitely many terms</td><td>Infinite series</td><td>May or may not have finite sum</td></tr>
+        <tr><td>Sₙ → L</td><td class="plain-def">partial sums approach a value</td><td>Convergence</td><td>Series has a finite sum</td></tr>
+        <tr><td>aₙ → 0</td><td class="plain-def">terms shrink to zero</td><td>Necessary for convergence</td><td>If aₙ ≠ 0, series diverges</td></tr>
+        <tr><td>lim |aₙ₊₁/aₙ| &lt; 1</td><td class="plain-def">ratio shrinks</td><td>Ratio Test</td><td>Converges if limit &lt; 1</td></tr>
+        <tr><td>lim ⁿ√|aₙ| &lt; 1</td><td class="plain-def">root shrinks</td><td>Root Test</td><td>Converges if limit &lt; 1</td></tr>
+        <tr><td>Σ 1/nᵖ</td><td class="plain-def">p-series</td><td>p-Series</td><td>Converges iff p &gt; 1</td></tr>
+        <tr><td>Σ rⁿ</td><td class="plain-def">geometric series</td><td>Geometric series</td><td>Converges iff |r| &lt; 1</td></tr>
+        <tr><td>Σ (−1)ⁿ aₙ</td><td class="plain-def">alternating signs</td><td>Alternating series</td><td>Converges if aₙ↓→0</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Taylor & Maclaurin Series</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula / Key Series</th></tr></thead>
+      <tbody>
+        <tr><td>Taylor series</td><td class="plain-def">polynomial approximation near a</td><td>Taylor series</td><td><code>Σ f⁽ⁿ⁾(a)/n! · (x−a)ⁿ</code></td></tr>
+        <tr><td>Maclaurin</td><td class="plain-def">Taylor centered at 0</td><td>Maclaurin series</td><td><code>Σ f⁽ⁿ⁾(0)/n! · xⁿ</code></td></tr>
+        <tr><td>eˣ</td><td class="plain-def">e to the x expanded</td><td>Series for eˣ</td><td><code>1 + x + x²/2! + x³/3! + …</code></td></tr>
+        <tr><td>sin x</td><td class="plain-def">sine expanded</td><td>Series for sin x</td><td><code>x − x³/3! + x⁵/5! − …</code></td></tr>
+        <tr><td>cos x</td><td class="plain-def">cosine expanded</td><td>Series for cos x</td><td><code>1 − x²/2! + x⁴/4! − …</code></td></tr>
+        <tr><td>ln(1+x)</td><td class="plain-def">natural log expanded</td><td>Series for ln(1+x)</td><td><code>x − x²/2 + x³/3 − … </code></td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- 07 STATISTICS — MATH 3339                   -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="stats">
+    <div class="section-header">
+      <span class="section-icon">📊</span>
+      <h2>Statistics for the Sciences <span class="tag-pill tag-stat">MATH 3339</span></h2>
+    </div>
+
+    <h3>Descriptive Statistics</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>x̄</td><td class="plain-def">the average</td><td>Sample mean</td><td><code>x̄ = (1/n) Σᵢ₌₁ⁿ xᵢ</code></td></tr>
+        <tr><td>x̃</td><td class="plain-def">middle value when sorted</td><td>Sample median</td><td>Middle value if n odd; mean of two middle values if n even</td></tr>
+        <tr><td>s²</td><td class="plain-def">average squared distance from mean</td><td>Sample variance</td><td><code>s² = 1/(n−1) · Σᵢ₌₁ⁿ (xᵢ − x̄)²</code></td></tr>
+        <tr><td>s</td><td class="plain-def">typical distance from mean</td><td>Sample std deviation</td><td><code>s = √s²</code></td></tr>
+        <tr><td>IQR</td><td class="plain-def">spread of middle 50%</td><td>Interquartile range</td><td><code>IQR = Q3 − Q1</code> &nbsp;(Q3 = 75th pct, Q1 = 25th pct)</td></tr>
+        <tr><td>z</td><td class="plain-def">how many std devs from mean</td><td>Standard score</td><td><code>z = (x − x̄) / s</code></td></tr>
+        <tr><td>CV</td><td class="plain-def">spread relative to mean</td><td>Coefficient of variation</td><td><code>CV = s / x̄</code></td></tr>
+        <tr><td>cov(x,y)</td><td class="plain-def">how x and y move together</td><td>Sample covariance</td><td><code>cov(x,y) = 1/(n−1) · Σᵢ₌₁ⁿ (xᵢ−x̄)(yᵢ−ȳ)</code></td></tr>
+        <tr><td>r</td><td class="plain-def">strength of linear relationship</td><td>Sample correlation</td><td><code>r = cov(x,y) / (sₓ · sᵧ)</code> &nbsp;(−1 ≤ r ≤ 1)</td></tr>
+        <tr><td>R²</td><td class="plain-def">% of variation explained by model</td><td>Coefficient of determination</td><td><code>R² = r²</code></td></tr>
+        <tr><td>β̂₁</td><td class="plain-def">slope of best-fit line</td><td>Sample slope (least-squares)</td><td><code>β̂₁ = r · (sᵧ / sₓ)</code></td></tr>
+        <tr><td>β̂₀</td><td class="plain-def">y-intercept of best-fit line</td><td>Sample y-intercept (least-squares)</td><td><code>β̂₀ = ȳ − β̂₁ · x̄</code></td></tr>
+        <tr><td>yᵢ − ŷᵢ</td><td class="plain-def">leftover gap from prediction</td><td>Residual of ith observation</td><td>Actual minus predicted</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Counting & Probability</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>n!</td><td class="plain-def">n times all numbers below it</td><td>Factorial</td><td><code>n! = n · (n−1) · (n−2) · … · 1</code></td></tr>
+        <tr><td>P(n,r)</td><td class="plain-def">ordered selections of r from n</td><td>Permutation</td><td><code>P(n,r) = n! / (n−r)!</code></td></tr>
+        <tr><td>C(n,r)</td><td class="plain-def">unordered selections of r from n</td><td>Combination</td><td><code>C(n,r) = n! / (r!(n−r)!)</code></td></tr>
+        <tr><td>P(A∪B)</td><td class="plain-def">chance of A or B (or both)</td><td>General addition rule</td><td><code>P(A∪B) = P(A) + P(B) − P(A∩B)</code></td></tr>
+        <tr><td>P(A|B)</td><td class="plain-def">chance of A given B already happened</td><td>Conditional probability</td><td><code>P(A|B) = P(A∩B) / P(B)</code></td></tr>
+        <tr><td>P(B)</td><td class="plain-def">total probability via all paths</td><td>Law of total probability</td><td><code>P(B) = Σᵢ P(B|Aᵢ)·P(Aᵢ)</code> &nbsp;where Aᵢ are disjoint &amp; exhaustive</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Discrete Distributions — General</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>E(X) = μₓ</td><td class="plain-def">long-run average value</td><td>Expected value</td><td><code>E(X) = Σᵢ xᵢ · pᵢ</code></td></tr>
+        <tr><td>Var(X) = σ²ₓ</td><td class="plain-def">spread around the mean</td><td>Variance</td><td><code>Σᵢ (xᵢ−μₓ)² · pᵢ = E(X²) − E(X)²</code></td></tr>
+        <tr><td>SD(X) = σₓ</td><td class="plain-def">typical distance from mean</td><td>Standard deviation</td><td><code>SD(X) = √Var(X)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Binomial Distribution</h3>
+    <p class="prose"><strong>Parameters:</strong> n = number of trials, p = probability of success per trial</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>P(X=k)</td><td class="plain-def">chance of exactly k successes</td><td>Binomial probability</td><td><code>C(n,k) · pᵏ · (1−p)ⁿ⁻ᵏ</code></td></tr>
+        <tr><td>E(X)</td><td class="plain-def">expected number of successes</td><td>Binomial mean</td><td><code>E(X) = np</code></td></tr>
+        <tr><td>Var(X)</td><td class="plain-def">spread of successes</td><td>Binomial variance</td><td><code>Var(X) = np(1−p)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Geometric Distribution</h3>
+    <p class="prose"><strong>Parameter:</strong> p = probability of success per trial</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>P(X=x)</td><td class="plain-def">chance xth trial is first success</td><td>Geometric probability</td><td><code>(1−p)^(x−1) · p</code></td></tr>
+        <tr><td>P(X&gt;x)</td><td class="plain-def">first success is after trial x</td><td>Geometric tail probability</td><td><code>P(X&gt;x) = (1−p)^x</code></td></tr>
+        <tr><td>E(X)</td><td class="plain-def">average trials until first success</td><td>Geometric mean</td><td><code>E(X) = 1/p</code></td></tr>
+        <tr><td>Var(X)</td><td class="plain-def">spread around average wait</td><td>Geometric variance</td><td><code>Var(X) = (1−p) / p²</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Hypergeometric Distribution</h3>
+    <p class="prose"><strong>Parameters:</strong> m = successes in population, n = failures in population, k = number of trials drawn</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>P(X=x)</td><td class="plain-def">chance of x successes drawn</td><td>Hypergeometric probability</td><td><code>C(m,x)·C(n,k−x) / C(m+n,k)</code></td></tr>
+        <tr><td>E(X)</td><td class="plain-def">expected successes drawn</td><td>Hypergeometric mean</td><td><code>E(X) = km / (m+n)</code></td></tr>
+        <tr><td>Var(X)</td><td class="plain-def">spread of successes</td><td>Hypergeometric variance</td><td><code>kp(1−p)(1 − (k−1)/(m+n−1))</code> &nbsp;where p = m/(m+n)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Poisson Distribution</h3>
+    <p class="prose"><strong>Parameter:</strong> μ = mean number of successes per unit (interval, area, time, etc.)</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>P(X=x)</td><td class="plain-def">chance of exactly x rare events</td><td>Poisson probability</td><td><code>e^(−μ) · μˣ / x!</code></td></tr>
+        <tr><td>E(X)</td><td class="plain-def">average events per unit</td><td>Poisson mean</td><td><code>E(X) = μ</code></td></tr>
+        <tr><td>Var(X)</td><td class="plain-def">spread equals the mean</td><td>Poisson variance</td><td><code>Var(X) = μ</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-discrete-pmf">Discrete Distributions — Finding Unknowns & Range Probabilities</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Rule</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula / How to use</th></tr></thead>
+      <tbody>
+        <tr><td>Σ P(X=x) = 1</td><td class="plain-def">all probabilities must add to 1</td><td>Total probability rule</td><td>Use to solve for unknown k: set Σ(all terms) = 1</td></tr>
+        <tr><td>k · Σ(coefficients) = 1</td><td class="plain-def">find the scaling constant k</td><td>Finding k in a PMF</td><td>e.g. if P = 3k, 5k, 5k, 3k, 2k → 18k = 1 → k = 1/18</td></tr>
+        <tr><td>P(X &lt; a)</td><td class="plain-def">sum probabilities strictly below a</td><td>Strict inequality</td><td><code>P(X &lt; a) = Σ P(X=x) for x &lt; a</code></td></tr>
+        <tr><td>P(X ≤ a)</td><td class="plain-def">sum up to and including a</td><td>CDF at a</td><td><code>F(a) = Σ P(X=x) for x ≤ a</code></td></tr>
+        <tr><td>P(a ≤ X &lt; b)</td><td class="plain-def">sum within a range</td><td>Range probability</td><td><code>F(b−1) − F(a−1)</code> for discrete; or sum the listed values</td></tr>
+        <tr><td>P(X ≥ a)</td><td class="plain-def">at least a</td><td>Complement form</td><td><code>1 − P(X ≤ a−1) = 1 − F(a−1)</code></td></tr>
+        <tr><td>P(X &gt; a)</td><td class="plain-def">more than a</td><td>Upper tail</td><td><code>1 − P(X ≤ a) = 1 − F(a)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-poisson-rate">Poisson — Scaled Rate (Over a Time Period)</h3>
+    <p class="prose">When the rate μ is given <strong>per unit time</strong> but you want probability over a <strong>different time period t</strong>, use λ = μ · t as the new parameter.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>λ = μ · t</td><td class="plain-def">scale the rate to the time window</td><td>Scaled Poisson rate</td><td>0.5/hr × 4 hrs = λ = 2 for a 4-hour window</td></tr>
+        <tr><td>P(X=x) = e^(−λ) · λˣ / x!</td><td class="plain-def">chance of exactly x events in t units</td><td>Poisson PMF (scaled)</td><td><code>e^(−2) · 2³ / 3! = 0.180</code></td></tr>
+        <tr><td>P(X ≤ k) = Σ_{x=0}^{k} e^(−λ)λˣ/x!</td><td class="plain-def">at most k events</td><td>Poisson CDF (scaled)</td><td>Use <code>ppois(k, lambda)</code> in R</td></tr>
+        <tr><td>E(X) = λ = μt</td><td class="plain-def">expected events in the window</td><td>Poisson mean (scaled)</td><td>Avg = rate × time</td></tr>
+        <tr><td>Var(X) = λ</td><td class="plain-def">spread equals the mean</td><td>Poisson variance (scaled)</td><td>Always true for Poisson</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-linear-transform">Linear Transformations of Random Variables</h3>
+    <p class="prose">If Y = aX + b (scaling and shifting X), mean, variance, and SD transform as follows.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Key Rule</th></tr></thead>
+      <tbody>
+        <tr><td>E(aX + b) = a·E(X) + b</td><td class="plain-def">scale mean, then shift</td><td>Mean of linear transform</td><td>Both a and b affect the mean</td></tr>
+        <tr><td>Var(aX + b) = a²·Var(X)</td><td class="plain-def">scale variance by a squared</td><td>Variance of linear transform</td><td>Constants b do NOT affect variance</td></tr>
+        <tr><td>SD(aX + b) = |a|·SD(X)</td><td class="plain-def">scale std dev by |a|</td><td>Std dev of linear transform</td><td>Always |a|, never negative</td></tr>
+        <tr><td>E(X + c) = E(X) + c</td><td class="plain-def">shift the mean</td><td>Adding a constant to X</td><td>Mean shifts; variance unchanged</td></tr>
+        <tr><td>Var(X + c) = Var(X)</td><td class="plain-def">shifting doesn't change spread</td><td>Variance under shift</td><td>Spread is unaffected by constants</td></tr>
+        <tr><td>E(X + Y) = E(X) + E(Y)</td><td class="plain-def">means always add</td><td>Linearity of expectation</td><td>True regardless of independence</td></tr>
+        <tr><td>Var(X + Y) = Var(X) + Var(Y)</td><td class="plain-def">variances add if independent</td><td>Variance of sum (independent)</td><td>Only valid when X and Y are independent</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-independence">Independence & Multiplication Rule</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>P(A∩B) = P(A)·P(B)</td><td class="plain-def">knowing A tells you nothing about B</td><td>Definition of independence</td><td>If this holds, A and B are independent</td></tr>
+        <tr><td>P(A|B) = P(A)</td><td class="plain-def">B doesn't change the chance of A</td><td>Independence via conditional prob</td><td>Equivalent definition</td></tr>
+        <tr><td>P(A∩B) = P(A|B)·P(B)</td><td class="plain-def">general multiplication rule</td><td>General multiplication rule</td><td>Works for any A and B</td></tr>
+        <tr><td>P(total = k) = Σ P(X=i)·P(Y=k−i)</td><td class="plain-def">sum all ways to reach total k</td><td>Distribution of X+Y (independent)</td><td>Enumerate: P(X=0)P(Y=k) + P(X=1)P(Y=k−1) + …</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-bayes">Bayes' Theorem & Tree Diagrams</h3>
+    <p class="prose">Used when you want to "reverse" a conditional probability — e.g. given a result, what was the cause?</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>P(B) = Σᵢ P(B|Aᵢ)·P(Aᵢ)</td><td class="plain-def">total probability across all paths</td><td>Law of total probability</td><td>When B can happen via multiple causes Aᵢ</td></tr>
+        <tr><td>P(Aᵢ|B) = P(B|Aᵢ)·P(Aᵢ) / P(B)</td><td class="plain-def">update: given B happened, what caused it?</td><td>Bayes' theorem</td><td>Find P(cause | result)</td></tr>
+        <tr><td>P(Aᵢ)</td><td class="plain-def">prior — initial probability of each cause</td><td>Prior probability</td><td>Given or from proportions (e.g. inventory share)</td></tr>
+        <tr><td>P(B|Aᵢ)</td><td class="plain-def">chance of result given that cause</td><td>Likelihood</td><td>Branch probability on tree diagram</td></tr>
+        <tr><td>P(Aᵢ)·P(B|Aᵢ)</td><td class="plain-def">probability of that path on the tree</td><td>Joint probability (path)</td><td>Multiply along each branch</td></tr>
+        <tr><td>Tree diagram</td><td class="plain-def">map out all paths and their probabilities</td><td>Probability tree</td><td>Branch 1: causes Aᵢ with P(Aᵢ) · Branch 2: results with P(B|Aᵢ)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-regression">Regression & LSRL</h3>
+    <p class="prose">The <strong>Least Squares Regression Line (LSRL)</strong> minimizes the sum of squared residuals. Use when you have two quantitative variables and want to predict one from the other.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>ŷ = β̂₀ + β̂₁x</td><td class="plain-def">predicted y from x using best-fit line</td><td>LSRL equation</td><td>ŷ is the predicted value, not actual y</td></tr>
+        <tr><td>β̂₁ = r · (sᵧ / sₓ)</td><td class="plain-def">slope of the best-fit line</td><td>Sample slope</td><td>r = correlation, sᵧ/sₓ = ratio of spreads</td></tr>
+        <tr><td>β̂₀ = ȳ − β̂₁ · x̄</td><td class="plain-def">where the line crosses y-axis</td><td>Sample y-intercept</td><td>Line always passes through (x̄, ȳ)</td></tr>
+        <tr><td>r = cov(x,y)/(sₓ·sᵧ)</td><td class="plain-def">how tightly linearly related</td><td>Correlation coefficient r</td><td>−1 ≤ r ≤ 1; sign = direction, |r| = strength</td></tr>
+        <tr><td>R² = r²</td><td class="plain-def">% of variation in y explained by x</td><td>Coefficient of determination</td><td>R²=1 → perfect fit; R²=0 → no linear relationship</td></tr>
+        <tr><td>eᵢ = yᵢ − ŷᵢ</td><td class="plain-def">how far actual y is from predicted</td><td>Residual</td><td>Positive → above line; Negative → below line</td></tr>
+        <tr><td>explanatory variable (x)</td><td class="plain-def">the input — used to predict</td><td>Independent / predictor variable</td><td>Goes on horizontal axis</td></tr>
+        <tr><td>response variable (y)</td><td class="plain-def">the output — what we predict</td><td>Dependent variable</td><td>Goes on vertical axis</td></tr>
+        <tr><td>scatterplot</td><td class="plain-def">dot plot of (x,y) pairs</td><td>Scatterplot</td><td>Look for direction, form, strength, outliers</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-crv">Continuous Random Variables (CDF & PDF)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>F(x)</td><td class="plain-def">probability up to x</td><td>Cumulative distribution function (CDF)</td><td><code>F(x) = P(X ≤ x)</code></td></tr>
+        <tr><td>f(x)</td><td class="plain-def">height of the probability curve</td><td>Probability density function (PDF)</td><td><code>f(x) = F′(x) = d/dx F(x)</code></td></tr>
+        <tr><td>P(a ≤ X ≤ b)</td><td class="plain-def">chance X lands between a and b</td><td>Interval probability (CDF)</td><td><code>F(b) − F(a)</code></td></tr>
+        <tr><td>P(a ≤ X ≤ b)</td><td class="plain-def">area under curve from a to b</td><td>Interval probability (PDF)</td><td><code>∫ₐᵇ f(x) dx</code></td></tr>
+        <tr><td>E(X)</td><td class="plain-def">average value of X</td><td>Expected value (continuous)</td><td><code>∫₋∞^∞ x · f(x) dx</code></td></tr>
+        <tr><td>E(X²)</td><td class="plain-def">average of X squared</td><td>Second moment</td><td><code>∫₋∞^∞ x² · f(x) dx</code></td></tr>
+        <tr><td>Var(X)</td><td class="plain-def">spread of X</td><td>Variance (continuous)</td><td><code>E(X²) − [E(X)]²</code></td></tr>
+        <tr><td>median m</td><td class="plain-def">middle value — 50% above, 50% below</td><td>Median (continuous)</td><td><code>F(m) = 0.5 → solve for m</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-sampling">Sampling Distributions & Standard Error</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>SE = σ/√n</td><td class="plain-def">uncertainty in the sample mean</td><td>Standard error of x̄</td><td><code>SE = σ/√n &nbsp;(or s/√n when σ unknown)</code></td></tr>
+        <tr><td>z = (x̄ − μ) / (σ/√n)</td><td class="plain-def">standardize the sample mean</td><td>z-score for x̄</td><td>Use when σ known, large n</td></tr>
+        <tr><td>CLT</td><td class="plain-def">averages follow a bell curve</td><td>Central Limit Theorem</td><td>x̄ ~ N(μ, σ²/n) for large n regardless of population shape</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-ci">Confidence Intervals</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>x̄ ± z* · (σ/√n)</td><td class="plain-def">range the true mean likely falls in</td><td>CI for μ — σ known (z)</td><td>σ known or large n</td></tr>
+        <tr><td>x̄ ± t* · (s/√n)</td><td class="plain-def">same but with estimated spread</td><td>CI for μ — σ unknown (t)</td><td>σ unknown; df = n−1</td></tr>
+        <tr><td>p̂ ± z* √(p̂(1−p̂)/n)</td><td class="plain-def">range the true proportion likely falls in</td><td>CI for proportion p</td><td>np̂ ≥ 5 and n(1−p̂) ≥ 5</td></tr>
+        <tr><td>( √[(n−1)s²/χ²_upper], √[(n−1)s²/χ²_lower] )</td><td class="plain-def">range the true std dev likely falls in</td><td>CI for σ (chi-squared)</td><td>Normal population; df = n−1</td></tr>
+        <tr><td>d̄ ± t* · (sᵈ/√n)</td><td class="plain-def">CI on the average paired difference</td><td>CI for paired mean difference</td><td>Matched pairs; df = n−1</td></tr>
+        <tr><td>(x̄₁−x̄₂) ± t* · √(s₁²/n₁ + s₂²/n₂)</td><td class="plain-def">CI on the difference of two means</td><td>CI for two-sample mean diff</td><td>Two independent groups (Welch)</td></tr>
+        <tr><td>Width = 2 · z* · (σ/√n)</td><td class="plain-def">how wide the interval is</td><td>CI width</td><td>Wider CI = less precise; ↑n narrows it</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-n">Sample Size Determination</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>n = (z* · σ / E)²</td><td class="plain-def">how many you need for target precision</td><td>Sample size for CI of mean</td><td>E = desired margin of error; always round UP</td></tr>
+        <tr><td>n = z*² · p̂(1−p̂) / E²</td><td class="plain-def">sample size for a proportion</td><td>Sample size for CI of proportion</td><td>Use p̂ = 0.5 if unknown (most conservative)</td></tr>
+        <tr><td>z*</td><td class="plain-def">critical value from z-table</td><td>z* by confidence level</td><td>90% → 1.645 · 93% → 1.812 · 94% → 1.881 · 95% → 1.960 · 99% → 2.576</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-ht">Hypothesis Testing Framework</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Concept</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>H₀</td><td class="plain-def">the boring default assumption</td><td>Null hypothesis</td><td>Always contains = · e.g. μ = 10.6</td></tr>
+        <tr><td>Hₐ or H₁</td><td class="plain-def">what you're trying to show</td><td>Alternative hypothesis</td><td>Uses ≠, &lt;, or &gt;</td></tr>
+        <tr><td>α</td><td class="plain-def">acceptable false alarm rate</td><td>Significance level</td><td>Typically 0.05; set before the test</td></tr>
+        <tr><td>p-value</td><td class="plain-def">probability of your result if H₀ were true</td><td>p-value</td><td>If p &lt; α → reject H₀</td></tr>
+        <tr><td>Type I error</td><td class="plain-def">false positive — cried wolf</td><td>Type I error (α)</td><td>Reject H₀ when H₀ is actually true</td></tr>
+        <tr><td>Type II error</td><td class="plain-def">false negative — missed the effect</td><td>Type II error (β)</td><td>Fail to reject H₀ when H₀ is actually false</td></tr>
+        <tr><td>Reject region</td><td class="plain-def">range of test stats that disprove H₀</td><td>Rejection region</td><td>|t| &gt; t* (two-tailed) or t &gt; t* / t &lt; −t* (one-tailed)</td></tr>
+        <tr><td>Two-tailed</td><td class="plain-def">testing for any difference (≠)</td><td>Two-sided test</td><td>α/2 in each tail; use when Hₐ: μ ≠ μ₀</td></tr>
+        <tr><td>One-tailed</td><td class="plain-def">testing for a specific direction (&lt; or &gt;)</td><td>One-sided test</td><td>All α in one tail; use when Hₐ: μ &gt; μ₀ or μ &lt; μ₀</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-t1">One-Sample t-test</h3>
+    <p class="prose"><strong>Use when:</strong> testing if a population mean equals a specific value (σ unknown)</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>t = (x̄ − μ₀) / (s/√n)</td><td class="plain-def">how many SE's from claimed mean</td><td>One-sample t-statistic</td><td>df = n−1</td></tr>
+        <tr><td>μ₀</td><td class="plain-def">the claimed population mean</td><td>Null mean</td><td>From H₀: μ = μ₀</td></tr>
+        <tr><td>df = n − 1</td><td class="plain-def">degrees of freedom</td><td>df for one-sample t</td><td>Determines t* from t-table</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-t2">Two-Sample t-test (Independent Groups)</h3>
+    <p class="prose"><strong>Use when:</strong> comparing means of two independent groups (Welch's — does not assume equal variances)</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>t = (x̄₁ − x̄₂) / √(s₁²/n₁ + s₂²/n₂)</td><td class="plain-def">difference in means over combined SE</td><td>Two-sample t-statistic (Welch)</td><td>df approximated by Welch–Satterthwaite</td></tr>
+        <tr><td>SE = √(s₁²/n₁ + s₂²/n₂)</td><td class="plain-def">combined uncertainty of two means</td><td>Standard error of difference</td><td>Add each group's variance/n</td></tr>
+        <tr><td>H₀: μ₁ − μ₂ = 0</td><td class="plain-def">the two groups have the same mean</td><td>Null for two-sample test</td><td>Hₐ can be ≠, &lt;, or &gt;</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-paired">Paired t-test</h3>
+    <p class="prose"><strong>Use when:</strong> two measurements on the same subject (before/after, matched pairs). Compute differences dᵢ = x₁ᵢ − x₂ᵢ first, then run a one-sample t-test on d.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>dᵢ = x₁ᵢ − x₂ᵢ</td><td class="plain-def">individual paired difference</td><td>Paired difference</td><td>Compute for each subject</td></tr>
+        <tr><td>d̄ = Σdᵢ / n</td><td class="plain-def">average of the differences</td><td>Mean paired difference</td><td>This is your test value</td></tr>
+        <tr><td>sᵈ = √[Σ(dᵢ−d̄)²/(n−1)]</td><td class="plain-def">spread of the differences</td><td>Std dev of differences</td><td>Treat differences as one sample</td></tr>
+        <tr><td>t = d̄ / (sᵈ/√n)</td><td class="plain-def">how many SE's the avg diff is from zero</td><td>Paired t-statistic</td><td>df = n−1 (number of pairs)</td></tr>
+        <tr><td>d̄ ± t* · sᵈ/√n</td><td class="plain-def">CI for true average difference</td><td>Paired CI</td><td>If 0 is in the interval → no significant difference</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="stats-chi">Chi-Squared Test for Variance</h3>
+    <p class="prose"><strong>Use when:</strong> estimating or testing a population variance or standard deviation. Requires approximately normal population.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Symbol / Formula</th><th class="plain-def-header">Plain English</th><th>Name</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>χ² = (n−1)s² / σ₀²</td><td class="plain-def">scaled sample variance</td><td>Chi-squared test statistic</td><td>df = n−1</td></tr>
+        <tr><td>χ²_upper = χ²_(α/2, df)</td><td class="plain-def">upper critical value</td><td>Upper chi-squared critical value</td><td>Used for lower bound of CI</td></tr>
+        <tr><td>χ²_lower = χ²_(1−α/2, df)</td><td class="plain-def">lower critical value</td><td>Lower chi-squared critical value</td><td>Used for upper bound of CI</td></tr>
+        <tr><td>CI for σ: ( √[(n−1)s²/χ²_upper], √[(n−1)s²/χ²_lower] )</td><td class="plain-def">CI for true std deviation</td><td>Chi-squared CI for σ</td><td>Note: asymmetric interval</td></tr>
+        <tr><td>CI for σ²: ( (n−1)s²/χ²_upper, (n−1)s²/χ²_lower )</td><td class="plain-def">CI for true variance</td><td>Chi-squared CI for σ²</td><td>Square the σ bounds to get σ² CI</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>R Commands</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Command</th><th class="plain-def-header">Plain English</th><th>What it does</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>factorial(n)</td><td class="plain-def">compute n!</td><td>Factorial</td><td><code>factorial(5) → 120</code></td></tr>
+        <tr><td>factorial(n)/factorial(n-r)</td><td class="plain-def">ordered picks</td><td>Permutation P(n,r)</td><td><code>factorial(5)/factorial(3)</code></td></tr>
+        <tr><td>choose(n,r)</td><td class="plain-def">unordered picks</td><td>Combination C(n,r)</td><td><code>choose(5,2) → 10</code></td></tr>
+        <tr><td>x = c(...)</td><td class="plain-def">create a list of numbers</td><td>Input a vector</td><td><code>x = c(1,2,3,4)</code></td></tr>
+        <tr><td>mean(x)</td><td class="plain-def">the average</td><td>Sample mean</td><td><code>mean(x)</code></td></tr>
+        <tr><td>median(x)</td><td class="plain-def">middle value</td><td>Sample median</td><td><code>median(x)</code></td></tr>
+        <tr><td>sd(x)</td><td class="plain-def">typical spread</td><td>Standard deviation</td><td><code>sd(x)</code></td></tr>
+        <tr><td>cov(x,y)</td><td class="plain-def">how x and y move together</td><td>Sample covariance</td><td><code>cov(x,y)</code></td></tr>
+        <tr><td>lm(y ~ x)</td><td class="plain-def">draw best-fit line</td><td>Least-squares regression</td><td><code>lm(y ~ x)</code></td></tr>
+        <tr><td>dbinom(x,n,p)</td><td class="plain-def">P(X=x) for binomial</td><td>Binomial PMF</td><td><code>dbinom(3,10,0.5)</code></td></tr>
+        <tr><td>pbinom(x,n,p)</td><td class="plain-def">P(X≤x) for binomial</td><td>Binomial CDF</td><td><code>pbinom(3,10,0.5)</code></td></tr>
+        <tr><td>qbinom(p,n,p)</td><td class="plain-def">inverse — find x from prob</td><td>Binomial quantile</td><td><code>qbinom(0.9,10,0.5)</code></td></tr>
+        <tr><td>dgamma(x-1,p)</td><td class="plain-def">gamma distribution density</td><td>Gamma PMF/PDF</td><td><code>dgamma(x-1,p)</code></td></tr>
+        <tr><td>dhyper(x,m,n,k)</td><td class="plain-def">P(X=x) hypergeometric</td><td>Hypergeometric PMF</td><td><code>dhyper(2,5,10,4)</code></td></tr>
+        <tr><td>dpois(x,mu)</td><td class="plain-def">P(X=x) for Poisson</td><td>Poisson PMF</td><td><code>dpois(3,2.5)</code></td></tr>
+        <tr><td>ppois(x,mu)</td><td class="plain-def">P(X≤x) for Poisson</td><td>Poisson CDF</td><td><code>ppois(3,2.5)</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <a href="#top" class="back-top">↑ Back to top</a>
+  </section>
+
+</main>
+
+<footer>
+  Math Reference II &nbsp;·&nbsp; Algebra · Pre-Calc · Calculus · Statistics &nbsp;·&nbsp; 2026
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Statistics — Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0e1016;--panel:#13161e;--border:#1f2330;
+    --accent:#8ec4e8;--accent2:#c8a96e;--accent3:#96bc78;
+    --text:#d0d6e8;--muted:#6a7290;--code-bg:#0a0d14;
+    --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.7;}
+  body{padding:32px 40px 80px;max-width:960px;margin:0 auto;}
+  h1{font-size:26px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:12px;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+  h2{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:3px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:8px;margin:36px 0 16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .card-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 10px;border-bottom:1px solid var(--border);}
+  td{padding:7px 10px;border-bottom:1px solid #181c26;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
+  pre{font-family:var(--mono);font-size:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.9;color:#b0bcd8;margin:10px 0;}
+  .formula{font-family:var(--mono);font-size:13px;background:var(--code-bg);border-left:3px solid var(--accent);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;color:var(--text);}
+  .formula .label{color:var(--muted);font-size:11px;display:block;margin-bottom:4px;}
+  .row{display:flex;gap:14px;margin-bottom:14px;}
+  .row .card{flex:1;}
+</style>
+</head>
+<body>
+
+<h1>Statistics</h1>
+<div class="subtitle">MATH 3339 · Reference Sheet</div>
+
+<!-- DESCRIPTIVE STATISTICS -->
+<h2>Descriptive Statistics</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Center &amp; Spread</div>
+    <table>
+      <tr><th>Measure</th><th>Formula</th></tr>
+      <tr><td>Mean x̄</td><td>Σxᵢ / n</td></tr>
+      <tr><td>Median</td><td>middle value (sorted)</td></tr>
+      <tr><td>Variance s²</td><td>Σ(xᵢ−x̄)² / (n−1)</td></tr>
+      <tr><td>Std Dev s</td><td>√s²</td></tr>
+      <tr><td>IQR</td><td>Q3 − Q1</td></tr>
+      <tr><td>Range</td><td>max − min</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">z-Score &amp; Percentiles</div>
+    <div class="formula"><span class="label">Standardized score</span>z = (x − μ) / σ</div>
+    <div class="formula"><span class="label">Empirical rule (normal dist)</span>68% within 1σ
+95% within 2σ
+99.7% within 3σ</div>
+    <div class="formula"><span class="label">Outlier fence (boxplot)</span>Q1 − 1.5·IQR  to  Q3 + 1.5·IQR</div>
+  </div>
+</div>
+
+<!-- PROBABILITY -->
+<h2>Probability</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Core Rules</div>
+    <table>
+      <tr><th>Rule</th><th>Formula</th></tr>
+      <tr><td>Complement</td><td>P(Aᶜ) = 1 − P(A)</td></tr>
+      <tr><td>Addition</td><td>P(A∪B) = P(A)+P(B)−P(A∩B)</td></tr>
+      <tr><td>Mutually excl.</td><td>P(A∪B) = P(A)+P(B)</td></tr>
+      <tr><td>Multiplication</td><td>P(A∩B) = P(A)·P(B|A)</td></tr>
+      <tr><td>Independence</td><td>P(A∩B) = P(A)·P(B)</td></tr>
+      <tr><td>Conditional</td><td>P(A|B) = P(A∩B)/P(B)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Bayes' Theorem &amp; Total Prob</div>
+    <div class="formula"><span class="label">Law of Total Probability</span>P(B) = Σᵢ P(B|Aᵢ)P(Aᵢ)</div>
+    <div class="formula"><span class="label">Bayes' Theorem</span>P(A|B) = P(B|A)·P(A) / P(B)</div>
+    <div class="formula"><span class="label">Counting — key formulas</span>Permutation P(n,r) = n!/(n−r)!
+Combination C(n,r) = n!/r!(n−r)!</div>
+  </div>
+</div>
+
+<!-- RANDOM VARIABLES -->
+<h2>Random Variables</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Discrete RV</div>
+    <div class="formula"><span class="label">Expected value</span>E[X] = Σ x·P(X=x)</div>
+    <div class="formula"><span class="label">Variance</span>Var(X) = E[X²] − (E[X])²</div>
+    <div class="formula"><span class="label">Linear transformation</span>E[aX+b] = aE[X]+b
+Var(aX+b) = a²Var(X)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Discrete Distributions</div>
+    <table>
+      <tr><th>Name</th><th>PMF / Mean / Var</th></tr>
+      <tr><td>Binomial B(n,p)</td><td>C(n,k)pᵏ(1−p)ⁿ⁻ᵏ · np · np(1−p)</td></tr>
+      <tr><td>Geometric</td><td>(1−p)^(k−1)p · 1/p · (1−p)/p²</td></tr>
+      <tr><td>Poisson(λ)</td><td>e⁻ᵏλᵏ/k! · λ · λ</td></tr>
+      <tr><td>Hypergeom.</td><td>sample w/o replacement; mean nK/N</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Continuous Distributions</div>
+    <table>
+      <tr><th>Name</th><th>Mean / Var / PDF</th></tr>
+      <tr><td>Uniform U(a,b)</td><td>(a+b)/2 · (b−a)²/12 · 1/(b−a)</td></tr>
+      <tr><td>Normal N(μ,σ²)</td><td>μ · σ² · bell curve</td></tr>
+      <tr><td>Exponential(λ)</td><td>1/λ · 1/λ² · λe^{−λx}</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SAMPLING & CLT -->
+<h2>Sampling Distributions &amp; CLT</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Central Limit Theorem</div>
+    <div class="formula"><span class="label">For large n (n ≥ 30)</span>X̄ ~ N(μ, σ²/n)
+z = (X̄ − μ) / (σ/√n)</div>
+    <div class="formula"><span class="label">Sampling dist of proportion</span>p̂ ~ N(p, p(1−p)/n)
+z = (p̂ − p) / √(p(1−p)/n)</div>
+  </div>
+  <div class="card">
+    <div class="card-title">t-Distribution</div>
+    <div class="formula"><span class="label">Use when σ unknown, small n</span>t = (X̄ − μ) / (s/√n)
+df = n − 1</div>
+    <table style="margin-top:10px">
+      <tr><th>df →∞</th><td style="font-family:var(--mono)">t approaches Z (normal)</td></tr>
+      <tr><th>Heavier tails</th><td>more uncertainty than Z</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- INFERENCE -->
+<h2>Confidence Intervals &amp; Hypothesis Testing</h2>
+<div class="row">
+  <div class="card">
+    <div class="card-title">Confidence Intervals</div>
+    <div class="formula"><span class="label">Mean (σ known)</span>X̄ ± z*(σ/√n)</div>
+    <div class="formula"><span class="label">Mean (σ unknown)</span>X̄ ± t*(s/√n),  df=n−1</div>
+    <div class="formula"><span class="label">Proportion</span>p̂ ± z*√(p̂(1−p̂)/n)</div>
+    <table style="margin-top:10px">
+      <tr><th>Conf level</th><th>z*</th></tr>
+      <tr><td>90%</td><td>1.645</td></tr>
+      <tr><td>95%</td><td>1.960</td></tr>
+      <tr><td>99%</td><td>2.576</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Hypothesis Testing Framework</div>
+    <pre>1. State H₀ and Hₐ
+2. Choose α (usually 0.05)
+3. Compute test statistic
+4. Find p-value
+5. Reject H₀ if p-value &lt; α
+
+H₀: μ = μ₀  (or ≤, ≥)
+Hₐ: μ ≠ μ₀  (two-tailed)
+    μ &gt; μ₀  (right-tailed)
+    μ &lt; μ₀  (left-tailed)</pre>
+    <div class="formula" style="margin-top:8px"><span class="label">Type I error</span>α = P(reject H₀ | H₀ true)</div>
+    <div class="formula"><span class="label">Type II error</span>β = P(fail to reject H₀ | H₀ false)</div>
+    <div class="formula"><span class="label">Power</span>1 − β</div>
+  </div>
+</div>
+
+<!-- REGRESSION -->
+<h2>Linear Regression</h2>
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Simple Linear Regression</div>
+    <div class="formula"><span class="label">Model</span>ŷ = b₀ + b₁x</div>
+    <div class="formula"><span class="label">Slope</span>b₁ = Σ(xᵢ−x̄)(yᵢ−ȳ) / Σ(xᵢ−x̄)²</div>
+    <div class="formula"><span class="label">Intercept</span>b₀ = ȳ − b₁x̄</div>
+    <div class="formula"><span class="label">Correlation r</span>r = Sxy / (Sx·Sy),  −1 ≤ r ≤ 1</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Model Diagnostics</div>
+    <table>
+      <tr><th>Metric</th><th>Meaning</th></tr>
+      <tr><td>R²</td><td>proportion of variance explained</td></tr>
+      <tr><td>Residual</td><td>eᵢ = yᵢ − ŷᵢ</td></tr>
+      <tr><td>SSE</td><td>Σeᵢ²  (residual sum of squares)</td></tr>
+      <tr><td>SSR</td><td>Σ(ŷᵢ−ȳ)²  (regression SS)</td></tr>
+      <tr><td>SST</td><td>SSR + SSE = Σ(yᵢ−ȳ)²</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px">R² = SSR/SST = r²</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { highlightAll, clearHighlights, findNext, findPrev } from "./utils/domFind";
 import { DataProvider, useData } from "./data/DataContext";
 import Sidebar             from "./components/Sidebar";
 import DropZone            from "./components/DropZone";
@@ -7,7 +8,7 @@ import HomePage            from "./pages/HomePage";
 import DeptPage            from "./pages/DeptPage";
 import CoursePage          from "./pages/CoursePage";
 import OsHubPage           from "./pages/OsHubPage";
-import Talk2MePage         from "./pages/Talk2MePage";
+import AgendaPage           from "./pages/AgendaPage";
 import TicketsPage         from "./pages/TicketsPage";
 import RoadMap             from "./pages/RoadMap";
 import DeadlinesPage       from "./pages/DeadlinesPage";
@@ -26,6 +27,66 @@ function AppInner() {
   const [showInventory, setShowInv] = useState(false);
   const [lastSearch, setLastSearch] = useState(null);
   const isMobile                    = useIsMobile();
+
+  // ── In-page find bar (Ctrl+F) ─────────────────────────────────────────────
+  const [findOpen,  setFindOpen]  = useState(false);
+  const [findQuery, setFindQuery] = useState("");
+  const [findStats, setFindStats] = useState({ current: 0, total: 0 });
+  const findInputRef = useRef(null);
+  const findOpenRef  = useRef(false);
+
+  const closeFind = useCallback(() => {
+    setFindOpen(false);
+    setFindQuery("");
+    setFindStats({ current: 0, total: 0 });
+    findOpenRef.current = false;
+    clearHighlights();
+  }, []);
+
+  const handleFindChange = useCallback((val) => {
+    setFindQuery(val);
+    if (!val || !val.trim()) {
+      setFindStats({ current: 0, total: 0 });
+      clearHighlights();
+      return;
+    }
+    // highlightAll now runs after rAF (post React commit) and returns 0 immediately.
+    // Real count arrives via onUpdate once the DOM pass completes.
+    highlightAll(val, (total) => {
+      setFindStats({ current: total > 0 ? 1 : 0, total });
+    });
+    findInputRef.current?.focus();
+  }, []);
+
+  const handleNext = useCallback(() => {
+    const stats = findNext();
+    setFindStats(stats);
+    findInputRef.current?.focus();
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    const stats = findPrev();
+    setFindStats(stats);
+    findInputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+        e.preventDefault();
+        setFindOpen(true);
+        findOpenRef.current = true;
+        setTimeout(() => { findInputRef.current?.focus(); findInputRef.current?.select(); }, 30);
+      }
+      if (e.key === "Escape" && findOpenRef.current) closeFind();
+      if (e.key === "Enter" && findOpenRef.current && document.activeElement === findInputRef.current) {
+        e.preventDefault();
+        e.shiftKey ? handlePrev() : handleNext();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [closeFind, handleNext, handlePrev]);
 
   // Ctrl+Shift+I → open devtools in Tauri (right-click inspect is disabled in webview)
   useEffect(() => {
@@ -88,7 +149,7 @@ function AppInner() {
       case "home":      return <HomePage goTo={goTo} openUpload={() => setShowDrop(true)} openInventory={() => setShowInv(true)} lastSearch={lastSearch} setLastSearch={setLastSearch} />;
       case "cosc":      return <DeptPage deptId="cosc" goTo={goTo} dest={dest} />;
       case "math":      return <DeptPage deptId="math" goTo={goTo} dest={dest} />;
-      case "talk2me":   return <Talk2MePage dest={dest} />;
+      case "talk2me":   return <AgendaPage />;
       case "tickets":   return <TicketsPage />;
       case "roadmap":   return <RoadMap />;
       case "resources":  return <ResourcesPage />;
@@ -181,6 +242,55 @@ function AppInner() {
             </button>
           ))}
         </nav>
+      )}
+
+      {/* ── Find bar ── */}
+      {findOpen && (
+        <div
+          id="ctrl-f-bar"
+          style={{
+            position: "fixed", bottom: 0,
+            left: isMobile ? 0 : 72, right: 0,
+            background: "#1a1d24",
+            borderTop: "1px solid #2a2e38",
+            padding: "6px 10px",
+            display: "flex", alignItems: "center", gap: 6,
+            zIndex: 9999,
+            fontFamily: "'Inter', sans-serif",
+            boxShadow: "0 -2px 12px rgba(0,0,0,0.4)",
+          }}>
+          <span style={{ fontSize: 13, color: "#7a8090", userSelect: "none" }}>🔍</span>
+          <input
+            ref={findInputRef}
+            value={findQuery}
+            onChange={e => handleFindChange(e.target.value)}
+            placeholder="Find on page…"
+            spellCheck={false}
+            autoComplete="off"
+            style={{
+              flex: 1, maxWidth: 220,
+              background: "#111318",
+              border: "1px solid #2a2e38",
+              borderRadius: 6,
+              color: "#d4d8e0",
+              padding: "4px 10px",
+              fontSize: 13,
+              outline: "none",
+            }}
+          />
+          <span style={{ fontSize: 12, color: "#7a8090", minWidth: 48, userSelect: "none" }}>
+            {findStats.total === 0 ? (findQuery ? "No results" : "") : `${findStats.current} / ${findStats.total}`}
+          </span>
+          <button onClick={handlePrev} title="Previous (Shift+Enter)"
+            style={{ background: "none", border: "none", color: "#7a8090", cursor: "pointer", fontSize: 15, padding: "2px 4px" }}
+          >↑</button>
+          <button onClick={handleNext} title="Next (Enter)"
+            style={{ background: "none", border: "none", color: "#7a8090", cursor: "pointer", fontSize: 15, padding: "2px 4px" }}
+          >↓</button>
+          <button onClick={closeFind} title="Close (Esc)"
+            style={{ background: "none", border: "none", color: "#7a8090", cursor: "pointer", fontSize: 16, padding: "2px 6px", marginLeft: 2 }}
+          >✕</button>
+        </div>
       )}
 
       <DropZone

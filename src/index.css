@@ -21,3 +21,16 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+/* ── Ctrl+F in-page search highlights ── */
+mark.ctrl-f-hl {
+  background: #e8c54766;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+mark.ctrl-f-hl-active {
+  background: #e8c547cc;
+  color: #111318;
+  outline: 2px solid #e8c547;
+  border-radius: 2px;
+}

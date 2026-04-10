@@ -1,34 +1,10 @@
 {
   "NAV": [
-    {
-      "id": "home",
-      "icon": "\u2302",
-      "label": "Home"
-    },
-    {
-      "id": "deadlines",
-      "icon": "\u25f7",
-      "label": "Deadlines"
-    },
-    {
-      "id": "progress",
-      "icon": "\u25c8",
-      "label": "Progress"
-    },
-    {
-      "id": "talk2me",
-      "icon": "\u2726",
-      "label": "Talk2Me"
-    },
-    {
-      "id": "resources",
-      "icon": "\u25c8",
-      "label": "Resources"
-    },
-    {
-      "id": "signal",
-      "icon": "\u25ce",
-      "label": "Signal"
-    }
+    { "id": "home",      "icon": "⌂",  "label": "Home" },
+    { "id": "deadlines", "icon": "◷",  "label": "Deadlines" },
+    { "id": "talk2me",   "icon": "▦",  "label": "Agenda" },
+    { "id": "signal",    "icon": "◎",  "label": "Signal" },
+    { "id": "progress",  "icon": "◈",  "label": "Progress" },
+    { "id": "resources", "icon": "⊞",  "label": "Resources" }
   ]
 }

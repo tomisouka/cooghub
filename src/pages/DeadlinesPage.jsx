@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { DEADLINES as INITIAL_DEADLINES } from "../data/memory-deadlines";
 import { COURSES } from "../data/skills";
+import RoadmapTab from "./RoadmapTab";
 
 const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
@@ -117,6 +118,7 @@ const TABS = [
   { id: "sun",       label: "☀ Sun",       color: "#e8c547" },
   { id: "moon",      label: "☽ Moon",      color: "#a78bfa" },
   { id: "completed", label: "✓ Completed", color: "#34d399" },
+  { id: "roadmap",   label: "⬡ Roadmap",   color: "#60a5fa" },
 ];
 
 function tabColor(tabId) {
@@ -224,6 +226,12 @@ export default function DeadlinesPage() {
     INITIAL_DEADLINES.map(d => ({ ...d, type: migrateType(d.type) }))
   );
   const [view,           setView]           = useState("month");
+  const [collapsedMonths, setCollapsedMonths] = useState(() => {
+    // Auto-collapse all months prior to current month
+    const now = new Date();
+    const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    return { __currentKey: currentKey }; // tracks auto-collapsed state
+  });
   const [tab,            setTab]            = useState("sun");
   const [showAdd,        setShowAdd]        = useState(false);
   const [today]                             = useState(new Date());
@@ -360,6 +368,7 @@ export default function DeadlinesPage() {
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const isCompletedTab = tab === "completed";
+  const isRoadmapTab   = tab === "roadmap";
   const done           = deadlines.filter(d => d.done);
   const filtered       = deadlines.filter(d => !d.done && d.type === tab);
   const dueNow         = deadlines.filter(d => !d.done && getDaysUntil(d.date) <= 3);
@@ -507,7 +516,7 @@ export default function DeadlinesPage() {
           {/* Tabs */}
           <div style={{ display:"flex", gap:8, marginBottom:20 }}>
             {TABS.map(t => (
-              <button key={t.id} onClick={()=>{ setTab(t.id); if(t.id!=="completed") setForm(f=>({...f,type:t.id})); }}
+              <button key={t.id} onClick={()=>{ setTab(t.id); if(t.id!=="completed"&&t.id!=="roadmap") setForm(f=>({...f,type:t.id})); }}
                 style={{ padding:"7px 18px", borderRadius:8, border:"none", cursor:"pointer", fontFamily:FONT, fontSize:12, fontWeight:700, letterSpacing:"0.5px", textTransform:"uppercase", background:tab===t.id?t.color:"#1a1f2e", color:tab===t.id?"#0f1117":"#4a5060" }}>
                 {t.label}
                 {t.id==="completed" && done.length>0 && (
@@ -515,7 +524,7 @@ export default function DeadlinesPage() {
                 )}
               </button>
             ))}
-            {!isCompletedTab && (
+            {!isCompletedTab && !isRoadmapTab && (
               <button onClick={()=>setShowAdd(v=>!v)}
                 style={{marginLeft:"auto",padding:"7px 16px",borderRadius:8,border:`1px solid ${showAdd?tabColor(tab):"#2a2e38"}`,background:"transparent",color:showAdd?tabColor(tab):"#7a8090",cursor:"pointer",fontFamily:FONT,fontSize:12,fontWeight:600}}>
                 + Add deadline
@@ -579,7 +588,7 @@ export default function DeadlinesPage() {
           )}
 
           {/* Weekly load + momentum */}
-          {!isCompletedTab && (
+          {!isCompletedTab && !isRoadmapTab && (
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
               <div style={{background:"#161920",border:"1px solid #2a2e38",borderRadius:12,padding:"14px 20px"}}>
                 <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>This week</div>
@@ -617,7 +626,7 @@ export default function DeadlinesPage() {
           )}
 
           {/* Focus pick */}
-          {!isCompletedTab && focusPick && (
+          {!isCompletedTab && !isRoadmapTab && focusPick && (
             <div style={{background:"#161920",border:`1px solid ${tabColor(focusPick.type)}33`,borderLeft:`3px solid ${tabColor(focusPick.type)}`,borderRadius:"0 12px 12px 0",padding:"12px 18px",marginBottom:16,display:"flex",alignItems:"center",gap:14}}>
               <div style={{display:"flex",flexDirection:"column",gap:2,flex:1,minWidth:0}}>
                 <div style={{fontSize:9,fontWeight:700,color:tabColor(focusPick.type),letterSpacing:"2px",textTransform:"uppercase"}}>Focus on this today</div>
@@ -635,7 +644,7 @@ export default function DeadlinesPage() {
           )}
 
           {/* Due-now alert */}
-          {!isCompletedTab && dueNow.length>0 && (
+          {!isCompletedTab && !isRoadmapTab && dueNow.length>0 && (
             <div style={{background:"#ff444415",border:"1px solid #ff444444",borderLeft:"4px solid #ff4444",borderRadius:"0 10px 10px 0",padding:"12px 18px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <span style={{fontSize:14,fontWeight:900,color:"#ff4444",fontFamily:MONO}}>!!</span>
@@ -647,7 +656,7 @@ export default function DeadlinesPage() {
               {doneToday.length>0&&<div style={{fontSize:11,color:"#34d399",fontWeight:700,fontFamily:MONO}}>✓ {doneToday.length} done today</div>}
             </div>
           )}
-          {!isCompletedTab && dueNow.length===0 && doneToday.length>0 && (
+          {!isCompletedTab && !isRoadmapTab && dueNow.length===0 && doneToday.length>0 && (
             <div style={{background:"#34d39910",border:"1px solid #34d39933",borderRadius:10,padding:"10px 16px",marginBottom:16,fontSize:12,color:"#34d399",fontWeight:700}}>
               ✓ {doneToday.length} completed today — good work
             </div>
@@ -819,95 +828,146 @@ export default function DeadlinesPage() {
           ))}
           </div>
 
-          {/* Completed tab */}
+          {/* Completed tab — grouped by month, past months auto-collapsed */}
           {isCompletedTab && sect("Completed",(
             done.length===0
               ? <div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No completed deadlines yet.</div>
-              : <div style={{display:"flex",flexDirection:"column",gap:20}}>
-                  {["sun","moon"].map(type=>{
-                    const group=done.filter(d=>d.type===type);
-                    if(!group.length) return null;
-                    const tc=tabColor(type);
-                    const tlabel=type==="sun"?"☀ Sun":"☽ Moon";
-                    return(
-                      <div key={type}>
-                        <div style={{fontSize:10,fontWeight:700,color:tc,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8,paddingBottom:6,borderBottom:`1px solid ${tc}22`}}>{tlabel} · {group.length}</div>
-                        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                          {group.map(dl=>{
-                            const course=COURSES.find(c=>c.id===dl.course);
-                            const chip=tagChip(dl.tag);
-                            const parentSun=dl.type==="moon"&&dl.parentSunId?deadlines.find(d=>d.id===dl.parentSunId):null;
-                            return(
-                              <div key={dl.id} style={{background:"#0f1117",border:"1px solid #2a2e38",borderLeft:`3px solid ${tc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
-                                <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.75,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
-                                  <button onClick={e=>{e.stopPropagation();cycleStatus(dl.id);}} title="Mark incomplete"
-                                    style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${tc}`,background:tc,cursor:"pointer",flexShrink:0}}/>
-                                  <div style={{flex:1,minWidth:0}}>
-                                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
-                                      <span style={{fontSize:13,fontWeight:600,color:"#7a8090",textDecoration:"line-through"}}>{dl.title}</span>
-                                      {chip&&<span style={{fontSize:9,fontWeight:700,color:chip.color,background:chip.color+"18",border:`1px solid ${chip.color}44`,borderRadius:4,padding:"1px 5px",letterSpacing:"0.5px",textTransform:"uppercase",flexShrink:0}}>{chip.label}</span>}
-                                    </div>
-                                    <div style={{display:"flex",gap:8}}>
-                                      {parentSun&&<span style={{fontSize:10,color:"#e8c547",fontFamily:MONO,fontWeight:700,background:"#e8c54712",border:"1px solid #e8c54730",borderRadius:4,padding:"1px 6px"}}>☀ {parentSun.title}</span>}
-                                      {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
-                                      <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
-                                      {dl.repeat&&dl.repeat!=="none"&&<span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{repeatLabel(dl.repeat)}</span>}
-                                    </div>
-                                  </div>
-                                  {delDlTarget===dl.id?(
-                                    <div style={{display:"flex",flexDirection:"column",gap:5,minWidth:160}}>
-                                      {delDlStep==="pw"?(
-                                        <>
-                                          <input autoFocus type="password" value={delDlPw}
-                                            onChange={e=>{setDelDlPw(e.target.value);setDelDlErr(false);}}
-                                            onKeyDown={e=>{if(e.key==="Enter")submitDelDlPw();if(e.key==="Escape")cancelDelDl();}}
-                                            placeholder="password"
-                                            style={{background:"#0d0f14",border:`1px solid ${delDlErr?"#e85454":"#2a2e38"}`,borderRadius:5,color:"#d4d8e0",fontSize:11,fontFamily:MONO,padding:"4px 8px",outline:"none",width:"100%",boxSizing:"border-box"}}/>
-                                          {delDlErr&&<div style={{fontSize:10,color:"#e85454",fontFamily:MONO}}>incorrect</div>}
-                                          <div style={{display:"flex",gap:5}}>
-                                            <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
-                                            <button onClick={submitDelDlPw} style={{flex:1,padding:"3px 0",background:"#2a2e38",border:"none",borderRadius:5,color:"#d4d8e0",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>next</button>
-                                          </div>
-                                        </>
-                                      ):(
-                                        <>
-                                          <div style={{fontSize:11,color:"#e8eaf0",fontFamily:MONO}}>delete permanently?</div>
-                                          <div style={{display:"flex",gap:5}}>
-                                            <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
-                                            <button onClick={confirmDelDl} style={{flex:1,padding:"3px 0",background:"#e85454",border:"none",borderRadius:5,color:"#fff",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>delete</button>
-                                          </div>
-                                        </>
-                                      )}
-                                    </div>
-                                  ):(
-                                    <button onClick={e=>{e.stopPropagation();startDelDl(dl.id);}} style={{padding:"4px 8px",borderRadius:6,border:"1px solid #e8545422",background:"transparent",color:"#4a5060",cursor:"pointer",fontFamily:MONO,fontSize:11,flexShrink:0}}>✕</button>
-                                  )}
-                                </div>
-                                {expandedDl===dl.id&&(
-                                  <div style={{padding:"12px 14px 14px",borderTop:`1px solid ${tc}22`,display:"flex",flexDirection:"column",gap:8}}>
-                                    <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                                      <div><div style={fieldLabel}>Due</div><div style={{fontSize:12,color:"#d4d8e0",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</div></div>
-                                      {dl.completedAt&&<div><div style={fieldLabel}>Completed</div><div style={{fontSize:12,color:"#34d399",fontFamily:MONO}}>{dl.completedAt}</div></div>}
-                                      {dl.startedAt&&dl.completedAt&&<div><div style={fieldLabel}>Duration</div><div style={{fontSize:12,color:"#a78bfa",fontFamily:MONO}}>{(()=>{const days=Math.round((new Date(dl.completedAt)-new Date(dl.startedAt))/86400000);return days===0?"same day":`${days}d`;})()}</div></div>}
-                                      {dl.priority&&dl.priority!=="normal"&&<div><div style={fieldLabel}>Priority</div><div style={{fontSize:12,color:dl.priority==="high"?"#fb923c":"#60a5fa"}}>{dl.priority}</div></div>}
-                                      {dl.repeat&&dl.repeat!=="none"&&<div><div style={fieldLabel}>Repeat</div><div style={{fontSize:12,color:"#7eb8f7",fontFamily:MONO}}>{dl.repeat}</div></div>}
-                                    </div>
-                                    {dl.notes&&<div><div style={fieldLabel}>Notes</div><div style={{fontSize:12,color:"#9aa0b0",lineHeight:1.6}}>{dl.notes}</div></div>}
-                                    {dl.reflection&&<div><div style={fieldLabel}>Reflection</div><div style={{fontSize:12,color:"#34d39999",lineHeight:1.6,fontStyle:"italic"}}>"{dl.reflection}"</div></div>}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
+              : (() => {
+                  const now = new Date();
+                  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+                  const monthMap = {};
+                  done.forEach(dl => {
+                    const key = dl.completedAt ? dl.completedAt.slice(0,7) : 'unknown';
+                    if (!monthMap[key]) monthMap[key] = [];
+                    monthMap[key].push(dl);
+                  });
+                  const monthKeys = Object.keys(monthMap).sort().reverse();
+                  const toggleMonth = (key) => {
+                    setCollapsedMonths(prev => ({ ...prev, [key]: !prev[key] }));
+                  };
+                  const isCollapsed = (key) => {
+                    if (key in collapsedMonths && key !== '__currentKey') return collapsedMonths[key];
+                    return key < currentMonthKey;
+                  };
+                  const fmtMonthKey = (key) => {
+                    if (key === 'unknown') return 'Unknown Date';
+                    const [y, m] = key.split('-');
+                    return new Date(+y, +m-1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+                  };
+                  return (
+                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                      {monthKeys.map(monthKey => {
+                        const monthDone = monthMap[monthKey];
+                        const collapsed = isCollapsed(monthKey);
+                        const isCurrent = monthKey === currentMonthKey;
+                        return (
+                          <div key={monthKey} style={{border:`1px solid ${isCurrent?"#2a3040":"#1a1d26"}`,borderRadius:10,overflow:"hidden"}}>
+                            <button
+                              onClick={() => toggleMonth(monthKey)}
+                              style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:isCurrent?"#13161f":"#0d0f15",border:"none",cursor:"pointer",textAlign:"left"}}
+                            >
+                              <span style={{fontSize:11,fontWeight:700,color:isCurrent?"#e8c547":"#4a5060",letterSpacing:"1.5px",textTransform:"uppercase",fontFamily:MONO,flex:1}}>
+                                {fmtMonthKey(monthKey)}
+                                {isCurrent && <span style={{marginLeft:8,fontSize:9,color:"#e8c54780",letterSpacing:"2px"}}>CURRENT</span>}
+                              </span>
+                              <span style={{fontSize:10,color:"#34d399",fontFamily:MONO,fontWeight:700,background:"#34d39918",border:"1px solid #34d39930",borderRadius:6,padding:"1px 8px"}}>{monthDone.length}</span>
+                              <span style={{fontSize:11,color:"#3a4052",display:"inline-block",transform:collapsed?"rotate(-90deg)":"rotate(0deg)",transition:"transform 0.2s"}}>▾</span>
+                            </button>
+                            {!collapsed && (
+                              <div style={{display:"flex",flexDirection:"column",gap:0}}>
+                                {["sun","moon"].map(type => {
+                                  const group = monthDone.filter(d => d.type===type);
+                                  if (!group.length) return null;
+                                  const tc = tabColor(type);
+                                  return (
+                                    <div key={type} style={{borderTop:"1px solid #181c26"}}>
+                                      <div style={{fontSize:9,fontWeight:700,color:tc,letterSpacing:"2px",textTransform:"uppercase",padding:"6px 14px 4px",opacity:0.7}}>{type==="sun"?"☀ Sun":"☽ Moon"} · {group.length}</div>
+                                      <div style={{display:"flex",flexDirection:"column",gap:4,padding:"0 8px 8px"}}>
+                                        {group.map(dl => {
+                                          const course=COURSES.find(c=>c.id===dl.course);
+                                          const chip=tagChip(dl.tag);
+                                          const parentSun=dl.type==="moon"&&dl.parentSunId?deadlines.find(d=>d.id===dl.parentSunId):null;
+                                          return (
+              <div key={dl.id} style={{background:"#0f1117",border:"1px solid #2a2e38",borderLeft:`3px solid ${tc}`,borderRadius:"0 10px 10px 0",overflow:"hidden"}}>
+                <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,opacity:0.75,cursor:"pointer"}} onClick={()=>setExpandedDl(e=>e===dl.id?null:dl.id)}>
+                  <button onClick={e=>{e.stopPropagation();cycleStatus(dl.id);}} title="Mark incomplete"
+                    style={{width:16,height:16,borderRadius:"50%",border:`2px solid ${tc}`,background:tc,cursor:"pointer",flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
+                      <span style={{fontSize:13,fontWeight:600,color:"#7a8090",textDecoration:"line-through"}}>{dl.title}</span>
+                      {chip&&<span style={{fontSize:9,fontWeight:700,color:chip.color,background:chip.color+"18",border:`1px solid ${chip.color}44`,borderRadius:4,padding:"1px 5px",letterSpacing:"0.5px",textTransform:"uppercase",flexShrink:0}}>{chip.label}</span>}
+                    </div>
+                    <div style={{display:"flex",gap:8}}>
+                      {parentSun&&<span style={{fontSize:10,color:"#e8c547",fontFamily:MONO,fontWeight:700,background:"#e8c54712",border:"1px solid #e8c54730",borderRadius:4,padding:"1px 6px"}}>☀ {parentSun.title}</span>}
+                      {course&&<span style={{fontSize:10,color:course.color,fontFamily:MONO}}>{course.label}</span>}
+                      <span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</span>
+                      {dl.repeat&&dl.repeat!=="none"&&<span style={{fontSize:10,color:"#4a5060",fontFamily:MONO}}>{repeatLabel(dl.repeat)}</span>}
+                    </div>
+                  </div>
+                  {delDlTarget===dl.id?(
+                    <div style={{display:"flex",flexDirection:"column",gap:5,minWidth:160}}>
+                      {delDlStep==="pw"?(
+                        <>
+                          <input autoFocus type="password" value={delDlPw}
+                            onChange={e=>{setDelDlPw(e.target.value);setDelDlErr(false);}}
+                            onKeyDown={e=>{if(e.key==="Enter")submitDelDlPw();if(e.key==="Escape")cancelDelDl();}}
+                            placeholder="password"
+                            style={{background:"#0d0f14",border:`1px solid ${delDlErr?"#e85454":"#2a2e38"}`,borderRadius:5,color:"#d4d8e0",fontSize:11,fontFamily:MONO,padding:"4px 8px",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+                          {delDlErr&&<div style={{fontSize:10,color:"#e85454",fontFamily:MONO}}>incorrect</div>}
+                          <div style={{display:"flex",gap:5}}>
+                            <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                            <button onClick={submitDelDlPw} style={{flex:1,padding:"3px 0",background:"#2a2e38",border:"none",borderRadius:5,color:"#d4d8e0",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>next</button>
+                          </div>
+                        </>
+                      ):(
+                        <>
+                          <div style={{fontSize:11,color:"#e8eaf0",fontFamily:MONO}}>delete permanently?</div>
+                          <div style={{display:"flex",gap:5}}>
+                            <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                            <button onClick={confirmDelDl} style={{flex:1,padding:"3px 0",background:"#e85454",border:"none",borderRadius:5,color:"#fff",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>delete</button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ):(
+                    <button onClick={e=>{e.stopPropagation();startDelDl(dl.id);}} style={{padding:"4px 8px",borderRadius:6,border:"1px solid #e8545422",background:"transparent",color:"#4a5060",cursor:"pointer",fontFamily:MONO,fontSize:11,flexShrink:0}}>✕</button>
+                  )}
                 </div>
+                {expandedDl===dl.id&&(
+                  <div style={{padding:"12px 14px 14px",borderTop:`1px solid ${tc}22`,display:"flex",flexDirection:"column",gap:8}}>
+                    <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                      <div><div style={fieldLabel}>Due</div><div style={{fontSize:12,color:"#d4d8e0",fontFamily:MONO}}>{dl.date}{dl.time?` · ${dl.time}`:""}</div></div>
+                      {dl.completedAt&&<div><div style={fieldLabel}>Completed</div><div style={{fontSize:12,color:"#34d399",fontFamily:MONO}}>{dl.completedAt}</div></div>}
+                      {dl.startedAt&&dl.completedAt&&<div><div style={fieldLabel}>Duration</div><div style={{fontSize:12,color:"#a78bfa",fontFamily:MONO}}>{(()=>{const days=Math.round((new Date(dl.completedAt)-new Date(dl.startedAt))/86400000);return days===0?"same day":`${days}d`;})()}</div></div>}
+                      {dl.priority&&dl.priority!=="normal"&&<div><div style={fieldLabel}>Priority</div><div style={{fontSize:12,color:dl.priority==="high"?"#fb923c":"#60a5fa"}}>{dl.priority}</div></div>}
+                      {dl.repeat&&dl.repeat!=="none"&&<div><div style={fieldLabel}>Repeat</div><div style={{fontSize:12,color:"#7eb8f7",fontFamily:MONO}}>{dl.repeat}</div></div>}
+                    </div>
+                    {dl.notes&&<div><div style={fieldLabel}>Notes</div><div style={{fontSize:12,color:"#9aa0b0",lineHeight:1.6}}>{dl.notes}</div></div>}
+                    {dl.reflection&&<div><div style={fieldLabel}>Reflection</div><div style={{fontSize:12,color:"#34d39999",lineHeight:1.6,fontStyle:"italic"}}>"{dl.reflection}"</div></div>}
+                  </div>
+                )}
+              </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+              })()
           ))}
 
+          {/* Roadmap tab */}
+          {isRoadmapTab && <RoadmapTab />}
+
           {/* Upcoming list */}
-          {!isCompletedTab && sect(tab==="moon"?"☽ Moon — Subproblems":"☀ Sun — Upcoming",(
+          {!isCompletedTab && !isRoadmapTab && sect(tab==="moon"?"☽ Moon — Subproblems":"☀ Sun — Upcoming",(
             <>
               {filtered.length===0
                 ?<div style={{fontSize:13,color:"#4a5060",padding:"12px 0"}}>No upcoming deadlines. Click a day or use + Add.</div>
@@ -979,7 +1039,36 @@ export default function DeadlinesPage() {
                                 </button>
                               )}
                             </div>
-                            <button onClick={()=>setDeadlines(p=>p.filter(d=>d.id!==dl.id))} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}>✕</button>
+                            {delDlTarget===dl.id?(
+                              <div style={{display:"flex",flexDirection:"column",gap:5,minWidth:160}} onClick={e=>e.stopPropagation()}>
+                                {delDlStep==="pw"?(
+                                  <>
+                                    <input autoFocus type="password" value={delDlPw}
+                                      onChange={e=>{setDelDlPw(e.target.value);setDelDlErr(false);}}
+                                      onKeyDown={e=>{if(e.key==="Enter")submitDelDlPw();if(e.key==="Escape")cancelDelDl();}}
+                                      placeholder="password"
+                                      style={{background:"#0d0f14",border:`1px solid ${delDlErr?"#e85454":"#2a2e38"}`,borderRadius:5,color:"#d4d8e0",fontSize:11,fontFamily:MONO,padding:"4px 8px",outline:"none",width:"100%",boxSizing:"border-box"}}/>
+                                    {delDlErr&&<div style={{fontSize:10,color:"#e85454",fontFamily:MONO}}>incorrect</div>}
+                                    <div style={{display:"flex",gap:5}}>
+                                      <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                                      <button onClick={submitDelDlPw} style={{flex:1,padding:"3px 0",background:"#2a2e38",border:"none",borderRadius:5,color:"#d4d8e0",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>next</button>
+                                    </div>
+                                  </>
+                                ):(
+                                  <>
+                                    <div style={{fontSize:11,color:"#e8eaf0",fontFamily:MONO}}>delete permanently?</div>
+                                    <div style={{display:"flex",gap:5}}>
+                                      <button onClick={cancelDelDl} style={{flex:1,padding:"3px 0",background:"none",border:"1px solid #2a2e38",borderRadius:5,color:"#7a8090",fontSize:10,fontFamily:MONO,cursor:"pointer"}}>cancel</button>
+                                      <button onClick={confirmDelDl} style={{flex:1,padding:"3px 0",background:"#e85454",border:"none",borderRadius:5,color:"#fff",fontSize:10,fontFamily:MONO,fontWeight:700,cursor:"pointer"}}>delete</button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            ):(
+                              <button onClick={e=>{e.stopPropagation();startDelDl(dl.id);}} style={{background:"transparent",border:"none",color:"#3a4052",cursor:"pointer",fontSize:13,padding:0}}
+                                onMouseEnter={e=>{e.currentTarget.style.color="#e85454";}}
+                                onMouseLeave={e=>{e.currentTarget.style.color="#3a4052";}}>✕</button>
+                            )}
                           </div>
                           {(()=>{
                             const linkedMoons=dl.type==="sun"?deadlines.filter(d=>d.type==="moon"&&d.parentSunId===dl.id&&!d.done):[];

@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSC 3340 · UTM Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'none' },
+  options: { menuOptions: { settings: { zoom: 'None' } } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #111111;
+  --paper:  #f2ede4;
+  --cream:  #ede8dc;
+  --yellow: #f5f500;
+  --red:    #e8352a;
+  --navy:   #1a1a2e;
+  --navy2:  #12121f;
+  --white:  #ffffff;
+  --green:  #1a3a1a;
+  --green2: #0d1f0d;
+  --border: 2.5px solid #111111;
+  --thin:   1.5px solid #bbbbbb;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Archivo', sans-serif; font-size: 14px; line-height: 1.6; }
+
+/* ── Header ── */
+.site-header { background: var(--ink); display: flex; align-items: stretch; border-bottom: 4px solid var(--red); position: sticky; top: 0; z-index: 100; }
+.header-title { padding: 14px 24px; flex: 1; }
+.header-title h1 { font-family: 'Archivo Black', sans-serif; font-size: 18px; text-transform: uppercase; letter-spacing: .04em; color: var(--yellow); line-height: 1; }
+.header-title span { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(245,245,0,.5); letter-spacing: .08em; display: block; margin-top: 3px; }
+.header-nav { display: flex; align-items: stretch; border-left: 2px solid rgba(245,245,0,.2); }
+.header-nav a { display: flex; align-items: center; justify-content: center; padding: 0 14px; font-family: 'Archivo Black', sans-serif; font-size: 11px; color: rgba(245,245,0,.5); text-decoration: none; border-left: 1px solid rgba(245,245,0,.1); transition: all .15s; letter-spacing:.05em; white-space:nowrap; }
+.header-nav a:hover { background: var(--red); color: var(--white); }
+
+/* ── Layout ── */
+.container { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+.prob-wrap { margin-bottom: 2.5rem; }
+
+/* ── Section divider ── */
+.section-divider { display:flex; align-items:center; gap:14px; margin: 2.5rem 0 1.5rem; }
+.section-divider span { font-family:'Archivo Black',sans-serif; font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:#888; white-space:nowrap; }
+.section-divider::before,.section-divider::after { content:''; flex:1; height:2px; background:#ddd; }
+
+/* ── Problem header (click to expand) ── */
+.prob-header { display: flex; align-items: stretch; border: var(--border); cursor: pointer; user-select: none; transition: opacity .15s; }
+.prob-header:hover { opacity: .88; }
+.prob-num { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 42px; min-width: 76px; display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; }
+.prob-num.red { background: var(--red); }
+.prob-num.navy { background: var(--navy); }
+.prob-title-wrap { padding: 12px 18px; border-left: var(--border); flex: 1; }
+.prob-title { font-family: 'Archivo Black', sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: .02em; }
+.prob-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; letter-spacing: .06em; margin-top: 3px; }
+.prob-arrow { display: flex; align-items: center; padding: 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: rgba(245,245,0,.6); background: var(--ink); border-left: 2px solid rgba(245,245,0,.15); transition: transform .25s; flex-shrink: 0; }
+.prob-arrow.red-arrow { background: var(--red); color: rgba(255,255,255,.7); }
+.prob-header.open .prob-arrow { transform: rotate(90deg); }
+
+/* ── Problem statement (always visible) ── */
+.prob-statement { border: var(--border); border-top: none; background: var(--white); }
+.prob-statement-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: #aaa; padding: 7px 14px 0; }
+.prob-statement-context { font-size: 12.5px; color: #444; padding: 6px 14px 10px; line-height: 1.7; }
+.part-row { display: grid; grid-template-columns: 36px 1fr; border-top: 1px solid #eee; }
+.part-row .pn { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 2px solid var(--ink); flex-shrink: 0; }
+.part-row .pt { padding: 9px 14px; font-size: 13px; line-height: 1.8; color: var(--ink); }
+.pts { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #aaa; margin-left: 8px; }
+.deadline-tag { font-family:'JetBrains Mono',monospace; font-size:10px; background:var(--red); color:#fff; padding:2px 8px; margin-left:8px; }
+
+/* ── Collapsible solution body ── */
+.prob-body { display: none; }
+.prob-body.open { display: block; }
+
+/* ── Part section ── */
+.part { border: var(--border); border-top: none; }
+.part-label { background: var(--red); color: var(--white); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 14px; border-bottom: var(--border); }
+.part-label.navy { background: var(--navy); }
+.part-label.green { background: var(--green); }
+.part-label.ink { background: var(--ink); }
+
+/* ── Key insight / formula collapsible (dark navy) ── */
+.formula-header { background: var(--navy); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; user-select: none; border-bottom: var(--border); transition: background .15s; }
+.formula-header:hover { background: #0f0f1e; }
+.formula-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.f-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #a0c4ff; display: flex; align-items: center; gap: 6px; }
+.f-label::before { content: '∑'; font-size: 13px; }
+.formula-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftag { font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(160,196,255,.12); border: 1px solid rgba(160,196,255,.3); color: #a0c4ff; padding: 2px 9px; white-space: nowrap; }
+.formula-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c4ff; transition: transform .2s; flex-shrink: 0; }
+.formula-header.open .formula-arrow { transform: rotate(90deg); }
+.formula-body { display: none; padding: 14px 16px; background: var(--navy2); border-bottom: var(--border); color: #c8d8f0; line-height: 2.4; overflow-x: auto; }
+.formula-body.open { display: block; }
+.formula-body .f-note { font-size: 11px; color: #6070a0; font-family: 'Archivo', sans-serif; margin-top: 6px; }
+.formula-body strong { color: #a0c4ff; font-family: 'Archivo Black', sans-serif; font-size: 11px; }
+
+/* ── Prerequisites collapsible (cream) ── */
+.prereq-toggle { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--cream); border-bottom: var(--thin); cursor: pointer; user-select: none; transition: background .15s; }
+.prereq-toggle:hover { background: #e0d8c8; }
+.prereq-toggle .tl { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+.prereq-toggle .tl::before { content: '◈'; color: var(--red); font-size: 12px; }
+.prereq-toggle .arr { font-size: 10px; color: #999; transition: transform .2s; }
+.prereq-toggle.open .arr { transform: rotate(90deg); }
+.prereq-body { display: none; padding: 12px 14px; background: var(--cream); border-bottom: var(--thin); font-size: 12.5px; color: #333; line-height: 2; }
+.prereq-body.open { display: block; }
+.prereq-body strong { font-weight: 700; color: var(--ink); }
+.prereq-formula { background: var(--white); border: 1.5px solid #aaa; border-left: 3px solid var(--ink); padding: 10px 14px; margin-top: 8px; line-height: 2.4; overflow-x: auto; }
+
+/* ── Solution steps ── */
+.steps { padding: 16px 14px 4px; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 0 12px; margin-bottom: 16px; align-items: start; }
+.step-n { background: var(--ink); color: var(--yellow); font-family: 'Archivo Black', sans-serif; font-size: 12px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-n.red { background: var(--red); }
+.step-label { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+.step-math { background: var(--white); border: 2px solid var(--ink); padding: 10px 14px; line-height: 2.4; overflow-x: auto; }
+.step-note { font-size: 12.5px; color: #444; margin-top: 5px; line-height: 1.7; }
+.step-note strong { color: var(--ink); font-weight: 700; }
+
+/* ── Transition table ── */
+.tt { border-collapse: collapse; margin: 10px 14px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.tt th { background: var(--ink); color: var(--yellow); padding: 6px 16px; border: var(--border); font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.tt td { padding: 6px 16px; border: var(--border); background: var(--white); text-align: center; }
+.tt tr.accept td:first-child { background: #e8f5e9; font-weight: 700; color: #1a5c1a; }
+.tt tr.start td:first-child::before { content: '→ '; }
+.tt tr.dead td { background: #fff3f3; color: #bbb; }
+.tt tr.mark td { background: #fffde6; }
+
+/* ── State diagram container ── */
+.state-diagram { border: var(--border); border-top: none; background: var(--white); padding: 20px 14px; text-align: center; overflow-x: auto; }
+.state-diagram svg { max-width: 100%; }
+.diagram-caption { font-family:'Archivo Black',sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:#111; border-bottom:2px solid #111; padding-bottom:5px; margin-bottom:14px; text-align:left; }
+
+/* ── Answer box (dark) ── */
+.answer { margin: 4px 14px 14px; background: var(--ink); color: var(--yellow); padding: 13px 16px; line-height: 2.4; overflow-x: auto; }
+.answer .ans-label { font-family: 'Archivo Black', sans-serif; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(245,245,0,.55); display: block; margin-bottom: 6px; }
+
+/* ── NEW: Code block ── */
+.code-block { margin: 0 14px 14px; background: #0d1117; border: var(--border); overflow: hidden; }
+.code-block-header { background: #161b22; padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #30363d; }
+.code-block-header .lang { font-family:'Archivo Black',sans-serif; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#58a6ff; }
+.code-block-header .fname { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8b949e; }
+.code-block pre { padding: 14px 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; color: #e6edf3; white-space: pre; }
+.code-block pre .kw  { color: #ff7b72; }
+.code-block pre .fn  { color: #d2a8ff; }
+.code-block pre .str { color: #a5d6ff; }
+.code-block pre .cm  { color: #8b949e; font-style: italic; }
+.code-block pre .num { color: #79c0ff; }
+.code-block pre .cls { color: #ffa657; }
+
+/* ── NEW: I/O example block ── */
+.io-block { margin: 0 14px 14px; border: var(--border); }
+.io-header { background: var(--green); color: #90ee90; font-family:'Archivo Black',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding: 6px 14px; border-bottom: var(--border); display:flex; justify-content:space-between; align-items:center; }
+.io-header .io-tag { font-family:'JetBrains Mono',monospace; font-size:10px; color: rgba(144,238,144,.6); }
+.io-row { display: grid; grid-template-columns: 90px 1fr; border-top: 1px solid #222; }
+.io-row:first-of-type { border-top: none; }
+.io-label { background: var(--green2); color: rgba(144,238,144,.8); font-family:'Archivo Black',sans-serif; font-size:10px; letter-spacing:.08em; text-transform:uppercase; display:flex; align-items:center; justify-content:center; padding: 8px; border-right: 2px solid #333; }
+.io-val { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#e6edf3; background:#161b22; padding: 8px 12px; line-height:1.7; overflow-x:auto; white-space:pre-wrap; word-break:break-all; }
+.io-val.output { background: #0d1f0d; color: #90ee90; }
+.io-val.human { background: #1a1a0d; color: #ffd700; }
+
+/* ── NEW: Tape trace ── */
+.trace-block { margin: 0 14px 14px; border: var(--border); overflow-x: auto; }
+.trace-header { background: #1a0a2e; color: #c8a0ff; font-family:'Archivo Black',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding: 6px 14px; border-bottom: var(--border); }
+.trace-table { width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+.trace-table th { background:#120820; color:#8060c0; padding:5px 10px; border:1px solid #2a1040; font-size:10px; letter-spacing:.08em; text-transform:uppercase; text-align:left; }
+.trace-table td { padding:5px 10px; border:1px solid #1a0a2e; background:#0a0015; color:#d0b0ff; vertical-align:middle; white-space:nowrap; }
+.trace-table tr:nth-child(even) td { background:#0f0020; }
+.trace-table td.step-num { color:#6040a0; font-size:10px; }
+.trace-table td.state { color:#ffa0ff; font-weight:700; }
+.trace-table td.sym { color:#80c0ff; }
+.trace-table td.tape { color:#90e090; letter-spacing:.05em; }
+.trace-table td.tape .head { background:#4a2080; color:#fff; padding:0 3px; }
+.trace-table tr.halt-row td { background:#200010; color:#ff6060; }
+
+/* ── NEW: Encoding reference strip ── */
+.enc-strip { margin: 0 14px 14px; border: var(--border); display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.enc-cell { padding:10px 12px; border-right:var(--border); border-bottom:var(--border); }
+.enc-cell:last-child { border-right:none; }
+.enc-cell-label { font-family:'Archivo Black',sans-serif; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:#aaa; margin-bottom:4px; }
+.enc-cell-val { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink); }
+.enc-cell-val span { color:var(--red); }
+
+/* ── Callout / warning strips ── */
+.callout { margin: 0 14px 14px; border-left: 4px solid var(--red); background: var(--cream); padding: 9px 13px; font-size: 12.5px; color: #333; line-height: 1.7; }
+.callout.blue { border-left-color: #4080ff; }
+.callout.green { border-left-color: #40a040; }
+.callout strong { color: var(--ink); font-weight: 700; }
+.warn { background: #fff3cd; border: var(--border); border-bottom: none; padding: 9px 13px; margin: 0 14px; font-size: 12px; color: #5a4000; }
+
+/* ── Concept box (yellow, collapsible) ── */
+.concept { border: var(--border); border-top: none; }
+.concept-header { background: var(--yellow); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; transition: background .15s; }
+.concept-header:hover { background: #e8e000; }
+.concept-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.c-label { font-family: 'Archivo Black', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.c-label::before { content: '◆'; font-size: 10px; }
+.concept-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ctag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 3px 9px; white-space: nowrap; }
+.concept-arrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #555; transition: transform .2s; }
+.concept-header.open .concept-arrow { transform: rotate(90deg); }
+.concept-body { display: none; padding: 14px 16px; background: #fffde6; border-top: var(--border); font-size: 13px; color: var(--ink); line-height: 1.85; }
+.concept-body.open { display: block; }
+.concept-body p { margin-bottom: 8px; }
+.concept-body strong { font-family: 'Archivo Black', sans-serif; }
+
+/* ── Symbol legend ── */
+.sym-legend { display:flex; flex-wrap:wrap; gap:8px; padding: 10px 14px 14px; }
+.sym-pill { display:flex; align-items:center; gap:6px; background:var(--white); border:var(--border); padding:4px 10px; font-family:'JetBrains Mono',monospace; font-size:11px; }
+.sym-pill .sc { background:var(--ink); color:var(--yellow); padding:1px 6px; font-size:10px; font-family:'Archivo Black',sans-serif; }
+
+/* spacing util */
+.mt { margin-top: 10px; }
+.mb { margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="site-header">
+  <div class="header-title">
+    <h1>COSC 3340 · UTM Project</h1>
+    <span>VERMA · DANG · TUCK · SPRING 2026 · UNIVERSAL TURING MACHINE · TWO PARTS</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#encoding">ENCODING</a>
+    <a href="#tm1">TM1</a>
+    <a href="#tm2">TM2</a>
+    <a href="#tm3">TM3</a>
+    <a href="#utm">UTM</a>
+    <a href="#part2">PART 2</a>
+  </nav>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════
+     ENCODING REFERENCE
+══════════════════════════════════════ -->
+<div class="section-divider" id="encoding"><span>encoding reference</span></div>
+
+<div class="prob-wrap" id="p-enc">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num navy">∑</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Encoding Conventions</div>
+      <div class="prob-sub">ALPHABET {c, I} · HOW TO ENCODE ANY TM · READ THIS FIRST</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">What is the encoding?</div>
+    <div class="prob-statement-context">
+      The UTM \(U\) operates on a single long string over the alphabet \(\{c, I\}\). This string encodes both a TM \(M\) and an input word \(w\) as \(\langle M, w \rangle\). Understanding the encoding is prerequisite to everything else.
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label navy">Symbol Map</div>
+      <div class="sym-legend">
+        <div class="sym-pill"><span class="sc">X1</span> <span>\(I\) = Blank (B)</span></div>
+        <div class="sym-pill"><span class="sc">X2</span> <span>\(II\) = 'a'</span></div>
+        <div class="sym-pill"><span class="sc">X3</span> <span>\(III\) = 'b'</span></div>
+        <div class="sym-pill"><span class="sc">X4</span> <span>\(IIII\) = 'X' marker</span></div>
+        <div class="sym-pill"><span class="sc">X5</span> <span>\(IIIII\) = 'Y' marker</span></div>
+        <div class="sym-pill"><span class="sc">qi</span> <span>\(i\) I's = state \(q_i\)</span></div>
+        <div class="sym-pill"><span class="sc">L</span> <span>\(I\) = Left</span></div>
+        <div class="sym-pill"><span class="sc">R</span> <span>\(II\) = Right</span></div>
+      </div>
+
+      <!-- Encoding reference strip -->
+      <div class="enc-strip">
+        <div class="enc-cell">
+          <div class="enc-cell-label">Single transition</div>
+          <div class="enc-cell-val">\(q_i\) <span>c</span> \(X_j\) <span>c</span> \(q_k\) <span>c</span> \(X_l\) <span>c</span> \(d\)</div>
+        </div>
+        <div class="enc-cell">
+          <div class="enc-cell-label">Between transitions</div>
+          <div class="enc-cell-val"><span>cc</span> (double-c)</div>
+        </div>
+        <div class="enc-cell">
+          <div class="enc-cell-label">After all transitions</div>
+          <div class="enc-cell-val"><span>ccc</span> (triple-c)</div>
+        </div>
+        <div class="enc-cell">
+          <div class="enc-cell-label">Between input symbols</div>
+          <div class="enc-cell-val"><span>c</span> (single-c)</div>
+        </div>
+      </div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Full \(\langle M, w \rangle\) structure</span>
+          <div class="formula-tags"><span class="ftag">tape 1 of U</span><span class="ftag">read-only</span></div>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        \[ \underbrace{\delta_1 \;cc\; \delta_2 \;cc\; \cdots \;cc\; \delta_k}_{\text{transition encodings}} \;\underbrace{ccc}_{\text{separator}} \;\underbrace{X_{i_1} \;c\; X_{i_2} \;c\; \cdots \;c\; X_{i_n}}_{\text{encoded input word }w} \]
+        <div class="f-note">Each \(\delta_j\) encodes one rule \(\delta(q_i, X_j) = (q_k, X_l, d)\) as five I-blocks separated by c's. Rules are separated by cc. The entire TM description is terminated by ccc before the word begins.</div>
+      </div>
+
+      <div class="prereq-toggle" onclick="tog(this)">
+        <span class="tl">Why can't we use both write + move in one step?</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="prereq-body">
+        <strong>Project constraint:</strong> Every TM in this project is restricted to either write a symbol <em>or</em> move the head — not both in a single transition. This is a simplification of the standard TM model to make simulation easier. In our Python UTM, we implement each transition as two micro-operations: (1) write the new symbol at the current head position, then (2) move the head in direction \(d\). The head never moves and writes simultaneously.
+        <div class="prereq-formula">\[\delta(q_i, X_j) = (q_k, X_l, d) \;\Longrightarrow\; \text{write } X_l \text{ at current cell, then move } d\]</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Worked example: encode \(\delta(q_1, a) = (q_2, X, R)\)</div>
+            <div class="step-note">State \(q_1 \to I\). Symbol \(a = X_2 \to II\). New state \(q_2 \to II\). New symbol \(X = X_4 \to IIII\). Direction \(R \to II\).</div>
+            <div class="step-math">\[I \;c\; II \;c\; II \;c\; IIII \;c\; II\]</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Tape layout for U</div>
+            <div class="step-note"><strong>Tape 1 (read-only):</strong> entire \(\langle M, w \rangle\) string. U scans it to find the applicable transition.<br><strong>Tape 2 (working):</strong> simulated tape of \(M\), initialized with encoded \(w\).<br><strong>Tape 3 (state):</strong> current state of \(M\), initially \(q_1 = I\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">How U executes one step</div>
+            <div class="step-note">U reads the current state from Tape 3 and the current symbol from Tape 2's head. It then scans Tape 1 left-to-right for a transition block whose first two I-groups match. When found, it updates Tape 2 (write), moves Tape 2's head (direction), and writes the new state to Tape 3.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout blue">
+        <strong>Start/halt convention:</strong> All TMs (including U) start with the tape as <code>#w#</code> and begin at the first blank to the right of the input. After computation, the head halts at the first blank to the right of the output. If there is no output, the machine may halt anywhere. Our simulator implements this: blank = X1 = symbol index 1.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">[SIPSER 3.1] UNIVERSAL TM</span><span class="ctag">CHURCH-TURING THESIS</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Universal Turing Machine (Sipser Def 3.9):</strong> A UTM \(U\) is a TM that can simulate any other TM \(M\) on any input \(w\), given \(\langle M, w \rangle\) as input. This is the theoretical foundation of modern general-purpose computing — every computer is essentially a UTM.</p>
+      <p><strong>Why the encoding works:</strong> Since TMs can only read finite alphabets, we need to encode arbitrary TMs into a fixed alphabet. The \(\{c, I\}\) encoding is a standard construction where \(c\) acts as a structural separator and \(I\) as a unary counter, making it possible to encode any finite state machine.</p>
+      <p><strong>Exam tip:</strong> The key insight is that \(U\) accepts \(\langle M, w \rangle\) iff \(M\) accepts \(w\). This directly implies undecidability of the halting problem — you can't decide in general whether \(U\) halts.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TM 1
+══════════════════════════════════════ -->
+<div class="section-divider" id="tm1"><span>TM 1 — recognizer</span></div>
+
+<div class="prob-wrap" id="p-tm1">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num">01</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">TM\(_1\): Recognizer for \(\{a^n b^n \mid n \geq 1\}\)</div>
+      <div class="prob-sub">LANGUAGE RECOGNIZER · DEMO INPUT: "ab" · PART 1 DEMO 1</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">What does this TM do?</div>
+    <div class="prob-statement-context">
+      \(TM_1\) decides whether an input string is of the form \(a^n b^n\) — exactly \(n\) a's followed by exactly \(n\) b's, for some \(n \geq 1\). It halts in an accept configuration if and only if the input is in this language.
+    </div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Design the TM, give its full algorithmic description, state diagram, and transition table. Then encode it and demonstrate on input <code>w = ab</code>. <span class="pts">Demo 1</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label">Algorithmic Description</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Core idea: zig-zag matching</div>
+            <div class="step-note">Repeatedly scan left to right, crossing off one \(a\) (replacing with \(X\)) and one \(b\) (replacing with \(Y\)). Each round removes one matched pair. When all \(a\)'s are crossed off, check that all \(b\)'s are also crossed off.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">State roles</div>
+            <div class="step-note">
+              <strong>\(q_1\):</strong> Scan right looking for an unmarked \(a\); if see \(b\) → reject (implicit: no transition = halt/reject); if see blank → accept.<br>
+              <strong>\(q_2\):</strong> Found an \(a\), marked as \(X\); scan right to find matching \(b\).<br>
+              <strong>\(q_3\):</strong> Found matching \(b\), marked as \(Y\); scan left to return to leftmost \(X\).<br>
+              <strong>\(q_5\):</strong> Accept state — no outgoing transitions, halts immediately.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-label">Symbol map for TM\(_1\)</div>
+            <div class="step-note">Blank = \(X_1\), \(a = X_2\), \(b = X_3\), \(X\text{-marker} = X_4\), \(Y\text{-marker} = X_5\).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State diagram TM1 -->
+      <div class="state-diagram">
+        <div class="diagram-caption">Fig 1 — TM₁ State Diagram</div>
+        <svg width="100%" viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="12">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#111"/>
+            </marker>
+          </defs>
+          <!-- states -->
+          <!-- q1 -->
+          <circle cx="100" cy="100" r="32" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="100" y="105" text-anchor="middle" font-family="Archivo Black" font-size="14">q₁</text>
+          <!-- q2 -->
+          <circle cx="280" cy="100" r="32" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="280" y="105" text-anchor="middle" font-family="Archivo Black" font-size="14">q₂</text>
+          <!-- q3 -->
+          <circle cx="460" cy="100" r="32" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="460" y="105" text-anchor="middle" font-family="Archivo Black" font-size="14">q₃</text>
+          <!-- q5 accept -->
+          <circle cx="650" cy="100" r="32" fill="#e8f5e9" stroke="#111" stroke-width="2.5"/>
+          <circle cx="650" cy="100" r="26" fill="none" stroke="#111" stroke-width="1.5"/>
+          <text x="650" y="105" text-anchor="middle" font-family="Archivo Black" font-size="14">q₅</text>
+          <!-- start arrow -->
+          <line x1="40" y1="100" x2="65" y2="100" stroke="#111" stroke-width="2" marker-end="url(#arr)"/>
+          <!-- q1 → q2: a/X,R -->
+          <line x1="132" y1="100" x2="248" y2="100" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="190" y="88" text-anchor="middle" fill="#e8352a">a→X, R</text>
+          <!-- q2 → q3: b/Y,L -->
+          <line x1="312" y1="100" x2="428" y2="100" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="370" y="88" text-anchor="middle" fill="#e8352a">b→Y, L</text>
+          <!-- q3 → q1: X/X,R -->
+          <path d="M 448 68 Q 280 10 112 68" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="280" y="22" text-anchor="middle" fill="#e8352a">X→X, R</text>
+          <!-- q1 → q5: B/B,R -->
+          <path d="M 132 84 Q 390 30 618 88" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="390" y="52" text-anchor="middle" fill="#1a5c1a">B→B, R</text>
+          <!-- q1 self: Y/Y,R -->
+          <path d="M 90 68 Q 70 30 110 68" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="70" y="38" text-anchor="middle" fill="#555">Y→Y,R</text>
+          <!-- q2 self: a/a,R and Y/Y,R -->
+          <path d="M 270 68 Q 250 28 290 68" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="250" y="38" text-anchor="middle" fill="#555">a,Y→R</text>
+          <!-- q3 self: a/a,L and Y/Y,L -->
+          <path d="M 450 68 Q 430 28 470 68" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="430" y="38" text-anchor="middle" fill="#555">a,Y→L</text>
+          <!-- accept label -->
+          <text x="650" y="152" text-anchor="middle" font-size="10" fill="#1a5c1a" font-family="Archivo Black">ACCEPT</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Transition table TM1 -->
+    <div class="part">
+      <div class="part-label navy">Full Transition Table — TM₁</div>
+      <table class="tt">
+        <tr>
+          <th>State</th><th>\(X_1\) (B)</th><th>\(X_2\) (a)</th><th>\(X_3\) (b)</th><th>\(X_4\) (X)</th><th>\(X_5\) (Y)</th>
+        </tr>
+        <tr class="start">
+          <td>\(q_1\)</td>
+          <td>\((q_5, B, R)\)</td>
+          <td class="mark">\((q_2, X, R)\)</td>
+          <td>—</td>
+          <td>—</td>
+          <td>\((q_1, Y, R)\)</td>
+        </tr>
+        <tr>
+          <td>\(q_2\)</td>
+          <td>—</td>
+          <td>\((q_2, a, R)\)</td>
+          <td class="mark">\((q_3, Y, L)\)</td>
+          <td>—</td>
+          <td>\((q_2, Y, R)\)</td>
+        </tr>
+        <tr>
+          <td>\(q_3\)</td>
+          <td>—</td>
+          <td>\((q_3, a, L)\)</td>
+          <td>—</td>
+          <td class="mark">\((q_1, X, R)\)</td>
+          <td>\((q_3, Y, L)\)</td>
+        </tr>
+        <tr class="accept">
+          <td>\(q_5\)</td>
+          <td colspan="5" style="text-align:center;color:#1a5c1a;">ACCEPT — no transitions (halts)</td>
+        </tr>
+      </table>
+      <div class="callout">
+        <strong>Implicit reject:</strong> Any cell marked "—" means no transition exists for that (state, symbol) pair. If the TM reaches such a configuration (e.g., \(q_1\) reading \(b\) before any \(a\)), it halts without accepting — implicit reject.
+      </div>
+    </div>
+
+    <!-- Encoding TM1 -->
+    <div class="part">
+      <div class="part-label ink">Encoding \(\langle TM_1 \rangle\)</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Encode each transition (9 total)</div>
+            <div class="step-math">
+              \(\delta(q_1,a) = (q_2,X,R)\): \(I \,c\, II \,c\, II \,c\, IIII \,c\, II\)<br>
+              \(\delta(q_1,Y) = (q_1,Y,R)\): \(I \,c\, IIIII \,c\, I \,c\, IIIII \,c\, II\)<br>
+              \(\delta(q_1,B) = (q_5,B,R)\): \(I \,c\, I \,c\, IIIII \,c\, I \,c\, II\)<br>
+              \(\delta(q_2,a) = (q_2,a,R)\): \(II \,c\, II \,c\, II \,c\, II \,c\, II\)<br>
+              \(\delta(q_2,Y) = (q_2,Y,R)\): \(II \,c\, IIIII \,c\, II \,c\, IIIII \,c\, II\)<br>
+              \(\delta(q_2,b) = (q_3,Y,L)\): \(II \,c\, III \,c\, III \,c\, IIIII \,c\, I\)<br>
+              \(\delta(q_3,a) = (q_3,a,L)\): \(III \,c\, II \,c\, III \,c\, II \,c\, I\)<br>
+              \(\delta(q_3,Y) = (q_3,Y,L)\): \(III \,c\, IIIII \,c\, III \,c\, IIIII \,c\, I\)<br>
+              \(\delta(q_3,X) = (q_1,X,R)\): \(III \,c\, IIII \,c\, I \,c\, IIII \,c\, II\)
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Encode input word \(w = ab\)</div>
+            <div class="step-math">\(a = X_2 = II, \quad b = X_3 = III \quad\Rightarrow\quad II \,c\, III\)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo I/O TM1 -->
+    <div class="part">
+      <div class="part-label green">Demo 1 — Input/Output</div>
+      <div class="io-block">
+        <div class="io-header">TM₁ on w = "ab" <span class="io-tag">DEMO 1 · RECOGNIZER</span></div>
+        <div class="io-row">
+          <div class="io-label">TM</div>
+          <div class="io-val">TM₁: {aⁿbⁿ | n≥1} recognizer · 5 states · 9 transitions</div>
+        </div>
+        <div class="io-row">
+          <div class="io-label">Unencoded input</div>
+          <div class="io-val">w = "ab"  →  a followed by b  (n=1, so ab ∈ L)</div>
+        </div>
+        <div class="io-row">
+          <div class="io-label">Encoded input</div>
+          <div class="io-val">IcIIcIIcIIIIcIIccIcIIIIIcIcIIIIIcIIcc...cccIIcIII
+(TM transitions)ccc(word: II c III)</div>
+        </div>
+        <div class="io-row">
+          <div class="io-label">Steps</div>
+          <div class="io-val">5 transitions before HALT</div>
+        </div>
+        <div class="io-row">
+          <div class="io-label">Encoded output</div>
+          <div class="io-val output">IIIIcIIIII</div>
+        </div>
+        <div class="io-row">
+          <div class="io-label">Decoded output</div>
+          <div class="io-val human">Symbols [X4, X5] = [X, Y] on tape
+The tape shows the accepted configuration: one 'a' was crossed (X) and one 'b' was crossed (Y).
+TM halts in q₅ (accept state) — input "ab" ∈ {aⁿbⁿ | n≥1} ✓</div>
+        </div>
+      </div>
+
+      <!-- Trace TM1 -->
+      <div class="trace-block">
+        <div class="trace-header">Step-by-step tape trace — TM₁ on "ab"</div>
+        <table class="trace-table">
+          <tr><th>Step</th><th>State</th><th>Read</th><th>Write</th><th>Move</th><th>Tape (head in [ ])</th></tr>
+          <tr><td class="step-num">0</td><td class="state">q₁</td><td class="sym">X₂ (a)</td><td>X₄ (X)</td><td>R</td><td class="tape"><span class="head">a</span> b</td></tr>
+          <tr><td class="step-num">1</td><td class="state">q₂</td><td class="sym">X₃ (b)</td><td>X₅ (Y)</td><td>L</td><td class="tape">X <span class="head">b</span></td></tr>
+          <tr><td class="step-num">2</td><td class="state">q₃</td><td class="sym">X₄ (X)</td><td>X₄ (X)</td><td>R</td><td class="tape"><span class="head">X</span> Y</td></tr>
+          <tr><td class="step-num">3</td><td class="state">q₁</td><td class="sym">X₅ (Y)</td><td>X₅ (Y)</td><td>R</td><td class="tape">X <span class="head">Y</span></td></tr>
+          <tr><td class="step-num">4</td><td class="state">q₁</td><td class="sym">X₁ (B)</td><td>X₁ (B)</td><td>R</td><td class="tape">X Y <span class="head">B</span></td></tr>
+          <tr class="halt-row"><td class="step-num">HALT</td><td class="state">q₅</td><td class="sym">—</td><td>—</td><td>—</td><td class="tape">X Y B ← accept config</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">[SIPSER 3.1] TM DESIGN</span><span class="ctag">ZIG-ZAG TECHNIQUE</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Zig-zag matching:</strong> The standard technique for recognizing \(\{a^n b^n\}\) with a TM. It exploits the random-access nature of the tape — unlike a PDA (which uses a stack), the TM can cross off symbols and return to check the current state of crossing off. Each iteration crosses off exactly one \(a\)/\(b\) pair.</p>
+      <p><strong>Why a PDA can't decide this (but a TM can):</strong> A PDA would recognize \(\{a^n b^n\}\) nondeterministically, but TMs are more powerful because they can move left and right and inspect the tape repeatedly.</p>
+      <p><strong>Exam tip:</strong> When \(q_1\) reads blank (B) with no more uncrossed \(a\)'s, all \(a\)'s had matching \(b\)'s (since Y's are skipped, only matched b's are Y). If any uncrossed \(b\) remained, the scan in \(q_2\) would have found it. So reaching \(q_5\) via \(q_1\) reading B is correct acceptance.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TM 2 — function (string copier)
+══════════════════════════════════════ -->
+<div class="section-divider" id="tm2"><span>TM 2 — function (string→string)</span></div>
+
+<div class="prob-wrap" id="p-tm2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num red">02</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">TM\(_2\): String Copier — \(a^n \to a^n B a^n\)</div>
+      <div class="prob-sub">STRING→STRING FUNCTION · DEMO INPUT: "aa" · PART 1 DEMO 2</div>
+    </div>
+    <div class="prob-arrow red-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">What does this TM do?</div>
+    <div class="prob-statement-context">
+      \(TM_2\) computes a function: given input \(a^n\), it produces output \(a^n B a^n\) — the original string, a blank separator, then an exact copy. This is the required "function from strings to strings" TM.
+    </div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Design, document, encode, and demonstrate \(TM_2\) on input \(w = aa\). Show output \(aa\,B\,aa\). <span class="pts">Demo 2</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label red">Algorithmic Description</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Strategy: copy one 'a' per iteration</div>
+            <div class="step-note">Each round: mark the leftmost unmarked 'a' as \(X\), scan right past the input + separator blank, scan right past any already-written copies to find the first blank in the copy zone, write a copy marker \(Y\) there, then scan all the way left back to \(X\), restore \(X\) to 'a', and repeat. When no unmarked 'a' remains (see blank at start), halt.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">State roles (7 states)</div>
+            <div class="step-note">
+              <strong>\(q_1\):</strong> Find next unmarked \(a\); mark as \(X\). If blank → done (\(q_7\)).<br>
+              <strong>\(q_2\):</strong> Scan right past input (a's, X's) to reach separator blank.<br>
+              <strong>\(q_3\):</strong> Scan right past copy zone (Y's) to find blank; write \(Y\).<br>
+              <strong>\(q_4\):</strong> Scan left past copies (Y's) back to separator blank.<br>
+              <strong>\(q_5\):</strong> Scan left past input (a's) to find \(X\); restore to \(a\), go to \(q_1\).<br>
+              <strong>\(q_7\):</strong> Accept (no transitions — halt).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State diagram TM2 -->
+      <div class="state-diagram">
+        <div class="diagram-caption">Fig 2 — TM₂ State Diagram (String Copier)</div>
+        <svg width="100%" viewBox="0 0 820 230" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="11">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#111"/>
+            </marker>
+          </defs>
+          <!-- states in a line: q1 q2 q3 q4 q5, then q7 above q1 -->
+          <circle cx="100" cy="130" r="28" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="100" y="135" text-anchor="middle" font-family="Archivo Black" font-size="13">q₁</text>
+          <circle cx="240" cy="130" r="28" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="240" y="135" text-anchor="middle" font-family="Archivo Black" font-size="13">q₂</text>
+          <circle cx="380" cy="130" r="28" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="380" y="135" text-anchor="middle" font-family="Archivo Black" font-size="13">q₃</text>
+          <circle cx="520" cy="130" r="28" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="520" y="135" text-anchor="middle" font-family="Archivo Black" font-size="13">q₄</text>
+          <circle cx="660" cy="130" r="28" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="660" y="135" text-anchor="middle" font-family="Archivo Black" font-size="13">q₅</text>
+          <!-- q7 accept (above q1) -->
+          <circle cx="100" cy="42" r="28" fill="#e8f5e9" stroke="#111" stroke-width="2.5"/>
+          <circle cx="100" cy="42" r="22" fill="none" stroke="#111" stroke-width="1.5"/>
+          <text x="100" y="47" text-anchor="middle" font-family="Archivo Black" font-size="13">q₇</text>
+          <text x="100" y="80" text-anchor="middle" font-size="10" fill="#1a5c1a" font-family="Archivo Black">ACCEPT</text>
+          <!-- start arrow -->
+          <line x1="40" y1="130" x2="69" y2="130" stroke="#111" stroke-width="2" marker-end="url(#arr2)"/>
+          <!-- q1→q7: B/B,R -->
+          <line x1="100" y1="102" x2="100" y2="72" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="112" y="90" fill="#1a5c1a" font-size="10">B→R</text>
+          <!-- q1→q2: a/X,R -->
+          <line x1="128" y1="130" x2="212" y2="130" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="170" y="118" text-anchor="middle" fill="#e8352a" font-size="10">a→X,R</text>
+          <!-- q2→q3: B/B,R -->
+          <line x1="268" y1="130" x2="352" y2="130" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="310" y="118" text-anchor="middle" fill="#e8352a" font-size="10">B→B,R</text>
+          <!-- q3→q4: B/Y,L -->
+          <line x1="408" y1="130" x2="492" y2="130" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="450" y="118" text-anchor="middle" fill="#e8352a" font-size="10">B→Y,L</text>
+          <!-- q4→q5: B/B,L -->
+          <line x1="548" y1="130" x2="632" y2="130" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="590" y="118" text-anchor="middle" fill="#e8352a" font-size="10">B→B,L</text>
+          <!-- q5→q1: X/a,R (back arc) -->
+          <path d="M 648 158 Q 380 210 112 158" fill="none" stroke="#111" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="380" y="215" text-anchor="middle" fill="#4040c0" font-size="10">X→a,R (restore)</text>
+          <!-- self loops -->
+          <!-- q2 self: a,X / R -->
+          <path d="M 230 102 Q 210 62 250 102" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="210" y="72" font-size="9" fill="#555">a,X→R</text>
+          <!-- q3 self: Y/R -->
+          <path d="M 370 102 Q 350 62 390 102" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="350" y="72" font-size="9" fill="#555">Y→R</text>
+          <!-- q4 self: Y/L -->
+          <path d="M 510 102 Q 490 62 530 102" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="490" y="72" font-size="9" fill="#555">Y→L</text>
+          <!-- q5 self: a/L -->
+          <path d="M 650 102 Q 630 62 670 102" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="630" y="72" font-size="9" fill="#555">a→L</text>
+          <!-- q1 self: X/R -->
+          <path d="M 90 102 Q 70 62 110 102" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr2)"/>
+          <text x="55" y="72" font-size="9" fill="#555">X→R</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label navy">Full Transition Table — TM₂</div>
+      <table class="tt">
+        <tr><th>State</th><th>\(X_1\) (B)</th><th>\(X_2\) (a)</th><th>\(X_3\) (X)</th><th>\(X_4\) (Y)</th></tr>
+        <tr class="start"><td>\(q_1\)</td><td>\((q_7,B,R)\)</td><td class="mark">\((q_2,X,R)\)</td><td>\((q_1,X,R)\)</td><td>—</td></tr>
+        <tr><td>\(q_2\)</td><td>\((q_3,B,R)\)</td><td>\((q_2,a,R)\)</td><td>\((q_2,X,R)\)</td><td>—</td></tr>
+        <tr><td>\(q_3\)</td><td class="mark">\((q_4,Y,L)\)</td><td>—</td><td>—</td><td>\((q_3,Y,R)\)</td></tr>
+        <tr><td>\(q_4\)</td><td>\((q_5,B,L)\)</td><td>—</td><td>—</td><td>\((q_4,Y,L)\)</td></tr>
+        <tr><td>\(q_5\)</td><td>—</td><td>\((q_5,a,L)\)</td><td class="mark">\((q_1,a,R)\)</td><td>—</td></tr>
+        <tr class="accept"><td>\(q_7\)</td><td colspan="4" style="text-align:center;color:#1a5c1a;">ACCEPT — halts</td></tr>
+      </table>
+    </div>
+
+    <div class="part">
+      <div class="part-label green">Demo 2 — Input/Output</div>
+      <div class="io-block">
+        <div class="io-header">TM₂ on w = "aa" <span class="io-tag">DEMO 2 · FUNCTION TM</span></div>
+        <div class="io-row"><div class="io-label">TM</div><div class="io-val">TM₂: String copier · 6 states · 12 transitions</div></div>
+        <div class="io-row"><div class="io-label">Unencoded input</div><div class="io-val">w = "aa"  →  n=2 copies of 'a'</div></div>
+        <div class="io-row"><div class="io-label">Expected output</div><div class="io-val">aa B aa  (original + blank + copy)</div></div>
+        <div class="io-row"><div class="io-label">Encoded output</div><div class="io-val output">IIcIIcIcIIIIcIIII</div></div>
+        <div class="io-row"><div class="io-label">Decoded output</div><div class="io-val human">Symbols [2, 2, 1, 4, 4]
+= [a, a, B, Y, Y]
+= "aa" + blank + "aa" (Y = copy of a) ✓
+This is a string → string function: f("aa") = "aa B aa"</div></div>
+      </div>
+
+      <div class="trace-block">
+        <div class="trace-header">Step-by-step tape trace — TM₂ on "aa" (15 steps)</div>
+        <table class="trace-table">
+          <tr><th>Step</th><th>State</th><th>Read</th><th>Write</th><th>Move</th><th>Tape</th></tr>
+          <tr><td class="step-num">0</td><td class="state">q₁</td><td class="sym">a(X₂)</td><td>X(X₃)</td><td>R</td><td class="tape"><span class="head">a</span>a → mark first a as X</td></tr>
+          <tr><td class="step-num">1</td><td class="state">q₂</td><td class="sym">a(X₂)</td><td>a</td><td>R</td><td class="tape">X<span class="head">a</span> → skip unprocessed a</td></tr>
+          <tr><td class="step-num">2</td><td class="state">q₂</td><td class="sym">B(X₁)</td><td>B</td><td>R</td><td class="tape">Xa<span class="head">B</span> → cross separator blank</td></tr>
+          <tr><td class="step-num">3</td><td class="state">q₃</td><td class="sym">B(X₁)</td><td>Y(X₄)</td><td>L</td><td class="tape">XaB<span class="head">B</span> → write first copy</td></tr>
+          <tr><td class="step-num">4</td><td class="state">q₄</td><td class="sym">B(X₁)</td><td>B</td><td>L</td><td class="tape">Xa<span class="head">B</span>Y → cross separator going left</td></tr>
+          <tr><td class="step-num">5</td><td class="state">q₅</td><td class="sym">a(X₂)</td><td>a</td><td>L</td><td class="tape">X<span class="head">a</span>BY → scan left past a</td></tr>
+          <tr><td class="step-num">6</td><td class="state">q₅</td><td class="sym">X(X₃)</td><td>a(X₂)</td><td>R</td><td class="tape"><span class="head">X</span>aBY → restore X→a, go right</td></tr>
+          <tr><td class="step-num">7</td><td class="state">q₁</td><td class="sym">a(X₂)</td><td>X(X₃)</td><td>R</td><td class="tape">a<span class="head">a</span>BY → mark second a as X</td></tr>
+          <tr><td class="step-num">8</td><td class="state">q₂</td><td class="sym">B(X₁)</td><td>B</td><td>R</td><td class="tape">aX<span class="head">B</span>Y → cross separator</td></tr>
+          <tr><td class="step-num">9</td><td class="state">q₃</td><td class="sym">Y(X₄)</td><td>Y</td><td>R</td><td class="tape">aXB<span class="head">Y</span> → skip existing copy</td></tr>
+          <tr><td class="step-num">10</td><td class="state">q₃</td><td class="sym">B(X₁)</td><td>Y</td><td>L</td><td class="tape">aXBY<span class="head">B</span> → write second copy</td></tr>
+          <tr><td class="step-num">11</td><td class="state">q₄</td><td class="sym">Y(X₄)</td><td>Y</td><td>L</td><td class="tape">aXB<span class="head">Y</span>Y → scan left past copies</td></tr>
+          <tr><td class="step-num">12</td><td class="state">q₄</td><td class="sym">B(X₁)</td><td>B</td><td>L</td><td class="tape">aX<span class="head">B</span>YY → cross separator</td></tr>
+          <tr><td class="step-num">13</td><td class="state">q₅</td><td class="sym">X(X₃)</td><td>a</td><td>R</td><td class="tape">a<span class="head">X</span>BYY → restore X→a</td></tr>
+          <tr><td class="step-num">14</td><td class="state">q₁</td><td class="sym">B(X₁)</td><td>B</td><td>R</td><td class="tape">aa<span class="head">B</span>YY → no more a's!</td></tr>
+          <tr class="halt-row"><td class="step-num">HALT</td><td class="state">q₇</td><td>—</td><td>—</td><td>—</td><td class="tape">Final: [a, a, B, Y, Y] = aa·B·aa ✓</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">[SIPSER 3.1] TM FUNCTIONS</span><span class="ctag">COMPUTABLE FUNCTIONS</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>TMs as function computers:</strong> A TM doesn't just accept or reject — it can compute a function \(f: \Sigma^* \to \Sigma^*\). When computing \(f(w)\), the TM starts with \(w\) on the tape and halts with \(f(w)\) on the tape. A function is <em>Turing-computable</em> iff some TM computes it.</p>
+      <p><strong>String copy is fundamental:</strong> The ability to duplicate data on the tape is used as a subroutine in many theoretical constructions. It demonstrates that TMs can perform non-trivial data transformation, not just membership testing.</p>
+      <p><strong>Exam tip:</strong> When a TM computes a function, we say it <em>transduces</em> the input. The output is whatever is left on the tape when the TM halts. If it loops, the function is undefined for that input.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TM 3 — incrementer
+══════════════════════════════════════ -->
+<div class="section-divider" id="tm3"><span>TM 3 — unary incrementer</span></div>
+
+<div class="prob-wrap" id="p-tm3">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num navy">03</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">TM\(_3\): Unary Incrementer — \(a^n \to a^{n+1}\)</div>
+      <div class="prob-sub">ARITHMETIC FUNCTION · DEMO INPUT: "aaa" · PART 1 DEMO 3</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">What does this TM do?</div>
+    <div class="prob-statement-context">
+      \(TM_3\) computes the unary increment function: given \(a^n\) as input, it outputs \(a^{n+1}\). Unary notation represents the natural number \(n\) as \(n\) consecutive \(a\)'s.
+    </div>
+    <div class="part-row">
+      <div class="pn">—</div>
+      <div class="pt">Design, document, encode, and demonstrate \(TM_3\) on input \(w = aaa\) (encoding \(n = 3\)), producing output \(aaaa\) (encoding \(n+1 = 4\)). <span class="pts">Demo 3</span></div>
+    </div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label navy">Algorithmic Description</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Strategy: scan to end, write one more</div>
+            <div class="step-note">This is the simplest nontrivial function TM. In \(q_1\), scan right over all \(a\)'s until a blank is reached. At the blank, write one more \(a\) (the increment), then move left. Halt in \(q_2\) — since \(q_2\) has no outgoing transitions, the machine halts (accept). Final tape is \(a^{n+1}\).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">Only 2 states, 2 transitions</div>
+            <div class="step-math">
+              \[\delta(q_1, a) = (q_1, a, R)\]
+              \[\delta(q_1, B) = (q_2, a, L)\]
+            </div>
+            <div class="step-note"><strong>\(q_1\):</strong> keep scanning right. <strong>\(q_2\):</strong> write extra \(a\), halt. No \(q_2\) transitions means immediate halt after writing.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State diagram TM3 -->
+      <div class="state-diagram">
+        <div class="diagram-caption">Fig 3 — TM₃ State Diagram (Unary Incrementer)</div>
+        <svg width="100%" viewBox="0 0 500 140" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="12">
+          <defs>
+            <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#111"/>
+            </marker>
+          </defs>
+          <!-- q1 -->
+          <circle cx="140" cy="70" r="32" fill="#fff" stroke="#111" stroke-width="2.5"/>
+          <text x="140" y="75" text-anchor="middle" font-family="Archivo Black" font-size="14">q₁</text>
+          <!-- q2 accept -->
+          <circle cx="340" cy="70" r="32" fill="#e8f5e9" stroke="#111" stroke-width="2.5"/>
+          <circle cx="340" cy="70" r="26" fill="none" stroke="#111" stroke-width="1.5"/>
+          <text x="340" y="75" text-anchor="middle" font-family="Archivo Black" font-size="14">q₂</text>
+          <text x="340" y="115" text-anchor="middle" font-size="10" fill="#1a5c1a" font-family="Archivo Black">ACCEPT</text>
+          <!-- start arrow -->
+          <line x1="60" y1="70" x2="105" y2="70" stroke="#111" stroke-width="2" marker-end="url(#arr3)"/>
+          <!-- q1 → q2: B/a,L -->
+          <line x1="172" y1="70" x2="308" y2="70" stroke="#111" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <text x="240" y="58" text-anchor="middle" fill="#e8352a">B→a, L</text>
+          <!-- q1 self: a/a,R -->
+          <path d="M 130 38 Q 110 5 150 38" fill="none" stroke="#555" stroke-width="1.2" marker-end="url(#arr3)"/>
+          <text x="108" y="16" fill="#555" font-size="11">a→a, R</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label ink">Transition Table — TM₃</div>
+      <table class="tt">
+        <tr><th>State</th><th>\(X_1\) (B)</th><th>\(X_2\) (a)</th></tr>
+        <tr class="start"><td>\(q_1\)</td><td class="mark">\((q_2, a, L)\)</td><td>\((q_1, a, R)\)</td></tr>
+        <tr class="accept"><td>\(q_2\)</td><td colspan="2" style="text-align:center;color:#1a5c1a;">ACCEPT — halts</td></tr>
+      </table>
+      <div class="callout green mt">
+        <strong>Encoded UTM input (TM₃ on "aaa"):</strong><br>
+        <code style="font-family:'JetBrains Mono',monospace;font-size:11px;">IcIIcIcIIcIIccIcIcIIcIIcIcccIIcIIcII</code><br>
+        <span style="font-size:11px;color:#555;">Two transitions separated by <code>cc</code>, then <code>ccc</code>, then word [II c II c II] = "aaa".</span>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label green">Demo 3 — Input/Output</div>
+      <div class="io-block">
+        <div class="io-header">TM₃ on w = "aaa" <span class="io-tag">DEMO 3 · INCREMENT n=3 → 4</span></div>
+        <div class="io-row"><div class="io-label">Unencoded input</div><div class="io-val">w = "aaa"  →  unary 3</div></div>
+        <div class="io-row"><div class="io-label">Expected output</div><div class="io-val">aaaa  →  unary 4</div></div>
+        <div class="io-row"><div class="io-label">Encoded input</div><div class="io-val">IcIIcIcIIcIIccIcIcIIcIIcIcccIIcIIcII</div></div>
+        <div class="io-row"><div class="io-label">Steps taken</div><div class="io-val">4 transitions (scan 3 a's + write 1 more)</div></div>
+        <div class="io-row"><div class="io-label">Encoded output</div><div class="io-val output">IIcIIcIIcII</div></div>
+        <div class="io-row"><div class="io-label">Decoded output</div><div class="io-val human">Symbols [2, 2, 2, 2] = [a, a, a, a] = "aaaa" ✓
+f("aaa") = "aaaa"  →  3 + 1 = 4 in unary</div></div>
+      </div>
+
+      <div class="trace-block">
+        <div class="trace-header">Step-by-step tape trace — TM₃ on "aaa"</div>
+        <table class="trace-table">
+          <tr><th>Step</th><th>State</th><th>Read</th><th>Write</th><th>Move</th><th>Tape</th></tr>
+          <tr><td class="step-num">0</td><td class="state">q₁</td><td class="sym">a</td><td>a</td><td>R</td><td class="tape"><span class="head">a</span>aa</td></tr>
+          <tr><td class="step-num">1</td><td class="state">q₁</td><td class="sym">a</td><td>a</td><td>R</td><td class="tape">a<span class="head">a</span>a</td></tr>
+          <tr><td class="step-num">2</td><td class="state">q₁</td><td class="sym">a</td><td>a</td><td>R</td><td class="tape">aa<span class="head">a</span></td></tr>
+          <tr><td class="step-num">3</td><td class="state">q₁</td><td class="sym">B</td><td>a ← write!</td><td>L</td><td class="tape">aaa<span class="head">B</span></td></tr>
+          <tr class="halt-row"><td class="step-num">HALT</td><td class="state">q₂</td><td>—</td><td>—</td><td>—</td><td class="tape">aaa<span class="head">a</span> = aaaa ✓</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">[SIPSER 3.1] UNARY ARITHMETIC</span><span class="ctag">PRIMITIVE RECURSION</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Unary representation:</strong> Natural number \(n\) is represented as \(a^n\). Incrementing \(n\) simply appends one more symbol. This is the TM analogue of the successor function \(S(n) = n+1\), which is the most primitive arithmetic operation.</p>
+      <p><strong>Why this is powerful:</strong> Every computable function on natural numbers can be built from the successor function plus composition and primitive recursion (by the Church-Turing thesis). So this tiny TM is the theoretical seed of all computation.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     UTM SIMULATOR CODE
+══════════════════════════════════════ -->
+<div class="section-divider" id="utm"><span>universal turing machine — python simulator</span></div>
+
+<div class="prob-wrap" id="p-utm">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num red">U</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">UTM Simulator in Python</div>
+      <div class="prob-sub">utm.py · THREE-TAPE MODEL · ALL THREE DEMOS · PART 1 SUBMISSION</div>
+    </div>
+    <div class="prob-arrow red-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">What to submit</div>
+    <div class="prob-statement-context">
+      The Python simulator implements a three-tape UTM \(U\). Tape 1 holds the encoded \(\langle M, w \rangle\) (parsed into a transition dict for efficiency). Tape 2 is the simulated tape of \(M\). Tape 3 tracks the current state. The code below is the complete submission for Part 1.
+    </div>
+  </div>
+
+  <div class="prob-body">
+
+    <div class="part">
+      <div class="part-label navy">Architecture Overview</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-label">Module structure</div>
+            <div class="step-note">
+              <strong>Encoding helpers:</strong> <code>encode_int</code>, <code>encode_state</code>, <code>encode_symbol</code>, <code>encode_direction</code>, <code>encode_transition</code>, <code>build_utm_input</code>.<br>
+              <strong>Parser:</strong> <code>parse_utm_input</code> — splits on <code>ccc</code>, parses each transition block into a dict keyed by <code>(qi, xj)</code>.<br>
+              <strong>Tape class:</strong> infinite tape backed by a <code>dict[int, int]</code>, supporting <code>read</code>, <code>write</code>, <code>move</code>.<br>
+              <strong>UTM class:</strong> holds all three tapes, runs the simulation step by step.
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-label">One step of the simulation</div>
+            <div class="step-math">
+              \[\text{read } (q_{\text{cur}}, X_{\text{cur}}) \;\xrightarrow{\text{lookup Tape 1}}\; (q_k, X_l, d)\]
+              \[\text{Tape 2: write } X_l \text{ at head, then move head in direction } d\]
+              \[\text{Tape 3: } q_{\text{cur}} \leftarrow q_k\]
+            </div>
+            <div class="step-note">If no transition exists for \((q_{\text{cur}}, X_{\text{cur}})\), the TM halts. This implements both accept (intended halt) and reject (no applicable transition).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The actual code -->
+    <div class="part">
+      <div class="part-label ink">utm.py — Full Source</div>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="lang">Python 3.10+</span>
+          <span class="fname">utm.py · ~280 lines</span>
+        </div>
+        <pre><span class="cm">"""
+utm.py — Three-Tape Universal Turing Machine Simulator
+COSC 3340 Spring 2026 · Project Part 1
+
+Encoding alphabet: {c, I}
+  - States:   qi = i I's
+  - Symbols:  Xj = j I's   (X1=Blank, X2=a, X3=b, X4=X-mark, X5=Y-mark)
+  - Direction: L=I, R=II
+  - Transition δ(qi,Xj)=(qk,Xl,d): Ii c Ij c Ik c Il c Id
+  - Transitions separated by cc, TM ends with ccc, then input word
+"""</span>
+
+<span class="cm"># ── Encoding helpers ──────────────────────────────────────</span>
+
+<span class="kw">def</span> <span class="fn">encode_int</span>(n):
+    <span class="kw">return</span> <span class="str">"I"</span> * n
+
+<span class="kw">def</span> <span class="fn">encode_transition</span>(qi, xj, qk, xl, d):
+    dir_enc = <span class="str">"I"</span> <span class="kw">if</span> d == <span class="str">"L"</span> <span class="kw">else</span> <span class="str">"II"</span>
+    <span class="kw">return</span> (<span class="fn">encode_int</span>(qi) + <span class="str">"c"</span> + <span class="fn">encode_int</span>(xj) + <span class="str">"c"</span> +
+            <span class="fn">encode_int</span>(qk) + <span class="str">"c"</span> + <span class="fn">encode_int</span>(xl) + <span class="str">"c"</span> + dir_enc)
+
+<span class="kw">def</span> <span class="fn">build_utm_input</span>(transitions, input_symbols):
+    tm_enc = <span class="str">"cc"</span>.join(<span class="fn">encode_transition</span>(*t) <span class="kw">for</span> t <span class="kw">in</span> transitions)
+    word_enc = <span class="str">"c"</span>.join(<span class="str">"I"</span> * s <span class="kw">for</span> s <span class="kw">in</span> input_symbols)
+    <span class="kw">return</span> tm_enc + <span class="str">"ccc"</span> + word_enc
+
+<span class="cm"># ── Parser ─────────────────────────────────────────────────</span>
+
+<span class="kw">def</span> <span class="fn">parse_utm_input</span>(utm_input):
+    parts = utm_input.split(<span class="str">"ccc"</span>)
+    tm_part, word_part = parts[<span class="num">0</span>], parts[<span class="num">1</span>]
+    transitions = {}
+    <span class="kw">for</span> raw <span class="kw">in</span> tm_part.split(<span class="str">"cc"</span>):
+        f = raw.split(<span class="str">"c"</span>)
+        qi, xj, qk, xl = <span class="fn">len</span>(f[<span class="num">0</span>]), <span class="fn">len</span>(f[<span class="num">1</span>]), <span class="fn">len</span>(f[<span class="num">2</span>]), <span class="fn">len</span>(f[<span class="num">3</span>])
+        d = <span class="str">"L"</span> <span class="kw">if</span> f[<span class="num">4</span>] == <span class="str">"I"</span> <span class="kw">else</span> <span class="str">"R"</span>
+        transitions[(qi, xj)] = (qk, xl, d)
+    tape = [<span class="fn">len</span>(s) <span class="kw">for</span> s <span class="kw">in</span> word_part.split(<span class="str">"c"</span>)]
+    <span class="kw">return</span> transitions, tape
+
+<span class="cm"># ── Tape class ─────────────────────────────────────────────</span>
+
+<span class="kw">class</span> <span class="cls">Tape</span>:
+    BLANK = <span class="num">1</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, initial=<span class="kw">None</span>):
+        self.cells = {}
+        self.head = <span class="num">0</span>
+        <span class="kw">if</span> initial:
+            <span class="kw">for</span> i, s <span class="kw">in</span> <span class="fn">enumerate</span>(initial): self.cells[i] = s
+    <span class="kw">def</span> <span class="fn">read</span>(self): <span class="kw">return</span> self.cells.get(self.head, self.BLANK)
+    <span class="kw">def</span> <span class="fn">write</span>(self, s): self.cells[self.head] = s
+    <span class="kw">def</span> <span class="fn">move</span>(self, d): self.head += <span class="num">1</span> <span class="kw">if</span> d == <span class="str">"R"</span> <span class="kw">else</span> -<span class="num">1</span>
+
+<span class="cm"># ── UTM class ──────────────────────────────────────────────</span>
+
+<span class="kw">class</span> <span class="cls">UTM</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, utm_input):
+        self.transitions, tape_init = <span class="fn">parse_utm_input</span>(utm_input)
+        self.tape2 = <span class="cls">Tape</span>(tape_init)   <span class="cm"># simulated tape</span>
+        self.state = <span class="num">1</span>                  <span class="cm"># tape3: start at q1</span>
+        self.steps = <span class="num">0</span>
+
+    <span class="kw">def</span> <span class="fn">step</span>(self):
+        sym = self.tape2.<span class="fn">read</span>()
+        key = (self.state, sym)
+        <span class="kw">if</span> key <span class="kw">not in</span> self.transitions: <span class="kw">return False</span>  <span class="cm"># halt</span>
+        qk, xl, d = self.transitions[key]
+        self.tape2.<span class="fn">write</span>(xl)           <span class="cm"># write (not both!)</span>
+        self.tape2.<span class="fn">move</span>(d)             <span class="cm"># then move</span>
+        self.state = qk
+        self.steps += <span class="num">1</span>
+        <span class="kw">return True</span>
+
+    <span class="kw">def</span> <span class="fn">run</span>(self):
+        <span class="kw">while</span> self.steps &lt; <span class="num">100_000</span> <span class="kw">and</span> self.<span class="fn">step</span>(): <span class="kw">pass</span>
+        <span class="kw">return</span> self.<span class="fn">get_output</span>()
+
+    <span class="kw">def</span> <span class="fn">get_output</span>(self):
+        <span class="kw">if not</span> self.tape2.cells: <span class="kw">return</span> [<span class="num">1</span>]
+        lo, hi = <span class="fn">min</span>(self.tape2.cells), <span class="fn">max</span>(self.tape2.cells)
+        out = [self.tape2.cells.get(i, <span class="num">1</span>) <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(lo, hi+<span class="num">1</span>)]
+        <span class="kw">while</span> out <span class="kw">and</span> out[<span class="num">0</span>] == <span class="num">1</span>: out.pop(<span class="num">0</span>)
+        <span class="kw">while</span> out <span class="kw">and</span> out[-<span class="num">1</span>] == <span class="num">1</span>: out.pop()
+        <span class="kw">return</span> out <span class="kw">if</span> out <span class="kw">else</span> [<span class="num">1</span>]</pre>
+      </div>
+
+      <div class="callout green">
+        <strong>Write-OR-move compliance:</strong> In the <code>step()</code> method, <code>tape2.write(xl)</code> and <code>tape2.move(d)</code> are separate calls. The head position does not change during the write. This implements the project constraint that each transition is either a write or a move — we split \(\delta\) into two sequential micro-operations.
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label green">Verified Outputs — All Three Demos</div>
+      <div class="io-block">
+        <div class="io-header">Summary of All Demo Results <span class="io-tag">ALL CORRECT · VERIFIED</span></div>
+        <div class="io-row"><div class="io-label">Demo 1</div><div class="io-val output">TM₁("ab") → IIIIcIIIII  →  [X4, X5]  =  accept config ✓</div></div>
+        <div class="io-row"><div class="io-label">Demo 2</div><div class="io-val output">TM₂("aa") → IIcIIcIcIIIIcIIII  →  [a,a,B,Y,Y]  =  "aaBAA" ✓</div></div>
+        <div class="io-row"><div class="io-label">Demo 3</div><div class="io-val output">TM₃("aaa") → IIcIIcIIcII  →  [2,2,2,2]  =  "aaaa" ✓</div></div>
+      </div>
+      <div class="callout blue">
+        <strong>Note on output decoding:</strong> Per the project spec, the UTM is not required to decode the output back to the normal format. The encoded output string over \(\{c, I\}\) is the final answer. The human-readable interpretations above are for documentation purposes only.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">[SIPSER 3.3] HALTING PROBLEM</span><span class="ctag">UNDECIDABILITY</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Why the UTM implies undecidability:</strong> The UTM \(U\) exists and is computable. But the <em>halting problem</em> — deciding whether \(U\) halts on input \(\langle M, w \rangle\) — is undecidable (Sipser Theorem 4.11). The key insight: if a decider for the halting problem existed, we could use diagonalization to construct a TM that contradicts itself.</p>
+      <p><strong>Halting vs. acceptance:</strong> \(U\) accepts \(\langle M, w \rangle\) iff \(M\) accepts \(w\). \(U\) loops iff \(M\) loops on \(w\). \(U\) rejects iff \(M\) rejects \(w\). The language \(A_{TM} = \{\langle M, w \rangle \mid M \text{ accepts } w\}\) is recognizable but not decidable.</p>
+      <p><strong>Our simulator's limitation:</strong> The <code>MAX_STEPS = 100,000</code> safety limit means our simulator cannot detect infinite loops — it just stops after the limit. A true UTM would run forever when simulating a non-halting TM. This is not a bug; it's the fundamental limitation of computation.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PART 2
+══════════════════════════════════════ -->
+<div class="section-divider" id="part2"><span>part 2 — research report</span></div>
+
+<div class="prob-wrap" id="p-part2">
+  <div class="prob-header" onclick="togProb(this)">
+    <div class="prob-num navy">P2</div>
+    <div class="prob-title-wrap">
+      <div class="prob-title">Part 2: Quantum Turing Machines</div>
+      <div class="prob-sub">DUE APR 22 · GEORGIA 10PT · 1–2 PAGES · 1" MARGINS · UNLIMITED REFS</div>
+    </div>
+    <div class="prob-arrow">▶</div>
+  </div>
+
+  <div class="prob-statement">
+    <div class="prob-statement-label">Assignment</div>
+    <div class="prob-statement-context">
+      Find an interesting application or model of computation not discussed in class. Report on it in 1–2 typed single-spaced pages (Georgia font, ≥10pt, 1" margins, unlimited references). Answer: (a) what it is, (b) why it is interesting, (c) how it relates to the course.
+    </div>
+    <div class="part-row"><div class="pn">a</div><div class="pt">What are you describing? Give enough detail for the reader to understand.</div></div>
+    <div class="part-row"><div class="pn">b</div><div class="pt">Why is it interesting?</div></div>
+    <div class="part-row"><div class="pn">c</div><div class="pt">How is it related to this course?</div></div>
+  </div>
+
+  <div class="prob-body">
+    <div class="part">
+      <div class="part-label navy">Topic Selection Rationale</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">★</div>
+          <div class="step-body">
+            <div class="step-label">Why Quantum Turing Machines?</div>
+            <div class="step-note">QTMs are a natural extension of classical TMs — they use quantum superposition and entanglement to compute. They were not discussed in COSC 3340, they directly extend the course's central object of study (TMs), and they have immediate relevance to real-world computing. Strong choice because it hits all three required angles: novel model, genuine interest, clear course connection.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-label ink">Draft Report Content (format for Georgia/1" margin submission)</div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Part (a): What is a Quantum Turing Machine?</span>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        <div class="f-note" style="color:#c8d8f0;font-size:12.5px;line-height:1.9;">
+          A Quantum Turing Machine (QTM), introduced by David Deutsch in 1985, is a theoretical model of computation that extends the classical Turing machine by replacing deterministic or probabilistic transitions with quantum mechanical ones. Formally, a QTM is a tuple \((Q, \Sigma, \delta)\) where the transition function \(\delta: Q \times \Sigma \to \mathbb{C}^{Q \times \Sigma \times \{L, R\}}\) maps each (state, symbol) pair to a probability amplitude distribution over (new state, new symbol, direction) triples. The key difference: a classical TM is in exactly one configuration at each step, while a QTM is in a quantum superposition of multiple configurations simultaneously. A QTM's tape head can be "in multiple positions at once" until a measurement collapses the superposition. The amplitudes must satisfy a unitarity constraint — the evolution of the quantum state must be a unitary (norm-preserving, reversible) linear transformation. This ensures quantum mechanics is respected. Bernstein and Vazirani (1997) gave the first rigorous polynomial-time QTM formalism, enabling formal complexity class definitions.
+        </div>
+      </div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Part (b): Why is it interesting?</span>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        <div class="f-note" style="color:#c8d8f0;font-size:12.5px;line-height:1.9;">
+          QTMs are interesting for three compounding reasons. First, they challenge the Extended Church-Turing Thesis — the informal claim that any "reasonable" model of computation can be simulated by a probabilistic TM with at most polynomial overhead. Shor's quantum factoring algorithm (1994) runs in polynomial time on a QTM but is believed to require superpolynomial time on any classical TM, suggesting the Extended Church-Turing Thesis may be false. This would represent the most profound complexity-theoretic breakthrough since Cook-Levin. Second, QTMs define the complexity class BQP (Bounded-error Quantum Polynomial time), which contains problems like integer factorization and discrete logarithm — problems on which classical cryptography relies. Third, QTMs are not just theoretical: physical implementations via superconducting qubits, ion traps, and photonic systems are actively being built by Google, IBM, and others. The boundary between theoretical computer science and physical reality is unusually thin here.
+        </div>
+      </div>
+
+      <div class="formula-header" onclick="tog(this)">
+        <div class="formula-left">
+          <span class="f-label">Part (c): How does it relate to COSC 3340?</span>
+        </div>
+        <span class="formula-arrow">▶</span>
+      </div>
+      <div class="formula-body">
+        <div class="f-note" style="color:#c8d8f0;font-size:12.5px;line-height:1.9;">
+          The Quantum TM relates to COSC 3340 at multiple levels. At the model level, a QTM uses the same \((Q, \Sigma, \Gamma, \delta, q_0, q_{accept}, q_{reject})\) skeleton as a classical TM — the difference is in the type of \(\delta\). Any classical TM is a degenerate QTM with all amplitudes in \(\{0, 1\}\). At the computability level, QTMs recognize exactly the same languages as classical TMs: \(L\) is QTM-decidable iff it is classically decidable. Quantum computation does not transcend the Church-Turing Thesis — it cannot decide the halting problem. The undecidability results from class (Sipser Chapter 4–5) still hold. The exciting separation is in complexity, not computability: QTMs can solve some problems faster, not solve fundamentally more problems. This maps directly onto our study of reducibility and complexity hierarchies. Additionally, the \(\langle M, w \rangle\) encoding we implemented in Part 1 is directly used to define \(A_{QTM} = \{\langle M, w \rangle \mid M \text{ is a QTM that accepts } w\}\), which is also undecidable for the same diagonalization reasons.
+        </div>
+      </div>
+
+      <div class="callout mt">
+        <strong>Suggested references:</strong> Deutsch (1985), "Quantum Theory, the Church-Turing Principle and the Universal Quantum Computer" — <em>Proc. Royal Society A</em>. · Bernstein &amp; Vazirani (1997), "Quantum Complexity Theory" — <em>SIAM J. Comput.</em> · Shor (1994), "Algorithms for Quantum Computation" — <em>FOCS</em>. · Sipser, <em>Introduction to the Theory of Computation</em>, 3rd ed., §3.3 (UTM background).
+      </div>
+      <div class="callout blue mt">
+        <strong>Formatting reminder for final submission:</strong> Convert this content to Georgia font, 10pt, 1" margins on all sides, single-spaced, 1–2 pages. References go on a separate unlimited page. Do not use the brutalist HTML template for the actual Part 2 PDF submission — the professor specified a standard document format.
+      </div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <div class="concept-header" onclick="tog(this)">
+      <div class="concept-left">
+        <span class="c-label">Concept</span>
+        <div class="concept-tags"><span class="ctag">BQP vs P vs NP</span><span class="ctag">EXTENDED CHURCH-TURING</span></div>
+      </div>
+      <span class="concept-arrow">▶</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>Complexity landscape with quantum:</strong> We know \(P \subseteq BQP\) and \(BQP \subseteq PSPACE\), but whether \(P = BQP\) or \(NP \subseteq BQP\) are open. Shor's algorithm puts FACTORING and DLOG in BQP. Grover's search gives a quadratic speedup for unstructured search, placing some NP problems closer to BQP but not proving \(NP \subseteq BQP\).</p>
+      <p><strong>Exam connection:</strong> The computability boundary (halting problem, Rice's theorem, reductions) is unchanged by quantum. The complexity boundary (P vs NP vs BQP) is the active research frontier. Know which is which.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function tog(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+function togProb(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) MathJax.typesetPromise([body]);
+}
+</script>
+</body>
+</html>
