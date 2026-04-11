@@ -2,36 +2,52 @@
 
 ## What This Is
 
-A weekly debate with Claude to measure how dependent you are on AI across 17 skills.
+A weekly debate with Claude to measure how dependent you are on AI across 19 skills.
 100 = full AI dependency. 0 = fully independent.
-You argue your number down. Claude pushes back. Verdict is law.
+You answer yes/no. Claude judges. Verdict is law.
 
 ---
 
-## The 17 Skills
+## The 19 Skills
 
-### Meta Skills
-- **Prompting** — how well you direct AI to get useful outputs
-- **Problem Framing** — can you define the problem before reaching for AI
-- **Creative & Design** — who owns the vision, you or AI
-- **Writing** — can you express a technical idea without AI polishing it
-- **Research** — do you go to primary sources or ask Claude to summarize
-- **Systems Thinking** — can you map a complex problem before AI structures it
+### Meta Skills — how you work with AI
+1. **Context Engineering** — do you get the right output without a follow-up?
+2. **Translator** — do you describe problems yourself before Claude names them?
+3. **Cold Vision** — do you know what you want before Claude shows you an option?
+4. **Shipwright** — do you design structure before Claude proposes it?
+5. **Domain** — do you own and understand what ships?
 
-### CS Practical
-- **HTML / Frontend** — can you write a UI component from scratch
-- **Code Logic** — can you read code and explain it line by line
-- **Debugging** — can you read an error and fix it without pasting to Claude
-- **Reading Docs** — can you extract what you need from MDN, cppreference, man pages
-- **Testing** — do you write tests and verify edge cases yourself
+### CS Practical — hands-on execution
+6. **Codelogic** — can you read code and understand it before Claude explains it?
+7. **Debugging** — can you name an error type before opening Claude?
+8. **Markup** — can you write HTML/CSS before Claude generates it?
+9. **Scripting** — can you write JS/Python/shell before Claude generates it?
+10. **Frameworks** — can you write hooks and components before Claude proposes them?
+11. **Compiled** — can you write and reason through C++/C/Java cold?
+12. **Assembly** — can you write ARM/MIPS instructions from memory?
+13. **SQL** — can you write queries and schemas without Claude?
+14. **Regex** — can you write patterns before Claude generates them?
 
-### CS Academic
-- **DSA** — can you trace, implement, analyze cold — no AI, no notes
-- **Automata** — can you construct DFAs/NFAs, write formal proofs on paper
-- **Linear Algebra** — do you own the geometric intuition or just the mechanics
-- **Calculus** — can you work through problems without reaching for AI
-- **Statistics** — do you understand why a test applies or just plug and chug
-- **Discrete Math** — can you reason through proofs, logic, asymptotic cold
+### CS Academic — course subjects, exam-graded
+15. **DSA** — can you trace and implement algorithms cold?
+16. **Automata** — can you construct DFAs/NFAs and write proofs on paper?
+17. **Linear Algebra** — do you own the intuition or just the mechanics?
+18. **Calculus** — can you work through problems without reaching for AI?
+19. **Stats** — do you understand why a test applies or just plug and chug?
+
+---
+
+## Scoring
+
+**Score = 100% - AI dependency %**
+Higher % = more AI dependent.
+
+| Range | Color | Meaning |
+|-------|-------|---------|
+| 75–100% | 🔴 Red | High reliance — action needed now |
+| 50–74% | 🟠 Orange | Moderate — progress being made |
+| 30–49% | 🟡 Yellow | Developing independence |
+| 0–29% | 🟢 Green | Low reliance — strong signal |
 
 ---
 
@@ -41,14 +57,14 @@ All skills started at 100%. First honest assessment ever.
 **Average verdict: 86% AI reliance.**
 
 | Skill | Verdict | Key Reason |
-|---|---|---|
-| Prompting | 97% | Prompting everything is dependency not skill |
-| Problem Framing | 94% | Knows the principle, paste reflex is still first |
-| Creative & Design | 72% | Architecture yours, visual language AI-proposed |
+|-------|---------|------------|
+| Prompting (now: Context Engineering) | 97% | Prompting everything is dependency not skill |
+| Problem Framing (now: Cold Vision) | 94% | Knows the principle, paste reflex is still first |
+| Creative & Design (now: Cold Vision) | 72% | Architecture yours, visual language AI-proposed |
 | Writing | 78% | Journal framework strong, technical writing handed off |
 | Research | 68% | Scratchpad habit real, LLM-first reflex confirmed |
-| Systems Thinking | 75% | Two modes — Mode 1 genuine, Mode 2 dependent |
-| HTML / Frontend | 97% | Can't build solo at all |
+| Systems Thinking (now: Shipwright) | 75% | Two modes — Mode 1 genuine, Mode 2 dependent |
+| HTML / Frontend (now: Markup) | 97% | Can't build solo at all |
 | Code Logic | 90% | Pattern recognition real, guessing is not owning |
 | Debugging | 93% | Error taxonomy real, can't fix alone |
 | Reading Docs | 97% | Never goes to primary sources |
@@ -64,51 +80,30 @@ All skills started at 100%. First honest assessment ever.
 
 ## How to Run a Debate Session
 
-**Step 1 — Export**
-Open CoogsHub → Signal/Noise page → click **Export for Debate**
-This downloads: `signal_noise_wk[N]_[timestamp].json`
+**Step 1 — Zip & Upload**
+Run `zipit.sh` from project root. Upload `coogs-hub-clean.zip` to Claude.
 
-**Step 2 — Start a new Claude chat**
-Upload the exported JSON.
+**Step 2 — Start**
 Say: *"ready to debate"*
-Claude reads your history and starts from your last verdicts — not from 100.
+Claude reads `CLAUDE.md`, the signal logs, and `signal_noise.json` before anything else.
 
 **Step 3 — Debate**
-Claude states its position on each skill.
-You give your number and your argument.
-Claude pushes back. You defend or concede.
-Verdict locked. Move to next skill.
+Claude asks what you did this week, reminds you what you're proving, then asks one yes/no question per skill — 19 rounds.
 
-**Step 4 — Get the updated JSON**
-At the end Claude hands you back an updated `signal_noise.json`
-with the new week's verdicts, your arguments, and what shifted.
+**Step 4 — Verdict**
+All 19 verdicts revealed at once in a table with a conclusion statement.
 
-**Step 5 — Drop it in**
-Replace `src/data/signal_noise.json` with the new file.
-App loads, history updates, radar redraws. Done.
+**Step 5 — Appeal**
+Optional. Make your case. Claude rules. Once locked — done.
+
+**Step 6 — Patch**
+Claude outputs the `WEEKLY_PATCH`. Drop it into `apply_patch.js` and run it.
 
 ---
 
 ## Rules
 
-- **Bring receipts.** "I think" doesn't move the needle. Specific examples do.
-- **"It's faster" is not an argument.** That's a reason for the number, not against it.
-- **The verdict is what you can do cold.** Not what you understand, not what you've seen — what you can execute without AI in an exam room or blank editor.
-- **WEEKLY_PATCH stays null.** Never hardcode data into the JSX. All data lives in signal_noise.json.
-- **New skills get added to ACADEMIC_SKILLS / PRACTICAL_SKILLS / META_SKILLS in the JSX** with a permanent aiPct, desc, aiReason, and bridge. Then debated like everything else.
-
----
-
-## File Size — Will It Get Huge?
-
-No. The archive sweep compresses entries older than 3 weeks to a one-line summary.
-You always carry full detail for the last 3 weeks only.
-At 1 year of weekly debates: ~150-200KB max. Not a problem ever.
-
----
-
-## Priority Actions from Week 1
-
-1. **Read docs once before asking Claude** — one function this week, open MDN or cppreference first. Build the habit.
-2. **10 minutes before pasting a bug** — read the error, name the type, form one hypothesis. Log it.
-3. **Automata: draw one DFA cold from a language spec** — you're in 3340 now. That's the exam.
+- **Bring the zip every session.** Claude has no memory of the code between sessions.
+- **Yes/no only during the debate.** Context is optional, not required.
+- **Verdict is law.** No renegotiating after locked.
+- **Session log must be saved.** No log = no debate context next week.

@@ -117,8 +117,8 @@ function tagChip(tag) {
 const TABS = [
   { id: "sun",       label: "☀ Sun",       color: "#e8c547" },
   { id: "moon",      label: "☽ Moon",      color: "#a78bfa" },
-  { id: "completed", label: "✓ Completed", color: "#34d399" },
   { id: "roadmap",   label: "⬡ Roadmap",   color: "#60a5fa" },
+  { id: "completed", label: "✓ Completed", color: "#34d399" },
 ];
 
 function tabColor(tabId) {
@@ -519,9 +519,6 @@ export default function DeadlinesPage() {
               <button key={t.id} onClick={()=>{ setTab(t.id); if(t.id!=="completed"&&t.id!=="roadmap") setForm(f=>({...f,type:t.id})); }}
                 style={{ padding:"7px 18px", borderRadius:8, border:"none", cursor:"pointer", fontFamily:FONT, fontSize:12, fontWeight:700, letterSpacing:"0.5px", textTransform:"uppercase", background:tab===t.id?t.color:"#1a1f2e", color:tab===t.id?"#0f1117":"#4a5060" }}>
                 {t.label}
-                {t.id==="completed" && done.length>0 && (
-                  <span style={{marginLeft:6,fontSize:10,background:"#34d39933",border:"1px solid #34d39955",borderRadius:8,padding:"1px 6px",color:"#34d399"}}>{done.length}</span>
-                )}
               </button>
             ))}
             {!isCompletedTab && !isRoadmapTab && (

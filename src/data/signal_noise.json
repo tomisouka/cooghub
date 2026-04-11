@@ -73,6 +73,32 @@
         "calc": 65,
         "stats": 95
       }
+    },
+    {
+      "week": 4,
+      "date": "2026-04-11",
+      "avgVerdict": 91,
+      "skills": {
+        "context_engineering": 94,
+        "translator": 70,
+        "cold_vision": 89,
+        "shipwright": 71,
+        "domain": 97,
+        "codelogic": 96,
+        "debugging": 94,
+        "markup": 97,
+        "scripting": 96,
+        "frameworks": 97,
+        "compiled": 100,
+        "assembly": 98,
+        "sql": 100,
+        "regex": 99,
+        "dsa": 93,
+        "automata": 88,
+        "linalg": 90,
+        "calc": 65,
+        "stats": 95
+      }
     }
   ],
   "examDates": {},
@@ -114,6 +140,16 @@
         "archived": false,
         "summary": "Wk 3: 95%. First-try outputs + test script direction. Renamed from prompting.",
         "shove": "Next session: before asking Claude anything, write the constraint and expected output format in one sentence first."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 94,
+        "youReason": "Got useful outputs without follow-ups.",
+        "swingPoint": "-1 for consistent first-try accuracy.",
+        "archived": false,
+        "summary": "Wk 4: 94%. First-try outputs confirmed.",
+        "shove": "Did a prompt you wrote this week get the right output without a follow-up?"
       }
     ],
     "translator": [
@@ -127,7 +163,17 @@
         "swingPoint": "New skill week 3. Can articulate the problem surface but not the code logic.",
         "archived": false,
         "summary": "Wk 3: 72% baseline. Can name the problem, can't describe the code.",
-        "shove": "Next time something breaks, write one sentence describing it before opening Claude. Just the surface — what you see, not why."
+        "shove": "Next time something breaks, write one sentence describing it before opening Claude. Just the surface \u2014 what you see, not why."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 70,
+        "youReason": "Described problems before Claude named them.",
+        "swingPoint": "-2 for independent problem description.",
+        "archived": false,
+        "summary": "Wk 4: 70%. Describing problems independently before Claude.",
+        "shove": "Did a problem you faced this week get described by you before Claude named it?"
       }
     ],
     "cold_vision": [
@@ -142,6 +188,16 @@
         "archived": false,
         "summary": "Wk 3: 88% baseline. Merged from framing+creative. No pre-thinking this week.",
         "shove": "Before the next BetOnMe feature, write 3 words describing what you want it to look and feel like before opening Claude."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 89,
+        "youReason": "Described the idea but went to Claude for technical direction.",
+        "swingPoint": "+1 \u2014 no coding week, held.",
+        "archived": false,
+        "summary": "Wk 4: 89%. Ideas owned, technical direction still Claude's.",
+        "shove": "Did a feature you built this week look the way you pictured it before Claude touched it?"
       }
     ],
     "shipwright": [
@@ -155,7 +211,17 @@
         "swingPoint": "Merged from systems. Exploration with Claude counts for something over pure dependency.",
         "archived": false,
         "summary": "Wk 3: 72% baseline. Merged from systems. Explores but doesn't map.",
-        "shove": "Draw the data flow of BetOnMe on paper — what talks to what — before next session. 5 minutes, boxes and arrows."
+        "shove": "Draw the data flow of BetOnMe on paper \u2014 what talks to what \u2014 before next session. 5 minutes, boxes and arrows."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 71,
+        "youReason": "Planned before Claude proposed structure.",
+        "swingPoint": "-1 for pre-session planning.",
+        "archived": false,
+        "summary": "Wk 4: 71%. Pre-session planning happening.",
+        "shove": "Did a project you worked on this week get planned by you before Claude proposed structure?"
       }
     ],
     "domain": [
@@ -169,7 +235,17 @@
         "swingPoint": "New skill week 3. Zero ownership of codebase output. Catches mistakes reactively not proactively.",
         "archived": false,
         "summary": "Wk 3: 96% baseline. Claude owns the output entirely.",
-        "shove": "Read one function in BetOnMe cold. Not to fix it — just to say out loud what it does. That's domain."
+        "shove": "Read one function in BetOnMe cold. Not to fix it \u2014 just to say out loud what it does. That's domain."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 97,
+        "youReason": "No code shipped \u2014 nothing read or owned.",
+        "swingPoint": "+1 \u2014 no engagement = no ownership.",
+        "archived": false,
+        "summary": "Wk 4: 97%. No code read before shipping.",
+        "shove": "Did a piece of code Claude wrote this week get understood by you before it shipped?"
       }
     ],
     "codelogic": [
@@ -208,6 +284,16 @@
         "archived": false,
         "summary": "Wk 3: 96%. Still can't read own codebase cold.",
         "shove": "Pick any one function in BetOnMe. Close Claude. Explain it line by line out loud. Record where you lose the thread."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 96,
+        "youReason": "No code read cold this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 96%. No cold reading. Flat 4 weeks.",
+        "shove": "Did a block of code you read this week get understood by you before Claude explained it?"
       }
     ],
     "debugging": [
@@ -217,7 +303,7 @@
         "aiPct": 100,
         "youPct": null,
         "verdict": 93,
-        "youReason": "I know error types — ghost, runtime, compiled, style. But I can't fix them myself at all.",
+        "youReason": "I know error types \u2014 ghost, runtime, compiled, style. But I can't fix them myself at all.",
         "swingPoint": "Error taxonomy from exposure is real. Can't fix alone confirmed.",
         "archived": true,
         "summary": "Wk 1: 93% verdict (AI was 100%). Error taxonomy real. Can't fix alone.",
@@ -245,7 +331,17 @@
         "swingPoint": "1pt for attempting independent reasoning before Claude. Small but real.",
         "archived": false,
         "summary": "Wk 3: 94%. Attempted solo reasoning. Failed but tried.",
-        "shove": "Next error — name the type out loud before opening Claude. Syntax, runtime, or logic. One word. Build the reflex."
+        "shove": "Next error \u2014 name the type out loud before opening Claude. Syntax, runtime, or logic. One word. Build the reflex."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 94,
+        "youReason": "No errors hit this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 94%. No errors hit. Flat.",
+        "shove": "Did an error you hit this week get named \u2014 syntax, runtime, or logic \u2014 before you opened Claude?"
       }
     ],
     "markup": [
@@ -259,7 +355,17 @@
         "swingPoint": "New skill week 3. Baseline at 97%.",
         "archived": false,
         "summary": "Wk 3: 97% baseline. All Claude-generated.",
-        "shove": "Write a card component in HTML/CSS from memory — no Claude until you've got the skeleton down."
+        "shove": "Write a card component in HTML/CSS from memory \u2014 no Claude until you've got the skeleton down."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 97,
+        "youReason": "No markup written this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 97%. No coding week. Flat.",
+        "shove": "Did any HTML or CSS you wrote this week get started by you before Claude generated it?"
       }
     ],
     "scripting": [
@@ -273,7 +379,17 @@
         "swingPoint": "New skill week 3. Baseline at 96%.",
         "archived": false,
         "summary": "Wk 3: 96% baseline. No independent JS or Python written.",
-        "shove": "Write one small JS function from scratch — even 5 lines. No Claude until it's written."
+        "shove": "Write one small JS function from scratch \u2014 even 5 lines. No Claude until it's written."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 96,
+        "youReason": "No scripts written this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 96%. No coding week. Flat.",
+        "shove": "Did a script you used this week get written by you before Claude generated it?"
       }
     ],
     "frameworks": [
@@ -288,6 +404,16 @@
         "archived": false,
         "summary": "Wk 3: 97% baseline. All Claude-scaffolded.",
         "shove": "Next time you use useState or useEffect, write the hook yourself before asking Claude. Even if it's wrong."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 97,
+        "youReason": "No hooks written \u2014 Claude made the decisions.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 97%. No coding week. Flat.",
+        "shove": "Did a useState or useEffect you used this week get written by you before Claude proposed it?"
       }
     ],
     "compiled": [
@@ -302,6 +428,16 @@
         "archived": false,
         "summary": "Wk 3: 100% baseline. Not in active use.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 100,
+        "youReason": "No compiled language this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 100%. Not in active use.",
+        "shove": "Did any C++, C, or Java come up this week?"
       }
     ],
     "assembly": [
@@ -316,6 +452,16 @@
         "archived": false,
         "summary": "Wk 3: 98% baseline. CompOrg ARM not executed cold.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 98,
+        "youReason": "No ARM problems this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 98%. Not touched.",
+        "shove": "Did any ARM problem this week get attempted from memory before checking notes?"
       }
     ],
     "sql": [
@@ -330,6 +476,16 @@
         "archived": false,
         "summary": "Wk 3: 100% baseline. Not in curriculum yet.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 100,
+        "youReason": "No SQL this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 100%. Not in curriculum.",
+        "shove": "Did any SQL come up this week?"
       }
     ],
     "regex": [
@@ -344,6 +500,16 @@
         "archived": false,
         "summary": "Wk 3: 99% baseline. Not in active use.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 99,
+        "youReason": "No regex in code this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 99%. Not in active use.",
+        "shove": "Did any regex come up this week?"
       }
     ],
     "dsa": [
@@ -377,11 +543,21 @@
         "aiPct": 94,
         "youPct": null,
         "verdict": 94,
-        "youReason": "Dijkstra GPS workshop — applied algo work, assisted but real.",
+        "youReason": "Dijkstra GPS workshop \u2014 applied algo work, assisted but real.",
         "swingPoint": "2pts for applied Dijkstra in workshop context. First real algo engagement since baseline.",
         "archived": false,
         "summary": "Wk 3: 94%. Dijkstra workshop. First movement in 3 weeks.",
-        "shove": "Trace Dijkstra on the graph you used in workshop — by hand, no notes. Write the priority queue state at every step."
+        "shove": "Trace Dijkstra on the graph you used in workshop \u2014 by hand, no notes. Write the priority queue state at every step."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 93,
+        "youReason": "Reviewed Dijkstra and MST, partial hand trace.",
+        "swingPoint": "-1 for partial cold engagement.",
+        "archived": false,
+        "summary": "Wk 4: 93%. Partial Dijkstra/MST trace by hand.",
+        "shove": "Did you trace any algorithm by hand this week without notes or Claude?"
       }
     ],
     "automata": [
@@ -391,11 +567,11 @@
         "aiPct": 100,
         "youPct": null,
         "verdict": 85,
-        "youReason": "I know DFA, NFA, GNFA, regular languages, sets. I can draw a DFA. But give me a language and I'm guessing. Concatenation and proofs — not there.",
+        "youReason": "I know DFA, NFA, GNFA, regular languages, sets. I can draw a DFA. But give me a language and I'm guessing. Concatenation and proofs \u2014 not there.",
         "swingPoint": "Knows the landscape and can draw a DFA. Solving from spec cold is not there.",
         "archived": true,
         "summary": "Wk 1: 85% verdict (AI was 100%). Can draw DFA. Solving from spec cold not there.",
-        "shove": "Draw a DFA that accepts strings ending in '01' — from scratch, no help. Check it after."
+        "shove": "Draw a DFA that accepts strings ending in '01' \u2014 from scratch, no help. Check it after."
       },
       {
         "week": 2,
@@ -420,6 +596,16 @@
         "archived": false,
         "summary": "Wk 3: 90%. Nothing cold. Regressing while in active course.",
         "shove": "Draw the DFA for strings ending in '00' right now. Cold. Check it after. This is exam material."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 88,
+        "youReason": "Studied NFA \u2192 TM extensively, partial cold construction.",
+        "swingPoint": "-2 for direct study engagement.",
+        "archived": false,
+        "summary": "Wk 4: 88%. Heavy automata study, partial cold construction.",
+        "shove": "Did you construct any DFA or NFA cold this week without help?"
       }
     ],
     "linalg": [
@@ -458,6 +644,16 @@
         "archived": false,
         "summary": "Wk 3: 90%. Flat. Nothing cold.",
         "shove": "One row reduction from the 2318 textbook by hand. Every step. Find where you run out of moves."
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 90,
+        "youReason": "No linalg this week.",
+        "swingPoint": "0 \u2014 flat 4 weeks.",
+        "archived": false,
+        "summary": "Wk 4: 90%. Flat 4 weeks. No cold work.",
+        "shove": "Did you do any row reduction by hand this week?"
       }
     ],
     "calc": [
@@ -471,7 +667,7 @@
         "swingPoint": "Three completed courses is the strongest credential today. Refresher need keeps it at 68.",
         "archived": true,
         "summary": "Wk 1: 68% verdict (AI was 100%). Three completed courses. Refresher needed.",
-        "shove": "Solve 3 derivatives cold from a practice sheet — no calculator, no AI. Check after."
+        "shove": "Solve 3 derivatives cold from a practice sheet \u2014 no calculator, no AI. Check after."
       },
       {
         "week": 2,
@@ -492,10 +688,20 @@
         "youPct": null,
         "verdict": 65,
         "youReason": "Not in active use, no loop, slight regression for the gap.",
-        "swingPoint": "Not in curriculum but drifting. Three completed courses — don't let it fully decay.",
+        "swingPoint": "Not in curriculum but drifting. Three completed courses \u2014 don't let it fully decay.",
         "archived": false,
         "summary": "Wk 3: 65%. Drifting. Not in active loop.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 65,
+        "youReason": "No calc this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 65%. Not in active curriculum.",
+        "shove": "Did calc come up anywhere this week?"
       }
     ],
     "stats": [
@@ -506,7 +712,7 @@
         "youPct": null,
         "verdict": 95,
         "youReason": "I reverse engineered it. Formula heavy. I don't feel like I learned anything. Barely passed.",
-        "swingPoint": "Reverse engineering formulas without understanding why — exactly what this axis measures against.",
+        "swingPoint": "Reverse engineering formulas without understanding why \u2014 exactly what this axis measures against.",
         "archived": true,
         "summary": "Wk 1: 95% verdict (AI was 100%). Reverse engineered. Didn't learn it.",
         "shove": "Pick one stats formula you used in that class and explain in one sentence why it works, not just what it does."
@@ -534,6 +740,16 @@
         "archived": false,
         "summary": "Wk 3: 95%. Flat. Not in active use.",
         "shove": ""
+      },
+      {
+        "week": 4,
+        "date": "2026-04-11",
+        "verdict": 95,
+        "youReason": "No stats this week.",
+        "swingPoint": "0 \u2014 flat.",
+        "archived": false,
+        "summary": "Wk 4: 95%. Not in active curriculum.",
+        "shove": "Did stats come up this week?"
       }
     ]
   }

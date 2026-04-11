@@ -1,6 +1,5 @@
 use std::fs;
 use std::path::PathBuf;
-use tauri::Manager;
 
 fn project_root(_app: &tauri::AppHandle) -> Result<PathBuf, String> {
   if let Some(home) = std::env::var("HOME").ok().or_else(|| std::env::var("USERPROFILE").ok()) {
@@ -109,6 +108,19 @@ fn delete_entry(app: tauri::AppHandle, filename: String) -> Result<(), String> {
   fs::remove_file(&path).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn save_agenda(app: tauri::AppHandle, content: String) -> Result<(), String> {
+  let target = project_root(&app)?.join("src/data/agenda.json");
+  fs::write(&target, &content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn load_agenda(app: tauri::AppHandle) -> Result<String, String> {
+  let target = project_root(&app)?.join("src/data/agenda.json");
+  if !target.exists() { return Ok("{}".to_string()); }
+  fs::read_to_string(&target).map_err(|e| e.to_string())
+}
+
 fn sanitize(name: &str) -> String {
   std::path::Path::new(name)
     .file_name()
@@ -132,6 +144,8 @@ pub fn run() {
       read_entry,
       save_entry,
       delete_entry,
+      save_agenda,
+      load_agenda,
     ])
     .setup(|app| {
       // Auto-register the project root path so commands work on any machine

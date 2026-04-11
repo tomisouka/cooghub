@@ -1,0 +1,37 @@
+{
+  "week-2-april-2026": {
+    "prompted": {
+      "built": "",
+      "learned": "Heavy Automata Theory grind — covered DFA/NFA equivalence, subset construction, minimization, pumping lemma for regular and CFLs, PDAs, Turing Machines (recognizers vs deciders), the Church-Turing thesis, and reducibility. Went over graphs on the DSA side: Dijkstra shortest path, Prim/Kruskal for MST, and the core proof structures behind them.",
+      "blockers": "Did not write any code this week — purely theory mode. Need to balance back toward implementation next week."
+    },
+    "bullets": [
+      {
+        "id": "b1a2c3d",
+        "text": "Studied DFA/NFA and subset construction (NFA → DFA conversion)"
+      },
+      {
+        "id": "e4f5g6h",
+        "text": "Covered TM recognizers vs deciders — Church-Turing thesis"
+      },
+      {
+        "id": "i7j8k9l",
+        "text": "Worked through reducibility and undecidability proofs"
+      },
+      {
+        "id": "m0n1o2p",
+        "text": "Reviewed Dijkstra shortest path algorithm"
+      },
+      {
+        "id": "q3r4s5t",
+        "text": "Reviewed MST — Prim and Kruskal"
+      },
+      {
+        "id": "u6v7w8x",
+        "text": "Zero coding this week — full theory focus"
+      }
+    ],
+    "savedAt": 1775940323983,
+    "modifiedAt": null
+  }
+}

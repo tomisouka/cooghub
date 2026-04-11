@@ -54,12 +54,60 @@ function fmtDateLabel(str) {
 const LS_AGENDA = "agenda_entries";
 const LS_INSPOS = "agenda_inspos";
 
+// ── Persistence: Tauri → JSON files, web → localStorage ──────────────────────
+
 function loadLS(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
   catch { return fallback; }
 }
 function saveLS(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {} // eslint-disable-line
+}
+
+// ── Persistence: mirrors SignalNoisePage pattern exactly ─────────────────────
+// Source of truth: src/data/agenda.json on disk via Tauri invoke.
+// No localStorage. Ever. JSON.parse / JSON.stringify, nothing fancy.
+
+const AGENDA_FILE = "agenda.json";
+
+async function loadAgendaPersisted() {
+  if (IS_TAURI) {
+    try {
+      const raw = await invoke("load_data_file", { filename: AGENDA_FILE });
+      const parsed = raw ? JSON.parse(raw) : {};
+      return {
+        entries: parsed.entries ?? {},
+        inspos:  parsed.inspos  ?? [],
+      };
+    } catch (e) {
+      console.warn("load_data_file agenda.json failed:", e);
+    }
+  }
+  // web fallback
+  try {
+    const res = await fetch(`/api/load-data-file?filename=${AGENDA_FILE}`);
+    const json = await res.json();
+    const parsed = json.content ? JSON.parse(json.content) : {};
+    return { entries: parsed.entries ?? {}, inspos: parsed.inspos ?? [] };
+  } catch (_) {}
+  return { entries: {}, inspos: [] };
+}
+
+async function saveAgendaPersisted(entries, inspos) {
+  const content = JSON.stringify({ entries, inspos }, null, 2);
+  try {
+    if (IS_TAURI) {
+      await invoke("save_data_file", { filename: AGENDA_FILE, content });
+    } else {
+      await fetch("/api/save-data-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: AGENDA_FILE, content }),
+      });
+    }
+  } catch (e) {
+    console.error("saveAgendaPersisted failed:", e);
+  }
 }
 
 function getTodayMoons() {
@@ -196,13 +244,12 @@ function AgendaHeatmap({ entries }) {
   const DAY_LABELS  = ["S","M","T","W","T","F","S"];
   const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  // Build a map: date string → intensity level (1-4)
-  // savedAt alone = 1, each filled field adds 1 (shot, inspo, blanket, poison)
+  // Build a map: date string → intensity level (0-4)
+  // 0 = no entry, 1 = entry exists, 2 = entry has image, 3 = entry saved, 4 = full entry (all 4 fields)
   const activityLog = {};
   Object.entries(entries).forEach(([date, e]) => {
     if (!e) return;
     let score = 0;
-    if (e.savedAt) score = 1; // base: day was saved at all
     if (e.shot?.subject || e.shot?.notes) score++;
     if (e.inspo?.character) score++;
     if (e.blanket) score++;
@@ -241,7 +288,7 @@ function AgendaHeatmap({ entries }) {
       const date = new Date(gridStart);
       date.setDate(gridStart.getDate() + w * 7 + dow);
       const key = date.toISOString().slice(0, 10);
-      const isFuture = key > todayStr();
+      const isFuture = date > today;
       const isTrailingDead = date.getMonth() !== colMonth || date.getFullYear() !== colYear;
       const isLeadingDead = !!colMonthLabel && dow < firstDow;
       const isDead = isTrailingDead || isLeadingDead;
@@ -266,8 +313,7 @@ function AgendaHeatmap({ entries }) {
 
   // Streak: consecutive days going back from today that have entries
   let streak = 0;
-  const sd = new Date();
-  sd.setHours(12, 0, 0, 0);
+  const sd = new Date(today);
   while (activityLog[sd.toISOString().slice(0, 10)]) {
     streak++;
     sd.setDate(sd.getDate() - 1);
@@ -735,13 +781,31 @@ function ImagePanel({ image, onSet, onClear, readOnly }) {
 
 function AgendaTab() {
   const today = todayStr();
-  const [entries,     setEntries]     = useState(() => loadLS(LS_AGENDA, {}));
-  const [inspos,      setInspos]      = useState(() => loadLS(LS_INSPOS, []));
+  const [entries,     setEntries]     = useState({});
+  const [inspos,      setInspos]      = useState([]);
+  const [loaded,      setLoaded]      = useState(false);
   const [viewingDate, setViewingDate] = useState(null);
   const [savedFlash,  setSavedFlash]  = useState(false);
 
-  useEffect(() => { saveLS(LS_AGENDA, entries); }, [entries]);
-  useEffect(() => { saveLS(LS_INSPOS, inspos);  }, [inspos]);
+  // Load from file (Tauri) or localStorage (web) on mount
+  useEffect(() => {
+    loadAgendaPersisted().then(({ entries: e, inspos: i }) => {
+      setEntries(e);
+      setInspos(i);
+      setLoaded(true);
+    });
+  }, []);
+
+  // Save on any change — debounced by 500ms to avoid hammering disk
+  const saveTimer = useRef(null);
+  useEffect(() => {
+    if (!loaded) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveAgendaPersisted(entries, inspos);
+    }, 300);
+    return () => clearTimeout(saveTimer.current);
+  }, [entries, inspos, loaded]);
 
   const activeDate  = viewingDate ?? today;
   const isReadOnly  = viewingDate !== null;
@@ -1246,19 +1310,599 @@ function EntriesTab() {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// WEEK tab helpers
+// ─────────────────────────────────────────────────────────────────
+
+const WEEK_FILE = "agenda_weeks.json";
+const WEEK_C    = "#60a5fa"; // blue accent for Week tab
+
+function getWeekKey(date = new Date()) {
+  // Returns a stable key: "week-N-monthname-YYYY"
+  const d     = new Date(date);
+  d.setHours(12, 0, 0, 0);
+  const year  = d.getFullYear();
+  const month = d.getMonth(); // 0-indexed
+  const day   = d.getDate();
+  // Week number within the month (1-based), anchored to Mon
+  const firstOfMonth = new Date(year, month, 1);
+  const firstMon     = new Date(firstOfMonth);
+  const dow          = (firstOfMonth.getDay() + 6) % 7; // Mon=0
+  firstMon.setDate(1 - dow);
+  const weekNum = Math.floor((day - 1 + dow) / 7) + 1;
+  const monName = d.toLocaleString("en-US", { month: "long" }).toLowerCase();
+  return `week-${weekNum}-${monName}-${year}`;
+}
+
+function getWeekLabel(key) {
+  // "week-2-april-2026" → "Week 2 of April 2026"
+  const parts = key.split("-");
+  if (parts.length < 4) return key;
+  const n    = parts[1];
+  const mon  = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+  const yr   = parts[3];
+  return `Week ${n} of ${mon} ${yr}`;
+}
+
+async function loadWeeksPersisted() {
+  if (IS_TAURI) {
+    try {
+      const raw = await invoke("load_data_file", { filename: WEEK_FILE });
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {}
+  }
+  try {
+    const res = await fetch(`/api/load-data-file?filename=${WEEK_FILE}`);
+    const json = await res.json();
+    return json.content ? JSON.parse(json.content) : {};
+  } catch (_) {}
+  return {};
+}
+
+async function saveWeeksPersisted(weeks) {
+  const content = JSON.stringify(weeks, null, 2);
+  try {
+    if (IS_TAURI) {
+      await invoke("save_data_file", { filename: WEEK_FILE, content });
+    } else {
+      await fetch("/api/save-data-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: WEEK_FILE, content }),
+      });
+    }
+  } catch (e) {
+    console.error("saveWeeksPersisted failed:", e);
+  }
+}
+
+const EMPTY_WEEK = () => ({
+  prompted: { built: "", learned: "", blockers: "" },
+  bullets:  [],
+  savedAt:  null,
+  modifiedAt: null,
+});
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// WeekTab
+// ─────────────────────────────────────────────────────────────────
+
+function WeekHistorySidebar({ weeks, activeKey, onSelect }) {
+  const keys = Object.keys(weeks).sort((a, b) => {
+    // sort by year then month then week num, all embedded in key
+    // Simplest: parse year+month+num out
+    function score(k) {
+      const p = k.split("-");
+      const yr  = parseInt(p[3] || 0, 10);
+      const mon = ["january","february","march","april","may","june","july","august","september","october","november","december"].indexOf(p[2]);
+      const wk  = parseInt(p[1] || 0, 10);
+      return yr * 10000 + mon * 100 + wk;
+    }
+    return score(b) - score(a); // newest first
+  });
+
+  return (
+    <div style={{
+      width: 210, flexShrink: 0,
+      borderLeft: "1px solid #1a1d26",
+      background: "#0c0e14",
+      display: "flex", flexDirection: "column", overflow: "hidden",
+    }}>
+      <div style={{
+        padding: "13px 14px 11px", borderBottom: "1px solid #1a1d26",
+        flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "#4a5568", fontFamily: MONO }}>History</span>
+        {keys.length > 0 && <span style={{ fontSize: 11, color: "#4a5568", fontFamily: MONO }}>{keys.length}</span>}
+      </div>
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        {keys.length === 0 && (
+          <div style={{ padding: "16px 14px", fontSize: 12, color: "#2a3040", fontStyle: "italic", lineHeight: 1.6 }}>No weeks saved yet.</div>
+        )}
+        {keys.map(key => {
+          const w        = weeks[key];
+          const isActive = key === activeKey;
+          const isThis   = key === getWeekKey();
+          const label    = getWeekLabel(key);
+          const modified = w.modifiedAt && w.savedAt && w.modifiedAt > w.savedAt;
+          const hasContent = w.prompted?.built || w.prompted?.learned || w.prompted?.blockers || (w.bullets?.length > 0);
+          return (
+            <div key={key}
+              onClick={() => onSelect(key)}
+              style={{
+                padding: "10px 14px", borderBottom: "1px solid #111520",
+                borderLeft: isActive ? `2px solid ${WEEK_C}` : "2px solid transparent",
+                background: isActive ? `${WEEK_C}10` : "transparent",
+                cursor: "pointer", transition: "background 0.1s",
+              }}
+              onMouseEnter={ev => { if (!isActive) ev.currentTarget.style.background = "#12151e"; }}
+              onMouseLeave={ev => { if (!isActive) ev.currentTarget.style.background = "transparent"; }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? WEEK_C : "#6070a0", fontFamily: MONO, lineHeight: 1.4 }}>{label}</span>
+              </div>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                {isThis && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1px", color: `${WEEK_C}99`, fontFamily: MONO, textTransform: "uppercase" }}>this week</span>}
+                {modified && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1px", color: "#fb923c99", fontFamily: MONO, textTransform: "uppercase" }}>modified</span>}
+                {w.savedAt && !isThis && <span style={{ fontSize: 9, color: "#3a4052", fontFamily: MONO }}>saved</span>}
+              </div>
+              {hasContent && (
+                <div style={{ fontSize: 10, color: "#2a3040", marginTop: 3 }}>
+                  {[w.prompted?.built, w.prompted?.learned, w.prompted?.blockers].filter(Boolean).length} prompted · {w.bullets?.length || 0} bullets
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function WeekPromptedField({ label, value, onChange, color, readOnly, modified }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#4a5568", fontFamily: MONO }}>{label}</span>
+        {modified && <span style={{ fontSize: 9, color: "#fb923c88", fontFamily: MONO, letterSpacing: "1px" }}>edited</span>}
+      </div>
+      <textarea
+        rows={3}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        placeholder={
+          label === "WHAT I BUILT" ? "Code written, features shipped, projects touched..." :
+          label === "WHAT I LEARNED" ? "Concepts clicked, breakthroughs, new knowledge..." :
+          "What slowed you down, what to watch for next week..."
+        }
+        style={{
+          width: "100%", boxSizing: "border-box",
+          background: readOnly ? "#0a0c10" : "#0d0f14",
+          border: `1px solid ${value ? color + "40" : "#1e2230"}`,
+          borderRadius: 8,
+          color: value ? (readOnly ? "#8090a8" : "#d4d8e0") : "#55607a",
+          fontFamily: FONT, fontSize: 14, padding: "10px 13px",
+          outline: "none", resize: "none", lineHeight: 1.65,
+          opacity: readOnly ? 0.8 : 1,
+        }}
+        onFocus={e => { if (!readOnly) e.target.style.borderColor = color + "70"; }}
+        onBlur={e => { if (!readOnly) e.target.style.borderColor = value ? color + "40" : "#1e2230"; }}
+      />
+    </div>
+  );
+}
+
+function BulletList({ bullets, onChange, readOnly, modified }) {
+  const inputRefs = useRef({});
+
+  function addBullet(afterId) {
+    const newB  = { id: uid(), text: "" };
+    const idx   = afterId ? bullets.findIndex(b => b.id === afterId) : bullets.length - 1;
+    const next  = [...bullets.slice(0, idx + 1), newB, ...bullets.slice(idx + 1)];
+    onChange(next);
+    setTimeout(() => inputRefs.current[newB.id]?.focus(), 30);
+  }
+
+  function updateBullet(id, text) {
+    onChange(bullets.map(b => b.id === id ? { ...b, text } : b));
+  }
+
+  function removeBullet(id) {
+    const next = bullets.filter(b => b.id !== id);
+    onChange(next.length === 0 ? [] : next);
+  }
+
+  function handleKeyDown(e, id) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addBullet(id);
+    } else if (e.key === "Backspace" && bullets.find(b => b.id === id)?.text === "") {
+      e.preventDefault();
+      const idx = bullets.findIndex(b => b.id === id);
+      removeBullet(id);
+      const prevId = bullets[idx - 1]?.id;
+      if (prevId) setTimeout(() => inputRefs.current[prevId]?.focus(), 30);
+    }
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#4a5568", fontFamily: MONO }}>Free-Form Bullets</span>
+        {modified && <span style={{ fontSize: 9, color: "#fb923c88", fontFamily: MONO, letterSpacing: "1px" }}>edited</span>}
+      </div>
+
+      {bullets.length === 0 && !readOnly && (
+        <div
+          onClick={() => addBullet(null)}
+          style={{
+            fontSize: 13, color: "#2a3040", fontStyle: "italic", cursor: "pointer",
+            padding: "10px 14px", borderRadius: 8,
+            border: "1px dashed #1e2230",
+            transition: "border-color 0.15s, color 0.15s",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = `${WEEK_C}44`; e.currentTarget.style.color = "#6070a0"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "#1e2230"; e.currentTarget.style.color = "#2a3040"; }}
+        >
+          + click to add bullets
+        </div>
+      )}
+
+      {bullets.length === 0 && readOnly && (
+        <div style={{ fontSize: 13, color: "#2a3040", fontStyle: "italic", padding: "6px 0" }}>No bullets added.</div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {bullets.map((b, i) => (
+          <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: `${WEEK_C}66`, fontSize: 14, flexShrink: 0, fontFamily: MONO, width: 14, textAlign: "center" }}>·</span>
+            {readOnly ? (
+              <span style={{ flex: 1, fontSize: 14, color: "#8090a8", lineHeight: 1.5 }}>{b.text || <em style={{ color: "#3a4052" }}>empty</em>}</span>
+            ) : (
+              <input
+                ref={el => { inputRefs.current[b.id] = el; }}
+                type="text"
+                value={b.text}
+                onChange={e => updateBullet(b.id, e.target.value)}
+                onKeyDown={e => handleKeyDown(e, b.id)}
+                placeholder="what happened this week..."
+                style={{
+                  flex: 1, background: "transparent", border: "none",
+                  borderBottom: `1px solid #1e2230`,
+                  color: "#d4d8e0", fontFamily: FONT, fontSize: 14,
+                  padding: "6px 2px", outline: "none",
+                  transition: "border-color 0.15s",
+                }}
+                onFocus={e => { e.target.style.borderBottomColor = `${WEEK_C}55`; }}
+                onBlur={e => { e.target.style.borderBottomColor = "#1e2230"; }}
+              />
+            )}
+            {!readOnly && (
+              <button
+                onClick={() => removeBullet(b.id)}
+                style={{ background: "none", border: "none", color: "#2a3040", fontSize: 13, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.color = "#e85454"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "#2a3040"; }}
+              >✕</button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {!readOnly && bullets.length > 0 && (
+        <button
+          onClick={() => addBullet(bullets[bullets.length - 1].id)}
+          style={{
+            marginTop: 10, background: "none",
+            border: `1px dashed ${WEEK_C}33`, borderRadius: 7,
+            color: `${WEEK_C}88`, fontSize: 11, fontFamily: MONO, fontWeight: 700,
+            letterSpacing: "1.5px", textTransform: "uppercase",
+            padding: "5px 12px", cursor: "pointer", transition: "all 0.15s",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = `${WEEK_C}66`; e.currentTarget.style.color = WEEK_C; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = `${WEEK_C}33`; e.currentTarget.style.color = `${WEEK_C}88`; }}
+        >+ add bullet</button>
+      )}
+    </div>
+  );
+}
+
+function WeekTab() {
+  const [weeks,      setWeeks]      = useState({});
+  const [loaded,     setLoaded]     = useState(false);
+  const [activeKey,  setActiveKey]  = useState(null); // null = current week
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const thisWeekKey = getWeekKey();
+
+  useEffect(() => {
+    loadWeeksPersisted().then(w => {
+      setWeeks(w);
+      setLoaded(true);
+    });
+  }, []);
+
+  const saveTimer = useRef(null);
+  useEffect(() => {
+    if (!loaded) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveWeeksPersisted(weeks);
+    }, 400);
+    return () => clearTimeout(saveTimer.current);
+  }, [weeks, loaded]);
+
+  const viewingKey  = activeKey ?? thisWeekKey;
+  const isReadOnly  = activeKey !== null && activeKey !== thisWeekKey;
+  const entry       = weeks[viewingKey] ?? EMPTY_WEEK();
+  const thisEntry   = weeks[thisWeekKey] ?? EMPTY_WEEK();
+  const isThisWeek  = viewingKey === thisWeekKey;
+
+  function patchWeek(key, patch) {
+    setWeeks(prev => {
+      const existing = prev[key] ?? EMPTY_WEEK();
+      const updated  = { ...existing, ...patch };
+      // If this is a past week being modified, set modifiedAt
+      if (key !== thisWeekKey && existing.savedAt) {
+        updated.modifiedAt = Date.now();
+      }
+      return { ...prev, [key]: updated };
+    });
+  }
+
+  function patchPrompted(key, patch) {
+    const cur = weeks[key] ?? EMPTY_WEEK();
+    patchWeek(key, { prompted: { ...cur.prompted, ...patch } });
+  }
+
+  function saveWeek() {
+    const now = Date.now();
+    setWeeks(prev => {
+      const existing = prev[thisWeekKey] ?? EMPTY_WEEK();
+      return { ...prev, [thisWeekKey]: { ...existing, savedAt: now } };
+    });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }
+
+  const weekLabel = getWeekLabel(viewingKey);
+
+  const hasContent = !!(
+    thisEntry.prompted?.built ||
+    thisEntry.prompted?.learned ||
+    thisEntry.prompted?.blockers ||
+    (thisEntry.bullets?.length > 0 && thisEntry.bullets.some(b => b.text.trim()))
+  );
+
+  const viewingModified = entry.modifiedAt && entry.savedAt && entry.modifiedAt > entry.savedAt;
+
+  return (
+    <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+
+      {/* Main scrollable area */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 48px" }}>
+        <div style={{ maxWidth: 780, margin: "0 auto" }}>
+
+          {/* Viewing banner for past week */}
+          {isReadOnly && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: `${WEEK_C}0a`, border: `1px solid ${WEEK_C}30`, borderRadius: 12,
+              padding: "10px 18px", marginBottom: 16,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 13, color: WEEK_C, fontFamily: MONO }}>Viewing {weekLabel}</span>
+                {viewingModified && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: "1.5px",
+                    color: "#fb923c", background: "#fb923c18",
+                    border: "1px solid #fb923c33", borderRadius: 5,
+                    padding: "2px 8px", fontFamily: MONO, textTransform: "uppercase",
+                  }}>modified</span>
+                )}
+              </div>
+              <button onClick={() => setActiveKey(null)}
+                style={{ padding: "5px 12px", borderRadius: 7, border: "1px solid #2a2e38", background: "transparent", color: "#7a8090", fontSize: 12, fontFamily: MONO, cursor: "pointer" }}>
+                Back to this week
+              </button>
+            </div>
+          )}
+
+          {/* Week header */}
+          <div style={{
+            background: "#0f1117",
+            border: `1px solid ${WEEK_C}22`,
+            borderRadius: 14,
+            padding: "18px 20px",
+            marginBottom: 14,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: WEEK_C, fontFamily: MONO }}>⊞</span>
+              <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: WEEK_C, fontFamily: MONO }}>
+                {weekLabel}
+              </span>
+              {isThisWeek && (
+                <span style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: "1px",
+                  color: `${WEEK_C}99`, background: `${WEEK_C}15`,
+                  border: `1px solid ${WEEK_C}33`, borderRadius: 5,
+                  padding: "2px 8px", fontFamily: MONO, textTransform: "uppercase",
+                }}>current</span>
+              )}
+              {entry.savedAt && (
+                <span style={{ fontSize: 10, color: "#3a4052", fontFamily: MONO, marginLeft: "auto" }}>
+                  saved {fmtDateTime(entry.savedAt)}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>
+              Come back periodically to drop bullets of what you shipped, learned, and hit this week.
+            </div>
+          </div>
+
+          {/* Prompted sections */}
+          <div style={{
+            background: "#0f1117",
+            border: `1px solid ${WEEK_C}18`,
+            borderRadius: 14,
+            overflow: "hidden",
+            marginBottom: 14,
+          }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "13px 20px",
+              borderBottom: `1px solid ${WEEK_C}14`,
+              background: `${WEEK_C}06`,
+            }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: WEEK_C, fontFamily: MONO }}>◈</span>
+              <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: WEEK_C, fontFamily: MONO }}>Prompted Reflection</span>
+            </div>
+            <div style={{ padding: "18px 20px" }}>
+              <WeekPromptedField
+                label="WHAT I BUILT"
+                color={WEEK_C}
+                value={entry.prompted?.built ?? ""}
+                onChange={e => patchPrompted(viewingKey, { built: e.target.value })}
+                readOnly={isReadOnly}
+                modified={isReadOnly && viewingModified}
+              />
+              <WeekPromptedField
+                label="WHAT I LEARNED"
+                color="#34d399"
+                value={entry.prompted?.learned ?? ""}
+                onChange={e => patchPrompted(viewingKey, { learned: e.target.value })}
+                readOnly={isReadOnly}
+                modified={isReadOnly && viewingModified}
+              />
+              <WeekPromptedField
+                label="BLOCKERS"
+                color="#fb923c"
+                value={entry.prompted?.blockers ?? ""}
+                onChange={e => patchPrompted(viewingKey, { blockers: e.target.value })}
+                readOnly={isReadOnly}
+                modified={isReadOnly && viewingModified}
+              />
+            </div>
+          </div>
+
+          {/* Free-form bullets */}
+          <div style={{
+            background: "#0f1117",
+            border: `1px solid ${WEEK_C}18`,
+            borderRadius: 14,
+            overflow: "hidden",
+            marginBottom: 20,
+          }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "13px 20px",
+              borderBottom: `1px solid ${WEEK_C}14`,
+              background: `${WEEK_C}06`,
+            }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: WEEK_C, fontFamily: MONO }}>—</span>
+              <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: WEEK_C, fontFamily: MONO }}>This Week</span>
+              {!isReadOnly && (
+                <span style={{ fontSize: 11, color: "#3a4052", fontFamily: MONO, marginLeft: 4 }}>· Enter to add · Backspace on empty to remove</span>
+              )}
+            </div>
+            <div style={{ padding: "18px 20px" }}>
+              <BulletList
+                bullets={entry.bullets ?? []}
+                readOnly={isReadOnly}
+                modified={isReadOnly && viewingModified}
+                onChange={newBullets => patchWeek(viewingKey, { bullets: newBullets })}
+              />
+            </div>
+          </div>
+
+          {/* Save button — only for current week */}
+          {isThisWeek && (
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={saveWeek}
+                disabled={!hasContent}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "10px 28px", borderRadius: 10,
+                  border: savedFlash
+                    ? `1px solid #34d39966`
+                    : hasContent ? `1px solid ${WEEK_C}44` : "1px solid #2a2e38",
+                  background: savedFlash
+                    ? "#34d39918"
+                    : hasContent ? `${WEEK_C}12` : "transparent",
+                  color: savedFlash ? "#34d399" : hasContent ? WEEK_C : "#3a4052",
+                  fontSize: 13, fontFamily: MONO, fontWeight: 700,
+                  letterSpacing: "1px", textTransform: "uppercase",
+                  cursor: hasContent ? "pointer" : "not-allowed",
+                  transition: "all 0.25s",
+                }}
+                onMouseEnter={e => { if (hasContent && !savedFlash) { e.currentTarget.style.background = `${WEEK_C}22`; e.currentTarget.style.borderColor = `${WEEK_C}66`; } }}
+                onMouseLeave={e => { if (hasContent && !savedFlash) { e.currentTarget.style.background = `${WEEK_C}12`; e.currentTarget.style.borderColor = `${WEEK_C}44`; } }}
+              >
+                <span style={{ fontSize: 14 }}>{savedFlash ? "✓" : "⊞"}</span>
+                {savedFlash ? "Saved" : "Save Week"}
+              </button>
+            </div>
+          )}
+
+          {/* Past week — inline save for modifications */}
+          {isReadOnly && viewingModified && (
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => {
+                  setWeeks(prev => ({
+                    ...prev,
+                    [viewingKey]: { ...prev[viewingKey], savedAt: Date.now(), modifiedAt: null },
+                  }));
+                }}
+                style={{
+                  padding: "10px 28px", borderRadius: 10,
+                  border: "1px solid #fb923c44",
+                  background: "#fb923c12",
+                  color: "#fb923c",
+                  fontSize: 13, fontFamily: MONO, fontWeight: 700,
+                  letterSpacing: "1px", textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
+              >
+                ✓ Save edits
+              </button>
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* History sidebar */}
+      <WeekHistorySidebar
+        weeks={weeks}
+        activeKey={activeKey}
+        onSelect={key => setActiveKey(prev => prev === key ? null : key)}
+      />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Root
 // ─────────────────────────────────────────────────────────────────
 
 const PAGE_TABS = [
   { id: "agenda",  label: "◈ Agenda"  },
+  { id: "week",    label: "⊞ Week"    },
   { id: "entries", label: "✦ Entries" },
 ];
 
 export default function AgendaPage() {
   const [tab, setTab] = useState("agenda");
 
-  const moonTasks      = getTodayMoons();
-  const today          = todayStr();
+  const moonTasks = getTodayMoons();
+  const today     = todayStr();
+  // Read task completion count from localStorage cache (fast, non-blocking)
   const stored         = loadLS(LS_AGENDA, {});
   const tasks          = stored[today]?.tasks ?? {};
   const completedCount = Object.values(tasks).filter(Boolean).length;
@@ -1299,6 +1943,7 @@ export default function AgendaPage() {
       </div>
 
       {tab === "agenda"  && <AgendaTab />}
+      {tab === "week"    && <WeekTab />}
       {tab === "entries" && <EntriesTab />}
 
     </div>
