@@ -407,7 +407,16 @@ export default function DeadlinesPage() {
   const focusPick = (() => {
     const candidates = deadlines.filter(d => !d.done && d.status !== "inprogress");
     if (!candidates.length) return null;
+    function tagTier(d) {
+      const t = (d.tag || "").toLowerCase();
+      if (t === "school")   return 0;
+      if (!t)               return 1;
+      if (t === "research") return 2;
+      return 3;
+    }
     return candidates.slice().sort((a, b) => {
+      const ta = tagTier(a), tb = tagTier(b);
+      if (ta !== tb) return ta - tb;
       const da = getDaysUntil(a.date), db = getDaysUntil(b.date);
       const pa = a.priority==="high" ? -1 : a.priority==="low" ? 1 : 0;
       const pb = b.priority==="high" ? -1 : b.priority==="low" ? 1 : 0;

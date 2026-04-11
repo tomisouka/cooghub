@@ -2,6 +2,31 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { DEADLINES } from "../data/memory-deadlines";
 
+// ── Deadline sync — mirrors DeadlinesPage persistToFile exactly ──────────────
+// AgendaPage holds a mutable copy of DEADLINES so toggleTask can write back.
+let _deadlineCache = [...DEADLINES];
+
+function serializeDeadlines(deadlines) {
+  return `// src/data/memory-deadlines.js\n// Runtime persistence for deadlines — auto-saved by DeadlinesPage on every change.\n// Do not edit manually while the app is open.\n// Last updated: ${new Date().toISOString()}\n\nexport const DEADLINES = ${JSON.stringify(deadlines, null, 2)};\n`;
+}
+
+async function persistDeadlines(deadlines) {
+  const content = serializeDeadlines(deadlines);
+  try {
+    if (IS_TAURI) {
+      await invoke("save_deadlines", { content });
+    } else {
+      await fetch("/api/save-memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+    }
+  } catch (e) {
+    console.error("[AgendaPage] persistDeadlines failed:", e);
+  }
+}
+
 const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 const FONT     = "'Inter', 'Segoe UI', sans-serif";
@@ -49,6 +74,15 @@ function fmtDateLabel(str) {
   if (!str) return "";
   const d = new Date(str + "T12:00:00");
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+// ── Repeat helper — mirrors DeadlinesPage exactly ────────────────────────────
+function nextRepeatDate(dateStr, repeat) {
+  const d = new Date(dateStr + "T00:00:00");
+  if (repeat === "daily")   d.setDate(d.getDate() + 1);
+  if (repeat === "weekly")  d.setDate(d.getDate() + 7);
+  if (repeat === "monthly") d.setMonth(d.getMonth() + 1);
+  return d.toISOString().slice(0, 10);
 }
 
 const LS_AGENDA = "agenda_entries";
@@ -112,7 +146,7 @@ async function saveAgendaPersisted(entries, inspos) {
 
 function getTodayMoons() {
   const today = todayStr();
-  return DEADLINES.filter(d => !d.done && d.type === "moon" && d.date === today);
+  return _deadlineCache.filter(d => d.type === "moon" && d.date === today);
 }
 
 const EMPTY_ENTRY = () => ({
@@ -124,11 +158,19 @@ const EMPTY_ENTRY = () => ({
   image:   null,
 });
 
-// ─────────────────────────────────────────────────────────────────
-// Shared UI atoms
+// Safely read task done state — handles both legacy boolean and new { done, completedAt } shape
+function taskDone(taskVal) {
+  if (!taskVal) return false;
+  if (typeof taskVal === "boolean") return taskVal;
+  return taskVal.done === true;
+}
+function taskTime(taskVal) {
+  if (!taskVal || typeof taskVal === "boolean") return null;
+  return taskVal.completedAt ?? null;
+}
 // ─────────────────────────────────────────────────────────────────
 
-function AgendaSection({ label, color, icon, children }) {
+function AgendaSection({ label, color, icon, children, badge }) {
   return (
     <div style={{
       background: "#0f1117",
@@ -152,6 +194,15 @@ function AgendaSection({ label, color, icon, children }) {
           fontSize: 14, fontWeight: 700, letterSpacing: "2.5px",
           textTransform: "uppercase", color, fontFamily: MONO,
         }}>{label}</span>
+        {badge !== undefined && (
+          <span style={{
+            marginLeft: 4,
+            fontSize: 11, fontWeight: 700, fontFamily: MONO,
+            color, background: `${color}18`,
+            border: `1px solid ${color}33`,
+            borderRadius: 5, padding: "1px 7px",
+          }}>{badge}</span>
+        )}
       </div>
       <div style={{ padding: "18px 20px" }}>{children}</div>
     </div>
@@ -188,8 +239,9 @@ function AgendaField({ label, value, onChange, color, placeholder, multiline, re
   );
 }
 
-function InspoHistory({ inspos, onPick, onDelete }) {
-  const [open, setOpen] = useState(false);
+function InspoHistory({ inspos, onPick, onDelete, onGoToEntry }) {
+  const [open,     setOpen]    = useState(false);
+  const [expanded, setExpanded] = useState(null);
   if (inspos.length === 0) return null;
   return (
     <div style={{ marginTop: 8 }}>
@@ -203,25 +255,78 @@ function InspoHistory({ inspos, onPick, onDelete }) {
       </button>
       {open && (
         <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-          {inspos.map((ins, i) => (
-            <div key={i} style={{
-              background: "#0d0f14", border: `1px solid ${INSPO_C}22`,
-              borderRadius: 8, padding: "8px 12px",
-              display: "flex", alignItems: "flex-start", gap: 10,
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: INSPO_C, marginBottom: 2 }}>{ins.character}</div>
-                <div style={{ fontSize: 11, color: "#8090a8" }}>{ins.trait}</div>
-                <div style={{ fontSize: 11, color: "#5a6070", fontStyle: "italic" }}>{ins.arc}</div>
+          {inspos.map((ins, i) => {
+            const isExp = expanded === i;
+            return (
+              <div key={i} style={{
+                background: "#0d0f14",
+                border: `1px solid ${isExp ? INSPO_C + "44" : INSPO_C + "22"}`,
+                borderRadius: 10, overflow: "hidden", transition: "border-color 0.15s",
+              }}>
+                {/* Main row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", cursor: "pointer" }}
+                  onClick={() => setExpanded(isExp ? null : i)}>
+                  {/* Thumbnail */}
+                  <div style={{
+                    width: 38, height: 38, flexShrink: 0, borderRadius: 8,
+                    border: ins.image ? `1.5px solid ${INSPO_C}44` : "1.5px solid #1e2230",
+                    overflow: "hidden", background: "#0a0c10",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    {ins.image
+                      ? <img src={ins.image} alt={ins.character} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      : <span style={{ fontSize: 16, opacity: 0.2 }}>◈</span>
+                    }
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: INSPO_C, marginBottom: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ins.character}</div>
+                    <div style={{ fontSize: 11, color: "#8090a8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ins.trait}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexShrink: 0, alignItems: "center" }}>
+                    <button onClick={e => { e.stopPropagation(); onPick(ins); }} style={{
+                      background: `${INSPO_C}22`, border: "none", borderRadius: 5,
+                      color: INSPO_C, fontSize: 10, fontFamily: MONO, cursor: "pointer", padding: "3px 8px", fontWeight: 700,
+                    }}>use</button>
+                    <button onClick={e => { e.stopPropagation(); onDelete(i); }}
+                      style={{ background: "none", border: "none", color: "#3a4052", fontSize: 12, cursor: "pointer", padding: "2px 4px" }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#e85454"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "#3a4052"; }}>✕</button>
+                  </div>
+                </div>
+
+                {/* Expanded panel */}
+                {isExp && (
+                  <div style={{ padding: "0 12px 12px", borderTop: `1px solid ${INSPO_C}18` }}>
+                    {ins.image && (
+                      <div style={{ display: "flex", gap: 12, marginTop: 12, marginBottom: 10, alignItems: "flex-start" }}>
+                        <div style={{ width: 72, height: 72, flexShrink: 0, borderRadius: 10, overflow: "hidden", border: `1.5px solid ${INSPO_C}33` }}>
+                          <img src={ins.image} alt={ins.character} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#3a4052", fontFamily: MONO, marginBottom: 6 }}>
+                            🔒 image locked to original entry
+                          </div>
+                          {ins.entryDate && (
+                            <button onClick={() => onGoToEntry(ins.entryDate)} style={{
+                              background: `${INSPO_C}12`, border: `1px solid ${INSPO_C}33`,
+                              borderRadius: 6, color: INSPO_C, fontSize: 10, fontFamily: MONO,
+                              fontWeight: 700, cursor: "pointer", padding: "4px 10px", letterSpacing: "1px",
+                            }}>→ go to {fmtDateLabel(ins.entryDate)}</button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {ins.arc && (
+                      <div style={{ marginTop: ins.image ? 0 : 10 }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#3a4052", fontFamily: MONO, marginBottom: 5 }}>Arc</div>
+                        <div style={{ fontSize: 12, color: "#6070a0", fontStyle: "italic", lineHeight: 1.6 }}>{ins.arc}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                <button onClick={() => onPick(ins)} style={{ background: `${INSPO_C}22`, border: "none", borderRadius: 5, color: INSPO_C, fontSize: 10, fontFamily: MONO, cursor: "pointer", padding: "3px 8px" }}>use</button>
-                <button onClick={() => onDelete(i)} style={{ background: "none", border: "none", color: "#3a4052", fontSize: 12, cursor: "pointer", padding: "2px 4px" }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#e85454"; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = "#3a4052"; }}>✕</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -254,6 +359,9 @@ function AgendaHeatmap({ entries }) {
     if (e.inspo?.character) score++;
     if (e.blanket) score++;
     if (e.poison) score++;
+    // Tasks and image also count toward a hot day
+    if (e.image) score++;
+    if (e.tasks && Object.values(e.tasks).some(v => taskDone(v))) score++;
     if (score > 0) activityLog[date] = Math.min(score, 4);
   });
 
@@ -311,7 +419,9 @@ function AgendaHeatmap({ entries }) {
     monthLabels.push(colMonthLabel);
   }
 
-  // Streak: consecutive days going back from today that have entries
+  // Hot streak: consecutive days going back from today that have entries
+  const totalDays = Object.keys(activityLog).length;
+
   let streak = 0;
   const sd = new Date(today);
   while (activityLog[sd.toISOString().slice(0, 10)]) {
@@ -319,7 +429,20 @@ function AgendaHeatmap({ entries }) {
     sd.setDate(sd.getDate() - 1);
   }
 
-  const totalDays = Object.keys(activityLog).length;
+  // Cold streak: days since last entry (only when hot streak is 0)
+  let coldStreak = 0;
+  if (streak === 0) {
+    const cd = new Date(today);
+    cd.setDate(cd.getDate() - 1); // start from yesterday
+    while (!activityLog[cd.toISOString().slice(0, 10)]) {
+      coldStreak++;
+      cd.setDate(cd.getDate() - 1);
+      if (coldStreak > 365) break; // safety cap
+    }
+  }
+
+  const isHot  = streak > 0;
+  const isCold = !isHot && totalDays > 0;
   const CELL = 11, GAP = 3;
 
   return (
@@ -333,21 +456,34 @@ function AgendaHeatmap({ entries }) {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14, fontWeight: 800, color: PINK, fontFamily: MONO }}>◈</span>
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: PINK, fontFamily: MONO }}>Hot Streak</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: isHot ? PINK : isCold ? "#60a5fa" : PINK, fontFamily: MONO }}>
+            {isHot ? "◈" : isCold ? "❄" : "◈"}
+          </span>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: isHot ? PINK : isCold ? "#60a5fa" : PINK, fontFamily: MONO }}>
+            {isHot ? "Hot Streak" : isCold ? "Cold Streak" : "Hot Streak"}
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {totalDays > 0 && (
             <span style={{ fontSize: 11, color: `${PINK}88`, fontFamily: MONO }}>{totalDays} day{totalDays !== 1 ? "s" : ""} logged</span>
           )}
-          {streak > 0 && (
+          {isHot && (
             <span style={{
               fontSize: 11, fontFamily: MONO, fontWeight: 700,
-              color: PINK,
-              background: `${PINK}15`,
+              color: PINK, background: `${PINK}15`,
               border: `1px solid ${PINK}40`,
               borderRadius: 6, padding: "2px 9px",
             }}>✦ {streak} day streak</span>
+          )}
+          {isCold && (
+            <span style={{
+              fontSize: 11, fontFamily: MONO, fontWeight: 700,
+              color: "#60a5fa", background: "#60a5fa15",
+              border: "1px solid #60a5fa40",
+              borderRadius: 6, padding: "2px 9px",
+            }}>
+              {coldStreak === 0 ? "last seen yesterday" : `${coldStreak} day${coldStreak !== 1 ? "s" : ""} away`}
+            </span>
           )}
         </div>
       </div>
@@ -786,6 +922,8 @@ function AgendaTab() {
   const [loaded,      setLoaded]      = useState(false);
   const [viewingDate, setViewingDate] = useState(null);
   const [savedFlash,  setSavedFlash]  = useState(false);
+  const [confirmTask, setConfirmTask] = useState(null); // { id, title, nextDone }
+  const [moonTasks,   setMoonTasks]   = useState(() => getTodayMoons());
 
   // Load from file (Tauri) or localStorage (web) on mount
   useEffect(() => {
@@ -794,6 +932,23 @@ function AgendaTab() {
       setInspos(i);
       setLoaded(true);
     });
+
+    // Refresh _deadlineCache from disk so we're never working with stale import data
+    if (IS_TAURI) {
+      invoke("load_memory").then(raw => {
+        try {
+          const match = raw.match(/export const DEADLINES = (\[[\s\S]*?]);/);
+          if (match) { _deadlineCache = JSON.parse(match[1]); setMoonTasks(getTodayMoons()); }
+        } catch (e) { console.warn("[AgendaTab] cache refresh failed:", e); }
+      }).catch(() => {});
+    } else {
+      fetch("/api/load-memory").then(r => r.json()).then(data => {
+        try {
+          const match = (data.content || "").match(/export const DEADLINES = (\[[\s\S]*?]);/);
+          if (match) { _deadlineCache = JSON.parse(match[1]); setMoonTasks(getTodayMoons()); }
+        } catch (e) { console.warn("[AgendaTab] cache refresh failed:", e); }
+      }).catch(() => {});
+    }
   }, []);
 
   // Save on any change — debounced by 500ms to avoid hammering disk
@@ -829,12 +984,57 @@ function AgendaTab() {
     const ins = todayEntry.inspo;
     if (!ins.character.trim()) return;
     const exists = inspos.some(i => i.character.toLowerCase() === ins.character.toLowerCase());
-    if (!exists) setInspos(prev => [{ ...ins, savedAt: today }, ...prev]);
+    if (!exists) setInspos(prev => [{
+      ...ins,
+      savedAt:   today,
+      entryDate: today,
+      image:     todayEntry.image ?? null,
+    }, ...prev]);
   }
 
-  function toggleTask(id) {
+  function toggleTask(id, title, currentlyDone) {
+    setConfirmTask({ id, title, nextDone: !currentlyDone });
+  }
+
+  function applyTaskConfirm() {
+    if (!confirmTask) return;
+    const { id, nextDone } = confirmTask;
     const cur = todayEntry.tasks ?? {};
-    patchToday({ tasks: { ...cur, [id]: !cur[id] } });
+    const now = new Date();
+    const timeStamp = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    patchToday({ tasks: {
+      ...cur,
+      [id]: nextDone ? { done: true, completedAt: timeStamp } : { done: false },
+    }});
+
+    _deadlineCache = _deadlineCache.map(d => {
+      if (d.id !== id) return d;
+      return nextDone
+        ? { ...d, done: true,  status: "done", completedAt: todayStr() }
+        : { ...d, done: false, status: "none",  completedAt: undefined  };
+    });
+
+    // Spawn next occurrence for repeating tasks — mirrors DeadlinesPage.spawnNextOccurrence
+    if (nextDone) {
+      const dl = _deadlineCache.find(d => d.id === id);
+      if (dl?.repeat && dl.repeat !== "none") {
+        const next = {
+          ...dl,
+          id:          Date.now().toString() + "_r",
+          date:        nextRepeatDate(dl.date, dl.repeat),
+          done:        false,
+          status:      undefined,
+          startedAt:   undefined,
+          completedAt: undefined,
+          reflection:  undefined,
+        };
+        _deadlineCache = [..._deadlineCache, next].sort((a, b) => a.date.localeCompare(b.date));
+      }
+    }
+
+    persistDeadlines(_deadlineCache);
+    setMoonTasks(getTodayMoons());
+    setConfirmTask(null);
   }
 
   function useAsTemplate(date) {
@@ -858,8 +1058,7 @@ function AgendaTab() {
     if (viewingDate === date) setViewingDate(null);
   }
 
-  const moonTasks      = getTodayMoons();
-  const completedTasks = Object.values(todayEntry.tasks ?? {}).filter(Boolean).length;
+  const completedTasks = Object.values(todayEntry.tasks ?? {}).filter(v => taskDone(v)).length;
 
   const disp  = activeEntry;
   const shot  = isReadOnly ? (disp.shot  ?? {}) : todayEntry.shot;
@@ -869,6 +1068,41 @@ function AgendaTab() {
 
   return (
     <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+
+      {/* ── Confirm task modal ── */}
+      {confirmTask && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 998,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.6)",
+        }} onClick={() => setConfirmTask(null)}>
+          <div style={{
+            background: "#161920", border: "1px solid #a78bfa44",
+            borderRadius: 14, padding: "24px 28px",
+            minWidth: 300, maxWidth: 400,
+            display: "flex", flexDirection: "column", gap: 14,
+            boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", fontFamily: MONO }}>
+              {confirmTask.nextDone ? "Mark as completed?" : "Unmark as done?"}
+            </div>
+            <div style={{ fontSize: 13, color: "#c8d0e8" }}>{confirmTask.title}</div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setConfirmTask(null)} style={{
+                flex: 1, padding: "9px 0", borderRadius: 9,
+                border: "1px solid #2a2e38", background: "transparent",
+                color: "#7a8090", fontSize: 12, fontFamily: MONO, fontWeight: 700, cursor: "pointer",
+              }}>Cancel</button>
+              <button onClick={applyTaskConfirm} style={{
+                flex: 1, padding: "9px 0", borderRadius: 9,
+                border: "none", background: confirmTask.nextDone ? "#a78bfa" : "#3a4052",
+                color: confirmTask.nextDone ? "#0e1014" : "#c8d0e8",
+                fontSize: 12, fontFamily: MONO, fontWeight: 700, cursor: "pointer",
+              }}>{confirmTask.nextDone ? "✓ Complete" : "Unmark"}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Main scrollable area ── */}
       <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px 48px" }}>
@@ -912,44 +1146,130 @@ function AgendaTab() {
 
           {/* Daily Tasks */}
           {!isReadOnly && (
-            <AgendaSection label="Daily Tasks" color="#a78bfa" icon="☽">
+            <AgendaSection label="Daily Tasks" color="#a78bfa" icon="☽" badge={`${completedTasks}/${moonTasks.length}`}>
               {moonTasks.length === 0 ? (
                 <div style={{ fontSize: 13, color: "#3a4052", fontStyle: "italic" }}>No moons due today.</div>
-              ) : (
+              ) : (() => {
+                const pending   = moonTasks.filter(d => !taskDone((todayEntry.tasks ?? {})[d.id]));
+                const completed = moonTasks.filter(d =>  taskDone((todayEntry.tasks ?? {})[d.id]));
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {pending.map(d => {
+                      const checked = false;
+                      return (
+                        <div key={d.id} onClick={() => toggleTask(d.id, d.title, checked)}
+                          style={{
+                            display: "flex", alignItems: "flex-start", gap: 12,
+                            cursor: "pointer", padding: "10px 14px", borderRadius: 10,
+                            background: "#0d0f14",
+                            border: "1px solid #1e2230",
+                            transition: "all 0.1s",
+                          }}>
+                          <div style={{
+                            width: 17, height: 17, borderRadius: 5,
+                            border: "1.5px solid #3a4052",
+                            background: "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            flexShrink: 0, marginTop: 1,
+                          }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#c8d0e8" }}>{d.title}</div>
+                            {d.notes  && <div style={{ fontSize: 12, color: "#4a5060", marginTop: 2 }}>{d.notes}</div>}
+                            {d.course && <div style={{ fontSize: 11, fontFamily: MONO, color: "#a78bfa88", marginTop: 2, letterSpacing: "1px" }}>{d.course}</div>}
+                          </div>
+                          <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO, flexShrink: 0 }}>{d.time || "23:59"}</div>
+                        </div>
+                      );
+                    })}
+
+                    {completed.length > 0 && (
+                      <>
+                        {pending.length > 0 && (
+                          <div style={{ borderTop: "1px solid #1a1d26", margin: "4px 0" }} />
+                        )}
+                        {completed.map(d => {
+                          const timeVal = taskTime((todayEntry.tasks ?? {})[d.id]);
+                          return (
+                          <div key={d.id} onClick={() => toggleTask(d.id, d.title, true)}
+                            style={{
+                              display: "flex", alignItems: "flex-start", gap: 12,
+                              cursor: "pointer", padding: "10px 14px", borderRadius: 10,
+                              background: "#a78bfa08",
+                              border: "1px solid #a78bfa22",
+                              opacity: 0.65,
+                              transition: "all 0.1s",
+                            }}>
+                            <div style={{
+                              width: 17, height: 17, borderRadius: 5,
+                              border: "1.5px solid #a78bfa",
+                              background: "#a78bfa",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              flexShrink: 0, marginTop: 1,
+                            }}>
+                              <span style={{ color: "#0f1117", fontSize: 11, fontWeight: 700 }}>✓</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: "#6a7090", textDecoration: "line-through" }}>{d.title}</div>
+                              {d.notes  && <div style={{ fontSize: 12, color: "#3a4052", marginTop: 2 }}>{d.notes}</div>}
+                              {d.course && <div style={{ fontSize: 11, fontFamily: MONO, color: "#a78bfa55", marginTop: 2, letterSpacing: "1px" }}>{d.course}</div>}
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
+                              <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>{d.time || "23:59"}</div>
+                              {timeVal && <div style={{ fontSize: 10, color: "#a78bfa66", fontFamily: MONO, letterSpacing: "0.5px" }}>done {timeVal}</div>}
+                            </div>
+                          </div>
+                          );
+                        })}
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+            </AgendaSection>
+          )}
+
+          {/* Daily Tasks — shown in read-only history view */}
+          {isReadOnly && (() => {
+            const entryTasks = disp.tasks ?? {};
+            // Find all moon tasks that were due on that date using the deadline cache
+            const dateMoons = _deadlineCache.filter(d => d.type === "moon" && d.date === activeDate);
+            const doneTasks = dateMoons.filter(d => taskDone(entryTasks[d.id]));
+            if (doneTasks.length === 0) return null;
+            return (
+              <AgendaSection label="Daily Tasks" color="#a78bfa" icon="☽" badge={`${doneTasks.length}/${dateMoons.length}`}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {moonTasks.map(d => {
-                    const checked = !!(todayEntry.tasks ?? {})[d.id];
+                  {doneTasks.map(d => {
+                    const timeVal = taskTime(entryTasks[d.id]);
                     return (
-                      <div key={d.id} onClick={() => toggleTask(d.id)}
-                        style={{
-                          display: "flex", alignItems: "flex-start", gap: 12,
-                          cursor: "pointer", padding: "10px 14px", borderRadius: 10,
-                          background: checked ? "#a78bfa10" : "#0d0f14",
-                          border: `1px solid ${checked ? "#a78bfa33" : "#1e2230"}`,
-                          transition: "all 0.1s",
-                        }}>
+                      <div key={d.id} style={{
+                        display: "flex", alignItems: "flex-start", gap: 12,
+                        padding: "10px 14px", borderRadius: 10,
+                        background: "#a78bfa08", border: "1px solid #a78bfa22", opacity: 0.8,
+                      }}>
                         <div style={{
                           width: 17, height: 17, borderRadius: 5,
-                          border: `1.5px solid ${checked ? "#a78bfa" : "#3a4052"}`,
-                          background: checked ? "#a78bfa" : "transparent",
+                          border: "1.5px solid #a78bfa", background: "#a78bfa",
                           display: "flex", alignItems: "center", justifyContent: "center",
-                          flexShrink: 0, marginTop: 1, transition: "all 0.1s",
+                          flexShrink: 0, marginTop: 1,
                         }}>
-                          {checked && <span style={{ color: "#0f1117", fontSize: 11, fontWeight: 700 }}>✓</span>}
+                          <span style={{ color: "#0f1117", fontSize: 11, fontWeight: 700 }}>✓</span>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: checked ? "#6a7090" : "#c8d0e8", textDecoration: checked ? "line-through" : "none" }}>{d.title}</div>
-                          {d.notes  && <div style={{ fontSize: 12, color: "#4a5060", marginTop: 2 }}>{d.notes}</div>}
-                          {d.course && <div style={{ fontSize: 11, fontFamily: MONO, color: "#a78bfa88", marginTop: 2, letterSpacing: "1px" }}>{d.course}</div>}
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#6a7090", textDecoration: "line-through" }}>{d.title}</div>
+                          {d.notes  && <div style={{ fontSize: 12, color: "#3a4052", marginTop: 2 }}>{d.notes}</div>}
+                          {d.course && <div style={{ fontSize: 11, fontFamily: MONO, color: "#a78bfa55", marginTop: 2, letterSpacing: "1px" }}>{d.course}</div>}
                         </div>
-                        <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO, flexShrink: 0 }}>{d.time || "23:59"}</div>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
+                          <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>{d.time || "23:59"}</div>
+                          {timeVal && <div style={{ fontSize: 10, color: "#a78bfa66", fontFamily: MONO }}>done {timeVal}</div>}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-              )}
-            </AgendaSection>
-          )}
+              </AgendaSection>
+            );
+          })()}
 
           {/* Shot */}
           <AgendaSection label="Shot" color={SHOT_C} icon="◎">
@@ -985,6 +1305,7 @@ function AgendaTab() {
                   inspos={inspos}
                   onPick={ins => patchInspo({ character: ins.character, trait: ins.trait, arc: ins.arc })}
                   onDelete={i => setInspos(prev => prev.filter((_, idx) => idx !== i))}
+                  onGoToEntry={date => setViewingDate(date)}
                 />
               </>
             )}
@@ -1905,7 +2226,7 @@ export default function AgendaPage() {
   // Read task completion count from localStorage cache (fast, non-blocking)
   const stored         = loadLS(LS_AGENDA, {});
   const tasks          = stored[today]?.tasks ?? {};
-  const completedCount = Object.values(tasks).filter(Boolean).length;
+  const completedCount = Object.values(tasks).filter(v => taskDone(v)).length;
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT, background: "#111318" }}>
