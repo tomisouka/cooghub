@@ -1,23 +1,44 @@
-> **AI assistants:** Read `CLAUDE.md` before responding to anything.
+# Coogs Hub
 
-# React + Vite
+A personal study hub for organizing course notes, code, PDFs, and reference material across CS and math coursework — built as a local-first web app with an upload/ingestion pipeline for dropping in files and auto-sorting them by course.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 ## Demo
 
 ![Upload flow](./docs/demo/upload-flow.gif)
 ![Quick tour](./docs/demo/quick-tour.gif)
 ![Homepage](./docs/demo/homepage.png)
+
+## Stack
+
+- React 19 + Vite
+- Express (local file-ingestion server)
+- Tauri (desktop packaging)
+- Capacitor (Android packaging)
+
+## Features
+
+- Drag-and-drop upload of PDFs, notes, code, and assignments — auto-routed by detected course ID
+- In-app viewers for Markdown, HTML, PDF, and code files
+- PDF search indexing
+- Course roadmap / progress tracking
+
+## Setup
+
+```bash
+pnpm install
+pnpm dev
+```
+
+The Express upload server runs alongside Vite via the config in `vite.config.js`. On first run, copy `src/config/localAuth.example.js` to `src/config/localAuth.js` and set your own `UPLOAD_TOKEN` and `DELETE_CONFIRM_PW` values.
+
+## Scripts
+
+- `pnpm dev` — start dev server
+- `pnpm build` — production build
+- `pnpm lint` — run eslint
+- `pnpm test` — run vitest
+- `pnpm reindex` — force-reindex PDFs
+
+## License
+
+AGPL-3.0 — see [LICENSE](./LICENSE).
