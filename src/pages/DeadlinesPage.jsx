@@ -243,12 +243,10 @@ export default function DeadlinesPage() {
   const [calDate,        setCalDate]        = useState(new Date());
   const [form,           setForm]           = useState(emptyForm("sun"));
   const [selectedCalDay, setSelectedCalDay] = useState(null); // "YYYY-MM-DD" or null
-  const [flashDlId,      setFlashDlId]      = useState(null); // deadline id to flash in list
 
   const isFirstRender = useRef(true);
   const notifFired    = useRef(new Set());
   const calRef        = useRef(null);
-  const dlRefs        = useRef({});
 
   useEffect(() => { requestNotifPermission(); }, []);
   useEffect(() => { scheduleNotifications(deadlines, notifFired); }, [deadlines]);

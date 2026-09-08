@@ -271,7 +271,7 @@ function isTauri() {
 }
 
 // Nuke any stale localStorage on load so it can never shadow the file
-try { localStorage.removeItem("coogs_signal_noise"); } catch (_) { /* noop */ }
+try { localStorage.removeItem("coogs_signal_noise"); } catch { /* noop */ }
 
 // Tauri IPC can throw "message channel closed before a response was received"
 // if React mounts and fires effects before the webview IPC bridge is ready.
@@ -325,7 +325,7 @@ async function loadData() {
       const json = await res.json();
       return json.content ? JSON.parse(json.content) : JSON.parse(JSON.stringify(SIGNAL_NOISE_SEED));
     }
-  } catch (_) {
+  } catch {
     return JSON.parse(JSON.stringify(SIGNAL_NOISE_SEED)); // file doesn't exist yet — seed from JS
   }
 }

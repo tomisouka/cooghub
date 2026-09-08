@@ -70,7 +70,6 @@ function fmtDateTime(ms) {
   return `${date} · ${time}`;
 }
 function todayStr()   { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function todayLabel() { return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }); }
 function fmtDateLabel(str) {
   if (!str) return "";
   const d = new Date(str + "T12:00:00");
@@ -94,9 +93,6 @@ const LS_INSPOS = "agenda_inspos";
 function loadLS(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
   catch { return fallback; }
-}
-function saveLS(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {} // eslint-disable-line
 }
 
 // ── Persistence: mirrors SignalNoisePage pattern exactly ─────────────────────
@@ -124,7 +120,7 @@ async function loadAgendaPersisted() {
     const json = await res.json();
     const parsed = json.content ? JSON.parse(json.content) : {};
     return { entries: parsed.entries ?? {}, inspos: parsed.inspos ?? [] };
-  } catch (_) {}
+  } catch { /* ignore */ }
   return { entries: {}, inspos: [] };
 }
 
@@ -262,7 +258,7 @@ function AgendaSection({ label, color, icon, children, badge }) {
   );
 }
 
-function AgendaField({ label, value, onChange, color, placeholder, multiline, readOnly, half }) {
+function AgendaField({ label, value, onChange, color, placeholder, multiline, readOnly }) {
   const base = {
     width: "100%", boxSizing: "border-box",
     background: readOnly ? "#0a0c10" : "#0d0f14",
@@ -1170,7 +1166,7 @@ function AgendaTab() {
     setConfirmTask(null);
   }
 
-  function useAsTemplate(date) {
+  function applyAsTemplate(date) {
     const src = entries[date];
     if (!src) return;
     patchToday({
@@ -1274,7 +1270,7 @@ function AgendaTab() {
                 Viewing {fmtDateLabel(viewingDate)}
               </span>
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => useAsTemplate(viewingDate)}
+                <button onClick={() => applyAsTemplate(viewingDate)}
                   style={{ padding: "5px 14px", borderRadius: 7, border: "1px solid #f472b655", background: "#f472b618", color: "#f472b6", fontSize: 12, fontFamily: MONO, fontWeight: 700, cursor: "pointer" }}>
                   Use as template →
                 </button>
@@ -1607,7 +1603,7 @@ function EntriesSidebar({ refreshTrigger, onSelect, activeFile, onDeleted }) {
         ? await invoke("delete_entry", { filename }).then(() => true).catch(() => false)
         : await fetch("/api/delete-entry", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filename }) }).then(r => r.ok);
       if (ok) { setEntries(p => p.filter(e => e.filename !== filename)); setConfirmDel(null); if (onDeleted) onDeleted(filename); }
-    } catch (_) {}
+    } catch { /* ignore */ }
     setDeleting(false);
   }
 
@@ -1723,7 +1719,7 @@ function EntriesTab() {
       } else { setTitle(""); setBody(raw.trimEnd()); }
       setActiveFile(filename); setEditMode(false); setStatus(null);
       textRef.current?.focus();
-    } catch (_) {}
+    } catch { /* ignore */ }
   }
 
   function buildFilename() {
@@ -1848,13 +1844,13 @@ async function loadWeeksPersisted() {
     try {
       const raw = await invoke("load_data_file", { filename: WEEK_FILE });
       return raw ? JSON.parse(raw) : {};
-    } catch (_) {}
+    } catch { /* ignore */ }
   }
   try {
     const res = await fetch(`/api/load-data-file?filename=${WEEK_FILE}`);
     const json = await res.json();
     return json.content ? JSON.parse(json.content) : {};
-  } catch (_) {}
+  } catch { /* ignore */ }
   return {};
 }
 
@@ -2057,7 +2053,7 @@ function BulletList({ bullets, onChange, readOnly, modified }) {
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {bullets.map((b, i) => (
+        {bullets.map((b) => (
           <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ color: `${WEEK_C}66`, fontSize: 14, flexShrink: 0, fontFamily: MONO, width: 14, textAlign: "center" }}>·</span>
             {readOnly ? (

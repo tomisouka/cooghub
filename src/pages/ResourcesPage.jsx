@@ -18,7 +18,7 @@ async function loadResources() {
       const data = await res.json();
       return JSON.parse(data.content).RESOURCES;
     }
-  } catch (e) { return null; }
+  } catch { return null; }
 }
 
 export default function ResourcesPage() {

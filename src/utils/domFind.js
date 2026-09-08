@@ -54,7 +54,7 @@ function clearOverlay() {
   if (svg) svg.innerHTML = "";
 }
 
-function drawRect(x, y, w, h, fill, stroke, isActive) {
+function drawRect(x, y, w, h, fill, stroke) {
   const svg  = getOverlay();
   const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   rect.setAttribute("x",      x);

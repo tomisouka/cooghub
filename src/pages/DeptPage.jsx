@@ -50,7 +50,6 @@ function PrevNextBar({ items, activeFile, onSelect, onBack }) {
 export default function DeptPage({ deptId, goTo, dest }) {
   const { getDept, courseContentCount, LANG_REFS, MATH_SHARED_REFS, BUCKET_ICONS } = useData();
   const dept = getDept(deptId);
-  if (!dept) return null;
 
   const [view, setView]           = useState("courses");
   const [activeRef, setActiveRef] = useState(null);
@@ -67,6 +66,7 @@ export default function DeptPage({ deptId, goTo, dest }) {
 
   // Auto-open ref panel when navigating from a search result
   useEffect(() => {
+    if (!dept) return;
     if (!dest || !dest.file) return;
     if (dest.tab !== "langref" && dest.tab !== "mathref") return;
     const key = `${dest.tab}::${dest.file}::${dest._ts}`;
@@ -75,8 +75,9 @@ export default function DeptPage({ deptId, goTo, dest }) {
     if (dest.tab === "langref") setView("langs");
     setActiveRef(dest.file);
     setShowRefContent(true);
-  }, [dest]);
+  }, [dest, dept]);
   const isMobile = useIsMobile();
+  if (!dept) return null;
   const isMath = deptId === "math";
 
   // ── Lang+ panel ───────────────────────────────────────────────────
@@ -358,7 +359,7 @@ export default function DeptPage({ deptId, goTo, dest }) {
   // ── COSC: course grid + Lang+ card ────────────────────────────────
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-      <JumpDrawer />
+      {JumpDrawer()}
       <div style={{ padding: isMobile ? "16px 16px 12px" : "28px 52px 20px", borderBottom: "1px solid #2a2e38", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, color: "#7a8090", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 6 }}>department</div>

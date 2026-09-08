@@ -179,7 +179,7 @@ export default function TicketsPage() {
   const { TICKET_STATUS_MAP } = useData();
   STATUS_MAP = TICKET_STATUS_MAP || STATIC_STATUS_MAP;
   const [tickets, setTickets] = useState(INITIAL_TICKETS);
-  const [todoItems, setTodoItems] = useState(INITIAL_TODO);
+  const [_todoItems, setTodoItems] = useState(INITIAL_TODO);
 
   useEffect(() => {
     if (IS_TAURI) return; // hidden in prod — no data to load

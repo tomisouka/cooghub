@@ -2,7 +2,7 @@
 // Loads all app data from disk on startup (Tauri) or via API (browser).
 // All pages read from this context instead of static imports.
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 // Static fallbacks — used on first render before disk load completes
@@ -35,7 +35,7 @@ function parseJSON(raw, fallback) {
   catch (e) { console.error("[DataContext] parse error:", e); return fallback; }
 }
 
-const DataContext = createContext(null);
+import { DataContext } from "./dataContextInstance";
 
 export function DataProvider({ children }) {
   const [data, setData] = useState({
@@ -88,7 +88,7 @@ export function DataProvider({ children }) {
     });
   }
 
-  useEffect(() => { reloadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { reloadData(); }, []);
 
   // Helper functions derived from live data
   const getCourse = (courseId) => data.ALL_COURSES.find(c => c.id === courseId) || null;
@@ -111,8 +111,5 @@ export function DataProvider({ children }) {
   );
 }
 
-export function useData() {
-  const ctx = useContext(DataContext);
-  if (!ctx) throw new Error("useData must be used within DataProvider");
-  return ctx;
-}
+// eslint-disable-next-line react-refresh/only-export-components -- re-export kept for backward compatibility with existing imports
+export { useData } from "./useData";

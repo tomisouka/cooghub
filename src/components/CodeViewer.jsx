@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { cppFiles, pyFiles } from "../globs";
+import { cppFiles } from "../globs";
+// STOPPED HERE (step 1/3): removed unused pyFiles import to fix eslint no-unused-vars.
+// COMPLETED: pyFiles unused-var error resolved.
+// NEXT: fix runSearch/doRender hoisting errors in PDFViewer.jsx (step 2).
 
 const FONT = "'Inter', 'Segoe UI', sans-serif";
 

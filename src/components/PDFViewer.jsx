@@ -129,6 +129,49 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null, hig
   const pinchRef        = useRef(null);
   const scrollRef       = useRef(null);
 
+  async function doRender(pdfDoc, pageNum, sc, hlQuery) {
+    renderTask.current?.cancel();
+    setRendering(true);
+    try {
+      const page     = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: sc });
+      const canvas   = canvasRef.current;
+      if (!canvas) { setRendering(false); return; }
+      canvas.width  = viewport.width;
+      canvas.height = viewport.height;
+      const task = page.render({ canvasContext: canvas.getContext("2d"), viewport });
+      renderTask.current = task;
+      await task.promise;
+      setRendering(false);
+      if (textLayerRef.current)
+        await buildTextLayer(page, viewport, textLayerRef.current, hlQuery);
+    } catch (e) {
+      if (e?.name !== "RenderingCancelledException") setRendering(false);
+    }
+  }
+
+  function goToPage(n) {
+    const p = Math.max(1, Math.min(numPages || 9999, n));
+    setCurrentPage(p); setInputPage(String(p));
+  }
+
+  async function runSearch(q, pdfDoc) {
+    const doc = pdfDoc || pdfRef.current;
+    if (!doc || !q?.trim()) { setMatches([]); setSearchRan(true); return; }
+    activeQueryRef.current = q;
+    setSearching(true); setSearchRan(true);
+    const found = await findInPdf(doc, q);
+    setMatches(found); setMatchIdx(0);
+    const target = found.length > 0 ? found[0] : currentPage;
+    goToPage(target);
+    setSearching(false);
+    doRender(doc, target, renderScale, q);
+  }
+  // STOPPED HERE (step 2/3): moved doRender/runSearch above their call sites to fix
+  // react-hooks/immutability hoisting errors.
+  // COMPLETED: both functions now declared before use.
+  // NEXT: run pnpm lint locally to confirm (step 3).
+
   // Keep scaleRef in sync so touch handlers never read stale closure
   useEffect(() => { scaleRef.current = scale; }, [scale]);
 
@@ -206,45 +249,6 @@ export default function PDFViewer({ file, initialPage = 1, highlight = null, hig
     if (!pdf) return;
     doRender(pdf, currentPage, renderScale, activeQueryRef.current);
   }, [pdf, currentPage, renderScale]);
-
-  async function doRender(pdfDoc, pageNum, sc, hlQuery) {
-    renderTask.current?.cancel();
-    setRendering(true);
-    try {
-      const page     = await pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: sc });
-      const canvas   = canvasRef.current;
-      if (!canvas) { setRendering(false); return; }
-      canvas.width  = viewport.width;
-      canvas.height = viewport.height;
-      const task = page.render({ canvasContext: canvas.getContext("2d"), viewport });
-      renderTask.current = task;
-      await task.promise;
-      setRendering(false);
-      if (textLayerRef.current)
-        await buildTextLayer(page, viewport, textLayerRef.current, hlQuery);
-    } catch (e) {
-      if (e?.name !== "RenderingCancelledException") setRendering(false);
-    }
-  }
-
-  async function runSearch(q, pdfDoc) {
-    const doc = pdfDoc || pdfRef.current;
-    if (!doc || !q?.trim()) { setMatches([]); setSearchRan(true); return; }
-    activeQueryRef.current = q;
-    setSearching(true); setSearchRan(true);
-    const found = await findInPdf(doc, q);
-    setMatches(found); setMatchIdx(0);
-    const target = found.length > 0 ? found[0] : currentPage;
-    goToPage(target);
-    setSearching(false);
-    doRender(doc, target, renderScale, q);
-  }
-
-  function goToPage(n) {
-    const p = Math.max(1, Math.min(numPages || 9999, n));
-    setCurrentPage(p); setInputPage(String(p));
-  }
 
   function prevMatch() {
     if (!matches.length) return;

@@ -129,7 +129,7 @@ export default function RoadmapTab() {
       : fetch("/api/load-data-file?filename=roadmap3.json").then(r => r.json()).then(d => d.content).catch(() => null);
     load.then(raw => {
       if (!raw) return;
-      try { const d = JSON.parse(raw); if (d.items) setItems(d.items); } catch {}
+      try { const d = JSON.parse(raw); if (d.items) setItems(d.items); } catch { /* ignore */ }
     });
   }, []);
 
