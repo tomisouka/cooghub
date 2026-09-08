@@ -121,6 +121,32 @@ fn load_agenda(app: tauri::AppHandle) -> Result<String, String> {
   fs::read_to_string(&target).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn save_agenda_icon(app: tauri::AppHandle, filename: String, data: String) -> Result<(), String> {
+  let dir = project_root(&app)?.join("src/data/agenda-icons");
+  fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+  let safe = std::path::Path::new(&filename).file_name()
+    .ok_or("invalid filename")?.to_string_lossy().to_string();
+  fs::write(dir.join(&safe), &data).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn load_agenda_icon(app: tauri::AppHandle, filename: String) -> Result<String, String> {
+  let safe = std::path::Path::new(&filename).file_name()
+    .ok_or("invalid filename")?.to_string_lossy().to_string();
+  let path = project_root(&app)?.join("src/data/agenda-icons").join(&safe);
+  fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_agenda_icon(app: tauri::AppHandle, filename: String) -> Result<(), String> {
+  let safe = std::path::Path::new(&filename).file_name()
+    .ok_or("invalid filename")?.to_string_lossy().to_string();
+  let path = project_root(&app)?.join("src/data/agenda-icons").join(&safe);
+  if path.exists() { fs::remove_file(&path).map_err(|e| e.to_string())?; }
+  Ok(())
+}
+
 fn sanitize(name: &str) -> String {
   std::path::Path::new(name)
     .file_name()
@@ -146,6 +172,9 @@ pub fn run() {
       delete_entry,
       save_agenda,
       load_agenda,
+      save_agenda_icon,
+      load_agenda_icon,
+      delete_agenda_icon,
     ])
     .setup(|app| {
       // Auto-register the project root path so commands work on any machine

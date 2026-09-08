@@ -64,7 +64,7 @@ function makeLabel(filename) {
   if (PDF_LABEL_MAP[filename]) return PDF_LABEL_MAP[filename];
   // "Algos_Gopal_intro_exam.pdf" → "Gopal Intro Exam"
   const noExt  = filename.replace(/\.[^.]+$/, "");
-  const words  = noExt.replace(/[_\-]+/g, " ").trim().split(/\s+/);
+  const words  = noExt.replace(/[_-]+/g, " ").trim().split(/\s+/);
   const course = detectCourse(filename);
   const filtered = words[0].toLowerCase() === course ? words.slice(1) : words;
   return filtered.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || noExt;

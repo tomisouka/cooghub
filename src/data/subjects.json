@@ -4,14 +4,14 @@
       "id": "cosc",
       "label": "COSC",
       "color": "#4ecdc4",
-      "icon": "\u25c8",
+      "icon": "◈",
       "courses": [
         {
           "id": "datastruct",
           "label": "Data Structures",
           "courseCode": "COSC 2436",
           "color": "#e8c547",
-          "icon": "\u2b21",
+          "icon": "⬡",
           "notes": [
             {
               "file": "./content/subjects/datastruct/ds.md",
@@ -263,23 +263,23 @@
             },
             {
               "path": "./content/code/simplyADT/linear.cpp",
-              "label": "ADT \u2014 linear.cpp"
+              "label": "ADT — linear.cpp"
             },
             {
               "path": "./content/code/simplyADT/trees.cpp",
-              "label": "ADT \u2014 trees.cpp"
+              "label": "ADT — trees.cpp"
             },
             {
               "path": "./content/code/simplyADT/graph.cpp",
-              "label": "ADT \u2014 graph.cpp"
+              "label": "ADT — graph.cpp"
             },
             {
               "path": "./content/code/simplyADT/hash.cpp",
-              "label": "ADT \u2014 hash.cpp"
+              "label": "ADT — hash.cpp"
             },
             {
               "path": "./content/code/simplyADT/special.cpp",
-              "label": "ADT \u2014 special.cpp"
+              "label": "ADT — special.cpp"
             }
           ],
           "flashcards": "dsa_basics",
@@ -296,7 +296,7 @@
           "label": "Algorithms",
           "courseCode": "COSC 3320",
           "color": "#4ecdc4",
-          "icon": "\u223f",
+          "icon": "∿",
           "notes": [
             {
               "file": "./content/notes/algos/hw1questions.md",
@@ -562,7 +562,7 @@
               "children": [
                 {
                   "file": "algos/gopal_asymptotic.html",
-                  "label": "Asymptotic Notation (Big-O/\u03a9/\u0398)",
+                  "label": "Asymptotic Notation (Big-O/Ω/Θ)",
                   "type": "iframe"
                 },
                 {
@@ -598,7 +598,7 @@
               "children": [
                 {
                   "file": "algos/gopal_selection.html",
-                  "label": "Selection \u2014 Median of Medians",
+                  "label": "Selection — Median of Medians",
                   "type": "iframe"
                 },
                 {
@@ -776,10 +776,18 @@
                   "label": "algos c hw1 solutions"
                 },
                 {
-                  "file": "algos_jesiah_hw1.pdf",
-                  "label": "algos jesiah hw1"
+                  "file": "algos_hw1.pdf",
+                  "label": "algos hw1"
                 }
               ]
+            },
+            {
+              "file": "algos_gopal_textbook.pdf",
+              "label": "algos gopal textbook"
+            },
+            {
+              "file": "algos_sample_notes.pdf",
+              "label": "algos sample notes"
             }
           ],
           "langRefs": true
@@ -789,7 +797,7 @@
           "label": "Automata",
           "courseCode": "COSC 3340",
           "color": "#ff6b9d",
-          "icon": "\u25ce",
+          "icon": "◎",
           "notes": [
             {
               "file": "./content/notes/automata/list.md",
@@ -969,7 +977,7 @@
           "label": "Comp Org",
           "courseCode": "COSC 2425",
           "color": "#34d399",
-          "icon": "\u2699",
+          "icon": "⚙",
           "notes": [],
           "references": [
             {
@@ -1007,12 +1015,12 @@
           "label": "Databases",
           "courseCode": "COSC 3380",
           "color": "#f472b6",
-          "icon": "\u2297",
+          "icon": "⊗",
           "notes": [],
           "references": [
             {
               "file": "databases_prep.html",
-              "label": "\u26a1 Fall Prep Guide",
+              "label": "⚡ Fall Prep Guide",
               "type": "iframe"
             },
             {
@@ -1037,22 +1045,22 @@
           "label": "Operating Systems",
           "courseCode": "COSC 3360",
           "color": "#fb923c",
-          "icon": "\u2699",
+          "icon": "⚙",
           "isHub": true,
           "lanes": [
             {
               "id": "opsystems_academic",
-              "icon": "\u2699",
+              "icon": "⚙",
               "color": "#fb923c",
               "title": "Academic OS",
               "description": "Course references, prep guides, and the Rincon textbook. Scheduling, memory management, concurrency, and OS theory."
             },
             {
               "id": "opsystems_linux",
-              "icon": "\u2318",
+              "icon": "⌘",
               "color": "#34d399",
               "title": "Linux",
-              "description": "Personal notes on the Linux OS \u2014 kernels, GNU, the terminal, permissions, package management, and the history behind it all."
+              "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
             }
           ],
           "assignments": []
@@ -1062,13 +1070,13 @@
           "label": "Academic OS",
           "courseCode": "COSC 3360",
           "color": "#fb923c",
-          "icon": "\u2699",
+          "icon": "⚙",
           "hubParent": "opsystems",
           "notes": [],
           "references": [
             {
               "file": "opsystems_prep.html",
-              "label": "\u26a1 Fall Prep Guide",
+              "label": "⚡ Fall Prep Guide",
               "type": "iframe"
             },
             {
@@ -1083,7 +1091,7 @@
           "pdfs": [
             {
               "file": "OperatingSystems_TextbookRincon.pdf",
-              "label": "Operating Systems \u2014 Rincon Textbook"
+              "label": "Operating Systems — Rincon Textbook"
             }
           ],
           "langRefs": true
@@ -1093,7 +1101,7 @@
           "label": "Linux",
           "courseCode": "COSC 3360",
           "color": "#34d399",
-          "icon": "\u2318",
+          "icon": "⌘",
           "hubParent": "opsystems",
           "notes": [
             {
@@ -1300,7 +1308,7 @@
           "label": "Python",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "\ud835\udf06",
+          "icon": "𝜆",
           "notes": [],
           "references": [
             {
@@ -1331,14 +1339,14 @@
       "id": "math",
       "label": "MATH",
       "color": "#f472b6",
-      "icon": "\u2211",
+      "icon": "∑",
       "courses": [
         {
           "id": "algebra",
           "label": "Algebra",
           "courseCode": null,
           "color": "#e8c547",
-          "icon": "x\u00b2",
+          "icon": "x²",
           "notes": [],
           "references": [
             {
@@ -1357,7 +1365,7 @@
           "label": "Pre-Calculus",
           "courseCode": null,
           "color": "#fb923c",
-          "icon": "\u2220",
+          "icon": "∠",
           "notes": [],
           "references": [
             {
@@ -1376,7 +1384,7 @@
           "label": "Calculus I",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "\u222b",
+          "icon": "∫",
           "notes": [],
           "references": [
             {
@@ -1395,7 +1403,7 @@
           "label": "Calculus II",
           "courseCode": null,
           "color": "#4ecdc4",
-          "icon": "\u222c",
+          "icon": "∬",
           "notes": [],
           "references": [
             {
@@ -1414,7 +1422,7 @@
           "label": "Discrete Math",
           "courseCode": "COSC 2303",
           "color": "#a78bfa",
-          "icon": "\u2211",
+          "icon": "∑",
           "notes": [
             {
               "file": "./content/subjects/discrete/list.md",
@@ -1526,12 +1534,12 @@
             },
             {
               "file": "./content/assignments/linear/hw4_vector_spaces.html",
-              "label": "HW4 \u2014 Vector Spaces",
+              "label": "HW4 — Vector Spaces",
               "type": "content"
             },
             {
               "file": "./content/assignments/linear/hw5_linear_operators.html",
-              "label": "HW5 \u2014 Linear Operators",
+              "label": "HW5 — Linear Operators",
               "type": "content"
             },
             {
@@ -1628,7 +1636,7 @@
           "label": "Statistics",
           "courseCode": null,
           "color": "#a78bfa",
-          "icon": "\u03c3",
+          "icon": "σ",
           "notes": [],
           "references": [],
           "assignments": [],
@@ -1774,7 +1782,7 @@
       "label": "Data Structures",
       "courseCode": "COSC 2436",
       "color": "#e8c547",
-      "icon": "\u2b21",
+      "icon": "⬡",
       "notes": [
         {
           "file": "./content/subjects/datastruct/ds.md",
@@ -2026,23 +2034,23 @@
         },
         {
           "path": "./content/code/simplyADT/linear.cpp",
-          "label": "ADT \u2014 linear.cpp"
+          "label": "ADT — linear.cpp"
         },
         {
           "path": "./content/code/simplyADT/trees.cpp",
-          "label": "ADT \u2014 trees.cpp"
+          "label": "ADT — trees.cpp"
         },
         {
           "path": "./content/code/simplyADT/graph.cpp",
-          "label": "ADT \u2014 graph.cpp"
+          "label": "ADT — graph.cpp"
         },
         {
           "path": "./content/code/simplyADT/hash.cpp",
-          "label": "ADT \u2014 hash.cpp"
+          "label": "ADT — hash.cpp"
         },
         {
           "path": "./content/code/simplyADT/special.cpp",
-          "label": "ADT \u2014 special.cpp"
+          "label": "ADT — special.cpp"
         }
       ],
       "flashcards": "dsa_basics",
@@ -2061,7 +2069,7 @@
       "label": "Algorithms",
       "courseCode": "COSC 3320",
       "color": "#4ecdc4",
-      "icon": "\u223f",
+      "icon": "∿",
       "notes": [
         {
           "file": "./content/notes/algos/hw1questions.md",
@@ -2337,7 +2345,7 @@
           "children": [
             {
               "file": "algos/gopal_asymptotic.html",
-              "label": "Asymptotic Notation (Big-O/\u03a9/\u0398)",
+              "label": "Asymptotic Notation (Big-O/Ω/Θ)",
               "type": "iframe"
             },
             {
@@ -2373,7 +2381,7 @@
           "children": [
             {
               "file": "algos/gopal_selection.html",
-              "label": "Selection \u2014 Median of Medians",
+              "label": "Selection — Median of Medians",
               "type": "iframe"
             },
             {
@@ -2551,10 +2559,18 @@
               "label": "algos c hw1 solutions"
             },
             {
-              "file": "algos_jesiah_hw1.pdf",
-              "label": "algos jesiah hw1"
+              "file": "algos_hw1.pdf",
+              "label": "algos hw1"
             }
           ]
+        },
+        {
+          "file": "algos_gopal_textbook.pdf",
+          "label": "algos gopal textbook"
+        },
+        {
+          "file": "algos_sample_notes.pdf",
+          "label": "algos sample notes"
         }
       ],
       "langRefs": true,
@@ -2566,7 +2582,7 @@
       "label": "Automata",
       "courseCode": "COSC 3340",
       "color": "#ff6b9d",
-      "icon": "\u25ce",
+      "icon": "◎",
       "notes": [
         {
           "file": "./content/notes/automata/list.md",
@@ -2769,7 +2785,7 @@
       "label": "Comp Org",
       "courseCode": "COSC 2425",
       "color": "#34d399",
-      "icon": "\u2699",
+      "icon": "⚙",
       "notes": [],
       "references": [
         {
@@ -2809,12 +2825,12 @@
       "label": "Databases",
       "courseCode": "COSC 3380",
       "color": "#f472b6",
-      "icon": "\u2297",
+      "icon": "⊗",
       "notes": [],
       "references": [
         {
           "file": "databases_prep.html",
-          "label": "\u26a1 Fall Prep Guide",
+          "label": "⚡ Fall Prep Guide",
           "type": "iframe"
         },
         {
@@ -2841,22 +2857,22 @@
       "label": "Operating Systems",
       "courseCode": "COSC 3360",
       "color": "#fb923c",
-      "icon": "\u2699",
+      "icon": "⚙",
       "isHub": true,
       "lanes": [
         {
           "id": "opsystems_academic",
-          "icon": "\u2699",
+          "icon": "⚙",
           "color": "#fb923c",
           "title": "Academic OS",
           "description": "Course references, prep guides, and the Rincon textbook. Scheduling, memory management, concurrency, and OS theory."
         },
         {
           "id": "opsystems_linux",
-          "icon": "\u2318",
+          "icon": "⌘",
           "color": "#34d399",
           "title": "Linux",
-          "description": "Personal notes on the Linux OS \u2014 kernels, GNU, the terminal, permissions, package management, and the history behind it all."
+          "description": "Personal notes on the Linux OS — kernels, GNU, the terminal, permissions, package management, and the history behind it all."
         }
       ],
       "dept": "cosc",
@@ -2868,13 +2884,13 @@
       "label": "Academic OS",
       "courseCode": "COSC 3360",
       "color": "#fb923c",
-      "icon": "\u2699",
+      "icon": "⚙",
       "hubParent": "opsystems",
       "notes": [],
       "references": [
         {
           "file": "opsystems_prep.html",
-          "label": "\u26a1 Fall Prep Guide",
+          "label": "⚡ Fall Prep Guide",
           "type": "iframe"
         },
         {
@@ -2889,7 +2905,7 @@
       "pdfs": [
         {
           "file": "OperatingSystems_TextbookRincon.pdf",
-          "label": "Operating Systems \u2014 Rincon Textbook"
+          "label": "Operating Systems — Rincon Textbook"
         }
       ],
       "langRefs": true,
@@ -2901,7 +2917,7 @@
       "label": "Linux",
       "courseCode": "COSC 3360",
       "color": "#34d399",
-      "icon": "\u2318",
+      "icon": "⌘",
       "hubParent": "opsystems",
       "notes": [
         {
@@ -3112,7 +3128,7 @@
       "label": "Python",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "\ud835\udf06",
+      "icon": "𝜆",
       "notes": [],
       "references": [
         {
@@ -3144,7 +3160,7 @@
       "label": "Algebra",
       "courseCode": null,
       "color": "#e8c547",
-      "icon": "x\u00b2",
+      "icon": "x²",
       "notes": [],
       "references": [
         {
@@ -3165,7 +3181,7 @@
       "label": "Pre-Calculus",
       "courseCode": null,
       "color": "#fb923c",
-      "icon": "\u2220",
+      "icon": "∠",
       "notes": [],
       "references": [
         {
@@ -3186,7 +3202,7 @@
       "label": "Calculus I",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "\u222b",
+      "icon": "∫",
       "notes": [],
       "references": [
         {
@@ -3207,7 +3223,7 @@
       "label": "Calculus II",
       "courseCode": null,
       "color": "#4ecdc4",
-      "icon": "\u222c",
+      "icon": "∬",
       "notes": [],
       "references": [
         {
@@ -3228,7 +3244,7 @@
       "label": "Discrete Math",
       "courseCode": "COSC 2303",
       "color": "#a78bfa",
-      "icon": "\u2211",
+      "icon": "∑",
       "notes": [
         {
           "file": "./content/subjects/discrete/list.md",
@@ -3338,12 +3354,12 @@
         },
         {
           "file": "./content/assignments/linear/hw4_vector_spaces.html",
-          "label": "HW4 \u2014 Vector Spaces",
+          "label": "HW4 — Vector Spaces",
           "type": "content"
         },
         {
           "file": "./content/assignments/linear/hw5_linear_operators.html",
-          "label": "HW5 \u2014 Linear Operators",
+          "label": "HW5 — Linear Operators",
           "type": "content"
         },
         {
@@ -3442,7 +3458,7 @@
       "label": "Statistics",
       "courseCode": null,
       "color": "#a78bfa",
-      "icon": "\u03c3",
+      "icon": "σ",
       "notes": [],
       "references": [],
       "assignments": [],

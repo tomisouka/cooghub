@@ -780,8 +780,8 @@ export const DEPARTMENTS =
                   "label": "algos c hw1 solutions"
                 },
                 {
-                  "file": "algos_jesiah_hw1.pdf",
-                  "label": "algos jesiah hw1"
+                  "file": "algos_hw1.pdf",
+                  "label": "algos hw1"
                 }
               ]
             }
@@ -2561,8 +2561,8 @@ export const ALL_COURSES =
               "label": "algos c hw1 solutions"
             },
             {
-              "file": "algos_jesiah_hw1.pdf",
-              "label": "algos jesiah hw1"
+              "file": "algos_hw1.pdf",
+              "label": "algos hw1"
             }
           ]
         }

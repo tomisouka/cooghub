@@ -1,29 +1,29 @@
 // src/data/deadlines.js
 // Single source of truth for deadlines, skill levels, and course tiers.
 // Auto-saved by Coogs Hub. Do not edit manually while app is open.
-// Last updated: 2026-03-14T21:56:48.463Z
+// Last updated: 2026-01-01T00:00:00.000Z
 
 export const DEADLINES = [
   {
-    "title": "1",
-    "course": "",
-    "date": "2026-03-02",
+    "title": "Assignment 1",
+    "course": "CS 101",
+    "date": "2026-01-15",
     "time": "23:59",
     "notes": "",
     "type": "school",
     "priority": "normal",
-    "id": "1773522596549",
+    "id": "1000000000001",
     "done": true
   },
   {
-    "title": "2",
-    "course": "",
-    "date": "2026-03-11",
+    "title": "Assignment 2",
+    "course": "CS 101",
+    "date": "2026-01-22",
     "time": "23:59",
     "notes": "",
     "type": "school",
     "priority": "normal",
-    "id": "1773522808494",
+    "id": "1000000000002",
     "done": false
   }
 ];

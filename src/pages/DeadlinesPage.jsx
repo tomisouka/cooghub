@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { DEADLINES as INITIAL_DEADLINES } from "../data/memory-deadlines";
 import { COURSES } from "../data/skills";
 import RoadmapTab from "./RoadmapTab";
+import { DELETE_CONFIRM_PW } from "../config/localAuth";
 
 const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
@@ -85,12 +86,16 @@ const REPEAT_OPTIONS = [
   { id: "monthly", label: "Monthly"   },
 ];
 
+function localDateStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function nextRepeatDate(dateStr, repeat) {
   const d = new Date(dateStr + "T00:00:00");
   if (repeat === "daily")   d.setDate(d.getDate() + 1);
   if (repeat === "weekly")  d.setDate(d.getDate() + 7);
   if (repeat === "monthly") d.setMonth(d.getMonth() + 1);
-  return d.toISOString().slice(0, 10);
+  return localDateStr(d);
 }
 
 function repeatLabel(repeat) {
@@ -322,7 +327,7 @@ export default function DeadlinesPage() {
     if (!confirmStatus) return;
     const { id, nextStatus, action } = confirmStatus;
     if (action === "pushToday") {
-      const tod = new Date().toISOString().slice(0,10);
+      const tod = localDateStr();
       setDeadlines(p => p.map(d => d.id === id ? {...d, date: tod} : d).sort((a,b) => a.date.localeCompare(b.date)));
       setConfirmStatus(null);
       return;
@@ -336,7 +341,7 @@ export default function DeadlinesPage() {
       const dl = deadlines.find(d => d.id === id);
       setDeadlines(prev => prev.map(d =>
         d.id === id
-          ? { ...d, done: true, status: "done", completedAt: new Date().toISOString().slice(0,10) }
+          ? { ...d, done: true, status: "done", completedAt: localDateStr() }
           : d
       ));
       setReflectModal({ id });
@@ -345,7 +350,7 @@ export default function DeadlinesPage() {
     } else {
       setDeadlines(prev => prev.map(d =>
         d.id === id
-          ? { ...d, status: "inprogress", startedAt: d.startedAt || new Date().toISOString().slice(0,10) }
+          ? { ...d, status: "inprogress", startedAt: d.startedAt || localDateStr() }
           : d
       ));
     }
@@ -361,7 +366,7 @@ export default function DeadlinesPage() {
   function startDelDl(id) { setDelDlTarget(id); setDelDlStep("pw"); setDelDlPw(""); setDelDlErr(false); }
   function cancelDelDl()  { setDelDlTarget(null); setDelDlPw(""); setDelDlErr(false); }
   function submitDelDlPw() {
-    if (delDlPw === "Jesiah") { setDelDlErr(false); setDelDlStep("confirm"); }
+    if (delDlPw === DELETE_CONFIRM_PW) { setDelDlErr(false); setDelDlStep("confirm"); }
     else { setDelDlErr(true); setDelDlPw(""); }
   }
   function confirmDelDl() { setDeadlines(p => p.filter(d => d.id !== delDlTarget)); cancelDelDl(); }
@@ -372,7 +377,7 @@ export default function DeadlinesPage() {
   const done           = deadlines.filter(d => d.done);
   const filtered       = deadlines.filter(d => !d.done && d.type === tab);
   const dueNow         = deadlines.filter(d => !d.done && getDaysUntil(d.date) <= 3);
-  const doneToday      = deadlines.filter(d => d.done && d.completedAt === new Date().toISOString().slice(0,10));
+  const doneToday      = deadlines.filter(d => d.done && d.completedAt === localDateStr());
 
   // ── Calendar helpers ──────────────────────────────────────────────────────
   const calYear     = calDate.getFullYear();
@@ -451,12 +456,12 @@ export default function DeadlinesPage() {
             <div style={{display:"flex",gap:10}}>
               <button onClick={()=>{
                 const rid=reflectModal.id;
-                setDeadlines(p=>p.map(d=>d.id===rid?{...d,done:true,status:"done",completedAt:d.completedAt||new Date().toISOString().slice(0,10)}:d));
+                setDeadlines(p=>p.map(d=>d.id===rid?{...d,done:true,status:"done",completedAt:d.completedAt||localDateStr()}:d));
                 setReflectModal(null); setCelebrating(rid); setTimeout(()=>setCelebrating(null),2200);
               }} style={{flex:1,padding:"8px 0",background:"transparent",border:"1px solid #2a2e38",borderRadius:8,color:"#7a8090",fontFamily:FONT,fontSize:12,cursor:"pointer"}}>Skip</button>
               <button onClick={()=>{
                 const rid=reflectModal.id;
-                setDeadlines(p=>p.map(d=>d.id===rid?{...d,reflection:reflectInput,done:true,status:"done",completedAt:d.completedAt||new Date().toISOString().slice(0,10)}:d));
+                setDeadlines(p=>p.map(d=>d.id===rid?{...d,reflection:reflectInput,done:true,status:"done",completedAt:d.completedAt||localDateStr()}:d));
                 setReflectModal(null); setCelebrating(rid); setTimeout(()=>setCelebrating(null),2200);
               }} style={{flex:1,padding:"8px 0",background:"#34d39920",border:"1px solid #34d39944",borderRadius:8,color:"#34d399",fontFamily:FONT,fontSize:12,fontWeight:700,cursor:"pointer"}}>Save</button>
             </div>
@@ -600,7 +605,7 @@ export default function DeadlinesPage() {
                 <div style={{fontSize:10,fontWeight:700,color:"#4a5060",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>This week</div>
                 <div style={{display:"flex",gap:6,alignItems:"flex-end",height:40}}>
                   {weekLoad.map((day,i)=>{
-                    const isToday=day.str===new Date().toISOString().slice(0,10);
+                    const isToday=day.str===localDateStr();
                     const h=day.count===0?4:Math.min(40,8+day.count*10);
                     return(
                       <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
@@ -1077,13 +1082,15 @@ export default function DeadlinesPage() {
                             )}
                           </div>
                           {(()=>{
-                            const linkedMoons=dl.type==="sun"?deadlines.filter(d=>d.type==="moon"&&d.parentSunId===dl.id&&!d.done):[];
-                            if(!linkedMoons.length) return null;
+                            const allLinkedMoons=dl.type==="sun"?deadlines.filter(d=>d.type==="moon"&&d.parentSunId===dl.id):[];
+                            if(!allLinkedMoons.length) return null;
+                            const pendingMoons=allLinkedMoons.filter(m=>!m.done);
+                            const doneMoons=allLinkedMoons.filter(m=>m.done);
                             return(
                               <div style={{borderTop:`1px solid #a78bfa22`,padding:"8px 14px 10px",background:"#a78bfa06"}}>
-                                <div style={{fontSize:9,fontWeight:700,color:"#a78bfa",letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>☽ Subproblems · {linkedMoons.length}</div>
+                                <div style={{fontSize:9,fontWeight:700,color:"#a78bfa",letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>☽ Subproblems · {pendingMoons.length} pending · {doneMoons.length} done</div>
                                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                                  {linkedMoons.map(m=>{
+                                  {pendingMoons.map(m=>{
                                     const md=getDaysUntil(m.date);
                                     const mt=urgencyTier(md);
                                     const mc=COURSES.find(c=>c.id===m.course);
@@ -1094,6 +1101,18 @@ export default function DeadlinesPage() {
                                         {mc&&<span style={{fontSize:10,color:mc.color,fontFamily:MONO,flexShrink:0}}>{mc.label}</span>}
                                         <span style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:mt.color,background:mt.color+"18",borderRadius:4,padding:"2px 6px",flexShrink:0}}>{urgencyLabel(md)}</span>
                                         {m.status==="inprogress"&&<span style={{width:6,height:6,borderRadius:"50%",background:"#7eb8f7",flexShrink:0,display:"inline-block"}}/>}
+                                      </div>
+                                    );
+                                  })}
+                                  {doneMoons.map(m=>{
+                                    const mc=COURSES.find(c=>c.id===m.course);
+                                    return(
+                                      <div key={m.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",background:"#34d39908",borderRadius:6,border:"1px solid #34d39922",opacity:0.75}}>
+                                        <span style={{fontSize:11,color:"#34d399",flexShrink:0}}>✓</span>
+                                        <span style={{fontSize:12,color:"#4a6055",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",textDecoration:"line-through"}}>{m.title}</span>
+                                        {mc&&<span style={{fontSize:10,color:mc.color+"88",fontFamily:MONO,flexShrink:0}}>{mc.label}</span>}
+                                        {m.completedAt&&<span style={{fontSize:10,color:"#34d39966",fontFamily:MONO,flexShrink:0}}>done {m.completedAt}</span>}
+                                        <span style={{fontSize:10,fontWeight:700,fontFamily:MONO,color:"#34d399",background:"#34d39918",borderRadius:4,padding:"2px 6px",flexShrink:0}}>DONE</span>
                                       </div>
                                     );
                                   })}
@@ -1117,7 +1136,7 @@ export default function DeadlinesPage() {
                                     const next=e.target.value;
                                     setDeadlines(p=>p.map(d=>d.id===dl.id
                                       ? next==="inprogress"
-                                        ? {...d,status:"inprogress",startedAt:d.startedAt||new Date().toISOString().slice(0,10)}
+                                        ? {...d,status:"inprogress",startedAt:d.startedAt||localDateStr()}
                                         : {...d,status:"none",startedAt:undefined}
                                       : d));
                                   }} style={{...inputStyle,fontSize:12,padding:"5px 8px"}}>

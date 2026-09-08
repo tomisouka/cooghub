@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { DEADLINES } from "../data/memory-deadlines";
+import { DELETE_CONFIRM_PW } from "../config/localAuth";
 
 // ── Deadline sync — mirrors DeadlinesPage persistToFile exactly ──────────────
 // AgendaPage holds a mutable copy of DEADLINES so toggleTask can write back.
@@ -68,7 +69,7 @@ function fmtDateTime(ms) {
   const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   return `${date} · ${time}`;
 }
-function todayStr()   { return new Date().toISOString().slice(0, 10); }
+function todayStr()   { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function todayLabel() { return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }); }
 function fmtDateLabel(str) {
   if (!str) return "";
@@ -82,7 +83,7 @@ function nextRepeatDate(dateStr, repeat) {
   if (repeat === "daily")   d.setDate(d.getDate() + 1);
   if (repeat === "weekly")  d.setDate(d.getDate() + 7);
   if (repeat === "monthly") d.setMonth(d.getMonth() + 1);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 const LS_AGENDA = "agenda_entries";
@@ -144,6 +145,54 @@ async function saveAgendaPersisted(entries, inspos) {
   }
 }
 
+// ── Agenda icon helpers — store images as separate files, not base64 in JSON ──
+function iconFilename(date) { return `icon-${date}.jpg`; }
+
+async function saveIconFile(date, base64Data) {
+  const filename = iconFilename(date);
+  try {
+    if (IS_TAURI) {
+      await invoke("save_agenda_icon", { filename, data: base64Data });
+    } else {
+      await fetch("/api/save-agenda-icon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename, data: base64Data }),
+      });
+    }
+    return filename;
+  } catch (e) {
+    console.error("saveIconFile failed:", e);
+    return null;
+  }
+}
+
+async function loadIconFile(filename) {
+  try {
+    if (IS_TAURI) {
+      return await invoke("load_agenda_icon", { filename });
+    } else {
+      const res = await fetch(`/api/load-agenda-icon?filename=${encodeURIComponent(filename)}`);
+      const json = await res.json();
+      return json.data || null;
+    }
+  } catch { return null; }
+}
+
+async function deleteIconFile(filename) {
+  try {
+    if (IS_TAURI) {
+      await invoke("delete_agenda_icon", { filename });
+    } else {
+      await fetch("/api/delete-agenda-icon", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename }),
+      });
+    }
+  } catch (e) { console.error("deleteIconFile failed:", e); }
+}
+
 function getTodayMoons() {
   const today = todayStr();
   return _deadlineCache.filter(d => d.type === "moon" && d.date === today);
@@ -167,6 +216,10 @@ function taskDone(taskVal) {
 function taskTime(taskVal) {
   if (!taskVal || typeof taskVal === "boolean") return null;
   return taskVal.completedAt ?? null;
+}
+function taskReflection(taskVal) {
+  if (!taskVal || typeof taskVal === "boolean") return null;
+  return taskVal.reflection ?? null;
 }
 // ─────────────────────────────────────────────────────────────────
 
@@ -395,7 +448,7 @@ function AgendaHeatmap({ entries }) {
     for (let dow = 0; dow < 7; dow++) {
       const date = new Date(gridStart);
       date.setDate(gridStart.getDate() + w * 7 + dow);
-      const key = date.toISOString().slice(0, 10);
+      const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const isFuture = date > today;
       const isTrailingDead = date.getMonth() !== colMonth || date.getFullYear() !== colYear;
       const isLeadingDead = !!colMonthLabel && dow < firstDow;
@@ -424,7 +477,7 @@ function AgendaHeatmap({ entries }) {
 
   let streak = 0;
   const sd = new Date(today);
-  while (activityLog[sd.toISOString().slice(0, 10)]) {
+  while (activityLog[`${sd.getFullYear()}-${String(sd.getMonth()+1).padStart(2,'0')}-${String(sd.getDate()).padStart(2,'0')}`]) {
     streak++;
     sd.setDate(sd.getDate() - 1);
   }
@@ -434,7 +487,7 @@ function AgendaHeatmap({ entries }) {
   if (streak === 0) {
     const cd = new Date(today);
     cd.setDate(cd.getDate() - 1); // start from yesterday
-    while (!activityLog[cd.toISOString().slice(0, 10)]) {
+    while (!activityLog[`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`]) {
       coldStreak++;
       cd.setDate(cd.getDate() - 1);
       if (coldStreak > 365) break; // safety cap
@@ -552,7 +605,7 @@ function AgendaHeatmap({ entries }) {
 // History Sidebar — with password-locked delete per entry
 // ─────────────────────────────────────────────────────────────────
 
-const HISTORY_DELETE_PW = "Jesiah";
+const HISTORY_DELETE_PW = DELETE_CONFIRM_PW;
 
 function HistorySidebar({ entries, viewingDate, onSelect, onDelete, today }) {
   const [confirmDel, setConfirmDel] = useState(null); // date string being deleted
@@ -633,6 +686,7 @@ function HistorySidebar({ entries, viewingDate, onSelect, onDelete, today }) {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, paddingRight: isConfirm ? 0 : 18 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? "#f472b6" : "#34d399", fontFamily: MONO }}>Today</span>
+                <span style={{ fontSize: 10, color: isActive ? "#f472b688" : "#34d39977", fontFamily: MONO }}>{fmtDateLabel(today)}</span>
                 {e.savedAt && <span style={{ fontSize: 9, color: "#34d39966", fontFamily: MONO, letterSpacing: "1px" }}>saved</span>}
                 {e.image && <span style={{ fontSize: 10, opacity: 0.5 }}>◻</span>}
               </div>
@@ -755,9 +809,19 @@ function HistorySidebar({ entries, viewingDate, onSelect, onDelete, today }) {
 // Image Panel — icon/avatar style, not a banner
 // ─────────────────────────────────────────────────────────────────
 
-function ImagePanel({ image, onSet, onClear, readOnly }) {
+function ImagePanel({ image, date, onSet, onClear, readOnly }) {
+  // image = filename (e.g. "icon-2026-04-13.jpg") or legacy base64
   const fileRef = useRef(null);
-  const [preview, setPreview] = useState(null);
+  const [preview,   setPreview]   = useState(null);  // base64 pending confirm
+  const [srcData,   setSrcData]   = useState(null);  // resolved base64 for display
+  const isLegacy = image && image.startsWith("data:");
+
+  // Load image data from file when filename changes
+  useEffect(() => {
+    if (!image) { setSrcData(null); return; }
+    if (isLegacy) { setSrcData(image); return; } // old base64 entry — display as-is
+    loadIconFile(image).then(data => setSrcData(data));
+  }, [image]);
 
   function handleFile(e) {
     const file = e.target.files[0];
@@ -768,17 +832,20 @@ function ImagePanel({ image, onSet, onClear, readOnly }) {
     e.target.value = "";
   }
 
-  function confirmImage() {
-    if (preview) { onSet(preview); setPreview(null); }
+  async function confirmImage() {
+    if (!preview) return;
+    const filename = await saveIconFile(date, preview);
+    if (filename) { onSet(filename); }
+    setPreview(null);
   }
 
   function cancelPreview() { setPreview(null); }
 
   function handleDownload() {
-    if (!image) return;
+    if (!srcData) return;
     const a = document.createElement("a");
-    a.href = image;
-    a.download = `agenda-icon-${todayStr()}.png`;
+    a.href = srcData;
+    a.download = `agenda-icon-${date}.jpg`;
     a.click();
   }
 
@@ -844,7 +911,7 @@ function ImagePanel({ image, onSet, onClear, readOnly }) {
         onMouseLeave={e => { if (!readOnly && !image) e.currentTarget.style.borderColor = "#2a2e38"; }}
       >
         {image
-          ? <img src={image} alt="day icon" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          ? <img src={srcData || ""} alt="day icon" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           : <span style={{ fontSize: 24, opacity: 0.25 }}>🖼</span>
         }
       </div>
@@ -879,7 +946,7 @@ function ImagePanel({ image, onSet, onClear, readOnly }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e38"; e.currentTarget.style.color = "#8090a8"; }}
             >↓ Save</button>
             {!readOnly && (
-              <button onClick={onClear}
+              <button onClick={() => { if (image && !isLegacy) deleteIconFile(image); onClear(); }}
                 style={{
                   padding: "5px 12px", borderRadius: 7, fontSize: 11, fontFamily: MONO, fontWeight: 700,
                   background: "transparent", border: "1px solid #e8545422",
@@ -916,7 +983,16 @@ function ImagePanel({ image, onSet, onClear, readOnly }) {
 // ─────────────────────────────────────────────────────────────────
 
 function AgendaTab() {
-  const today = todayStr();
+  const [today, setToday] = useState(() => todayStr());
+  // Tick every minute — catches midnight rollover so "today" is always fresh
+  useEffect(() => {
+    const id = setInterval(() => {
+      const newDay = todayStr();
+      setToday(prev => prev !== newDay ? newDay : prev);
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const [entries,     setEntries]     = useState({});
   const [inspos,      setInspos]      = useState([]);
   const [loaded,      setLoaded]      = useState(false);
@@ -925,31 +1001,72 @@ function AgendaTab() {
   const [confirmTask, setConfirmTask] = useState(null); // { id, title, nextDone }
   const [moonTasks,   setMoonTasks]   = useState(() => getTodayMoons());
 
-  // Load from file (Tauri) or localStorage (web) on mount
-  useEffect(() => {
-    loadAgendaPersisted().then(({ entries: e, inspos: i }) => {
-      setEntries(e);
-      setInspos(i);
-      setLoaded(true);
-    });
+  // ── Deadline cache refresh ───────────────────────────────────────
+  // Extracted so it can be called on mount, visibility change, and today rollover
+  function parseDeadlinesFromRaw(raw) {
+    const marker = "export const DEADLINES = ";
+    const start = raw.indexOf(marker);
+    if (start === -1) return null;
+    const arrStart = raw.indexOf("[", start);
+    if (arrStart === -1) return null;
+    let depth = 0, i = arrStart;
+    while (i < raw.length) {
+      if (raw[i] === "[") depth++;
+      else if (raw[i] === "]") { depth--; if (depth === 0) break; }
+      i++;
+    }
+    try { return JSON.parse(raw.slice(arrStart, i + 1)); } catch { return null; }
+  }
 
-    // Refresh _deadlineCache from disk so we're never working with stale import data
+  const refreshDeadlineCache = useCallback(() => {
     if (IS_TAURI) {
       invoke("load_memory").then(raw => {
         try {
-          const match = raw.match(/export const DEADLINES = (\[[\s\S]*?]);/);
-          if (match) { _deadlineCache = JSON.parse(match[1]); setMoonTasks(getTodayMoons()); }
+          const parsed = parseDeadlinesFromRaw(raw);
+          if (parsed) { _deadlineCache = parsed; setMoonTasks(getTodayMoons()); }
         } catch (e) { console.warn("[AgendaTab] cache refresh failed:", e); }
       }).catch(() => {});
     } else {
       fetch("/api/load-memory").then(r => r.json()).then(data => {
         try {
-          const match = (data.content || "").match(/export const DEADLINES = (\[[\s\S]*?]);/);
-          if (match) { _deadlineCache = JSON.parse(match[1]); setMoonTasks(getTodayMoons()); }
+          const parsed = parseDeadlinesFromRaw(data.content || "");
+          if (parsed) { _deadlineCache = parsed; setMoonTasks(getTodayMoons()); }
         } catch (e) { console.warn("[AgendaTab] cache refresh failed:", e); }
       }).catch(() => {});
     }
   }, []);
+
+  // Load from file (Tauri) or localStorage (web) on mount
+  useEffect(() => {
+    loadAgendaPersisted().then(async ({ entries: e, inspos: i }) => {
+      // Migrate any legacy base64 images out of agenda.json into separate files
+      let dirty = false;
+      for (const [date, entry] of Object.entries(e)) {
+        if (entry?.image && entry.image.startsWith("data:")) {
+          const filename = await saveIconFile(date, entry.image);
+          if (filename) { e[date] = { ...entry, image: filename }; dirty = true; }
+        }
+      }
+      setEntries(e);
+      setInspos(i);
+      setLoaded(true);
+      // If we migrated anything, trigger an immediate save to persist the cleaned JSON
+      if (dirty) saveAgendaPersisted(e, i);
+    });
+    refreshDeadlineCache();
+  }, []);
+
+  // Re-sync deadline cache when window regains focus — catches date moves made on DeadlinesPage
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === "visible") refreshDeadlineCache(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [refreshDeadlineCache]);
+
+  // Re-derive moon tasks + re-sync deadline cache whenever today changes (midnight rollover)
+  useEffect(() => {
+    refreshDeadlineCache();
+  }, [today, refreshDeadlineCache]);
 
   // Save on any change — debounced by 500ms to avoid hammering disk
   const saveTimer = useRef(null);
@@ -963,7 +1080,7 @@ function AgendaTab() {
   }, [entries, inspos, loaded]);
 
   const activeDate  = viewingDate ?? today;
-  const isReadOnly  = viewingDate !== null;
+  const isReadOnly  = viewingDate !== null && viewingDate !== today;
   const activeEntry = entries[activeDate] ?? EMPTY_ENTRY();
   const todayEntry  = entries[today]      ?? EMPTY_ENTRY();
 
@@ -971,8 +1088,18 @@ function AgendaTab() {
     setEntries(prev => ({ ...prev, [date]: { ...(prev[date] ?? EMPTY_ENTRY()), ...patch } }));
   }
   function patchToday(patch)  { patchDay(today, patch); }
-  function patchShot(patch)   { patchToday({ shot:  { ...todayEntry.shot,  ...patch } }); }
-  function patchInspo(patch)  { patchToday({ inspo: { ...todayEntry.inspo, ...patch } }); }
+  function patchShot(patch) {
+    setEntries(prev => {
+      const cur = prev[today] ?? EMPTY_ENTRY();
+      return { ...prev, [today]: { ...cur, shot: { ...cur.shot, ...patch } } };
+    });
+  }
+  function patchInspo(patch) {
+    setEntries(prev => {
+      const cur = prev[today] ?? EMPTY_ENTRY();
+      return { ...prev, [today]: { ...cur, inspo: { ...cur.inspo, ...patch } } };
+    });
+  }
 
   function saveDayToHistory() {
     patchToday({ savedAt: Date.now() });
@@ -983,17 +1110,23 @@ function AgendaTab() {
   function saveInspoToHistory() {
     const ins = todayEntry.inspo;
     if (!ins.character.trim()) return;
-    const exists = inspos.some(i => i.character.toLowerCase() === ins.character.toLowerCase());
+    // Dedupe by character + arc — same character with a different arc is a new entry
+    const exists = inspos.some(i =>
+      i.character.toLowerCase() === ins.character.toLowerCase() &&
+      (i.arc ?? "").toLowerCase() === (ins.arc ?? "").toLowerCase()
+    );
     if (!exists) setInspos(prev => [{
-      ...ins,
+      character: ins.character,
+      arc:       ins.arc ?? "",
+      image:     todayEntry.image ?? null,
       savedAt:   today,
       entryDate: today,
-      image:     todayEntry.image ?? null,
+      // trait intentionally excluded — user fills that in fresh each day
     }, ...prev]);
   }
 
   function toggleTask(id, title, currentlyDone) {
-    setConfirmTask({ id, title, nextDone: !currentlyDone });
+    setConfirmTask({ id, title, nextDone: !currentlyDone, reflection: "" });
   }
 
   function applyTaskConfirm() {
@@ -1004,7 +1137,7 @@ function AgendaTab() {
     const timeStamp = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
     patchToday({ tasks: {
       ...cur,
-      [id]: nextDone ? { done: true, completedAt: timeStamp } : { done: false },
+      [id]: nextDone ? { done: true, completedAt: timeStamp, reflection: confirmTask.reflection?.trim() || null } : { done: false },
     }});
 
     _deadlineCache = _deadlineCache.map(d => {
@@ -1042,7 +1175,8 @@ function AgendaTab() {
     if (!src) return;
     patchToday({
       shot:    { ...(src.shot  ?? { subject: "", course: "", priority: "", time: "", notes: "" }) },
-      inspo:   { ...(src.inspo ?? { character: "", trait: "", arc: "" }) },
+      // trait intentionally excluded — user fills that in fresh each day
+      inspo:   { character: src.inspo?.character ?? "", arc: src.inspo?.arc ?? "", trait: "" },
       blanket: src.blanket ?? "",
       poison:  src.poison  ?? "",
     });
@@ -1087,6 +1221,27 @@ function AgendaTab() {
               {confirmTask.nextDone ? "Mark as completed?" : "Unmark as done?"}
             </div>
             <div style={{ fontSize: 13, color: "#c8d0e8" }}>{confirmTask.title}</div>
+            {confirmTask.nextDone && (
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#4a5568", fontFamily: MONO, marginBottom: 6 }}>Reflection <span style={{ color: "#3a4052", fontWeight: 400 }}>(optional)</span></div>
+                <textarea
+                  autoFocus
+                  rows={3}
+                  value={confirmTask.reflection}
+                  onChange={e => setConfirmTask(prev => ({ ...prev, reflection: e.target.value }))}
+                  placeholder="How did it go? What did you learn?"
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    background: "#0d0f14", border: "1px solid #2a2e38",
+                    borderRadius: 8, color: "#d4d8e0",
+                    fontFamily: FONT, fontSize: 13, padding: "10px 13px",
+                    outline: "none", resize: "none", lineHeight: 1.6,
+                  }}
+                  onFocus={e => { e.target.style.borderColor = "#a78bfa55"; }}
+                  onBlur={e => { e.target.style.borderColor = "#2a2e38"; }}
+                />
+              </div>
+            )}
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setConfirmTask(null)} style={{
                 flex: 1, padding: "9px 0", borderRadius: 9,
@@ -1138,7 +1293,8 @@ function AgendaTab() {
           {(!isReadOnly || disp.image) && (
             <ImagePanel
               image={isReadOnly ? disp.image : todayEntry.image}
-              onSet={data => patchToday({ image: data })}
+              date={activeDate}
+              onSet={filename => patchToday({ image: filename })}
               onClear={() => patchToday({ image: null })}
               readOnly={isReadOnly}
             />
@@ -1216,6 +1372,7 @@ function AgendaTab() {
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
                               <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>{d.time || "23:59"}</div>
                               {timeVal && <div style={{ fontSize: 10, color: "#a78bfa66", fontFamily: MONO, letterSpacing: "0.5px" }}>done {timeVal}</div>}
+                              {(() => { const ref = taskReflection((todayEntry.tasks ?? {})[d.id]); return ref ? <div style={{ fontSize: 10, color: "#a78bfa88", fontFamily: MONO, fontStyle: "italic", maxWidth: 120, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={ref}>"{ref}"</div> : null; })()}
                             </div>
                           </div>
                           );
@@ -1262,6 +1419,7 @@ function AgendaTab() {
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, flexShrink: 0 }}>
                           <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>{d.time || "23:59"}</div>
                           {timeVal && <div style={{ fontSize: 10, color: "#a78bfa66", fontFamily: MONO }}>done {timeVal}</div>}
+                          {(() => { const ref = taskReflection(entryTasks[d.id]); return ref ? <div style={{ fontSize: 10, color: "#a78bfa88", fontFamily: MONO, fontStyle: "italic", maxWidth: 120, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={ref}>"{ref}"</div> : null; })()}
                         </div>
                       </div>
                     );
@@ -1303,7 +1461,7 @@ function AgendaTab() {
                 </button>
                 <InspoHistory
                   inspos={inspos}
-                  onPick={ins => patchInspo({ character: ins.character, trait: ins.trait, arc: ins.arc })}
+                  onPick={ins => { patchInspo({ character: ins.character, arc: ins.arc, trait: "" }); if (ins.image) patchToday({ image: ins.image }); }}
                   onDelete={i => setInspos(prev => prev.filter((_, idx) => idx !== i))}
                   onGoToEntry={date => setViewingDate(date)}
                 />
@@ -1358,7 +1516,7 @@ function AgendaTab() {
       <HistorySidebar
         entries={entries}
         viewingDate={viewingDate}
-        onSelect={date => setViewingDate(prev => prev === date ? null : date)}
+        onSelect={date => setViewingDate(prev => (prev === date || date === today) ? null : date)}
         onDelete={handleDeleteEntry}
         today={today}
       />
@@ -1430,7 +1588,7 @@ function EntriesSidebar({ refreshTrigger, onSelect, activeFile, onDeleted }) {
 
   function openDelete(f)  { setConfirmDel(f); setDelStep("pw"); setPwInput(""); setPwError(false); }
   function cancelDelete() { setConfirmDel(null); setPwInput(""); setPwError(false); }
-  function submitPw()     { if (pwInput === "Jesiah") { setPwError(false); setDelStep("confirm"); } else { setPwError(true); setPwInput(""); } }
+  function submitPw()     { if (pwInput === DELETE_CONFIRM_PW) { setPwError(false); setDelStep("confirm"); } else { setPwError(true); setPwInput(""); } }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -1664,6 +1822,27 @@ function getWeekLabel(key) {
   return `Week ${n} of ${mon} ${yr}`;
 }
 
+function getWeekDateRange(key) {
+  // Returns "Mon Apr 7 – Sun Apr 13" for the week represented by key
+  const parts = key.split("-");
+  if (parts.length < 4) return "";
+  const weekNum = parseInt(parts[1], 10);
+  const monName = parts[2];
+  const year    = parseInt(parts[3], 10);
+  const MONTHS  = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+  const month   = MONTHS.indexOf(monName);
+  if (month === -1) return "";
+  // Find the Monday that starts this week (same logic as getWeekKey)
+  const firstOfMonth = new Date(year, month, 1);
+  const dow = (firstOfMonth.getDay() + 6) % 7; // Mon=0
+  // Monday of week N (1-based)
+  const mondayDate = new Date(year, month, 1 - dow + (weekNum - 1) * 7);
+  const sundayDate = new Date(mondayDate);
+  sundayDate.setDate(mondayDate.getDate() + 6);
+  const fmt = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `${fmt(mondayDate)} – ${fmt(sundayDate)}`;
+}
+
 async function loadWeeksPersisted() {
   if (IS_TAURI) {
     try {
@@ -1711,7 +1890,7 @@ function uid() {
 // WeekTab
 // ─────────────────────────────────────────────────────────────────
 
-function WeekHistorySidebar({ weeks, activeKey, onSelect }) {
+function WeekHistorySidebar({ weeks, activeKey, onSelect, thisWeekKey }) {
   const keys = Object.keys(weeks).sort((a, b) => {
     // sort by year then month then week num, all embedded in key
     // Simplest: parse year+month+num out
@@ -1746,7 +1925,7 @@ function WeekHistorySidebar({ weeks, activeKey, onSelect }) {
         {keys.map(key => {
           const w        = weeks[key];
           const isActive = key === activeKey;
-          const isThis   = key === getWeekKey();
+          const isThis   = key === thisWeekKey;
           const label    = getWeekLabel(key);
           const modified = w.modifiedAt && w.savedAt && w.modifiedAt > w.savedAt;
           const hasContent = w.prompted?.built || w.prompted?.learned || w.prompted?.blockers || (w.bullets?.length > 0);
@@ -1938,7 +2117,15 @@ function WeekTab() {
   const [activeKey,  setActiveKey]  = useState(null); // null = current week
   const [savedFlash, setSavedFlash] = useState(false);
 
-  const thisWeekKey = getWeekKey();
+  const [thisWeekKey, setThisWeekKey] = useState(() => getWeekKey());
+  // Tick every minute — catches week boundary rollover (Sun → Mon)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const newKey = getWeekKey();
+      setThisWeekKey(prev => prev !== newKey ? newKey : prev);
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     loadWeeksPersisted().then(w => {
@@ -2060,8 +2247,9 @@ function WeekTab() {
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 12, color: "#3a4052", fontFamily: MONO }}>
-              Come back periodically to drop bullets of what you shipped, learned, and hit this week.
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 12, color: `${WEEK_C}66`, fontFamily: MONO, fontWeight: 700 }}>{getWeekDateRange(viewingKey)}</span>
+              <span style={{ fontSize: 12, color: "#2a3040", fontFamily: MONO }}>· come back to log what you shipped, learned, hit</span>
             </div>
           </div>
 
@@ -2202,6 +2390,7 @@ function WeekTab() {
       <WeekHistorySidebar
         weeks={weeks}
         activeKey={activeKey}
+        thisWeekKey={thisWeekKey}
         onSelect={key => setActiveKey(prev => prev === key ? null : key)}
       />
     </div>
@@ -2220,9 +2409,17 @@ const PAGE_TABS = [
 
 export default function AgendaPage() {
   const [tab, setTab] = useState("agenda");
+  const [today, setToday] = useState(() => todayStr());
+  // Tick every minute — keeps header date + task badge fresh across midnight
+  useEffect(() => {
+    const id = setInterval(() => {
+      const newDay = todayStr();
+      setToday(prev => prev !== newDay ? newDay : prev);
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
-  const moonTasks = getTodayMoons();
-  const today     = todayStr();
+  const moonTasks      = getTodayMoons();
   // Read task completion count from localStorage cache (fast, non-blocking)
   const stored         = loadLS(LS_AGENDA, {});
   const tasks          = stored[today]?.tasks ?? {};
@@ -2235,7 +2432,7 @@ export default function AgendaPage() {
       <div style={{ padding: "14px 32px 0", borderBottom: "1px solid #1a1d26", background: "#0c0e14", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: "#6070a0", fontFamily: MONO, marginBottom: 5 }}>{todayLabel()}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "2px", textTransform: "uppercase", color: "#6070a0", fontFamily: MONO, marginBottom: 5 }}>{new Date(today + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</div>
             <h1 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: "#e2e8f0", letterSpacing: "-1px" }}>AGENDA</h1>
           </div>
           {moonTasks.length > 0 && (

@@ -1,5 +1,6 @@
 // src/components/FileInventoryModal.jsx
 import { useState, useEffect, useRef, useCallback } from "react";
+import { DELETE_CONFIRM_PW } from "../config/localAuth";
 
 const MONO = "'Courier New', monospace";
 const FONT = "'Inter', 'Segoe UI', sans-serif";
@@ -973,7 +974,7 @@ export default function FileInventoryModal({ open, onClose }) {
                   onChange={e => { setPasswordDraft(e.target.value); setPasswordErr(false); }}
                   onKeyDown={e => {
                     if (e.key === "Enter") {
-                      if (passwordDraft === "Jesiah") { setConfirmingSave(false); setPasswordDraft(""); saveAll(); }
+                      if (passwordDraft === DELETE_CONFIRM_PW) { setConfirmingSave(false); setPasswordDraft(""); saveAll(); }
                       else setPasswordErr(true);
                     }
                     if (e.key === "Escape") { setConfirmingSave(false); setPasswordDraft(""); setPasswordErr(false); }
@@ -991,7 +992,7 @@ export default function FileInventoryModal({ open, onClose }) {
                 )}
                 <button
                   onClick={() => {
-                    if (passwordDraft === "Jesiah") { setConfirmingSave(false); setPasswordDraft(""); saveAll(); }
+                    if (passwordDraft === DELETE_CONFIRM_PW) { setConfirmingSave(false); setPasswordDraft(""); saveAll(); }
                     else setPasswordErr(true);
                   }}
                   style={{

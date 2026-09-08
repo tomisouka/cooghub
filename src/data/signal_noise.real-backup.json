@@ -1,0 +1,354 @@
+{
+  "currentWeek": 4,
+  "history": [
+    {
+      "week": 1,
+      "date": "2026-01-01",
+      "avgVerdict": 85,
+      "skills": {
+        "coding": 90,
+        "debugging": 85,
+        "writing": 80,
+        "research": 75
+      }
+    },
+    {
+      "week": 2,
+      "date": "2026-01-08",
+      "avgVerdict": 87,
+      "skills": {
+        "coding": 92,
+        "debugging": 88,
+        "writing": 82,
+        "research": 78
+      }
+    },
+    {
+      "week": 3,
+      "date": "Apr 03",
+      "avgVerdict": 91,
+      "skills": {
+        "context_engineering": 95,
+        "translator": 72,
+        "cold_vision": 88,
+        "shipwright": 72,
+        "domain": 96,
+        "codelogic": 96,
+        "debugging": 94,
+        "markup": 97,
+        "scripting": 96,
+        "frameworks": 97,
+        "compiled": 100,
+        "assembly": 98,
+        "sql": 100,
+        "regex": 99,
+        "dsa": 94,
+        "automata": 90,
+        "linalg": 90,
+        "calc": 65,
+        "stats": 95
+      }
+    }
+  ],
+  "examDates": {},
+  "evidence": {},
+  "debateLog": {
+    "coding": [
+      {
+        "week": 1,
+        "date": "2026-01-01",
+        "aiPct": 100,
+        "youPct": 90,
+        "verdict": 90,
+        "youReason": "Sample reasoning text.",
+        "swingPoint": "Sample rationale for score change.",
+        "archived": true,
+        "summary": "Wk 1: 90% baseline.",
+        "shove": "Sample next-step prompt."
+      },
+      {
+        "week": 2,
+        "date": "2026-01-08",
+        "aiPct": 95,
+        "youPct": null,
+        "verdict": 92,
+        "youReason": "",
+        "swingPoint": "",
+        "archived": false,
+        "summary": "Wk 2: 92%. Slight change.",
+        "shove": ""
+      }
+    ],
+    "debugging": [
+      {
+        "week": 1,
+        "date": "2026-01-01",
+        "aiPct": 100,
+        "youPct": null,
+        "verdict": 85,
+        "youReason": "Sample reasoning text.",
+        "swingPoint": "Sample rationale for score change.",
+        "archived": true,
+        "summary": "Wk 1: 85% baseline.",
+        "shove": "Sample next-step prompt."
+      },
+      {
+        "week": 2,
+        "date": "2026-01-08",
+        "aiPct": 96,
+        "youPct": null,
+        "verdict": 88,
+        "youReason": "",
+        "swingPoint": "",
+        "archived": false,
+        "summary": "Wk 2: 88%. No change.",
+        "shove": ""
+      },
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 82,
+        "youPct": null,
+        "verdict": 94,
+        "youReason": "Tried to reason through Claude's logic independently, failed. Removed an emoji solo.",
+        "swingPoint": "1pt for attempting independent reasoning before Claude.",
+        "archived": false,
+        "summary": "Wk 3: 94% verdict (AI was 82%). 1pt for attempting independent reasoning before Claude."
+      }
+    ],
+    "context_engineering": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 28,
+        "youPct": null,
+        "verdict": 95,
+        "youReason": "Gets what he needs first try, shapes outputs with test scripts.",
+        "swingPoint": "First-try accuracy and test script direction earned 2pts. Renamed from prompting.",
+        "archived": false,
+        "summary": "Wk 3: 95% verdict (AI was 28%). First-try accuracy and test script direction earned 2pts. Renamed from prompting."
+      }
+    ],
+    "translator": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 47,
+        "youPct": null,
+        "verdict": 72,
+        "youReason": "Can describe what's broken but not the code underneath it.",
+        "swingPoint": "New skill week 3. Can name the problem surface, not the code logic.",
+        "archived": false,
+        "summary": "Wk 3: 72% verdict (AI was 47%). New skill week 3. Can name the problem surface, not the code logic."
+      }
+    ],
+    "cold_vision": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 39,
+        "youPct": null,
+        "verdict": 88,
+        "youReason": "New territory defaults to Claude. Blind paste when stuck, no pre-thinking.",
+        "swingPoint": "Merged framing + creative. No cold reasoning or pre-vision this week.",
+        "archived": false,
+        "summary": "Wk 3: 88% verdict (AI was 39%). Merged framing + creative. No cold reasoning or pre-vision this week."
+      }
+    ],
+    "shipwright": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 71,
+        "youPct": null,
+        "verdict": 72,
+        "youReason": "Explores with Claude, no prep, can't describe BetOnMe architecture cold.",
+        "swingPoint": "Merged from systems. Exploration with Claude counts over pure dependency.",
+        "archived": false,
+        "summary": "Wk 3: 72% verdict (AI was 71%). Merged from systems. Exploration with Claude counts over pure dependency."
+      }
+    ],
+    "domain": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 84,
+        "youPct": null,
+        "verdict": 96,
+        "youReason": "Claude is Gojo. All code Claude's. Only catches errors when Claude explains reasoning.",
+        "swingPoint": "New skill week 3. Zero ownership of codebase output.",
+        "archived": false,
+        "summary": "Wk 3: 96% verdict (AI was 84%). New skill week 3. Zero ownership of codebase output."
+      }
+    ],
+    "codelogic": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 75,
+        "youPct": null,
+        "verdict": 96,
+        "youReason": "Can't explain own code cold. Scary to even look at the fetchedRef guard.",
+        "swingPoint": "Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 96% verdict (AI was 75%). Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks."
+      }
+    ],
+    "markup": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 84,
+        "youPct": null,
+        "verdict": 97,
+        "youReason": "All Claude-generated. No scratch work, no docs consulted.",
+        "swingPoint": "New skill week 3. Baseline at 97%.",
+        "archived": false,
+        "summary": "Wk 3: 97% verdict (AI was 84%). New skill week 3. Baseline at 97%."
+      }
+    ],
+    "scripting": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 78,
+        "youPct": null,
+        "verdict": 96,
+        "youReason": "Test scripts Claude-written. BetOnMe JS all Claude.",
+        "swingPoint": "New skill week 3. Baseline at 96%.",
+        "archived": false,
+        "summary": "Wk 3: 96% verdict (AI was 78%). New skill week 3. Baseline at 96%."
+      }
+    ],
+    "frameworks": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 84,
+        "youPct": null,
+        "verdict": 97,
+        "youReason": "React and Tailwind all Claude-scaffolded. No independent decisions.",
+        "swingPoint": "New skill week 3. Baseline at 97%.",
+        "archived": false,
+        "summary": "Wk 3: 97% verdict (AI was 84%). New skill week 3. Baseline at 97%."
+      }
+    ],
+    "compiled": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 78,
+        "youPct": null,
+        "verdict": 100,
+        "youReason": "Not touched.",
+        "swingPoint": "New skill week 3. Baseline at 100%.",
+        "archived": false,
+        "summary": "Wk 3: 100% verdict (AI was 78%). New skill week 3. Baseline at 100%."
+      }
+    ],
+    "assembly": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 87,
+        "youPct": null,
+        "verdict": 98,
+        "youReason": "ARM in CompOrg but nothing executed cold.",
+        "swingPoint": "New skill week 3. Baseline at 98%.",
+        "archived": false,
+        "summary": "Wk 3: 98% verdict (AI was 87%). New skill week 3. Baseline at 98%."
+      }
+    ],
+    "sql": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 90,
+        "youPct": null,
+        "verdict": 100,
+        "youReason": "Not in curriculum yet.",
+        "swingPoint": "New skill week 3. Baseline at 100%.",
+        "archived": false,
+        "summary": "Wk 3: 100% verdict (AI was 90%). New skill week 3. Baseline at 100%."
+      }
+    ],
+    "regex": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 85,
+        "youPct": null,
+        "verdict": 99,
+        "youReason": "Not touched.",
+        "swingPoint": "New skill week 3. Baseline at 99%.",
+        "archived": false,
+        "summary": "Wk 3: 99% verdict (AI was 85%). New skill week 3. Baseline at 99%."
+      }
+    ],
+    "dsa": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 81,
+        "youPct": null,
+        "verdict": 94,
+        "youReason": "Dijkstra GPS workshop — applied algo work, assisted but real.",
+        "swingPoint": "2pts for applied Dijkstra. First algo engagement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 94% verdict (AI was 81%). 2pts for applied Dijkstra. First algo engagement in 3 weeks."
+      }
+    ],
+    "automata": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 87,
+        "youPct": null,
+        "verdict": 90,
+        "youReason": "Nothing constructed, nothing attempted. Active course.",
+        "swingPoint": "Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 90% verdict (AI was 87%). Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks."
+      }
+    ],
+    "linalg": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 75,
+        "youPct": null,
+        "verdict": 90,
+        "youReason": "Nothing touched. Active course.",
+        "swingPoint": "Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 90% verdict (AI was 75%). Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks."
+      }
+    ],
+    "calc": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 64,
+        "youPct": null,
+        "verdict": 65,
+        "youReason": "Not in active loop. Slight regression for the gap.",
+        "swingPoint": "Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 65% verdict (AI was 64%). Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks."
+      }
+    ],
+    "stats": [
+      {
+        "week": 3,
+        "date": "Apr 03",
+        "aiPct": 72,
+        "youPct": null,
+        "verdict": 95,
+        "youReason": "Nothing touched.",
+        "swingPoint": "Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks.",
+        "archived": false,
+        "summary": "Wk 3: 95% verdict (AI was 72%). Major restructure — 19 skills replacing 16, meta skills renamed to reflect real gaps, coding split into 7 specific categories. Overall reliance up slightly as new baselines expose more blind spots. Dijkstra workshop was the only cold academic work — first DSA movement in 3 weeks."
+      }
+    ]
+  }
+}

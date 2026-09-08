@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { COURSES, SKILL_TREE, ALL_SKILLS, TOTAL_SKILLS, MAX_LEVEL, MAX_XP, DIFF_LABELS, LEVEL_META, SKILLS_BY_COURSE, DEFAULT_TIERS } from "../data/skills";
 import { SKILL_LEVELS as INITIAL_SKILL_LEVELS, COURSE_TIERS as INITIAL_COURSE_TIERS } from "../data/memory-progress";
+import { DELETE_CONFIRM_PW } from "../config/localAuth";
 
 const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
@@ -380,7 +381,7 @@ function CourseSkillGroup({ course, skills, skillLevels, onLevelChange, onDelete
   function startDel(skillId, entryIndex) { setDelTarget({ skillId, entryIndex }); setDelStep("pw"); setPwInput(""); setPwError(false); }
   function cancelDel() { setDelTarget(null); setPwInput(""); setPwError(false); }
   function submitPw() {
-    if (pwInput === "Jesiah") { setPwError(false); setDelStep("confirm"); }
+    if (pwInput === DELETE_CONFIRM_PW) { setPwError(false); setDelStep("confirm"); }
     else { setPwError(true); setPwInput(""); }
   }
   function confirmDel() { onDeleteLog(delTarget.skillId, delTarget.entryIndex); cancelDel(); }

@@ -6,7 +6,7 @@
 
 ## Project Overview
 **Coogs Hub** — a personal React study app for COSC/MATH courses at University of Houston (UH).
-Built by Jesiah Agudelo (kaneki), Spring 2026.
+Built by [author], Spring 2026.
 
 **Project location:** `~/rabbit/root/projects/onit/coogs-hub`
 **Stack:** Vite + React + pnpm

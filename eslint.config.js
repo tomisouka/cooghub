@@ -24,11 +24,18 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // New in eslint-plugin-react-hooks v7, aimed at React Compiler readiness.
+      // Downgraded to warn: real advice going forward, but too strict to
+      // block CI on an existing codebase that predates these rules.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/globals': 'warn',
     },
   },
   {
-    // Node.js files — server, scripts, and vite config
-    files: ['server/**/*.js', 'scripts/**/*.js', 'vite.config.js'],
+    // Node.js files — server, scripts, root-level tooling scripts, and vite config
+    files: ['server/**/*.js', 'scripts/**/*.js', '*.js', 'vite.config.js'],
     languageOptions: {
       globals: globals.node,
     },

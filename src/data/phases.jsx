@@ -59,7 +59,7 @@ export const PHASES = [
     number: 9,
     title: "Desktop App — V1",
     status: "partial",
-    summary: "Tauri app built and installed on both desktop (kaneki) and laptop (kusuo). App reads and writes directly to src/data/memory.js on disk via custom Rust commands. SyncThing keeps both machines in sync. V1 satisfied — data persists across sessions and machines. Remaining: Talk2Me entries need their own persistence file (talk2me.js) and Rust commands, mirroring the memory.js pattern.",
+    summary: "Tauri app built and installed on both a desktop and a laptop. App reads and writes directly to src/data/memory.js on disk via custom Rust commands. SyncThing keeps both machines in sync. V1 satisfied — data persists across sessions and machines. Remaining: Talk2Me entries need their own persistence file (talk2me.js) and Rust commands, mirroring the memory.js pattern.",
   },
   {
     number: "9b",

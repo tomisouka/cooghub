@@ -39,6 +39,8 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+src/config/localAuth.js
+!src/config/localAuth.example.js
 
 # ── OS clutter ────────────────────────────────────────────────────────────────
 .DS_Store
@@ -58,3 +60,19 @@ desktop.ini
 # ── Misc ──────────────────────────────────────────────────────────────────────
 .cache/
 *.local
+# ── Course assignments, exams, quizzes, solutions, and PDFs ──────────────────
+**/assignments/
+**/practice/
+*.pdf
+**/*hw[0-9_]*.md
+**/*hw[0-9_]*.html
+**/*hw1questions*
+**/*linearhwto5*
+**/*solution*.md
+**/*solution*.html
+**/*Solutions*
+**/*exam*.html
+**/*quiz*.html
+**/*.py
+node_modules
+*.zip

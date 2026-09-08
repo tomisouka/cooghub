@@ -1,6 +1,5 @@
 // server/upload.js
 // Run alongside Vite via vite.config.js plugin
-/* eslint-env node */
 // POST /scan         — dry-run zip: validate only, no writes
 // POST /upload       — zip: validate + write + patch subjects.js
 // POST /scan-files   — dry-run loose files: validate only, no writes
@@ -14,6 +13,7 @@ import path       from "path";
 import crypto     from "crypto";
 import { spawn }  from "child_process";
 import { fileURLToPath } from "url";
+import { UPLOAD_TOKEN } from "../src/config/localAuth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT      = path.resolve(__dirname, "..");
@@ -312,6 +312,13 @@ const app    = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200 * 1024 * 1024 } });
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+  if (!UPLOAD_TOKEN || req.headers["x-upload-token"] !== UPLOAD_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+});
 
 app.post("/rescan-file", express.json(), (req, res) => {
   const { originalName, newName } = req.body;
@@ -913,5 +920,4 @@ app.post("/save-progress", express.json({ limit: "2mb" }), async (req, res) => {
   }
 });
 
-export { app }
-;
+export { app, validate, detectCourse };

@@ -791,8 +791,8 @@
                   "label": "algos c hw1 solutions"
                 },
                 {
-                  "file": "algos_jesiah_hw1.pdf",
-                  "label": "algos jesiah hw1"
+                  "file": "algos_hw1.pdf",
+                  "label": "algos hw1"
                 }
               ]
             }
@@ -927,7 +927,7 @@
               "label": "Homeworks",
               "children": [
                 {
-                  "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+                  "file": "./content/assignments/automata/hw3_solutions.html",
                   "label": "automata cosc3340 hw3 solutions (1)",
                   "type": "content"
                 },
@@ -1728,7 +1728,7 @@
     },
     {
       "label": "Discrete Math (alt)",
-      "file": "discrete-math-guide (1).html",
+      "file": "discrete-math-guide_1.html",
       "color": "#f472b6"
     },
     {
@@ -1753,7 +1753,7 @@
     },
     {
       "label": "Linear Algebra (alt)",
-      "file": "linear-algebra-guide (1).html",
+      "file": "linear-algebra-guide_1.html",
       "color": "#a78bfa"
     },
     {
@@ -2545,8 +2545,8 @@
               "label": "algos c hw1 solutions"
             },
             {
-              "file": "algos_jesiah_hw1.pdf",
-              "label": "algos jesiah hw1"
+              "file": "algos_hw1.pdf",
+              "label": "algos hw1"
             }
           ]
         }
@@ -2704,7 +2704,7 @@
           "label": "Homeworks",
           "children": [
             {
-              "file": "./content/assignments/automata_cosc3340_hw3_solutions (1).html",
+              "file": "./content/assignments/automata/hw3_solutions.html",
               "label": "automata cosc3340 hw3 solutions (1)",
               "type": "content"
             },

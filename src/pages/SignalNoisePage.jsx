@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { SIGNAL_NOISE_DATA as SIGNAL_NOISE_SEED } from "../data/signal_noise.js";
+import { DELETE_CONFIRM_PW } from "../config/localAuth";
 
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@300;400;500&display=swap";
 
@@ -26,7 +27,7 @@ const META_SKILLS = [
     desc:"Can you reason through a problem AND know what you want the output to look and feel like — before Claude touches it?",
     aiPct:39, priority:3,
     aiReason:"New territory defaults to asking Claude. When you're in familiar ground you have instincts, but the moment something is unfamiliar the reflex is to open Claude before thinking.",
-    bridge:"Before the next BetOnMe feature, write 3 words: what you want it to look like, feel like, and do. That's your vision. Then open Claude." },
+    bridge:"Before the next your app feature, write 3 words: what you want it to look like, feel like, and do. That's your vision. Then open Claude." },
   { id:"shipwright",   cat:"Meta Skills", name:"Shipwright — Designing Before Building",
     desc:"Can you map the structure of what you're building — files, components, data flow — before Claude scaffolds it for you?",
     aiPct:71, priority:2,
@@ -59,7 +60,7 @@ const PRACTICAL_SKILLS = [
   { id:"scripting", cat:"CS Practical",  name:"Scripting — JS, Python, Shell",
     desc:"Can you write logic, automation, or standalone scripts in JS, Python, or shell — without Claude generating it first?",
     aiPct:78, priority:1,
-    aiReason:"Test scripts, BetOnMe JS, automation — all Claude-written. You direct what should happen but the actual code is generated, not written.",
+    aiReason:"Test scripts, your app JS, automation — all Claude-written. You direct what should happen but the actual code is generated, not written.",
     bridge:"Write one small JS function from scratch — even 5 lines. No Claude until it exists. Read every line of what you use." },
   { id:"frameworks", cat:"CS Practical", name:"Frameworks — React & Component Architecture",
     desc:"Can you make React decisions — hook choice, component structure, state design — without Claude proposing them first?",
@@ -129,12 +130,12 @@ const SKILL_STEPS = {
   translator: [
     "Something breaks → fill in: 'Problem is ___. I see ___ instead of ___.' Before Claude.",
     "Write one sentence describing what the Props tab does. Plain English. No code.",
-    "Add a one-line comment to any function in BetOnMe you didn't write.",
+    "Add a one-line comment to any function in your app you didn't write.",
   ],
   cold_vision: [
     "Next feature → write 3 words first: look, feel, purpose. Then open Claude.",
     "Before pasting a bug, write what you think the fix is. Even if wrong.",
-    "Pick any BetOnMe tab. Write one change you'd make. No AI.",
+    "Pick any your app tab. Write one change you'd make. No AI.",
   ],
   shipwright: [
     "Draw the Props tab data flow. Boxes and arrows. 5 minutes. Paper.",
@@ -144,12 +145,12 @@ const SKILL_STEPS = {
   domain: [
     "Open useSaveData.js. Read 10 lines. Close it. Write what they do in plain English.",
     "Next Claude code block → read top to bottom before running. Mark ?? on any line you don't get.",
-    "Find one function in BetOnMe you didn't write. Say out loud what it does.",
+    "Find one function in your app you didn't write. Say out loud what it does.",
   ],
   codelogic: [
     "Open the fetchedRef guard. Write what you think it does. Then verify with Claude.",
-    "Find a useEffect in BetOnMe. Write what triggers it and what it returns. No AI.",
-    "Pick any 10 lines of BetOnMe code. Explain each line out loud before running anything.",
+    "Find a useEffect in your app. Write what triggers it and what it returns. No AI.",
+    "Pick any 10 lines of your app code. Explain each line out loud before running anything.",
   ],
   debugging: [
     "Next error → write syntax, runtime, or logic before opening Claude. One word.",
@@ -159,17 +160,17 @@ const SKILL_STEPS = {
   markup: [
     "Blank HTML file → write a div, an h1, and a p. No Claude.",
     "Write a dark button with padding in HTML inline styles. No Claude until it exists.",
-    "Look at a BetOnMe card. Write its HTML skeleton from memory. Structure only.",
+    "Look at a your app card. Write its HTML skeleton from memory. Structure only.",
   ],
   scripting: [
     "Write a JS function that filters an array to strings only. No Claude until written.",
     "Write a Python script that prints today's date. No Claude. Look up the import if needed.",
-    "Find the simplest function Claude wrote in BetOnMe. Rewrite it from memory. Compare.",
+    "Find the simplest function Claude wrote in your app. Rewrite it from memory. Compare.",
   ],
   frameworks: [
     "Write useState from memory in a blank file. Don't look it up first.",
     "Write a useEffect that runs on mount only. No Claude until it exists.",
-    "Pick any BetOnMe component. Write what props it takes and what it renders.",
+    "Pick any your app component. Write what props it takes and what it renders.",
   ],
   compiled: [
     "Write a C++ function that adds two ints. No Claude. Just signature + body.",
@@ -227,12 +228,12 @@ const WEEKLY_PATCH = {
     "context_engineering": { "verdict": 95, "youPct": null, "youReason": "Gets what he needs first try, shapes outputs with test scripts.", "swingPoint": "First-try accuracy and test script direction earned 2pts. Renamed from prompting." },
     "translator":          { "verdict": 72, "youPct": null, "youReason": "Can describe what's broken but not the code underneath it.", "swingPoint": "New skill week 3. Can name the problem surface, not the code logic." },
     "cold_vision":         { "verdict": 88, "youPct": null, "youReason": "New territory defaults to Claude. Blind paste when stuck, no pre-thinking.", "swingPoint": "Merged framing + creative. No cold reasoning or pre-vision this week." },
-    "shipwright":          { "verdict": 72, "youPct": null, "youReason": "Explores with Claude, no prep, can't describe BetOnMe architecture cold.", "swingPoint": "Merged from systems. Exploration with Claude counts over pure dependency." },
+    "shipwright":          { "verdict": 72, "youPct": null, "youReason": "Explores with Claude, no prep, can't describe your app architecture cold.", "swingPoint": "Merged from systems. Exploration with Claude counts over pure dependency." },
     "domain":              { "verdict": 96, "youPct": null, "youReason": "Claude is Gojo. All code Claude's. Only catches errors when Claude explains reasoning.", "swingPoint": "New skill week 3. Zero ownership of codebase output." },
     "codelogic":           { "verdict": 96, "youPct": null, "youReason": "Can't explain own code cold. Scary to even look at the fetchedRef guard.", "swingPoint": "" },
     "debugging":           { "verdict": 94, "youPct": null, "youReason": "Tried to reason through Claude's logic independently, failed. Removed an emoji solo.", "swingPoint": "1pt for attempting independent reasoning before Claude." },
     "markup":              { "verdict": 97, "youPct": null, "youReason": "All Claude-generated. No scratch work, no docs consulted.", "swingPoint": "New skill week 3. Baseline at 97%." },
-    "scripting":           { "verdict": 96, "youPct": null, "youReason": "Test scripts Claude-written. BetOnMe JS all Claude.", "swingPoint": "New skill week 3. Baseline at 96%." },
+    "scripting":           { "verdict": 96, "youPct": null, "youReason": "Test scripts Claude-written. your app JS all Claude.", "swingPoint": "New skill week 3. Baseline at 96%." },
     "frameworks":          { "verdict": 97, "youPct": null, "youReason": "React and Tailwind all Claude-scaffolded. No independent decisions.", "swingPoint": "New skill week 3. Baseline at 97%." },
     "compiled":            { "verdict": 100, "youPct": null, "youReason": "Not touched.", "swingPoint": "New skill week 3. Baseline at 100%." },
     "assembly":            { "verdict": 98, "youPct": null, "youReason": "ARM in CompOrg but nothing executed cold.", "swingPoint": "New skill week 3. Baseline at 98%." },
@@ -885,7 +886,7 @@ export default function SignalNoisePage() {
                   type="password"
                   value={resetPw}
                   onChange={e=>{setResetPw(e.target.value);setResetPwErr(false);}}
-                  onKeyDown={e=>{if(e.key==="Enter"){if(resetPw==="Jesiah"){resetData();}else{setResetPwErr(true);setResetPw("");}}}}
+                  onKeyDown={e=>{if(e.key==="Enter"){if(resetPw===DELETE_CONFIRM_PW){resetData();}else{setResetPwErr(true);setResetPw("");}}}}
                   placeholder="password"
                   autoFocus
                   style={{ fontFamily:MONO, fontSize:"0.62rem", padding:"4px 8px", background:"transparent", border:`1px solid ${resetPwErr?"rgba(232,122,122,0.8)":M.border3}`, color:resetPwErr?M.red:M.text, outline:"none", width:"120px", letterSpacing:"0.05em" }}
@@ -893,7 +894,7 @@ export default function SignalNoisePage() {
                 {resetPwErr && <div style={{ fontFamily:MONO, fontSize:"0.65rem", color:M.red, letterSpacing:"0.05em" }}>wrong password</div>}
                 <div style={{ display:"flex", gap:6 }}>
                   <button onClick={()=>{setConfirmReset(false);setResetPw("");setResetPwErr(false);}} style={{ fontFamily:MONO, fontSize:"0.68rem", padding:"3px 9px", border:"1px solid "+M.border3, background:"transparent", color:M.muted, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Cancel</button>
-                  <button onClick={()=>{if(resetPw==="Jesiah"){resetData();}else{setResetPwErr(true);setResetPw("");}}} style={{ fontFamily:MONO, fontSize:"0.68rem", padding:"3px 9px", border:"1px solid rgba(232,122,122,0.5)", background:"rgba(232,122,122,0.15)", color:M.red, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Confirm</button>
+                  <button onClick={()=>{if(resetPw===DELETE_CONFIRM_PW){resetData();}else{setResetPwErr(true);setResetPw("");}}} style={{ fontFamily:MONO, fontSize:"0.68rem", padding:"3px 9px", border:"1px solid rgba(232,122,122,0.5)", background:"rgba(232,122,122,0.15)", color:M.red, cursor:"pointer", letterSpacing:"0.06em", textTransform:"uppercase" }}>Confirm</button>
                 </div>
               </div>
             )}

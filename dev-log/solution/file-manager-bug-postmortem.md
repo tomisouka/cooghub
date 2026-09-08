@@ -121,7 +121,7 @@ export default defineConfig({
 **Implementation (`FileInventoryModal.jsx`):**
 - Added `confirmingSave`, `passwordDraft`, `passwordErr` state
 - "✓ save all" button replaced inline with a password input + confirm button when clicked
-- Enter key and confirm button both check `passwordDraft === "Jesiah"` before calling `saveAll()`
+- Enter key and confirm button both check `passwordDraft === "changeme123"` before calling `saveAll()`
 - Wrong password shows "wrong" in red, stays open
 - Escape or ✕ cancels back to the save button
 - `resetPending` also clears confirm state
