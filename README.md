@@ -4,8 +4,13 @@ A personal study hub for organizing course notes, code, PDFs, and reference mate
 
 ## Demo
 
+**Upload flow** — drag a file or zip in, it's auto-detected by course and routed to the right place.
 ![Upload flow](./docs/demo/upload-flow.gif)
+
+**Quick tour** — browsing notes, code, and PDFs across courses in the app.
 ![Quick tour](./docs/demo/quick-tour.gif)
+
+**Homepage** — course dashboard and navigation.
 ![Homepage](./docs/demo/homepage.png)
 
 ## Stack
